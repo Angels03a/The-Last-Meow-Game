@@ -2,9 +2,22 @@
                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                      xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <sys:String x:Key="LoadingScreen_Titulo">THE LAST MEOW</sys:String>
-    <sys:String x:Key="LoadingScreen_Subtitulo">UN JUEGO TRAMPAS Y GARRAS HA COMENZADO</sys:String>
+    <sys:String x:Key="LoadingScreen_Subtitulo">UN JUEGO DE TRAMPAS Y GARRAS</sys:String>
     <sys:String x:Key="LoadingScreen_Estado">INVOCANDO AL CONSEJO DE GATOS...</sys:String>
-    <sys:String x:Key="MainWindow_Title">The Last Meow</sys:String>
-    <sys:String x:Key="MenuPrincipal_Iniciar">Iniciar juego</sys:String>
-    
+    <sys:String x:Key="Login_Titulo">THE LAST MEOW</sys:String>
+    <sys:String x:Key="Login_Subtitulo">UN JUEGO DE TRAMPAS Y GARRAS</sys:String>
+    <sys:String x:Key="Login_TabIniciarSesion">Iniciar Sesión</sys:String>
+    <sys:String x:Key="Login_TabCrearCuenta">Crear Cuenta</sys:String>
+    <sys:String x:Key="Login_EtiquetaCorreo">Correo Electrónico</sys:String>
+    <sys:String x:Key="Login_EtiquetaContrasena">Contraseña</sys:String>
+    <sys:String x:Key="Login_OlvideContrasena">¿Olvidó su contraseña?</sys:String>
+    <sys:String x:Key="Login_BotonIniciar">Iniciar Sesión</sys:String>
+    <sys:String x:Key="Login_BotonInvitado">Jugar como Invitado</sys:String>
+    <sys:String x:Key="Login_ErrorCorreoObligatorio">Por favor, revise que todos los campos obligatorios estén llenos</sys:String>
+    <sys:String x:Key="Login_ErrorCorreoCaracteres">El correo contiene caracteres no permitidos</sys:String>
+    <sys:String x:Key="Login_ErrorCorreoFormato">El correo debe contener @ y un dominio válido</sys:String>
+    <sys:String x:Key="Login_ErrorCorreoDominio">El dominio del correo no está permitido (use outlook.com, hotmail.com, live.com, gmail.com o uv.mx)</sys:String>
+    <sys:String x:Key="Login_ErrorCamposIncompletos">Por favor, revise que todos los campos obligatorios estén llenos</sys:String>
+    <sys:String x:Key="Login_ErrorCredencialesIncorrectas">Correo o contraseña incorrectos</sys:String>
+    <sys:String x:Key="Login_MensajeExito">Se ha iniciado sesión</sys:String>
 </ResourceDictionary>

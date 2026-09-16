@@ -7,6 +7,8 @@ namespace TLMG.Views
 {
     public partial class LoadingScreen : UserControl
     {
+        public event EventHandler CargaCompletada;
+
         public LoadingScreen()
         {
             InitializeComponent();
@@ -18,13 +20,15 @@ namespace TLMG.Views
             var animacion = new DoubleAnimation
             {
                 From = 0,
-                To = 400,
-                Duration = new Duration(TimeSpan.FromSeconds(3.5)),
+                To = 600,
+                Duration = new Duration(TimeSpan.FromSeconds(4.5)),
                 EasingFunction = new QuadraticEase
                 {
                     EasingMode = EasingMode.EaseInOut
                 }
             };
+
+            animacion.Completed += (s, args) => CargaCompletada?.Invoke(this, EventArgs.Empty);
 
             rectBarraCarga.BeginAnimation(WidthProperty, animacion);
         }

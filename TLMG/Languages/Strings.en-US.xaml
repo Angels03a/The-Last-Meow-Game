@@ -4,6 +4,20 @@
     <sys:String x:Key="LoadingScreen_Titulo">THE LAST MEOW</sys:String>
     <sys:String x:Key="LoadingScreen_Subtitulo">A GAME OF BLUFF AND CLAWS</sys:String>
     <sys:String x:Key="LoadingScreen_Estado">SUMMONING THE COUNCIL OF CATS...</sys:String>
-    <sys:String x:Key="MainWindow_Title">The Last Meow</sys:String>
-    <sys:String x:Key="MenuPrincipal_Iniciar">Start game</sys:String>
+    <sys:String x:Key="Login_Titulo">THE LAST MEOW</sys:String>
+    <sys:String x:Key="Login_Subtitulo">A GAME OF BLUFF AND CLAWS</sys:String>
+    <sys:String x:Key="Login_TabIniciarSesion">Log In</sys:String>
+    <sys:String x:Key="Login_TabCrearCuenta">Create Account</sys:String>
+    <sys:String x:Key="Login_EtiquetaCorreo">Email Address</sys:String>
+    <sys:String x:Key="Login_EtiquetaContrasena">Password</sys:String>
+    <sys:String x:Key="Login_OlvideContrasena">Forgot your password?</sys:String>
+    <sys:String x:Key="Login_BotonIniciar">Log In</sys:String>
+    <sys:String x:Key="Login_BotonInvitado">Play as Guest</sys:String>
+    <sys:String x:Key="Login_ErrorCorreoObligatorio">Please make sure all required fields are filled in</sys:String>
+    <sys:String x:Key="Login_ErrorCorreoCaracteres">The email contains characters that are not allowed</sys:String>
+    <sys:String x:Key="Login_ErrorCorreoFormato">The email must contain @ and a valid domain</sys:String>
+    <sys:String x:Key="Login_ErrorCorreoDominio">This email domain is not allowed (use outlook.com, hotmail.com, live.com, gmail.com, or uv.mx)</sys:String>
+    <sys:String x:Key="Login_ErrorCamposIncompletos">Please make sure all required fields are filled in</sys:String>
+    <sys:String x:Key="Login_ErrorCredencialesIncorrectas">Incorrect email or password</sys:String>
+    <sys:String x:Key="Login_MensajeExito">You have successfully logged in</sys:String>
 </ResourceDictionary>

@@ -1,0 +1,144 @@
+﻿<UserControl x:Class="TLMG.Views.LoginScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="600"
+             d:DesignWidth="900">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="468" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0" Background="#0D0D12">
+            <Ellipse Height="500" Opacity="0.15" Margin="0,50,45,50">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#8B5CF6" Offset="0" />
+                        <GradientStop Color="Transparent" Offset="1" />
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Canvas Width="110" Height="110" HorizontalAlignment="Center" Margin="0,0,0,20">
+                    <Ellipse Canvas.Left="10" Canvas.Top="23" Width="90" Height="78" Fill="#8B5CF6" />
+                    <Polygon Points="14,32 32,32 18,4" Fill="#8B5CF6" />
+                    <Polygon Points="78,32 96,32 92,4" Fill="#8B5CF6" />
+                    <Ellipse Canvas.Left="32" Canvas.Top="50" Width="9" Height="12" Fill="#0D0D12" />
+                    <Ellipse Canvas.Left="69" Canvas.Top="50" Width="9" Height="12" Fill="#0D0D12" />
+                    <Polygon Points="50,68 60,68 55,74" Fill="#0D0D12" />
+                </Canvas>
+                <TextBlock Text="{DynamicResource Login_Titulo}"
+                           FontFamily="Georgia"
+                           FontSize="32"
+                           FontWeight="Black"
+                           Foreground="#E8E6F0"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,4" />
+                <TextBlock Text="{DynamicResource Login_Subtitulo}"
+                           FontSize="13"
+                           Foreground="#8880A8"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+
+        <Border Background="#1A1A24" BorderBrush="#2E2E4A" BorderThickness="1,0,0,0" Grid.ColumnSpan="2" Margin="431,0,0,0">
+            <StackPanel Margin="48,60,48,0">
+                <Grid Margin="0,0,0,32">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="btnTabIniciarSesion"
+                            Grid.Column="0"
+                            Content="{DynamicResource Login_TabIniciarSesion}"
+                            Background="Transparent"
+                            BorderThickness="0,0,0,2"
+                            BorderBrush="#8B5CF6"
+                            Foreground="#E8E6F0"
+                            FontWeight="SemiBold"
+                            Padding="0,10" />
+                    <Button x:Name="btnTabCrearCuenta"
+                            Grid.Column="1"
+                            Content="{DynamicResource Login_TabCrearCuenta}"
+                            Background="Transparent"
+                            BorderThickness="0,0,0,2"
+                            BorderBrush="#2E2E4A"
+                            Foreground="#8880A8"
+                            FontWeight="SemiBold"
+                            Padding="0,10"
+                            Click="BtnTabCrearCuenta_Click" />
+                </Grid>
+
+                <TextBlock Text="{DynamicResource Login_EtiquetaCorreo}"
+                           FontSize="12"
+                           Foreground="#8880A8"
+                           Margin="0,0,0,6" />
+                <TextBox x:Name="txtCorreo"
+                         Height="36"
+                         Padding="8,6"
+                         Background="#0D0D12"
+                         Foreground="#E8E6F0"
+                         BorderBrush="#2E2E4A"
+                         LostFocus="TxtCorreo_LostFocus" />
+                <TextBlock x:Name="lblErrorCorreo"
+                           FontSize="11"
+                           Foreground="#EF4444"
+                           Margin="0,4,0,0"
+                           Visibility="Collapsed" />
+
+                <TextBlock Text="{DynamicResource Login_EtiquetaContrasena}"
+                           FontSize="12"
+                           Foreground="#8880A8"
+                           Margin="0,16,0,6" />
+                <Grid>
+                    <PasswordBox x:Name="pwdContrasena"
+                                 Height="36"
+                                 Padding="8,6"
+                                 Background="#0D0D12"
+                                 Foreground="#E8E6F0"
+                                 BorderBrush="#2E2E4A" />
+                    <TextBox x:Name="txtContrasenaVisible"
+                             Height="36"
+                             Padding="8,6"
+                             Background="#0D0D12"
+                             Foreground="#E8E6F0"
+                             BorderBrush="#2E2E4A"
+                             Visibility="Collapsed" />
+                </Grid>
+
+                <Button x:Name="btnOlvideContrasena"
+                        Content="{DynamicResource Login_OlvideContrasena}"
+                        HorizontalAlignment="Right"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Foreground="#8880A8"
+                        FontSize="12"
+                        Margin="0,8,0,0"
+                        Click="BtnOlvideContrasena_Click" />
+
+                <Button x:Name="btnIniciarSesion"
+                        Content="{DynamicResource Login_BotonIniciar}"
+                        Height="42"
+                        Background="#8B5CF6"
+                        Foreground="White"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Margin="0,20,0,0"
+                        Click="BtnIniciarSesion_Click" />
+
+                <Button x:Name="btnJugarComoInvitado"
+                        Content="{DynamicResource Login_BotonInvitado}"
+                        Height="42"
+                        Background="Transparent"
+                        Foreground="#E8E6F0"
+                        BorderBrush="#2E2E4A"
+                        BorderThickness="1"
+                        Margin="0,10,0,0"
+                        Click="BtnJugarComoInvitado_Click" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
