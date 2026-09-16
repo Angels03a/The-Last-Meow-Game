@@ -1,0 +1,9 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="LoadingScreen_Titulo">THE LAST MEOW</sys:String>
+    <sys:String x:Key="LoadingScreen_Subtitulo">A GAME OF BLUFF AND CLAWS</sys:String>
+    <sys:String x:Key="LoadingScreen_Estado">SUMMONING THE COUNCIL OF CATS...</sys:String>
+    <sys:String x:Key="MainWindow_Title">The Last Meow</sys:String>
+    <sys:String x:Key="MenuPrincipal_Iniciar">Start game</sys:String>
+</ResourceDictionary>
