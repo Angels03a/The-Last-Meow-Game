@@ -1,0 +1,197 @@
+﻿<UserControl x:Class="TLMG.Views.VerificationScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="600"
+             d:DesignWidth="900">
+    <Grid Background="#0D0D12">
+        <Border Width="460"
+                Background="#1A1A24"
+                BorderBrush="#2E2E4A"
+                BorderThickness="1"
+                CornerRadius="16"
+                Padding="48,40"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <StackPanel>
+                <Border Width="64"
+                        Height="64"
+                        CornerRadius="32"
+                        Background="#2E2E4A"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,16">
+                    <TextBlock Text="&#9993;"
+                               FontSize="28"
+                               Foreground="#8B5CF6"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                </Border>
+
+                <TextBlock Text="{DynamicResource Verification_Title}"
+                           FontFamily="Georgia"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Foreground="#E8E6F0"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,10" />
+
+                <TextBlock Text="{DynamicResource Verification_Instructions}"
+                           FontSize="13"
+                           Foreground="#8880A8"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           Margin="0,0,0,20"
+                           TextWrapping="Wrap" />
+
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,12">
+                    <TextBox x:Name="txtDigit1"
+                             Width="48"
+                             Height="56"
+                             Margin="4,0"
+                             FontSize="22"
+                             FontWeight="Bold"
+                             TextAlignment="Center"
+                             MaxLength="1"
+                             Background="#0D0D12"
+                             Foreground="#E8E6F0"
+                             BorderBrush="#2E2E4A" />
+                    <TextBox x:Name="txtDigit2"
+                             Width="48"
+                             Height="56"
+                             Margin="4,0"
+                             FontSize="22"
+                             FontWeight="Bold"
+                             TextAlignment="Center"
+                             MaxLength="1"
+                             Background="#0D0D12"
+                             Foreground="#E8E6F0"
+                             BorderBrush="#2E2E4A" />
+                    <TextBox x:Name="txtDigit3"
+                             Width="48"
+                             Height="56"
+                             Margin="4,0"
+                             FontSize="22"
+                             FontWeight="Bold"
+                             TextAlignment="Center"
+                             MaxLength="1"
+                             Background="#0D0D12"
+                             Foreground="#E8E6F0"
+                             BorderBrush="#2E2E4A" />
+                    <TextBox x:Name="txtDigit4"
+                             Width="48"
+                             Height="56"
+                             Margin="4,0"
+                             FontSize="22"
+                             FontWeight="Bold"
+                             TextAlignment="Center"
+                             MaxLength="1"
+                             Background="#0D0D12"
+                             Foreground="#E8E6F0"
+                             BorderBrush="#2E2E4A" />
+                    <TextBox x:Name="txtDigit5"
+                             Width="48"
+                             Height="56"
+                             Margin="4,0"
+                             FontSize="22"
+                             FontWeight="Bold"
+                             TextAlignment="Center"
+                             MaxLength="1"
+                             Background="#0D0D12"
+                             Foreground="#E8E6F0"
+                             BorderBrush="#2E2E4A" />
+                    <TextBox x:Name="txtDigit6"
+                             Width="48"
+                             Height="56"
+                             Margin="4,0"
+                             FontSize="22"
+                             FontWeight="Bold"
+                             TextAlignment="Center"
+                             MaxLength="1"
+                             Background="#0D0D12"
+                             Foreground="#E8E6F0"
+                             BorderBrush="#2E2E4A" />
+                </StackPanel>
+
+                <TextBlock x:Name="lblError"
+                           FontSize="12"
+                           Foreground="#EF4444"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           Margin="0,0,0,10"
+                           Visibility="Collapsed" />
+
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,10">
+                    <Ellipse x:Name="elpAttempt1"
+                             Width="10"
+                             Height="10"
+                             Fill="#2E2E4A"
+                             Margin="3,0" />
+                    <Ellipse x:Name="elpAttempt2"
+                             Width="10"
+                             Height="10"
+                             Fill="#2E2E4A"
+                             Margin="3,0" />
+                    <Ellipse x:Name="elpAttempt3"
+                             Width="10"
+                             Height="10"
+                             Fill="#2E2E4A"
+                             Margin="3,0" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,8">
+                    <TextBlock Text="{DynamicResource Verification_ExpiresIn}"
+                               FontSize="12"
+                               Foreground="#8880A8"
+                               Margin="0,0,6,0" />
+                    <TextBlock x:Name="lblExpiration"
+                               FontSize="13"
+                               FontWeight="Bold"
+                               Foreground="#8B5CF6" />
+                </StackPanel>
+
+                <Button x:Name="btnResendCode"
+                        Content="{DynamicResource Verification_ResendButton}"
+                        HorizontalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Foreground="#8880A8"
+                        FontSize="12"
+                        Margin="0,0,0,20"
+                        IsEnabled="False"
+                        Click="BtnResendCode_Click" />
+
+                <Button x:Name="btnVerifyCode"
+                        Content="{DynamicResource Verification_VerifyButton}"
+                        Height="42"
+                        Background="#8B5CF6"
+                        Foreground="White"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        IsEnabled="False"
+                        Margin="0,0,0,16"
+                        Click="BtnVerifyCode_Click" />
+
+                <Border BorderBrush="#2E2E4A"
+                        BorderThickness="0,1,0,0"
+                        Padding="0,14,0,0">
+                    <Button x:Name="btnBack"
+                            Content="{DynamicResource Verification_BackButton}"
+                            HorizontalAlignment="Center"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Foreground="#8880A8"
+                            FontSize="12"
+                            Click="BtnBack_Click" />
+                </Border>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

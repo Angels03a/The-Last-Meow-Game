@@ -6,95 +6,95 @@ namespace TLMG.Views
 {
     public partial class LoginScreen : UserControl
     {
-        private static readonly string[] _dominiosPermitidos = { "outlook.com", "hotmail.com", "live.com", "gmail.com", "uv.mx" };
+        private static readonly string[] _allowedDomains = { "outlook.com", "hotmail.com", "live.com", "gmail.com", "uv.mx" };
 
         public LoginScreen()
         {
             InitializeComponent();
         }
 
-        private void TxtCorreo_LostFocus(object sender, RoutedEventArgs e)
+        private void TxtEmail_LostFocus(object sender, RoutedEventArgs e)
         {
-            string mensajeError = ValidarCorreo(txtCorreo.Text);
-            lblErrorCorreo.Text = mensajeError;
-            lblErrorCorreo.Visibility = string.IsNullOrEmpty(mensajeError) ? Visibility.Collapsed : Visibility.Visible;
+            string errorMessage = ValidateEmail(txtEmail.Text);
+            lblEmailError.Text = errorMessage;
+            lblEmailError.Visibility = string.IsNullOrEmpty(errorMessage) ? Visibility.Collapsed : Visibility.Visible;
         }
 
-        private string ValidarCorreo(string correo)
+        private string ValidateEmail(string email)
         {
-            if (string.IsNullOrWhiteSpace(correo))
-                return (string)Application.Current.Resources["Login_ErrorCorreoObligatorio"];
+            if (string.IsNullOrWhiteSpace(email))
+                return (string)Application.Current.Resources["Login_EmailRequiredError"];
 
-            if (Regex.IsMatch(correo, @"[%&]"))
-                return (string)Application.Current.Resources["Login_ErrorCorreoCaracteres"];
+            if (Regex.IsMatch(email, @"[%&]"))
+                return (string)Application.Current.Resources["Login_EmailCharactersError"];
 
-            if (!correo.Contains("@") || !correo.Contains("."))
-                return (string)Application.Current.Resources["Login_ErrorCorreoFormato"];
+            if (!email.Contains("@") || !email.Contains("."))
+                return (string)Application.Current.Resources["Login_EmailFormatError"];
 
-            string dominio = correo.Substring(correo.IndexOf('@') + 1).ToLower();
-            bool dominioValido = false;
+            string domain = email.Substring(email.IndexOf('@') + 1).ToLower();
+            bool isDomainValid = false;
 
-            foreach (string d in _dominiosPermitidos)
+            foreach (string allowedDomain in _allowedDomains)
             {
-                if (dominio == d)
+                if (domain == allowedDomain)
                 {
-                    dominioValido = true;
+                    isDomainValid = true;
                     break;
                 }
             }
 
-            if (!dominioValido)
-                return (string)Application.Current.Resources["Login_ErrorCorreoDominio"];
+            if (!isDomainValid)
+                return (string)Application.Current.Resources["Login_EmailDomainError"];
 
             return null;
         }
 
-        private void BtnMostrarContrasena_Click(object sender, RoutedEventArgs e)
+        private void BtnShowPassword_Click(object sender, RoutedEventArgs e)
         {
-            if (txtContrasenaVisible.Visibility == Visibility.Collapsed)
+            if (txtPasswordVisible.Visibility == Visibility.Collapsed)
             {
-                txtContrasenaVisible.Text = pwdContrasena.Password;
-                txtContrasenaVisible.Visibility = Visibility.Visible;
-                pwdContrasena.Visibility = Visibility.Collapsed;
+                txtPasswordVisible.Text = pwdPassword.Password;
+                txtPasswordVisible.Visibility = Visibility.Visible;
+                pwdPassword.Visibility = Visibility.Collapsed;
             }
             else
             {
-                pwdContrasena.Password = txtContrasenaVisible.Text;
-                pwdContrasena.Visibility = Visibility.Visible;
-                txtContrasenaVisible.Visibility = Visibility.Collapsed;
+                pwdPassword.Password = txtPasswordVisible.Text;
+                pwdPassword.Visibility = Visibility.Visible;
+                txtPasswordVisible.Visibility = Visibility.Collapsed;
             }
         }
 
-        private void BtnIniciarSesion_Click(object sender, RoutedEventArgs e)
+        private void BtnLogIn_Click(object sender, RoutedEventArgs e)
         {
-            string mensajeErrorCorreo = ValidarCorreo(txtCorreo.Text);
-            string contrasena = pwdContrasena.Visibility == Visibility.Visible ? pwdContrasena.Password : txtContrasenaVisible.Text;
+            string emailErrorMessage = ValidateEmail(txtEmail.Text);
+            string password = pwdPassword.Visibility == Visibility.Visible ? pwdPassword.Password : txtPasswordVisible.Text;
 
-            if (mensajeErrorCorreo != null || string.IsNullOrWhiteSpace(contrasena))
+            if (emailErrorMessage != null || string.IsNullOrWhiteSpace(password))
             {
-                MessageBox.Show((string)Application.Current.Resources["Login_ErrorCamposIncompletos"]);
+                MessageBox.Show((string)Application.Current.Resources["Login_IncompleteFieldsError"]);
                 return;
             }
 
-            // TODO: conectar con el servidor (TCP) y validar credenciales reales (CU-03) cuando esa capa exista.
-            MessageBox.Show((string)Application.Current.Resources["Login_MensajeExito"]);
+            // TODO: conectar con el servidor (TCP) y validar las credenciales reales (CU-03) cuando exista esa capa.
+            MessageBox.Show((string)Application.Current.Resources["Login_SuccessMessage"]);
         }
-
-        private void BtnJugarComoInvitado_Click(object sender, RoutedEventArgs e)
+        private void BtnPlayAsGuest_Click(object sender, RoutedEventArgs e)
         {
             // TODO: navegar a GUI-MenúPrincipal (modo invitado) cuando esa pantalla exista.
-            MessageBox.Show("Modo invitado: pantalla de Menú Principal aún no construida.");
+            MessageBox.Show("Modo invitado: la pantalla de Menú Principal aún no está construida.");
         }
 
-        private void BtnOlvideContrasena_Click(object sender, RoutedEventArgs e)
+        private void BtnForgotPassword_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: navegar a ForgotPasswordScreen cuando exista (siguiente en el orden de construcción).
-            MessageBox.Show("Pantalla de recuperación de contraseña aún no construida.");
+           
+            ((MainWindow)Application.Current.MainWindow).ShowScreen(new ForgotPasswordScreen());
         }
 
-        private void BtnTabCrearCuenta_Click(object sender, RoutedEventArgs e)
+        private void BtnTabCreateAccount_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Esta pantalla se construirá en una próxima iteración.");
+            ((MainWindow)Application.Current.MainWindow).ShowScreen(new CreateAccountScreen());
         }
+
     }
 }

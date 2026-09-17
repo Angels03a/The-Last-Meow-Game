@@ -10,6 +10,6 @@
         Width="900"
         Background="#0D0D12"
         WindowStartupLocation="CenterScreen">
-    <Grid x:Name="grdContenedorPrincipal">
+    <Grid x:Name="grdMainContainer">
     </Grid>
 </Window>

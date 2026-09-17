@@ -8,12 +8,12 @@
              d:DesignWidth="900">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition Width="468" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="420" />
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0" Background="#0D0D12">
-            <Ellipse Height="500" Opacity="0.15" Margin="0,50,45,50">
+            <Ellipse Width="500" Height="500" Opacity="0.15">
                 <Ellipse.Fill>
                     <RadialGradientBrush>
                         <GradientStop Color="#8B5CF6" Offset="0" />
@@ -30,114 +30,123 @@
                     <Ellipse Canvas.Left="69" Canvas.Top="50" Width="9" Height="12" Fill="#0D0D12" />
                     <Polygon Points="50,68 60,68 55,74" Fill="#0D0D12" />
                 </Canvas>
-                <TextBlock Text="{DynamicResource Login_Titulo}"
+                <TextBlock Text="{DynamicResource Login_Title}"
                            FontFamily="Georgia"
                            FontSize="32"
                            FontWeight="Black"
                            Foreground="#E8E6F0"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,4" />
-                <TextBlock Text="{DynamicResource Login_Subtitulo}"
+                <TextBlock Text="{DynamicResource Login_Subtitle}"
                            FontSize="13"
                            Foreground="#8880A8"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Grid>
 
-        <Border Background="#1A1A24" BorderBrush="#2E2E4A" BorderThickness="1,0,0,0" Grid.ColumnSpan="2" Margin="431,0,0,0">
+        <Border Grid.Column="1" Background="#1A1A24" BorderBrush="#2E2E4A" BorderThickness="1,0,0,0">
             <StackPanel Margin="48,60,48,0">
                 <Grid Margin="0,0,0,32">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="btnTabIniciarSesion"
+                    <Button x:Name="btnTabLogIn"
                             Grid.Column="0"
-                            Content="{DynamicResource Login_TabIniciarSesion}"
+                            Content="{DynamicResource Login_TabLogIn}"
                             Background="Transparent"
                             BorderThickness="0,0,0,2"
                             BorderBrush="#8B5CF6"
                             Foreground="#E8E6F0"
                             FontWeight="SemiBold"
                             Padding="0,10" />
-                    <Button x:Name="btnTabCrearCuenta"
+                    <Button x:Name="btnTabCreateAccount"
                             Grid.Column="1"
-                            Content="{DynamicResource Login_TabCrearCuenta}"
+                            Content="{DynamicResource Login_TabCreateAccount}"
                             Background="Transparent"
                             BorderThickness="0,0,0,2"
                             BorderBrush="#2E2E4A"
                             Foreground="#8880A8"
                             FontWeight="SemiBold"
                             Padding="0,10"
-                            Click="BtnTabCrearCuenta_Click" />
+                            Click="BtnTabCreateAccount_Click" />
                 </Grid>
 
-                <TextBlock Text="{DynamicResource Login_EtiquetaCorreo}"
+                <TextBlock Text="{DynamicResource Login_EmailLabel}"
                            FontSize="12"
                            Foreground="#8880A8"
                            Margin="0,0,0,6" />
-                <TextBox x:Name="txtCorreo"
+                <TextBox x:Name="txtEmail"
                          Height="36"
                          Padding="8,6"
                          Background="#0D0D12"
                          Foreground="#E8E6F0"
                          BorderBrush="#2E2E4A"
-                         LostFocus="TxtCorreo_LostFocus" />
-                <TextBlock x:Name="lblErrorCorreo"
+                         LostFocus="TxtEmail_LostFocus" />
+                <TextBlock x:Name="lblEmailError"
                            FontSize="11"
                            Foreground="#EF4444"
                            Margin="0,4,0,0"
                            Visibility="Collapsed" />
 
-                <TextBlock Text="{DynamicResource Login_EtiquetaContrasena}"
+                <TextBlock Text="{DynamicResource Login_PasswordLabel}"
                            FontSize="12"
                            Foreground="#8880A8"
                            Margin="0,16,0,6" />
                 <Grid>
-                    <PasswordBox x:Name="pwdContrasena"
+                    <PasswordBox x:Name="pwdPassword"
                                  Height="36"
                                  Padding="8,6"
                                  Background="#0D0D12"
                                  Foreground="#E8E6F0"
                                  BorderBrush="#2E2E4A" />
-                    <TextBox x:Name="txtContrasenaVisible"
+                    <TextBox x:Name="txtPasswordVisible"
                              Height="36"
                              Padding="8,6"
                              Background="#0D0D12"
                              Foreground="#E8E6F0"
                              BorderBrush="#2E2E4A"
                              Visibility="Collapsed" />
+                    <Button x:Name="btnShowPassword"
+                            Content="o"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Foreground="#8880A8"
+                            Margin="0,0,8,0"
+                            Click="BtnShowPassword_Click" />
                 </Grid>
 
-                <Button x:Name="btnOlvideContrasena"
-                        Content="{DynamicResource Login_OlvideContrasena}"
+                <Button x:Name="btnForgotPassword"
+                        Content="{DynamicResource Login_ForgotPassword}"
                         HorizontalAlignment="Right"
                         Background="Transparent"
                         BorderThickness="0"
                         Foreground="#8880A8"
                         FontSize="12"
                         Margin="0,8,0,0"
-                        Click="BtnOlvideContrasena_Click" />
+                        Click="BtnForgotPassword_Click" />
 
-                <Button x:Name="btnIniciarSesion"
-                        Content="{DynamicResource Login_BotonIniciar}"
+                <Button x:Name="btnLogIn"
+                        Content="{DynamicResource Login_LogInButton}"
                         Height="42"
                         Background="#8B5CF6"
                         Foreground="White"
                         FontWeight="Bold"
                         BorderThickness="0"
                         Margin="0,20,0,0"
-                        Click="BtnIniciarSesion_Click" />
+                        Click="BtnLogIn_Click" />
 
-                <Button x:Name="btnJugarComoInvitado"
-                        Content="{DynamicResource Login_BotonInvitado}"
+                <Button x:Name="btnPlayAsGuest"
+                        Content="{DynamicResource Login_GuestButton}"
                         Height="42"
                         Background="Transparent"
                         Foreground="#E8E6F0"
                         BorderBrush="#2E2E4A"
                         BorderThickness="1"
                         Margin="0,10,0,0"
-                        Click="BtnJugarComoInvitado_Click" />
+                        Click="BtnPlayAsGuest_Click" />
             </StackPanel>
         </Border>
     </Grid>

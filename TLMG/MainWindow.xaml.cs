@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using TLMG.Views;
 
 namespace TLMG
@@ -9,14 +10,15 @@ namespace TLMG
         {
             InitializeComponent();
 
-            var pantallaCarga = new LoadingScreen();
-            pantallaCarga.CargaCompletada += (s, e) =>
-            {
-                grdContenedorPrincipal.Children.Clear();
-                grdContenedorPrincipal.Children.Add(new LoginScreen());
-            };
+            var loadingScreen = new LoadingScreen();
+            loadingScreen.LoadingCompleted += (s, e) => ShowScreen(new LoginScreen());
+            ShowScreen(loadingScreen);
+        }
 
-            grdContenedorPrincipal.Children.Add(pantallaCarga);
+        public void ShowScreen(UserControl screen)
+        {
+            grdMainContainer.Children.Clear();
+            grdMainContainer.Children.Add(screen);
         }
     }
 }

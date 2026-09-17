@@ -7,7 +7,7 @@ namespace TLMG.Views
 {
     public partial class LoadingScreen : UserControl
     {
-        public event EventHandler CargaCompletada;
+        public event EventHandler LoadingCompleted;
 
         public LoadingScreen()
         {
@@ -17,7 +17,7 @@ namespace TLMG.Views
 
         private void LoadingScreen_Loaded(object sender, RoutedEventArgs e)
         {
-            var animacion = new DoubleAnimation
+            var animation = new DoubleAnimation
             {
                 From = 0,
                 To = 600,
@@ -28,9 +28,9 @@ namespace TLMG.Views
                 }
             };
 
-            animacion.Completed += (s, args) => CargaCompletada?.Invoke(this, EventArgs.Empty);
+            animation.Completed += (s, args) => LoadingCompleted?.Invoke(this, EventArgs.Empty);
 
-            rectBarraCarga.BeginAnimation(WidthProperty, animacion);
+            rectLoadingBar.BeginAnimation(WidthProperty, animation);
         }
     }
 }
