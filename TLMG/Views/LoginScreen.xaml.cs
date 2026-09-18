@@ -1,6 +1,9 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace TLMG.Views
 {
@@ -13,40 +16,42 @@ namespace TLMG.Views
             InitializeComponent();
         }
 
-        private void TxtEmail_LostFocus(object sender, RoutedEventArgs e)
-        {
-            string errorMessage = ValidateEmail(txtEmail.Text);
-            lblEmailError.Text = errorMessage;
-            lblEmailError.Visibility = string.IsNullOrEmpty(errorMessage) ? Visibility.Collapsed : Visibility.Visible;
-        }
-
         private string ValidateEmail(string email)
         {
-            if (string.IsNullOrWhiteSpace(email))
-                return (string)Application.Current.Resources["Login_EmailRequiredError"];
+            string resultMessage = null;
 
-            if (Regex.IsMatch(email, @"[%&]"))
-                return (string)Application.Current.Resources["Login_EmailCharactersError"];
-
-            if (!email.Contains("@") || !email.Contains("."))
-                return (string)Application.Current.Resources["Login_EmailFormatError"];
-
-            string domain = email.Substring(email.IndexOf('@') + 1).ToLower();
-            bool isDomainValid = false;
-
-            foreach (string allowedDomain in _allowedDomains)
+            if (!string.IsNullOrWhiteSpace(email))
             {
-                if (domain == allowedDomain)
+                if (Regex.IsMatch(email, @"[%&]"))
                 {
-                    isDomainValid = true;
-                    break;
+                    resultMessage = (string)Application.Current.Resources["Login_EmailCharactersError"];
+                }
+                else if (!email.Contains("@") || !email.Contains("."))
+                {
+                    resultMessage = (string)Application.Current.Resources["Login_EmailFormatError"];
+                }
+                else
+                {
+                    string domain = email.Substring(email.IndexOf('@') + 1).ToLower();
+                    bool isDomainValid = false;
+
+                    foreach (string allowedDomain in _allowedDomains)
+                    {
+                        if (domain == allowedDomain)
+                        {
+                            isDomainValid = true;
+                            break;
+                        }
+                    }
+
+                    if (!isDomainValid)
+                    {
+                        resultMessage = (string)Application.Current.Resources["Login_EmailDomainError"];
+                    }
                 }
             }
 
-            if (!isDomainValid)
-                return (string)Application.Current.Resources["Login_EmailDomainError"];
-
-            return null;
+            return resultMessage;
         }
 
         private void BtnShowPassword_Click(object sender, RoutedEventArgs e)
@@ -65,29 +70,54 @@ namespace TLMG.Views
             }
         }
 
+        private async void ShowStatusMessage(TextBlock label, string message, bool isError = true)
+        {
+            label.Text = message;
+            label.Foreground = isError
+                ? (Brush)FindResource("Brush_Error")
+                : (Brush)FindResource("Brush_Accent");
+            label.Visibility = Visibility.Visible;
+
+            await Task.Delay(4000);
+
+            if (label.Text == message)
+            {
+                label.Visibility = Visibility.Collapsed;
+            }
+        }
+
         private void BtnLogIn_Click(object sender, RoutedEventArgs e)
         {
-            string emailErrorMessage = ValidateEmail(txtEmail.Text);
+            string email = txtEmail.Text;
             string password = pwdPassword.Visibility == Visibility.Visible ? pwdPassword.Password : txtPasswordVisible.Text;
 
-            if (emailErrorMessage != null || string.IsNullOrWhiteSpace(password))
-            {
-                MessageBox.Show((string)Application.Current.Resources["Login_IncompleteFieldsError"]);
-                return;
-            }
+            lblEmailError.Visibility = Visibility.Collapsed;
 
-            // TODO: conectar con el servidor (TCP) y validar las credenciales reales (CU-03) cuando exista esa capa.
-            MessageBox.Show((string)Application.Current.Resources["Login_SuccessMessage"]);
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                ShowStatusMessage(lblFormMessage, (string)Application.Current.Resources["Login_IncompleteFieldsError"], true);
+            }
+            else
+            {
+                string emailErrorMessage = ValidateEmail(email);
+                if (emailErrorMessage != null)
+                {
+                    ShowStatusMessage(lblEmailError, emailErrorMessage, true);
+                }
+                else
+                {
+                    ShowStatusMessage(lblFormMessage, (string)Application.Current.Resources["Login_SuccessMessage"], false);
+                }
+            }
         }
+
         private void BtnPlayAsGuest_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: navegar a GUI-MenúPrincipal (modo invitado) cuando esa pantalla exista.
-            MessageBox.Show("Modo invitado: la pantalla de Menú Principal aún no está construida.");
+            ShowStatusMessage(lblFormMessage, "Modo invitado: la pantalla de Menú Principal aún no está construida.", false);
         }
 
         private void BtnForgotPassword_Click(object sender, RoutedEventArgs e)
         {
-           
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new ForgotPasswordScreen());
         }
 
@@ -95,6 +125,5 @@ namespace TLMG.Views
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new CreateAccountScreen());
         }
-
     }
 }

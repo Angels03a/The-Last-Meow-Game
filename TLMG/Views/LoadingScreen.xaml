@@ -6,78 +6,36 @@
              mc:Ignorable="d"
              d:DesignHeight="600"
              d:DesignWidth="900">
-    <Grid Background="#0D0D12">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/TLMG;component/Styles/GlobalStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Background="{StaticResource Brush_BackgroundDark}">
         <StackPanel HorizontalAlignment="Center"
                     VerticalAlignment="Center">
-            <Canvas Width="120"
-                    Height="120"
-                    HorizontalAlignment="Center"
-                    Margin="0,0,0,20">
-                <Ellipse Canvas.Left="10"
-                         Canvas.Top="25"
-                         Width="100"
-                         Height="85"
-                         Fill="#8B5CF6" />
-                <Polygon Points="15,35 35,35 20,5"
-                         Fill="#8B5CF6" />
-                <Polygon Points="85,35 105,35 100,5"
-                         Fill="#8B5CF6" />
-                <Ellipse Canvas.Left="35"
-                         Canvas.Top="55"
-                         Width="10"
-                         Height="14"
-                         Fill="#0D0D12" />
-                <Ellipse Canvas.Left="75"
-                         Canvas.Top="55"
-                         Width="10"
-                         Height="14"
-                         Fill="#0D0D12" />
-                <Polygon Points="55,75 65,75 60,82"
-                         Fill="#0D0D12" />
-            </Canvas>
+            <ContentControl Style="{StaticResource CatIconStyle}" Width="120" Height="120" Margin="0,0,0,20" />
 
             <TextBlock Text="{DynamicResource LoadingScreen_Title}"
-                       FontFamily="Georgia"
-                       FontSize="42"
-                       FontWeight="Black"
-                       Foreground="#E8E6F0"
+                       Style="{StaticResource TitleLargeTextStyle}"
                        HorizontalAlignment="Center"
                        Margin="0,0,0,4" />
 
             <TextBlock Text="{DynamicResource LoadingScreen_Subtitle}"
-                       FontSize="14"
-                       Foreground="#8880A8"
+                       Style="{StaticResource SubtitleLargeTextStyle}"
                        HorizontalAlignment="Center"
                        Margin="0,0,0,50" />
 
-            <Border Width="400"
-                    Height="12"
-                    CornerRadius="8"
-                    Background="#1A1A24"
-                    BorderBrush="#2E2E4A"
-                    BorderThickness="1">
+            <Border Style="{StaticResource ProgressTrackStyle}">
                 <Rectangle x:Name="rectLoadingBar"
                            Width="0"
-                           HorizontalAlignment="Left"
-                           RadiusX="8"
-                           RadiusY="8">
-                    <Rectangle.Fill>
-                        <LinearGradientBrush StartPoint="0,0"
-                                             EndPoint="1,0">
-                            <GradientStop Color="#6D28D9"
-                                         Offset="0" />
-                            <GradientStop Color="#8B5CF6"
-                                         Offset="0.5" />
-                            <GradientStop Color="#A78BFA"
-                                         Offset="1" />
-                        </LinearGradientBrush>
-                    </Rectangle.Fill>
-                </Rectangle>
+                           Style="{StaticResource ProgressFillStyle}" />
             </Border>
 
             <TextBlock Text="{DynamicResource LoadingScreen_Status}"
-                       FontSize="11"
-                       Foreground="#5A5670"
+                       Style="{StaticResource StatusTextStyle}"
                        HorizontalAlignment="Center"
                        Margin="0,10,0,0" />
         </StackPanel>

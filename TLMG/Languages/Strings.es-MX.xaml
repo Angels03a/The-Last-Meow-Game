@@ -14,11 +14,11 @@
     <sys:String x:Key="Login_ForgotPassword">¿Olvidó su contraseña?</sys:String>
     <sys:String x:Key="Login_LogInButton">Iniciar Sesión</sys:String>
     <sys:String x:Key="Login_GuestButton">Jugar como Invitado</sys:String>
-    <sys:String x:Key="Login_EmailRequiredError">Por favor, revise que todos los campos obligatorios estén llenos</sys:String>
+    <sys:String x:Key="Login_EmailRequiredError">Por favor, revise que todos los campos obligatorios estén llenos correctamente</sys:String>
     <sys:String x:Key="Login_EmailCharactersError">El correo contiene caracteres no permitidos</sys:String>
     <sys:String x:Key="Login_EmailFormatError">El correo debe contener @ y un dominio válido</sys:String>
     <sys:String x:Key="Login_EmailDomainError">El dominio del correo no está permitido (use outlook.com, hotmail.com, live.com, gmail.com o uv.mx)</sys:String>
-    <sys:String x:Key="Login_IncompleteFieldsError">Por favor, revise que todos los campos obligatorios estén llenos</sys:String>
+    <sys:String x:Key="Login_IncompleteFieldsError">Por favor, revise que todos los campos obligatorios estén llenos correctamente</sys:String>
     <sys:String x:Key="Login_InvalidCredentialsError">Correo o contraseña incorrectos</sys:String>
     <sys:String x:Key="Login_SuccessMessage">Se ha iniciado sesión</sys:String>
     <sys:String x:Key="Verification_Title">Confirmación de Identidad</sys:String>
@@ -39,7 +39,7 @@
     <sys:String x:Key="ForgotPassword_EmailLabel">Correo Electrónico</sys:String>
     <sys:String x:Key="ForgotPassword_SendCodeButton">Enviar Código</sys:String>
     <sys:String x:Key="ForgotPassword_BackToLoginButton">Regresar</sys:String>
-    <sys:String x:Key="ForgotPassword_EmailRequiredError">Por favor, revise que todos los campos obligatorios estén llenos</sys:String>
+    <sys:String x:Key="ForgotPassword_EmailRequiredError">Por favor, revise que todos los campos obligatorios estén llenos correctamente</sys:String>
     <sys:String x:Key="ForgotPassword_EmailCharactersError">El correo contiene caracteres no permitidos</sys:String>
     <sys:String x:Key="ForgotPassword_EmailFormatError">El correo debe contener @ y un dominio válido</sys:String>
     <sys:String x:Key="ForgotPassword_EmailDomainError">El dominio del correo no está permitido (use outlook.com, hotmail.com, live.com, gmail.com o uv.mx)</sys:String>

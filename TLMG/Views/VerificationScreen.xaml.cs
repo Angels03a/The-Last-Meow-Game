@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -41,11 +42,13 @@ namespace TLMG.Views
         private void DigitBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             var box = (TextBox)sender;
-            lblError.Visibility = Visibility.Collapsed;
+            lblFormMessage.Visibility = Visibility.Collapsed;
             int index = Array.IndexOf(_digitBoxes, box);
 
             if (box.Text.Length == 1 && index < _digitBoxes.Length - 1)
+            {
                 _digitBoxes[index + 1].Focus();
+            }
 
             UpdateVerifyButtonState();
         }
@@ -56,18 +59,22 @@ namespace TLMG.Views
             int index = Array.IndexOf(_digitBoxes, box);
 
             if (e.Key == Key.Back && box.Text.Length == 0 && index > 0)
+            {
                 _digitBoxes[index - 1].Focus();
+            }
         }
 
         private void UpdateVerifyButtonState()
         {
             bool allFilled = true;
             foreach (var box in _digitBoxes)
+            {
                 if (string.IsNullOrEmpty(box.Text))
                 {
                     allFilled = false;
                     break;
                 }
+            }
 
             btnVerifyCode.IsEnabled = allFilled;
         }
@@ -92,14 +99,17 @@ namespace TLMG.Views
                 {
                     _timer.Stop();
                     ShowCodeExpired();
-                    return;
                 }
             }
 
-            if (_secondsUntilResend > 0)
-                _secondsUntilResend--;
-
-            UpdateTimerTexts();
+            if (_secondsUntilExpiry > 0)
+            {
+                if (_secondsUntilResend > 0)
+                {
+                    _secondsUntilResend--;
+                }
+                UpdateTimerTexts();
+            }
         }
 
         private void UpdateTimerTexts()
@@ -122,11 +132,14 @@ namespace TLMG.Views
 
         private void ShowCodeExpired()
         {
-            lblError.Text = (string)Application.Current.Resources["Verification_ExpiredCodeError"];
-            lblError.Visibility = Visibility.Visible;
+            lblFormMessage.Text = (string)Application.Current.Resources["Verification_ExpiredCodeError"];
+            lblFormMessage.Foreground = (Brush)FindResource("Brush_Error");
+            lblFormMessage.Visibility = Visibility.Visible;
 
             foreach (var box in _digitBoxes)
+            {
                 box.IsEnabled = false;
+            }
 
             btnVerifyCode.IsEnabled = false;
         }
@@ -136,8 +149,24 @@ namespace TLMG.Views
             for (int i = 0; i < _attemptDots.Length; i++)
             {
                 _attemptDots[i].Fill = i < _failedAttempts
-                    ? new SolidColorBrush(Color.FromRgb(0xEF, 0x44, 0x44))
-                    : new SolidColorBrush(Color.FromRgb(0x2E, 0x2E, 0x4A));
+                    ? (Brush)FindResource("Brush_Error")
+                    : (Brush)FindResource("Brush_Border");
+            }
+        }
+
+        private async void ShowStatusMessage(TextBlock label, string message, bool isError = true)
+        {
+            label.Text = message;
+            label.Foreground = isError
+                ? (Brush)FindResource("Brush_Error")
+                : (Brush)FindResource("Brush_Accent");
+            label.Visibility = Visibility.Visible;
+
+            await Task.Delay(4000);
+
+            if (label.Text == message)
+            {
+                label.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -145,40 +174,47 @@ namespace TLMG.Views
         {
             string enteredCode = "";
             foreach (var box in _digitBoxes)
+            {
                 enteredCode += box.Text;
+            }
 
             if (enteredCode == SimulatedCode)
             {
                 _timer.Stop();
-                MessageBox.Show((string)Application.Current.Resources["Verification_SuccessMessage"]);
+                ShowStatusMessage(lblFormMessage, (string)Application.Current.Resources["Verification_SuccessMessage"], false);
                 _onVerified?.Invoke();
-                return;
-            }
-
-            _failedAttempts++;
-            UpdateAttemptDots();
-
-            if (_failedAttempts >= MaxAttempts)
-            {
-                _timer.Stop();
-                lblError.Text = (string)Application.Current.Resources["Verification_AttemptsExhaustedError"];
-
-                foreach (var box in _digitBoxes)
-                    box.IsEnabled = false;
-
-                btnVerifyCode.IsEnabled = false;
             }
             else
             {
-                lblError.Text = (string)Application.Current.Resources["Verification_IncorrectCodeError"];
+                _failedAttempts++;
+                UpdateAttemptDots();
+
+                if (_failedAttempts >= MaxAttempts)
+                {
+                    _timer.Stop();
+                    lblFormMessage.Text = (string)Application.Current.Resources["Verification_AttemptsExhaustedError"];
+                    lblFormMessage.Foreground = (Brush)FindResource("Brush_Error");
+                    lblFormMessage.Visibility = Visibility.Visible;
+
+                    foreach (var box in _digitBoxes)
+                    {
+                        box.IsEnabled = false;
+                    }
+
+                    btnVerifyCode.IsEnabled = false;
+                }
+                else
+                {
+                    ShowStatusMessage(lblFormMessage, (string)Application.Current.Resources["Verification_IncorrectCodeError"], true);
+                }
+
+                foreach (var box in _digitBoxes)
+                {
+                    box.Text = "";
+                }
+
+                _digitBoxes[0].Focus();
             }
-
-            lblError.Visibility = Visibility.Visible;
-
-            foreach (var box in _digitBoxes)
-                box.Text = "";
-
-            _digitBoxes[0].Focus();
         }
 
         private void BtnResendCode_Click(object sender, RoutedEventArgs e)
@@ -188,7 +224,7 @@ namespace TLMG.Views
             _failedAttempts = 0;
             UpdateAttemptDots();
 
-            lblError.Visibility = Visibility.Collapsed;
+            lblFormMessage.Visibility = Visibility.Collapsed;
 
             foreach (var box in _digitBoxes)
             {
@@ -199,7 +235,9 @@ namespace TLMG.Views
             btnVerifyCode.IsEnabled = false;
 
             if (!_timer.IsEnabled)
+            {
                 _timer.Start();
+            }
 
             _digitBoxes[0].Focus();
         }
