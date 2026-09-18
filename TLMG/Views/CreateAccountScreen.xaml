@@ -6,20 +6,20 @@
              mc:Ignorable="d"
              d:DesignHeight="750"
              d:DesignWidth="900">
-    <Grid Background="#0D0D12">
-        <Border Width="460"
-                Background="#1A1A24"
-                BorderBrush="#2E2E4A"
-                BorderThickness="1"
-                CornerRadius="16"
-                Padding="48,40"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/TLMG;component/Styles/GlobalStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Background="{StaticResource Brush_BackgroundDark}">
+        <Border Style="{StaticResource CardBorderStyle}">
             <StackPanel>
                 <Border Width="64"
                         Height="64"
                         CornerRadius="32"
-                        Background="#2E2E4A"
+                        Background="{StaticResource Brush_Border}"
                         HorizontalAlignment="Center"
                         Margin="0,0,0,16">
                     <Canvas Width="28"
@@ -30,143 +30,110 @@
                                  Canvas.Top="2"
                                  Width="12"
                                  Height="12"
-                                 Fill="#8B5CF6" />
+                                 Fill="{StaticResource Brush_Accent}" />
                         <Path Data="M 4,26 A 10,10 0 0 1 24,26 Z"
-                              Fill="#8B5CF6" />
+                              Fill="{StaticResource Brush_Accent}" />
                     </Canvas>
                 </Border>
 
                 <TextBlock Text="{DynamicResource CreateAccount_Title}"
-                           FontFamily="Georgia"
-                           FontSize="20"
-                           FontWeight="Bold"
-                           Foreground="#E8E6F0"
+                           Style="{StaticResource TitleMediumTextStyle}"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,10" />
 
                 <TextBlock Text="{DynamicResource CreateAccount_Instructions}"
-                           FontSize="13"
-                           Foreground="#8880A8"
+                           Style="{StaticResource SubtitleTextStyle}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            TextWrapping="Wrap"
                            Margin="0,0,0,24" />
 
                 <TextBlock Text="{DynamicResource CreateAccount_NicknameLabel}"
-                           FontSize="12"
-                           Foreground="#8880A8"
+                           Style="{StaticResource FieldLabelTextStyle}"
                            Margin="0,0,0,6" />
 
-                <TextBox x:Name="txtNickname"
-                         Height="36"
-                         Padding="8,6"
-                         Background="#0D0D12"
-                         Foreground="#E8E6F0"
-                         BorderBrush="#2E2E4A"
-                         Margin="0,0,0,16" />
+                <StackPanel Margin="0,0,0,16">
+                    <TextBox x:Name="txtNickname"
+                             Style="{StaticResource FieldStyle}" />
+                    <TextBlock x:Name="lblNicknameError"
+                               Style="{StaticResource ErrorTextStyle}" />
+                </StackPanel>
 
                 <TextBlock Text="{DynamicResource CreateAccount_EmailLabel}"
-                           FontSize="12"
-                           Foreground="#8880A8"
+                           Style="{StaticResource FieldLabelTextStyle}"
                            Margin="0,0,0,6" />
 
-                <TextBox x:Name="txtEmail"
-                         Height="36"
-                         Padding="8,6"
-                         Background="#0D0D12"
-                         Foreground="#E8E6F0"
-                         BorderBrush="#2E2E4A"
-                         Margin="0,0,0,16" />
+                <StackPanel Margin="0,0,0,16">
+                    <TextBox x:Name="txtEmail"
+                             Style="{StaticResource FieldStyle}" />
+                    <TextBlock x:Name="lblEmailError"
+                               Style="{StaticResource ErrorTextStyle}" />
+                </StackPanel>
 
                 <TextBlock Text="{DynamicResource CreateAccount_PasswordLabel}"
-                           FontSize="12"
-                           Foreground="#8880A8"
+                           Style="{StaticResource FieldLabelTextStyle}"
                            Margin="0,0,0,6" />
 
-                <PasswordBox x:Name="pwdPassword"
-                             Height="36"
-                             Padding="8,6"
-                             Background="#0D0D12"
-                             Foreground="#E8E6F0"
-                             BorderBrush="#2E2E4A"
-                             PasswordChanged="PwdPassword_PasswordChanged" />
+                <StackPanel>
+                    <PasswordBox x:Name="pwdPassword"
+                                 Style="{StaticResource FieldStyle}"
+                                 PasswordChanged="PwdPassword_PasswordChanged" />
+                    <TextBlock x:Name="lblPasswordError"
+                               Style="{StaticResource ErrorTextStyle}" />
+                </StackPanel>
 
                 <StackPanel Orientation="Horizontal"
                             Margin="0,8,0,2">
                     <Border x:Name="rectStrength1"
-                            Width="60"
-                            Height="4"
-                            Background="#2E2E4A"
+                            Style="{StaticResource StrengthIndicatorStyle}"
                             Margin="0,0,3,0" />
                     <Border x:Name="rectStrength2"
-                            Width="60"
-                            Height="4"
-                            Background="#2E2E4A"
+                            Style="{StaticResource StrengthIndicatorStyle}"
                             Margin="0,0,3,0" />
                     <Border x:Name="rectStrength3"
-                            Width="60"
-                            Height="4"
-                            Background="#2E2E4A"
+                            Style="{StaticResource StrengthIndicatorStyle}"
                             Margin="0,0,3,0" />
                     <Border x:Name="rectStrength4"
-                            Width="60"
-                            Height="4"
-                            Background="#2E2E4A"
+                            Style="{StaticResource StrengthIndicatorStyle}"
                             Margin="0,0,3,0" />
                     <Border x:Name="rectStrength5"
-                            Width="60"
-                            Height="4"
-                            Background="#2E2E4A" />
+                            Style="{StaticResource StrengthIndicatorStyle}" />
                 </StackPanel>
 
                 <TextBlock x:Name="lblStrengthLabel"
-                           FontSize="11"
-                           Margin="0,2,0,8"
-                           Visibility="Collapsed" />
+                           Style="{StaticResource ErrorTextStyle}"
+                           Margin="0,2,0,8" />
 
-                <Border Background="#0D0D18"
-                        BorderBrush="#2E2E4A"
-                        BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="10,8"
+                <Border Style="{StaticResource HintPanelStyle}"
                         Margin="0,0,0,20">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource CreateAccount_HintLength}"
-                                   FontSize="11"
-                                   Foreground="#5A5670" />
+                                   Style="{StaticResource StatusTextStyle}" />
                         <TextBlock Text="{DynamicResource CreateAccount_HintUppercase}"
-                                   FontSize="11"
-                                   Foreground="#5A5670" />
+                                   Style="{StaticResource StatusTextStyle}" />
                         <TextBlock Text="{DynamicResource CreateAccount_HintLowercase}"
-                                   FontSize="11"
-                                   Foreground="#5A5670" />
+                                   Style="{StaticResource StatusTextStyle}" />
                         <TextBlock Text="{DynamicResource CreateAccount_HintNumber}"
-                                   FontSize="11"
-                                   Foreground="#5A5670" />
+                                   Style="{StaticResource StatusTextStyle}" />
                         <TextBlock Text="{DynamicResource CreateAccount_HintSymbol}"
-                                   FontSize="11"
-                                   Foreground="#5A5670" />
+                                   Style="{StaticResource StatusTextStyle}" />
                     </StackPanel>
                 </Border>
 
                 <Button x:Name="btnVerifyEmail"
                         Content="{DynamicResource CreateAccount_VerifyEmailButton}"
-                        Height="42"
-                        Background="#8B5CF6"
-                        Foreground="White"
-                        FontWeight="Bold"
-                        BorderThickness="0"
+                        Style="{StaticResource PrimaryButtonStyle}"
                         Margin="0,0,0,12"
                         Click="BtnVerifyEmail_Click" />
 
                 <Button x:Name="btnBack"
                         Content="{DynamicResource CreateAccount_BackButton}"
+                        Style="{StaticResource ForgotPasswordLinkStyle}"
                         HorizontalAlignment="Center"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Foreground="#8880A8"
-                        FontSize="12"
                         Click="BtnBack_Click" />
+
+                <TextBlock x:Name="lblFormMessage"
+                           Style="{StaticResource FormMessageTextStyle}" />
             </StackPanel>
         </Border>
     </Grid>

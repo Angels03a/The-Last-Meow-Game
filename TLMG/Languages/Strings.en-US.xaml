@@ -14,11 +14,11 @@
     <sys:String x:Key="Login_ForgotPassword">Forgot your password?</sys:String>
     <sys:String x:Key="Login_LogInButton">Log In</sys:String>
     <sys:String x:Key="Login_GuestButton">Play as Guest</sys:String>
-    <sys:String x:Key="Login_EmailRequiredError">Please make sure all required fields are filled in</sys:String>
+    <sys:String x:Key="Login_EmailRequiredError">Please make sure all required fields are correctly filled in</sys:String>
     <sys:String x:Key="Login_EmailCharactersError">The email contains characters that are not allowed</sys:String>
     <sys:String x:Key="Login_EmailFormatError">The email must contain @ and a valid domain</sys:String>
     <sys:String x:Key="Login_EmailDomainError">This email domain is not allowed (use outlook.com, hotmail.com, live.com, gmail.com, or uv.mx)</sys:String>
-    <sys:String x:Key="Login_IncompleteFieldsError">Please make sure all required fields are filled in</sys:String>
+    <sys:String x:Key="Login_IncompleteFieldsError">Please make sure all required fields are correctly filled in</sys:String>
     <sys:String x:Key="Login_InvalidCredentialsError">Incorrect email or password</sys:String>
     <sys:String x:Key="Login_SuccessMessage">You have successfully logged in</sys:String>
     <sys:String x:Key="Verification_Title">Identity Confirmation</sys:String>
@@ -39,7 +39,7 @@
     <sys:String x:Key="ForgotPassword_EmailLabel">Email Address</sys:String>
     <sys:String x:Key="ForgotPassword_SendCodeButton">Send Code</sys:String>
     <sys:String x:Key="ForgotPassword_BackToLoginButton">Back</sys:String>
-    <sys:String x:Key="ForgotPassword_EmailRequiredError">Please make sure all required fields are filled in</sys:String>
+    <sys:String x:Key="ForgotPassword_EmailRequiredError">Please make sure all required fields are correctly filled in</sys:String>
     <sys:String x:Key="ForgotPassword_EmailCharactersError">The email contains characters that are not allowed</sys:String>
     <sys:String x:Key="ForgotPassword_EmailFormatError">The email must contain @ and a valid domain</sys:String>
     <sys:String x:Key="ForgotPassword_EmailDomainError">This email domain is not allowed (use outlook.com, hotmail.com, live.com, gmail.com, or uv.mx)</sys:String>

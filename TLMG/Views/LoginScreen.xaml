@@ -6,45 +6,41 @@
              mc:Ignorable="d"
              d:DesignHeight="600"
              d:DesignWidth="900">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/TLMG;component/Styles/GlobalStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="420" />
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0" Background="#0D0D12">
+        <Grid Grid.Column="0" Background="{StaticResource Brush_BackgroundDark}">
             <Ellipse Width="500" Height="500" Opacity="0.15">
                 <Ellipse.Fill>
                     <RadialGradientBrush>
-                        <GradientStop Color="#8B5CF6" Offset="0" />
+                        <GradientStop Color="{StaticResource Color_Accent}" Offset="0" />
                         <GradientStop Color="Transparent" Offset="1" />
                     </RadialGradientBrush>
                 </Ellipse.Fill>
             </Ellipse>
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Canvas Width="110" Height="110" HorizontalAlignment="Center" Margin="0,0,0,20">
-                    <Ellipse Canvas.Left="10" Canvas.Top="23" Width="90" Height="78" Fill="#8B5CF6" />
-                    <Polygon Points="14,32 32,32 18,4" Fill="#8B5CF6" />
-                    <Polygon Points="78,32 96,32 92,4" Fill="#8B5CF6" />
-                    <Ellipse Canvas.Left="32" Canvas.Top="50" Width="9" Height="12" Fill="#0D0D12" />
-                    <Ellipse Canvas.Left="69" Canvas.Top="50" Width="9" Height="12" Fill="#0D0D12" />
-                    <Polygon Points="50,68 60,68 55,74" Fill="#0D0D12" />
-                </Canvas>
+                <ContentControl Style="{StaticResource CatIconStyle}" Width="110" Height="110" Margin="0,0,0,20" />
                 <TextBlock Text="{DynamicResource Login_Title}"
-                           FontFamily="Georgia"
-                           FontSize="32"
-                           FontWeight="Black"
-                           Foreground="#E8E6F0"
+                           Style="{StaticResource TitleTextStyle}"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,4" />
                 <TextBlock Text="{DynamicResource Login_Subtitle}"
-                           FontSize="13"
-                           Foreground="#8880A8"
+                           Style="{StaticResource SubtitleTextStyle}"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Grid>
 
-        <Border Grid.Column="1" Background="#1A1A24" BorderBrush="#2E2E4A" BorderThickness="1,0,0,0">
+        <Border Grid.Column="1" Background="{StaticResource Brush_BackgroundPanel}" BorderBrush="{StaticResource Brush_Border}" BorderThickness="1,0,0,0">
             <StackPanel Margin="48,60,48,0">
                 <Grid Margin="0,0,0,32">
                     <Grid.ColumnDefinitions>
@@ -54,99 +50,63 @@
                     <Button x:Name="btnTabLogIn"
                             Grid.Column="0"
                             Content="{DynamicResource Login_TabLogIn}"
-                            Background="Transparent"
-                            BorderThickness="0,0,0,2"
-                            BorderBrush="#8B5CF6"
-                            Foreground="#E8E6F0"
-                            FontWeight="SemiBold"
-                            Padding="0,10" />
+                            Style="{StaticResource TabButtonActiveStyle}" />
                     <Button x:Name="btnTabCreateAccount"
                             Grid.Column="1"
                             Content="{DynamicResource Login_TabCreateAccount}"
-                            Background="Transparent"
-                            BorderThickness="0,0,0,2"
-                            BorderBrush="#2E2E4A"
-                            Foreground="#8880A8"
-                            FontWeight="SemiBold"
-                            Padding="0,10"
+                            Style="{StaticResource TabButtonInactiveStyle}"
                             Click="BtnTabCreateAccount_Click" />
                 </Grid>
 
                 <TextBlock Text="{DynamicResource Login_EmailLabel}"
-                           FontSize="12"
-                           Foreground="#8880A8"
+                           Style="{StaticResource FieldLabelTextStyle}"
                            Margin="0,0,0,6" />
                 <TextBox x:Name="txtEmail"
-                         Height="36"
-                         Padding="8,6"
-                         Background="#0D0D12"
-                         Foreground="#E8E6F0"
-                         BorderBrush="#2E2E4A"
-                         LostFocus="TxtEmail_LostFocus" />
+                         Style="{StaticResource FieldStyle}" />
                 <TextBlock x:Name="lblEmailError"
-                           FontSize="11"
-                           Foreground="#EF4444"
-                           Margin="0,4,0,0"
-                           Visibility="Collapsed" />
+                           Style="{StaticResource ErrorTextStyle}" />
 
                 <TextBlock Text="{DynamicResource Login_PasswordLabel}"
-                           FontSize="12"
-                           Foreground="#8880A8"
+                           Style="{StaticResource FieldLabelTextStyle}"
                            Margin="0,16,0,6" />
                 <Grid>
                     <PasswordBox x:Name="pwdPassword"
-                                 Height="36"
-                                 Padding="8,6"
-                                 Background="#0D0D12"
-                                 Foreground="#E8E6F0"
-                                 BorderBrush="#2E2E4A" />
+                                 Style="{StaticResource FieldStyle}" />
                     <TextBox x:Name="txtPasswordVisible"
-                             Height="36"
-                             Padding="8,6"
-                             Background="#0D0D12"
-                             Foreground="#E8E6F0"
-                             BorderBrush="#2E2E4A"
+                             Style="{StaticResource FieldStyle}"
                              Visibility="Collapsed" />
                     <Button x:Name="btnShowPassword"
                             Content="o"
+                            Style="{StaticResource LinkButtonStyle}"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Foreground="#8880A8"
                             Margin="0,0,8,0"
                             Click="BtnShowPassword_Click" />
                 </Grid>
+                <TextBlock x:Name="lblPasswordError"
+                           Style="{StaticResource ErrorTextStyle}" />
 
                 <Button x:Name="btnForgotPassword"
                         Content="{DynamicResource Login_ForgotPassword}"
+                        Style="{StaticResource ForgotPasswordLinkStyle}"
                         HorizontalAlignment="Right"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Foreground="#8880A8"
-                        FontSize="12"
                         Margin="0,8,0,0"
                         Click="BtnForgotPassword_Click" />
 
                 <Button x:Name="btnLogIn"
                         Content="{DynamicResource Login_LogInButton}"
-                        Height="42"
-                        Background="#8B5CF6"
-                        Foreground="White"
-                        FontWeight="Bold"
-                        BorderThickness="0"
+                        Style="{StaticResource PrimaryButtonStyle}"
                         Margin="0,20,0,0"
                         Click="BtnLogIn_Click" />
 
                 <Button x:Name="btnPlayAsGuest"
                         Content="{DynamicResource Login_GuestButton}"
-                        Height="42"
-                        Background="Transparent"
-                        Foreground="#E8E6F0"
-                        BorderBrush="#2E2E4A"
-                        BorderThickness="1"
+                        Style="{StaticResource OutlineButtonStyle}"
                         Margin="0,10,0,0"
                         Click="BtnPlayAsGuest_Click" />
+
+                <TextBlock x:Name="lblFormMessage"
+                           Style="{StaticResource FormMessageTextStyle}" />
             </StackPanel>
         </Border>
     </Grid>

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -33,30 +34,32 @@ namespace TLMG.Views
             if (password.Length == 0)
             {
                 foreach (var bar in bars)
+                {
                     bar.Background = new SolidColorBrush(Color.FromRgb(0x2E, 0x2E, 0x4A));
-
+                }
                 lblStrengthLabel.Visibility = Visibility.Collapsed;
-                return;
             }
-
-            Color scoreColor = score <= 2
-                ? Color.FromRgb(0xEF, 0x44, 0x44)
-                : score == 3
-                    ? Color.FromRgb(0xF5, 0x9E, 0x0B)
-                    : Color.FromRgb(0x10, 0xB9, 0x81);
-
-            string[] labelKeys = { "", "CreateAccount_StrengthVeryWeak", "CreateAccount_StrengthWeak", "CreateAccount_StrengthFair", "CreateAccount_StrengthGood", "CreateAccount_StrengthStrong" };
-
-            for (int i = 0; i < bars.Length; i++)
+            else
             {
-                bars[i].Background = i < score
-                    ? new SolidColorBrush(scoreColor)
-                    : new SolidColorBrush(Color.FromRgb(0x2E, 0x2E, 0x4A));
-            }
+                Color scoreColor = score <= 2
+                    ? Color.FromRgb(0xEF, 0x44, 0x44)
+                    : score == 3
+                        ? Color.FromRgb(0xF5, 0x9E, 0x0B)
+                        : Color.FromRgb(0x10, 0xB9, 0x81);
 
-            lblStrengthLabel.Text = (string)Application.Current.Resources[labelKeys[score]];
-            lblStrengthLabel.Foreground = new SolidColorBrush(scoreColor);
-            lblStrengthLabel.Visibility = Visibility.Visible;
+                string[] labelKeys = { "", "CreateAccount_StrengthVeryWeak", "CreateAccount_StrengthWeak", "CreateAccount_StrengthFair", "CreateAccount_StrengthGood", "CreateAccount_StrengthStrong" };
+
+                for (int i = 0; i < bars.Length; i++)
+                {
+                    bars[i].Background = i < score
+                        ? new SolidColorBrush(scoreColor)
+                        : new SolidColorBrush(Color.FromRgb(0x2E, 0x2E, 0x4A));
+                }
+
+                lblStrengthLabel.Text = (string)Application.Current.Resources[labelKeys[score]];
+                lblStrengthLabel.Foreground = new SolidColorBrush(scoreColor);
+                lblStrengthLabel.Visibility = Visibility.Visible;
+            }
         }
 
         private int CalculatePasswordStrength(string password)
@@ -72,35 +75,70 @@ namespace TLMG.Views
 
         private string ValidateNickname(string nickname)
         {
+            string resultMessage = null;
+
             if (nickname.Length < 3 || nickname.Length > 12 || !Regex.IsMatch(nickname, "^[a-zA-Z0-9]+$"))
-                return (string)Application.Current.Resources["CreateAccount_NicknameFormatError"];
+            {
+                resultMessage = (string)Application.Current.Resources["CreateAccount_NicknameFormatError"];
+            }
+            else
+            {
+                string nicknameLower = nickname.ToLower();
+                if (_offensiveWords.Any(word => nicknameLower.Contains(word)))
+                {
+                    resultMessage = (string)Application.Current.Resources["CreateAccount_NicknameOffensiveError"];
+                }
+                else if (_takenNicknames.Contains(nicknameLower))
+                {
+                    resultMessage = (string)Application.Current.Resources["CreateAccount_NicknameTakenError"];
+                }
+            }
 
-            string nicknameLower = nickname.ToLower();
-            if (_offensiveWords.Any(word => nicknameLower.Contains(word)))
-                return (string)Application.Current.Resources["CreateAccount_NicknameOffensiveError"];
-
-            if (_takenNicknames.Contains(nicknameLower))
-                return (string)Application.Current.Resources["CreateAccount_NicknameTakenError"];
-
-            return null;
+            return resultMessage;
         }
 
         private string ValidateEmailFormat(string email)
         {
+            string resultMessage = null;
+
             if (Regex.IsMatch(email, @"[%&]"))
-                return (string)Application.Current.Resources["CreateAccount_EmailCharactersError"];
+            {
+                resultMessage = (string)Application.Current.Resources["CreateAccount_EmailCharactersError"];
+            }
+            else if (!email.Contains("@") || !email.Contains("."))
+            {
+                resultMessage = (string)Application.Current.Resources["CreateAccount_EmailFormatError"];
+            }
+            else
+            {
+                string domain = email.Substring(email.IndexOf('@') + 1).ToLower();
+                if (!_allowedEmailDomains.Contains(domain))
+                {
+                    resultMessage = (string)Application.Current.Resources["CreateAccount_EmailDomainError"];
+                }
+                else if (_takenEmails.Contains(email.ToLower()))
+                {
+                    resultMessage = (string)Application.Current.Resources["CreateAccount_EmailTakenError"];
+                }
+            }
 
-            if (!email.Contains("@") || !email.Contains("."))
-                return (string)Application.Current.Resources["CreateAccount_EmailFormatError"];
+            return resultMessage;
+        }
 
-            string domain = email.Substring(email.IndexOf('@') + 1).ToLower();
-            if (!_allowedEmailDomains.Contains(domain))
-                return (string)Application.Current.Resources["CreateAccount_EmailDomainError"];
+        private async void ShowStatusMessage(TextBlock label, string message, bool isError = true)
+        {
+            label.Text = message;
+            label.Foreground = isError
+                ? (Brush)FindResource("Brush_Error")
+                : (Brush)FindResource("Brush_Accent");
+            label.Visibility = Visibility.Visible;
 
-            if (_takenEmails.Contains(email.ToLower()))
-                return (string)Application.Current.Resources["CreateAccount_EmailTakenError"];
+            await Task.Delay(4000);
 
-            return null;
+            if (label.Text == message)
+            {
+                label.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void BtnVerifyEmail_Click(object sender, RoutedEventArgs e)
@@ -108,42 +146,48 @@ namespace TLMG.Views
             string nickname = txtNickname.Text;
             string email = txtEmail.Text;
             string password = pwdPassword.Password;
+            bool hasErrors = false;
 
             if (string.IsNullOrWhiteSpace(nickname) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
-                MessageBox.Show((string)Application.Current.Resources["CreateAccount_IncompleteFieldsError"]);
-                return;
+                ShowStatusMessage(lblFormMessage, (string)Application.Current.Resources["CreateAccount_IncompleteFieldsError"], true);
+                hasErrors = true;
             }
-
-            if (CalculatePasswordStrength(password) < 5)
+            else
             {
-                MessageBox.Show((string)Application.Current.Resources["CreateAccount_PasswordPolicyError"]);
-                return;
+                string nicknameError = ValidateNickname(nickname);
+                if (nicknameError != null)
+                {
+                    ShowStatusMessage(lblNicknameError, nicknameError, true);
+                    hasErrors = true;
+                }
+
+                string emailError = ValidateEmailFormat(email);
+                if (emailError != null)
+                {
+                    ShowStatusMessage(lblEmailError, emailError, true);
+                    hasErrors = true;
+                }
+
+                if (CalculatePasswordStrength(password) < 5)
+                {
+                    ShowStatusMessage(lblPasswordError, (string)Application.Current.Resources["CreateAccount_PasswordPolicyError"], true);
+                    hasErrors = true;
+                }
             }
 
-            string nicknameError = ValidateNickname(nickname);
-            if (nicknameError != null)
+            if (!hasErrors)
             {
-                MessageBox.Show(nicknameError);
-                return;
+                // TODO: conectar con el servidor y crear el registro de Usuario (estado 'pendiente_verificacion') cuando exista esa capa (CU-02).
+                var mainWindow = (MainWindow)Application.Current.MainWindow;
+                mainWindow.ShowScreen(new VerificationScreen(
+                    onVerified: () => {
+                        MessageBox.Show((string)Application.Current.Resources["CreateAccount_SuccessMessage"]);
+                        mainWindow.ShowScreen(new LoginScreen());
+                    },
+                    onBack: () => mainWindow.ShowScreen(new CreateAccountScreen())
+                ));
             }
-
-            string emailError = ValidateEmailFormat(email);
-            if (emailError != null)
-            {
-                MessageBox.Show(emailError);
-                return;
-            }
-
-            // TODO: conectar con el servidor y crear el registro de Usuario (estado 'pendiente_verificacion') cuando exista esa capa (CU-02).
-            var mainWindow = (MainWindow)Application.Current.MainWindow;
-            mainWindow.ShowScreen(new VerificationScreen(
-                onVerified: () => {
-                    MessageBox.Show((string)Application.Current.Resources["CreateAccount_SuccessMessage"]);
-                    mainWindow.ShowScreen(new LoginScreen());
-                },
-                onBack: () => mainWindow.ShowScreen(new CreateAccountScreen())
-            ));
         }
 
         private void BtnBack_Click(object sender, RoutedEventArgs e)
