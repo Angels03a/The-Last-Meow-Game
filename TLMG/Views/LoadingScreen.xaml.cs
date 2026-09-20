@@ -15,22 +15,25 @@ namespace TLMG.Views
             Loaded += LoadingScreen_Loaded;
         }
 
-        private void LoadingScreen_Loaded(object sender, RoutedEventArgs e)
+        private void LoadingScreen_Loaded(object eventSender, RoutedEventArgs eventArguments)
         {
-            var animation = new DoubleAnimation
+            var loadingAnimation = new DoubleAnimation
             {
                 From = 0,
-                To = 600,
-                Duration = new Duration(TimeSpan.FromSeconds(4.5)),
+                To = 400,
+                Duration = new Duration(TimeSpan.FromSeconds(3)),
                 EasingFunction = new QuadraticEase
                 {
                     EasingMode = EasingMode.EaseInOut
                 }
             };
 
-            animation.Completed += (s, args) => LoadingCompleted?.Invoke(this, EventArgs.Empty);
+            loadingAnimation.Completed += (animationSender, animationArguments) =>
+            {
+                LoadingCompleted?.Invoke(this, EventArgs.Empty);
+            };
 
-            rectLoadingBar.BeginAnimation(WidthProperty, animation);
+            rectLoadingBar.BeginAnimation(System.Windows.Shapes.Rectangle.WidthProperty, loadingAnimation);
         }
     }
 }
