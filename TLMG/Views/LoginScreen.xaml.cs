@@ -9,35 +9,35 @@ namespace TLMG.Views
 {
     public partial class LoginScreen : UserControl
     {
-        private static readonly string[] _allowedDomains = { "outlook.com", "hotmail.com", "live.com", "gmail.com", "uv.mx" };
+        private static readonly string[] PermittedEmailDomains = { "outlook.com", "hotmail.com", "live.com", "gmail.com", "uv.mx" };
 
         public LoginScreen()
         {
             InitializeComponent();
         }
 
-        private string ValidateEmail(string email)
+        private string ValidateEmail(string emailAddress)
         {
-            string resultMessage = null;
+            string validationErrorMessage = null;
 
-            if (!string.IsNullOrWhiteSpace(email))
+            if (!string.IsNullOrWhiteSpace(emailAddress))
             {
-                if (Regex.IsMatch(email, @"[%&]"))
+                if (Regex.IsMatch(emailAddress, @"[%&]"))
                 {
-                    resultMessage = (string)Application.Current.Resources["Login_EmailCharactersError"];
+                    validationErrorMessage = TryFindResource("Login_EmailCharactersError") as string;
                 }
-                else if (!email.Contains("@") || !email.Contains("."))
+                else if (!emailAddress.Contains("@") || !emailAddress.Contains("."))
                 {
-                    resultMessage = (string)Application.Current.Resources["Login_EmailFormatError"];
+                    validationErrorMessage = TryFindResource("Login_EmailFormatError") as string;
                 }
                 else
                 {
-                    string domain = email.Substring(email.IndexOf('@') + 1).ToLower();
+                    string extractedDomain = emailAddress.Substring(emailAddress.IndexOf('@') + 1).ToLower();
                     bool isDomainValid = false;
 
-                    foreach (string allowedDomain in _allowedDomains)
+                    foreach (string validDomain in PermittedEmailDomains)
                     {
-                        if (domain == allowedDomain)
+                        if (extractedDomain == validDomain)
                         {
                             isDomainValid = true;
                             break;
@@ -46,15 +46,15 @@ namespace TLMG.Views
 
                     if (!isDomainValid)
                     {
-                        resultMessage = (string)Application.Current.Resources["Login_EmailDomainError"];
+                        validationErrorMessage = TryFindResource("Login_EmailDomainError") as string;
                     }
                 }
             }
 
-            return resultMessage;
+            return validationErrorMessage;
         }
 
-        private void BtnShowPassword_Click(object sender, RoutedEventArgs e)
+        private void BtnShowPassword_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             if (txtPasswordVisible.Visibility == Visibility.Collapsed)
             {
@@ -70,58 +70,61 @@ namespace TLMG.Views
             }
         }
 
-        private async void ShowStatusMessage(TextBlock label, string message, bool isError = true)
+        private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)
         {
-            label.Text = message;
-            label.Foreground = isError
+            messageElement.Text = messageContent;
+            messageElement.Foreground = isErrorMessage
                 ? (Brush)FindResource("Brush_Error")
                 : (Brush)FindResource("Brush_Accent");
-            label.Visibility = Visibility.Visible;
+            messageElement.Visibility = Visibility.Visible;
 
             await Task.Delay(4000);
 
-            if (label.Text == message)
+            if (messageElement.Text == messageContent)
             {
-                label.Visibility = Visibility.Collapsed;
+                messageElement.Visibility = Visibility.Hidden;
             }
         }
 
-        private void BtnLogIn_Click(object sender, RoutedEventArgs e)
+        private async void BtnLogIn_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            string email = txtEmail.Text;
-            string password = pwdPassword.Visibility == Visibility.Visible ? pwdPassword.Password : txtPasswordVisible.Text;
+            string inputEmailAddress = txtEmail.Text;
+            string inputPasswordText = pwdPassword.Visibility == Visibility.Visible ? pwdPassword.Password : txtPasswordVisible.Text;
 
-            lblEmailError.Visibility = Visibility.Collapsed;
+            lblEmailError.Visibility = Visibility.Hidden;
 
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(inputEmailAddress) || string.IsNullOrWhiteSpace(inputPasswordText))
             {
-                ShowStatusMessage(lblFormMessage, (string)Application.Current.Resources["Login_IncompleteFieldsError"], true);
+                ShowStatusMessage(lblFormMessage, TryFindResource("Login_IncompleteFieldsError") as string, true);
             }
             else
             {
-                string emailErrorMessage = ValidateEmail(email);
-                if (emailErrorMessage != null)
+                string emailValidationResult = ValidateEmail(inputEmailAddress);
+                if (emailValidationResult != null)
                 {
-                    ShowStatusMessage(lblEmailError, emailErrorMessage, true);
+                    ShowStatusMessage(lblEmailError, emailValidationResult, true);
                 }
                 else
                 {
-                    ShowStatusMessage(lblFormMessage, (string)Application.Current.Resources["Login_SuccessMessage"], false);
+                    ShowStatusMessage(lblFormMessage, TryFindResource("Login_SuccessMessage") as string, false);
+                    await Task.Delay(1000);
+                    MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+                    applicationMainWindow.ShowScreen(new MainMenuScreen());
                 }
             }
         }
 
-        private void BtnPlayAsGuest_Click(object sender, RoutedEventArgs e)
+        private void BtnPlayAsGuest_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             ShowStatusMessage(lblFormMessage, "Modo invitado: la pantalla de Menú Principal aún no está construida.", false);
         }
 
-        private void BtnForgotPassword_Click(object sender, RoutedEventArgs e)
+        private void BtnForgotPassword_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new ForgotPasswordScreen());
         }
 
-        private void BtnTabCreateAccount_Click(object sender, RoutedEventArgs e)
+        private void BtnTabCreateAccount_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new CreateAccountScreen());
         }

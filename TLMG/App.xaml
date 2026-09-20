@@ -5,7 +5,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Languages/Strings.es-MX.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/TLMG;component/Languages/Strings.es-MX.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

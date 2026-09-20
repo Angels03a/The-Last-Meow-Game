@@ -70,11 +70,14 @@
     <Compile Include="Views\NewPasswordScreen.xaml.cs">
       <DependentUpon>NewPasswordScreen.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\MainMenuScreen.xaml.cs">
+      <DependentUpon>MainMenuScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OptionsScreen.xaml.cs">
+      <DependentUpon>OptionsScreen.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\VerificationScreen.xaml.cs">
       <DependentUpon>VerificationScreen.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Window1.xaml.cs">
-      <DependentUpon>Window1.xaml</DependentUpon>
     </Compile>
     <Page Include="Languages\Strings.en-US.xaml">
       <SubType>Designer</SubType>
@@ -121,11 +124,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VerificationScreen.xaml">
+    <Page Include="Views\MainMenuScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Window1.xaml">
+    <Page Include="Views\OptionsScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\VerificationScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

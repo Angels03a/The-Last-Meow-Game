@@ -14,31 +14,19 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Background="{StaticResource Brush_BackgroundDark}">
-        <Border Style="{StaticResource CardBorderStyle}">
+        <Border Style="{StaticResource CardBorderStyle}" Width="680">
             <StackPanel>
-                <Border Style="{StaticResource HeaderIconBorderStyle}">
-                    <TextBlock Text="&#9993;"
-                               FontSize="28"
-                               Foreground="{StaticResource Brush_Accent}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center" />
+                <Border Style="{StaticResource VerificationHeaderIconBorderStyle}">
+                    <TextBlock Text="✉" Style="{StaticResource HeaderEmojiStyle}" />
                 </Border>
 
                 <TextBlock Text="{DynamicResource Verification_Title}"
-                           Style="{StaticResource TitleMediumTextStyle}"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,10" />
+                           Style="{StaticResource CenteredTitleMediumTextStyle}" />
 
                 <TextBlock Text="{DynamicResource Verification_Instructions}"
-                           Style="{StaticResource SubtitleTextStyle}"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           Margin="0,0,0,20"
-                           TextWrapping="Wrap" />
+                           Style="{StaticResource CenteredSubtitleTextStyle}" />
 
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Center"
-                            Margin="0,0,0,12">
+                <StackPanel Style="{StaticResource VerificationDigitsContainerStyle}">
                     <TextBox x:Name="txtDigit1" Style="{StaticResource VerificationDigitStyle}" />
                     <TextBox x:Name="txtDigit2" Style="{StaticResource VerificationDigitStyle}" />
                     <TextBox x:Name="txtDigit3" Style="{StaticResource VerificationDigitStyle}" />
@@ -47,17 +35,13 @@
                     <TextBox x:Name="txtDigit6" Style="{StaticResource VerificationDigitStyle}" />
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Center"
-                            Margin="0,0,0,10">
-                    <Ellipse x:Name="elpAttempt1" Style="{StaticResource AttemptDotStyle}" />
-                    <Ellipse x:Name="elpAttempt2" Style="{StaticResource AttemptDotStyle}" />
-                    <Ellipse x:Name="elpAttempt3" Style="{StaticResource AttemptDotStyle}" />
+                <StackPanel Style="{StaticResource AttemptDotsContainerStyle}">
+                    <Ellipse x:Name="EllipseAttempt1" Style="{StaticResource AttemptDotStyle}" />
+                    <Ellipse x:Name="EllipseAttempt2" Style="{StaticResource AttemptDotStyle}" />
+                    <Ellipse x:Name="EllipseAttempt3" Style="{StaticResource AttemptDotStyle}" />
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Center"
-                            Margin="0,0,0,8">
+                <StackPanel Style="{StaticResource ExpirationContainerStyle}">
                     <TextBlock Text="{DynamicResource Verification_ExpiresIn}"
                                Style="{StaticResource FieldLabelTextStyle}"
                                Margin="0,0,6,0" />
@@ -69,28 +53,25 @@
 
                 <Button x:Name="btnResendCode"
                         Content="{DynamicResource Verification_ResendButton}"
-                        Style="{StaticResource ForgotPasswordLinkStyle}"
-                        HorizontalAlignment="Center"
-                        Margin="0,0,0,20"
+                        Style="{StaticResource VerificationResendButtonStyle}"
                         IsEnabled="False"
                         Click="BtnResendCode_Click" />
 
                 <Button x:Name="btnVerifyCode"
                         Content="{DynamicResource Verification_VerifyButton}"
-                        Style="{StaticResource PrimaryButtonStyle}"
+                        Style="{StaticResource VerificationPrimaryButtonStyle}"
                         IsEnabled="False"
-                        Margin="0,0,0,16"
                         Click="BtnVerifyCode_Click" />
 
-                <Border BorderBrush="{StaticResource Brush_Border}"
-                        BorderThickness="0,1,0,0"
-                        Padding="0,14,0,0">
+                <Border Style="{StaticResource VerificationBackContainerStyle}">
                     <Button x:Name="btnBack"
                             Content="{DynamicResource Verification_BackButton}"
-                            Style="{StaticResource ForgotPasswordLinkStyle}"
-                            HorizontalAlignment="Center"
+                            Style="{StaticResource CenteredLinkButtonStyle}"
                             Click="BtnBack_Click" />
                 </Border>
+
+                <TextBlock x:Name="lblVerificationError"
+                           Style="{StaticResource VerificationErrorTextStyle}" />
 
                 <TextBlock x:Name="lblFormMessage"
                            Style="{StaticResource FormMessageTextStyle}" />

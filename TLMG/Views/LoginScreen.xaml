@@ -4,8 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="600"
-             d:DesignWidth="900">
+             d:DesignHeight="720"
+             d:DesignWidth="1280">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -20,29 +20,38 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0" Background="{StaticResource Brush_BackgroundDark}">
-            <Ellipse Width="500" Height="500" Opacity="0.15">
-                <Ellipse.Fill>
-                    <RadialGradientBrush>
-                        <GradientStop Color="{StaticResource Color_Accent}" Offset="0" />
-                        <GradientStop Color="Transparent" Offset="1" />
-                    </RadialGradientBrush>
-                </Ellipse.Fill>
-            </Ellipse>
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <ContentControl Style="{StaticResource CatIconStyle}" Width="110" Height="110" Margin="0,0,0,20" />
-                <TextBlock Text="{DynamicResource Login_Title}"
-                           Style="{StaticResource TitleTextStyle}"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,4" />
-                <TextBlock Text="{DynamicResource Login_Subtitle}"
-                           Style="{StaticResource SubtitleTextStyle}"
-                           HorizontalAlignment="Center" />
+            <Ellipse Style="{StaticResource HeroBackgroundGlowStyle}" />
+
+            <StackPanel Style="{StaticResource HeroContentPanelStyle}">
+                <StackPanel Style="{StaticResource HeroEmojiRowStyle}">
+                    <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
+                        <TextBlock Text="🐱" Style="{StaticResource HeroEmojiStyle}" />
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
+                        <TextBlock Text="🧟" Style="{StaticResource HeroEmojiStyle}" />
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
+                        <TextBlock Text="🚀" Style="{StaticResource HeroEmojiStyle}" />
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
+                        <TextBlock Text="💀" Style="{StaticResource HeroEmojiStyle}" />
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
+                        <TextBlock Text="🐈‍" Style="{StaticResource HeroEmojiStyle}" />
+                    </StackPanel>
+                    <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
+                        <TextBlock Text="🧛‍♀" Style="{StaticResource HeroEmojiStyle}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <TextBlock Text="{DynamicResource Login_Title}" Style="{StaticResource HeroTitleTextStyle}" />
+                <TextBlock Text="{DynamicResource Login_Subtitle}" Style="{StaticResource HeroSubtitleTextStyle}" />
             </StackPanel>
         </Grid>
 
-        <Border Grid.Column="1" Background="{StaticResource Brush_BackgroundPanel}" BorderBrush="{StaticResource Brush_Border}" BorderThickness="1,0,0,0">
-            <StackPanel Margin="48,60,48,0">
-                <Grid Margin="0,0,0,32">
+        <Border Grid.Column="1" Style="{StaticResource SidePanelBorderStyle}">
+            <StackPanel Style="{StaticResource SidePanelContentStyle}">
+                <Grid Style="{StaticResource AuthenticationTabsGridStyle}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
@@ -67,8 +76,7 @@
                            Style="{StaticResource ErrorTextStyle}" />
 
                 <TextBlock Text="{DynamicResource Login_PasswordLabel}"
-                           Style="{StaticResource FieldLabelTextStyle}"
-                           Margin="0,16,0,6" />
+                           Style="{StaticResource FieldLabelTextStyle}" />
                 <Grid>
                     <PasswordBox x:Name="pwdPassword"
                                  Style="{StaticResource FieldStyle}" />
@@ -76,33 +84,27 @@
                              Style="{StaticResource FieldStyle}"
                              Visibility="Collapsed" />
                     <Button x:Name="btnShowPassword"
-                            Content="o"
-                            Style="{StaticResource LinkButtonStyle}"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center"
-                            Margin="0,0,8,0"
+                            Content="●"
+                            Style="{StaticResource PasswordToggleButtonStyle}"
                             Click="BtnShowPassword_Click" />
                 </Grid>
                 <TextBlock x:Name="lblPasswordError"
                            Style="{StaticResource ErrorTextStyle}" />
 
                 <Button x:Name="btnForgotPassword"
-                        Content="{DynamicResource Login_ForgotPassword}"
-                        Style="{StaticResource ForgotPasswordLinkStyle}"
-                        HorizontalAlignment="Right"
-                        Margin="0,8,0,0"
-                        Click="BtnForgotPassword_Click" />
+                        Style="{StaticResource RightAlignedLinkButtonStyle}"
+                        Click="BtnForgotPassword_Click">
+                    <TextBlock Text="{DynamicResource Login_ForgotPassword}" TextDecorations="Underline" />
+                </Button>
 
                 <Button x:Name="btnLogIn"
                         Content="{DynamicResource Login_LogInButton}"
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        Margin="0,20,0,0"
+                        Style="{StaticResource AuthenticationPrimaryButtonStyle}"
                         Click="BtnLogIn_Click" />
 
                 <Button x:Name="btnPlayAsGuest"
                         Content="{DynamicResource Login_GuestButton}"
-                        Style="{StaticResource OutlineButtonStyle}"
-                        Margin="0,10,0,0"
+                        Style="{StaticResource AuthenticationSecondaryButtonStyle}"
                         Click="BtnPlayAsGuest_Click" />
 
                 <TextBlock x:Name="lblFormMessage"

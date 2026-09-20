@@ -8,14 +8,14 @@ namespace TLMG.Views
 {
     public partial class ForgotPasswordScreen : UserControl
     {
-        private static readonly string[] _allowedDomains = { "outlook.com", "hotmail.com", "live.com", "gmail.com", "uv.mx" };
+        private static readonly string[] PermittedEmailDomains = { "outlook.com", "hotmail.com", "live.com", "gmail.com", "uv.mx" };
 
         public ForgotPasswordScreen()
         {
             InitializeComponent();
         }
 
-        private void TxtEmail_LostFocus(object sender, RoutedEventArgs e)
+        private void TxtEmail_LostFocus(object eventSender, RoutedEventArgs eventArguments)
         {
             if (string.IsNullOrWhiteSpace(txtEmail.Text))
             {
@@ -23,10 +23,10 @@ namespace TLMG.Views
             }
             else
             {
-                string errorMessage = ValidateEmail(txtEmail.Text);
-                if (errorMessage != null)
+                string validationErrorMessage = ValidateEmail(txtEmail.Text);
+                if (validationErrorMessage != null)
                 {
-                    ShowStatusMessage(lblEmailError, errorMessage, true);
+                    ShowStatusMessage(lblEmailError, validationErrorMessage, true);
                 }
                 else
                 {
@@ -35,28 +35,28 @@ namespace TLMG.Views
             }
         }
 
-        private string ValidateEmail(string email)
+        private string ValidateEmail(string inputEmailAddress)
         {
-            string resultMessage = null;
+            string validationErrorMessage = null;
 
-            if (!string.IsNullOrWhiteSpace(email))
+            if (!string.IsNullOrWhiteSpace(inputEmailAddress))
             {
-                if (Regex.IsMatch(email, @"[%&]"))
+                if (Regex.IsMatch(inputEmailAddress, @"[%&]"))
                 {
-                    resultMessage = (string)Application.Current.Resources["Login_EmailCharactersError"];
+                    validationErrorMessage = TryFindResource("ForgotPassword_EmailCharactersError") as string;
                 }
-                else if (!email.Contains("@") || !email.Contains("."))
+                else if (!inputEmailAddress.Contains("@") || !inputEmailAddress.Contains("."))
                 {
-                    resultMessage = (string)Application.Current.Resources["Login_EmailFormatError"];
+                    validationErrorMessage = TryFindResource("ForgotPassword_EmailFormatError") as string;
                 }
                 else
                 {
-                    string domain = email.Substring(email.IndexOf('@') + 1).ToLower();
+                    string extractedDomainName = inputEmailAddress.Substring(inputEmailAddress.IndexOf('@') + 1).ToLower();
                     bool isDomainValid = false;
 
-                    foreach (string allowedDomain in _allowedDomains)
+                    foreach (string validDomain in PermittedEmailDomains)
                     {
-                        if (domain == allowedDomain)
+                        if (extractedDomainName == validDomain)
                         {
                             isDomainValid = true;
                             break;
@@ -65,57 +65,68 @@ namespace TLMG.Views
 
                     if (!isDomainValid)
                     {
-                        resultMessage = (string)Application.Current.Resources["Login_EmailDomainError"];
+                        validationErrorMessage = TryFindResource("ForgotPassword_EmailDomainError") as string;
                     }
                 }
             }
 
-            return resultMessage;
+            return validationErrorMessage;
         }
 
-        private async void ShowStatusMessage(TextBlock label, string message, bool isError = true)
+        private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)
         {
-            label.Text = message;
-            label.Foreground = isError
+            messageElement.Text = messageContent;
+            messageElement.Foreground = isErrorMessage
                 ? (Brush)FindResource("Brush_Error")
                 : (Brush)FindResource("Brush_Accent");
-            label.Visibility = Visibility.Visible;
+            messageElement.Visibility = Visibility.Visible;
 
             await Task.Delay(4000);
 
-            if (label.Text == message)
+            if (messageElement.Text == messageContent)
             {
-                label.Visibility = Visibility.Collapsed;
+                messageElement.Visibility = Visibility.Collapsed;
             }
         }
 
-        private void BtnSendCode_Click(object sender, RoutedEventArgs e)
+        private async void BtnSendCode_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            string email = txtEmail.Text;
+            string inputEmailAddress = txtEmail.Text;
             lblEmailError.Visibility = Visibility.Collapsed;
 
-            if (string.IsNullOrWhiteSpace(email))
+            if (string.IsNullOrWhiteSpace(inputEmailAddress))
             {
-                ShowStatusMessage(lblFormMessage, (string)Application.Current.Resources["Login_IncompleteFieldsError"], true);
+                ShowStatusMessage(lblFormMessage, TryFindResource("ForgotPassword_EmailRequiredError") as string, true);
             }
             else
             {
-                string emailErrorMessage = ValidateEmail(email);
-                if (emailErrorMessage != null)
+                string emailValidationResult = ValidateEmail(inputEmailAddress);
+                if (emailValidationResult != null)
                 {
-                    ShowStatusMessage(lblEmailError, emailErrorMessage, true);
+                    ShowStatusMessage(lblEmailError, emailValidationResult, true);
                 }
                 else
                 {
-                    // TODO: Conectar con el servidor para enviar código (CU-04)
-                    ShowStatusMessage(lblFormMessage, "Código enviado al correo.", false);
+                    ShowStatusMessage(lblFormMessage, TryFindResource("ForgotPassword_CodeSentMessage") as string, false);
+                    await Task.Delay(1000);
+
+                    MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+                    applicationMainWindow.ShowScreen(new VerificationScreen(
+                        onVerifiedCallbackAction: () => {
+                            applicationMainWindow.ShowScreen(new NewPasswordScreen());
+                        },
+                        onBackCallbackAction: () => {
+                            applicationMainWindow.ShowScreen(new ForgotPasswordScreen());
+                        }
+                    ));
                 }
             }
         }
 
-        private void BtnBackToLogin_Click(object sender, RoutedEventArgs e)
+        private void BtnBackToLogin_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new LoginScreen());
         }
     }
 }
