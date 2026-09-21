@@ -1,8 +1,9 @@
-﻿using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+
+using TLMG;
 
 namespace TLMG.Views
 {
@@ -13,107 +14,103 @@ namespace TLMG.Views
             InitializeComponent();
         }
 
-        private void PwdNewPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        private void PwdNewPassword_PasswordChanged(object eventSender, RoutedEventArgs eventArguments)
         {
             UpdatePasswordStrengthDisplay();
         }
 
         private void UpdatePasswordStrengthDisplay()
         {
-            string password = pwdNewPassword.Password;
-            int score = CalculatePasswordStrength(password);
-            var bars = new[] { rectStrength1, rectStrength2, rectStrength3, rectStrength4, rectStrength5 };
+            string currentPasswordText = pwdNewPassword.Password;
+            int passwordStrengthScore = CalculatePasswordStrength(currentPasswordText);
+            Border[] strengthBarsArray = new[] { BorderStrength1, BorderStrength2, BorderStrength3, BorderStrength4, BorderStrength5 };
 
-            if (password.Length == 0)
+            if (currentPasswordText.Length == 0)
             {
-                foreach (var bar in bars)
+                foreach (Border strengthBorderElement in strengthBarsArray)
                 {
-                    bar.Background = (Brush)FindResource("Brush_Border");
+                    strengthBorderElement.Background = (Brush)FindResource("Brush_Border");
                 }
                 lblStrengthLabel.Visibility = Visibility.Collapsed;
             }
             else
             {
-                Color scoreColor = score <= 2
+                Color indicatorColor = passwordStrengthScore <= 2
                     ? Color.FromRgb(0xEF, 0x44, 0x44)
-                    : score == 3
+                    : passwordStrengthScore == 3
                         ? Color.FromRgb(0xF5, 0x9E, 0x0B)
                         : Color.FromRgb(0x10, 0xB9, 0x81);
 
-                string[] labelKeys = { "", "NewPassword_StrengthVeryWeak", "NewPassword_StrengthWeak", "NewPassword_StrengthFair", "NewPassword_StrengthGood", "NewPassword_StrengthStrong" };
+                string[] strengthLabelResourceKeys = { "", "NewPassword_StrengthVeryWeak", "NewPassword_StrengthWeak", "NewPassword_StrengthFair", "NewPassword_StrengthGood", "NewPassword_StrengthStrong" };
 
-                for (int i = 0; i < bars.Length; i++)
+                for (int collectionIndex = 0; collectionIndex < strengthBarsArray.Length; collectionIndex++)
                 {
-                    bars[i].Background = i < score
-                        ? new SolidColorBrush(scoreColor)
+                    strengthBarsArray[collectionIndex].Background = collectionIndex < passwordStrengthScore
+                        ? new SolidColorBrush(indicatorColor)
                         : (Brush)FindResource("Brush_Border");
                 }
 
-                lblStrengthLabel.Text = (string)Application.Current.Resources[labelKeys[score]];
-                lblStrengthLabel.Foreground = new SolidColorBrush(scoreColor);
+                lblStrengthLabel.Text = TryFindResource(strengthLabelResourceKeys[passwordStrengthScore]) as string ?? strengthLabelResourceKeys[passwordStrengthScore];
+                lblStrengthLabel.Foreground = new SolidColorBrush(indicatorColor);
                 lblStrengthLabel.Visibility = Visibility.Visible;
             }
         }
 
-        private int CalculatePasswordStrength(string password)
+        private int CalculatePasswordStrength(string inputPasswordText)
         {
-            int score = 0;
-            if (password.Length >= 12) score++;
-            if (Regex.IsMatch(password, "[A-Z]")) score++;
-            if (Regex.IsMatch(password, "[a-z]")) score++;
-            if (Regex.IsMatch(password, "[0-9]")) score++;
-            if (Regex.IsMatch(password, @"[^A-Za-z0-9]")) score++;
-            return score;
+            return ValidationHelper.CalculatePasswordStrength(inputPasswordText);
         }
 
-        private async void ShowStatusMessage(TextBlock label, string message, bool isError = true)
+        private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)
         {
-            label.Text = message;
-            label.Foreground = isError
+            messageElement.Text = messageContent;
+            messageElement.Foreground = isErrorMessage
                 ? (Brush)FindResource("Brush_Error")
                 : (Brush)FindResource("Brush_Accent");
-            label.Visibility = Visibility.Visible;
+            messageElement.Visibility = Visibility.Visible;
 
             await Task.Delay(4000);
 
-            if (label.Text == message)
+            if (messageElement.Text == messageContent)
             {
-                label.Visibility = Visibility.Collapsed;
+                messageElement.Visibility = Visibility.Collapsed;
             }
         }
 
-        private async void BtnSetPassword_Click(object sender, RoutedEventArgs e)
+        private async void BtnSetPassword_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            string password = pwdNewPassword.Password;
-            string confirmPassword = pwdConfirmPassword.Password;
+            string inputNewPassword = pwdNewPassword.Password;
+            string inputConfirmPassword = pwdConfirmPassword.Password;
 
-            if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(confirmPassword))
+            if (string.IsNullOrWhiteSpace(inputNewPassword) || string.IsNullOrWhiteSpace(inputConfirmPassword))
             {
-                ShowStatusMessage(lblFormMessage, (string)Application.Current.Resources["Login_IncompleteFieldsError"], true);
+                ShowStatusMessage(lblFormMessage, TryFindResource("Login_IncompleteFieldsError") as string, true);
             }
-            else if (CalculatePasswordStrength(password) < 5)
+            else if (CalculatePasswordStrength(inputNewPassword) < 5)
             {
-                ShowStatusMessage(lblPasswordError, (string)Application.Current.Resources["NewPassword_PolicyError"], true);
+                ShowStatusMessage(lblPasswordError, TryFindResource("NewPassword_PolicyError") as string, true);
             }
-            else if (password != confirmPassword)
+            else if (inputNewPassword != inputConfirmPassword)
             {
-                ShowStatusMessage(lblMismatchError, (string)Application.Current.Resources["NewPassword_MismatchError"], true);
+                ShowStatusMessage(lblMismatchError, TryFindResource("NewPassword_MismatchError") as string, true);
             }
             else
             {
-                lblFormMessage.Text = (string)Application.Current.Resources["NewPassword_SuccessMessage"];
+                lblFormMessage.Text = TryFindResource("NewPassword_SuccessMessage") as string;
                 lblFormMessage.Foreground = (Brush)FindResource("Brush_Accent");
                 lblFormMessage.Visibility = Visibility.Visible;
 
                 await Task.Delay(2000);
 
-                ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
+                MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+                applicationMainWindow.ShowScreen(new LoginScreen());
             }
         }
 
-        private void BtnBackToForgotPassword_Click(object sender, RoutedEventArgs e)
+        private void BtnBackToForgotPassword_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            ((MainWindow)Application.Current.MainWindow).ShowScreen(new ForgotPasswordScreen());
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new ForgotPasswordScreen());
         }
     }
 }

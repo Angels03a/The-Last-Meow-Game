@@ -1,0 +1,130 @@
+﻿<UserControl x:Class="TLMG.Views.OptionsScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="720"
+             d:DesignWidth="1280">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/TLMG;component/Styles/GlobalStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource Brush_BackgroundDark}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Background="{StaticResource Brush_BackgroundPanel}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="{DynamicResource Options_Title}" Style="{StaticResource SidebarTitleTextStyle}" />
+
+                <Button Grid.Row="2" x:Name="btnBack" Content="{DynamicResource Options_BackButton}" Style="{StaticResource SidebarBackButtonStyle}" Click="BtnBack_Click" />
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Style="{StaticResource OptionsContentPanelStyle}">
+
+                <TextBlock Text="{DynamicResource Options_SectionTitle}" Style="{StaticResource OptionsMainTitleStyle}" />
+
+                <Border Style="{StaticResource OptionsCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Options_LanguageLabel}" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,16" />
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="btnLangEn" Content="US English" Style="{StaticResource LangButtonInactiveStyle}" Click="BtnLangEn_Click" />
+                            <Button x:Name="btnLangEs" Content="ES Español" Style="{StaticResource LangButtonActiveStyle}" Click="BtnLangEs_Click" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource OptionsCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Options_AudioLabel}" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,16" />
+
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🎵" Style="{StaticResource OptionIconStyle}" />
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Options_MusicLabel}" Style="{StaticResource OptionLabelStyle}" />
+                            <CheckBox Grid.Column="2" Style="{StaticResource ToggleSwitchStyle}" IsChecked="True" />
+                        </Grid>
+
+                        <Grid Margin="0,16,0,32">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="48" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🔈" Style="{StaticResource OptionSmallIconStyle}" />
+                            <Slider Grid.Column="1" x:Name="sldMusic" Style="{StaticResource CustomSliderStyle}" Maximum="100" ValueChanged="SldMusic_ValueChanged" />
+                            <TextBlock Grid.Column="2" Text="🔊" Style="{StaticResource OptionSmallIconStyle}" HorizontalAlignment="Right" Margin="0,0,8,0" />
+                            <TextBlock Grid.Column="3" x:Name="lblMusicVol" Style="{StaticResource OptionValueTextStyle}" />
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🔊" Style="{StaticResource OptionIconStyle}" />
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Options_SfxLabel}" Style="{StaticResource OptionLabelStyle}" />
+                            <CheckBox Grid.Column="2" Style="{StaticResource ToggleSwitchStyle}" IsChecked="True" />
+                        </Grid>
+
+                        <Grid Margin="0,16,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="48" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🔈" Style="{StaticResource OptionSmallIconStyle}" />
+                            <Slider Grid.Column="1" x:Name="sldSfx" Style="{StaticResource CustomSliderStyle}" Maximum="100" ValueChanged="SldSfx_ValueChanged" />
+                            <TextBlock Grid.Column="2" Text="🔊" Style="{StaticResource OptionSmallIconStyle}" HorizontalAlignment="Right" Margin="0,0,8,0" />
+                            <TextBlock Grid.Column="3" x:Name="lblSfxVol" Style="{StaticResource OptionValueTextStyle}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource OptionsCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Options_NotificationsLabel}" Style="{StaticResource SectionTitleStyle}" Margin="0,0,0,16" />
+                        <Grid Margin="0,8,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Options_GameInvitesTitle}" Style="{StaticResource OptionLabelStyle}" Margin="0,0,0,4" />
+                                <TextBlock Text="{DynamicResource Options_GameInvitesDesc}" Style="{StaticResource OptionDescriptionStyle}" />
+                            </StackPanel>
+
+                            <CheckBox Grid.Column="1" Style="{StaticResource ToggleSwitchStyle}" IsChecked="True" VerticalAlignment="Center" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Button x:Name="btnReset" Content="{DynamicResource Options_ResetButton}" Style="{StaticResource OptionsResetButtonStyle}" Click="BtnReset_Click" />
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

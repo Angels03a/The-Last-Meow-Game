@@ -1,4 +1,7 @@
-﻿using System;
+using System;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Threading;
 using System.Windows;
 
 namespace TLMG
@@ -9,12 +12,32 @@ namespace TLMG
 
         public static void ChangeLanguage(string cultureCode)
         {
-            var dict = new ResourceDictionary
+            CultureInfo selectedCulture = new CultureInfo(cultureCode);
+            Thread.CurrentThread.CurrentCulture = selectedCulture;
+
+            Collection<ResourceDictionary> dictionaries = Application.Current.Resources.MergedDictionaries;
+            ResourceDictionary oldDict = null;
+
+            foreach (ResourceDictionary dict in dictionaries)
             {
-                Source = new Uri($"Languages/Strings.{cultureCode}.xaml", UriKind.Relative)
+                if (dict.Source != null && dict.Source.OriginalString.Contains("Strings."))
+                {
+                    oldDict = dict;
+                    break;
+                }
+            }
+
+            if (oldDict != null)
+            {
+                dictionaries.Remove(oldDict);
+            }
+
+            ResourceDictionary newDict = new ResourceDictionary
+            {
+                Source = new Uri($"pack://application:,,,/TLMG;component/Languages/Strings.{cultureCode}.xaml")
             };
-            Application.Current.Resources.MergedDictionaries.Clear();
-            Application.Current.Resources.MergedDictionaries.Add(dict);
+
+            dictionaries.Add(newDict);
             CurrentCulture = cultureCode;
         }
     }

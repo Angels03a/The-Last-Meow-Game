@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,241 +11,246 @@ namespace TLMG.Views
 {
     public partial class VerificationScreen : UserControl
     {
-        private const string SimulatedCode = "123456"; // TODO: sustituir por el código real generado por el servidor cuando exista esa capa
-        private const int MaxAttempts = 3;
-        private readonly Action _onVerified;
-        private readonly Action _onBack;
-        private TextBox[] _digitBoxes;
-        private Ellipse[] _attemptDots;
-        private DispatcherTimer _timer;
-        private int _secondsUntilExpiry = 300;
-        private int _secondsUntilResend = 60;
-        private int _failedAttempts = 0;
+        private const string SimulatedVerificationCode = "123456";
+        private const int MaximumVerificationAttempts = 3;
+        private readonly Action _onVerifiedCallbackAction;
+        private readonly Action _onBackCallbackAction;
+        private TextBox[] _verificationDigitTextBoxes;
+        private Ellipse[] _attemptIndicatorEllipses;
+        private DispatcherTimer _countdownDispatcherTimer;
+        private int _remainingSecondsUntilExpiry = 300;
+        private int _remainingSecondsUntilResend = 60;
+        private int _totalFailedAttempts = 0;
 
-        public VerificationScreen(Action onVerified, Action onBack)
+        public VerificationScreen(Action onVerifiedCallbackAction, Action onBackCallbackAction, bool showStepsHeader = true)
         {
             InitializeComponent();
-            _onVerified = onVerified;
-            _onBack = onBack;
-            _digitBoxes = new[] { txtDigit1, txtDigit2, txtDigit3, txtDigit4, txtDigit5, txtDigit6 };
-            _attemptDots = new[] { elpAttempt1, elpAttempt2, elpAttempt3 };
+            _onVerifiedCallbackAction = onVerifiedCallbackAction;
+            _onBackCallbackAction = onBackCallbackAction;
+            _verificationDigitTextBoxes = new[] { txtDigit1, txtDigit2, txtDigit3, txtDigit4, txtDigit5, txtDigit6 };
+            _attemptIndicatorEllipses = new[] { EllipseAttempt1, EllipseAttempt2, EllipseAttempt3 };
 
-            foreach (var box in _digitBoxes)
+            foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
-                box.TextChanged += DigitBox_TextChanged;
-                box.PreviewKeyDown += DigitBox_PreviewKeyDown;
+                currentDigitTextBox.TextChanged += DigitBox_TextChanged;
+                currentDigitTextBox.PreviewKeyDown += DigitBox_PreviewKeyDown;
             }
 
-            StartTimer();
+            StartCountdownTimer();
         }
 
-        private void DigitBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void DigitBox_TextChanged(object eventSender, TextChangedEventArgs eventArguments)
         {
-            var box = (TextBox)sender;
-            lblFormMessage.Visibility = Visibility.Collapsed;
-            int index = Array.IndexOf(_digitBoxes, box);
+            TextBox currentDigitTextBox = (TextBox)eventSender;
+            lblFormMessage.Visibility = Visibility.Hidden;
+            int currentTextBoxIndex = Array.IndexOf(_verificationDigitTextBoxes, currentDigitTextBox);
 
-            if (box.Text.Length == 1 && index < _digitBoxes.Length - 1)
+            if (currentDigitTextBox.Text.Length == 1 && currentTextBoxIndex < _verificationDigitTextBoxes.Length - 1)
             {
-                _digitBoxes[index + 1].Focus();
+                _verificationDigitTextBoxes[currentTextBoxIndex + 1].Focus();
             }
 
             UpdateVerifyButtonState();
         }
 
-        private void DigitBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void DigitBox_PreviewKeyDown(object eventSender, KeyEventArgs eventArguments)
         {
-            var box = (TextBox)sender;
-            int index = Array.IndexOf(_digitBoxes, box);
+            TextBox currentDigitTextBox = (TextBox)eventSender;
+            int currentTextBoxIndex = Array.IndexOf(_verificationDigitTextBoxes, currentDigitTextBox);
 
-            if (e.Key == Key.Back && box.Text.Length == 0 && index > 0)
+            bool isBackspaceOnEmptyBox = eventArguments.Key == Key.Back && currentDigitTextBox.Text.Length == 0;
+            bool hasPreviousTextBox = currentTextBoxIndex > 0;
+
+            if (isBackspaceOnEmptyBox && hasPreviousTextBox)
             {
-                _digitBoxes[index - 1].Focus();
+                _verificationDigitTextBoxes[currentTextBoxIndex - 1].Focus();
             }
         }
 
         private void UpdateVerifyButtonState()
         {
-            bool allFilled = true;
-            foreach (var box in _digitBoxes)
+            bool areAllDigitsProvided = true;
+            foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
-                if (string.IsNullOrEmpty(box.Text))
+                if (string.IsNullOrEmpty(currentDigitTextBox.Text))
                 {
-                    allFilled = false;
+                    areAllDigitsProvided = false;
                     break;
                 }
             }
 
-            btnVerifyCode.IsEnabled = allFilled;
+            btnVerifyCode.IsEnabled = areAllDigitsProvided;
         }
 
-        private void StartTimer()
+        private void StartCountdownTimer()
         {
-            _timer = new DispatcherTimer
+            _countdownDispatcherTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(1)
             };
-            _timer.Tick += Timer_Tick;
-            _timer.Start();
-            UpdateTimerTexts();
+            _countdownDispatcherTimer.Tick += Timer_Tick;
+            _countdownDispatcherTimer.Start();
+            UpdateTimerInterfaceTexts();
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private void Timer_Tick(object eventSender, EventArgs eventArguments)
         {
-            if (_secondsUntilExpiry > 0)
+            if (_remainingSecondsUntilExpiry > 0)
             {
-                _secondsUntilExpiry--;
-                if (_secondsUntilExpiry == 0)
-                {
-                    _timer.Stop();
-                    ShowCodeExpired();
-                }
+                _remainingSecondsUntilExpiry--;
             }
 
-            if (_secondsUntilExpiry > 0)
+            if (_remainingSecondsUntilResend > 0)
             {
-                if (_secondsUntilResend > 0)
-                {
-                    _secondsUntilResend--;
-                }
-                UpdateTimerTexts();
+                _remainingSecondsUntilResend--;
+            }
+
+            UpdateTimerInterfaceTexts();
+
+            if (_remainingSecondsUntilExpiry == 0)
+            {
+                _countdownDispatcherTimer.Stop();
+                ShowCodeExpiredStatus();
             }
         }
 
-        private void UpdateTimerTexts()
+        private void UpdateTimerInterfaceTexts()
         {
-            TimeSpan timeRemaining = TimeSpan.FromSeconds(_secondsUntilExpiry);
-            lblExpiration.Text = string.Format("{0:00}:{1:00}", timeRemaining.Minutes, timeRemaining.Seconds);
+            TimeSpan currentRemainingTimeSpan = TimeSpan.FromSeconds(_remainingSecondsUntilExpiry);
+            lblExpiration.Text = string.Format("{0:00}:{1:00}", currentRemainingTimeSpan.Minutes, currentRemainingTimeSpan.Seconds);
 
-            string buttonText = (string)Application.Current.Resources["Verification_ResendButton"];
-            if (_secondsUntilResend > 0)
+            string originalButtonText = TryFindResource("Verification_ResendButton") as string;
+            if (_remainingSecondsUntilResend > 0)
             {
                 btnResendCode.IsEnabled = false;
-                btnResendCode.Content = string.Format("{0} ({1:00}s)", buttonText, _secondsUntilResend);
+                btnResendCode.Content = string.Format("{0} ({1:00}s)", originalButtonText, _remainingSecondsUntilResend);
             }
             else
             {
                 btnResendCode.IsEnabled = true;
-                btnResendCode.Content = buttonText;
+                btnResendCode.Content = originalButtonText;
             }
         }
 
-        private void ShowCodeExpired()
+        private void ShowCodeExpiredStatus()
         {
-            lblFormMessage.Text = (string)Application.Current.Resources["Verification_ExpiredCodeError"];
+            lblFormMessage.Text = TryFindResource("Verification_ExpiredCodeError") as string;
             lblFormMessage.Foreground = (Brush)FindResource("Brush_Error");
             lblFormMessage.Visibility = Visibility.Visible;
 
-            foreach (var box in _digitBoxes)
+            foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
-                box.IsEnabled = false;
+                currentDigitTextBox.IsEnabled = false;
             }
 
             btnVerifyCode.IsEnabled = false;
         }
 
-        private void UpdateAttemptDots()
+        private void UpdateAttemptIndicatorDots()
         {
-            for (int i = 0; i < _attemptDots.Length; i++)
+            for (int currentEllipseIndex = 0; currentEllipseIndex < _attemptIndicatorEllipses.Length; currentEllipseIndex++)
             {
-                _attemptDots[i].Fill = i < _failedAttempts
+                _attemptIndicatorEllipses[currentEllipseIndex].Fill = currentEllipseIndex < _totalFailedAttempts
                     ? (Brush)FindResource("Brush_Error")
                     : (Brush)FindResource("Brush_Border");
             }
         }
 
-        private async void ShowStatusMessage(TextBlock label, string message, bool isError = true)
+        private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)
         {
-            label.Text = message;
-            label.Foreground = isError
+            messageElement.Text = messageContent;
+            messageElement.Foreground = isErrorMessage
                 ? (Brush)FindResource("Brush_Error")
                 : (Brush)FindResource("Brush_Accent");
-            label.Visibility = Visibility.Visible;
+            messageElement.Visibility = Visibility.Visible;
 
             await Task.Delay(4000);
 
-            if (label.Text == message)
+            if (messageElement.Text == messageContent)
             {
-                label.Visibility = Visibility.Collapsed;
+                messageElement.Visibility = Visibility.Hidden;
             }
         }
 
-        private void BtnVerifyCode_Click(object sender, RoutedEventArgs e)
+        private void BtnVerifyCode_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            string enteredCode = "";
-            foreach (var box in _digitBoxes)
+            string concatenatedEnteredCode = "";
+            foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
-                enteredCode += box.Text;
+                concatenatedEnteredCode += currentDigitTextBox.Text;
             }
 
-            if (enteredCode == SimulatedCode)
+            lblVerificationError.Visibility = Visibility.Hidden;
+
+            if (concatenatedEnteredCode == SimulatedVerificationCode)
             {
-                _timer.Stop();
-                ShowStatusMessage(lblFormMessage, (string)Application.Current.Resources["Verification_SuccessMessage"], false);
-                _onVerified?.Invoke();
+                _countdownDispatcherTimer.Stop();
+                ShowStatusMessage(lblFormMessage, TryFindResource("Verification_SuccessMessage") as string, false);
+                _onVerifiedCallbackAction?.Invoke();
             }
             else
             {
-                _failedAttempts++;
-                UpdateAttemptDots();
+                _totalFailedAttempts++;
+                UpdateAttemptIndicatorDots();
 
-                if (_failedAttempts >= MaxAttempts)
+                if (_totalFailedAttempts >= MaximumVerificationAttempts)
                 {
-                    _timer.Stop();
-                    lblFormMessage.Text = (string)Application.Current.Resources["Verification_AttemptsExhaustedError"];
+                    _countdownDispatcherTimer.Stop();
+                    lblFormMessage.Text = TryFindResource("Verification_AttemptsExhaustedError") as string;
                     lblFormMessage.Foreground = (Brush)FindResource("Brush_Error");
                     lblFormMessage.Visibility = Visibility.Visible;
 
-                    foreach (var box in _digitBoxes)
+                    foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
                     {
-                        box.IsEnabled = false;
+                        currentDigitTextBox.IsEnabled = false;
                     }
 
                     btnVerifyCode.IsEnabled = false;
                 }
                 else
                 {
-                    ShowStatusMessage(lblFormMessage, (string)Application.Current.Resources["Verification_IncorrectCodeError"], true);
+                    ShowStatusMessage(lblVerificationError, TryFindResource("Verification_IncorrectCodeError") as string, true);
                 }
 
-                foreach (var box in _digitBoxes)
+                foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
                 {
-                    box.Text = "";
+                    currentDigitTextBox.Text = "";
                 }
 
-                _digitBoxes[0].Focus();
+                _verificationDigitTextBoxes[0].Focus();
             }
         }
 
-        private void BtnResendCode_Click(object sender, RoutedEventArgs e)
+        private void BtnResendCode_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            _secondsUntilExpiry = 300;
-            _secondsUntilResend = 60;
-            _failedAttempts = 0;
-            UpdateAttemptDots();
+            _remainingSecondsUntilExpiry = 300;
+            _remainingSecondsUntilResend = 60;
+            _totalFailedAttempts = 0;
+            UpdateAttemptIndicatorDots();
 
-            lblFormMessage.Visibility = Visibility.Collapsed;
+            lblFormMessage.Visibility = Visibility.Hidden;
+            lblVerificationError.Visibility = Visibility.Hidden;
 
-            foreach (var box in _digitBoxes)
+            foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
-                box.IsEnabled = true;
-                box.Text = "";
+                currentDigitTextBox.IsEnabled = true;
+                currentDigitTextBox.Text = "";
             }
 
             btnVerifyCode.IsEnabled = false;
 
-            if (!_timer.IsEnabled)
+            if (!_countdownDispatcherTimer.IsEnabled)
             {
-                _timer.Start();
+                _countdownDispatcherTimer.Start();
             }
 
-            _digitBoxes[0].Focus();
+            _verificationDigitTextBoxes[0].Focus();
         }
 
-        private void BtnBack_Click(object sender, RoutedEventArgs e)
+        private void BtnBack_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            _timer.Stop();
-            _onBack?.Invoke();
+            _countdownDispatcherTimer.Stop();
+            _onBackCallbackAction?.Invoke();
         }
     }
 }

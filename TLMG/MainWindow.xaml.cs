@@ -1,5 +1,6 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
+
 using TLMG.Views;
 
 namespace TLMG
@@ -10,7 +11,7 @@ namespace TLMG
         {
             InitializeComponent();
 
-            var loadingScreen = new LoadingScreen();
+            LoadingScreen loadingScreen = new LoadingScreen();
             loadingScreen.LoadingCompleted += (s, e) => ShowScreen(new LoginScreen());
             ShowScreen(loadingScreen);
         }
