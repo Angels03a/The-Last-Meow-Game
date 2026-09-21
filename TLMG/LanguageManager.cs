@@ -8,37 +8,23 @@ namespace TLMG
 {
     public static class LanguageManager
     {
-        public static string CurrentCulture { get; private set; } = "es-MX";
+        public static string CurrentCulture { get; private set; } = CultureInfo.CurrentUICulture.Name;
+
+        // Evento para notificar al resto de la app cuando cambia el idioma
+        public static event EventHandler LanguageChanged;
 
         public static void ChangeLanguage(string cultureCode)
         {
-            CultureInfo selectedCulture = new CultureInfo(cultureCode);
-            Thread.CurrentThread.CurrentCulture = selectedCulture;
+            if (string.IsNullOrWhiteSpace(cultureCode) ||
+                string.Equals(CurrentCulture, cultureCode, StringComparison.OrdinalIgnoreCase))
+                return;
 
-            Collection<ResourceDictionary> dictionaries = Application.Current.Resources.MergedDictionaries;
-            ResourceDictionary oldDict = null;
-
-            foreach (ResourceDictionary dict in dictionaries)
-            {
-                if (dict.Source != null && dict.Source.OriginalString.Contains("Strings."))
-                {
-                    oldDict = dict;
-                    break;
-                }
-            }
-
-            if (oldDict != null)
-            {
-                dictionaries.Remove(oldDict);
-            }
-
-            ResourceDictionary newDict = new ResourceDictionary
-            {
-                Source = new Uri($"pack://application:,,,/TLMG;component/Languages/Strings.{cultureCode}.xaml")
-            };
-
-            dictionaries.Add(newDict);
+            var culture = new CultureInfo(cultureCode);
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
             CurrentCulture = cultureCode;
+
+            LanguageChanged?.Invoke(null, EventArgs.Empty);
         }
     }
 }
