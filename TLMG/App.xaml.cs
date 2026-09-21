@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.ObjectModel;
 using System.Windows;
 
 namespace TLMG
@@ -8,32 +9,34 @@ namespace TLMG
         public App()
         {
             LanguageManager.LanguageChanged += OnLanguageChanged;
+            LanguageManager.InitializeLanguage();
         }
 
         private void OnLanguageChanged(object sender, EventArgs e)
         {
             string language = LanguageManager.CurrentCulture;
-            var merged = Resources.MergedDictionaries;
-            for (int i = merged.Count - 1; i >= 0; i--)
+            Collection<ResourceDictionary> mergedDictionaries = Resources.MergedDictionaries;
+
+            for (int dictionaryIndex = mergedDictionaries.Count - 1; dictionaryIndex >= 0; dictionaryIndex--)
             {
-                var dictionary = merged[i];
-                if (dictionary.Source != null && dictionary.Source.OriginalString.StartsWith("Resources/StringResources."))
+                ResourceDictionary currentDictionary = mergedDictionaries[dictionaryIndex];
+                if (currentDictionary.Source != null && currentDictionary.Source.OriginalString.Contains("Strings."))
                 {
-                    merged.RemoveAt(i);
+                    mergedDictionaries.RemoveAt(dictionaryIndex);
                 }
             }
 
-            var newDictionary = new ResourceDictionary
+            ResourceDictionary newDictionary = new ResourceDictionary
             {
-                Source = new Uri($"Resources/StringResources.{language}.xaml", UriKind.Relative)
+                Source = new Uri($"pack://application:,,,/TLMG;component/Languages/Strings.{language}.xaml")
             };
-            merged.Add(newDictionary);
+            mergedDictionaries.Add(newDictionary);
 
-            foreach (Window window in Windows)
+            foreach (Window activeWindow in Windows)
             {
-                var content = window.Content;
-                window.Content = null;
-                window.Content = content;
+                object currentContent = activeWindow.Content;
+                activeWindow.Content = null;
+                activeWindow.Content = currentContent;
             }
         }
     }

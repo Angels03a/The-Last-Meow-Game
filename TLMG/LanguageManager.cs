@@ -6,20 +6,38 @@ namespace TLMG
 {
     public static class LanguageManager
     {
-        public static string CurrentCulture { get; private set; } = CultureInfo.CurrentUICulture.Name;
+        private const string DefaultCultureCode = "es-MX";
 
-        // Evento para notificar al resto de la app cuando cambia el idioma
+        public static string CurrentCulture { get; private set; } = DefaultCultureCode;
+
+        // Evento para notificar al resto de la aplicación cuando cambia el idioma
         public static event EventHandler LanguageChanged;
+
+        public static void InitializeLanguage()
+        {
+            string systemCulture = CultureInfo.CurrentUICulture.Name;
+            string normalizedCulture = systemCulture.StartsWith("en", StringComparison.OrdinalIgnoreCase)
+                ? "en-US"
+                : DefaultCultureCode;
+
+            ChangeLanguage(normalizedCulture);
+        }
 
         public static void ChangeLanguage(string cultureCode)
         {
-            if (string.IsNullOrWhiteSpace(cultureCode) ||
-                string.Equals(CurrentCulture, cultureCode, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(cultureCode))
+            {
                 return;
+            }
 
-            var culture = new CultureInfo(cultureCode);
-            Thread.CurrentThread.CurrentCulture = culture;
-            Thread.CurrentThread.CurrentUICulture = culture;
+            if (string.Equals(CurrentCulture, cultureCode, StringComparison.OrdinalIgnoreCase) && Thread.CurrentThread.CurrentCulture.Name == cultureCode)
+            {
+                return;
+            }
+
+            CultureInfo targetCulture = new CultureInfo(cultureCode);
+            Thread.CurrentThread.CurrentCulture = targetCulture;
+            Thread.CurrentThread.CurrentUICulture = targetCulture;
             CurrentCulture = cultureCode;
 
             LanguageChanged?.Invoke(null, EventArgs.Empty);
