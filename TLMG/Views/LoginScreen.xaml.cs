@@ -82,7 +82,8 @@ namespace TLMG.Views
 
         private void BtnPlayAsGuest_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            ShowStatusMessage(lblFormMessage, "Modo invitado: la pantalla de Menú Principal aún no está construida.", false);
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new MainMenuScreen());
         }
 
         private void BtnForgotPassword_Click(object eventSender, RoutedEventArgs eventArguments)
