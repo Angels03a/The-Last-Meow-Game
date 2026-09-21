@@ -1,4 +1,5 @@
-﻿using System.Windows;
+using System.Globalization;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace TLMG.Views
@@ -43,7 +44,7 @@ namespace TLMG.Views
         {
             if (targetLabelElement != null)
             {
-                targetLabelElement.Text = $"{(int)targetVolumeValue}%";
+                targetLabelElement.Text = (targetVolumeValue / 100.0).ToString("P0");
             }
         }
 

@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <sys:String x:Key="MainWindow_Title">El Último Maullido</sys:String>
@@ -78,8 +78,8 @@
     <sys:String x:Key="CreateAccount_StrengthFair">Aceptable</sys:String>
     <sys:String x:Key="CreateAccount_StrengthGood">Buena</sys:String>
     <sys:String x:Key="CreateAccount_StrengthStrong">Fuerte</sys:String>
-    <sys:String x:Key="CreateAccount_VerifyEmailButton">Verificar Correo</sys:String>
-    <sys:String x:Key="CreateAccount_BackButton">Regresar</sys:String>
+    <sys:String x:Key="CreateAccount_CreateAccountButton">Crear Cuenta</sys:String>
+    <sys:String x:Key="CreateAccount_ConfirmPasswordLabel">Confirmar Contraseña</sys:String>
     <sys:String x:Key="CreateAccount_ConfirmAbandonTitle">Confirmar</sys:String>
     <sys:String x:Key="CreateAccount_ConfirmAbandonMessage">¿Está seguro que desea abandonar la operación? Su información no se almacenará</sys:String>
     <sys:String x:Key="CreateAccount_IncompleteFieldsError">Por favor, revise que todos los campos obligatorios estén llenos</sys:String>
@@ -135,4 +135,11 @@
     <sys:String x:Key="Cat_Vampyr">VAMPIRO</sys:String>
     <sys:String x:Key="Cat_Greek">GRIEGO</sys:String>
     <sys:String x:Key="Options_ResetButton">Restablecer Opciones por Defecto</sys:String>
+    <sys:String x:Key="CreateAccount_MismatchError">Las contraseñas no coinciden</sys:String>
+    <sys:String x:Key="MainMenu_Title">EL ÚLTIMO MAULLIDO</sys:String>
+    <sys:String x:Key="MainMenu_MockUsername">interStella</sys:String>
+    <sys:String x:Key="MainMenu_MockWins">142</sys:String>
+    <sys:String x:Key="MainMenu_MockScore">1,840</sys:String>
+    <sys:String x:Key="MainMenu_MockRank">#38</sys:String>
+    <sys:String x:Key="MainMenu_NextRankValue">120 pts</sys:String>
 </ResourceDictionary>

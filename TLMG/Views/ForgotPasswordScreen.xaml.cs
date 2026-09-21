@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,8 +8,6 @@ namespace TLMG.Views
 {
     public partial class ForgotPasswordScreen : UserControl
     {
-        private static readonly string[] PermittedEmailDomains = { "outlook.com", "hotmail.com", "live.com", "gmail.com", "uv.mx" };
-
         public ForgotPasswordScreen()
         {
             InitializeComponent();
@@ -37,40 +35,8 @@ namespace TLMG.Views
 
         private string ValidateEmail(string inputEmailAddress)
         {
-            string validationErrorMessage = null;
-
-            if (!string.IsNullOrWhiteSpace(inputEmailAddress))
-            {
-                if (Regex.IsMatch(inputEmailAddress, @"[%&]"))
-                {
-                    validationErrorMessage = TryFindResource("ForgotPassword_EmailCharactersError") as string;
-                }
-                else if (!inputEmailAddress.Contains("@") || !inputEmailAddress.Contains("."))
-                {
-                    validationErrorMessage = TryFindResource("ForgotPassword_EmailFormatError") as string;
-                }
-                else
-                {
-                    string extractedDomainName = inputEmailAddress.Substring(inputEmailAddress.IndexOf('@') + 1).ToLower();
-                    bool isDomainValid = false;
-
-                    foreach (string validDomain in PermittedEmailDomains)
-                    {
-                        if (extractedDomainName == validDomain)
-                        {
-                            isDomainValid = true;
-                            break;
-                        }
-                    }
-
-                    if (!isDomainValid)
-                    {
-                        validationErrorMessage = TryFindResource("ForgotPassword_EmailDomainError") as string;
-                    }
-                }
-            }
-
-            return validationErrorMessage;
+            string errorResourceKey = ValidationHelper.GetEmailValidationErrorKey(inputEmailAddress, "ForgotPassword");
+            return errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
         }
 
         private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)

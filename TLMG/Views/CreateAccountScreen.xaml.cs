@@ -1,18 +1,19 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
+using TLMG;
+
 namespace TLMG.Views
 {
     public partial class CreateAccountScreen : UserControl
     {
-        private static readonly string[] PermittedEmailDomains = { "outlook.com", "hotmail.com", "live.com", "gmail.com", "uv.mx" };
-        private static readonly string[] UnavailableNicknames = { "admin", "whiskers" };
-        private static readonly string[] OffensiveVocabularyWords = { "idiota", "estupido" };
-        private static readonly string[] UnavailableEmailAddresses = { "test@gmail.com" };
+        private static readonly string[] _unavailableNicknames = { "admin", "whiskers" };
+        private static readonly string[] _offensiveVocabularyWords = { "idiota", "estupido" };
+        private static readonly string[] _unavailableEmailAddresses = { "test@gmail.com" };
 
         public CreateAccountScreen()
         {
@@ -26,31 +27,28 @@ namespace TLMG.Views
 
         private int CalculatePasswordStrength(string inputPasswordString)
         {
-            int passwordStrengthScore = 0;
-            if (inputPasswordString.Length >= 12) passwordStrengthScore++;
-            if (Regex.IsMatch(inputPasswordString, "[A-Z]")) passwordStrengthScore++;
-            if (Regex.IsMatch(inputPasswordString, "[a-z]")) passwordStrengthScore++;
-            if (Regex.IsMatch(inputPasswordString, "[0-9]")) passwordStrengthScore++;
-            if (Regex.IsMatch(inputPasswordString, @"[^A-Za-z0-9]")) passwordStrengthScore++;
-            return passwordStrengthScore;
+            return ValidationHelper.CalculatePasswordStrength(inputPasswordString);
         }
 
         private string ValidateNickname(string inputNicknameString)
         {
             string validationErrorMessage = null;
 
-            if (inputNicknameString.Length < 3 || inputNicknameString.Length > 12 || !Regex.IsMatch(inputNicknameString, "^[a-zA-Z0-9]+$"))
+            bool isLengthInvalid = inputNicknameString.Length < 3 || inputNicknameString.Length > 12;
+            bool hasInvalidCharacters = !Regex.IsMatch(inputNicknameString, "^[a-zA-Z0-9]+$");
+
+            if (isLengthInvalid || hasInvalidCharacters)
             {
                 validationErrorMessage = TryFindResource("CreateAccount_NicknameFormatError") as string;
             }
             else
             {
                 string lowercaseNicknameString = inputNicknameString.ToLower();
-                if (OffensiveVocabularyWords.Any(offensiveWord => lowercaseNicknameString.Contains(offensiveWord)))
+                if (_offensiveVocabularyWords.Any(offensiveWord => lowercaseNicknameString.Contains(offensiveWord)))
                 {
                     validationErrorMessage = TryFindResource("CreateAccount_NicknameOffensiveError") as string;
                 }
-                else if (UnavailableNicknames.Contains(lowercaseNicknameString))
+                else if (_unavailableNicknames.Contains(lowercaseNicknameString))
                 {
                     validationErrorMessage = TryFindResource("CreateAccount_NicknameTakenError") as string;
                 }
@@ -61,30 +59,19 @@ namespace TLMG.Views
 
         private string ValidateEmailFormat(string inputEmailAddress)
         {
-            string validationErrorMessage = null;
+            string validationErrorKey = ValidationHelper.GetEmailValidationErrorKey(inputEmailAddress, "CreateAccount");
 
-            if (Regex.IsMatch(inputEmailAddress, @"[%&]"))
+            if (validationErrorKey != null)
             {
-                validationErrorMessage = TryFindResource("CreateAccount_EmailCharactersError") as string;
-            }
-            else if (!inputEmailAddress.Contains("@") || !inputEmailAddress.Contains("."))
-            {
-                validationErrorMessage = TryFindResource("CreateAccount_EmailFormatError") as string;
-            }
-            else
-            {
-                string extractedDomainName = inputEmailAddress.Substring(inputEmailAddress.IndexOf('@') + 1).ToLower();
-                if (!PermittedEmailDomains.Contains(extractedDomainName))
-                {
-                    validationErrorMessage = TryFindResource("CreateAccount_EmailDomainError") as string;
-                }
-                else if (UnavailableEmailAddresses.Contains(inputEmailAddress.ToLower()))
-                {
-                    validationErrorMessage = TryFindResource("CreateAccount_EmailTakenError") as string;
-                }
+                return TryFindResource(validationErrorKey) as string;
             }
 
-            return validationErrorMessage;
+            if (_unavailableEmailAddresses.Contains(inputEmailAddress.ToLower()))
+            {
+                return TryFindResource("CreateAccount_EmailTakenError") as string;
+            }
+
+            return null;
         }
 
         private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)
@@ -139,46 +126,43 @@ namespace TLMG.Views
                 }
                 else if (inputPasswordString != inputConfirmPasswordString)
                 {
-                    ShowStatusMessage(lblConfirmPasswordError, TryFindResource("NewPassword_MismatchError") as string, true);
+                    ShowStatusMessage(lblConfirmPasswordError, TryFindResource("CreateAccount_MismatchError") as string, true);
                     formHasErrors = true;
                 }
 
                 if (chkTerms.IsChecked != true)
                 {
-                    ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_TermsError") as string ?? "Debe aceptar los términos y condiciones.", true);
+                    ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_TermsError") as string, true);
                     formHasErrors = true;
                 }
             }
 
             if (!formHasErrors)
             {
+                // TODO: conectar con el servidor y crear el registro de Usuario cuando exista esa capa (CU-02).
                 MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
                 applicationMainWindow.ShowScreen(new VerificationScreen(
                     onVerifiedCallbackAction: () => {
-                        applicationMainWindow.ShowScreen(new MainMenuScreen());
+                        MessageBox.Show(TryFindResource("CreateAccount_SuccessMessage") as string);
+                        applicationMainWindow.ShowScreen(new LoginScreen());
                     },
                     onBackCallbackAction: () => applicationMainWindow.ShowScreen(new CreateAccountScreen()),
                     showStepsHeader: false
                 ));
             }
         }
-
         private void BtnBack_Click(object eventSender, RoutedEventArgs eventArguments)
         {
+            // FA-01 de CU-02: confirmar antes de abandonar el registro.
             MessageBoxResult confirmationResult = MessageBox.Show(
-                TryFindResource("CreateAccount_ConfirmAbandonMessage") as string ?? "Are you sure?",
-                TryFindResource("CreateAccount_ConfirmAbandonTitle") as string ?? "Confirm",
+                TryFindResource("CreateAccount_ConfirmAbandonMessage") as string,
+                TryFindResource("CreateAccount_ConfirmAbandonTitle") as string,
                 MessageBoxButton.YesNo);
 
             if (confirmationResult == MessageBoxResult.Yes)
             {
                 ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
             }
-        }
-
-        private void BtnBackToLogin_Click(object eventSender, RoutedEventArgs eventArguments)
-        {
-            ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace TLMG.Views
@@ -12,6 +12,7 @@ namespace TLMG.Views
 
         private void BtnNav_Click(object eventSender, RoutedEventArgs eventArguments)
         {
+            // TODO: navegar a las pantallas de Lobby, Cómo Jugar, Clasificación, Amigos, Perfil y Partida cuando existan.
         }
 
         private void BtnOptions_Click(object eventSender, RoutedEventArgs eventArguments)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,7 +30,7 @@ namespace TLMG.Views
             _verificationDigitTextBoxes = new[] { txtDigit1, txtDigit2, txtDigit3, txtDigit4, txtDigit5, txtDigit6 };
             _attemptIndicatorEllipses = new[] { EllipseAttempt1, EllipseAttempt2, EllipseAttempt3 };
 
-            foreach (var currentDigitTextBox in _verificationDigitTextBoxes)
+            foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
                 currentDigitTextBox.TextChanged += DigitBox_TextChanged;
                 currentDigitTextBox.PreviewKeyDown += DigitBox_PreviewKeyDown;
@@ -41,7 +41,7 @@ namespace TLMG.Views
 
         private void DigitBox_TextChanged(object eventSender, TextChangedEventArgs eventArguments)
         {
-            var currentDigitTextBox = (TextBox)eventSender;
+            TextBox currentDigitTextBox = (TextBox)eventSender;
             lblFormMessage.Visibility = Visibility.Hidden;
             int currentTextBoxIndex = Array.IndexOf(_verificationDigitTextBoxes, currentDigitTextBox);
 
@@ -55,10 +55,13 @@ namespace TLMG.Views
 
         private void DigitBox_PreviewKeyDown(object eventSender, KeyEventArgs eventArguments)
         {
-            var currentDigitTextBox = (TextBox)eventSender;
+            TextBox currentDigitTextBox = (TextBox)eventSender;
             int currentTextBoxIndex = Array.IndexOf(_verificationDigitTextBoxes, currentDigitTextBox);
 
-            if (eventArguments.Key == Key.Back && currentDigitTextBox.Text.Length == 0 && currentTextBoxIndex > 0)
+            bool isBackspaceOnEmptyBox = eventArguments.Key == Key.Back && currentDigitTextBox.Text.Length == 0;
+            bool hasPreviousTextBox = currentTextBoxIndex > 0;
+
+            if (isBackspaceOnEmptyBox && hasPreviousTextBox)
             {
                 _verificationDigitTextBoxes[currentTextBoxIndex - 1].Focus();
             }
@@ -67,7 +70,7 @@ namespace TLMG.Views
         private void UpdateVerifyButtonState()
         {
             bool areAllDigitsProvided = true;
-            foreach (var currentDigitTextBox in _verificationDigitTextBoxes)
+            foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
                 if (string.IsNullOrEmpty(currentDigitTextBox.Text))
                 {
@@ -135,7 +138,7 @@ namespace TLMG.Views
             lblFormMessage.Foreground = (Brush)FindResource("Brush_Error");
             lblFormMessage.Visibility = Visibility.Visible;
 
-            foreach (var currentDigitTextBox in _verificationDigitTextBoxes)
+            foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
                 currentDigitTextBox.IsEnabled = false;
             }
@@ -172,7 +175,7 @@ namespace TLMG.Views
         private void BtnVerifyCode_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             string concatenatedEnteredCode = "";
-            foreach (var currentDigitTextBox in _verificationDigitTextBoxes)
+            foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
                 concatenatedEnteredCode += currentDigitTextBox.Text;
             }
@@ -197,7 +200,7 @@ namespace TLMG.Views
                     lblFormMessage.Foreground = (Brush)FindResource("Brush_Error");
                     lblFormMessage.Visibility = Visibility.Visible;
 
-                    foreach (var currentDigitTextBox in _verificationDigitTextBoxes)
+                    foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
                     {
                         currentDigitTextBox.IsEnabled = false;
                     }
@@ -209,7 +212,7 @@ namespace TLMG.Views
                     ShowStatusMessage(lblVerificationError, TryFindResource("Verification_IncorrectCodeError") as string, true);
                 }
 
-                foreach (var currentDigitTextBox in _verificationDigitTextBoxes)
+                foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
                 {
                     currentDigitTextBox.Text = "";
                 }
@@ -228,7 +231,7 @@ namespace TLMG.Views
             lblFormMessage.Visibility = Visibility.Hidden;
             lblVerificationError.Visibility = Visibility.Hidden;
 
-            foreach (var currentDigitTextBox in _verificationDigitTextBoxes)
+            foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
                 currentDigitTextBox.IsEnabled = true;
                 currentDigitTextBox.Text = "";

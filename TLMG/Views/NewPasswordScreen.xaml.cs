@@ -1,8 +1,9 @@
-﻿using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+
+using TLMG;
 
 namespace TLMG.Views
 {
@@ -22,11 +23,11 @@ namespace TLMG.Views
         {
             string currentPasswordText = pwdNewPassword.Password;
             int passwordStrengthScore = CalculatePasswordStrength(currentPasswordText);
-            var strengthBarsArray = new[] { BorderStrength1, BorderStrength2, BorderStrength3, BorderStrength4, BorderStrength5 };
+            Border[] strengthBarsArray = new[] { BorderStrength1, BorderStrength2, BorderStrength3, BorderStrength4, BorderStrength5 };
 
             if (currentPasswordText.Length == 0)
             {
-                foreach (var strengthBorderElement in strengthBarsArray)
+                foreach (Border strengthBorderElement in strengthBarsArray)
                 {
                     strengthBorderElement.Background = (Brush)FindResource("Brush_Border");
                 }
@@ -57,13 +58,7 @@ namespace TLMG.Views
 
         private int CalculatePasswordStrength(string inputPasswordText)
         {
-            int calculatedStrengthScore = 0;
-            if (inputPasswordText.Length >= 12) calculatedStrengthScore++;
-            if (Regex.IsMatch(inputPasswordText, "[A-Z]")) calculatedStrengthScore++;
-            if (Regex.IsMatch(inputPasswordText, "[a-z]")) calculatedStrengthScore++;
-            if (Regex.IsMatch(inputPasswordText, "[0-9]")) calculatedStrengthScore++;
-            if (Regex.IsMatch(inputPasswordText, @"[^A-Za-z0-9]")) calculatedStrengthScore++;
-            return calculatedStrengthScore;
+            return ValidationHelper.CalculatePasswordStrength(inputPasswordText);
         }
 
         private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)

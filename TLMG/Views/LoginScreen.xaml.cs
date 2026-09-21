@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,8 +9,6 @@ namespace TLMG.Views
 {
     public partial class LoginScreen : UserControl
     {
-        private static readonly string[] PermittedEmailDomains = { "outlook.com", "hotmail.com", "live.com", "gmail.com", "uv.mx" };
-
         public LoginScreen()
         {
             InitializeComponent();
@@ -18,40 +16,8 @@ namespace TLMG.Views
 
         private string ValidateEmail(string emailAddress)
         {
-            string validationErrorMessage = null;
-
-            if (!string.IsNullOrWhiteSpace(emailAddress))
-            {
-                if (Regex.IsMatch(emailAddress, @"[%&]"))
-                {
-                    validationErrorMessage = TryFindResource("Login_EmailCharactersError") as string;
-                }
-                else if (!emailAddress.Contains("@") || !emailAddress.Contains("."))
-                {
-                    validationErrorMessage = TryFindResource("Login_EmailFormatError") as string;
-                }
-                else
-                {
-                    string extractedDomain = emailAddress.Substring(emailAddress.IndexOf('@') + 1).ToLower();
-                    bool isDomainValid = false;
-
-                    foreach (string validDomain in PermittedEmailDomains)
-                    {
-                        if (extractedDomain == validDomain)
-                        {
-                            isDomainValid = true;
-                            break;
-                        }
-                    }
-
-                    if (!isDomainValid)
-                    {
-                        validationErrorMessage = TryFindResource("Login_EmailDomainError") as string;
-                    }
-                }
-            }
-
-            return validationErrorMessage;
+            string errorResourceKey = ValidationHelper.GetEmailValidationErrorKey(emailAddress, "Login");
+            return errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
         }
 
         private void BtnShowPassword_Click(object eventSender, RoutedEventArgs eventArguments)

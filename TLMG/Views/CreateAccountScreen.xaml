@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="TLMG.Views.CreateAccountScreen"
+<UserControl x:Class="TLMG.Views.CreateAccountScreen"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -57,7 +57,7 @@
                     <Button x:Name="btnBack"
                             Content="{DynamicResource CreateAccount_BackToLogin}"
                             Style="{StaticResource TopLeftLinkButtonStyle}"
-                            Click="BtnBackToLogin_Click" />
+                            Click="BtnBack_Click" />
 
                     <TextBlock Text="{DynamicResource CreateAccount_Title}"
                                Style="{StaticResource FormTitleTextStyle}" />
@@ -96,7 +96,7 @@
                         </StackPanel>
                     </Border>
 
-                    <TextBlock Text="{DynamicResource NewPassword_ConfirmLabel}"
+                    <TextBlock Text="{DynamicResource CreateAccount_ConfirmPasswordLabel}"
                                Style="{StaticResource FieldLabelTextStyle}" />
                     <PasswordBox x:Name="pwdConfirmPassword"
                                  Style="{StaticResource FieldStyle}" />
@@ -109,7 +109,7 @@
                     </CheckBox>
 
                     <Button x:Name="btnCreateAccount"
-                            Content="{DynamicResource CreateAccount_Title}"
+                            Content="{DynamicResource CreateAccount_CreateAccountButton}"
                             Style="{StaticResource AuthenticationPrimaryButtonStyle}"
                             Click="BtnCreateAccount_Click" />
 
