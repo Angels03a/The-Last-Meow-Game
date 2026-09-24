@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="TLMG.Views.VerificationScreen"
+<UserControl x:Class="TLMG.Views.VerificationScreen"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -36,9 +36,9 @@
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource AttemptDotsContainerStyle}">
-                    <Ellipse x:Name="EllipseAttempt1" Style="{StaticResource AttemptDotStyle}" />
-                    <Ellipse x:Name="EllipseAttempt2" Style="{StaticResource AttemptDotStyle}" />
-                    <Ellipse x:Name="EllipseAttempt3" Style="{StaticResource AttemptDotStyle}" />
+                    <Ellipse x:Name="ellAttempt1" Style="{StaticResource AttemptDotStyle}" />
+                    <Ellipse x:Name="ellAttempt2" Style="{StaticResource AttemptDotStyle}" />
+                    <Ellipse x:Name="ellAttempt3" Style="{StaticResource AttemptDotStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource ExpirationContainerStyle}">

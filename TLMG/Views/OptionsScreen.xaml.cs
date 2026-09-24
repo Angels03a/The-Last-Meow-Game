@@ -3,15 +3,22 @@ using System.Windows.Controls;
 
 namespace TLMG.Views
 {
+    /// <summary>
+    /// Representa la pantalla de configuración de audio e idioma de la aplicación.
+    /// </summary>
     public partial class OptionsScreen : UserControl
     {
         private const double DefaultMusicVolumeLevel = 70.0;
         private const double DefaultSfxVolumeLevel = 85.0;
+        private const double VolumeScalePercentFactor = 100.0;
         private const string EnglishCultureIdentifier = "en-US";
         private const string SpanishCultureIdentifier = "es-MX";
         private const string ActiveLanguageButtonStyleKey = "LangButtonActiveStyle";
         private const string InactiveLanguageButtonStyleKey = "LangButtonInactiveStyle";
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="OptionsScreen"/>.
+        /// </summary>
         public OptionsScreen()
         {
             InitializeComponent();
@@ -43,7 +50,7 @@ namespace TLMG.Views
         {
             if (targetLabelElement != null)
             {
-                targetLabelElement.Text = (targetVolumeValue / 100.0).ToString("P0");
+                targetLabelElement.Text = (targetVolumeValue / VolumeScalePercentFactor).ToString("P0");
             }
         }
 

@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="TLMG.Views.MainMenuScreen"
+<UserControl x:Class="TLMG.Views.MainMenuScreen"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -37,7 +37,7 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
                         <TextBlock Text="🐱" Style="{StaticResource SidebarProfileAvatarStyle}" />
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource MainMenu_MockUsername}" Style="{StaticResource SidebarProfileUsernameStyle}" />
+                            <TextBlock Text="interStella" Style="{StaticResource SidebarProfileUsernameStyle}" />
                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                 <Ellipse Style="{StaticResource StatusIndicatorDotStyle}" />
                                 <TextBlock Text="{DynamicResource MainMenu_StatusOnline}" Style="{StaticResource StatusIndicatorTextStyle}" />
@@ -53,17 +53,17 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="{DynamicResource MainMenu_MockWins}" Style="{StaticResource SidebarStatValueGoldStyle}" />
+                            <TextBlock Text="142" Style="{StaticResource SidebarStatValueGoldStyle}" />
                             <TextBlock Text="{DynamicResource MainMenu_WinsLabel}" Style="{StaticResource SidebarStatLabelStyle}" />
                         </StackPanel>
 
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="{DynamicResource MainMenu_MockScore}" Style="{StaticResource SidebarStatValueAccentStyle}" />
+                            <TextBlock Text="1,840" Style="{StaticResource SidebarStatValueAccentStyle}" />
                             <TextBlock Text="{DynamicResource MainMenu_ScoreLabel}" Style="{StaticResource SidebarStatLabelStyle}" />
                         </StackPanel>
 
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="{DynamicResource MainMenu_MockRank}" Style="{StaticResource SidebarStatValuePrimaryStyle}" />
+                            <TextBlock Text="#38" Style="{StaticResource SidebarStatValuePrimaryStyle}" />
                             <TextBlock Text="{DynamicResource MainMenu_RankLabel}" Style="{StaticResource SidebarStatLabelStyle}" />
                         </StackPanel>
                     </Grid>
@@ -189,7 +189,7 @@
                         <TextBlock Text="🔥" Style="{StaticResource StatCardIconStyle}" />
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource MainMenu_WinStreakLabel}" Style="{StaticResource StatCardLabelStyle}" />
-                            <TextBlock Text="{DynamicResource MainMenu_WinStreakValue}" Style="{StaticResource StatCardValueStyle}" />
+                            <TextBlock x:Name="lblWinStreakValue" Style="{StaticResource StatCardValueStyle}" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -199,7 +199,7 @@
                         <TextBlock Text="⭐" Style="{StaticResource StatCardIconStyle}" />
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource MainMenu_NextRankLabel}" Style="{StaticResource StatCardLabelStyle}" />
-                            <TextBlock Text="{DynamicResource MainMenu_NextRankValue}" Style="{StaticResource StatCardValueStyle}" />
+                            <TextBlock x:Name="lblNextRankValue" Style="{StaticResource StatCardValueStyle}" />
                         </StackPanel>
                     </StackPanel>
                 </Border>

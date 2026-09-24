@@ -7,8 +7,18 @@ using TLMG;
 
 namespace TLMG.Views
 {
+    /// <summary>
+    /// Representa la pantalla de restablecimiento y configuración de una nueva contraseña.
+    /// </summary>
     public partial class NewPasswordScreen : UserControl
     {
+        private const int WeakPasswordThresholdScore = 2;
+        private const int FairPasswordScore = 3;
+        private const int SuccessRedirectDelayMilliseconds = 2000;
+
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="NewPasswordScreen"/>.
+        /// </summary>
         public NewPasswordScreen()
         {
             InitializeComponent();
@@ -23,7 +33,10 @@ namespace TLMG.Views
         {
             string currentPasswordText = pwdNewPassword.Password;
             int passwordStrengthScore = CalculatePasswordStrength(currentPasswordText);
-            Border[] strengthBarsArray = new[] { BorderStrength1, BorderStrength2, BorderStrength3, BorderStrength4, BorderStrength5 };
+            Border[] strengthBarsArray = new[]
+            {
+                brdStrength1, brdStrength2, brdStrength3, brdStrength4, brdStrength5
+            };
 
             if (currentPasswordText.Length == 0)
             {
@@ -35,13 +48,21 @@ namespace TLMG.Views
             }
             else
             {
-                Color indicatorColor = passwordStrengthScore <= 2
+                Color indicatorColor = passwordStrengthScore <= WeakPasswordThresholdScore
                     ? Color.FromRgb(0xEF, 0x44, 0x44)
-                    : passwordStrengthScore == 3
+                    : passwordStrengthScore == FairPasswordScore
                         ? Color.FromRgb(0xF5, 0x9E, 0x0B)
                         : Color.FromRgb(0x10, 0xB9, 0x81);
 
-                string[] strengthLabelResourceKeys = { "", "NewPassword_StrengthVeryWeak", "NewPassword_StrengthWeak", "NewPassword_StrengthFair", "NewPassword_StrengthGood", "NewPassword_StrengthStrong" };
+                string[] strengthLabelResourceKeys =
+                {
+                    "",
+                    "NewPassword_StrengthVeryWeak",
+                    "NewPassword_StrengthWeak",
+                    "NewPassword_StrengthFair",
+                    "NewPassword_StrengthGood",
+                    "NewPassword_StrengthStrong"
+                };
 
                 for (int collectionIndex = 0; collectionIndex < strengthBarsArray.Length; collectionIndex++)
                 {
@@ -50,7 +71,9 @@ namespace TLMG.Views
                         : (Brush)FindResource("Brush_Border");
                 }
 
-                lblStrengthLabel.Text = TryFindResource(strengthLabelResourceKeys[passwordStrengthScore]) as string ?? strengthLabelResourceKeys[passwordStrengthScore];
+                lblStrengthLabel.Text =
+                    TryFindResource(strengthLabelResourceKeys[passwordStrengthScore]) as string
+                    ?? strengthLabelResourceKeys[passwordStrengthScore];
                 lblStrengthLabel.Foreground = new SolidColorBrush(indicatorColor);
                 lblStrengthLabel.Visibility = Visibility.Visible;
             }
@@ -61,7 +84,10 @@ namespace TLMG.Views
             return ValidationHelper.CalculatePasswordStrength(inputPasswordText);
         }
 
-        private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)
+        private async void ShowStatusMessage(
+            TextBlock messageElement,
+            string messageContent,
+            bool isErrorMessage = true)
         {
             messageElement.Text = messageContent;
             messageElement.Foreground = isErrorMessage
@@ -69,7 +95,7 @@ namespace TLMG.Views
                 : (Brush)FindResource("Brush_Accent");
             messageElement.Visibility = Visibility.Visible;
 
-            await Task.Delay(4000);
+            await Task.Delay(ValidationHelper.StatusMessageDurationMilliseconds);
 
             if (messageElement.Text == messageContent)
             {
@@ -86,7 +112,7 @@ namespace TLMG.Views
             {
                 ShowStatusMessage(lblFormMessage, TryFindResource("Login_IncompleteFieldsError") as string, true);
             }
-            else if (CalculatePasswordStrength(inputNewPassword) < 5)
+            else if (CalculatePasswordStrength(inputNewPassword) < ValidationHelper.RequiredPasswordStrengthScore)
             {
                 ShowStatusMessage(lblPasswordError, TryFindResource("NewPassword_PolicyError") as string, true);
             }
@@ -100,7 +126,7 @@ namespace TLMG.Views
                 lblFormMessage.Foreground = (Brush)FindResource("Brush_Accent");
                 lblFormMessage.Visibility = Visibility.Visible;
 
-                await Task.Delay(2000);
+                await Task.Delay(SuccessRedirectDelayMilliseconds);
 
                 MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
                 applicationMainWindow.ShowScreen(new LoginScreen());

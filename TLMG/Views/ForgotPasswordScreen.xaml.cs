@@ -6,8 +6,16 @@ using System.Windows.Media;
 
 namespace TLMG.Views
 {
+    /// <summary>
+    /// Representa la pantalla de recuperación de contraseña olvidada mediante envío de código de verificación.
+    /// </summary>
     public partial class ForgotPasswordScreen : UserControl
     {
+        private const int ScreenTransitionDelayMilliseconds = 1000;
+
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="ForgotPasswordScreen"/>.
+        /// </summary>
         public ForgotPasswordScreen()
         {
             InitializeComponent();
@@ -39,7 +47,10 @@ namespace TLMG.Views
             return errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
         }
 
-        private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)
+        private async void ShowStatusMessage(
+            TextBlock messageElement,
+            string messageContent,
+            bool isErrorMessage = true)
         {
             messageElement.Text = messageContent;
             messageElement.Foreground = isErrorMessage
@@ -47,7 +58,7 @@ namespace TLMG.Views
                 : (Brush)FindResource("Brush_Accent");
             messageElement.Visibility = Visibility.Visible;
 
-            await Task.Delay(4000);
+            await Task.Delay(ValidationHelper.StatusMessageDurationMilliseconds);
 
             if (messageElement.Text == messageContent)
             {
@@ -62,7 +73,10 @@ namespace TLMG.Views
 
             if (string.IsNullOrWhiteSpace(inputEmailAddress))
             {
-                ShowStatusMessage(lblFormMessage, TryFindResource("ForgotPassword_EmailRequiredError") as string, true);
+                ShowStatusMessage(
+                    lblFormMessage,
+                    TryFindResource("ForgotPassword_EmailRequiredError") as string,
+                    true);
             }
             else
             {
@@ -73,8 +87,11 @@ namespace TLMG.Views
                 }
                 else
                 {
-                    ShowStatusMessage(lblFormMessage, TryFindResource("ForgotPassword_CodeSentMessage") as string, false);
-                    await Task.Delay(1000);
+                    ShowStatusMessage(
+                        lblFormMessage,
+                        TryFindResource("ForgotPassword_CodeSentMessage") as string,
+                        false);
+                    await Task.Delay(ScreenTransitionDelayMilliseconds);
 
                     MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
                     applicationMainWindow.ShowScreen(new VerificationScreen(

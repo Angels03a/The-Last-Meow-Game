@@ -9,26 +9,55 @@ using System.Windows.Threading;
 
 namespace TLMG.Views
 {
+    /// <summary>
+    /// Representa la pantalla de verificación mediante código numérico de 6 dígitos enviado por correo.
+    /// </summary>
     public partial class VerificationScreen : UserControl
     {
         private const string SimulatedVerificationCode = "123456";
-        private const int MaximumVerificationAttempts = 3;
+
+        /// <summary>
+        /// Cantidad máxima de intentos de verificación permitidos antes del bloqueo.
+        /// </summary>
+        public const int MaximumVerificationAttempts = 3;
+
+        /// <summary>
+        /// Tiempo de expiración del código de verificación en segundos (5 minutos).
+        /// </summary>
+        public const int VerificationCodeExpirySeconds = 300;
+
+        /// <summary>
+        /// Tiempo de espera requerido para solicitar el reenvío de un nuevo código en segundos.
+        /// </summary>
+        public const int CodeResendCooldownSeconds = 60;
+
+        private const int CountdownTimerIntervalSeconds = 1;
+
         private readonly Action _onVerifiedCallbackAction;
         private readonly Action _onBackCallbackAction;
         private TextBox[] _verificationDigitTextBoxes;
         private Ellipse[] _attemptIndicatorEllipses;
         private DispatcherTimer _countdownDispatcherTimer;
-        private int _remainingSecondsUntilExpiry = 300;
-        private int _remainingSecondsUntilResend = 60;
+        private int _remainingSecondsUntilExpiry = VerificationCodeExpirySeconds;
+        private int _remainingSecondsUntilResend = CodeResendCooldownSeconds;
         private int _totalFailedAttempts = 0;
 
-        public VerificationScreen(Action onVerifiedCallbackAction, Action onBackCallbackAction, bool showStepsHeader = true)
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="VerificationScreen"/>.
+        /// </summary>
+        /// <param name="onVerifiedCallbackAction">Acción invocada al verificar el código con éxito.</param>
+        /// <param name="onBackCallbackAction">Acción que se ejecuta al pulsar el botón de regreso.</param>
+        /// <param name="showStepsHeader">Indica si se muestra el encabezado de pasos del flujo.</param>
+        public VerificationScreen(
+            Action onVerifiedCallbackAction,
+            Action onBackCallbackAction,
+            bool showStepsHeader = true)
         {
             InitializeComponent();
             _onVerifiedCallbackAction = onVerifiedCallbackAction;
             _onBackCallbackAction = onBackCallbackAction;
             _verificationDigitTextBoxes = new[] { txtDigit1, txtDigit2, txtDigit3, txtDigit4, txtDigit5, txtDigit6 };
-            _attemptIndicatorEllipses = new[] { EllipseAttempt1, EllipseAttempt2, EllipseAttempt3 };
+            _attemptIndicatorEllipses = new[] { ellAttempt1, ellAttempt2, ellAttempt3 };
 
             foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
@@ -86,7 +115,7 @@ namespace TLMG.Views
         {
             _countdownDispatcherTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(1)
+                Interval = TimeSpan.FromSeconds(CountdownTimerIntervalSeconds)
             };
             _countdownDispatcherTimer.Tick += Timer_Tick;
             _countdownDispatcherTimer.Start();
@@ -117,13 +146,19 @@ namespace TLMG.Views
         private void UpdateTimerInterfaceTexts()
         {
             TimeSpan currentRemainingTimeSpan = TimeSpan.FromSeconds(_remainingSecondsUntilExpiry);
-            lblExpiration.Text = string.Format("{0:00}:{1:00}", currentRemainingTimeSpan.Minutes, currentRemainingTimeSpan.Seconds);
+            lblExpiration.Text = string.Format(
+                "{0:00}:{1:00}",
+                currentRemainingTimeSpan.Minutes,
+                currentRemainingTimeSpan.Seconds);
 
             string originalButtonText = TryFindResource("Verification_ResendButton") as string;
             if (_remainingSecondsUntilResend > 0)
             {
                 btnResendCode.IsEnabled = false;
-                btnResendCode.Content = string.Format("{0} ({1:00}s)", originalButtonText, _remainingSecondsUntilResend);
+                btnResendCode.Content = string.Format(
+                    "{0} ({1:00}s)",
+                    originalButtonText,
+                    _remainingSecondsUntilResend);
             }
             else
             {
@@ -148,7 +183,9 @@ namespace TLMG.Views
 
         private void UpdateAttemptIndicatorDots()
         {
-            for (int currentEllipseIndex = 0; currentEllipseIndex < _attemptIndicatorEllipses.Length; currentEllipseIndex++)
+            for (int currentEllipseIndex = 0;
+                currentEllipseIndex < _attemptIndicatorEllipses.Length;
+                currentEllipseIndex++)
             {
                 _attemptIndicatorEllipses[currentEllipseIndex].Fill = currentEllipseIndex < _totalFailedAttempts
                     ? (Brush)FindResource("Brush_Error")
@@ -156,7 +193,10 @@ namespace TLMG.Views
             }
         }
 
-        private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)
+        private async void ShowStatusMessage(
+            TextBlock messageElement,
+            string messageContent,
+            bool isErrorMessage = true)
         {
             messageElement.Text = messageContent;
             messageElement.Foreground = isErrorMessage
@@ -164,7 +204,7 @@ namespace TLMG.Views
                 : (Brush)FindResource("Brush_Accent");
             messageElement.Visibility = Visibility.Visible;
 
-            await Task.Delay(4000);
+            await Task.Delay(ValidationHelper.StatusMessageDurationMilliseconds);
 
             if (messageElement.Text == messageContent)
             {
@@ -209,7 +249,10 @@ namespace TLMG.Views
                 }
                 else
                 {
-                    ShowStatusMessage(lblVerificationError, TryFindResource("Verification_IncorrectCodeError") as string, true);
+                    ShowStatusMessage(
+                        lblVerificationError,
+                        TryFindResource("Verification_IncorrectCodeError") as string,
+                        true);
                 }
 
                 foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
@@ -223,8 +266,8 @@ namespace TLMG.Views
 
         private void BtnResendCode_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            _remainingSecondsUntilExpiry = 300;
-            _remainingSecondsUntilResend = 60;
+            _remainingSecondsUntilExpiry = VerificationCodeExpirySeconds;
+            _remainingSecondsUntilResend = CodeResendCooldownSeconds;
             _totalFailedAttempts = 0;
             UpdateAttemptIndicatorDots();
 

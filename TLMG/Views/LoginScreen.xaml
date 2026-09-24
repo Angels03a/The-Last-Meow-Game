@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="TLMG.Views.LoginScreen"
+<UserControl x:Class="TLMG.Views.LoginScreen"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -86,6 +86,7 @@
                     <Button x:Name="btnShowPassword"
                             Content="●"
                             Style="{StaticResource PasswordToggleButtonStyle}"
+                            ToolTip="{DynamicResource Login_ShowPasswordHint}"
                             Click="BtnShowPassword_Click" />
                 </Grid>
                 <TextBlock x:Name="lblPasswordError"

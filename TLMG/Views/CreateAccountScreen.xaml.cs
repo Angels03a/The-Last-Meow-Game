@@ -9,12 +9,16 @@ using TLMG;
 
 namespace TLMG.Views
 {
+    /// <summary>
+    /// Pantalla de registro de cuentas con validación de reglas para nickname, correo y contraseñas.
+    /// </summary>
     public partial class CreateAccountScreen : UserControl
     {
-        private static readonly string[] _unavailableNicknames = { "admin", "whiskers" };
-        private static readonly string[] _offensiveVocabularyWords = { "idiota", "estupido" };
         private static readonly string[] _unavailableEmailAddresses = { "test@gmail.com" };
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="CreateAccountScreen"/>.
+        /// </summary>
         public CreateAccountScreen()
         {
             InitializeComponent();
@@ -32,29 +36,8 @@ namespace TLMG.Views
 
         private string ValidateNickname(string inputNicknameString)
         {
-            string validationErrorMessage = null;
-
-            bool isLengthInvalid = inputNicknameString.Length < 3 || inputNicknameString.Length > 12;
-            bool hasInvalidCharacters = !Regex.IsMatch(inputNicknameString, "^[a-zA-Z0-9]+$");
-
-            if (isLengthInvalid || hasInvalidCharacters)
-            {
-                validationErrorMessage = TryFindResource("CreateAccount_NicknameFormatError") as string;
-            }
-            else
-            {
-                string lowercaseNicknameString = inputNicknameString.ToLower();
-                if (_offensiveVocabularyWords.Any(offensiveWord => lowercaseNicknameString.Contains(offensiveWord)))
-                {
-                    validationErrorMessage = TryFindResource("CreateAccount_NicknameOffensiveError") as string;
-                }
-                else if (_unavailableNicknames.Contains(lowercaseNicknameString))
-                {
-                    validationErrorMessage = TryFindResource("CreateAccount_NicknameTakenError") as string;
-                }
-            }
-
-            return validationErrorMessage;
+            string errorResourceKey = ValidationHelper.GetNicknameValidationErrorKey(inputNicknameString);
+            return errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
         }
 
         private string ValidateEmailFormat(string inputEmailAddress)
@@ -74,7 +57,10 @@ namespace TLMG.Views
             return null;
         }
 
-        private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)
+        private async void ShowStatusMessage(
+            TextBlock messageElement,
+            string messageContent,
+            bool isErrorMessage = true)
         {
             messageElement.Text = messageContent;
             messageElement.Foreground = isErrorMessage
@@ -82,7 +68,7 @@ namespace TLMG.Views
                 : (Brush)FindResource("Brush_Accent");
             messageElement.Visibility = Visibility.Visible;
 
-            await Task.Delay(4000);
+            await Task.Delay(ValidationHelper.StatusMessageDurationMilliseconds);
 
             if (messageElement.Text == messageContent)
             {
@@ -98,9 +84,17 @@ namespace TLMG.Views
             string inputConfirmPasswordString = pwdConfirmPassword.Password;
             bool formHasErrors = false;
 
-            if (string.IsNullOrWhiteSpace(inputNicknameString) || string.IsNullOrWhiteSpace(inputEmailAddress) || string.IsNullOrWhiteSpace(inputPasswordString) || string.IsNullOrWhiteSpace(inputConfirmPasswordString))
+            bool hasEmptyNickname = string.IsNullOrWhiteSpace(inputNicknameString);
+            bool hasEmptyEmail = string.IsNullOrWhiteSpace(inputEmailAddress);
+            bool hasEmptyPassword = string.IsNullOrWhiteSpace(inputPasswordString);
+            bool hasEmptyConfirmPassword = string.IsNullOrWhiteSpace(inputConfirmPasswordString);
+
+            if (hasEmptyNickname || hasEmptyEmail || hasEmptyPassword || hasEmptyConfirmPassword)
             {
-                ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_IncompleteFieldsError") as string, true);
+                ShowStatusMessage(
+                    lblFormMessage,
+                    TryFindResource("CreateAccount_IncompleteFieldsError") as string,
+                    true);
                 formHasErrors = true;
             }
             else
@@ -119,14 +113,20 @@ namespace TLMG.Views
                     formHasErrors = true;
                 }
 
-                if (CalculatePasswordStrength(inputPasswordString) < 5)
+                if (CalculatePasswordStrength(inputPasswordString) < ValidationHelper.RequiredPasswordStrengthScore)
                 {
-                    ShowStatusMessage(lblPasswordError, TryFindResource("CreateAccount_PasswordPolicyError") as string, true);
+                    ShowStatusMessage(
+                        lblPasswordError,
+                        TryFindResource("CreateAccount_PasswordPolicyError") as string,
+                        true);
                     formHasErrors = true;
                 }
                 else if (inputPasswordString != inputConfirmPasswordString)
                 {
-                    ShowStatusMessage(lblConfirmPasswordError, TryFindResource("CreateAccount_MismatchError") as string, true);
+                    ShowStatusMessage(
+                        lblConfirmPasswordError,
+                        TryFindResource("CreateAccount_MismatchError") as string,
+                        true);
                     formHasErrors = true;
                 }
 
@@ -151,6 +151,7 @@ namespace TLMG.Views
                 ));
             }
         }
+
         private void BtnBack_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             // FA-01 de CU-02: confirmar antes de abandonar el registro.

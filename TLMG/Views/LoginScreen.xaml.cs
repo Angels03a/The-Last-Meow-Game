@@ -5,8 +5,16 @@ using System.Windows.Media;
 
 namespace TLMG.Views
 {
+    /// <summary>
+    /// Representa la pantalla de inicio de sesión de usuarios y acceso de invitados.
+    /// </summary>
     public partial class LoginScreen : UserControl
     {
+        private const int ScreenTransitionDelayMilliseconds = 1000;
+
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="LoginScreen"/>.
+        /// </summary>
         public LoginScreen()
         {
             InitializeComponent();
@@ -34,7 +42,10 @@ namespace TLMG.Views
             }
         }
 
-        private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)
+        private async void ShowStatusMessage(
+            TextBlock messageElement,
+            string messageContent,
+            bool isErrorMessage = true)
         {
             messageElement.Text = messageContent;
             messageElement.Foreground = isErrorMessage
@@ -42,7 +53,7 @@ namespace TLMG.Views
                 : (Brush)FindResource("Brush_Accent");
             messageElement.Visibility = Visibility.Visible;
 
-            await Task.Delay(4000);
+            await Task.Delay(ValidationHelper.StatusMessageDurationMilliseconds);
 
             if (messageElement.Text == messageContent)
             {
@@ -53,7 +64,9 @@ namespace TLMG.Views
         private async void BtnLogIn_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             string inputEmailAddress = txtEmail.Text;
-            string inputPasswordText = pwdPassword.Visibility == Visibility.Visible ? pwdPassword.Password : txtPasswordVisible.Text;
+            string inputPasswordText = pwdPassword.Visibility == Visibility.Visible
+                ? pwdPassword.Password
+                : txtPasswordVisible.Text;
 
             lblEmailError.Visibility = Visibility.Hidden;
 
@@ -71,7 +84,7 @@ namespace TLMG.Views
                 else
                 {
                     ShowStatusMessage(lblFormMessage, TryFindResource("Login_SuccessMessage") as string, false);
-                    await Task.Delay(1000);
+                    await Task.Delay(ScreenTransitionDelayMilliseconds);
                     MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
                     applicationMainWindow.ShowScreen(new MainMenuScreen());
                 }
