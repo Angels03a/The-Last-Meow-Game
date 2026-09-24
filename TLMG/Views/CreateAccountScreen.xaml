@@ -46,13 +46,13 @@
                         <TextBlock Text="🚀" Style="{StaticResource HeroEmojiStyle}" />
                         <TextBlock Text="{DynamicResource Cat_Astronaut}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
-                </StackPanel>   
+                </StackPanel>
             </StackPanel>
         </Grid>
 
         <Border Grid.Column="1" Style="{StaticResource SidePanelBorderStyle}">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Style="{StaticResource SidePanelContentStyle}">
+                <StackPanel Style="{StaticResource SidePanelContentStyle}" Width="321">
 
                     <Button x:Name="btnBack"
                             Content="{DynamicResource CreateAccount_BackToLogin}"
@@ -95,17 +95,15 @@
                             <TextBlock Text="{DynamicResource CreateAccount_HintSymbol}" Style="{StaticResource StatusTextStyle}" />
                         </StackPanel>
                     </Border>
-
                     <TextBlock Text="{DynamicResource CreateAccount_ConfirmPasswordLabel}"
-                               Style="{StaticResource FieldLabelTextStyle}" />
+                               Style="{StaticResource FieldLabelTextStyle}" Height="15" />
                     <PasswordBox x:Name="pwdConfirmPassword"
                                  Style="{StaticResource FieldStyle}" />
                     <TextBlock x:Name="lblConfirmPasswordError"
                                Style="{StaticResource ErrorTextStyle}" />
-
-                    <CheckBox x:Name="chkTerms" Style="{StaticResource TermsCheckBoxStyle}">
-                        <TextBlock Text="{DynamicResource CreateAccount_TermsText}" 
-                                   Style="{StaticResource TermsTextStyle}" />
+                    <CheckBox x:Name="chkTerms" Style="{StaticResource TermsCheckBoxStyle}" Width="327">
+                        <TextBlock 
+                                   Style="{StaticResource TermsTextStyle}" Width="317" ><Run Text="Estoy de acuerdo con los Términos de"/><Run Language="es-mx" Text="l juego"/></TextBlock>
                     </CheckBox>
 
                     <Button x:Name="btnCreateAccount"

@@ -56,7 +56,6 @@ namespace TLMG
         /// Cambia el idioma actual de la aplicación, actualizando la cultura del hilo,
         /// el diccionario de recursos fusionado y repintando las ventanas activas.
         /// </summary>
-        /// <param name="cultureCode">Código de cultura objetivo (por ejemplo, "es-MX" o "en-US").</param>
         public static void ChangeLanguage(string cultureCode)
         {
             if (string.IsNullOrWhiteSpace(cultureCode))

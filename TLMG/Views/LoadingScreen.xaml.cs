@@ -12,7 +12,7 @@ namespace TLMG.Views
     {
         private const int LoadingAnimationDurationSeconds = 3;
         private const double InitialLoadingBarWidthPixels = 0.0;
-        private const double TargetLoadingBarWidthPixels = 400.0;
+        private const double TargetLoadingBarWidthPixels = 410.0;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="LoadingScreen"/>.
