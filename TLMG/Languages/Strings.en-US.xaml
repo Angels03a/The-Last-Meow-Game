@@ -14,6 +14,7 @@
     <sys:String x:Key="Login_ForgotPassword">Forgot your password?</sys:String>
     <sys:String x:Key="Login_LogInButton">Log In</sys:String>
     <sys:String x:Key="Login_GuestButton">Play as Guest</sys:String>
+    <sys:String x:Key="Login_ShowPasswordHint">Show password</sys:String>
     <sys:String x:Key="Login_EmailRequiredError">Please make sure all required fields are correctly filled in</sys:String>
     <sys:String x:Key="Login_EmailCharactersError">The email contains characters that are not allowed</sys:String>
     <sys:String x:Key="Login_EmailFormatError">The email must contain @ and a valid domain</sys:String>
@@ -109,7 +110,7 @@
     <sys:String x:Key="MainMenu_LastWinLabel">LAST WIN</sys:String>
     <sys:String x:Key="MainMenu_LastWinValue">2h ago</sys:String>
     <sys:String x:Key="MainMenu_WinStreakLabel">WIN STREAK</sys:String>
-    <sys:String x:Key="MainMenu_WinStreakValue">3 games</sys:String>
+    <sys:String x:Key="MainMenu_WinStreakValue">{0} wins in a row</sys:String>
     <sys:String x:Key="MainMenu_NextRankLabel">NEXT RANK</sys:String>
     <sys:String x:Key="Options_Title">OPTIONS</sys:String>
     <sys:String x:Key="Options_BackButton">← Back</sys:String>
@@ -137,9 +138,5 @@
     <sys:String x:Key="Options_ResetButton">Reset Options to Default</sys:String>
     <sys:String x:Key="CreateAccount_MismatchError">Passwords do not match</sys:String>
     <sys:String x:Key="MainMenu_Title">THE LAST MEOW</sys:String>
-    <sys:String x:Key="MainMenu_MockUsername">interStella</sys:String>
-    <sys:String x:Key="MainMenu_MockWins">142</sys:String>
-    <sys:String x:Key="MainMenu_MockScore">1,840</sys:String>
-    <sys:String x:Key="MainMenu_MockRank">#38</sys:String>
-    <sys:String x:Key="MainMenu_NextRankValue">120 pts</sys:String>
+    <sys:String x:Key="MainMenu_NextRankValue">{0} pts</sys:String>
 </ResourceDictionary>

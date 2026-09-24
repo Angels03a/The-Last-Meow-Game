@@ -14,6 +14,7 @@
     <sys:String x:Key="Login_ForgotPassword">¿Olvidó su contraseña?</sys:String>
     <sys:String x:Key="Login_LogInButton">Iniciar Sesión</sys:String>
     <sys:String x:Key="Login_GuestButton">Jugar como Invitado</sys:String>
+    <sys:String x:Key="Login_ShowPasswordHint">Mostrar contraseña</sys:String>
     <sys:String x:Key="Login_EmailRequiredError">Por favor, revise que todos los campos obligatorios estén llenos correctamente</sys:String>
     <sys:String x:Key="Login_EmailCharactersError">El correo contiene caracteres no permitidos</sys:String>
     <sys:String x:Key="Login_EmailFormatError">El correo debe contener @ y un dominio válido</sys:String>
@@ -109,7 +110,7 @@
     <sys:String x:Key="MainMenu_LastWinLabel">ÚLTIMA VICTORIA</sys:String>
     <sys:String x:Key="MainMenu_LastWinValue">hace 2h</sys:String>
     <sys:String x:Key="MainMenu_WinStreakLabel">RACHA DE VICTORIAS</sys:String>
-    <sys:String x:Key="MainMenu_WinStreakValue">3 partidas</sys:String>
+    <sys:String x:Key="MainMenu_WinStreakValue">{0} victorias seguidas</sys:String>
     <sys:String x:Key="MainMenu_NextRankLabel">SIGUIENTE RANGO</sys:String>
     <sys:String x:Key="Options_Title">OPCIONES</sys:String>
     <sys:String x:Key="Options_BackButton">← Regresar</sys:String>
@@ -137,9 +138,5 @@
     <sys:String x:Key="Options_ResetButton">Restablecer Opciones por Defecto</sys:String>
     <sys:String x:Key="CreateAccount_MismatchError">Las contraseñas no coinciden</sys:String>
     <sys:String x:Key="MainMenu_Title">EL ÚLTIMO MAULLIDO</sys:String>
-    <sys:String x:Key="MainMenu_MockUsername">interStella</sys:String>
-    <sys:String x:Key="MainMenu_MockWins">142</sys:String>
-    <sys:String x:Key="MainMenu_MockScore">1,840</sys:String>
-    <sys:String x:Key="MainMenu_MockRank">#38</sys:String>
-    <sys:String x:Key="MainMenu_NextRankValue">120 pts</sys:String>
+    <sys:String x:Key="MainMenu_NextRankValue">{0} pts</sys:String>
 </ResourceDictionary>
