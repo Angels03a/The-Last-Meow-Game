@@ -18,7 +18,7 @@ namespace TLMG
             InitializeComponent();
 
             LoadingScreen loadingScreen = new LoadingScreen();
-            loadingScreen.LoadingCompleted += (s, e) => ShowScreen(new LoginScreen());
+            loadingScreen.LoadingCompleted += (eventSender, eventArguments) => ShowScreen(new LoginScreen());
             ShowScreen(loadingScreen);
         }
 
