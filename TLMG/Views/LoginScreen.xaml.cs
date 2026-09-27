@@ -1,12 +1,18 @@
+using System;
+using System.Data.Entity.Core;
+using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using TLMG.DatabaseModel; // Requerido para TLMG_DBEntities
 
 namespace TLMG.Views
 {
     /// <summary>
     /// Representa la pantalla de inicio de sesión de usuarios y acceso de invitados.
+    /// Integrada con Entity Framework para validación de credenciales en base de datos.
     /// </summary>
     public partial class LoginScreen : UserControl
     {
@@ -18,6 +24,87 @@ namespace TLMG.Views
         public LoginScreen()
         {
             InitializeComponent();
+        }
+
+        private async void BtnLogIn_Click(object eventSender, RoutedEventArgs eventArguments)
+        {
+            string inputEmailAddress = txtEmail.Text;
+            string inputPasswordText = pwdPassword.Visibility == Visibility.Visible
+                ? pwdPassword.Password
+                : txtPasswordVisible.Text;
+
+            lblEmailError.Visibility = Visibility.Hidden;
+
+            if (AreCredentialsValidFormat(inputEmailAddress, inputPasswordText))
+            {
+                bool isLoginSuccessful = TryAuthenticateUser(inputEmailAddress, inputPasswordText);
+
+                if (isLoginSuccessful)
+                {
+                    ShowStatusMessage(lblFormMessage, TryFindResource("Login_SuccessMessage") as string, false);
+                    await Task.Delay(ScreenTransitionDelayMilliseconds);
+
+                    MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+                    applicationMainWindow.ShowScreen(new MainMenuScreen());
+                }
+            }
+        }
+
+        private bool AreCredentialsValidFormat(string email, string password)
+        {
+            bool areCredentialsValid = true;
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                ShowStatusMessage(lblFormMessage, TryFindResource("Login_IncompleteFieldsError") as string, true);
+                areCredentialsValid = false;
+            }
+            else
+            {
+                string emailValidationResult = ValidateEmail(email);
+                if (emailValidationResult != null)
+                {
+                    ShowStatusMessage(lblEmailError, emailValidationResult, true);
+                    areCredentialsValid = false;
+                }
+            }
+
+            return areCredentialsValid;
+        }
+
+        private bool TryAuthenticateUser(string email, string password)
+        {
+            bool isAuthenticationSuccessful = false;
+
+            try
+            {
+                using (var database = new TLMG_DBEntities())
+                {
+                    var registeredUser = database.User.FirstOrDefault(user => user.email == email);
+
+                  
+                    if (registeredUser == null || registeredUser.password_hash.Trim() != password.Trim())
+                    {
+                        ShowStatusMessage(lblFormMessage, TryFindResource("Login_InvalidCredentialsError") as string, true);
+                    }
+                    else
+                    {
+                        registeredUser.last_time = DateTime.Now;
+                        database.SaveChanges();
+                        isAuthenticationSuccessful = true;
+                    }
+                }
+            }
+            catch (SqlException)
+            {
+                ShowStatusMessage(lblFormMessage, "Error de red: No se pudo establecer conexión con el servidor.", true);
+            }
+            catch (EntityException)
+            {
+                ShowStatusMessage(lblFormMessage, "Error: El modelo de datos no se encuentra disponible.", true);
+            }
+
+            return isAuthenticationSuccessful;
         }
 
         private string ValidateEmail(string emailAddress)
@@ -58,36 +145,6 @@ namespace TLMG.Views
             if (messageElement.Text == messageContent)
             {
                 messageElement.Visibility = Visibility.Hidden;
-            }
-        }
-
-        private async void BtnLogIn_Click(object eventSender, RoutedEventArgs eventArguments)
-        {
-            string inputEmailAddress = txtEmail.Text;
-            string inputPasswordText = pwdPassword.Visibility == Visibility.Visible
-                ? pwdPassword.Password
-                : txtPasswordVisible.Text;
-
-            lblEmailError.Visibility = Visibility.Hidden;
-
-            if (string.IsNullOrWhiteSpace(inputEmailAddress) || string.IsNullOrWhiteSpace(inputPasswordText))
-            {
-                ShowStatusMessage(lblFormMessage, TryFindResource("Login_IncompleteFieldsError") as string, true);
-            }
-            else
-            {
-                string emailValidationResult = ValidateEmail(inputEmailAddress);
-                if (emailValidationResult != null)
-                {
-                    ShowStatusMessage(lblEmailError, emailValidationResult, true);
-                }
-                else
-                {
-                    ShowStatusMessage(lblFormMessage, TryFindResource("Login_SuccessMessage") as string, false);
-                    await Task.Delay(ScreenTransitionDelayMilliseconds);
-                    MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-                    applicationMainWindow.ShowScreen(new MainMenuScreen());
-                }
             }
         }
 

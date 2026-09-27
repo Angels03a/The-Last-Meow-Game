@@ -1,0 +1,1049 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="TLMG_DBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Ban_Record">
+          <Key>
+            <PropertyRef Name="id_ban" />
+          </Key>
+          <Property Name="id_ban" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_user" Type="int" Nullable="false" />
+          <Property Name="type" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="ban_start_date" Type="datetime" Nullable="false" />
+          <Property Name="ban_ending_date" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Block_List">
+          <Key>
+            <PropertyRef Name="id_block" />
+          </Key>
+          <Property Name="id_block" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_user_blocker" Type="int" Nullable="false" />
+          <Property Name="id_user_blocked" Type="int" Nullable="false" />
+          <Property Name="block_date" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Friendship">
+          <Key>
+            <PropertyRef Name="id_friendship" />
+          </Key>
+          <Property Name="id_friendship" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_user_sender" Type="int" Nullable="false" />
+          <Property Name="id_user_receiver" Type="int" Nullable="false" />
+          <Property Name="state" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="request_date" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Game">
+          <Key>
+            <PropertyRef Name="id_game" />
+          </Key>
+          <Property Name="id_game" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="state" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="mode" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="lobby_open_date" Type="datetime" Nullable="false" />
+          <Property Name="game_start_date" Type="datetime" />
+          <Property Name="game_ending_date" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Game_Player">
+          <Key>
+            <PropertyRef Name="id_game_player" />
+          </Key>
+          <Property Name="id_game_player" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_game" Type="int" Nullable="false" />
+          <Property Name="id_player" Type="int" />
+          <Property Name="id_guest" Type="int" />
+          <Property Name="points_earned" Type="int" Nullable="false" />
+          <Property Name="final_position" Type="int" />
+          <Property Name="outcome" Type="varchar" MaxLength="30" />
+        </EntityType>
+        <EntityType Name="Guest_Session">
+          <Key>
+            <PropertyRef Name="id_guest" />
+          </Key>
+          <Property Name="id_guest" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="guest_number" Type="int" Nullable="false" />
+          <Property Name="display_name" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="session_token" Type="varchar" MaxLength="64" Nullable="false" />
+          <Property Name="created_at" Type="datetime" Nullable="false" />
+          <Property Name="ended_at" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Kicked_Out_Voting">
+          <Key>
+            <PropertyRef Name="id_vote" />
+          </Key>
+          <Property Name="id_vote" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_game_player_sender" Type="int" Nullable="false" />
+          <Property Name="id_game_player_receiver" Type="int" Nullable="false" />
+          <Property Name="vote_date" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Message">
+          <Key>
+            <PropertyRef Name="id_message" />
+          </Key>
+          <Property Name="id_message" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_game_player" Type="int" Nullable="false" />
+          <Property Name="scope" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="text_message" Type="varchar" MaxLength="160" Nullable="false" />
+          <Property Name="message_date" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Pending_Registration">
+          <Key>
+            <PropertyRef Name="id_pending" />
+          </Key>
+          <Property Name="id_pending" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="email" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="nickname" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="password_hash" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="created_at" Type="datetime" Nullable="false" />
+          <Property Name="expires_at" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Player">
+          <Key>
+            <PropertyRef Name="id_player" />
+          </Key>
+          <Property Name="id_player" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_user" Type="int" Nullable="false" />
+          <Property Name="total_points" Type="int" Nullable="false" />
+          <Property Name="total_wins" Type="int" Nullable="false" />
+          <Property Name="total_games_played" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Report">
+          <Key>
+            <PropertyRef Name="id_report" />
+          </Key>
+          <Property Name="id_report" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_game_player_reporter" Type="int" Nullable="false" />
+          <Property Name="id_game_player_reported" Type="int" Nullable="false" />
+          <Property Name="reason" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="comment" Type="varchar" MaxLength="300" />
+          <Property Name="report_date" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="id_user" />
+          </Key>
+          <Property Name="id_user" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="email" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="password_hash" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="nickname" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="state" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="profile_image" Type="varchar" MaxLength="255" />
+          <Property Name="last_time" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Verification_Code">
+          <Key>
+            <PropertyRef Name="id_code" />
+          </Key>
+          <Property Name="id_code" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_user" Type="int" />
+          <Property Name="id_pending" Type="int" />
+          <Property Name="code_hash" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="type" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="state" Type="varchar" MaxLength="30" Nullable="false" />
+          <Property Name="generation_date" Type="datetime" Nullable="false" />
+          <Property Name="expiration_date" Type="datetime" Nullable="false" />
+          <Property Name="attempts_failed" Type="int" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_BanRecord_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Ban_Record" Type="Self.Ban_Record" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Ban_Record">
+              <PropertyRef Name="id_user" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BlockList_Blocked">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Block_List" Type="Self.Block_List" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Block_List">
+              <PropertyRef Name="id_user_blocked" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BlockList_Blocker">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Block_List" Type="Self.Block_List" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Block_List">
+              <PropertyRef Name="id_user_blocker" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Friendship_Receiver">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Friendship" Type="Self.Friendship" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Friendship">
+              <PropertyRef Name="id_user_receiver" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Friendship_Sender">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Friendship" Type="Self.Friendship" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Friendship">
+              <PropertyRef Name="id_user_sender" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GamePlayer_Game">
+          <End Role="Game" Type="Self.Game" Multiplicity="1" />
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game">
+              <PropertyRef Name="id_game" />
+            </Principal>
+            <Dependent Role="Game_Player">
+              <PropertyRef Name="id_game" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GamePlayer_Guest">
+          <End Role="Guest_Session" Type="Self.Guest_Session" Multiplicity="0..1" />
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Guest_Session">
+              <PropertyRef Name="id_guest" />
+            </Principal>
+            <Dependent Role="Game_Player">
+              <PropertyRef Name="id_guest" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GamePlayer_Player">
+          <End Role="Player" Type="Self.Player" Multiplicity="0..1" />
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Player">
+              <PropertyRef Name="id_player" />
+            </Principal>
+            <Dependent Role="Game_Player">
+              <PropertyRef Name="id_player" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Message_GamePlayer">
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="1" />
+          <End Role="Message" Type="Self.Message" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game_Player">
+              <PropertyRef Name="id_game_player" />
+            </Principal>
+            <Dependent Role="Message">
+              <PropertyRef Name="id_game_player" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Player_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Player" Type="Self.Player" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Player">
+              <PropertyRef Name="id_user" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Report_Reported">
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="1" />
+          <End Role="Report" Type="Self.Report" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game_Player">
+              <PropertyRef Name="id_game_player" />
+            </Principal>
+            <Dependent Role="Report">
+              <PropertyRef Name="id_game_player_reported" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Report_Reporter">
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="1" />
+          <End Role="Report" Type="Self.Report" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game_Player">
+              <PropertyRef Name="id_game_player" />
+            </Principal>
+            <Dependent Role="Report">
+              <PropertyRef Name="id_game_player_reporter" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_VerificationCode_Pending">
+          <End Role="Pending_Registration" Type="Self.Pending_Registration" Multiplicity="0..1" />
+          <End Role="Verification_Code" Type="Self.Verification_Code" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pending_Registration">
+              <PropertyRef Name="id_pending" />
+            </Principal>
+            <Dependent Role="Verification_Code">
+              <PropertyRef Name="id_pending" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_VerificationCode_User">
+          <End Role="User" Type="Self.User" Multiplicity="0..1" />
+          <End Role="Verification_Code" Type="Self.Verification_Code" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Verification_Code">
+              <PropertyRef Name="id_user" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Vote_Receiver">
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="1" />
+          <End Role="Kicked_Out_Voting" Type="Self.Kicked_Out_Voting" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game_Player">
+              <PropertyRef Name="id_game_player" />
+            </Principal>
+            <Dependent Role="Kicked_Out_Voting">
+              <PropertyRef Name="id_game_player_receiver" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Vote_Sender">
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="1" />
+          <End Role="Kicked_Out_Voting" Type="Self.Kicked_Out_Voting" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game_Player">
+              <PropertyRef Name="id_game_player" />
+            </Principal>
+            <Dependent Role="Kicked_Out_Voting">
+              <PropertyRef Name="id_game_player_sender" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TLMG_DBModelStoreContainer">
+          <EntitySet Name="Ban_Record" EntityType="Self.Ban_Record" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Block_List" EntityType="Self.Block_List" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Friendship" EntityType="Self.Friendship" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Game" EntityType="Self.Game" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Game_Player" EntityType="Self.Game_Player" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Guest_Session" EntityType="Self.Guest_Session" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Kicked_Out_Voting" EntityType="Self.Kicked_Out_Voting" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Message" EntityType="Self.Message" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Pending_Registration" EntityType="Self.Pending_Registration" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Player" EntityType="Self.Player" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Report" EntityType="Self.Report" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Verification_Code" EntityType="Self.Verification_Code" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_BanRecord_User" Association="Self.FK_BanRecord_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Ban_Record" EntitySet="Ban_Record" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BlockList_Blocked" Association="Self.FK_BlockList_Blocked">
+            <End Role="User" EntitySet="User" />
+            <End Role="Block_List" EntitySet="Block_List" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BlockList_Blocker" Association="Self.FK_BlockList_Blocker">
+            <End Role="User" EntitySet="User" />
+            <End Role="Block_List" EntitySet="Block_List" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Friendship_Receiver" Association="Self.FK_Friendship_Receiver">
+            <End Role="User" EntitySet="User" />
+            <End Role="Friendship" EntitySet="Friendship" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Friendship_Sender" Association="Self.FK_Friendship_Sender">
+            <End Role="User" EntitySet="User" />
+            <End Role="Friendship" EntitySet="Friendship" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GamePlayer_Game" Association="Self.FK_GamePlayer_Game">
+            <End Role="Game" EntitySet="Game" />
+            <End Role="Game_Player" EntitySet="Game_Player" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GamePlayer_Guest" Association="Self.FK_GamePlayer_Guest">
+            <End Role="Guest_Session" EntitySet="Guest_Session" />
+            <End Role="Game_Player" EntitySet="Game_Player" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GamePlayer_Player" Association="Self.FK_GamePlayer_Player">
+            <End Role="Player" EntitySet="Player" />
+            <End Role="Game_Player" EntitySet="Game_Player" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Message_GamePlayer" Association="Self.FK_Message_GamePlayer">
+            <End Role="Game_Player" EntitySet="Game_Player" />
+            <End Role="Message" EntitySet="Message" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Player_User" Association="Self.FK_Player_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Player" EntitySet="Player" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Report_Reported" Association="Self.FK_Report_Reported">
+            <End Role="Game_Player" EntitySet="Game_Player" />
+            <End Role="Report" EntitySet="Report" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Report_Reporter" Association="Self.FK_Report_Reporter">
+            <End Role="Game_Player" EntitySet="Game_Player" />
+            <End Role="Report" EntitySet="Report" />
+          </AssociationSet>
+          <AssociationSet Name="FK_VerificationCode_Pending" Association="Self.FK_VerificationCode_Pending">
+            <End Role="Pending_Registration" EntitySet="Pending_Registration" />
+            <End Role="Verification_Code" EntitySet="Verification_Code" />
+          </AssociationSet>
+          <AssociationSet Name="FK_VerificationCode_User" Association="Self.FK_VerificationCode_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Verification_Code" EntitySet="Verification_Code" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Vote_Receiver" Association="Self.FK_Vote_Receiver">
+            <End Role="Game_Player" EntitySet="Game_Player" />
+            <End Role="Kicked_Out_Voting" EntitySet="Kicked_Out_Voting" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Vote_Sender" Association="Self.FK_Vote_Sender">
+            <End Role="Game_Player" EntitySet="Game_Player" />
+            <End Role="Kicked_Out_Voting" EntitySet="Kicked_Out_Voting" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="TLMG_DBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Ban_Record">
+          <Key>
+            <PropertyRef Name="id_ban" />
+          </Key>
+          <Property Name="id_ban" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_user" Type="Int32" Nullable="false" />
+          <Property Name="type" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ban_start_date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ban_ending_date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="User" Relationship="Self.FK_BanRecord_User" FromRole="Ban_Record" ToRole="User" />
+        </EntityType>
+        <EntityType Name="Block_List">
+          <Key>
+            <PropertyRef Name="id_block" />
+          </Key>
+          <Property Name="id_block" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_user_blocker" Type="Int32" Nullable="false" />
+          <Property Name="id_user_blocked" Type="Int32" Nullable="false" />
+          <Property Name="block_date" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="User" Relationship="Self.FK_BlockList_Blocked" FromRole="Block_List" ToRole="User" />
+          <NavigationProperty Name="User1" Relationship="Self.FK_BlockList_Blocker" FromRole="Block_List" ToRole="User" />
+        </EntityType>
+        <EntityType Name="Friendship">
+          <Key>
+            <PropertyRef Name="id_friendship" />
+          </Key>
+          <Property Name="id_friendship" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_user_sender" Type="Int32" Nullable="false" />
+          <Property Name="id_user_receiver" Type="Int32" Nullable="false" />
+          <Property Name="state" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="request_date" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Friendship_Receiver" FromRole="Friendship" ToRole="User" />
+          <NavigationProperty Name="User1" Relationship="Self.FK_Friendship_Sender" FromRole="Friendship" ToRole="User" />
+        </EntityType>
+        <EntityType Name="Game">
+          <Key>
+            <PropertyRef Name="id_game" />
+          </Key>
+          <Property Name="id_game" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="state" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="mode" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="lobby_open_date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="game_start_date" Type="DateTime" Precision="3" />
+          <Property Name="game_ending_date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Game_Player" Relationship="Self.FK_GamePlayer_Game" FromRole="Game" ToRole="Game_Player" />
+        </EntityType>
+        <EntityType Name="Game_Player">
+          <Key>
+            <PropertyRef Name="id_game_player" />
+          </Key>
+          <Property Name="id_game_player" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_game" Type="Int32" Nullable="false" />
+          <Property Name="id_player" Type="Int32" />
+          <Property Name="id_guest" Type="Int32" />
+          <Property Name="points_earned" Type="Int32" Nullable="false" />
+          <Property Name="final_position" Type="Int32" />
+          <Property Name="outcome" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Game" Relationship="Self.FK_GamePlayer_Game" FromRole="Game_Player" ToRole="Game" />
+          <NavigationProperty Name="Guest_Session" Relationship="Self.FK_GamePlayer_Guest" FromRole="Game_Player" ToRole="Guest_Session" />
+          <NavigationProperty Name="Player" Relationship="Self.FK_GamePlayer_Player" FromRole="Game_Player" ToRole="Player" />
+          <NavigationProperty Name="Message" Relationship="Self.FK_Message_GamePlayer" FromRole="Game_Player" ToRole="Message" />
+          <NavigationProperty Name="Report" Relationship="Self.FK_Report_Reported" FromRole="Game_Player" ToRole="Report" />
+          <NavigationProperty Name="Report1" Relationship="Self.FK_Report_Reporter" FromRole="Game_Player" ToRole="Report" />
+          <NavigationProperty Name="Kicked_Out_Voting" Relationship="Self.FK_Vote_Receiver" FromRole="Game_Player" ToRole="Kicked_Out_Voting" />
+          <NavigationProperty Name="Kicked_Out_Voting1" Relationship="Self.FK_Vote_Sender" FromRole="Game_Player" ToRole="Kicked_Out_Voting" />
+        </EntityType>
+        <EntityType Name="Guest_Session">
+          <Key>
+            <PropertyRef Name="id_guest" />
+          </Key>
+          <Property Name="id_guest" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="guest_number" Type="Int32" Nullable="false" />
+          <Property Name="display_name" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="session_token" Type="String" MaxLength="64" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ended_at" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Game_Player" Relationship="Self.FK_GamePlayer_Guest" FromRole="Guest_Session" ToRole="Game_Player" />
+        </EntityType>
+        <EntityType Name="Kicked_Out_Voting">
+          <Key>
+            <PropertyRef Name="id_vote" />
+          </Key>
+          <Property Name="id_vote" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_game_player_sender" Type="Int32" Nullable="false" />
+          <Property Name="id_game_player_receiver" Type="Int32" Nullable="false" />
+          <Property Name="vote_date" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Game_Player" Relationship="Self.FK_Vote_Receiver" FromRole="Kicked_Out_Voting" ToRole="Game_Player" />
+          <NavigationProperty Name="Game_Player1" Relationship="Self.FK_Vote_Sender" FromRole="Kicked_Out_Voting" ToRole="Game_Player" />
+        </EntityType>
+        <EntityType Name="Message">
+          <Key>
+            <PropertyRef Name="id_message" />
+          </Key>
+          <Property Name="id_message" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_game_player" Type="Int32" Nullable="false" />
+          <Property Name="scope" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="text_message" Type="String" MaxLength="160" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="message_date" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Game_Player" Relationship="Self.FK_Message_GamePlayer" FromRole="Message" ToRole="Game_Player" />
+        </EntityType>
+        <EntityType Name="Pending_Registration">
+          <Key>
+            <PropertyRef Name="id_pending" />
+          </Key>
+          <Property Name="id_pending" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="email" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="nickname" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="password_hash" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="expires_at" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Verification_Code" Relationship="Self.FK_VerificationCode_Pending" FromRole="Pending_Registration" ToRole="Verification_Code" />
+        </EntityType>
+        <EntityType Name="Player">
+          <Key>
+            <PropertyRef Name="id_player" />
+          </Key>
+          <Property Name="id_player" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_user" Type="Int32" Nullable="false" />
+          <Property Name="total_points" Type="Int32" Nullable="false" />
+          <Property Name="total_wins" Type="Int32" Nullable="false" />
+          <Property Name="total_games_played" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Game_Player" Relationship="Self.FK_GamePlayer_Player" FromRole="Player" ToRole="Game_Player" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Player_User" FromRole="Player" ToRole="User" />
+        </EntityType>
+        <EntityType Name="Report">
+          <Key>
+            <PropertyRef Name="id_report" />
+          </Key>
+          <Property Name="id_report" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_game_player_reporter" Type="Int32" Nullable="false" />
+          <Property Name="id_game_player_reported" Type="Int32" Nullable="false" />
+          <Property Name="reason" Type="String" MaxLength="40" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="comment" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="report_date" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Game_Player" Relationship="Self.FK_Report_Reported" FromRole="Report" ToRole="Game_Player" />
+          <NavigationProperty Name="Game_Player1" Relationship="Self.FK_Report_Reporter" FromRole="Report" ToRole="Game_Player" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="id_user" />
+          </Key>
+          <Property Name="id_user" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="email" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="password_hash" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="nickname" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="state" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="profile_image" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="last_time" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Ban_Record" Relationship="Self.FK_BanRecord_User" FromRole="User" ToRole="Ban_Record" />
+          <NavigationProperty Name="Block_List" Relationship="Self.FK_BlockList_Blocked" FromRole="User" ToRole="Block_List" />
+          <NavigationProperty Name="Block_List1" Relationship="Self.FK_BlockList_Blocker" FromRole="User" ToRole="Block_List" />
+          <NavigationProperty Name="Friendship" Relationship="Self.FK_Friendship_Receiver" FromRole="User" ToRole="Friendship" />
+          <NavigationProperty Name="Friendship1" Relationship="Self.FK_Friendship_Sender" FromRole="User" ToRole="Friendship" />
+          <NavigationProperty Name="Player" Relationship="Self.FK_Player_User" FromRole="User" ToRole="Player" />
+          <NavigationProperty Name="Verification_Code" Relationship="Self.FK_VerificationCode_User" FromRole="User" ToRole="Verification_Code" />
+        </EntityType>
+        <EntityType Name="Verification_Code">
+          <Key>
+            <PropertyRef Name="id_code" />
+          </Key>
+          <Property Name="id_code" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_user" Type="Int32" />
+          <Property Name="id_pending" Type="Int32" />
+          <Property Name="code_hash" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="type" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="state" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="generation_date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="expiration_date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="attempts_failed" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Pending_Registration" Relationship="Self.FK_VerificationCode_Pending" FromRole="Verification_Code" ToRole="Pending_Registration" />
+          <NavigationProperty Name="User" Relationship="Self.FK_VerificationCode_User" FromRole="Verification_Code" ToRole="User" />
+        </EntityType>
+        <Association Name="FK_BanRecord_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Ban_Record" Type="Self.Ban_Record" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Ban_Record">
+              <PropertyRef Name="id_user" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BlockList_Blocked">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Block_List" Type="Self.Block_List" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Block_List">
+              <PropertyRef Name="id_user_blocked" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BlockList_Blocker">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Block_List" Type="Self.Block_List" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Block_List">
+              <PropertyRef Name="id_user_blocker" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Friendship_Receiver">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Friendship" Type="Self.Friendship" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Friendship">
+              <PropertyRef Name="id_user_receiver" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Friendship_Sender">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Friendship" Type="Self.Friendship" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Friendship">
+              <PropertyRef Name="id_user_sender" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GamePlayer_Game">
+          <End Role="Game" Type="Self.Game" Multiplicity="1" />
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game">
+              <PropertyRef Name="id_game" />
+            </Principal>
+            <Dependent Role="Game_Player">
+              <PropertyRef Name="id_game" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GamePlayer_Guest">
+          <End Role="Guest_Session" Type="Self.Guest_Session" Multiplicity="0..1" />
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Guest_Session">
+              <PropertyRef Name="id_guest" />
+            </Principal>
+            <Dependent Role="Game_Player">
+              <PropertyRef Name="id_guest" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_GamePlayer_Player">
+          <End Role="Player" Type="Self.Player" Multiplicity="0..1" />
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Player">
+              <PropertyRef Name="id_player" />
+            </Principal>
+            <Dependent Role="Game_Player">
+              <PropertyRef Name="id_player" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Message_GamePlayer">
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="1" />
+          <End Role="Message" Type="Self.Message" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game_Player">
+              <PropertyRef Name="id_game_player" />
+            </Principal>
+            <Dependent Role="Message">
+              <PropertyRef Name="id_game_player" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Report_Reported">
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="1" />
+          <End Role="Report" Type="Self.Report" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game_Player">
+              <PropertyRef Name="id_game_player" />
+            </Principal>
+            <Dependent Role="Report">
+              <PropertyRef Name="id_game_player_reported" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Report_Reporter">
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="1" />
+          <End Role="Report" Type="Self.Report" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game_Player">
+              <PropertyRef Name="id_game_player" />
+            </Principal>
+            <Dependent Role="Report">
+              <PropertyRef Name="id_game_player_reporter" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Vote_Receiver">
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="1" />
+          <End Role="Kicked_Out_Voting" Type="Self.Kicked_Out_Voting" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game_Player">
+              <PropertyRef Name="id_game_player" />
+            </Principal>
+            <Dependent Role="Kicked_Out_Voting">
+              <PropertyRef Name="id_game_player_receiver" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Vote_Sender">
+          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="1" />
+          <End Role="Kicked_Out_Voting" Type="Self.Kicked_Out_Voting" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game_Player">
+              <PropertyRef Name="id_game_player" />
+            </Principal>
+            <Dependent Role="Kicked_Out_Voting">
+              <PropertyRef Name="id_game_player_sender" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_VerificationCode_Pending">
+          <End Role="Pending_Registration" Type="Self.Pending_Registration" Multiplicity="0..1" />
+          <End Role="Verification_Code" Type="Self.Verification_Code" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pending_Registration">
+              <PropertyRef Name="id_pending" />
+            </Principal>
+            <Dependent Role="Verification_Code">
+              <PropertyRef Name="id_pending" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Player_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Player" Type="Self.Player" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Player">
+              <PropertyRef Name="id_user" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_VerificationCode_User">
+          <End Role="User" Type="Self.User" Multiplicity="0..1" />
+          <End Role="Verification_Code" Type="Self.Verification_Code" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Verification_Code">
+              <PropertyRef Name="id_user" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TLMG_DBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Ban_Record" EntityType="Self.Ban_Record" />
+          <EntitySet Name="Block_List" EntityType="Self.Block_List" />
+          <EntitySet Name="Friendship" EntityType="Self.Friendship" />
+          <EntitySet Name="Game" EntityType="Self.Game" />
+          <EntitySet Name="Game_Player" EntityType="Self.Game_Player" />
+          <EntitySet Name="Guest_Session" EntityType="Self.Guest_Session" />
+          <EntitySet Name="Kicked_Out_Voting" EntityType="Self.Kicked_Out_Voting" />
+          <EntitySet Name="Message" EntityType="Self.Message" />
+          <EntitySet Name="Pending_Registration" EntityType="Self.Pending_Registration" />
+          <EntitySet Name="Player" EntityType="Self.Player" />
+          <EntitySet Name="Report" EntityType="Self.Report" />
+          <EntitySet Name="User" EntityType="Self.User" />
+          <EntitySet Name="Verification_Code" EntityType="Self.Verification_Code" />
+          <AssociationSet Name="FK_BanRecord_User" Association="Self.FK_BanRecord_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Ban_Record" EntitySet="Ban_Record" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BlockList_Blocked" Association="Self.FK_BlockList_Blocked">
+            <End Role="User" EntitySet="User" />
+            <End Role="Block_List" EntitySet="Block_List" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BlockList_Blocker" Association="Self.FK_BlockList_Blocker">
+            <End Role="User" EntitySet="User" />
+            <End Role="Block_List" EntitySet="Block_List" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Friendship_Receiver" Association="Self.FK_Friendship_Receiver">
+            <End Role="User" EntitySet="User" />
+            <End Role="Friendship" EntitySet="Friendship" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Friendship_Sender" Association="Self.FK_Friendship_Sender">
+            <End Role="User" EntitySet="User" />
+            <End Role="Friendship" EntitySet="Friendship" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GamePlayer_Game" Association="Self.FK_GamePlayer_Game">
+            <End Role="Game" EntitySet="Game" />
+            <End Role="Game_Player" EntitySet="Game_Player" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GamePlayer_Guest" Association="Self.FK_GamePlayer_Guest">
+            <End Role="Guest_Session" EntitySet="Guest_Session" />
+            <End Role="Game_Player" EntitySet="Game_Player" />
+          </AssociationSet>
+          <AssociationSet Name="FK_GamePlayer_Player" Association="Self.FK_GamePlayer_Player">
+            <End Role="Player" EntitySet="Player" />
+            <End Role="Game_Player" EntitySet="Game_Player" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Message_GamePlayer" Association="Self.FK_Message_GamePlayer">
+            <End Role="Game_Player" EntitySet="Game_Player" />
+            <End Role="Message" EntitySet="Message" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Report_Reported" Association="Self.FK_Report_Reported">
+            <End Role="Game_Player" EntitySet="Game_Player" />
+            <End Role="Report" EntitySet="Report" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Report_Reporter" Association="Self.FK_Report_Reporter">
+            <End Role="Game_Player" EntitySet="Game_Player" />
+            <End Role="Report" EntitySet="Report" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Vote_Receiver" Association="Self.FK_Vote_Receiver">
+            <End Role="Game_Player" EntitySet="Game_Player" />
+            <End Role="Kicked_Out_Voting" EntitySet="Kicked_Out_Voting" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Vote_Sender" Association="Self.FK_Vote_Sender">
+            <End Role="Game_Player" EntitySet="Game_Player" />
+            <End Role="Kicked_Out_Voting" EntitySet="Kicked_Out_Voting" />
+          </AssociationSet>
+          <AssociationSet Name="FK_VerificationCode_Pending" Association="Self.FK_VerificationCode_Pending">
+            <End Role="Pending_Registration" EntitySet="Pending_Registration" />
+            <End Role="Verification_Code" EntitySet="Verification_Code" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Player_User" Association="Self.FK_Player_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Player" EntitySet="Player" />
+          </AssociationSet>
+          <AssociationSet Name="FK_VerificationCode_User" Association="Self.FK_VerificationCode_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Verification_Code" EntitySet="Verification_Code" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="TLMG_DBModelStoreContainer" CdmEntityContainer="TLMG_DBEntities">
+          <EntitySetMapping Name="Ban_Record">
+            <EntityTypeMapping TypeName="TLMG_DBModel.Ban_Record">
+              <MappingFragment StoreEntitySet="Ban_Record">
+                <ScalarProperty Name="id_ban" ColumnName="id_ban" />
+                <ScalarProperty Name="id_user" ColumnName="id_user" />
+                <ScalarProperty Name="type" ColumnName="type" />
+                <ScalarProperty Name="ban_start_date" ColumnName="ban_start_date" />
+                <ScalarProperty Name="ban_ending_date" ColumnName="ban_ending_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Block_List">
+            <EntityTypeMapping TypeName="TLMG_DBModel.Block_List">
+              <MappingFragment StoreEntitySet="Block_List">
+                <ScalarProperty Name="id_block" ColumnName="id_block" />
+                <ScalarProperty Name="id_user_blocker" ColumnName="id_user_blocker" />
+                <ScalarProperty Name="id_user_blocked" ColumnName="id_user_blocked" />
+                <ScalarProperty Name="block_date" ColumnName="block_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Friendship">
+            <EntityTypeMapping TypeName="TLMG_DBModel.Friendship">
+              <MappingFragment StoreEntitySet="Friendship">
+                <ScalarProperty Name="id_friendship" ColumnName="id_friendship" />
+                <ScalarProperty Name="id_user_sender" ColumnName="id_user_sender" />
+                <ScalarProperty Name="id_user_receiver" ColumnName="id_user_receiver" />
+                <ScalarProperty Name="state" ColumnName="state" />
+                <ScalarProperty Name="request_date" ColumnName="request_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Game">
+            <EntityTypeMapping TypeName="TLMG_DBModel.Game">
+              <MappingFragment StoreEntitySet="Game">
+                <ScalarProperty Name="id_game" ColumnName="id_game" />
+                <ScalarProperty Name="state" ColumnName="state" />
+                <ScalarProperty Name="mode" ColumnName="mode" />
+                <ScalarProperty Name="lobby_open_date" ColumnName="lobby_open_date" />
+                <ScalarProperty Name="game_start_date" ColumnName="game_start_date" />
+                <ScalarProperty Name="game_ending_date" ColumnName="game_ending_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Game_Player">
+            <EntityTypeMapping TypeName="TLMG_DBModel.Game_Player">
+              <MappingFragment StoreEntitySet="Game_Player">
+                <ScalarProperty Name="id_game_player" ColumnName="id_game_player" />
+                <ScalarProperty Name="id_game" ColumnName="id_game" />
+                <ScalarProperty Name="id_player" ColumnName="id_player" />
+                <ScalarProperty Name="id_guest" ColumnName="id_guest" />
+                <ScalarProperty Name="points_earned" ColumnName="points_earned" />
+                <ScalarProperty Name="final_position" ColumnName="final_position" />
+                <ScalarProperty Name="outcome" ColumnName="outcome" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Guest_Session">
+            <EntityTypeMapping TypeName="TLMG_DBModel.Guest_Session">
+              <MappingFragment StoreEntitySet="Guest_Session">
+                <ScalarProperty Name="id_guest" ColumnName="id_guest" />
+                <ScalarProperty Name="guest_number" ColumnName="guest_number" />
+                <ScalarProperty Name="display_name" ColumnName="display_name" />
+                <ScalarProperty Name="session_token" ColumnName="session_token" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="ended_at" ColumnName="ended_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Kicked_Out_Voting">
+            <EntityTypeMapping TypeName="TLMG_DBModel.Kicked_Out_Voting">
+              <MappingFragment StoreEntitySet="Kicked_Out_Voting">
+                <ScalarProperty Name="id_vote" ColumnName="id_vote" />
+                <ScalarProperty Name="id_game_player_sender" ColumnName="id_game_player_sender" />
+                <ScalarProperty Name="id_game_player_receiver" ColumnName="id_game_player_receiver" />
+                <ScalarProperty Name="vote_date" ColumnName="vote_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Message">
+            <EntityTypeMapping TypeName="TLMG_DBModel.Message">
+              <MappingFragment StoreEntitySet="Message">
+                <ScalarProperty Name="id_message" ColumnName="id_message" />
+                <ScalarProperty Name="id_game_player" ColumnName="id_game_player" />
+                <ScalarProperty Name="scope" ColumnName="scope" />
+                <ScalarProperty Name="text_message" ColumnName="text_message" />
+                <ScalarProperty Name="message_date" ColumnName="message_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Pending_Registration">
+            <EntityTypeMapping TypeName="TLMG_DBModel.Pending_Registration">
+              <MappingFragment StoreEntitySet="Pending_Registration">
+                <ScalarProperty Name="id_pending" ColumnName="id_pending" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="nickname" ColumnName="nickname" />
+                <ScalarProperty Name="password_hash" ColumnName="password_hash" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="expires_at" ColumnName="expires_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Player">
+            <EntityTypeMapping TypeName="TLMG_DBModel.Player">
+              <MappingFragment StoreEntitySet="Player">
+                <ScalarProperty Name="id_player" ColumnName="id_player" />
+                <ScalarProperty Name="id_user" ColumnName="id_user" />
+                <ScalarProperty Name="total_points" ColumnName="total_points" />
+                <ScalarProperty Name="total_wins" ColumnName="total_wins" />
+                <ScalarProperty Name="total_games_played" ColumnName="total_games_played" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Report">
+            <EntityTypeMapping TypeName="TLMG_DBModel.Report">
+              <MappingFragment StoreEntitySet="Report">
+                <ScalarProperty Name="id_report" ColumnName="id_report" />
+                <ScalarProperty Name="id_game_player_reporter" ColumnName="id_game_player_reporter" />
+                <ScalarProperty Name="id_game_player_reported" ColumnName="id_game_player_reported" />
+                <ScalarProperty Name="reason" ColumnName="reason" />
+                <ScalarProperty Name="comment" ColumnName="comment" />
+                <ScalarProperty Name="report_date" ColumnName="report_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="User">
+            <EntityTypeMapping TypeName="TLMG_DBModel.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="id_user" ColumnName="id_user" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="password_hash" ColumnName="password_hash" />
+                <ScalarProperty Name="nickname" ColumnName="nickname" />
+                <ScalarProperty Name="state" ColumnName="state" />
+                <ScalarProperty Name="profile_image" ColumnName="profile_image" />
+                <ScalarProperty Name="last_time" ColumnName="last_time" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Verification_Code">
+            <EntityTypeMapping TypeName="TLMG_DBModel.Verification_Code">
+              <MappingFragment StoreEntitySet="Verification_Code">
+                <ScalarProperty Name="id_code" ColumnName="id_code" />
+                <ScalarProperty Name="id_user" ColumnName="id_user" />
+                <ScalarProperty Name="id_pending" ColumnName="id_pending" />
+                <ScalarProperty Name="code_hash" ColumnName="code_hash" />
+                <ScalarProperty Name="type" ColumnName="type" />
+                <ScalarProperty Name="state" ColumnName="state" />
+                <ScalarProperty Name="generation_date" ColumnName="generation_date" />
+                <ScalarProperty Name="expiration_date" ColumnName="expiration_date" />
+                <ScalarProperty Name="attempts_failed" ColumnName="attempts_failed" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Ninguno" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

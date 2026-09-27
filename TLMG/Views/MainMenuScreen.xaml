@@ -85,7 +85,7 @@
                                 <TextBlock Text="{DynamicResource MainMenu_NavHowToPlay}" Style="{StaticResource MenuButtonTextStyle}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource MenuButtonStyle}" Click="BtnNav_Click">
+                        <Button Style="{StaticResource MenuButtonStyle}" Click="BtnLeaderboard_Click">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="🏆" Style="{StaticResource MenuButtonIconStyle}" />
                                 <TextBlock Text="{DynamicResource MainMenu_NavLeaderboard}" Style="{StaticResource MenuButtonTextStyle}" />

@@ -98,7 +98,7 @@
     <sys:String x:Key="MainMenu_WinsLabel">WINS</sys:String>
     <sys:String x:Key="MainMenu_ScoreLabel">RATING</sys:String>
     <sys:String x:Key="MainMenu_RankLabel">RANK</sys:String>
-    <sys:String x:Key="MainMenu_NavNewGame">New Game / Lobby</sys:String>
+    <sys:String x:Key="MainMenu_NavNewGame">Lobby</sys:String>
     <sys:String x:Key="MainMenu_NavHowToPlay">How to Play</sys:String>
     <sys:String x:Key="MainMenu_NavLeaderboard">Leaderboard</sys:String>
     <sys:String x:Key="MainMenu_NavFriends">Friends</sys:String>
@@ -139,4 +139,16 @@
     <sys:String x:Key="CreateAccount_MismatchError">Passwords do not match</sys:String>
     <sys:String x:Key="MainMenu_Title">THE LAST MEOW</sys:String>
     <sys:String x:Key="MainMenu_NextRankValue">{0} pts</sys:String>
+    <sys:String x:Key="Leaderboard_Title">LEADERBOARD</sys:String>
+    <sys:String x:Key="Leaderboard_BackButton">← Back</sys:String>
+    <sys:String x:Key="Leaderboard_FilterAllTime">All Time</sys:String>
+    <sys:String x:Key="Leaderboard_YourStandingLabel">YOUR STANDING</sys:String>
+    <sys:String x:Key="Leaderboard_PointsSuffix">{0} pts</sys:String>
+    <sys:String x:Key="Leaderboard_HeaderTitle">ALL-TIME CHAMPIONS</sys:String>
+    <sys:String x:Key="Leaderboard_UpdatedLabel">Updated {0} ago</sys:String>
+    <sys:String x:Key="Leaderboard_ColumnRank">RANK</sys:String>
+    <sys:String x:Key="Leaderboard_ColumnPlayer">PLAYER</sys:String>
+    <sys:String x:Key="Leaderboard_ColumnScore">SCORE</sys:String>
+    <sys:String x:Key="Leaderboard_ColumnWins">WINS</sys:String>
+    <sys:String x:Key="Leaderboard_ColumnWinRate">WIN RATE</sys:String>
 </ResourceDictionary>

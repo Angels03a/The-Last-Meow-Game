@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="3a393fbc9c1f4bbb86e2ed549b5c409f" Name="Diagram1" ZoomLevel="85">
+        <EntityTypeShape EntityType="TLMG_DBModel.Ban_Record" Width="1.5" PointX="3" PointY="6.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Block_List" Width="1.5" PointX="3" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Friendship" Width="1.5" PointX="3" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Game" Width="1.5" PointX="3" PointY="19.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Game_Player" Width="1.5" PointX="5.25" PointY="15" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Guest_Session" Width="1.5" PointX="3" PointY="22.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Kicked_Out_Voting" Width="1.5" PointX="7.5" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Message" Width="1.5" PointX="7.5" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Pending_Registration" Width="1.5" PointX="3.75" PointY="3.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Player" Width="1.5" PointX="3" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Report" Width="1.5" PointX="7.5" PointY="21.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.User" Width="1.5" PointX="0.75" PointY="10.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Verification_Code" Width="1.5" PointX="6" PointY="11" IsExpanded="true" />
+        <AssociationConnector Association="TLMG_DBModel.FK_BanRecord_User" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_BlockList_Blocked" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_BlockList_Blocker" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_Friendship_Receiver" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_Friendship_Sender" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_GamePlayer_Game" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_GamePlayer_Guest" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_GamePlayer_Player" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_Message_GamePlayer" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_Report_Reported" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_Report_Reporter" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_Vote_Receiver" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_Vote_Sender" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_VerificationCode_Pending" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_Player_User" ManuallyRouted="false" />
+        <AssociationConnector Association="TLMG_DBModel.FK_VerificationCode_User" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

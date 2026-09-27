@@ -52,8 +52,13 @@ namespace TLMG.Views
 
         private void BtnNav_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            // TODO: navegar a las pantallas de Lobby, Cómo Jugar, Clasificación, Amigos, Perfil
+            // TODO: navegar a las pantallas de Lobby, Cómo Jugar, Amigos, Perfil
             // y Partida cuando existan.
+        }
+
+        private void BtnLeaderboard_Click(object eventSender, RoutedEventArgs eventArguments)
+        {
+            ((MainWindow)Application.Current.MainWindow).ShowScreen(new LeaderboardScreen());
         }
 
         private void BtnOptions_Click(object eventSender, RoutedEventArgs eventArguments)

@@ -139,4 +139,15 @@
     <sys:String x:Key="CreateAccount_MismatchError">Las contraseñas no coinciden</sys:String>
     <sys:String x:Key="MainMenu_Title">EL ÚLTIMO MAULLIDO</sys:String>
     <sys:String x:Key="MainMenu_NextRankValue">{0} pts</sys:String>
+    <sys:String x:Key="Leaderboard_Title">TABLA DE POSICIONES</sys:String>
+    <sys:String x:Key="Leaderboard_BackButton">← Regresar</sys:String>
+    <sys:String x:Key="Leaderboard_FilterAllTime">Todo el Tiempo</sys:String>
+    <sys:String x:Key="Leaderboard_YourStandingLabel">TU POSICIÓN</sys:String>
+    <sys:String x:Key="Leaderboard_PointsSuffix">{0} pts</sys:String>
+    <sys:String x:Key="Leaderboard_HeaderTitle">CAMPEONES DE TODOS LOS TIEMPOS</sys:String>
+    <sys:String x:Key="Leaderboard_ColumnRank">RANGO</sys:String>
+    <sys:String x:Key="Leaderboard_ColumnPlayer">JUGADOR</sys:String>
+    <sys:String x:Key="Leaderboard_ColumnScore">PUNTAJE</sys:String>
+    <sys:String x:Key="Leaderboard_ColumnWins">VICTORIAS</sys:String>
+    <sys:String x:Key="Leaderboard_ColumnWinRate">TASA DE VICTORIAS</sys:String>
 </ResourceDictionary>
