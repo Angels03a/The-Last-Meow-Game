@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,16 +8,18 @@ namespace TLMG.Views
     /// <summary>
     /// Representa la pantalla de recuperación de contraseña olvidada mediante envío de código de verificación.
     /// </summary>
-    public partial class ForgotPasswordScreen : UserControl
+    public partial class ForgotPasswordScreen : LocalizableScreen
     {
         private const int ScreenTransitionDelayMilliseconds = 1000;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="ForgotPasswordScreen"/>.
-        /// </summary>
         public ForgotPasswordScreen()
         {
             InitializeComponent();
+        }
+
+        protected override void UpdateDynamicLabels()
+        {
+        
         }
 
         private void TxtEmail_LostFocus(object eventSender, RoutedEventArgs eventArguments)

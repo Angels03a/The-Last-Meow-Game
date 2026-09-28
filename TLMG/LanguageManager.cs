@@ -22,63 +22,37 @@ namespace TLMG
             @"Languages[/\\]Strings\.[a-zA-Z]{2}-[a-zA-Z]{2}\.xaml",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        /// <summary>
-        /// Obtiene el código de cultura del idioma actualmente activo en la aplicación.
-        /// </summary>
         public static string CurrentCulture { get; private set; } = DefaultCultureCode;
 
-        /// <summary>
-        /// Evento que se desencadena cuando el idioma de la aplicación ha cambiado.
-        /// </summary>
         public static event EventHandler LanguageChanged;
 
-        /// <summary>
-        /// Inicializa el idioma de la aplicación según la cultura de la interfaz de usuario del sistema.
-        /// </summary>
         public static void InitializeLanguage()
         {
             string systemCulture = CultureInfo.CurrentUICulture.Name;
             bool isEnglishSystemCulture = systemCulture.StartsWith(
                 EnglishCulturePrefix,
                 StringComparison.OrdinalIgnoreCase);
+
             string normalizedCulture = isEnglishSystemCulture
                 ? EnglishCultureCode
                 : DefaultCultureCode;
 
-            // Establece la cultura en el gestor y en los hilos de ejecución.
             ApplyCulture(normalizedCulture);
-
-            // Carga el diccionario inicial directamente para asegurar la configuración base.
             UpdateResourceDictionary(normalizedCulture);
         }
 
-        /// <summary>
-        /// Cambia el idioma actual de la aplicación, actualizando la cultura del hilo,
-        /// el diccionario de recursos fusionado y repintando las ventanas activas.
-        /// </summary>
         public static void ChangeLanguage(string cultureCode)
         {
-            if (string.IsNullOrWhiteSpace(cultureCode))
+            bool isCultureCodeProvided = !string.IsNullOrWhiteSpace(cultureCode);
+            bool isDifferentFromCurrent = !string.Equals(CurrentCulture, cultureCode, StringComparison.OrdinalIgnoreCase);
+
+            if (isCultureCodeProvided && isDifferentFromCurrent)
             {
-                return;
+                ApplyCulture(cultureCode);
+                UpdateResourceDictionary(cultureCode);
+                RefreshActiveWindows();
+                LanguageChanged?.Invoke(null, EventArgs.Empty);
             }
-
-            if (string.Equals(CurrentCulture, cultureCode, StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
-
-            // Actualiza la cultura de los hilos de ejecución actuales.
-            ApplyCulture(cultureCode);
-
-            // Actualiza el diccionario de recursos en los recursos globales de la aplicación.
-            UpdateResourceDictionary(cultureCode);
-
-            // Fuerza el refresco visual en todas las ventanas activas.
-            RefreshActiveWindows();
-
-            // Notifica a los observadores externos sobre el cambio de idioma.
-            LanguageChanged?.Invoke(null, EventArgs.Empty);
         }
 
         private static void ApplyCulture(string cultureCode)
@@ -91,51 +65,47 @@ namespace TLMG
 
         private static void UpdateResourceDictionary(string cultureCode)
         {
-            if (Application.Current == null)
+            if (Application.Current != null)
             {
-                return;
-            }
-
-            Collection<ResourceDictionary> mergedDictionaries = Application.Current.Resources.MergedDictionaries;
-            ResourceDictionary newDictionary = new ResourceDictionary
-            {
-                Source = new Uri($"pack://application:,,,/TLMG;component/Languages/Strings.{cultureCode}.xaml")
-            };
-
-            int targetIndex = NotFoundIndex;
-            for (int dictionaryIndex = FirstIndex; dictionaryIndex < mergedDictionaries.Count; dictionaryIndex++)
-            {
-                ResourceDictionary currentDictionary = mergedDictionaries[dictionaryIndex];
-                if (currentDictionary.Source != null &&
-                    _languageDictionaryRegex.IsMatch(currentDictionary.Source.OriginalString))
+                Collection<ResourceDictionary> mergedDictionaries = Application.Current.Resources.MergedDictionaries;
+                ResourceDictionary newDictionary = new ResourceDictionary
                 {
-                    targetIndex = dictionaryIndex;
-                    break;
-                }
-            }
+                    Source = new Uri($"pack://application:,,,/TLMG;component/Languages/Strings.{cultureCode}.xaml")
+                };
 
-            if (targetIndex != NotFoundIndex)
-            {
-                mergedDictionaries[targetIndex] = newDictionary;
-            }
-            else
-            {
-                mergedDictionaries.Add(newDictionary);
+                int targetIndex = NotFoundIndex;
+                for (int dictionaryIndex = FirstIndex; dictionaryIndex < mergedDictionaries.Count; dictionaryIndex++)
+                {
+                    ResourceDictionary currentDictionary = mergedDictionaries[dictionaryIndex];
+                    if (currentDictionary.Source != null &&
+                        _languageDictionaryRegex.IsMatch(currentDictionary.Source.OriginalString))
+                    {
+                        targetIndex = dictionaryIndex;
+                        break;
+                    }
+                }
+
+                if (targetIndex != NotFoundIndex)
+                {
+                    mergedDictionaries[targetIndex] = newDictionary;
+                }
+                else
+                {
+                    mergedDictionaries.Add(newDictionary);
+                }
             }
         }
 
         private static void RefreshActiveWindows()
         {
-            if (Application.Current == null)
+            if (Application.Current != null)
             {
-                return;
-            }
-
-            foreach (Window activeWindow in Application.Current.Windows)
-            {
-                object currentContent = activeWindow.Content;
-                activeWindow.Content = null;
-                activeWindow.Content = currentContent;
+                foreach (Window activeWindow in Application.Current.Windows)
+                {
+                    object currentContent = activeWindow.Content;
+                    activeWindow.Content = null;
+                    activeWindow.Content = currentContent;
+                }
             }
         }
     }

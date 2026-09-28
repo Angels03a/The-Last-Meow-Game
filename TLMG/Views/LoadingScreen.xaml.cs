@@ -14,18 +14,12 @@ namespace TLMG.Views
         private const double InitialLoadingBarWidthPixels = 0.0;
         private const double TargetLoadingBarWidthPixels = 410.0;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="LoadingScreen"/>.
-        /// </summary>
         public LoadingScreen()
         {
             InitializeComponent();
             Loaded += LoadingScreen_Loaded;
         }
 
-        /// <summary>
-        /// Evento que se dispara cuando la animación de carga ha finalizado.
-        /// </summary>
         public event EventHandler LoadingCompleted;
 
         private void LoadingScreen_Loaded(object eventSender, RoutedEventArgs eventArguments)

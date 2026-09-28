@@ -14,25 +14,19 @@ namespace TLMG.Views
     /// </summary>
     public partial class VerificationScreen : UserControl
     {
-        private const string SimulatedVerificationCode = "123456";
-
-        /// <summary>
-        /// Cantidad máxima de intentos de verificación permitidos antes del bloqueo.
-        /// </summary>
         public const int MaximumVerificationAttempts = 3;
-
-        /// <summary>
-        /// Tiempo de expiración del código de verificación en segundos (5 minutos).
-        /// </summary>
         public const int VerificationCodeExpirySeconds = 300;
-
-        /// <summary>
-        /// Tiempo de espera requerido para solicitar el reenvío de un nuevo código en segundos.
-        /// </summary>
         public const int CodeResendCooldownSeconds = 60;
-
+        private const string SimulatedVerificationCode = "123456";
         private const int CountdownTimerIntervalSeconds = 1;
-
+        private const int EmptyTextLength = 0;
+        private const int SingleDigitLength = 1;
+        private const int ArrayOffset = 1;
+        private const int TimeExpired = 0;
+        private const int InitialFailedAttempts = 0;
+        private const int FirstTextBoxIndex = 0;
+        private const string TimerFormat = "{0:00}:{1:00}";
+        private const string ResendButtonFormat = "{0} ({1:00}s)";
         private readonly Action _onVerifiedCallbackAction;
         private readonly Action _onBackCallbackAction;
         private TextBox[] _verificationDigitTextBoxes;
@@ -40,18 +34,11 @@ namespace TLMG.Views
         private DispatcherTimer _countdownDispatcherTimer;
         private int _remainingSecondsUntilExpiry = VerificationCodeExpirySeconds;
         private int _remainingSecondsUntilResend = CodeResendCooldownSeconds;
-        private int _totalFailedAttempts = 0;
+        private int _totalFailedAttempts = InitialFailedAttempts;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="VerificationScreen"/>.
-        /// </summary>
-        /// <param name="onVerifiedCallbackAction">Acción invocada al verificar el código con éxito.</param>
-        /// <param name="onBackCallbackAction">Acción que se ejecuta al pulsar el botón de regreso.</param>
-        /// <param name="showStepsHeader">Indica si se muestra el encabezado de pasos del flujo.</param>
         public VerificationScreen(
             Action onVerifiedCallbackAction,
-            Action onBackCallbackAction,
-            bool showStepsHeader = true)
+            Action onBackCallbackAction)
         {
             InitializeComponent();
             _onVerifiedCallbackAction = onVerifiedCallbackAction;
@@ -74,9 +61,12 @@ namespace TLMG.Views
             lblFormMessage.Visibility = Visibility.Hidden;
             int currentTextBoxIndex = Array.IndexOf(_verificationDigitTextBoxes, currentDigitTextBox);
 
-            if (currentDigitTextBox.Text.Length == 1 && currentTextBoxIndex < _verificationDigitTextBoxes.Length - 1)
+            bool isBoxFilled = currentDigitTextBox.Text.Length == SingleDigitLength;
+            bool hasNextBox = currentTextBoxIndex < _verificationDigitTextBoxes.Length - ArrayOffset;
+
+            if (isBoxFilled && hasNextBox)
             {
-                _verificationDigitTextBoxes[currentTextBoxIndex + 1].Focus();
+                _verificationDigitTextBoxes[currentTextBoxIndex + ArrayOffset].Focus();
             }
 
             UpdateVerifyButtonState();
@@ -87,12 +77,12 @@ namespace TLMG.Views
             TextBox currentDigitTextBox = (TextBox)eventSender;
             int currentTextBoxIndex = Array.IndexOf(_verificationDigitTextBoxes, currentDigitTextBox);
 
-            bool isBackspaceOnEmptyBox = eventArguments.Key == Key.Back && currentDigitTextBox.Text.Length == 0;
-            bool hasPreviousTextBox = currentTextBoxIndex > 0;
+            bool isBackspaceOnEmptyBox = eventArguments.Key == Key.Back && currentDigitTextBox.Text.Length == EmptyTextLength;
+            bool hasPreviousTextBox = currentTextBoxIndex > FirstTextBoxIndex;
 
             if (isBackspaceOnEmptyBox && hasPreviousTextBox)
             {
-                _verificationDigitTextBoxes[currentTextBoxIndex - 1].Focus();
+                _verificationDigitTextBoxes[currentTextBoxIndex - ArrayOffset].Focus();
             }
         }
 
@@ -124,19 +114,19 @@ namespace TLMG.Views
 
         private void Timer_Tick(object eventSender, EventArgs eventArguments)
         {
-            if (_remainingSecondsUntilExpiry > 0)
+            if (_remainingSecondsUntilExpiry > TimeExpired)
             {
                 _remainingSecondsUntilExpiry--;
             }
 
-            if (_remainingSecondsUntilResend > 0)
+            if (_remainingSecondsUntilResend > TimeExpired)
             {
                 _remainingSecondsUntilResend--;
             }
 
             UpdateTimerInterfaceTexts();
 
-            if (_remainingSecondsUntilExpiry == 0)
+            if (_remainingSecondsUntilExpiry == TimeExpired)
             {
                 _countdownDispatcherTimer.Stop();
                 ShowCodeExpiredStatus();
@@ -147,16 +137,17 @@ namespace TLMG.Views
         {
             TimeSpan currentRemainingTimeSpan = TimeSpan.FromSeconds(_remainingSecondsUntilExpiry);
             lblExpiration.Text = string.Format(
-                "{0:00}:{1:00}",
+                TimerFormat,
                 currentRemainingTimeSpan.Minutes,
                 currentRemainingTimeSpan.Seconds);
 
             string originalButtonText = TryFindResource("Verification_ResendButton") as string;
-            if (_remainingSecondsUntilResend > 0)
+
+            if (_remainingSecondsUntilResend > TimeExpired)
             {
                 btnResendCode.IsEnabled = false;
                 btnResendCode.Content = string.Format(
-                    "{0} ({1:00}s)",
+                    ResendButtonFormat,
                     originalButtonText,
                     _remainingSecondsUntilResend);
             }
@@ -183,9 +174,7 @@ namespace TLMG.Views
 
         private void UpdateAttemptIndicatorDots()
         {
-            for (int currentEllipseIndex = 0;
-                currentEllipseIndex < _attemptIndicatorEllipses.Length;
-                currentEllipseIndex++)
+            for (int currentEllipseIndex = 0; currentEllipseIndex < _attemptIndicatorEllipses.Length; currentEllipseIndex++)
             {
                 _attemptIndicatorEllipses[currentEllipseIndex].Fill = currentEllipseIndex < _totalFailedAttempts
                     ? (Brush)FindResource("Brush_Error")
@@ -193,10 +182,7 @@ namespace TLMG.Views
             }
         }
 
-        private async void ShowStatusMessage(
-            TextBlock messageElement,
-            string messageContent,
-            bool isErrorMessage = true)
+        private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)
         {
             messageElement.Text = messageContent;
             messageElement.Foreground = isErrorMessage
@@ -214,7 +200,7 @@ namespace TLMG.Views
 
         private void BtnVerifyCode_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            string concatenatedEnteredCode = "";
+            string concatenatedEnteredCode = string.Empty;
             foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
                 concatenatedEnteredCode += currentDigitTextBox.Text;
@@ -230,45 +216,50 @@ namespace TLMG.Views
             }
             else
             {
-                _totalFailedAttempts++;
-                UpdateAttemptIndicatorDots();
+                ProcessFailedVerificationAttempt();
+            }
+        }
 
-                if (_totalFailedAttempts >= MaximumVerificationAttempts)
-                {
-                    _countdownDispatcherTimer.Stop();
-                    lblFormMessage.Text = TryFindResource("Verification_AttemptsExhaustedError") as string;
-                    lblFormMessage.Foreground = (Brush)FindResource("Brush_Error");
-                    lblFormMessage.Visibility = Visibility.Visible;
+        private void ProcessFailedVerificationAttempt()
+        {
+            _totalFailedAttempts++;
+            UpdateAttemptIndicatorDots();
 
-                    foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
-                    {
-                        currentDigitTextBox.IsEnabled = false;
-                    }
-
-                    btnVerifyCode.IsEnabled = false;
-                }
-                else
-                {
-                    ShowStatusMessage(
-                        lblVerificationError,
-                        TryFindResource("Verification_IncorrectCodeError") as string,
-                        true);
-                }
+            if (_totalFailedAttempts >= MaximumVerificationAttempts)
+            {
+                _countdownDispatcherTimer.Stop();
+                lblFormMessage.Text = TryFindResource("Verification_AttemptsExhaustedError") as string;
+                lblFormMessage.Foreground = (Brush)FindResource("Brush_Error");
+                lblFormMessage.Visibility = Visibility.Visible;
 
                 foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
                 {
-                    currentDigitTextBox.Text = "";
+                    currentDigitTextBox.IsEnabled = false;
                 }
 
-                _verificationDigitTextBoxes[0].Focus();
+                btnVerifyCode.IsEnabled = false;
             }
+            else
+            {
+                ShowStatusMessage(
+                    lblVerificationError,
+                    TryFindResource("Verification_IncorrectCodeError") as string,
+                    true);
+            }
+
+            foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
+            {
+                currentDigitTextBox.Text = string.Empty;
+            }
+
+            _verificationDigitTextBoxes[FirstTextBoxIndex].Focus();
         }
 
         private void BtnResendCode_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             _remainingSecondsUntilExpiry = VerificationCodeExpirySeconds;
             _remainingSecondsUntilResend = CodeResendCooldownSeconds;
-            _totalFailedAttempts = 0;
+            _totalFailedAttempts = InitialFailedAttempts;
             UpdateAttemptIndicatorDots();
 
             lblFormMessage.Visibility = Visibility.Hidden;
@@ -277,7 +268,7 @@ namespace TLMG.Views
             foreach (TextBox currentDigitTextBox in _verificationDigitTextBoxes)
             {
                 currentDigitTextBox.IsEnabled = true;
-                currentDigitTextBox.Text = "";
+                currentDigitTextBox.Text = string.Empty;
             }
 
             btnVerifyCode.IsEnabled = false;
@@ -287,7 +278,7 @@ namespace TLMG.Views
                 _countdownDispatcherTimer.Start();
             }
 
-            _verificationDigitTextBoxes[0].Focus();
+            _verificationDigitTextBoxes[FirstTextBoxIndex].Focus();
         }
 
         private void BtnBack_Click(object eventSender, RoutedEventArgs eventArguments)

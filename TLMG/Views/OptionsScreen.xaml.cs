@@ -6,7 +6,7 @@ namespace TLMG.Views
     /// <summary>
     /// Representa la pantalla de configuración de audio e idioma de la aplicación.
     /// </summary>
-    public partial class OptionsScreen : UserControl
+    public partial class OptionsScreen : LocalizableScreen
     {
         private const double DefaultMusicVolumeLevel = 70.0;
         private const double DefaultSfxVolumeLevel = 85.0;
@@ -16,14 +16,17 @@ namespace TLMG.Views
         private const string ActiveLanguageButtonStyleKey = "LangButtonActiveStyle";
         private const string InactiveLanguageButtonStyleKey = "LangButtonInactiveStyle";
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="OptionsScreen"/>.
-        /// </summary>
         public OptionsScreen()
         {
             InitializeComponent();
             InitializeDefaultSettings();
             InitializeLanguageButtons();
+        }
+
+        protected override void UpdateDynamicLabels()
+        {
+            UpdateVolumeLabel(lblMusicVol, sldMusic.Value);
+            UpdateVolumeLabel(lblSfxVol, sldSfx.Value);
         }
 
         private void InitializeDefaultSettings()

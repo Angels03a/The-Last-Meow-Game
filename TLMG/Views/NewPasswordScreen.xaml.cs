@@ -10,18 +10,20 @@ namespace TLMG.Views
     /// <summary>
     /// Representa la pantalla de restablecimiento y configuración de una nueva contraseña.
     /// </summary>
-    public partial class NewPasswordScreen : UserControl
+    public partial class NewPasswordScreen : LocalizableScreen
     {
         private const int WeakPasswordThresholdScore = 2;
         private const int FairPasswordScore = 3;
         private const int SuccessRedirectDelayMilliseconds = 2000;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="NewPasswordScreen"/>.
-        /// </summary>
         public NewPasswordScreen()
         {
             InitializeComponent();
+        }
+
+        protected override void UpdateDynamicLabels()
+        {
+            UpdatePasswordStrengthDisplay();
         }
 
         private void PwdNewPassword_PasswordChanged(object eventSender, RoutedEventArgs eventArguments)
@@ -110,7 +112,7 @@ namespace TLMG.Views
 
             if (string.IsNullOrWhiteSpace(inputNewPassword) || string.IsNullOrWhiteSpace(inputConfirmPassword))
             {
-                ShowStatusMessage(lblFormMessage, TryFindResource("Login_IncompleteFieldsError") as string, true);
+                ShowStatusMessage(lblFormMessage, TryFindResource("NewPassword_IncompleteFieldsError") as string, true);
             }
             else if (CalculatePasswordStrength(inputNewPassword) < ValidationHelper.RequiredPasswordStrengthScore)
             {

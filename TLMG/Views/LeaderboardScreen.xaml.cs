@@ -14,7 +14,7 @@ namespace TLMG.Views
     /// <summary>
     /// Pantalla que muestra el podio y la tabla de posiciones de los jugadores (leaderboard).
     /// </summary>
-    public partial class LeaderboardScreen : UserControl
+    public partial class LeaderboardScreen : LocalizableScreen
     {
         private const string DefaultPointsFormat = "{0} pts";
         private const string PointsSuffixResourceKey = "Leaderboard_PointsSuffix";
@@ -25,6 +25,13 @@ namespace TLMG.Views
         private const int PercentageMultiplier = 100;
         private const int DefaultEmptyScore = 0;
         private const int DefaultEmptyWins = 0;
+        private const int FirstPlaceIndex = 0;
+        private const int SecondPlaceIndex = 1;
+        private const int ThirdPlaceIndex = 2;
+        private const int FirstPlaceRank = 1;
+        private const int SecondPlaceRank = 2;
+        private const int ThirdPlaceRank = 3;
+        private const int PodiumCapacity = 3;
 
         // FIXME: Estos valores deben venir del jugador actualmente logueado en la sesión.
         private const int CurrentUserStandingRank = 38;
@@ -34,33 +41,22 @@ namespace TLMG.Views
         private PlayerRankEntry _secondPlacePlayer;
         private PlayerRankEntry _thirdPlacePlayer;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="LeaderboardScreen"/>.
-        /// </summary>
         public LeaderboardScreen()
         {
             InitializeComponent();
-            Loaded += LeaderboardScreen_Loaded;
-            Unloaded += LeaderboardScreen_Unloaded;
 
             LoadLeaderboardData();
             UpdateDynamicLabels();
         }
 
-        private void LeaderboardScreen_Loaded(object eventSender, RoutedEventArgs eventArguments)
+        protected override void UpdateDynamicLabels()
         {
-            LanguageManager.LanguageChanged += LanguageManager_LanguageChanged;
-            UpdateDynamicLabels();
-        }
+            lblPodiumFirstPoints.Text = FormatPointsLabel(_firstPlacePlayer.Score);
+            lblPodiumSecondPoints.Text = FormatPointsLabel(_secondPlacePlayer.Score);
+            lblPodiumThirdPoints.Text = FormatPointsLabel(_thirdPlacePlayer.Score);
 
-        private void LeaderboardScreen_Unloaded(object eventSender, RoutedEventArgs eventArguments)
-        {
-            LanguageManager.LanguageChanged -= LanguageManager_LanguageChanged;
-        }
-
-        private void LanguageManager_LanguageChanged(object eventSender, EventArgs eventArguments)
-        {
-            UpdateDynamicLabels();
+            lblUserStandingRank.Text = $"#{CurrentUserStandingRank}";
+            lblUserStandingPoints.Text = FormatPointsLabel(CurrentUserStandingPoints);
         }
 
         private void LoadLeaderboardData()
@@ -100,12 +96,20 @@ namespace TLMG.Views
             }
             catch (SqlException)
             {
-                MessageBox.Show("Error de conexión al cargar la tabla de posiciones.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    TryFindResource("Leaderboard_ConnectionErrorMessage") as string,
+                    TryFindResource("Leaderboard_ErrorTitle") as string,
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
                 LoadEmptyLeaderboard();
             }
             catch (EntityException)
             {
-                MessageBox.Show("Error interno en el modelo de datos.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    TryFindResource("Leaderboard_DataModelErrorMessage") as string,
+                    TryFindResource("Leaderboard_ErrorTitle") as string,
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
                 LoadEmptyLeaderboard();
             }
         }
@@ -119,9 +123,9 @@ namespace TLMG.Views
 
         private void AssignPodiumPlayers(System.Collections.Generic.List<PlayerRankEntry> allPlayers)
         {
-            _firstPlacePlayer = allPlayers.ElementAtOrDefault(0) ?? CreateEmptyEntry(1);
-            _secondPlacePlayer = allPlayers.ElementAtOrDefault(1) ?? CreateEmptyEntry(2);
-            _thirdPlacePlayer = allPlayers.ElementAtOrDefault(2) ?? CreateEmptyEntry(3);
+            _firstPlacePlayer = allPlayers.ElementAtOrDefault(FirstPlaceIndex) ?? CreateEmptyEntry(FirstPlaceRank);
+            _secondPlacePlayer = allPlayers.ElementAtOrDefault(SecondPlaceIndex) ?? CreateEmptyEntry(SecondPlaceRank);
+            _thirdPlacePlayer = allPlayers.ElementAtOrDefault(ThirdPlaceIndex) ?? CreateEmptyEntry(ThirdPlaceRank);
 
             SetPodiumSlot(new PodiumSlotViews(imgPodiumFirstAvatar, lblPodiumFirstName, lblPodiumFirstPoints), _firstPlacePlayer);
             SetPodiumSlot(new PodiumSlotViews(imgPodiumSecondAvatar, lblPodiumSecondName, lblPodiumSecondPoints), _secondPlacePlayer);
@@ -130,15 +134,15 @@ namespace TLMG.Views
 
         private void AssignRankedList(System.Collections.Generic.List<PlayerRankEntry> allPlayers)
         {
-            var remainingPlayers = allPlayers.Skip(3).ToList();
+            var remainingPlayers = allPlayers.Skip(PodiumCapacity).ToList();
             lstRankedPlayers.ItemsSource = new ObservableCollection<PlayerRankEntry>(remainingPlayers);
         }
 
         private void LoadEmptyLeaderboard()
         {
-            _firstPlacePlayer = CreateEmptyEntry(1);
-            _secondPlacePlayer = CreateEmptyEntry(2);
-            _thirdPlacePlayer = CreateEmptyEntry(3);
+            _firstPlacePlayer = CreateEmptyEntry(FirstPlaceRank);
+            _secondPlacePlayer = CreateEmptyEntry(SecondPlaceRank);
+            _thirdPlacePlayer = CreateEmptyEntry(ThirdPlaceRank);
 
             SetPodiumSlot(new PodiumSlotViews(imgPodiumFirstAvatar, lblPodiumFirstName, lblPodiumFirstPoints), _firstPlacePlayer);
             SetPodiumSlot(new PodiumSlotViews(imgPodiumSecondAvatar, lblPodiumSecondName, lblPodiumSecondPoints), _secondPlacePlayer);
@@ -181,16 +185,6 @@ namespace TLMG.Views
             views.PointsLabel.Text = FormatPointsLabel(player.Score);
         }
 
-        private void UpdateDynamicLabels()
-        {
-            lblPodiumFirstPoints.Text = FormatPointsLabel(_firstPlacePlayer.Score);
-            lblPodiumSecondPoints.Text = FormatPointsLabel(_secondPlacePlayer.Score);
-            lblPodiumThirdPoints.Text = FormatPointsLabel(_thirdPlacePlayer.Score);
-
-            lblUserStandingRank.Text = $"#{CurrentUserStandingRank}";
-            lblUserStandingPoints.Text = FormatPointsLabel(CurrentUserStandingPoints);
-        }
-
         private string FormatPointsLabel(int points)
         {
             string format = TryFindResource(PointsSuffixResourceKey) as string ?? DefaultPointsFormat;
@@ -207,10 +201,6 @@ namespace TLMG.Views
             LoadLeaderboardData();
         }
 
-        /// <summary>
-        /// Agrupa las tres etiquetas visuales de un puesto del podio, para evitar pasar
-        /// controles individuales como parámetros sueltos a <see cref="SetPodiumSlot"/>.
-        /// </summary>
         private sealed class PodiumSlotViews
         {
             public PodiumSlotViews(Image avatarImage, TextBlock nameLabel, TextBlock pointsLabel)

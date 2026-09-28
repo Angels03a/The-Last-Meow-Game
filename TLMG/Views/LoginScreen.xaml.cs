@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using TLMG.DatabaseModel; // Requerido para TLMG_DBEntities
+using TLMG.DatabaseModel;
 
 namespace TLMG.Views
 {
@@ -14,13 +14,10 @@ namespace TLMG.Views
     /// Representa la pantalla de inicio de sesión de usuarios y acceso de invitados.
     /// Integrada con Entity Framework para validación de credenciales en base de datos.
     /// </summary>
-    public partial class LoginScreen : UserControl
+    public partial class LoginScreen : LocalizableScreen
     {
         private const int ScreenTransitionDelayMilliseconds = 1000;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="LoginScreen"/>.
-        /// </summary>
         public LoginScreen()
         {
             InitializeComponent();
@@ -82,7 +79,6 @@ namespace TLMG.Views
                 {
                     var registeredUser = database.User.FirstOrDefault(user => user.email == email);
 
-                  
                     if (registeredUser == null || registeredUser.password_hash.Trim() != password.Trim())
                     {
                         ShowStatusMessage(lblFormMessage, TryFindResource("Login_InvalidCredentialsError") as string, true);
@@ -97,11 +93,11 @@ namespace TLMG.Views
             }
             catch (SqlException)
             {
-                ShowStatusMessage(lblFormMessage, "Error de red: No se pudo establecer conexión con el servidor.", true);
+                ShowStatusMessage(lblFormMessage, TryFindResource("Login_NetworkError") as string, true);
             }
             catch (EntityException)
             {
-                ShowStatusMessage(lblFormMessage, "Error: El modelo de datos no se encuentra disponible.", true);
+                ShowStatusMessage(lblFormMessage, TryFindResource("Login_DataModelError") as string, true);
             }
 
             return isAuthenticationSuccessful;

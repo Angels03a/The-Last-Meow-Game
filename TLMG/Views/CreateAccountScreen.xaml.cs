@@ -15,7 +15,7 @@ namespace TLMG.Views
     /// Pantalla de registro de cuentas con validación de reglas para nickname, correo y contraseñas.
     /// Integrada con Entity Framework para persistencia en base de datos.
     /// </summary>
-    public partial class CreateAccountScreen : UserControl
+    public partial class CreateAccountScreen : LocalizableScreen
     {
         private const string DefaultUserState = "USER_ACTIVE";
         private const string DefaultProfileImage = "/img/default.png";
@@ -23,7 +23,6 @@ namespace TLMG.Views
         private const int DefaultInitialWins = 0;
         private const int DefaultInitialGamesPlayed = 0;
 
-        // Objeto de parámetros (Prototipo de DTO) para evitar múltiples argumentos en los métodos
         private class RegistrationFormData
         {
             public string Nickname { get; set; }
@@ -33,12 +32,13 @@ namespace TLMG.Views
             public bool HasAcceptedTerms { get; set; }
         }
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="CreateAccountScreen"/>.
-        /// </summary>
         public CreateAccountScreen()
         {
             InitializeComponent();
+        }
+
+        protected override void UpdateDynamicLabels()
+        {
         }
 
         private void PwdPassword_PasswordChanged(object eventSender, RoutedEventArgs eventArguments)
@@ -190,15 +190,15 @@ namespace TLMG.Views
             }
             catch (DbUpdateException)
             {
-                ShowStatusMessage(lblFormMessage, "Ya existe una cuenta con este correo electrónico.", true);
+                ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_DuplicateEmailError") as string, true);
             }
             catch (SqlException)
             {
-                ShowStatusMessage(lblFormMessage, "Error de red: No se pudo establecer conexión con el servidor.", true);
+                ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_NetworkError") as string, true);
             }
             catch (EntityException)
             {
-                ShowStatusMessage(lblFormMessage, "Error: El modelo de datos no se encuentra disponible.", true);
+                ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_DataModelError") as string, true);
             }
 
             return isSuccess;
@@ -212,8 +212,7 @@ namespace TLMG.Views
                     MessageBox.Show(TryFindResource("CreateAccount_SuccessMessage") as string);
                     applicationMainWindow.ShowScreen(new LoginScreen());
                 },
-                onBackCallbackAction: () => applicationMainWindow.ShowScreen(new CreateAccountScreen()),
-                showStepsHeader: false
+                onBackCallbackAction: () => applicationMainWindow.ShowScreen(new CreateAccountScreen())
             ));
         }
 

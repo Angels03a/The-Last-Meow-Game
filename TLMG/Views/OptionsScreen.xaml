@@ -1,18 +1,19 @@
-﻿<UserControl x:Class="TLMG.Views.OptionsScreen"
+﻿<local:LocalizableScreen x:Class="TLMG.Views.OptionsScreen"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:TLMG.Views"
              mc:Ignorable="d"
              d:DesignHeight="720"
              d:DesignWidth="1280">
-    <UserControl.Resources>
+    <local:LocalizableScreen.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/TLMG;component/Styles/GlobalStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-    </UserControl.Resources>
+    </local:LocalizableScreen.Resources>
 
     <Grid Background="{StaticResource Brush_BackgroundDark}">
         <Grid.ColumnDefinitions>
@@ -127,4 +128,4 @@
             </StackPanel>
         </ScrollViewer>
     </Grid>
-</UserControl>
+</local:LocalizableScreen>
