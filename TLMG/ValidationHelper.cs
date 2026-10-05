@@ -113,7 +113,8 @@ namespace TLMG
                 bool isFormatInvalid = !isLengthValid || !hasOnlyValidCharacters;
 
                 string lowercaseNickname = nickname.ToLower();
-                bool hasOffensiveVocabulary = _offensiveVocabularyWords.Any(offensiveWord => lowercaseNickname.Contains(offensiveWord));
+                bool hasOffensiveVocabulary = _offensiveVocabularyWords.Any(
+                    offensiveWord => lowercaseNickname.Contains(offensiveWord));
                 bool isNicknameUnavailable = _unavailableNicknames.Contains(lowercaseNickname);
 
                 if (isFormatInvalid)

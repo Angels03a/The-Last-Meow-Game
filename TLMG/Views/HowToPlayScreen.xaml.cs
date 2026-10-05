@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace TLMG.Views
@@ -88,11 +88,11 @@ namespace TLMG.Views
 
         private void UpdatePaginationControls()
         {
-            shpDot1.Tag = _currentStep == Step1 ? "Active" : string.Empty;
-            shpDot2.Tag = _currentStep == Step2 ? "Active" : string.Empty;
-            shpDot3.Tag = _currentStep == Step3 ? "Active" : string.Empty;
-            shpDot4.Tag = _currentStep == Step4 ? "Active" : string.Empty;
-            shpDot5.Tag = _currentStep == Step5 ? "Active" : string.Empty;
+            ellDot1.Tag = _currentStep == Step1 ? "Active" : string.Empty;
+            ellDot2.Tag = _currentStep == Step2 ? "Active" : string.Empty;
+            ellDot3.Tag = _currentStep == Step3 ? "Active" : string.Empty;
+            ellDot4.Tag = _currentStep == Step4 ? "Active" : string.Empty;
+            ellDot5.Tag = _currentStep == Step5 ? "Active" : string.Empty;
 
             btnPrevious.Visibility = _currentStep > MinStep ? Visibility.Visible : Visibility.Hidden;
 
@@ -106,7 +106,7 @@ namespace TLMG.Views
             }
         }
 
-        private void BtnNext_Click(object sender, RoutedEventArgs e)
+        private void BtnNext_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             if (_currentStep < MaxStep)
             {
@@ -119,7 +119,7 @@ namespace TLMG.Views
             }
         }
 
-        private void BtnPrevious_Click(object sender, RoutedEventArgs e)
+        private void BtnPrevious_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             if (_currentStep > MinStep)
             {
@@ -128,9 +128,9 @@ namespace TLMG.Views
             }
         }
 
-        private void BtnSidebarStep_Click(object sender, RoutedEventArgs e)
+        private void BtnSidebarStep_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            Button clickedButton = sender as Button;
+            Button clickedButton = eventSender as Button;
 
             if (clickedButton == btnStep1)
             {
@@ -156,7 +156,7 @@ namespace TLMG.Views
             UpdateStepVisibility();
         }
 
-        private void BtnBack_Click(object sender, RoutedEventArgs e)
+        private void BtnBack_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             ReturnToMainMenu();
         }

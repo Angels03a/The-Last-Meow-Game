@@ -77,7 +77,8 @@ namespace TLMG.Views
             TextBox currentDigitTextBox = (TextBox)eventSender;
             int currentTextBoxIndex = Array.IndexOf(_verificationDigitTextBoxes, currentDigitTextBox);
 
-            bool isBackspaceOnEmptyBox = eventArguments.Key == Key.Back && currentDigitTextBox.Text.Length == EmptyTextLength;
+            bool isBackspaceOnEmptyBox = eventArguments.Key == Key.Back
+                && currentDigitTextBox.Text.Length == EmptyTextLength;
             bool hasPreviousTextBox = currentTextBoxIndex > FirstTextBoxIndex;
 
             if (isBackspaceOnEmptyBox && hasPreviousTextBox)
@@ -174,7 +175,9 @@ namespace TLMG.Views
 
         private void UpdateAttemptIndicatorDots()
         {
-            for (int currentEllipseIndex = 0; currentEllipseIndex < _attemptIndicatorEllipses.Length; currentEllipseIndex++)
+            for (int currentEllipseIndex = 0;
+                currentEllipseIndex < _attemptIndicatorEllipses.Length;
+                currentEllipseIndex++)
             {
                 _attemptIndicatorEllipses[currentEllipseIndex].Fill = currentEllipseIndex < _totalFailedAttempts
                     ? (Brush)FindResource("Brush_Error")
@@ -182,7 +185,10 @@ namespace TLMG.Views
             }
         }
 
-        private async void ShowStatusMessage(TextBlock messageElement, string messageContent, bool isErrorMessage = true)
+        private async void ShowStatusMessage(
+            TextBlock messageElement,
+            string messageContent,
+            bool isErrorMessage = true)
         {
             messageElement.Text = messageContent;
             messageElement.Foreground = isErrorMessage

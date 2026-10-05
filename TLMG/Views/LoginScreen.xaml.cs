@@ -81,7 +81,8 @@ namespace TLMG.Views
 
                     if (registeredUser == null || registeredUser.password_hash.Trim() != password.Trim())
                     {
-                        ShowStatusMessage(lblFormMessage, TryFindResource("Login_InvalidCredentialsError") as string, true);
+                        ShowStatusMessage(
+                            lblFormMessage, TryFindResource("Login_InvalidCredentialsError") as string, true);
                     }
                     else
                     {

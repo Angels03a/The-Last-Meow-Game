@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -18,19 +18,19 @@ namespace TLMG.Views
         {
         }
 
-        private void OnScreenLoaded(object sender, RoutedEventArgs e)
+        private void OnScreenLoaded(object eventSender, RoutedEventArgs eventArguments)
         {
             LanguageManager.LanguageChanged -= OnLanguageChanged;
             LanguageManager.LanguageChanged += OnLanguageChanged;
             UpdateDynamicLabels();
         }
 
-        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        private void OnScreenUnloaded(object eventSender, RoutedEventArgs eventArguments)
         {
             LanguageManager.LanguageChanged -= OnLanguageChanged;
         }
 
-        private void OnLanguageChanged(object sender, EventArgs e)
+        private void OnLanguageChanged(object eventSender, EventArgs eventArguments)
         {
             UpdateDynamicLabels();
         }

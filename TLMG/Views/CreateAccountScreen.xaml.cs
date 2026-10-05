@@ -95,7 +95,8 @@ namespace TLMG.Views
 
             if (hasEmptyFields)
             {
-                ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_IncompleteFieldsError") as string, true);
+                ShowStatusMessage(
+                    lblFormMessage, TryFindResource("CreateAccount_IncompleteFieldsError") as string, true);
             }
 
             return hasEmptyFields;
@@ -121,12 +122,14 @@ namespace TLMG.Views
 
             if (CalculatePasswordStrength(data.Password) < ValidationHelper.RequiredPasswordStrengthScore)
             {
-                ShowStatusMessage(lblPasswordError, TryFindResource("CreateAccount_PasswordPolicyError") as string, true);
+                ShowStatusMessage(
+                    lblPasswordError, TryFindResource("CreateAccount_PasswordPolicyError") as string, true);
                 hasErrors = true;
             }
             else if (data.Password != data.ConfirmPassword)
             {
-                ShowStatusMessage(lblConfirmPasswordError, TryFindResource("CreateAccount_MismatchError") as string, true);
+                ShowStatusMessage(
+                    lblConfirmPasswordError, TryFindResource("CreateAccount_MismatchError") as string, true);
                 hasErrors = true;
             }
 
@@ -152,11 +155,13 @@ namespace TLMG.Views
 
                     if (emailIsTaken)
                     {
-                        ShowStatusMessage(lblEmailError, TryFindResource("CreateAccount_EmailTakenError") as string, true);
+                        ShowStatusMessage(
+                            lblEmailError, TryFindResource("CreateAccount_EmailTakenError") as string, true);
                     }
                     else if (nicknameIsTaken)
                     {
-                        ShowStatusMessage(lblNicknameError, TryFindResource("CreateAccount_NicknameTakenError") as string, true);
+                        ShowStatusMessage(
+                            lblNicknameError, TryFindResource("CreateAccount_NicknameTakenError") as string, true);
                     }
                     else
                     {
@@ -164,7 +169,8 @@ namespace TLMG.Views
                         {
                             email = data.Email,
                             nickname = data.Nickname,
-                            password_hash = data.Password, // FIXME: Integrar algoritmo de hashing antes de insertar en BD.
+                            // FIXME: Integrar algoritmo de hashing antes de insertar en BD.
+                            password_hash = data.Password,
                             state = DefaultUserState,
                             profile_image = DefaultProfileImage,
                             last_time = DateTime.Now
