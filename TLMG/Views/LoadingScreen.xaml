@@ -20,36 +20,51 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,32">
 
                 <StackPanel Style="{StaticResource LoadingAvatarContainerStyle}">
-                    <TextBlock Text="🐱" Style="{StaticResource LoadingAvatarEmojiStyle}" />
-                    <TextBlock Text="{DynamicResource Cat_Egyptian}" Style="{StaticResource LoadingAvatarLabelStyle}" />
+                    <TextBlock Text="🐱" 
+                               Style="{StaticResource LoadingAvatarEmojiStyle}" />
+                    <TextBlock Text="{DynamicResource Cat_Egyptian}" 
+                               Style="{StaticResource LoadingAvatarLabelStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource LoadingAvatarContainerStyle}">
-                    <TextBlock Text="🧟" Style="{StaticResource LoadingAvatarEmojiStyle}" />
-                    <TextBlock Text="{DynamicResource Cat_Zombie}" Style="{StaticResource LoadingAvatarLabelStyle}" />
+                    <TextBlock Text="🧟" 
+                               Style="{StaticResource LoadingAvatarEmojiStyle}" />
+                    <TextBlock Text="{DynamicResource Cat_Zombie}" 
+                               Style="{StaticResource LoadingAvatarLabelStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource LoadingAvatarContainerStyle}">
-                    <TextBlock Text="🚀" Style="{StaticResource LoadingAvatarEmojiStyle}" />
-                    <TextBlock Text="{DynamicResource Cat_Astronaut}" Style="{StaticResource LoadingAvatarLabelStyle}" />
+                    <TextBlock Text="🚀" 
+                               Style="{StaticResource LoadingAvatarEmojiStyle}" />
+                    <TextBlock Text="{DynamicResource Cat_Astronaut}" 
+                               Style="{StaticResource LoadingAvatarLabelStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource LoadingAvatarContainerStyle}">
-                    <TextBlock Text="💀" Style="{StaticResource LoadingAvatarEmojiStyle}" />
-                    <TextBlock Text="{DynamicResource Cat_Skull}" Style="{StaticResource LoadingAvatarLabelStyle}" />
+                    <TextBlock Text="💀" 
+                               Style="{StaticResource LoadingAvatarEmojiStyle}" />
+                    <TextBlock Text="{DynamicResource Cat_Skull}" 
+                               Style="{StaticResource LoadingAvatarLabelStyle}" />
                 </StackPanel>
 
             </StackPanel>
 
-            <TextBlock Text="{DynamicResource LoadingScreen_Title}" Style="{StaticResource HeroTitleTextStyle}" Margin="0,0,0,8" />
+            <TextBlock Text="{DynamicResource LoadingScreen_Title}" 
+                       Style="{StaticResource HeroTitleTextStyle}" 
+                       Margin="0,0,0,8" />
 
-            <TextBlock Text="{DynamicResource LoadingScreen_Subtitle}" Style="{StaticResource LoadingSubtitleTextStyle}" />
+            <TextBlock Text="{DynamicResource LoadingScreen_Subtitle}" 
+                       Style="{StaticResource LoadingSubtitleTextStyle}" />
 
             <Border Style="{StaticResource ProgressTrackStyle}" Margin="0,0,0,16">
-                <Rectangle x:Name="rectLoadingBar" Style="{StaticResource ProgressFillStyle}" Width="0" />
+                <Rectangle x:Name="rectLoadingBar" 
+                           Style="{StaticResource ProgressFillStyle}" 
+                           Width="0" />
             </Border>
 
-            <TextBlock Text="{DynamicResource LoadingScreen_Status}" Style="{StaticResource StatusTextStyle}" HorizontalAlignment="Center" />
+            <TextBlock Text="{DynamicResource LoadingScreen_Status}" 
+                       Style="{StaticResource StatusTextStyle}" 
+                       HorizontalAlignment="Center" />
 
         </StackPanel>
     </Grid>

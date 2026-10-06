@@ -125,25 +125,6 @@ namespace TLMG.Views
             }
         }
 
-        private async void ShowStatusMessage(
-            TextBlock messageElement,
-            string messageContent,
-            bool isErrorMessage = true)
-        {
-            messageElement.Text = messageContent;
-            messageElement.Foreground = isErrorMessage
-                ? (Brush)FindResource("Brush_Error")
-                : (Brush)FindResource("Brush_Accent");
-            messageElement.Visibility = Visibility.Visible;
-
-            await Task.Delay(ValidationHelper.StatusMessageDurationMilliseconds);
-
-            if (messageElement.Text == messageContent)
-            {
-                messageElement.Visibility = Visibility.Hidden;
-            }
-        }
-
         private void BtnPlayAsGuest_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;

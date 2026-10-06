@@ -27,18 +27,27 @@
                            Style="{StaticResource CenteredSubtitleTextStyle}" />
 
                 <StackPanel Style="{StaticResource VerificationDigitsContainerStyle}">
-                    <TextBox x:Name="txtDigit1" Style="{StaticResource VerificationDigitStyle}" />
-                    <TextBox x:Name="txtDigit2" Style="{StaticResource VerificationDigitStyle}" />
-                    <TextBox x:Name="txtDigit3" Style="{StaticResource VerificationDigitStyle}" />
-                    <TextBox x:Name="txtDigit4" Style="{StaticResource VerificationDigitStyle}" />
-                    <TextBox x:Name="txtDigit5" Style="{StaticResource VerificationDigitStyle}" />
-                    <TextBox x:Name="txtDigit6" Style="{StaticResource VerificationDigitStyle}" />
+                    <TextBox x:Name="txtDigit1" 
+                             Style="{StaticResource VerificationDigitStyle}" />
+                    <TextBox x:Name="txtDigit2" 
+                             Style="{StaticResource VerificationDigitStyle}" />
+                    <TextBox x:Name="txtDigit3" 
+                             Style="{StaticResource VerificationDigitStyle}" />
+                    <TextBox x:Name="txtDigit4" 
+                             Style="{StaticResource VerificationDigitStyle}" />
+                    <TextBox x:Name="txtDigit5" 
+                             Style="{StaticResource VerificationDigitStyle}" />
+                    <TextBox x:Name="txtDigit6" 
+                             Style="{StaticResource VerificationDigitStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource AttemptDotsContainerStyle}">
-                    <Ellipse x:Name="ellAttempt1" Style="{StaticResource AttemptDotStyle}" />
-                    <Ellipse x:Name="ellAttempt2" Style="{StaticResource AttemptDotStyle}" />
-                    <Ellipse x:Name="ellAttempt3" Style="{StaticResource AttemptDotStyle}" />
+                    <Ellipse x:Name="ellAttempt1" 
+                             Style="{StaticResource AttemptDotStyle}" />
+                    <Ellipse x:Name="ellAttempt2" 
+                             Style="{StaticResource AttemptDotStyle}" />
+                    <Ellipse x:Name="ellAttempt3" 
+                             Style="{StaticResource AttemptDotStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource ExpirationContainerStyle}">

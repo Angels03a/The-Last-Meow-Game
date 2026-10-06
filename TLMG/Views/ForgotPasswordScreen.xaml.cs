@@ -1,7 +1,5 @@
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace TLMG.Views
 {
@@ -17,11 +15,6 @@ namespace TLMG.Views
             InitializeComponent();
         }
 
-        protected override void UpdateDynamicLabels()
-        {
-        
-        }
-
         private void TxtEmail_LostFocus(object eventSender, RoutedEventArgs eventArguments)
         {
             if (string.IsNullOrWhiteSpace(txtEmail.Text))
@@ -30,15 +23,7 @@ namespace TLMG.Views
             }
             else
             {
-                string validationErrorMessage = ValidateEmail(txtEmail.Text);
-                if (validationErrorMessage != null)
-                {
-                    ShowStatusMessage(lblEmailError, validationErrorMessage, true);
-                }
-                else
-                {
-                    lblEmailError.Visibility = Visibility.Collapsed;
-                }
+                ValidateAndDisplayEmailError(txtEmail.Text);
             }
         }
 
@@ -48,23 +33,21 @@ namespace TLMG.Views
             return errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
         }
 
-        private async void ShowStatusMessage(
-            TextBlock messageElement,
-            string messageContent,
-            bool isErrorMessage = true)
+        private bool ValidateAndDisplayEmailError(string inputEmailAddress)
         {
-            messageElement.Text = messageContent;
-            messageElement.Foreground = isErrorMessage
-                ? (Brush)FindResource("Brush_Error")
-                : (Brush)FindResource("Brush_Accent");
-            messageElement.Visibility = Visibility.Visible;
+            string emailValidationResult = ValidateEmail(inputEmailAddress);
+            bool isEmailValid = emailValidationResult == null;
 
-            await Task.Delay(ValidationHelper.StatusMessageDurationMilliseconds);
-
-            if (messageElement.Text == messageContent)
+            if (isEmailValid)
             {
-                messageElement.Visibility = Visibility.Collapsed;
+                lblEmailError.Visibility = Visibility.Collapsed;
             }
+            else
+            {
+                ShowStatusMessage(lblEmailError, emailValidationResult, true);
+            }
+
+            return isEmailValid;
         }
 
         private async void BtnSendCode_Click(object eventSender, RoutedEventArgs eventArguments)
@@ -81,12 +64,7 @@ namespace TLMG.Views
             }
             else
             {
-                string emailValidationResult = ValidateEmail(inputEmailAddress);
-                if (emailValidationResult != null)
-                {
-                    ShowStatusMessage(lblEmailError, emailValidationResult, true);
-                }
-                else
+                if (ValidateAndDisplayEmailError(inputEmailAddress))
                 {
                     ShowStatusMessage(
                         lblFormMessage,

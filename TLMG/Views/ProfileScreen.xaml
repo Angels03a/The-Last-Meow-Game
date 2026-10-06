@@ -1,0 +1,303 @@
+﻿<local:LocalizableScreen x:Class="TLMG.Views.ProfileScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:TLMG.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="720"
+             d:DesignWidth="1280">
+    <local:LocalizableScreen.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/TLMG;component/Styles/GlobalStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </local:LocalizableScreen.Resources>
+
+    <Grid Background="{StaticResource Brush_BackgroundDark}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="280" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Style="{StaticResource SidePanelBorderStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" 
+                           Text="{DynamicResource Profile_SidebarTitle}" 
+                           Style="{StaticResource SidebarTitleTextStyle}" />
+
+                <Button Grid.Row="2" 
+                        x:Name="btnBack"
+                        Content="{DynamicResource Profile_BackButton}"
+                        Style="{StaticResource SidebarBackButtonStyle}"
+                        Click="BtnBack_Click" />
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="64,48,64,48" MaxWidth="1000" HorizontalAlignment="Left">
+
+                <TextBlock Text="{DynamicResource Profile_MainTitle}" 
+                           Style="{StaticResource OptionsMainTitleStyle}" />
+
+                <Border Style="{StaticResource OptionsCardStyle}" Padding="32">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0" Width="100" Height="100" Margin="0,0,32,0">
+                            <Border Style="{StaticResource ProfileAvatarCircleStyle}">
+                                <TextBlock x:Name="lblCurrentAvatar" 
+                                           Text="🐱" 
+                                           Style="{StaticResource HeroMainEmojiStyle}" 
+                                           FontSize="64" 
+                                           Margin="0" 
+                                           VerticalAlignment="Center" 
+                                           Foreground="{StaticResource Brush_TextPrimary}"/>
+                            </Border>
+                            <Button x:Name="btnEditAvatar" 
+                                    Style="{StaticResource EditPencilButtonStyle}" 
+                                    Click="BtnEditAvatar_Click"
+                                    Panel.ZIndex="1">
+                                <TextBlock Text="✎" 
+                                           FontSize="18" 
+                                           Foreground="{StaticResource Brush_Gold}" 
+                                           Margin="1,-2,0,0" 
+                                           VerticalAlignment="Center" 
+                                           HorizontalAlignment="Center"/>
+                            </Button>
+                        </Grid>
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock x:Name="lblHeaderUsername" 
+                                       Text="WhiskerKnight" 
+                                       Style="{StaticResource TitleMediumTextStyle}" 
+                                       Margin="0,0,0,16"/>
+
+                            <Grid x:Name="grdStats" Visibility="Visible">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="0,0,32,0">
+                                    <TextBlock x:Name="lblStatWins" 
+                                               Text="142" 
+                                               Style="{StaticResource ProfileStatValueStyle}" 
+                                               Foreground="{StaticResource Brush_AccentLight}"/>
+                                    <TextBlock Text="{DynamicResource Profile_Wins}" 
+                                               Style="{StaticResource StatCardLabelStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="0,0,32,0">
+                                    <TextBlock x:Name="lblStatRating" 
+                                               Text="1,840" 
+                                               Style="{StaticResource ProfileStatValueStyle}" 
+                                               Foreground="{StaticResource Brush_LilacLight}"/>
+                                    <TextBlock Text="{DynamicResource Profile_Rating}" 
+                                               Style="{StaticResource StatCardLabelStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Margin="0,0,32,0">
+                                    <TextBlock x:Name="lblStatRank" 
+                                               Text="#38" 
+                                               Style="{StaticResource ProfileStatValueStyle}" 
+                                               Foreground="{StaticResource Brush_Gold}"/>
+                                    <TextBlock Text="{DynamicResource Profile_Rank}" 
+                                               Style="{StaticResource StatCardLabelStyle}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="3">
+                                    <TextBlock x:Name="lblStatWinRate" 
+                                               Text="87%" 
+                                               Style="{StaticResource ProfileStatValueStyle}" 
+                                               Foreground="{StaticResource Brush_LilacLight}"/>
+                                    <TextBlock Text="{DynamicResource Profile_WinRate}" 
+                                               Style="{StaticResource StatCardLabelStyle}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel x:Name="grdAvatarSelection" Visibility="Collapsed">
+                                <TextBlock Text="{DynamicResource Profile_ChooseAvatar}" 
+                                           Style="{StaticResource StatCardLabelStyle}" 
+                                           Margin="0,0,0,12"/>
+                                <WrapPanel>
+                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}" 
+                                            Click="BtnSelectAvatar_Click" Tag="🐱">
+                                        <TextBlock Text="🐱" 
+                                                   FontSize="32" 
+                                                   VerticalAlignment="Center" 
+                                                   Foreground="{StaticResource Brush_TextPrimary}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}" 
+                                            Click="BtnSelectAvatar_Click" 
+                                            Tag="🧟">
+                                        <TextBlock Text="🧟" 
+                                                   FontSize="32" 
+                                                   VerticalAlignment="Center" 
+                                                   Foreground="{StaticResource Brush_TextPrimary}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}" 
+                                            Click="BtnSelectAvatar_Click" 
+                                            Tag="💀">
+                                        <TextBlock Text="💀" 
+                                                   FontSize="32" 
+                                                   VerticalAlignment="Center" 
+                                                   Foreground="{StaticResource Brush_TextPrimary}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}" 
+                                            Click="BtnSelectAvatar_Click" 
+                                            Tag="🚀">
+                                        <TextBlock Text="🚀" 
+                                                   FontSize="32" 
+                                                   VerticalAlignment="Center" 
+                                                   Foreground="{StaticResource Brush_TextPrimary}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}" 
+                                            Click="BtnSelectAvatar_Click" 
+                                            Tag="🐯">
+                                        <TextBlock Text="🐯" 
+                                                   FontSize="32" 
+                                                   VerticalAlignment="Center" 
+                                                   Foreground="{StaticResource Brush_TextPrimary}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}" 
+                                            Click="BtnSelectAvatar_Click" 
+                                            Tag="🦁">
+                                        <TextBlock Text="🦁" 
+                                                   FontSize="32" 
+                                                   VerticalAlignment="Center" 
+                                                   Foreground="{StaticResource Brush_TextPrimary}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}" 
+                                            Click="BtnSelectAvatar_Click" 
+                                            Tag="🐸">
+                                        <TextBlock Text="🐸" 
+                                                   FontSize="32" 
+                                                   VerticalAlignment="Center" 
+                                                   Foreground="{StaticResource Brush_TextPrimary}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}" 
+                                            Click="BtnSelectAvatar_Click" 
+                                            Tag="👾">
+                                        <TextBlock Text="👾" 
+                                                   FontSize="32" 
+                                                   VerticalAlignment="Center" 
+                                                   Foreground="{StaticResource Brush_TextPrimary}"/>
+                                    </Button>
+                                    <Button Style="{StaticResource AvatarUploadButtonStyle}">
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="📷" 
+                                                       FontSize="20" 
+                                                       HorizontalAlignment="Center" 
+                                                       Foreground="{StaticResource Brush_TextPrimary}"/>
+                                            <TextBlock Text="{DynamicResource Profile_UploadAvatar}" 
+                                                       FontSize="9" 
+                                                       Foreground="{StaticResource Brush_TextFaint}" 
+                                                       HorizontalAlignment="Center" 
+                                                       Margin="0,4,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Grid Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource OptionsCardStyle}" Margin="0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Profile_NicknameTitle}" 
+                                       Style="{StaticResource SectionTitleStyle}" 
+                                       Margin="0,0,0,16"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock x:Name="lblDisplayNickname" Grid.Column="0" 
+                                           Text="WhiskerKnight" 
+                                           Style="{StaticResource SidebarProfileUsernameStyle}" 
+                                           VerticalAlignment="Center" Visibility="Visible"/>
+                                <Button x:Name="btnEditNickname" Grid.Column="1" 
+                                        Content="{DynamicResource Profile_EditButton}" 
+                                        Style="{StaticResource GhostSmallButtonStyle}" 
+                                        Click="BtnEditNickname_Click" 
+                                        Visibility="Visible"/>
+
+                                <TextBox x:Name="txtEditNickname" Grid.Column="0" 
+                                         Style="{StaticResource FieldStyle}" 
+                                         Visibility="Collapsed" 
+                                         Margin="0,0,16,0"/>
+                                <Button x:Name="btnSaveNickname" Grid.Column="1" 
+                                        Style="{StaticResource SaveSuccessButtonStyle}" 
+                                        Click="BtnSaveNickname_Click" 
+                                        Visibility="Collapsed">
+                                    <TextBlock Text="✓" 
+                                               FontSize="16" 
+                                               FontWeight="Bold"/>
+                                </Button>
+                            </Grid>
+
+                            <TextBlock x:Name="lblNicknameHint" 
+                                       Text="{DynamicResource Profile_NicknameHint}" 
+                                       Style="{StaticResource FieldHintTextStyle}" 
+                                       Visibility="Collapsed" Margin="0,8,0,0"/>
+                            <TextBlock x:Name="lblNicknameError" 
+                                       Style="{StaticResource ErrorTextStyle}" 
+                                       Visibility="Hidden"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource OptionsCardStyle}" Margin="0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Profile_EmailTitle}" 
+                                       Style="{StaticResource SectionTitleStyle}" 
+                                       Margin="0,0,0,16"/>
+                            <TextBlock Text="whiskers@meow.cat" 
+                                       Style="{StaticResource SidebarProfileUsernameStyle}" 
+                                       Margin="0,0,0,4"/>
+                            <TextBlock Text="{DynamicResource Profile_EmailVerified}" 
+                                       Style="{StaticResource VerifiedTextStyle}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Style="{StaticResource OptionsCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Profile_SecurityTitle}" 
+                                   Style="{StaticResource SectionTitleStyle}" 
+                                   Margin="0,0,0,16"/>
+                        <TextBlock x:Name="lblLastPasswordChange" 
+                                   Style="{StaticResource StatusTextStyle}" 
+                                   Margin="0,0,0,16"/>
+
+                        <Button x:Name="btnChangePassword" 
+                                Content="{DynamicResource Profile_ChangePasswordButton}" 
+                                Style="{StaticResource OutlineButtonStyle}" 
+                                Width="180" 
+                                HorizontalAlignment="Left"
+                                Click="BtnChangePassword_Click"/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</local:LocalizableScreen>

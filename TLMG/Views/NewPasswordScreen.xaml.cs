@@ -86,25 +86,6 @@ namespace TLMG.Views
             return ValidationHelper.CalculatePasswordStrength(inputPasswordText);
         }
 
-        private async void ShowStatusMessage(
-            TextBlock messageElement,
-            string messageContent,
-            bool isErrorMessage = true)
-        {
-            messageElement.Text = messageContent;
-            messageElement.Foreground = isErrorMessage
-                ? (Brush)FindResource("Brush_Error")
-                : (Brush)FindResource("Brush_Accent");
-            messageElement.Visibility = Visibility.Visible;
-
-            await Task.Delay(ValidationHelper.StatusMessageDurationMilliseconds);
-
-            if (messageElement.Text == messageContent)
-            {
-                messageElement.Visibility = Visibility.Collapsed;
-            }
-        }
-
         private async void BtnSetPassword_Click(object eventSender, RoutedEventArgs eventArguments)
         {
             string inputNewPassword = pwdNewPassword.Password;

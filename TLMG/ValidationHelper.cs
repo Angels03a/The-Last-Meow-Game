@@ -11,15 +11,10 @@ namespace TLMG
     {
 
         public const int MinNicknameLengthCharacters = 3;
-
         public const int MaxNicknameLengthCharacters = 12;
-
         public const int MinPasswordLengthCharacters = 12;
-
         public const int RequiredPasswordStrengthScore = 5;
-
         public const int StatusMessageDurationMilliseconds = 4000;
-
         private static readonly string[] _unavailableNicknames = { "admin", "whiskers" };
         private static readonly string[] _offensiveVocabularyWords = { "idiota", "estupido" };
 

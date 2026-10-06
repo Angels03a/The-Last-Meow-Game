@@ -26,9 +26,18 @@ namespace TLMG.Views
             lblNextRankValue.Text = string.Format(nextRankFormat, DefaultPointsToNextRank);
         }
 
-        private void BtnNav_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnLobby_Click(object eventSender, RoutedEventArgs eventArguments)
         {
-            // TODO: Implementar botón de navegación cuando se construyan las pantallas correspondientes.
+            ((MainWindow)Application.Current.MainWindow).ShowScreen(new LobbyScreen());
+        }
+
+        private void BtnFriends_Click(object eventSender, RoutedEventArgs eventArguments)
+        {
+            ((MainWindow)Application.Current.MainWindow).ShowScreen(new FriendsScreen());
+        }
+        private void BtnProfile_Click(object eventSender, RoutedEventArgs eventArguments)
+        {
+            ((MainWindow)Application.Current.MainWindow).ShowScreen(new ProfileScreen());
         }
 
         private void BtnHowToPlay_Click(object eventSender, RoutedEventArgs eventArguments)

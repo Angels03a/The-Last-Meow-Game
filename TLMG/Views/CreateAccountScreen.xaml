@@ -25,27 +25,38 @@
             <Ellipse Style="{StaticResource HeroBackgroundGlowStyle}" />
 
             <StackPanel Style="{StaticResource HeroContentPanelStyle}">
-                <TextBlock Text="🚀" Style="{StaticResource HeroMainEmojiStyle}" />
+                <TextBlock Text="🚀" 
+                           Style="{StaticResource HeroMainEmojiStyle}" />
 
-                <TextBlock Text="{DynamicResource CreateAccount_HeaderTitle}" Style="{StaticResource HeroTitleTextStyle}" />
-                <TextBlock Text="{DynamicResource CreateAccount_HeaderSubtitle}" Style="{StaticResource HeroSubtitleSpacedTextStyle}" />
+                <TextBlock Text="{DynamicResource CreateAccount_HeaderTitle}" 
+                           Style="{StaticResource HeroTitleTextStyle}" />
+                <TextBlock Text="{DynamicResource CreateAccount_HeaderSubtitle}" 
+                           Style="{StaticResource HeroSubtitleSpacedTextStyle}" />
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🐈‍" Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Cat_Egyptian}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🐈‍" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Cat_Egyptian}" 
+                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🧟" Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Cat_Zombie}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🧟" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Cat_Zombie}" 
+                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="💀" Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Cat_Skull}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="💀" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Cat_Skull}" 
+                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🚀" Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Cat_Astronaut}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🚀" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Cat_Astronaut}" 
+                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
@@ -89,11 +100,16 @@
 
                     <Border Style="{StaticResource SpacedHintPanelStyle}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource CreateAccount_HintLength}" Style="{StaticResource StatusTextStyle}" />
-                            <TextBlock Text="{DynamicResource CreateAccount_HintUppercase}" Style="{StaticResource StatusTextStyle}" />
-                            <TextBlock Text="{DynamicResource CreateAccount_HintLowercase}" Style="{StaticResource StatusTextStyle}" />
-                            <TextBlock Text="{DynamicResource CreateAccount_HintNumber}" Style="{StaticResource StatusTextStyle}" />
-                            <TextBlock Text="{DynamicResource CreateAccount_HintSymbol}" Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintLength}" 
+                                       Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintUppercase}" 
+                                       Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintLowercase}" 
+                                       Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintNumber}" 
+                                       Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintSymbol}" 
+                                       Style="{StaticResource StatusTextStyle}" />
                         </StackPanel>
                     </Border>
                     <TextBlock Text="{DynamicResource CreateAccount_ConfirmPasswordLabel}"

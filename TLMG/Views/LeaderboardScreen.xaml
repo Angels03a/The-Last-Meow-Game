@@ -34,7 +34,8 @@
                                     <ImageBrush ImageSource="{Binding AvatarImagePath}" Stretch="UniformToFill" />
                                 </Border.Background>
                             </Border>
-                            <TextBlock Text="{Binding PlayerName}" Style="{StaticResource TableRowPlayerNameStyle}" />
+                            <TextBlock Text="{Binding PlayerName}" 
+                                       Style="{StaticResource TableRowPlayerNameStyle}" />
                         </StackPanel>
 
                         <TextBlock Grid.Column="2"
@@ -55,7 +56,8 @@
                                            Style="{StaticResource WinRateFillStyle}"
                                            Width="{Binding WinRateBarWidth}" />
                             </Border>
-                            <TextBlock Text="{Binding WinRateLabel}" Style="{StaticResource WinRateLabelTextStyle}" />
+                            <TextBlock Text="{Binding WinRateLabel}" 
+                                       Style="{StaticResource WinRateLabelTextStyle}" />
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -94,8 +96,10 @@
                         Style="{StaticResource SidebarFilterButtonActiveStyle}"
                         Click="BtnFilterAllTime_Click">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🏆" Style="{StaticResource FilterButtonIconStyle}" />
-                        <TextBlock Text="{DynamicResource Leaderboard_FilterAllTime}" VerticalAlignment="Center" />
+                        <TextBlock Text="🏆" 
+                                   Style="{StaticResource FilterButtonIconStyle}" />
+                        <TextBlock Text="{DynamicResource Leaderboard_FilterAllTime}" 
+                                   VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
 
@@ -104,10 +108,13 @@
                         <TextBlock Text="{DynamicResource Leaderboard_YourStandingLabel}"
                                    Style="{StaticResource StandingSectionTitleStyle}" />
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🐱" Style="{StaticResource StandingAvatarEmojiStyle}" />
+                            <TextBlock Text="🐱" 
+                                       Style="{StaticResource StandingAvatarEmojiStyle}" />
                             <StackPanel>
-                                <TextBlock x:Name="lblUserStandingRank" Style="{StaticResource SidebarStatValueAccentStyle}" />
-                                <TextBlock x:Name="lblUserStandingPoints" Style="{StaticResource SubtitleTextStyle}" />
+                                <TextBlock x:Name="lblUserStandingRank" 
+                                           Style="{StaticResource SidebarStatValueAccentStyle}" />
+                                <TextBlock x:Name="lblUserStandingPoints" 
+                                           Style="{StaticResource SubtitleTextStyle}" />
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -136,8 +143,10 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="{DynamicResource Leaderboard_HeaderTitle}" Style="{StaticResource TitleTextStyle}" />
-                    <TextBlock x:Name="lblLastUpdated" Style="{StaticResource LeaderboardUpdatedLabelStyle}" />
+                    <TextBlock Text="{DynamicResource Leaderboard_HeaderTitle}" 
+                               Style="{StaticResource TitleTextStyle}" />
+                    <TextBlock x:Name="lblLastUpdated" 
+                               Style="{StaticResource LeaderboardUpdatedLabelStyle}" />
                 </StackPanel>
 
                 <Button Grid.Column="1"
@@ -155,16 +164,26 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" VerticalAlignment="Bottom">
-                    <Image x:Name="imgPodiumSecondAvatar" Width="64" Height="64" Margin="0,0,0,8" Stretch="Uniform" />
-                    <TextBlock x:Name="lblPodiumSecondName" Style="{StaticResource PodiumPlayerNameStyle}" />
+                    <Image x:Name="imgPodiumSecondAvatar" 
+                           Width="64" 
+                           Height="64" 
+                           Margin="0,0,0,8" 
+                           Stretch="Uniform" />
+                    <TextBlock x:Name="lblPodiumSecondName" 
+                               Style="{StaticResource PodiumPlayerNameStyle}" />
                     <TextBlock x:Name="lblPodiumSecondPoints" Style="{StaticResource PodiumPlayerPointsStyle}" />
                     <Border Style="{StaticResource PodiumStepSecondPlaceStyle}">
-                        <TextBlock Text="🥈" Style="{StaticResource PodiumMedalEmojiStyle}" />
+                        <TextBlock Text="🥈" 
+                                   Style="{StaticResource PodiumMedalEmojiStyle}" />
                     </Border>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
-                    <Image x:Name="imgPodiumFirstAvatar" Width="80" Height="80" Margin="0,0,0,8" Stretch="Uniform" />
+                    <Image x:Name="imgPodiumFirstAvatar" 
+                           Width="80" 
+                           Height="80" 
+                           Margin="0,0,0,8" 
+                           Stretch="Uniform" />
                     <TextBlock x:Name="lblPodiumFirstName" Style="{StaticResource PodiumPlayerNameStyle}" />
                     <TextBlock x:Name="lblPodiumFirstPoints" Style="{StaticResource PodiumPlayerPointsStyle}" />
                     <Border Style="{StaticResource PodiumStepFirstPlaceStyle}">
@@ -173,11 +192,18 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
-                    <Image x:Name="imgPodiumThirdAvatar" Width="64" Height="64" Margin="0,0,0,8" Stretch="Uniform" />
-                    <TextBlock x:Name="lblPodiumThirdName" Style="{StaticResource PodiumPlayerNameStyle}" />
-                    <TextBlock x:Name="lblPodiumThirdPoints" Style="{StaticResource PodiumPlayerPointsStyle}" />
+                    <Image x:Name="imgPodiumThirdAvatar" 
+                           Width="64" 
+                           Height="64" 
+                           Margin="0,0,0,8" 
+                           Stretch="Uniform" />
+                    <TextBlock x:Name="lblPodiumThirdName" 
+                               Style="{StaticResource PodiumPlayerNameStyle}" />
+                    <TextBlock x:Name="lblPodiumThirdPoints" 
+                               Style="{StaticResource PodiumPlayerPointsStyle}" />
                     <Border Style="{StaticResource PodiumStepThirdPlaceStyle}">
-                        <TextBlock Text="🥉" Style="{StaticResource PodiumMedalEmojiStyle}" />
+                        <TextBlock Text="🥉" 
+                                   Style="{StaticResource PodiumMedalEmojiStyle}" />
                     </Border>
                 </StackPanel>
             </Grid>
@@ -192,11 +218,28 @@
                         <ColumnDefinition Width="200" />
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="{DynamicResource Leaderboard_ColumnRank}" Style="{StaticResource SectionTitleStyle}" />
-                    <TextBlock Grid.Column="1" Text="{DynamicResource Leaderboard_ColumnPlayer}" Style="{StaticResource SectionTitleStyle}" />
-                    <TextBlock Grid.Column="2" Text="{DynamicResource Leaderboard_ColumnScore}" Style="{StaticResource SectionTitleStyle}" HorizontalAlignment="Left" Margin="65,0,0,0" />
-                    <TextBlock Grid.Column="3" Text="{DynamicResource Leaderboard_ColumnWins}" Style="{StaticResource SectionTitleStyle}" HorizontalAlignment="Left" Margin="43,0,0,0" />
-                    <TextBlock Grid.Column="4" Text="{DynamicResource Leaderboard_ColumnWinRate}" Style="{StaticResource SectionTitleStyle}" HorizontalAlignment="Left" Width="160" TextAlignment="Right" />
+                    <TextBlock Grid.Column="0" 
+                               Text="{DynamicResource Leaderboard_ColumnRank}" 
+                               Style="{StaticResource SectionTitleStyle}" />
+                    <TextBlock Grid.Column="1" 
+                               Text="{DynamicResource Leaderboard_ColumnPlayer}" 
+                               Style="{StaticResource SectionTitleStyle}" />
+                    <TextBlock Grid.Column="2" 
+                               Text="{DynamicResource Leaderboard_ColumnScore}" 
+                               Style="{StaticResource SectionTitleStyle}" 
+                               HorizontalAlignment="Left" 
+                               Margin="65,0,0,0" />
+                    <TextBlock Grid.Column="3" 
+                               Text="{DynamicResource Leaderboard_ColumnWins}" 
+                               Style="{StaticResource SectionTitleStyle}" 
+                               HorizontalAlignment="Left" 
+                               Margin="43,0,0,0" />
+                    <TextBlock Grid.Column="4" 
+                               Text="{DynamicResource Leaderboard_ColumnWinRate}" 
+                               Style="{StaticResource SectionTitleStyle}" 
+                               HorizontalAlignment="Left" 
+                               Width="160" 
+                               TextAlignment="Right" />
                 </Grid>
             </Border>
 

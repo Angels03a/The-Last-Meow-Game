@@ -119,6 +119,9 @@
     <Compile Include="Views\ForgotPasswordScreen.xaml.cs">
       <DependentUpon>ForgotPasswordScreen.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\FriendsScreen.xaml.cs">
+      <DependentUpon>FriendsScreen.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\HowToPlayScreen.xaml.cs">
       <DependentUpon>HowToPlayScreen.xaml</DependentUpon>
     </Compile>
@@ -127,6 +130,9 @@
     </Compile>
     <Compile Include="Views\LoadingScreen.xaml.cs">
       <DependentUpon>LoadingScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LobbyScreen.xaml.cs">
+      <DependentUpon>LobbyScreen.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LocalizableScreen.cs" />
     <Compile Include="Views\LoginScreen.xaml.cs">
@@ -140,6 +146,9 @@
     </Compile>
     <Compile Include="Views\OptionsScreen.xaml.cs">
       <DependentUpon>OptionsScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProfileScreen.xaml.cs">
+      <DependentUpon>ProfileScreen.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VerificationScreen.xaml.cs">
       <DependentUpon>VerificationScreen.xaml</DependentUpon>
@@ -178,6 +187,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\FriendsScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\HowToPlayScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -187,6 +200,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\LoadingScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LobbyScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -203,6 +220,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\OptionsScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ProfileScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

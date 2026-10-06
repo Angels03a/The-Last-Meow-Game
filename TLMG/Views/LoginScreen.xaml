@@ -26,27 +26,35 @@
             <StackPanel Style="{StaticResource HeroContentPanelStyle}">
                 <StackPanel Style="{StaticResource HeroEmojiRowStyle}">
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🐱" Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="🐱" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🧟" Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="🧟" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🚀" Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="🚀" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="💀" Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="💀" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🐈‍" Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="🐈‍" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🧛‍♀" Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="🧛‍♀" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
                     </StackPanel>
                 </StackPanel>
 
-                <TextBlock Text="{DynamicResource Login_Title}" Style="{StaticResource HeroTitleTextStyle}" />
-                <TextBlock Text="{DynamicResource Login_Subtitle}" Style="{StaticResource HeroSubtitleTextStyle}" />
+                <TextBlock Text="{DynamicResource Login_Title}" 
+                           Style="{StaticResource HeroTitleTextStyle}" />
+                <TextBlock Text="{DynamicResource Login_Subtitle}" 
+                           Style="{StaticResource HeroSubtitleTextStyle}" />
             </StackPanel>
         </Grid>
 
@@ -96,7 +104,8 @@
                 <Button x:Name="btnForgotPassword"
                         Style="{StaticResource RightAlignedLinkButtonStyle}"
                         Click="BtnForgotPassword_Click">
-                    <TextBlock Text="{DynamicResource Login_ForgotPassword}" TextDecorations="Underline" />
+                    <TextBlock Text="{DynamicResource Login_ForgotPassword}" 
+                               TextDecorations="Underline" />
                 </Button>
 
                 <Button x:Name="btnLogIn"

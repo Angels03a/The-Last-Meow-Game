@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace TLMG.Views
 {
@@ -16,6 +18,25 @@ namespace TLMG.Views
         }
         protected virtual void UpdateDynamicLabels()
         {
+        }
+
+        protected async void ShowStatusMessage(
+            TextBlock messageElement,
+            string messageContent,
+            bool isErrorMessage = true)
+        {
+            messageElement.Text = messageContent;
+            messageElement.Foreground = isErrorMessage
+                ? (Brush)FindResource("Brush_Error")
+                : (Brush)FindResource("Brush_Accent");
+            messageElement.Visibility = Visibility.Visible;
+
+            await Task.Delay(ValidationHelper.StatusMessageDurationMilliseconds);
+
+            if (messageElement.Text == messageContent)
+            {
+                messageElement.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void OnScreenLoaded(object sender, RoutedEventArgs e)
