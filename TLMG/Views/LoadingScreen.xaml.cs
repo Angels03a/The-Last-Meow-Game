@@ -22,7 +22,7 @@ namespace TLMG.Views
 
         public event EventHandler LoadingCompleted;
 
-        private void LoadingScreen_Loaded(object eventSender, RoutedEventArgs eventArguments)
+        private void LoadingScreen_Loaded(object sender, RoutedEventArgs e)
         {
             var loadingAnimation = new DoubleAnimation
             {

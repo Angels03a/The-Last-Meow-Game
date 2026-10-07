@@ -3,10 +3,7 @@ using System.Data.Entity.Core;
 using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 using TLMG.DatabaseModel;
 
 namespace TLMG.Views
@@ -17,8 +14,8 @@ namespace TLMG.Views
     /// </summary>
     public partial class CreateAccountScreen : LocalizableScreen
     {
-        private const string DefaultUserState = "USER_ACTIVE";
-        private const string DefaultProfileImage = "/img/default.png";
+        private const string DefaultUserState = "USER_ACTIVE"; // FIXME: Usar estado de usuario definido en la base de datos.
+        private const string DefaultProfileImage = "/img/default.png"; // FIXME: Usar imagen de perfil por defecto definida.
         private const int DefaultInitialPoints = 0;
         private const int DefaultInitialWins = 0;
         private const int DefaultInitialGamesPlayed = 0;
@@ -37,12 +34,12 @@ namespace TLMG.Views
             InitializeComponent();
         }
 
-        private void PwdPassword_PasswordChanged(object eventSender, RoutedEventArgs eventArguments)
+        private void PwdPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
             lblPasswordError.Visibility = Visibility.Hidden;
         }
 
-        private void BtnCreateAccount_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnCreateAccount_Click(object sender, RoutedEventArgs e)
         {
             var formData = new RegistrationFormData
             {
@@ -229,7 +226,7 @@ namespace TLMG.Views
             return validationErrorKey != null ? TryFindResource(validationErrorKey) as string : null;
         }
 
-        private void BtnBack_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnBack_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult confirmationResult = MessageBox.Show(
                 TryFindResource("CreateAccount_ConfirmAbandonMessage") as string,

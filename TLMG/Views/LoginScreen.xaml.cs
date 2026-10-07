@@ -4,8 +4,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 using TLMG.DatabaseModel;
 
 namespace TLMG.Views
@@ -23,7 +21,7 @@ namespace TLMG.Views
             InitializeComponent();
         }
 
-        private async void BtnLogIn_Click(object eventSender, RoutedEventArgs eventArguments)
+        private async void BtnLogIn_Click(object sender, RoutedEventArgs e)
         {
             string inputEmailAddress = txtEmail.Text;
             string inputPasswordText = pwdPassword.Visibility == Visibility.Visible
@@ -81,7 +79,8 @@ namespace TLMG.Views
 
                     if (registeredUser == null || registeredUser.password_hash.Trim() != password.Trim())
                     {
-                        ShowStatusMessage(lblFormMessage, TryFindResource("Login_InvalidCredentialsError") as string, true);
+                        ShowStatusMessage(
+                            lblFormMessage, TryFindResource("Login_InvalidCredentialsError") as string, true);
                     }
                     else
                     {
@@ -109,7 +108,7 @@ namespace TLMG.Views
             return errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
         }
 
-        private void BtnShowPassword_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnShowPassword_Click(object sender, RoutedEventArgs e)
         {
             if (txtPasswordVisible.Visibility == Visibility.Collapsed)
             {
@@ -125,18 +124,18 @@ namespace TLMG.Views
             }
         }
 
-        private void BtnPlayAsGuest_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnPlayAsGuest_Click(object sender, RoutedEventArgs e)
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new MainMenuScreen());
         }
 
-        private void BtnForgotPassword_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnForgotPassword_Click(object sender, RoutedEventArgs e)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new ForgotPasswordScreen());
         }
 
-        private void BtnTabCreateAccount_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnTabCreateAccount_Click(object sender, RoutedEventArgs e)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new CreateAccountScreen());
         }

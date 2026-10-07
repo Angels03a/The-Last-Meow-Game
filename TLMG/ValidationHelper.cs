@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -16,7 +15,7 @@ namespace TLMG
         public const int RequiredPasswordStrengthScore = 5;
         public const int StatusMessageDurationMilliseconds = 4000;
         private static readonly string[] _unavailableNicknames = { "admin", "whiskers" };
-        private static readonly string[] _offensiveVocabularyWords = { "idiota", "estupido" };
+        private static readonly string[] _offensiveVocabularyWords = { "idiota", "estúpido" };
 
         private static readonly string[] _permittedEmailDomains =
         {
@@ -108,7 +107,8 @@ namespace TLMG
                 bool isFormatInvalid = !isLengthValid || !hasOnlyValidCharacters;
 
                 string lowercaseNickname = nickname.ToLower();
-                bool hasOffensiveVocabulary = _offensiveVocabularyWords.Any(offensiveWord => lowercaseNickname.Contains(offensiveWord));
+                bool hasOffensiveVocabulary = _offensiveVocabularyWords.Any(
+                    offensiveWord => lowercaseNickname.Contains(offensiveWord));
                 bool isNicknameUnavailable = _unavailableNicknames.Contains(lowercaseNickname);
 
                 if (isFormatInvalid)

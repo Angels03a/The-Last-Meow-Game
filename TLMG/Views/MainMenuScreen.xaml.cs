@@ -26,36 +26,36 @@ namespace TLMG.Views
             lblNextRankValue.Text = string.Format(nextRankFormat, DefaultPointsToNextRank);
         }
 
-        private void BtnLobby_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnLobby_Click(object sender, RoutedEventArgs e)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new LobbyScreen());
         }
 
-        private void BtnFriends_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnFriends_Click(object sender, RoutedEventArgs e)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new FriendsScreen());
         }
-        private void BtnProfile_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnProfile_Click(object sender, RoutedEventArgs e)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new ProfileScreen());
         }
 
-        private void BtnHowToPlay_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnHowToPlay_Click(object sender, RoutedEventArgs e)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new HowToPlayScreen());
         }
 
-        private void BtnLeaderboard_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnLeaderboard_Click(object sender, RoutedEventArgs e)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new LeaderboardScreen());
         }
 
-        private void BtnOptions_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnOptions_Click(object sender, RoutedEventArgs e)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new OptionsScreen());
         }
 
-        private void BtnLogOut_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnLogOut_Click(object sender, RoutedEventArgs e)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
         }

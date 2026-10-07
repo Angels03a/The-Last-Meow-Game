@@ -12,7 +12,9 @@ namespace TLMG.Views
         private const int TotalLobbyPlayersCount = 3;
         private const int CountdownSecondsLimit = 3;
         private const int ToastDurationMilliseconds = 3000;
+        private const int OneSecondInterval = 1;
         private const string FormatReadyFraction = "{0}/{1}";
+        private const int CountdownSecondsLimitForStart = 0; 
 
         private bool _isLocalPlayerReady;
         private bool _isPlayer2Ready;
@@ -49,7 +51,7 @@ namespace TLMG.Views
         private void InitializeTimers()
         {
             _countdownTimer = new DispatcherTimer();
-            _countdownTimer.Interval = TimeSpan.FromSeconds(1);
+            _countdownTimer.Interval = TimeSpan.FromSeconds(OneSecondInterval);
             _countdownTimer.Tick += CountdownTimer_Tick;
 
             _toastTimer = new DispatcherTimer();
@@ -57,28 +59,28 @@ namespace TLMG.Views
             _toastTimer.Tick += ToastTimer_Tick;
         }
 
-        private void BtnLeaveLobby_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnLeaveLobby_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult confirmationResult = MessageBox.Show(
-                TryFindResource("Lobby_LeaveConfirmMsg") as string,
+                TryFindResource("Lobby_LeaveConfirmMessage") as string,
                 TryFindResource("Lobby_LeaveConfirmTitle") as string,
                 MessageBoxButton.YesNo);
 
             if (confirmationResult == MessageBoxResult.Yes)
             {
-                MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-                applicationMainWindow.ClearHistory(); 
-                applicationMainWindow.ShowScreen(new MainMenuScreen(), false); 
+                var applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+                applicationMainWindow.ClearHistory();
+                applicationMainWindow.ShowScreen(new MainMenuScreen(), false);
             }
         }
 
-        private void BtnInviteFriends_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnInviteFriends_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            var applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new FriendsScreen());
         }
 
-        private void CmbGameMode_SelectionChanged(object eventSender, SelectionChangedEventArgs eventArguments)
+        private void CmbGameMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (IsLoaded)
             {
@@ -89,7 +91,7 @@ namespace TLMG.Views
             }
         }
 
-        private void BrdPlayer1_MouseLeftButtonDown(object eventSender, MouseButtonEventArgs eventArguments)
+        private void BrdPlayer1_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!_isCountdownActive)
             {
@@ -98,7 +100,7 @@ namespace TLMG.Views
             }
         }
 
-        private void BrdPlayer2_MouseLeftButtonDown(object eventSender, MouseButtonEventArgs eventArguments)
+        private void BrdPlayer2_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!_isCountdownActive)
             {
@@ -107,7 +109,7 @@ namespace TLMG.Views
             }
         }
 
-        private void BrdPlayer3_MouseLeftButtonDown(object eventSender, MouseButtonEventArgs eventArguments)
+        private void BrdPlayer3_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!_isCountdownActive)
             {
@@ -116,7 +118,7 @@ namespace TLMG.Views
             }
         }
 
-        private void BrdPlayer_MouseRightButtonDown(object eventSender, MouseButtonEventArgs eventArguments)
+        private void BrdPlayer_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!_isCountdownActive)
             {
@@ -124,25 +126,25 @@ namespace TLMG.Views
             }
         }
 
-        private void BtnMenuCancel_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnMenuCancel_Click(object sender, RoutedEventArgs e)
         {
             popPlayerOptions.IsOpen = false;
         }
 
-        private void BtnMenuKick_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnMenuKick_Click(object sender, RoutedEventArgs e)
         {
             popPlayerOptions.IsOpen = false;
             grdKickModal.Visibility = Visibility.Visible;
             grdMainCenter.IsEnabled = false;
         }
 
-        private void BtnCancelKick_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnCancelKick_Click(object sender, RoutedEventArgs e)
         {
             grdKickModal.Visibility = Visibility.Collapsed;
             grdMainCenter.IsEnabled = true;
         }
 
-        private void BtnConfirmKick_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnConfirmKick_Click(object sender, RoutedEventArgs e)
         {
             grdKickModal.Visibility = Visibility.Collapsed;
             grdMainCenter.IsEnabled = true;
@@ -160,7 +162,7 @@ namespace TLMG.Views
             _toastTimer.Start();
         }
 
-        private void ToastTimer_Tick(object eventSender, EventArgs eventArguments)
+        private void ToastTimer_Tick(object sender, EventArgs e)
         {
             _toastTimer.Stop();
             brdToast.Visibility = Visibility.Collapsed;
@@ -221,11 +223,11 @@ namespace TLMG.Views
             _countdownTimer.Start();
         }
 
-        private void CountdownTimer_Tick(object eventSender, EventArgs eventArguments)
+        private void CountdownTimer_Tick(object sender, EventArgs e)
         {
             _currentCountdownSeconds--;
 
-            if (_currentCountdownSeconds > 0)
+            if (_currentCountdownSeconds > CountdownSecondsLimitForStart) // FIXME: Verificar si es variable local o si es constante, ya que solo se usa aquí.
             {
                 lblCountdownTimer.Text = _currentCountdownSeconds.ToString();
             }
@@ -233,11 +235,10 @@ namespace TLMG.Views
             {
                 _countdownTimer.Stop();
                 // TODO: Navegar a GameplayScreen cuando se termine el tiempo
-                MessageBox.Show("Iniciando partida...");
-            }
+                MessageBox.Show(TryFindResource("Lobby_StartGameMessage") as string);            }
         }
 
-        private void BtnCancelCountdown_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnCancelCountdown_Click(object sender, RoutedEventArgs e)
         {
             _countdownTimer.Stop();
             _isCountdownActive = false;
@@ -251,9 +252,9 @@ namespace TLMG.Views
             UpdateReadyCountAndUI();
         }
 
-        private void TxtChatInput_KeyDown(object eventSender, KeyEventArgs eventArguments)
+        private void TxtChatInput_KeyDown(object sender, KeyEventArgs e)
         {
-            bool isEnterPressed = eventArguments.Key == Key.Enter;
+            bool isEnterPressed = e.Key == Key.Enter;
 
             if (isEnterPressed)
             {
@@ -261,7 +262,7 @@ namespace TLMG.Views
             }
         }
 
-        private void BtnSendChat_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnSendChat_Click(object sender, RoutedEventArgs e)
         {
             ProcessOutgoingChatMessage();
         }
@@ -273,14 +274,14 @@ namespace TLMG.Views
 
             if (isMessageValid)
             {
-                TextBlock newMessageBlock = new TextBlock();
+                var newMessageBlock = new TextBlock();
                 newMessageBlock.Margin = new Thickness(0, 0, 0, 8);
 
-                Run usernameRun = new Run("WhiskerKnight: ");
+                var usernameRun = new Run("WhiskerKnight: ");
                 usernameRun.Foreground = (System.Windows.Media.Brush)FindResource("Brush_Gold");
                 usernameRun.FontWeight = FontWeights.Bold;
 
-                Run messageRun = new Run(messageText);
+                var messageRun = new Run(messageText);
                 messageRun.Foreground = (System.Windows.Media.Brush)FindResource("Brush_TextPrimary");
 
                 newMessageBlock.Inlines.Add(usernameRun);

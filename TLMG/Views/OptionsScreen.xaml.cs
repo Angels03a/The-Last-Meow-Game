@@ -51,43 +51,40 @@ namespace TLMG.Views
 
         private void UpdateVolumeLabel(TextBlock targetLabelElement, double targetVolumeValue)
         {
-            if (targetLabelElement != null)
-            {
-                targetLabelElement.Text = (targetVolumeValue / VolumeScalePercentFactor).ToString("P0");
-            }
+            targetLabelElement.Text = (targetVolumeValue / VolumeScalePercentFactor).ToString("P0");
         }
 
-        private void SldMusic_ValueChanged(object eventSender, RoutedPropertyChangedEventArgs<double> eventArguments)
+        private void SldMusic_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            UpdateVolumeLabel(lblMusicVol, eventArguments.NewValue);
+            UpdateVolumeLabel(lblMusicVol, e.NewValue);
         }
 
-        private void SldSfx_ValueChanged(object eventSender, RoutedPropertyChangedEventArgs<double> eventArguments)
+        private void SldSfx_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            UpdateVolumeLabel(lblSfxVol, eventArguments.NewValue);
+            UpdateVolumeLabel(lblSfxVol, e.NewValue);
         }
 
-        private void BtnLangEn_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnLangEn_Click(object sender, RoutedEventArgs e)
         {
             LanguageManager.ChangeLanguage(EnglishCultureIdentifier);
             btnLangEn.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
             btnLangEs.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
         }
 
-        private void BtnLangEs_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnLangEs_Click(object sender, RoutedEventArgs e)
         {
             LanguageManager.ChangeLanguage(SpanishCultureIdentifier);
             btnLangEs.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
             btnLangEn.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
         }
 
-        private void BtnReset_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnReset_Click(object sender, RoutedEventArgs e)
         {
             sldMusic.Value = DefaultMusicVolumeLevel;
             sldSfx.Value = DefaultSfxVolumeLevel;
         }
 
-        private void BtnBack_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnBack_Click(object sender, RoutedEventArgs e)
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new MainMenuScreen());

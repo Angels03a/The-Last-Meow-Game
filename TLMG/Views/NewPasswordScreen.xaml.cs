@@ -3,8 +3,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-using TLMG;
-
 namespace TLMG.Views
 {
     /// <summary>
@@ -26,7 +24,7 @@ namespace TLMG.Views
             UpdatePasswordStrengthDisplay();
         }
 
-        private void PwdNewPassword_PasswordChanged(object eventSender, RoutedEventArgs eventArguments)
+        private void PwdNewPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
             UpdatePasswordStrengthDisplay();
         }
@@ -86,7 +84,7 @@ namespace TLMG.Views
             return ValidationHelper.CalculatePasswordStrength(inputPasswordText);
         }
 
-        private async void BtnSetPassword_Click(object eventSender, RoutedEventArgs eventArguments)
+        private async void BtnSetPassword_Click(object sender, RoutedEventArgs e)
         {
             string inputNewPassword = pwdNewPassword.Password;
             string inputConfirmPassword = pwdConfirmPassword.Password;
@@ -116,7 +114,7 @@ namespace TLMG.Views
             }
         }
 
-        private void BtnBackToForgotPassword_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnBackToForgotPassword_Click(object sender, RoutedEventArgs e)
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new ForgotPasswordScreen());

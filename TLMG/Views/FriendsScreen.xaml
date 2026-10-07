@@ -62,7 +62,7 @@
 
                 <Button x:Name="btnAddFriend" 
                         Grid.Column="2" 
-                        Content="{DynamicResource Friends_AddFriendBtn}" 
+                        Content="{DynamicResource Friends_AddFriendButton}" 
                         Style="{StaticResource AddFriendButtonStyle}" />
             </Grid>
 
@@ -70,7 +70,7 @@
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="btnTabFriends" 
                             Style="{StaticResource TabNavActiveButtonStyle}" 
-                            Click="BtnTabFriends_Click">
+                            Click="BtnBack_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Friends_TabFriends}" 
                                        VerticalAlignment="Center" />
@@ -82,7 +82,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="btnTabPending" Style="{StaticResource TabNavInactiveButtonStyle}" Click="BtnTabPending_Click">
+                    <Button x:Name="btnTabPending" Style="{StaticResource TabNavInactiveButtonStyle}" Click="BtnTab_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Friends_TabPending}" 
                                        VerticalAlignment="Center" />
@@ -94,7 +94,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="btnTabBlocked" Style="{StaticResource TabNavInactiveButtonStyle}" Click="BtnTabBlocked_Click">
+                    <Button x:Name="btnTabBlocked" Style="{StaticResource TabNavInactiveButtonStyle}" Click="BtnTab_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Friends_TabBlocked}" 
                                        VerticalAlignment="Center" />

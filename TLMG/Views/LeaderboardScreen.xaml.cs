@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Data.SqlClient;
 using System.Data.Entity.Core;
@@ -67,7 +67,7 @@ namespace TLMG.Views
                 {
                     var rankedPlayersQuery = (from player in database.Player
                                               join user in database.User on player.id_user equals user.id_user
-                                              where user.state == "USER_ACTIVE"
+                                              where user.state == "USER_ACTIVE" // FIXME: Filtrar por estado de usuario activo cuando se implemente.
                                               orderby player.total_points descending
                                               select new
                                               {
@@ -83,7 +83,9 @@ namespace TLMG.Views
                         Rank = index + 1,
                         AvatarImagePath = string.IsNullOrWhiteSpace(data.profile_image)
                              ? DefaultProfileImage
-                             : (data.profile_image.StartsWith("/") ? "pack://application:,,," + data.profile_image : data.profile_image),
+                             : (data.profile_image.StartsWith("/")
+                                ? "pack://application:,,," + data.profile_image
+                                : data.profile_image),
                         PlayerName = data.nickname,
                         Score = data.total_points,
                         Wins = data.total_wins,
@@ -127,9 +129,15 @@ namespace TLMG.Views
             _secondPlacePlayer = allPlayers.ElementAtOrDefault(SecondPlaceIndex) ?? CreateEmptyEntry(SecondPlaceRank);
             _thirdPlacePlayer = allPlayers.ElementAtOrDefault(ThirdPlaceIndex) ?? CreateEmptyEntry(ThirdPlaceRank);
 
-            SetPodiumSlot(new PodiumSlotViews(imgPodiumFirstAvatar, lblPodiumFirstName, lblPodiumFirstPoints), _firstPlacePlayer);
-            SetPodiumSlot(new PodiumSlotViews(imgPodiumSecondAvatar, lblPodiumSecondName, lblPodiumSecondPoints), _secondPlacePlayer);
-            SetPodiumSlot(new PodiumSlotViews(imgPodiumThirdAvatar, lblPodiumThirdName, lblPodiumThirdPoints), _thirdPlacePlayer);
+            SetPodiumSlot(
+                new PodiumSlotViews(imgPodiumFirstAvatar, lblPodiumFirstName, lblPodiumFirstPoints),
+                _firstPlacePlayer);
+            SetPodiumSlot(
+                new PodiumSlotViews(imgPodiumSecondAvatar, lblPodiumSecondName, lblPodiumSecondPoints),
+                _secondPlacePlayer);
+            SetPodiumSlot(
+                new PodiumSlotViews(imgPodiumThirdAvatar, lblPodiumThirdName, lblPodiumThirdPoints),
+                _thirdPlacePlayer);
         }
 
         private void AssignRankedList(System.Collections.Generic.List<PlayerRankEntry> allPlayers)
@@ -144,9 +152,15 @@ namespace TLMG.Views
             _secondPlacePlayer = CreateEmptyEntry(SecondPlaceRank);
             _thirdPlacePlayer = CreateEmptyEntry(ThirdPlaceRank);
 
-            SetPodiumSlot(new PodiumSlotViews(imgPodiumFirstAvatar, lblPodiumFirstName, lblPodiumFirstPoints), _firstPlacePlayer);
-            SetPodiumSlot(new PodiumSlotViews(imgPodiumSecondAvatar, lblPodiumSecondName, lblPodiumSecondPoints), _secondPlacePlayer);
-            SetPodiumSlot(new PodiumSlotViews(imgPodiumThirdAvatar, lblPodiumThirdName, lblPodiumThirdPoints), _thirdPlacePlayer);
+            SetPodiumSlot(
+                new PodiumSlotViews(imgPodiumFirstAvatar, lblPodiumFirstName, lblPodiumFirstPoints),
+                _firstPlacePlayer);
+            SetPodiumSlot(
+                new PodiumSlotViews(imgPodiumSecondAvatar, lblPodiumSecondName, lblPodiumSecondPoints),
+                _secondPlacePlayer);
+            SetPodiumSlot(
+                new PodiumSlotViews(imgPodiumThirdAvatar, lblPodiumThirdName, lblPodiumThirdPoints),
+                _thirdPlacePlayer);
 
             lstRankedPlayers.ItemsSource = new ObservableCollection<PlayerRankEntry>();
         }
@@ -172,12 +186,18 @@ namespace TLMG.Views
             }
             catch (System.IO.IOException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error de I/O al cargar avatar para {player.PlayerName}. Ruta: {player.AvatarImagePath}. Detalle: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine(
+                    // FIXME: Cambiar imagen a una por defecto si no se puede cargar la imagen del jugador. 
+                    // INFO: De momento se queda el gato de Stella por defecto.
+                    $"Error de I/O al cargar avatar para {player.PlayerName}. " +
+                    $"Ruta: {player.AvatarImagePath}. Detalle: {ex.Message}");
                 views.AvatarImage.Source = new BitmapImage(new Uri(DefaultProfileImage, UriKind.RelativeOrAbsolute));
             }
             catch (UriFormatException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Formato de ruta inválido en BD para {player.PlayerName}. Ruta: {player.AvatarImagePath}. Detalle: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine(
+                    $"Formato de ruta inválido en BD para {player.PlayerName}. " +
+                    $"Ruta: {player.AvatarImagePath}. Detalle: {ex.Message}");
                 views.AvatarImage.Source = new BitmapImage(new Uri(DefaultProfileImage, UriKind.RelativeOrAbsolute));
             }
 
@@ -191,12 +211,12 @@ namespace TLMG.Views
             return string.Format(format, points.ToString("N0"));
         }
 
-        private void BtnBack_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnBack_Click(object sender, RoutedEventArgs e)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new MainMenuScreen());
         }
 
-        private void BtnFilterAllTime_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnFilterAllTime_Click(object sender, RoutedEventArgs e)
         {
             LoadLeaderboardData();
         }

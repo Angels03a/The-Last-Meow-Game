@@ -267,4 +267,5 @@
     <sys:String x:Key="Lobby_ChatSystemPrefix">System:</sys:String>
     <sys:String x:Key="Lobby_SystemJoinedMessage">CatNapper9000 joined the lobby.</sys:String>
     <sys:String x:Key="Lobby_MockChatPlayer">Ready to play!</sys:String>
+    <sys:String x:Key="Lobby_StartGameMessage">Starting game...</sys:String>
 </ResourceDictionary>

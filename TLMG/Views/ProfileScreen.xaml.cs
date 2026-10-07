@@ -8,8 +8,7 @@ namespace TLMG.Views
         private const int MinNicknameLength = 3;
         private const int MaxNicknameLength = 12;
 
-        private const string DummyMemberSinceDate = "March 2024";
-        private const int DummyDaysSincePasswordChange = 45;
+        private const int DaysSincePasswordChange = 45;
 
         private bool _isEditingAvatar;
         private bool _isEditingNickname;
@@ -23,27 +22,25 @@ namespace TLMG.Views
 
         protected override void UpdateDynamicLabels()
         {
-            string lastPasswordFormat = TryFindResource("Profile_LastPasswordChange") as string ?? "Last password change: {0} days ago";
-            lblLastPasswordChange.Text = string.Format(lastPasswordFormat, DummyDaysSincePasswordChange);
+            string lastPasswordFormat = TryFindResource("Profile_LastPasswordChange") as string ?? "{0}";
+            lblLastPasswordChange.Text = string.Format(lastPasswordFormat, DaysSincePasswordChange);
         }
 
-        private void BtnBack_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnBack_Click(object sender, RoutedEventArgs e)
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new MainMenuScreen());
         }
 
-        private void BtnEditAvatar_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnEditAvatar_Click(object sender, RoutedEventArgs e)
         {
             _isEditingAvatar = !_isEditingAvatar;
             ToggleAvatarEditMode(_isEditingAvatar);
         }
 
-        private void BtnSelectAvatar_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnSelectAvatar_Click(object sender, RoutedEventArgs e)
         {
-            Button buttonSender = eventSender as Button;
-
-            if (buttonSender != null && buttonSender.Tag != null)
+            if (sender is Button buttonSender && buttonSender.Tag != null)
             {
                 lblCurrentAvatar.Text = buttonSender.Tag.ToString();
                 _isEditingAvatar = false;
@@ -51,14 +48,14 @@ namespace TLMG.Views
             }
         }
 
-        private void BtnEditNickname_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnEditNickname_Click(object sender, RoutedEventArgs e)
         {
             _isEditingNickname = true;
             txtEditNickname.Text = lblDisplayNickname.Text;
             ToggleNicknameEditMode(_isEditingNickname);
         }
 
-        private void BtnSaveNickname_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnSaveNickname_Click(object sender, RoutedEventArgs e)
         {
             bool isNicknameValid = ValidateNickname(txtEditNickname.Text);
 
@@ -71,11 +68,9 @@ namespace TLMG.Views
             }
         }
 
-        private void BtnChangePassword_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnChangePassword_Click(object sender, RoutedEventArgs e)
         {
             // TODO: Navegar a la pantalla ChangePasswordScreen cuando esté implementada.
-            // MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            // applicationMainWindow.ShowScreen(new ChangePasswordScreen());
         }
 
         private void ToggleAvatarEditMode(bool isEditing)

@@ -44,7 +44,8 @@ namespace TLMG
         public static void ChangeLanguage(string cultureCode)
         {
             bool isCultureCodeProvided = !string.IsNullOrWhiteSpace(cultureCode);
-            bool isDifferentFromCurrent = !string.Equals(CurrentCulture, cultureCode, StringComparison.OrdinalIgnoreCase);
+            bool isDifferentFromCurrent =
+                !string.Equals(CurrentCulture, cultureCode, StringComparison.OrdinalIgnoreCase);
 
             if (isCultureCodeProvided && isDifferentFromCurrent)
             {

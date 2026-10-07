@@ -451,11 +451,11 @@
                         Click="BtnPrevious_Click" />
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Ellipse x:Name="shpDot1" Style="{StaticResource PaginationDotStyle}" Tag="Active" />
-                    <Ellipse x:Name="shpDot2" Style="{StaticResource PaginationDotStyle}" />
-                    <Ellipse x:Name="shpDot3" Style="{StaticResource PaginationDotStyle}" />
-                    <Ellipse x:Name="shpDot4" Style="{StaticResource PaginationDotStyle}" />
-                    <Ellipse x:Name="shpDot5" Style="{StaticResource PaginationDotStyle}" />
+                    <Ellipse x:Name="ellDot1" Style="{StaticResource PaginationDotStyle}" Tag="Active" />
+                    <Ellipse x:Name="ellDot2" Style="{StaticResource PaginationDotStyle}" />
+                    <Ellipse x:Name="ellDot3" Style="{StaticResource PaginationDotStyle}" />
+                    <Ellipse x:Name="ellDot4" Style="{StaticResource PaginationDotStyle}" />
+                    <Ellipse x:Name="ellDot5" Style="{StaticResource PaginationDotStyle}" />
                 </StackPanel>
 
                 <Button x:Name="btnNext" 

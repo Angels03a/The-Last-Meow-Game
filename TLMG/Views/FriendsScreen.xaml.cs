@@ -63,25 +63,28 @@ namespace TLMG.Views
             lblBadgeBlocked.Text = CountBlocked;
         }
 
-        private void BtnBack_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnBack_Click(object sender, RoutedEventArgs e)
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.GoBack();
         }
 
-        private void BtnTabFriends_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnTab_Click(object sender, RoutedEventArgs e)
         {
-            SwitchTab(TabIndexFriends);
-        }
+            Button clickedButton = (Button)sender;
 
-        private void BtnTabPending_Click(object eventSender, RoutedEventArgs eventArguments)
-        {
-            SwitchTab(TabIndexPending);
-        }
-
-        private void BtnTabBlocked_Click(object eventSender, RoutedEventArgs eventArguments)
-        {
-            SwitchTab(TabIndexBlocked);
+            if (clickedButton == btnTabFriends)
+            {
+                SwitchTab(TabIndexFriends);
+            }
+            else if (clickedButton == btnTabPending)
+            {
+                SwitchTab(TabIndexPending);
+            }
+            else if (clickedButton == btnTabBlocked)
+            {
+                SwitchTab(TabIndexBlocked);
+            }
         }
 
         private void SwitchTab(int targetTabIndex)
@@ -91,13 +94,13 @@ namespace TLMG.Views
                 bool isTargetTab = tabIndex == targetTabIndex;
                 TabViews currentTabViews = _tabViews[tabIndex];
 
-                currentTabViews.Content.Visibility = 
+                currentTabViews.Content.Visibility =
                     isTargetTab ? Visibility.Visible : Visibility.Collapsed;
-                currentTabViews.TabButton.Style = 
+                currentTabViews.TabButton.Style =
                     (Style)FindResource(isTargetTab ? ActiveTabButtonStyleKey : InactiveTabButtonStyleKey);
-                currentTabViews.BadgeBorder.Style = 
+                currentTabViews.BadgeBorder.Style =
                     (Style)FindResource(isTargetTab ? ActiveBadgeStyleKey : InactiveBadgeStyleKey);
-                currentTabViews.BadgeLabel.Style = 
+                currentTabViews.BadgeLabel.Style =
                     (Style)FindResource(isTargetTab ? ActiveBadgeTextStyleKey : InactiveBadgeTextStyleKey);
             }
 

@@ -15,7 +15,7 @@ namespace TLMG.Views
             InitializeComponent();
         }
 
-        private void TxtEmail_LostFocus(object eventSender, RoutedEventArgs eventArguments)
+        private void TxtEmail_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtEmail.Text))
             {
@@ -50,7 +50,7 @@ namespace TLMG.Views
             return isEmailValid;
         }
 
-        private async void BtnSendCode_Click(object eventSender, RoutedEventArgs eventArguments)
+        private async void BtnSendCode_Click(object sender, RoutedEventArgs e)
         {
             string inputEmailAddress = txtEmail.Text;
             lblEmailError.Visibility = Visibility.Collapsed;
@@ -85,7 +85,7 @@ namespace TLMG.Views
             }
         }
 
-        private void BtnBackToLogin_Click(object eventSender, RoutedEventArgs eventArguments)
+        private void BtnBackToLogin_Click(object sender, RoutedEventArgs e)
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new LoginScreen());
