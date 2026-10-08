@@ -280,7 +280,7 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="LangButtonBaseStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+    <Style x:Key="LanguageButtonBaseStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
         <Setter Property="Width" Value="140" />
         <Setter Property="Height" Value="48" />
         <Setter Property="Margin" Value="0,0,16,0" />
@@ -288,13 +288,13 @@
         <Setter Property="BorderThickness" Value="1" />
     </Style>
 
-    <Style x:Key="LangButtonActiveStyle" TargetType="Button" BasedOn="{StaticResource LangButtonBaseStyle}">
+    <Style x:Key="LanguageButtonActiveStyle" TargetType="Button" BasedOn="{StaticResource LanguageButtonBaseStyle}">
         <Setter Property="Background" Value="{StaticResource Brush_AccentSoft}" />
         <Setter Property="Foreground" Value="{StaticResource Brush_White}" />
         <Setter Property="BorderBrush" Value="{StaticResource Brush_Accent}" />
     </Style>
 
-    <Style x:Key="LangButtonInactiveStyle" TargetType="Button" BasedOn="{StaticResource LangButtonBaseStyle}">
+    <Style x:Key="LanguageButtonInactiveStyle" TargetType="Button" BasedOn="{StaticResource LanguageButtonBaseStyle}">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
         <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
@@ -1016,12 +1016,12 @@
         <Setter Property="Margin" Value="0,0,12,0" />
     </Style>
 
-    <Style x:Key="FilterTabButtonActiveStyle" TargetType="Button" BasedOn="{StaticResource LangButtonActiveStyle}">
+    <Style x:Key="FilterTabButtonActiveStyle" TargetType="Button" BasedOn="{StaticResource LanguageButtonActiveStyle}">
         <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="Padding" Value="16,0" />
     </Style>
 
-    <Style x:Key="FilterTabButtonInactiveStyle" TargetType="Button" BasedOn="{StaticResource LangButtonInactiveStyle}">
+    <Style x:Key="FilterTabButtonInactiveStyle" TargetType="Button" BasedOn="{StaticResource LanguageButtonInactiveStyle}">
         <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="Padding" Value="16,0" />
     </Style>

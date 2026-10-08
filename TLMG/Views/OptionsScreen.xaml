@@ -53,14 +53,14 @@
                                    Style="{StaticResource SectionTitleStyle}" 
                                    Margin="0,0,0,16" />
                         <StackPanel Orientation="Horizontal">
-                            <Button x:Name="btnLangEn" 
+                            <Button x:Name="btnLanguageEnglish" 
                                     Content="US English" 
-                                    Style="{StaticResource LangButtonInactiveStyle}" 
-                                    Click="BtnLangEn_Click" />
-                            <Button x:Name="btnLangEs" 
+                                    Style="{StaticResource LanguageButtonInactiveStyle}" 
+                                    Click="BtnLanguageEnglish_Click" />
+                            <Button x:Name="btnLanguageSpanish" 
                                     Content="ES Español" 
-                                    Style="{StaticResource LangButtonActiveStyle}" 
-                                    Click="BtnLangEs_Click" />
+                                    Style="{StaticResource LanguageButtonActiveStyle}" 
+                                    Click="BtnLanguageSpanish_Click" />
                         </StackPanel>
                     </StackPanel>
                 </Border>

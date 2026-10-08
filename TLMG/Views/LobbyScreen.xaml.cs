@@ -8,7 +8,7 @@ using System.Windows.Threading;
 namespace TLMG.Views
 {
     public partial class LobbyScreen : LocalizableScreen
-    {
+    {        
         private const int TotalLobbyPlayersCount = 3;
         private const int CountdownSecondsLimit = 3;
         private const int ToastDurationMilliseconds = 3000;

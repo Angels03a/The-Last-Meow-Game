@@ -1,3 +1,4 @@
+using log4net;
 using System;
 using System.Data.Entity.Core;
 using System.Data.SqlClient;
@@ -14,6 +15,7 @@ namespace TLMG.Views
     /// </summary>
     public partial class LoginScreen : LocalizableScreen
     {
+        private static readonly ILog log = LogManager.GetLogger(typeof(LoginScreen));
         private const int ScreenTransitionDelayMilliseconds = 1000;
 
         public LoginScreen()
@@ -41,6 +43,8 @@ namespace TLMG.Views
 
                     MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
                     applicationMainWindow.ShowScreen(new MainMenuScreen());
+
+                    log.Info("Se inició sesión correctamente.");
                 }
             }
         }
@@ -90,13 +94,15 @@ namespace TLMG.Views
                     }
                 }
             }
-            catch (SqlException)
+            catch (SqlException ex)
             {
                 ShowStatusMessage(lblFormMessage, TryFindResource("Login_NetworkError") as string, true);
+                log.Error("Fallo en la conexión de la base de datos", ex);
             }
-            catch (EntityException)
+            catch (EntityException ex)
             {
                 ShowStatusMessage(lblFormMessage, TryFindResource("Login_DataModelError") as string, true);
+                log.Error("Fallo en encontrar el modelo de datos", ex);
             }
 
             return isAuthenticationSuccessful;
