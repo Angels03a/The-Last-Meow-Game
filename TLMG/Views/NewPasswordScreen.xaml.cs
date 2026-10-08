@@ -38,7 +38,7 @@ namespace TLMG.Views
                 brdStrength1, brdStrength2, brdStrength3, brdStrength4, brdStrength5
             };
 
-            if (currentPasswordText.Length == 0)
+            if (string.IsNullOrEmpty(currentPasswordText))
             {
                 foreach (Border strengthBorderElement in strengthBarsArray)
                 {
@@ -48,11 +48,13 @@ namespace TLMG.Views
             }
             else
             {
-                Color indicatorColor = passwordStrengthScore <= WeakPasswordThresholdScore
-                    ? Color.FromRgb(0xEF, 0x44, 0x44)
+                string indicatorBrushKey = passwordStrengthScore <= WeakPasswordThresholdScore
+                    ? "Brush_StrengthWeak"
                     : passwordStrengthScore == FairPasswordScore
-                        ? Color.FromRgb(0xF5, 0x9E, 0x0B)
-                        : Color.FromRgb(0x10, 0xB9, 0x81);
+                        ? "Brush_StrengthFair"
+                        : "Brush_StrengthStrong";
+
+                Brush indicatorBrush = (Brush)FindResource(indicatorBrushKey);
 
                 string[] strengthLabelResourceKeys =
                 {
@@ -67,14 +69,14 @@ namespace TLMG.Views
                 for (int collectionIndex = 0; collectionIndex < strengthBarsArray.Length; collectionIndex++)
                 {
                     strengthBarsArray[collectionIndex].Background = collectionIndex < passwordStrengthScore
-                        ? new SolidColorBrush(indicatorColor)
+                        ? indicatorBrush
                         : (Brush)FindResource("Brush_Border");
                 }
 
                 lblStrengthLabel.Text =
                     TryFindResource(strengthLabelResourceKeys[passwordStrengthScore]) as string
                     ?? strengthLabelResourceKeys[passwordStrengthScore];
-                lblStrengthLabel.Foreground = new SolidColorBrush(indicatorColor);
+                lblStrengthLabel.Foreground = indicatorBrush;
                 lblStrengthLabel.Visibility = Visibility.Visible;
             }
         }

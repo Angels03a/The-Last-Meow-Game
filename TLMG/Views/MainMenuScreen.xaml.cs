@@ -9,8 +9,8 @@ namespace TLMG.Views
     {
         private const int DefaultWinStreakCount = 3;
         private const int DefaultPointsToNextRank = 120;
-        private const string WinStreakFormatResourceKey = "MainMenu_WinStreakValue";
-        private const string NextRankFormatResourceKey = "MainMenu_NextRankValue";
+        private const string WinStreakFormatResourceKey = "MainMenu_WinStreakFormat";
+        private const string NextRankFormatResourceKey = "MainMenu_NextRankFormat";
 
         public MainMenuScreen()
         {

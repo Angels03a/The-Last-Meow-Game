@@ -183,7 +183,7 @@ namespace TLMG.Views
             }
             catch (DbUpdateException)
             {
-                ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_DuplicateEmailError") as string, true);
+                ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_DuplicateDataError") as string, true);
             }
             catch (SqlException)
             {

@@ -119,7 +119,7 @@
                     <TextBlock x:Name="lblConfirmPasswordError"
                                Style="{StaticResource ErrorTextStyle}" />
                     <CheckBox x:Name="chkTerms" Style="{StaticResource TermsCheckBoxStyle}" Width="327">
-                        <TextBlock Text="{DynamicResource CreateAccount_TermsText}"
+                        <TextBlock Text="{DynamicResource CreateAccount_TermsLabel}"
                                    Style="{StaticResource TermsTextStyle}"
                                    Width="317" />
                     </CheckBox>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace TLMG.Models
 {
@@ -7,8 +7,9 @@ namespace TLMG.Models
     /// </summary>
     public class PlayerRankEntry
     {
-        private const double WinRateBarMaxWidth = 120;
+        private const double WinRateBarMaxWidthPixels = 120.0;
         private const int HighWinRateThresholdPercentage = 80;
+        private const double PercentageDivisor = 100.0;
 
         public int Rank { get; set; }
 
@@ -28,7 +29,7 @@ namespace TLMG.Models
 
         public string WinRateLabel => $"{WinRatePercentage}%";
 
-        public double WinRateBarWidth => WinRatePercentage / 100.0 * WinRateBarMaxWidth;
+        public double WinRateBarWidth => WinRatePercentage / PercentageDivisor * WinRateBarMaxWidthPixels;
         public bool IsHighWinRate => WinRatePercentage >= HighWinRateThresholdPercentage;
     }
 }

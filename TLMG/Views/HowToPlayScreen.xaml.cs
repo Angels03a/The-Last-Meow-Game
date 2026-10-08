@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
 
@@ -8,6 +8,7 @@ namespace TLMG.Views
     {
         private const int MinStep = 1;
         private const int MaxStep = 5;
+        private const int StepNumberOffset = 1;
 
         private int _currentStep;
         private readonly StepData[] _steps;
@@ -60,8 +61,11 @@ namespace TLMG.Views
 
         private void RefreshStepIndicatorText()
         {
-            string format = TryFindResource("HowToPlay_StepIndicatorFormat") as string ?? "STEP {0} OF {1}";
-            lblStepIndicator.Text = string.Format(format, _currentStep, MaxStep);
+            string format = TryFindResource("HowToPlay_StepIndicatorFormat") as string;
+            if (!string.IsNullOrEmpty(format))
+            {
+                lblStepIndicator.Text = string.Format(format, _currentStep, MaxStep);
+            }
         }
 
         private void UpdateStepVisibility()
@@ -69,7 +73,7 @@ namespace TLMG.Views
             for (int i = 0; i < _steps.Length; i++)
             {
                 var step = _steps[i];
-                bool isActive = (i + 1) == _currentStep;
+                bool isActive = (i + StepNumberOffset) == _currentStep;
 
                 step.ContentGrid.Visibility = isActive ? Visibility.Visible : Visibility.Collapsed;
                 step.SidebarButton.IsDefault = isActive;
@@ -120,7 +124,7 @@ namespace TLMG.Views
                 {
                     if (_steps[i].SidebarButton == clickedButton)
                     {
-                        _currentStep = i + 1;
+                        _currentStep = i + StepNumberOffset;
                         break;
                     }
                 }

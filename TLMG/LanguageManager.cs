@@ -12,9 +12,9 @@ namespace TLMG
     /// </summary>
     public static class LanguageManager
     {
-        private const string DefaultCultureCode = "es-MX";
+        public const string DefaultCultureCode = "es-MX";
+        public const string EnglishCultureCode = "en-US";
         private const string EnglishCulturePrefix = "en";
-        private const string EnglishCultureCode = "en-US";
         private const int NotFoundIndex = -1;
         private const int FirstIndex = 0;
 

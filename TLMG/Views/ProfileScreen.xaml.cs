@@ -1,13 +1,10 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace TLMG.Views
 {
     public partial class ProfileScreen : LocalizableScreen
     {
-        private const int MinNicknameLength = 3;
-        private const int MaxNicknameLength = 12;
-
         private const int DaysSincePasswordChange = 45;
 
         private bool _isEditingAvatar;
@@ -113,8 +110,8 @@ namespace TLMG.Views
         private bool ValidateNickname(string inputNickname)
         {
             bool isValidResult;
-            bool isTooShort = inputNickname.Length < MinNicknameLength;
-            bool isTooLong = inputNickname.Length > MaxNicknameLength;
+            bool isTooShort = inputNickname.Length < ValidationHelper.MinNicknameLengthCharacters;
+            bool isTooLong = inputNickname.Length > ValidationHelper.MaxNicknameLengthCharacters;
 
             if (string.IsNullOrWhiteSpace(inputNickname) || isTooShort || isTooLong)
             {

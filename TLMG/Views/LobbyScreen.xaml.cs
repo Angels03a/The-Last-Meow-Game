@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -11,8 +11,6 @@ namespace TLMG.Views
     {
         private const int TotalLobbyPlayersCount = 3;
         private const int CountdownSecondsLimit = 3;
-        private const int ToastDurationMilliseconds = 3000;
-        private const int OneSecondInterval = 1;
         private const string FormatReadyFraction = "{0}/{1}";
         private const int CountdownSecondsLimitForStart = 0; 
 
@@ -50,6 +48,9 @@ namespace TLMG.Views
 
         private void InitializeTimers()
         {
+            const int OneSecondInterval = 1;
+            const int ToastDurationMilliseconds = 3000;
+
             _countdownTimer = new DispatcherTimer();
             _countdownTimer.Interval = TimeSpan.FromSeconds(OneSecondInterval);
             _countdownTimer.Tick += CountdownTimer_Tick;

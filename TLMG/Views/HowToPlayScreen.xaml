@@ -1,4 +1,4 @@
-﻿<local:LocalizableScreen x:Class="TLMG.Views.HowToPlayScreen"
+<local:LocalizableScreen x:Class="TLMG.Views.HowToPlayScreen"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -169,7 +169,7 @@
                                            Foreground="#FFD700" 
                                            FontWeight="Bold" 
                                            HorizontalAlignment="Center" />
-                                <TextBlock Text="{DynamicResource HowToPlay_CatEgyptianSub}" 
+                                <TextBlock Text="{DynamicResource HowToPlay_CatEgyptianSubtitle}" 
                                            Foreground="#808090" 
                                            FontSize="11" 
                                            HorizontalAlignment="Center" 
@@ -186,7 +186,7 @@
                                            Foreground="#3CB371" 
                                            FontWeight="Bold" 
                                            HorizontalAlignment="Center" />
-                                <TextBlock Text="{DynamicResource HowToPlay_CatZombieSub}" 
+                                <TextBlock Text="{DynamicResource HowToPlay_CatZombieSubtitle}" 
                                            Foreground="#808090" 
                                            FontSize="11" 
                                            HorizontalAlignment="Center" 
@@ -203,7 +203,7 @@
                                            Foreground="#6495ED" 
                                            FontWeight="Bold" 
                                            HorizontalAlignment="Center" />
-                                <TextBlock Text="{DynamicResource HowToPlay_CatGuardianSub}" 
+                                <TextBlock Text="{DynamicResource HowToPlay_CatGuardianSubtitle}" 
                                            Foreground="#808090" 
                                            FontSize="11" 
                                            HorizontalAlignment="Center" 
@@ -220,7 +220,7 @@
                                            Foreground="#DDA0DD" 
                                            FontWeight="Bold" 
                                            HorizontalAlignment="Center" />
-                                <TextBlock Text="{DynamicResource HowToPlay_CatFatalSub}" 
+                                <TextBlock Text="{DynamicResource HowToPlay_CatFatalSubtitle}" 
                                            Foreground="#808090" 
                                            FontSize="11" 
                                            HorizontalAlignment="Center" 
@@ -406,7 +406,7 @@
                     </Border>
                     <Border Style="{StaticResource HowToPlayInfoBoxStyle}" BorderBrush="#8A2BE2" Background="#151020">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource HowToPlay_8CardOnly}" 
+                            <TextBlock Text="{DynamicResource HowToPlay_EightCardOnlyLabel}" 
                                        Foreground="#DDA0DD" 
                                        FontWeight="Bold" 
                                        Margin="0,0,0,16" />
@@ -418,7 +418,7 @@
                                            Foreground="White" 
                                            FontWeight="Bold" />
                                 <TextBlock Text=" " />
-                                <TextBlock Text="{DynamicResource HowToPlay_FugitiveKittenDesc}" Foreground="#B0B0C0" />
+                                <TextBlock Text="{DynamicResource HowToPlay_FugitiveKittenDescription}" Foreground="#B0B0C0" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="🛡️" 

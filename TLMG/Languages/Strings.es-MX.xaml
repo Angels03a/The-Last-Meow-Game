@@ -102,9 +102,9 @@
     <sys:String x:Key="MainMenu_Slogan">E N G A Ñ A R .   A P O S T A R .   M A U L L A R .</sys:String>
     <sys:String x:Key="MainMenu_PlayButton">NUEVA PARTIDA</sys:String>
     <sys:String x:Key="MainMenu_LastWinLabel">ÚLTIMA VICTORIA</sys:String>
-    <sys:String x:Key="MainMenu_LastWinValue">hace 2h</sys:String>
+    <sys:String x:Key="MainMenu_LastWinSubtitle">hace 2h</sys:String>
     <sys:String x:Key="MainMenu_WinStreakLabel">RACHA DE VICTORIAS</sys:String>
-    <sys:String x:Key="MainMenu_WinStreakValue">{0} victorias seguidas</sys:String>
+    <sys:String x:Key="MainMenu_WinStreakFormat">{0} victorias seguidas</sys:String>
     <sys:String x:Key="MainMenu_NextRankLabel">SIGUIENTE RANGO</sys:String>
     <sys:String x:Key="Options_Title">OPCIONES</sys:String>
     <sys:String x:Key="Options_BackButton">← Regresar</sys:String>
@@ -121,7 +121,7 @@
     <sys:String x:Key="CreateAccount_HeaderSubtitle">Crear tu identidad felina y entra a la arena</sys:String>
     <sys:String x:Key="CreateAccount_BackToLogin">← Regresar al Inicio de Sesión</sys:String>
     <sys:String x:Key="CreateAccount_NicknameHint">3-12 caracteres, no caracteres especiales</sys:String>
-    <sys:String x:Key="CreateAccount_TermsText">Estoy de acuerdo con los Términos de Servicio y Política de Privacidad</sys:String>
+    <sys:String x:Key="CreateAccount_TermsLabel">Estoy de acuerdo con los Términos de Servicio y Política de Privacidad</sys:String>
     <sys:String x:Key="CreateAccount_TermsError">Debe aceptar los términos y política de privacidad.</sys:String>
     <sys:String x:Key="Cat_Egyptian">EGIPCIO</sys:String>
     <sys:String x:Key="Cat_Zombie">ZOMBIE</sys:String>
@@ -132,12 +132,12 @@
     <sys:String x:Key="Options_ResetButton">Restablecer Opciones por Defecto</sys:String>
     <sys:String x:Key="CreateAccount_MismatchError">Las contraseñas no coinciden</sys:String>
     <sys:String x:Key="MainMenu_Title">EL ÚLTIMO MAULLIDO</sys:String>
-    <sys:String x:Key="MainMenu_NextRankValue">{0} pts</sys:String>
+    <sys:String x:Key="MainMenu_NextRankFormat">{0} pts</sys:String>
     <sys:String x:Key="Leaderboard_Title">TABLA DE POSICIONES</sys:String>
     <sys:String x:Key="Leaderboard_BackButton">← Regresar</sys:String>
     <sys:String x:Key="Leaderboard_FilterAllTime">Todo el Tiempo</sys:String>
     <sys:String x:Key="Leaderboard_YourStandingLabel">TU POSICIÓN</sys:String>
-    <sys:String x:Key="Leaderboard_PointsSuffix">{0} pts</sys:String>
+    <sys:String x:Key="Leaderboard_PointsFormat">{0} pts</sys:String>
     <sys:String x:Key="Leaderboard_HeaderTitle">CAMPEONES DE TODOS LOS TIEMPOS</sys:String>
     <sys:String x:Key="Leaderboard_ColumnRank">RANGO</sys:String>
     <sys:String x:Key="Leaderboard_ColumnPlayer">JUGADOR</sys:String>
@@ -179,7 +179,7 @@
     <sys:String x:Key="HowToPlay_SuccessfulChallenges">retos exitosos</sys:String>
     <sys:String x:Key="HowToPlay_Step5Description">Elige cuántas cartas tendrá cada jugador. Más cartas significa más engaño — y en el modo de 8 cartas, dos Gatos con Maullido Fatal desbloquean la bonificación del Gatito Fugitivo antes de empezar.</sys:String>
     <sys:String x:Key="HowToPlay_ModesAtGlance">MODALIDADES DE UN VISTAZO</sys:String>
-    <sys:String x:Key="HowToPlay_8CardOnly">SÓLO EN MODALIDAD DE 8 CARTAS</sys:String>
+    <sys:String x:Key="HowToPlay_EightCardOnlyLabel">SÓLO EN MODALIDAD DE 8 CARTAS</sys:String>
     <sys:String x:Key="HowToPlay_FugitiveKitten">El Gatito Fugitivo</sys:String>
     <sys:String x:Key="HowToPlay_FugitiveKittenDescription">aparece antes de cada partida. El primero en atraparlo gana 1 vida extra.</sys:String>
     <sys:String x:Key="HowToPlay_ExtraLife">Vida extra:</sys:String>
@@ -242,7 +242,7 @@
     <sys:String x:Key="Lobby_StatusReady">✓ LISTO</sys:String>
     <sys:String x:Key="Lobby_Waiting">Esperando...</sys:String>
     <sys:String x:Key="Lobby_PlayersReadyTitle">Jugadores Listos</sys:String>
-    <sys:String x:Key="Lobby_ReadyHelperText">Todos deben marcar Listo para comenzar.</sys:String>
+    <sys:String x:Key="Lobby_ReadyHint">Todos deben marcar Listo para comenzar.</sys:String>
     <sys:String x:Key="Lobby_SystemReadyMessage">Sala lista — marquen Listo para comenzar.</sys:String>
     <sys:String x:Key="Lobby_ChatPlaceholder">Escribe un mensaje...</sys:String>
     <sys:String x:Key="Lobby_ChatSend">Enviar</sys:String>
