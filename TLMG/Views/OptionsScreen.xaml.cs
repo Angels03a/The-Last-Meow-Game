@@ -11,10 +11,15 @@ namespace TLMG.Views
         private const double DefaultMusicVolumeLevel = 50.0;
         private const double DefaultSfxVolumeLevel = 50.0;
         private const double VolumeScalePercentFactor = 100.0;
+<<<<<<< HEAD
         private const string EnglishCultureIdentifier = "en-US";
         private const string SpanishCultureIdentifier = "es-MX";
         private const string ActiveLanguageButtonStyleKey = "LanguageButtonActiveStyle";
         private const string InactiveLanguageButtonStyleKey = "LanguageButtonInactiveStyle";
+=======
+        private const string ActiveLanguageButtonStyleKey = "LangButtonActiveStyle";
+        private const string InactiveLanguageButtonStyleKey = "LangButtonInactiveStyle";
+>>>>>>> 10821f56da8dc8138caf2c6ec9bbd71a16ac1a8d
 
         public OptionsScreen()
         {
@@ -37,7 +42,7 @@ namespace TLMG.Views
 
         private void InitializeLanguageButtons()
         {
-            if (LanguageManager.CurrentCulture == EnglishCultureIdentifier)
+            if (LanguageManager.CurrentCulture == LanguageManager.EnglishCultureCode)
             {
                 btnLanguageEnglish.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
                 btnLanguageSpanish.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
@@ -66,16 +71,28 @@ namespace TLMG.Views
 
         private void BtnLangEn_Click(object sender, RoutedEventArgs e)
         {
+<<<<<<< HEAD
             LanguageManager.ChangeLanguage(EnglishCultureIdentifier);
             btnLanguageEnglish.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
             btnLanguageSpanish.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
+=======
+            LanguageManager.ChangeLanguage(LanguageManager.EnglishCultureCode);
+            btnLangEn.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
+            btnLangEs.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
+>>>>>>> 10821f56da8dc8138caf2c6ec9bbd71a16ac1a8d
         }
 
         private void BtnLangEs_Click(object sender, RoutedEventArgs e)
         {
+<<<<<<< HEAD
             LanguageManager.ChangeLanguage(SpanishCultureIdentifier);
             btnLanguageSpanish.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
             btnLanguageEnglish.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
+=======
+            LanguageManager.ChangeLanguage(LanguageManager.DefaultCultureCode);
+            btnLangEs.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
+            btnLangEn.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
+>>>>>>> 10821f56da8dc8138caf2c6ec9bbd71a16ac1a8d
         }
 
         private void BtnReset_Click(object sender, RoutedEventArgs e)

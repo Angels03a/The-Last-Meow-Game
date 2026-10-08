@@ -230,7 +230,7 @@
                         <StackPanel VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource MainMenu_LastWinLabel}" 
                                        Style="{StaticResource StatCardLabelStyle}" />
-                            <TextBlock Text="{DynamicResource MainMenu_LastWinValue}" 
+                            <TextBlock Text="{DynamicResource MainMenu_LastWinSubtitle}" 
                                        Style="{StaticResource StatCardValueStyle}" />
                         </StackPanel>
                     </StackPanel>

@@ -16,21 +16,15 @@ namespace TLMG.Views
     /// </summary>
     public partial class LeaderboardScreen : LocalizableScreen
     {
-        private const string DefaultPointsFormat = "{0} pts";
-        private const string PointsSuffixResourceKey = "Leaderboard_PointsSuffix";
+        private const string PointsFormatResourceKey = "Leaderboard_PointsFormat";
         private const string DefaultProfileImage = "pack://application:,,,/TLMG;component/img/default.jpg";
         private const string DefaultPlayerName = "---";
+        private const int RankIndexOffset = 1;
         private const int ZeroGamesPlayed = 0;
         private const int ZeroWinRate = 0;
         private const int PercentageMultiplier = 100;
         private const int DefaultEmptyScore = 0;
         private const int DefaultEmptyWins = 0;
-        private const int FirstPlaceIndex = 0;
-        private const int SecondPlaceIndex = 1;
-        private const int ThirdPlaceIndex = 2;
-        private const int FirstPlaceRank = 1;
-        private const int SecondPlaceRank = 2;
-        private const int ThirdPlaceRank = 3;
         private const int PodiumCapacity = 3;
 
         // FIXME: Estos valores deben venir del jugador actualmente logueado en la sesión.
@@ -80,7 +74,7 @@ namespace TLMG.Views
 
                     var rankEntries = rankedPlayersQuery.Select((data, index) => new PlayerRankEntry
                     {
-                        Rank = index + 1,
+                        Rank = index + RankIndexOffset,
                         AvatarImagePath = string.IsNullOrWhiteSpace(data.profile_image)
                              ? DefaultProfileImage
                              : (data.profile_image.StartsWith("/")
@@ -125,6 +119,13 @@ namespace TLMG.Views
 
         private void AssignPodiumPlayers(System.Collections.Generic.List<PlayerRankEntry> allPlayers)
         {
+            const int FirstPlaceIndex = 0;
+            const int SecondPlaceIndex = 1;
+            const int ThirdPlaceIndex = 2;
+            const int FirstPlaceRank = 1;
+            const int SecondPlaceRank = 2;
+            const int ThirdPlaceRank = 3;
+
             _firstPlacePlayer = allPlayers.ElementAtOrDefault(FirstPlaceIndex) ?? CreateEmptyEntry(FirstPlaceRank);
             _secondPlacePlayer = allPlayers.ElementAtOrDefault(SecondPlaceIndex) ?? CreateEmptyEntry(SecondPlaceRank);
             _thirdPlacePlayer = allPlayers.ElementAtOrDefault(ThirdPlaceIndex) ?? CreateEmptyEntry(ThirdPlaceRank);
@@ -148,6 +149,10 @@ namespace TLMG.Views
 
         private void LoadEmptyLeaderboard()
         {
+            const int FirstPlaceRank = 1;
+            const int SecondPlaceRank = 2;
+            const int ThirdPlaceRank = 3;
+
             _firstPlacePlayer = CreateEmptyEntry(FirstPlaceRank);
             _secondPlacePlayer = CreateEmptyEntry(SecondPlaceRank);
             _thirdPlacePlayer = CreateEmptyEntry(ThirdPlaceRank);
@@ -207,7 +212,8 @@ namespace TLMG.Views
 
         private string FormatPointsLabel(int points)
         {
-            string format = TryFindResource(PointsSuffixResourceKey) as string ?? DefaultPointsFormat;
+            const string DefaultPointsFormat = "{0} pts";
+            string format = TryFindResource(PointsFormatResourceKey) as string ?? DefaultPointsFormat;
             return string.Format(format, points.ToString("N0"));
         }
 
