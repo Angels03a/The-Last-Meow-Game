@@ -64,14 +64,14 @@ namespace TLMG.Views
             UpdateVolumeLabel(lblSoundEffectsVolume, e.NewValue);
         }
 
-        private void BtnLangEn_Click(object sender, RoutedEventArgs e)
+        private void BtnLanguageEnglish_Click(object sender, RoutedEventArgs e)
         {
             LanguageManager.ChangeLanguage(EnglishCultureIdentifier);
             btnLanguageEnglish.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
             btnLanguageSpanish.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
         }
 
-        private void BtnLangEs_Click(object sender, RoutedEventArgs e)
+        private void BtnLanguageSpanish_Click(object sender, RoutedEventArgs e)
         {
             LanguageManager.ChangeLanguage(SpanishCultureIdentifier);
             btnLanguageSpanish.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
