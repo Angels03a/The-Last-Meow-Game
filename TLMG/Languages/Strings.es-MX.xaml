@@ -112,7 +112,7 @@
     <sys:String x:Key="Options_LanguageLabel">IDIOMA</sys:String>
     <sys:String x:Key="Options_AudioLabel">AUDIO</sys:String>
     <sys:String x:Key="Options_MusicLabel">Música</sys:String>
-    <sys:String x:Key="Options_SfxLabel">Efectos de Sonido</sys:String>
+    <sys:String x:Key="Options_SoundEffectsLabel">Efectos de Sonido</sys:String>
     <sys:String x:Key="Options_NotificationsLabel">NOTIFICACIONES</sys:String>
     <sys:String x:Key="Options_GameInvitesTitle">Invitaciones de Partida</sys:String>
     <sys:String x:Key="Options_GameInvitesDescription">Notificar cuando un amigo envíe una invitación de juego</sys:String>

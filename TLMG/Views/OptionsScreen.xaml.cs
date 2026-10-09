@@ -9,17 +9,12 @@ namespace TLMG.Views
     public partial class OptionsScreen : LocalizableScreen
     {
         private const double DefaultMusicVolumeLevel = 50.0;
-        private const double DefaultSfxVolumeLevel = 50.0;
+        private const double DefaultSoundEffectsVolumeLevel = 50.0;        
         private const double VolumeScalePercentFactor = 100.0;
-<<<<<<< HEAD
         private const string EnglishCultureIdentifier = "en-US";
         private const string SpanishCultureIdentifier = "es-MX";
         private const string ActiveLanguageButtonStyleKey = "LanguageButtonActiveStyle";
         private const string InactiveLanguageButtonStyleKey = "LanguageButtonInactiveStyle";
-=======
-        private const string ActiveLanguageButtonStyleKey = "LangButtonActiveStyle";
-        private const string InactiveLanguageButtonStyleKey = "LangButtonInactiveStyle";
->>>>>>> 10821f56da8dc8138caf2c6ec9bbd71a16ac1a8d
 
         public OptionsScreen()
         {
@@ -31,13 +26,13 @@ namespace TLMG.Views
         protected override void UpdateDynamicLabels()
         {
             UpdateVolumeLabel(lblMusicVol, sldMusic.Value);
-            UpdateVolumeLabel(lblSfxVol, sldSfx.Value);
+            UpdateVolumeLabel(lblSoundEffectsVolume, sldSoundEffects.Value);
         }
 
         private void InitializeDefaultSettings()
         {
             sldMusic.Value = DefaultMusicVolumeLevel;
-            sldSfx.Value = DefaultSfxVolumeLevel;
+            sldSoundEffects.Value = DefaultSoundEffectsVolumeLevel;
         }
 
         private void InitializeLanguageButtons()
@@ -64,41 +59,29 @@ namespace TLMG.Views
             UpdateVolumeLabel(lblMusicVol, e.NewValue);
         }
 
-        private void SldSfx_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void SldSoundEffects_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            UpdateVolumeLabel(lblSfxVol, e.NewValue);
+            UpdateVolumeLabel(lblSoundEffectsVolume, e.NewValue);
         }
 
         private void BtnLangEn_Click(object sender, RoutedEventArgs e)
         {
-<<<<<<< HEAD
             LanguageManager.ChangeLanguage(EnglishCultureIdentifier);
             btnLanguageEnglish.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
             btnLanguageSpanish.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
-=======
-            LanguageManager.ChangeLanguage(LanguageManager.EnglishCultureCode);
-            btnLangEn.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
-            btnLangEs.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
->>>>>>> 10821f56da8dc8138caf2c6ec9bbd71a16ac1a8d
         }
 
         private void BtnLangEs_Click(object sender, RoutedEventArgs e)
         {
-<<<<<<< HEAD
             LanguageManager.ChangeLanguage(SpanishCultureIdentifier);
             btnLanguageSpanish.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
             btnLanguageEnglish.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
-=======
-            LanguageManager.ChangeLanguage(LanguageManager.DefaultCultureCode);
-            btnLangEs.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
-            btnLangEn.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
->>>>>>> 10821f56da8dc8138caf2c6ec9bbd71a16ac1a8d
         }
 
         private void BtnReset_Click(object sender, RoutedEventArgs e)
         {
             sldMusic.Value = DefaultMusicVolumeLevel;
-            sldSfx.Value = DefaultSfxVolumeLevel;
+            sldSoundEffects.Value = DefaultSoundEffectsVolumeLevel;
         }
 
         private void BtnBack_Click(object sender, RoutedEventArgs e)

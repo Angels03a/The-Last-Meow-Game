@@ -41,7 +41,7 @@ namespace TLMG.Views
 
         private void BtnCreateAccount_Click(object sender, RoutedEventArgs e)
         {
-            var formData = new RegistrationFormData
+            var formDataForRegistration = new RegistrationFormData
             {
                 Nickname = txtNickname.Text,
                 Email = txtEmail.Text,
@@ -50,24 +50,24 @@ namespace TLMG.Views
                 HasAcceptedTerms = chkTerms.IsChecked == true
             };
 
-            if (AreFieldsValid(formData))
+            if (AreFieldsValid(formDataForRegistration))
             {
-                if (TryRegisterUser(formData))
+                if (TryRegisterUser(formDataForRegistration))
                 {
                     NavigateToVerificationScreen();
                 }
             }
         }
 
-        private bool AreFieldsValid(RegistrationFormData data)
+        private bool AreFieldsValid(RegistrationFormData formDataForRegistration)
         {
             bool areAllFieldsValid;
 
-            if (AreFieldsEmpty(data))
+            if (AreFieldsEmpty(formDataForRegistration))
             {
                 areAllFieldsValid = false;
             }
-            else if (HasFormatErrors(data))
+            else if (HasFormatErrors(formDataForRegistration))
             {
                 areAllFieldsValid = false;
             }
@@ -79,12 +79,12 @@ namespace TLMG.Views
             return areAllFieldsValid;
         }
 
-        private bool AreFieldsEmpty(RegistrationFormData data)
+        private bool AreFieldsEmpty(RegistrationFormData formDataForRegistration)
         {
-            bool hasEmptyFields = string.IsNullOrWhiteSpace(data.Nickname) ||
-                string.IsNullOrWhiteSpace(data.Email) ||
-                string.IsNullOrWhiteSpace(data.Password) ||
-                string.IsNullOrWhiteSpace(data.ConfirmPassword);
+            bool hasEmptyFields = string.IsNullOrWhiteSpace(formDataForRegistration.Nickname) ||
+                string.IsNullOrWhiteSpace(formDataForRegistration.Email) ||
+                string.IsNullOrWhiteSpace(formDataForRegistration.Password) ||
+                string.IsNullOrWhiteSpace(formDataForRegistration.ConfirmPassword);
 
             if (hasEmptyFields)
             {
@@ -94,36 +94,36 @@ namespace TLMG.Views
             return hasEmptyFields;
         }
 
-        private bool HasFormatErrors(RegistrationFormData data)
+        private bool HasFormatErrors(RegistrationFormData formDataForRegistration)
         {
             bool hasErrors = false;
 
-            string nicknameValidationResult = ValidateNickname(data.Nickname);
+            string nicknameValidationResult = ValidateNickname(formDataForRegistration.Nickname);
             if (nicknameValidationResult != null)
             {
                 ShowStatusMessage(lblNicknameError, nicknameValidationResult, true);
                 hasErrors = true;
             }
 
-            string emailValidationResult = ValidateEmailFormat(data.Email);
+            string emailValidationResult = ValidateEmailFormat(formDataForRegistration.Email);
             if (emailValidationResult != null)
             {
                 ShowStatusMessage(lblEmailError, emailValidationResult, true);
                 hasErrors = true;
             }
 
-            if (CalculatePasswordStrength(data.Password) < ValidationHelper.RequiredPasswordStrengthScore)
+            if (CalculatePasswordStrength(formDataForRegistration.Password) < ValidationHelper.RequiredPasswordStrengthScore)
             {
                 ShowStatusMessage(lblPasswordError, TryFindResource("CreateAccount_PasswordPolicyError") as string, true);
                 hasErrors = true;
             }
-            else if (data.Password != data.ConfirmPassword)
+            else if (formDataForRegistration.Password != formDataForRegistration.ConfirmPassword)
             {
                 ShowStatusMessage(lblConfirmPasswordError, TryFindResource("CreateAccount_MismatchError") as string, true);
                 hasErrors = true;
             }
 
-            if (!data.HasAcceptedTerms)
+            if (!formDataForRegistration.HasAcceptedTerms)
             {
                 ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_TermsError") as string, true);
                 hasErrors = true;
@@ -132,7 +132,7 @@ namespace TLMG.Views
             return hasErrors;
         }
 
-        private bool TryRegisterUser(RegistrationFormData data)
+        private bool TryRegisterUser(RegistrationFormData formDataForRegistration)
         {
             bool isSuccess = false;
 
@@ -140,8 +140,8 @@ namespace TLMG.Views
             {
                 using (var database = new TLMG_DBEntities())
                 {
-                    bool emailIsTaken = database.User.Any(user => user.email == data.Email);
-                    bool nicknameIsTaken = database.User.Any(user => user.nickname == data.Nickname);
+                    bool emailIsTaken = database.User.Any(user => user.email == formDataForRegistration.Email);
+                    bool nicknameIsTaken = database.User.Any(user => user.nickname == formDataForRegistration.Nickname);
 
                     if (emailIsTaken)
                     {
@@ -155,9 +155,9 @@ namespace TLMG.Views
                     {
                         var newUserAccount = new User
                         {
-                            email = data.Email,
-                            nickname = data.Nickname,
-                            password_hash = data.Password, // FIXME: Integrar algoritmo de hashing antes de insertar en BD.
+                            email = formDataForRegistration.Email,
+                            nickname = formDataForRegistration.Nickname,
+                            password_hash = formDataForRegistration.Password, // FIXME: Integrar algoritmo de hashing antes de insertar en BD.
                             state = DefaultUserState,
                             profile_image = DefaultProfileImage,
                             last_time = DateTime.Now

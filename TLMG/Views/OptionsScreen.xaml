@@ -121,7 +121,7 @@
                             <TextBlock Grid.Column="0" 
                                        Text="🔊" Style="{StaticResource OptionIconStyle}" />
                             <TextBlock Grid.Column="1" 
-                                       Text="{DynamicResource Options_SfxLabel}" 
+                                       Text="{DynamicResource Options_SoundEffectsLabel}" 
                                        Style="{StaticResource OptionLabelStyle}" />
                             <CheckBox Grid.Column="2" 
                                       Style="{StaticResource ToggleSwitchStyle}" 
@@ -139,17 +139,17 @@
                                        Text="🔈" 
                                        Style="{StaticResource OptionSmallIconStyle}" />
                             <Slider Grid.Column="1" 
-                                    x:Name="sldSfx" 
+                                    x:Name="sldSoundEffects" 
                                     Style="{StaticResource CustomSliderStyle}" 
                                     Maximum="100" 
-                                    ValueChanged="SldSfx_ValueChanged" />
+                                    ValueChanged="SldSoundEffects_ValueChanged" />
                             <TextBlock Grid.Column="2" 
                                        Text="🔊" 
                                        Style="{StaticResource OptionSmallIconStyle}" 
                                        HorizontalAlignment="Right" 
                                        Margin="0,0,8,0" />
                             <TextBlock Grid.Column="3" 
-                                       x:Name="lblSfxVol" 
+                                       x:Name="lblSoundEffectsVolume" 
                                        Style="{StaticResource OptionValueTextStyle}" />
                         </Grid>
                     </StackPanel>
