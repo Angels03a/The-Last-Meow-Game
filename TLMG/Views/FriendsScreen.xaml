@@ -143,9 +143,9 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_BtnInvite}" 
+                                    <Button Content="{DynamicResource Friends_InviteButton}" 
                                             Style="{StaticResource ActionPrimarySmallButtonStyle}" />
-                                    <Button Content="{DynamicResource Friends_BtnBlock}" 
+                                    <Button Content="{DynamicResource Friends_BlockButton}" 
                                             Style="{StaticResource ActionDangerOutlineButtonStyle}" />
                                 </StackPanel>
                             </Grid>
@@ -183,9 +183,9 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_BtnInvite}" 
+                                    <Button Content="{DynamicResource Friends_InviteButton}" 
                                             Style="{StaticResource ActionPrimarySmallButtonStyle}" />
-                                    <Button Content="{DynamicResource Friends_BtnBlock}" 
+                                    <Button Content="{DynamicResource Friends_BlockButton}" 
                                             Style="{StaticResource ActionDangerOutlineButtonStyle}" />
                                 </StackPanel>
                             </Grid>
@@ -223,9 +223,9 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_BtnInvite}" 
+                                    <Button Content="{DynamicResource Friends_InviteButton}" 
                                             Style="{StaticResource ActionPrimarySmallButtonStyle}" />
-                                    <Button Content="{DynamicResource Friends_BtnBlock}" 
+                                    <Button Content="{DynamicResource Friends_BlockButton}" 
                                             Style="{StaticResource ActionDangerOutlineButtonStyle}" />
                                 </StackPanel>
                             </Grid>
@@ -263,11 +263,11 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_BtnInvite}" 
+                                    <Button Content="{DynamicResource Friends_InviteButton}" 
                                             Style="{StaticResource ActionGhostSmallButtonStyle}" 
                                             IsEnabled="False" 
                                             Opacity="0.5" />
-                                    <Button Content="{DynamicResource Friends_BtnBlock}" 
+                                    <Button Content="{DynamicResource Friends_BlockButton}" 
                                             Style="{StaticResource ActionDangerOutlineButtonStyle}" />
                                 </StackPanel>
                             </Grid>
@@ -301,9 +301,9 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_BtnAccept}" 
+                                    <Button Content="{DynamicResource Friends_AcceptButton}" 
                                             Style="{StaticResource ActionSuccessButtonStyle}" />
-                                    <Button Content="{DynamicResource Friends_BtnDecline}" 
+                                    <Button Content="{DynamicResource Friends_DeclineButton}" 
                                             Style="{StaticResource ActionDangerButtonStyle}" />
                                 </StackPanel>
                             </Grid>
@@ -330,7 +330,7 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_BtnCancel}" 
+                                    <Button Content="{DynamicResource Friends_CancelButton}" 
                                             Style="{StaticResource ActionGhostSmallButtonStyle}" />
                                 </StackPanel>
                             </Grid>
@@ -365,7 +365,7 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_BtnUnblock}" 
+                                    <Button Content="{DynamicResource Friends_UnblockButton}" 
                                             Style="{StaticResource ActionGhostSmallButtonStyle}" />
                                 </StackPanel>
                             </Grid>

@@ -45,12 +45,12 @@
                         </Grid.ColumnDefinitions>
                         <Button x:Name="btnCancelKick" 
                                 Grid.Column="0" 
-                                Content="{DynamicResource Lobby_MenuCancel}" 
+                                Content="{DynamicResource Lobby_CancelKickButton}" 
                                 Style="{StaticResource OutlineButtonStyle}" 
                                 Click="BtnCancelKick_Click" />
                         <Button x:Name="btnConfirmKick" 
                                 Grid.Column="2" 
-                                Content="{DynamicResource Lobby_MenuKick}" 
+                                Content="{DynamicResource Lobby_ConfirmKickButton}" 
                                 Style="{StaticResource ActionDangerButtonStyle}" 
                                 Height="42" 
                                 Click="BtnConfirmKick_Click" />
@@ -106,7 +106,7 @@
                     <TextBlock Text="NYANPROWLER" 
                                Style="{StaticResource ContextMenuHeaderStyle}" />
                     <Button x:Name="btnMenuKick" 
-                            Content="{DynamicResource Lobby_MenuKick}" 
+                            Content="{DynamicResource Lobby_ConfirmKickButton}" 
                             Style="{StaticResource ContextMenuItemStyle}" 
                             Click="BtnMenuKick_Click" />
                     <Button x:Name="btnMenuReport" 
@@ -116,7 +116,7 @@
                             Content="{DynamicResource Lobby_MenuBlock}" 
                             Style="{StaticResource ContextMenuDangerItemStyle}" />
                     <Button x:Name="btnMenuCancel" 
-                            Content="{DynamicResource Lobby_MenuCancel}" 
+                            Content="{DynamicResource Lobby_CancelKickButton}" 
                             Style="{StaticResource ContextMenuItemStyle}" 
                             Click="BtnMenuCancel_Click" />
                 </StackPanel>
@@ -381,7 +381,7 @@
                                  KeyDown="TxtChatInput_KeyDown" />
                         <Button x:Name="btnSendChat" 
                                 Grid.Column="2" 
-                                Content="{DynamicResource Lobby_ChatSend}" 
+                                Content="{DynamicResource Lobby_SendChatButton}" 
                                 Style="{StaticResource ActionPrimarySmallButtonStyle}" 
                                 Width="80" 
                                 Height="42" 

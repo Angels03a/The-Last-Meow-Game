@@ -62,13 +62,13 @@
                 </StackPanel>
 
                 <Button x:Name="btnResendCode"
-                        Content="{DynamicResource Verification_ResendButton}"
+                        Content="{DynamicResource Verification_ResendCodeButton}"
                         Style="{StaticResource VerificationResendButtonStyle}"
                         IsEnabled="False"
                         Click="BtnResendCode_Click" />
 
                 <Button x:Name="btnVerifyCode"
-                        Content="{DynamicResource Verification_VerifyButton}"
+                        Content="{DynamicResource Verification_VerifyCodeButton}"
                         Style="{StaticResource VerificationPrimaryButtonStyle}"
                         IsEnabled="False"
                         Click="BtnVerifyCode_Click" />

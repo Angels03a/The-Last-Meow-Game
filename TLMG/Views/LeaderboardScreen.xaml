@@ -98,7 +98,7 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="🏆" 
                                    Style="{StaticResource FilterButtonIconStyle}" />
-                        <TextBlock Text="{DynamicResource Leaderboard_FilterAllTime}" 
+                        <TextBlock Text="{DynamicResource Leaderboard_HeaderFilterAllTimeButton}" 
                                    VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
@@ -151,7 +151,7 @@
 
                 <Button Grid.Column="1"
                         x:Name="btnHeaderFilterAllTime"
-                        Content="{DynamicResource Leaderboard_FilterAllTime}"
+                        Content="{DynamicResource Leaderboard_HeaderFilterAllTimeButton}"
                         Style="{StaticResource HeaderFilterButtonActiveStyle}"
                         Click="BtnFilterAllTime_Click" />
             </Grid>

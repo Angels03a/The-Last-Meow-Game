@@ -37,25 +37,25 @@
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
                         <TextBlock Text="🐈‍" 
                                    Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Cat_Egyptian}" 
+                        <TextBlock Text="{DynamicResource Common_EgyptianCatLabel}" 
                                    Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
                         <TextBlock Text="🧟" 
                                    Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Cat_Zombie}" 
+                        <TextBlock Text="{DynamicResource Common_ZombieCatLabel}" 
                                    Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
                         <TextBlock Text="💀" 
                                    Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Cat_Skull}" 
+                        <TextBlock Text="{DynamicResource Common_SkullCatLabel}" 
                                    Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
                         <TextBlock Text="🚀" 
                                    Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Cat_Astronaut}" 
+                        <TextBlock Text="{DynamicResource Common_AstronautCatLabel}" 
                                    Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                 </StackPanel>

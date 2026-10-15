@@ -445,7 +445,7 @@
 
                 <Button x:Name="btnPrevious" 
                         Grid.Column="0" 
-                        Content="{DynamicResource HowToPlay_BtnPrevious}" 
+                        Content="{DynamicResource HowToPlay_PreviousButton}" 
                         Style="{DynamicResource GhostButtonStyle}" 
                         Visibility="Hidden" 
                         Click="BtnPrevious_Click" />
@@ -460,7 +460,7 @@
 
                 <Button x:Name="btnNext" 
                         Grid.Column="2" 
-                        Content="{DynamicResource HowToPlay_BtnNext}" 
+                        Content="{DynamicResource HowToPlay_NextButton}" 
                         Style="{StaticResource PrimaryButtonStyle}" 
                         Click="BtnNext_Click" />
             </Grid>

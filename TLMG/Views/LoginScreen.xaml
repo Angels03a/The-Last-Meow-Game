@@ -114,7 +114,7 @@
                         Click="BtnLogIn_Click" />
 
                 <Button x:Name="btnPlayAsGuest"
-                        Content="{DynamicResource Login_GuestButton}"
+                        Content="{DynamicResource Login_PlayAsGuestButton}"
                         Style="{StaticResource AuthenticationSecondaryButtonStyle}"
                         Click="BtnPlayAsGuest_Click" />
 

@@ -109,7 +109,7 @@ namespace TLMG.Views
             btnPrevious.Visibility = 
                 _currentStep > MinStep ? Visibility.Visible : Visibility.Hidden;
             btnNext.SetResourceReference(ContentControl.ContentProperty, 
-                _currentStep == MaxStep ? "HowToPlay_BtnFinish" : "HowToPlay_BtnNext");
+                _currentStep == MaxStep ? "HowToPlay_FinishButton" : "HowToPlay_NextButton");
         }
 
         private void BtnNext_Click(object sender, RoutedEventArgs e)

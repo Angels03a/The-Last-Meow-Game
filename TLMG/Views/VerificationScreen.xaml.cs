@@ -141,7 +141,7 @@ namespace TLMG.Views
                 currentRemainingTimeSpan.Minutes,
                 currentRemainingTimeSpan.Seconds);
 
-            string originalButtonText = TryFindResource("Verification_ResendButton") as string;
+            string originalButtonText = TryFindResource("Verification_ResendCodeButton") as string;
 
             if (_remainingSecondsUntilResend > TimeExpired)
             {

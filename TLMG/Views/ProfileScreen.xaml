@@ -236,7 +236,7 @@
                                            Style="{StaticResource SidebarProfileUsernameStyle}" 
                                            VerticalAlignment="Center" Visibility="Visible"/>
                                 <Button x:Name="btnEditNickname" Grid.Column="1" 
-                                        Content="{DynamicResource Profile_EditButton}" 
+                                        Content="{DynamicResource Profile_EditNicknameButton}" 
                                         Style="{StaticResource GhostSmallButtonStyle}" 
                                         Click="BtnEditNickname_Click" 
                                         Visibility="Visible"/>

@@ -22,38 +22,38 @@
                 <StackPanel Style="{StaticResource LoadingAvatarContainerStyle}">
                     <TextBlock Text="🐱" 
                                Style="{StaticResource LoadingAvatarEmojiStyle}" />
-                    <TextBlock Text="{DynamicResource Cat_Egyptian}" 
+                    <TextBlock Text="{DynamicResource Common_EgyptianCatLabel}" 
                                Style="{StaticResource LoadingAvatarLabelStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource LoadingAvatarContainerStyle}">
                     <TextBlock Text="🧟" 
                                Style="{StaticResource LoadingAvatarEmojiStyle}" />
-                    <TextBlock Text="{DynamicResource Cat_Zombie}" 
+                    <TextBlock Text="{DynamicResource Common_ZombieCatLabel}" 
                                Style="{StaticResource LoadingAvatarLabelStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource LoadingAvatarContainerStyle}">
                     <TextBlock Text="🚀" 
                                Style="{StaticResource LoadingAvatarEmojiStyle}" />
-                    <TextBlock Text="{DynamicResource Cat_Astronaut}" 
+                    <TextBlock Text="{DynamicResource Common_AstronautCatLabel}" 
                                Style="{StaticResource LoadingAvatarLabelStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource LoadingAvatarContainerStyle}">
                     <TextBlock Text="💀" 
                                Style="{StaticResource LoadingAvatarEmojiStyle}" />
-                    <TextBlock Text="{DynamicResource Cat_Skull}" 
+                    <TextBlock Text="{DynamicResource Common_SkullCatLabel}" 
                                Style="{StaticResource LoadingAvatarLabelStyle}" />
                 </StackPanel>
 
             </StackPanel>
 
-            <TextBlock Text="{DynamicResource LoadingScreen_Title}" 
+            <TextBlock Text="{DynamicResource Loading_Title}" 
                        Style="{StaticResource HeroTitleTextStyle}" 
                        Margin="0,0,0,8" />
 
-            <TextBlock Text="{DynamicResource LoadingScreen_Subtitle}" 
+            <TextBlock Text="{DynamicResource Loading_Subtitle}" 
                        Style="{StaticResource LoadingSubtitleTextStyle}" />
 
             <Border Style="{StaticResource ProgressTrackStyle}" Margin="0,0,0,16">
@@ -62,7 +62,7 @@
                            Width="0" />
             </Border>
 
-            <TextBlock Text="{DynamicResource LoadingScreen_Status}" 
+            <TextBlock Text="{DynamicResource Loading_StatusLabel}" 
                        Style="{StaticResource StatusTextStyle}" 
                        HorizontalAlignment="Center" />
 
