@@ -96,13 +96,21 @@ namespace TLMG.Views
 
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new VerificationScreen(
-                onVerifiedCallbackAction: () => {
-                    applicationMainWindow.ShowScreen(new NewPasswordScreen());
-                },
-                onBackCallbackAction: () => {
-                    applicationMainWindow.ShowScreen(new ForgotPasswordScreen());
-                }
+                onVerifiedCallbackAction: NavigateToNewPasswordScreen,
+                onBackCallbackAction: NavigateToForgotPasswordScreen
             ));
+        }
+
+        private void NavigateToNewPasswordScreen()
+        {
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new NewPasswordScreen());
+        }
+
+        private void NavigateToForgotPasswordScreen()
+        {
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new ForgotPasswordScreen());
         }
 
         private void BtnBackToLogin_Click(object sender, RoutedEventArgs e)

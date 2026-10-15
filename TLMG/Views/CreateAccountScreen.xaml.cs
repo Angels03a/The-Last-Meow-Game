@@ -230,12 +230,16 @@ namespace TLMG.Views
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new VerificationScreen(
-                onVerifiedCallbackAction: () => {
-                    MessageBox.Show(TryFindResource("CreateAccount_SuccessMessage") as string);
-                    applicationMainWindow.ShowScreen(new LoginScreen());
-                },
+                onVerifiedCallbackAction: HandleVerificationCompleted,
                 onBackCallbackAction: () => applicationMainWindow.ShowScreen(new CreateAccountScreen())
             ));
+        }
+
+        private void HandleVerificationCompleted()
+        {
+            MessageBox.Show(TryFindResource("CreateAccount_SuccessMessage") as string);
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new LoginScreen());
         }
 
         private int CalculatePasswordStrength(string inputPasswordString)

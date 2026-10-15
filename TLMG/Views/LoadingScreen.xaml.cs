@@ -35,14 +35,16 @@ namespace TLMG.Views
                 }
             };
 
-            loadingAnimation.Completed += (animationSender, animationArguments) =>
-            {
-                LoadingCompleted?.Invoke(this, EventArgs.Empty);
-            };
+            loadingAnimation.Completed += OnLoadingAnimationCompleted;
 
             rectLoadingBar.BeginAnimation(
                 System.Windows.Shapes.Rectangle.WidthProperty,
                 loadingAnimation);
+        }
+
+        private void OnLoadingAnimationCompleted(object sender, EventArgs e)
+        {
+            LoadingCompleted?.Invoke(this, EventArgs.Empty);
         }
     }
 }
