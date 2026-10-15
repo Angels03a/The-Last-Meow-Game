@@ -2,8 +2,8 @@ using System;
 using System.Data.Entity.Core;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 using log4net;
 
@@ -20,15 +20,29 @@ namespace TLMG.Views
         private const int ScreenTransitionDelayMilliseconds = 1000;
         private static readonly ILog _log = LogManager.GetLogger(typeof(LoginScreen));
 
+        private DispatcherTimer _redirectTimer;
+
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="LoginScreen"/>.
         /// </summary>
         public LoginScreen()
         {
             InitializeComponent();
+            Unloaded += OnScreenUnloaded;
+
+            _redirectTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(ScreenTransitionDelayMilliseconds)
+            };
+            _redirectTimer.Tick += OnRedirectTimerTick;
         }
 
-        private async void BtnLogIn_Click(object sender, RoutedEventArgs e)
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        {
+            _redirectTimer?.Stop();
+        }
+
+        private void BtnLogIn_Click(object sender, RoutedEventArgs e)
         {
             string inputEmailAddress = txtEmail.Text;
             string inputPasswordText = pwdPassword.Visibility == Visibility.Visible
@@ -44,14 +58,19 @@ namespace TLMG.Views
                 if (isLoginSuccessful)
                 {
                     ShowStatusMessage(lblFormMessage, TryFindResource("Login_SuccessMessage") as string, false);
-                    await Task.Delay(ScreenTransitionDelayMilliseconds);
-
-                    MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-                    applicationMainWindow.ShowScreen(new MainMenuScreen());
-
-                    _log.Info("Se inició sesión correctamente.");
+                    _redirectTimer.Start();
                 }
             }
+        }
+
+        private void OnRedirectTimerTick(object sender, EventArgs e)
+        {
+            _redirectTimer.Stop();
+
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new MainMenuScreen());
+
+            _log.Info("Se inició sesión correctamente.");
         }
 
         private bool AreCredentialsValidFormat(string email, string password)

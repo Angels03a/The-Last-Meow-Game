@@ -1,7 +1,8 @@
-using System.Threading.Tasks;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace TLMG.Views
 {
@@ -14,9 +15,23 @@ namespace TLMG.Views
         private const int FairPasswordScore = 3;
         private const int SuccessRedirectDelayMilliseconds = 2000;
 
+        private DispatcherTimer _redirectTimer;
+
         public NewPasswordScreen()
         {
             InitializeComponent();
+            Unloaded += OnScreenUnloaded;
+
+            _redirectTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(SuccessRedirectDelayMilliseconds)
+            };
+            _redirectTimer.Tick += OnRedirectTimerTick;
+        }
+
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        {
+            _redirectTimer?.Stop();
         }
 
         protected override void UpdateDynamicLabels()
@@ -86,7 +101,7 @@ namespace TLMG.Views
             return ValidationHelper.CalculatePasswordStrength(inputPasswordText);
         }
 
-        private async void BtnSetPassword_Click(object sender, RoutedEventArgs e)
+        private void BtnSetPassword_Click(object sender, RoutedEventArgs e)
         {
             string inputNewPassword = pwdNewPassword.Password;
             string inputConfirmPassword = pwdConfirmPassword.Password;
@@ -108,12 +123,16 @@ namespace TLMG.Views
                 lblFormMessage.Text = TryFindResource("NewPassword_SuccessMessage") as string;
                 lblFormMessage.Foreground = (Brush)FindResource("Brush_Accent");
                 lblFormMessage.Visibility = Visibility.Visible;
-
-                await Task.Delay(SuccessRedirectDelayMilliseconds);
-
-                MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-                applicationMainWindow.ShowScreen(new LoginScreen());
+                _redirectTimer.Start();
             }
+        }
+
+        private void OnRedirectTimerTick(object sender, EventArgs e)
+        {
+            _redirectTimer.Stop();
+
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new LoginScreen());
         }
 
         private void BtnBackToForgotPassword_Click(object sender, RoutedEventArgs e)

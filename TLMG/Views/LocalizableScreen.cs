@@ -1,8 +1,9 @@
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace TLMG.Views
 {
@@ -11,6 +12,8 @@ namespace TLMG.Views
     /// </summary>
     public abstract class LocalizableScreen : UserControl
     {
+        private readonly Dictionary<TextBlock, DispatcherTimer> _statusMessageTimers = new Dictionary<TextBlock, DispatcherTimer>();
+
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="LocalizableScreen"/>.
         /// </summary>
@@ -34,7 +37,7 @@ namespace TLMG.Views
         /// <param name="messageElement">Elemento de texto donde se desplegará el mensaje.</param>
         /// <param name="messageContent">Contenido textual del mensaje.</param>
         /// <param name="isErrorMessage">Indica si el mensaje representa un error o una confirmación exitosa.</param>
-        protected async void ShowStatusMessage(
+        protected void ShowStatusMessage(
             TextBlock messageElement,
             string messageContent,
             bool isErrorMessage = true)
@@ -45,12 +48,22 @@ namespace TLMG.Views
                 : (Brush)FindResource("Brush_Accent");
             messageElement.Visibility = Visibility.Visible;
 
-            await Task.Delay(ValidationHelper.StatusMessageDurationMilliseconds);
-
-            if (messageElement.Text == messageContent)
+            if (!_statusMessageTimers.TryGetValue(messageElement, out DispatcherTimer statusTimer))
             {
-                messageElement.Visibility = Visibility.Collapsed;
+                statusTimer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(ValidationHelper.StatusMessageDurationMilliseconds),
+                    Tag = messageElement
+                };
+                statusTimer.Tick += OnStatusMessageTimerTick;
+                _statusMessageTimers.Add(messageElement, statusTimer);
             }
+            else
+            {
+                statusTimer.Stop();
+            }
+
+            statusTimer.Start();
         }
 
         private void OnScreenLoaded(object sender, RoutedEventArgs e)
@@ -63,11 +76,25 @@ namespace TLMG.Views
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
             LanguageManager.LanguageChanged -= OnLanguageChanged;
+
+            foreach (DispatcherTimer statusTimer in _statusMessageTimers.Values)
+            {
+                statusTimer.Stop();
+            }
         }
 
         private void OnLanguageChanged(object sender, EventArgs e)
         {
             UpdateDynamicLabels();
+        }
+
+        private void OnStatusMessageTimerTick(object sender, EventArgs e)
+        {
+            DispatcherTimer statusTimer = (DispatcherTimer)sender;
+            statusTimer.Stop();
+
+            TextBlock messageElement = (TextBlock)statusTimer.Tag;
+            messageElement.Visibility = Visibility.Collapsed;
         }
     }
 }
