@@ -6,12 +6,12 @@ namespace TLMG
     /// <summary>
     /// Provee métodos centralizados para validación de datos de entrada y cálculo de contraseñas.
     /// </summary>
-    public static class ValidationHelper
+    internal static class ValidationHelper
     {
 
         public const int MinNicknameLengthCharacters = 3;
         public const int MaxNicknameLengthCharacters = 12;
-        public const int MinPasswordLengthCharacters = 12;
+        private const int MinPasswordLengthCharacters = 12;
         public const int RequiredPasswordStrengthScore = 5;
         public const int StatusMessageDurationMilliseconds = 4000;
         private static readonly string[] _unavailableNicknames = { "admin", "whiskers" };
@@ -25,11 +25,6 @@ namespace TLMG
             "gmail.com",
             "uv.mx"
         };
-
-        /// <summary>
-        /// Obtiene la lista de dominios de correo electrónico permitidos por el sistema.
-        /// </summary>
-        public static string[] PermittedEmailDomains => _permittedEmailDomains;
 
         /// <summary>
         /// Calcula la fuerza de una contraseña en una escala de 0 a 5 según los criterios de seguridad definidos.

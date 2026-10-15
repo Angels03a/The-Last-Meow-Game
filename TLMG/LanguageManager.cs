@@ -10,9 +10,9 @@ namespace TLMG
     /// <summary>
     /// Gestiona la cultura, localización y actualización dinámica de diccionarios de recursos de idioma.
     /// </summary>
-    public static class LanguageManager
+    internal static class LanguageManager
     {
-        public const string DefaultCultureCode = "es-MX";
+        private const string DefaultCultureCode = "es-MX";
         public const string EnglishCultureCode = "en-US";
         private const string EnglishCulturePrefix = "en";
         private const int NotFoundIndex = -1;

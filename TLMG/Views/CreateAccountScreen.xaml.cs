@@ -171,30 +171,7 @@ namespace TLMG.Views
                     }
                     else
                     {
-                        var newUserAccount = new User
-                        {
-                            email = formDataForRegistration.Email,
-                            nickname = formDataForRegistration.Nickname,
-                            // FIXME: Integrar algoritmo de hashing antes de insertar en BD.
-                            password_hash = formDataForRegistration.Password,
-                            state = DefaultUserState,
-                            profile_image = DefaultProfileImage,
-                            last_time = DateTime.Now
-                        };
-
-                        database.User.Add(newUserAccount);
-                        database.SaveChanges();
-
-                        var newPlayerProfile = new Player
-                        {
-                            id_user = newUserAccount.id_user,
-                            total_points = DefaultInitialPoints,
-                            total_wins = DefaultInitialWins,
-                            total_games_played = DefaultInitialGamesPlayed
-                        };
-
-                        database.Player.Add(newPlayerProfile);
-                        database.SaveChanges();
+                        InsertUserWithPlayerProfile(database, formDataForRegistration);
 
                         isSuccess = true;
                     }
@@ -217,6 +194,36 @@ namespace TLMG.Views
             }
 
             return isSuccess;
+        }
+
+        private void InsertUserWithPlayerProfile(
+            TLMG_DBEntities database,
+            RegistrationFormData formDataForRegistration)
+        {
+            var newUserAccount = new User
+            {
+                email = formDataForRegistration.Email,
+                nickname = formDataForRegistration.Nickname,
+                // FIXME: Integrar algoritmo de hashing antes de insertar en BD.
+                password_hash = formDataForRegistration.Password,
+                state = DefaultUserState,
+                profile_image = DefaultProfileImage,
+                last_time = DateTime.Now
+            };
+
+            database.User.Add(newUserAccount);
+            database.SaveChanges();
+
+            var newPlayerProfile = new Player
+            {
+                id_user = newUserAccount.id_user,
+                total_points = DefaultInitialPoints,
+                total_wins = DefaultInitialWins,
+                total_games_played = DefaultInitialGamesPlayed
+            };
+
+            database.Player.Add(newPlayerProfile);
+            database.SaveChanges();
         }
 
         private void NavigateToVerificationScreen()

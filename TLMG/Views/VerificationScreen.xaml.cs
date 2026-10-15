@@ -13,9 +13,9 @@ namespace TLMG.Views
     /// </summary>
     public partial class VerificationScreen : LocalizableScreen
     {
-        public const int MaximumVerificationAttempts = 3;
-        public const int VerificationCodeExpirySeconds = 300;
-        public const int CodeResendCooldownSeconds = 60;
+        private const int MaximumVerificationAttempts = 3;
+        private const int VerificationCodeExpirySeconds = 300;
+        private const int CodeResendCooldownSeconds = 60;
         private const string SimulatedVerificationCode = "123456";
         private const int CountdownTimerIntervalSeconds = 1;
         private const int EmptyTextLength = 0;
