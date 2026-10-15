@@ -5,6 +5,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Windows;
 
+using log4net;
+
 using TLMG.DatabaseModel;
 
 namespace TLMG.Views
@@ -23,6 +25,8 @@ namespace TLMG.Views
         private const int DefaultInitialPoints = 0;
         private const int DefaultInitialWins = 0;
         private const int DefaultInitialGamesPlayed = 0;
+
+        private static readonly ILog _log = LogManager.GetLogger(typeof(CreateAccountScreen));
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="CreateAccountScreen"/>.
@@ -196,17 +200,20 @@ namespace TLMG.Views
                     }
                 }
             }
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
                 ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_DuplicateDataError") as string, true);
+                _log.Error("Fallo al guardar el registro en la base de datos.", ex);
             }
-            catch (SqlException)
+            catch (SqlException ex)
             {
                 ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_NetworkError") as string, true);
+                _log.Error("Fallo en la conexión con la base de datos.", ex);
             }
-            catch (EntityException)
+            catch (EntityException ex)
             {
                 ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_DataModelError") as string, true);
+                _log.Error("Fallo al interactuar con el modelo de datos de la base de datos.", ex);
             }
 
             return isSuccess;

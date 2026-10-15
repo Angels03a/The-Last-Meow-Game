@@ -8,6 +8,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
+using log4net;
+
 using TLMG.DatabaseModel;
 using TLMG.Models;
 
@@ -38,6 +40,8 @@ namespace TLMG.Views
         // FIXME: Estos valores deben venir del jugador actualmente logueado en la sesión.
         private const int CurrentUserStandingRank = 38;
         private const int CurrentUserStandingPoints = 1840;
+
+        private static readonly ILog _log = LogManager.GetLogger(typeof(LeaderboardScreen));
 
         private PlayerRankEntry _firstPlacePlayer;
         private PlayerRankEntry _secondPlacePlayer;
@@ -103,22 +107,24 @@ namespace TLMG.Views
                     AssignRankedList(rankEntries);
                 }
             }
-            catch (SqlException)
+            catch (SqlException ex)
             {
                 MessageBox.Show(
                     TryFindResource("Leaderboard_ConnectionErrorMessage") as string,
                     TryFindResource("Leaderboard_ErrorTitle") as string,
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+                _log.Error("Fallo en la conexión de la base de datos al cargar el leaderboard.", ex);
                 LoadEmptyLeaderboard();
             }
-            catch (EntityException)
+            catch (EntityException ex)
             {
                 MessageBox.Show(
                     TryFindResource("Leaderboard_DataModelErrorMessage") as string,
                     TryFindResource("Leaderboard_ErrorTitle") as string,
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+                _log.Error("Fallo al interactuar con el modelo de datos al cargar el leaderboard.", ex);
                 LoadEmptyLeaderboard();
             }
         }
@@ -195,16 +201,22 @@ namespace TLMG.Views
             {
                 // FIXME: Cambiar imagen a una por defecto si no se puede cargar la imagen del jugador.
                 // HACK: De momento se queda el gato de Stella por defecto.
-                System.Diagnostics.Debug.WriteLine(
-                    $"Error de I/O al cargar avatar para {player.PlayerName}. " +
-                    $"Ruta: {player.AvatarImagePath}. Detalle: {ex.Message}");
+                _log.Warn(
+                    string.Format(
+                        "Error de E/S al cargar avatar para {0}. Ruta: {1}.",
+                        player.PlayerName,
+                        player.AvatarImagePath),
+                    ex);
                 views.AvatarImage.Source = new BitmapImage(new Uri(DefaultProfileImage, UriKind.RelativeOrAbsolute));
             }
             catch (UriFormatException ex)
             {
-                System.Diagnostics.Debug.WriteLine(
-                    $"Formato de ruta inválido en BD para {player.PlayerName}. " +
-                    $"Ruta: {player.AvatarImagePath}. Detalle: {ex.Message}");
+                _log.Warn(
+                    string.Format(
+                        "Formato de ruta inválido en base de datos para {0}. Ruta: {1}.",
+                        player.PlayerName,
+                        player.AvatarImagePath),
+                    ex);
                 views.AvatarImage.Source = new BitmapImage(new Uri(DefaultProfileImage, UriKind.RelativeOrAbsolute));
             }
 
