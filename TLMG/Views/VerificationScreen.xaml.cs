@@ -40,6 +40,7 @@ namespace TLMG.Views
             Action onBackCallbackAction)
         {
             InitializeComponent();
+            Unloaded += OnScreenUnloaded;
             _onVerifiedCallbackAction = onVerifiedCallbackAction;
             _onBackCallbackAction = onBackCallbackAction;
             _verificationDigitTextBoxes = new[] { txtDigit1, txtDigit2, txtDigit3, txtDigit4, txtDigit5, txtDigit6 };
@@ -52,6 +53,11 @@ namespace TLMG.Views
             }
 
             StartCountdownTimer();
+        }
+
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        {
+            _countdownDispatcherTimer?.Stop();
         }
 
         private void DigitBox_TextChanged(object sender, TextChangedEventArgs e)

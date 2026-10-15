@@ -16,7 +16,7 @@ namespace TLMG.Views
         private const int LobbyStartCountdownSeconds = 3;
         private const string FormatReadyFraction = "{0}/{1}";
         private const int CountdownSecondsLimitForStart = 0; 
-        private const int OneSecondInterval = 1;
+        private const int CountdownTickIntervalSeconds = 1;
         private const int ToastDurationMilliseconds = 3000; 
 
         private bool _isLocalPlayerReady;
@@ -38,6 +38,7 @@ namespace TLMG.Views
         public LobbyScreen()
         {
             InitializeComponent();
+            Unloaded += OnScreenUnloaded;
 
             _isLocalPlayerReady = false;
             _isPlayer2Ready = true;
@@ -55,10 +56,16 @@ namespace TLMG.Views
             lblReadyFraction.Text = string.Format(FormatReadyFraction, _readyPlayersCount, TotalLobbyPlayersCount);
         }
 
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        {
+            _countdownTimer?.Stop();
+            _toastTimer?.Stop();
+        }
+
         private void InitializeTimers()
         {
             _countdownTimer = new DispatcherTimer();
-            _countdownTimer.Interval = TimeSpan.FromSeconds(OneSecondInterval);
+            _countdownTimer.Interval = TimeSpan.FromSeconds(CountdownTickIntervalSeconds);
             _countdownTimer.Tick += CountdownTimer_Tick;
 
             _toastTimer = new DispatcherTimer();
