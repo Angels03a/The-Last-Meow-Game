@@ -110,7 +110,7 @@
 
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="40,24,40,24">
                 <Grid>
-                    <StackPanel x:Name="grdFriendsContent" Visibility="Visible">
+                    <StackPanel x:Name="pnlFriendsContent" Visibility="Visible">
                         <Border Style="{StaticResource FriendCardBorderStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -279,7 +279,7 @@
                                Style="{StaticResource EmptyStateTextStyle}" 
                                Visibility="Collapsed" />
 
-                    <StackPanel x:Name="grdPendingContent" Visibility="Collapsed">
+                    <StackPanel x:Name="pnlPendingContent" Visibility="Collapsed">
                         <Border Style="{StaticResource FriendCardBorderStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -342,7 +342,7 @@
                                Style="{StaticResource EmptyStateTextStyle}" 
                                Visibility="Collapsed" />
 
-                    <StackPanel x:Name="grdBlockedContent" Visibility="Collapsed">
+                    <StackPanel x:Name="pnlBlockedContent" Visibility="Collapsed">
                         <Border Style="{StaticResource FriendCardBorderStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>

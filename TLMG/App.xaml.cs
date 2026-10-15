@@ -4,8 +4,14 @@ using System.Windows;
 
 namespace TLMG
 {
+    /// <summary>
+    /// Punto de entrada y lógica de inicialización general de la aplicación.
+    /// </summary>
     public partial class App : Application
     {
+        /// <summary>
+        /// Inicializa una nueva instancia de la aplicación y configura el idioma inicial.
+        /// </summary>
         public App()
         {
             LanguageManager.InitializeLanguage();

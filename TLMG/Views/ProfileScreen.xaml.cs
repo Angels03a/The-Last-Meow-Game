@@ -3,6 +3,9 @@ using System.Windows.Controls;
 
 namespace TLMG.Views
 {
+    /// <summary>
+    /// Pantalla de perfil de usuario para visualización de estadísticas y edición de avatar o nickname.
+    /// </summary>
     public partial class ProfileScreen : LocalizableScreen
     {
         private const int DaysSincePasswordChange = 45;
@@ -10,6 +13,9 @@ namespace TLMG.Views
         private bool _isEditingAvatar;
         private bool _isEditingNickname;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="ProfileScreen"/>.
+        /// </summary>
         public ProfileScreen()
         {
             InitializeComponent();
@@ -17,6 +23,7 @@ namespace TLMG.Views
             _isEditingNickname = false;
         }
 
+        /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
             string lastPasswordFormat = TryFindResource("Profile_LastPasswordChange") as string ?? "{0}";
@@ -75,12 +82,12 @@ namespace TLMG.Views
             if (isEditing)
             {
                 grdStats.Visibility = Visibility.Collapsed;
-                grdAvatarSelection.Visibility = Visibility.Visible;
+                pnlAvatarSelection.Visibility = Visibility.Visible;
             }
             else
             {
                 grdStats.Visibility = Visibility.Visible;
-                grdAvatarSelection.Visibility = Visibility.Collapsed;
+                pnlAvatarSelection.Visibility = Visibility.Collapsed;
             }
         }
 

@@ -4,6 +4,7 @@ using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Windows;
+
 using TLMG.DatabaseModel;
 
 namespace TLMG.Views
@@ -14,21 +15,18 @@ namespace TLMG.Views
     /// </summary>
     public partial class CreateAccountScreen : LocalizableScreen
     {
-        private const string DefaultUserState = "USER_ACTIVE"; // FIXME: Usar estado de usuario definido en la base de datos.
-        private const string DefaultProfileImage = "/img/default.png"; // FIXME: Usar imagen de perfil por defecto definida.
+        // FIXME: Usar estado de usuario definido en la base de datos.
+        private const string DefaultUserState = "USER_ACTIVE";
+
+        // FIXME: Usar imagen de perfil por defecto definida.
+        private const string DefaultProfileImage = "/img/default.png";
         private const int DefaultInitialPoints = 0;
         private const int DefaultInitialWins = 0;
         private const int DefaultInitialGamesPlayed = 0;
 
-        private class RegistrationFormData
-        {
-            public string Nickname { get; set; }
-            public string Email { get; set; }
-            public string Password { get; set; }
-            public string ConfirmPassword { get; set; }
-            public bool HasAcceptedTerms { get; set; }
-        }
-
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="CreateAccountScreen"/>.
+        /// </summary>
         public CreateAccountScreen()
         {
             InitializeComponent();
@@ -88,7 +86,10 @@ namespace TLMG.Views
 
             if (hasEmptyFields)
             {
-                ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_IncompleteFieldsError") as string, true);
+                ShowStatusMessage(
+                    lblFormMessage,
+                    TryFindResource("CreateAccount_IncompleteFieldsError") as string,
+                    true);
             }
 
             return hasEmptyFields;
@@ -112,14 +113,21 @@ namespace TLMG.Views
                 hasErrors = true;
             }
 
-            if (CalculatePasswordStrength(formDataForRegistration.Password) < ValidationHelper.RequiredPasswordStrengthScore)
+            if (CalculatePasswordStrength(formDataForRegistration.Password)
+                < ValidationHelper.RequiredPasswordStrengthScore)
             {
-                ShowStatusMessage(lblPasswordError, TryFindResource("CreateAccount_PasswordPolicyError") as string, true);
+                ShowStatusMessage(
+                    lblPasswordError,
+                    TryFindResource("CreateAccount_PasswordPolicyError") as string,
+                    true);
                 hasErrors = true;
             }
             else if (formDataForRegistration.Password != formDataForRegistration.ConfirmPassword)
             {
-                ShowStatusMessage(lblConfirmPasswordError, TryFindResource("CreateAccount_MismatchError") as string, true);
+                ShowStatusMessage(
+                    lblConfirmPasswordError,
+                    TryFindResource("CreateAccount_MismatchError") as string,
+                    true);
                 hasErrors = true;
             }
 
@@ -145,11 +153,17 @@ namespace TLMG.Views
 
                     if (emailIsTaken)
                     {
-                        ShowStatusMessage(lblEmailError, TryFindResource("CreateAccount_EmailTakenError") as string, true);
+                        ShowStatusMessage(
+                            lblEmailError,
+                            TryFindResource("CreateAccount_EmailTakenError") as string,
+                            true);
                     }
                     else if (nicknameIsTaken)
                     {
-                        ShowStatusMessage(lblNicknameError, TryFindResource("CreateAccount_NicknameTakenError") as string, true);
+                        ShowStatusMessage(
+                            lblNicknameError,
+                            TryFindResource("CreateAccount_NicknameTakenError") as string,
+                            true);
                     }
                     else
                     {
@@ -157,7 +171,8 @@ namespace TLMG.Views
                         {
                             email = formDataForRegistration.Email,
                             nickname = formDataForRegistration.Nickname,
-                            password_hash = formDataForRegistration.Password, // FIXME: Integrar algoritmo de hashing antes de insertar en BD.
+                            // FIXME: Integrar algoritmo de hashing antes de insertar en BD.
+                            password_hash = formDataForRegistration.Password,
                             state = DefaultUserState,
                             profile_image = DefaultProfileImage,
                             last_time = DateTime.Now
@@ -237,6 +252,34 @@ namespace TLMG.Views
             {
                 ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
             }
+        }
+
+        private class RegistrationFormData
+        {
+            /// <summary>
+            /// Obtiene o establece el apodo o nombre del usuario.
+            /// </summary>
+            public string Nickname { get; set; }
+
+            /// <summary>
+            /// Obtiene o establece el correo electrónico del usuario.
+            /// </summary>
+            public string Email { get; set; }
+
+            /// <summary>
+            /// Obtiene o establece la contraseña en texto plano ingresada.
+            /// </summary>
+            public string Password { get; set; }
+
+            /// <summary>
+            /// Obtiene o establece la confirmación de la contraseña.
+            /// </summary>
+            public string ConfirmPassword { get; set; }
+
+            /// <summary>
+            /// Obtiene o establece un valor que indica si el usuario aceptó los términos.
+            /// </summary>
+            public bool HasAcceptedTerms { get; set; }
         }
     }
 }

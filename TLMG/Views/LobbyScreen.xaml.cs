@@ -7,12 +7,17 @@ using System.Windows.Threading;
 
 namespace TLMG.Views
 {
+    /// <summary>
+    /// Pantalla de sala previa a la partida (lobby) para coordinar jugadores y cuenta regresiva.
+    /// </summary>
     public partial class LobbyScreen : LocalizableScreen
     {        
         private const int TotalLobbyPlayersCount = 3;
-        private const int CountdownSecondsLimit = 3;
+        private const int LobbyStartCountdownSeconds = 3;
         private const string FormatReadyFraction = "{0}/{1}";
         private const int CountdownSecondsLimitForStart = 0; 
+        private const int OneSecondInterval = 1;
+        private const int ToastDurationMilliseconds = 3000; 
 
         private bool _isLocalPlayerReady;
         private bool _isPlayer2Ready;
@@ -27,6 +32,9 @@ namespace TLMG.Views
         private DispatcherTimer _countdownTimer;
         private DispatcherTimer _toastTimer;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="LobbyScreen"/>.
+        /// </summary>
         public LobbyScreen()
         {
             InitializeComponent();
@@ -41,6 +49,7 @@ namespace TLMG.Views
             UpdateReadyCountAndUI();
         }
 
+        /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
             lblReadyFraction.Text = string.Format(FormatReadyFraction, _readyPlayersCount, TotalLobbyPlayersCount);
@@ -48,9 +57,6 @@ namespace TLMG.Views
 
         private void InitializeTimers()
         {
-            const int OneSecondInterval = 1;
-            const int ToastDurationMilliseconds = 3000;
-
             _countdownTimer = new DispatcherTimer();
             _countdownTimer.Interval = TimeSpan.FromSeconds(OneSecondInterval);
             _countdownTimer.Tick += CountdownTimer_Tick;
@@ -213,7 +219,7 @@ namespace TLMG.Views
         private void StartCountdown()
         {
             _isCountdownActive = true;
-            _currentCountdownSeconds = CountdownSecondsLimit;
+            _currentCountdownSeconds = LobbyStartCountdownSeconds;
             lblCountdownTimer.Text = _currentCountdownSeconds.ToString();
 
             grdMainCenter.IsEnabled = false;
@@ -228,15 +234,17 @@ namespace TLMG.Views
         {
             _currentCountdownSeconds--;
 
-            if (_currentCountdownSeconds > CountdownSecondsLimitForStart) // FIXME: Verificar si es variable local o si es constante, ya que solo se usa aquí.
+            // FIXME: Verificar si es variable local o si es constante, ya que solo se usa aquí.
+            if (_currentCountdownSeconds > CountdownSecondsLimitForStart)
             {
                 lblCountdownTimer.Text = _currentCountdownSeconds.ToString();
             }
             else
             {
                 _countdownTimer.Stop();
-                // TODO: Navegar a GameplayScreen cuando se termine el tiempo
-                MessageBox.Show(TryFindResource("Lobby_StartGameMessage") as string);            }
+                // TODO: Navegar a GameplayScreen cuando se termine el tiempo.
+                MessageBox.Show(TryFindResource("Lobby_StartGameMessage") as string);
+            }
         }
 
         private void BtnCancelCountdown_Click(object sender, RoutedEventArgs e)

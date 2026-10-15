@@ -11,15 +11,29 @@ namespace TLMG.Views
     /// </summary>
     public abstract class LocalizableScreen : UserControl
     {
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="LocalizableScreen"/>.
+        /// </summary>
         protected LocalizableScreen()
         {
             Loaded += OnScreenLoaded;
             Unloaded += OnScreenUnloaded;
         }
+
+        /// <summary>
+        /// Permite a las pantallas derivadas actualizar textos dinámicos al cargarse
+        /// la vista o al cambiar el idioma de la aplicación.
+        /// </summary>
         protected virtual void UpdateDynamicLabels()
         {
         }
 
+        /// <summary>
+        /// Muestra un mensaje temporal de estado en la interfaz de usuario.
+        /// </summary>
+        /// <param name="messageElement">Elemento de texto donde se desplegará el mensaje.</param>
+        /// <param name="messageContent">Contenido textual del mensaje.</param>
+        /// <param name="isErrorMessage">Indica si el mensaje representa un error o una confirmación exitosa.</param>
         protected async void ShowStatusMessage(
             TextBlock messageElement,
             string messageContent,

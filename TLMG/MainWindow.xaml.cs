@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+
 using TLMG.Views;
 
 namespace TLMG
@@ -19,6 +20,14 @@ namespace TLMG
             ShowScreen(loadingScreen, false);
         }
 
+        /// <summary>
+        /// Muestra una nueva pantalla en el contenedor principal de la ventana, permitiendo
+        /// registrarla en el historial de navegación.
+        /// </summary>
+        /// <param name="newScreen">Instancia del control de usuario que representa la pantalla a mostrar.</param>
+        /// <param name="saveInHistory">
+        /// Indica si la pantalla actual debe guardarse en la pila de historial para permitir retroceder.
+        /// </param>
         public void ShowScreen(UserControl newScreen, bool saveInHistory = true)
         {
             if (saveInHistory && _currentScreen != null)
@@ -31,6 +40,10 @@ namespace TLMG
             grdMainContainer.Children.Add(_currentScreen);
         }
 
+        /// <summary>
+        /// Navega a la pantalla anterior registrada en el historial o muestra el menú principal
+        /// si el historial está vacío.
+        /// </summary>
         public void GoBack()
         {
             if (_navigationHistory.Count > 0)
@@ -44,6 +57,10 @@ namespace TLMG
                 ShowScreen(new MainMenuScreen(), false);
             }
         }
+
+        /// <summary>
+        /// Limpia todo el historial de pantallas navegadas.
+        /// </summary>
         public void ClearHistory()
         {
             _navigationHistory.Clear();

@@ -22,10 +22,20 @@ namespace TLMG
             @"Languages[/\\]Strings\.[a-zA-Z]{2}-[a-zA-Z]{2}\.xaml",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public static string CurrentCulture { get; private set; } = DefaultCultureCode;
-
+        /// <summary>
+        /// Evento notificado cuando se produce un cambio en el idioma de la aplicación.
+        /// </summary>
         public static event EventHandler LanguageChanged;
 
+        /// <summary>
+        /// Obtiene el código de cultura actualmente activo en la aplicación.
+        /// </summary>
+        public static string CurrentCulture { get; private set; } = DefaultCultureCode;
+
+        /// <summary>
+        /// Inicializa el idioma de la aplicación según la cultura de interfaz del sistema
+        /// (inglés o español por defecto).
+        /// </summary>
         public static void InitializeLanguage()
         {
             string systemCulture = CultureInfo.CurrentUICulture.Name;
@@ -41,6 +51,11 @@ namespace TLMG
             UpdateResourceDictionary(normalizedCulture);
         }
 
+        /// <summary>
+        /// Cambia el idioma activo de la aplicación aplicando la nueva cultura
+        /// y actualizando los diccionarios de recursos.
+        /// </summary>
+        /// <param name="cultureCode">Código de cultura a aplicar (por ejemplo, "es-MX" o "en-US").</param>
         public static void ChangeLanguage(string cultureCode)
         {
             bool isCultureCodeProvided = !string.IsNullOrWhiteSpace(cultureCode);

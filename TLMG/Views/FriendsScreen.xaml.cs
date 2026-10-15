@@ -3,6 +3,9 @@ using System.Windows.Controls;
 
 namespace TLMG.Views
 {
+    /// <summary>
+    /// Pantalla para la gestión de amigos, solicitudes pendientes y usuarios bloqueados.
+    /// </summary>
     public partial class FriendsScreen : LocalizableScreen
     {
         private const int TabIndexFriends = 0;
@@ -18,25 +21,12 @@ namespace TLMG.Views
         private const string ActiveBadgeTextStyleKey = "BadgeTextActiveStyle";
         private const string InactiveBadgeTextStyleKey = "BadgeTextInactiveStyle";
 
-        private sealed class TabViews
-        {
-            public TabViews(UIElement content, Button tabButton, Border badgeBorder, TextBlock badgeLabel)
-            {
-                Content = content;
-                TabButton = tabButton;
-                BadgeBorder = badgeBorder;
-                BadgeLabel = badgeLabel;
-            }
-
-            public UIElement Content { get; }
-            public Button TabButton { get; }
-            public Border BadgeBorder { get; }
-            public TextBlock BadgeLabel { get; }
-        }
-
         private int _currentTabIndex;
         private TabViews[] _tabViews;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="FriendsScreen"/>.
+        /// </summary>
         public FriendsScreen()
         {
             InitializeComponent();
@@ -50,9 +40,9 @@ namespace TLMG.Views
         {
             _tabViews = new[]
             {
-                new TabViews(grdFriendsContent, btnTabFriends, brdBadgeFriends, lblBadgeFriends),
-                new TabViews(grdPendingContent, btnTabPending, brdBadgePending, lblBadgePending),
-                new TabViews(grdBlockedContent, btnTabBlocked, brdBadgeBlocked, lblBadgeBlocked)
+                new TabViews(pnlFriendsContent, btnTabFriends, brdBadgeFriends, lblBadgeFriends),
+                new TabViews(pnlPendingContent, btnTabPending, brdBadgePending, lblBadgePending),
+                new TabViews(pnlBlockedContent, btnTabBlocked, brdBadgeBlocked, lblBadgeBlocked)
             };
         }
 
@@ -105,6 +95,47 @@ namespace TLMG.Views
             }
 
             _currentTabIndex = targetTabIndex;
+        }
+
+        /// <summary>
+        /// Agrupa los elementos de la interfaz asociados a una pestaña de navegación.
+        /// </summary>
+        private sealed class TabViews
+        {
+            /// <summary>
+            /// Inicializa una nueva instancia de la clase <see cref="TabViews"/>.
+            /// </summary>
+            /// <param name="content">Elemento de interfaz que contiene la vista de la pestaña.</param>
+            /// <param name="tabButton">Botón del encabezado de la pestaña.</param>
+            /// <param name="badgeBorder">Borde contenedor del indicador numérico.</param>
+            /// <param name="badgeLabel">Etiqueta de texto con el contador numérico.</param>
+            public TabViews(UIElement content, Button tabButton, Border badgeBorder, TextBlock badgeLabel)
+            {
+                Content = content;
+                TabButton = tabButton;
+                BadgeBorder = badgeBorder;
+                BadgeLabel = badgeLabel;
+            }
+
+            /// <summary>
+            /// Obtiene el elemento de contenido asociado a la pestaña.
+            /// </summary>
+            public UIElement Content { get; }
+
+            /// <summary>
+            /// Obtiene el botón de navegación de la pestaña.
+            /// </summary>
+            public Button TabButton { get; }
+
+            /// <summary>
+            /// Obtiene el borde contenedor del indicador numérico de la pestaña.
+            /// </summary>
+            public Border BadgeBorder { get; }
+
+            /// <summary>
+            /// Obtiene la etiqueta de texto del contador numérico de la pestaña.
+            /// </summary>
+            public TextBlock BadgeLabel { get; }
         }
     }
 }

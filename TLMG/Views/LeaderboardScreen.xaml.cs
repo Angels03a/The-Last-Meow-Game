@@ -1,13 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data.SqlClient;
 using System.Data.Entity.Core;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using TLMG.Models;
+
 using TLMG.DatabaseModel;
+using TLMG.Models;
 
 namespace TLMG.Views
 {
@@ -26,6 +28,12 @@ namespace TLMG.Views
         private const int DefaultEmptyScore = 0;
         private const int DefaultEmptyWins = 0;
         private const int PodiumCapacity = 3;
+        private const int FirstPlaceIndex = 0;
+        private const int SecondPlaceIndex = 1;
+        private const int ThirdPlaceIndex = 2;
+        private const int FirstPlaceRank = 1;
+        private const int SecondPlaceRank = 2;
+        private const int ThirdPlaceRank = 3;
 
         // FIXME: Estos valores deben venir del jugador actualmente logueado en la sesión.
         private const int CurrentUserStandingRank = 38;
@@ -35,6 +43,9 @@ namespace TLMG.Views
         private PlayerRankEntry _secondPlacePlayer;
         private PlayerRankEntry _thirdPlacePlayer;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="LeaderboardScreen"/>.
+        /// </summary>
         public LeaderboardScreen()
         {
             InitializeComponent();
@@ -43,6 +54,7 @@ namespace TLMG.Views
             UpdateDynamicLabels();
         }
 
+        /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
             lblPodiumFirstPoints.Text = FormatPointsLabel(_firstPlacePlayer.Score);
@@ -61,7 +73,8 @@ namespace TLMG.Views
                 {
                     var rankedPlayersQuery = (from player in database.Player
                                               join user in database.User on player.id_user equals user.id_user
-                                              where user.state == "USER_ACTIVE" // FIXME: Filtrar por estado de usuario activo cuando se implemente.
+                                              // FIXME: Filtrar por estado de usuario activo cuando se implemente.
+                                              where user.state == "USER_ACTIVE"
                                               orderby player.total_points descending
                                               select new
                                               {
@@ -72,7 +85,7 @@ namespace TLMG.Views
                                                   player.total_games_played
                                               }).ToList();
 
-                    var rankEntries = rankedPlayersQuery.Select((data, index) => new PlayerRankEntry
+                    List<PlayerRankEntry> rankEntries = rankedPlayersQuery.Select((data, index) => new PlayerRankEntry
                     {
                         Rank = index + RankIndexOffset,
                         AvatarImagePath = string.IsNullOrWhiteSpace(data.profile_image)
@@ -119,13 +132,6 @@ namespace TLMG.Views
 
         private void AssignPodiumPlayers(System.Collections.Generic.List<PlayerRankEntry> allPlayers)
         {
-            const int FirstPlaceIndex = 0;
-            const int SecondPlaceIndex = 1;
-            const int ThirdPlaceIndex = 2;
-            const int FirstPlaceRank = 1;
-            const int SecondPlaceRank = 2;
-            const int ThirdPlaceRank = 3;
-
             _firstPlacePlayer = allPlayers.ElementAtOrDefault(FirstPlaceIndex) ?? CreateEmptyEntry(FirstPlaceRank);
             _secondPlacePlayer = allPlayers.ElementAtOrDefault(SecondPlaceIndex) ?? CreateEmptyEntry(SecondPlaceRank);
             _thirdPlacePlayer = allPlayers.ElementAtOrDefault(ThirdPlaceIndex) ?? CreateEmptyEntry(ThirdPlaceRank);
@@ -143,16 +149,12 @@ namespace TLMG.Views
 
         private void AssignRankedList(System.Collections.Generic.List<PlayerRankEntry> allPlayers)
         {
-            var remainingPlayers = allPlayers.Skip(PodiumCapacity).ToList();
+            List<PlayerRankEntry> remainingPlayers = allPlayers.Skip(PodiumCapacity).ToList();
             lstRankedPlayers.ItemsSource = new ObservableCollection<PlayerRankEntry>(remainingPlayers);
         }
 
         private void LoadEmptyLeaderboard()
         {
-            const int FirstPlaceRank = 1;
-            const int SecondPlaceRank = 2;
-            const int ThirdPlaceRank = 3;
-
             _firstPlacePlayer = CreateEmptyEntry(FirstPlaceRank);
             _secondPlacePlayer = CreateEmptyEntry(SecondPlaceRank);
             _thirdPlacePlayer = CreateEmptyEntry(ThirdPlaceRank);
@@ -191,9 +193,9 @@ namespace TLMG.Views
             }
             catch (System.IO.IOException ex)
             {
+                // FIXME: Cambiar imagen a una por defecto si no se puede cargar la imagen del jugador.
+                // HACK: De momento se queda el gato de Stella por defecto.
                 System.Diagnostics.Debug.WriteLine(
-                    // FIXME: Cambiar imagen a una por defecto si no se puede cargar la imagen del jugador. 
-                    // INFO: De momento se queda el gato de Stella por defecto.
                     $"Error de I/O al cargar avatar para {player.PlayerName}. " +
                     $"Ruta: {player.AvatarImagePath}. Detalle: {ex.Message}");
                 views.AvatarImage.Source = new BitmapImage(new Uri(DefaultProfileImage, UriKind.RelativeOrAbsolute));
@@ -227,8 +229,17 @@ namespace TLMG.Views
             LoadLeaderboardData();
         }
 
+        /// <summary>
+        /// Agrupa las referencias de los controles de interfaz para una posición del podio.
+        /// </summary>
         private sealed class PodiumSlotViews
         {
+            /// <summary>
+            /// Inicializa una nueva instancia de la clase <see cref="PodiumSlotViews"/>.
+            /// </summary>
+            /// <param name="avatarImage">Control de imagen del avatar del jugador.</param>
+            /// <param name="nameLabel">Etiqueta de texto con el nombre del jugador.</param>
+            /// <param name="pointsLabel">Etiqueta de texto con los puntos del jugador.</param>
             public PodiumSlotViews(Image avatarImage, TextBlock nameLabel, TextBlock pointsLabel)
             {
                 AvatarImage = avatarImage;
@@ -236,8 +247,19 @@ namespace TLMG.Views
                 PointsLabel = pointsLabel;
             }
 
+            /// <summary>
+            /// Obtiene el control de imagen asignado al avatar.
+            /// </summary>
             public Image AvatarImage { get; }
+
+            /// <summary>
+            /// Obtiene la etiqueta de texto asignada al nombre.
+            /// </summary>
             public TextBlock NameLabel { get; }
+
+            /// <summary>
+            /// Obtiene la etiqueta de texto asignada a los puntos.
+            /// </summary>
             public TextBlock PointsLabel { get; }
         }
     }

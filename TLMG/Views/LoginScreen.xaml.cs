@@ -1,10 +1,12 @@
-using log4net;
 using System;
 using System.Data.Entity.Core;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+
+using log4net;
+
 using TLMG.DatabaseModel;
 
 namespace TLMG.Views
@@ -15,9 +17,12 @@ namespace TLMG.Views
     /// </summary>
     public partial class LoginScreen : LocalizableScreen
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof(LoginScreen));
         private const int ScreenTransitionDelayMilliseconds = 1000;
+        private static readonly ILog _log = LogManager.GetLogger(typeof(LoginScreen));
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="LoginScreen"/>.
+        /// </summary>
         public LoginScreen()
         {
             InitializeComponent();
@@ -79,7 +84,7 @@ namespace TLMG.Views
             {
                 using (var database = new TLMG_DBEntities())
                 {
-                    var registeredUser = database.User.FirstOrDefault(user => user.email == email);
+                    User registeredUser = database.User.FirstOrDefault(user => user.email == email);
 
                     if (registeredUser == null || registeredUser.password_hash.Trim() != password.Trim())
                     {
