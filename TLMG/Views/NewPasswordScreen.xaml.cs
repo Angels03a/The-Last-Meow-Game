@@ -63,11 +63,19 @@ namespace TLMG.Views
             }
             else
             {
-                string indicatorBrushKey = passwordStrengthScore <= WeakPasswordThresholdScore
-                    ? "Brush_StrengthWeak"
-                    : passwordStrengthScore == FairPasswordScore
-                        ? "Brush_StrengthFair"
-                        : "Brush_StrengthStrong";
+                string indicatorBrushKey;
+                if (passwordStrengthScore <= WeakPasswordThresholdScore)
+                {
+                    indicatorBrushKey = "Brush_StrengthWeak";
+                }
+                else if (passwordStrengthScore == FairPasswordScore)
+                {
+                    indicatorBrushKey = "Brush_StrengthFair";
+                }
+                else
+                {
+                    indicatorBrushKey = "Brush_StrengthStrong";
+                }
 
                 Brush indicatorBrush = (Brush)FindResource(indicatorBrushKey);
 

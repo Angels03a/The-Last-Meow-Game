@@ -92,11 +92,7 @@ namespace TLMG.Views
                     List<PlayerRankEntry> rankEntries = rankedPlayersQuery.Select((data, index) => new PlayerRankEntry
                     {
                         Rank = index + RankIndexOffset,
-                        AvatarImagePath = string.IsNullOrWhiteSpace(data.profile_image)
-                             ? DefaultProfileImage
-                             : (data.profile_image.StartsWith("/")
-                                ? "pack://application:,,," + data.profile_image
-                                : data.profile_image),
+                        AvatarImagePath = ResolveAvatarImagePath(data.profile_image),
                         PlayerName = data.nickname,
                         Score = data.total_points,
                         Wins = data.total_wins,
@@ -229,6 +225,26 @@ namespace TLMG.Views
             const string DefaultPointsFormat = "{0} pts";
             string format = TryFindResource(PointsFormatResourceKey) as string ?? DefaultPointsFormat;
             return string.Format(format, points.ToString("N0"));
+        }
+
+        private string ResolveAvatarImagePath(string profileImage)
+        {
+            string resolvedPath;
+
+            if (string.IsNullOrWhiteSpace(profileImage))
+            {
+                resolvedPath = DefaultProfileImage;
+            }
+            else if (profileImage.StartsWith("/"))
+            {
+                resolvedPath = "pack://application:,,," + profileImage;
+            }
+            else
+            {
+                resolvedPath = profileImage;
+            }
+
+            return resolvedPath;
         }
 
         private void BtnBack_Click(object sender, RoutedEventArgs e)

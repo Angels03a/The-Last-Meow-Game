@@ -179,9 +179,20 @@ namespace TLMG.Views
         {
             int currentReadyCount = 0;
 
-            if (_isLocalPlayerReady) currentReadyCount++;
-            if (_isPlayer2Ready) currentReadyCount++;
-            if (_isPlayer3Ready) currentReadyCount++;
+            if (_isLocalPlayerReady)
+            {
+                currentReadyCount++;
+            }
+
+            if (_isPlayer2Ready)
+            {
+                currentReadyCount++;
+            }
+
+            if (_isPlayer3Ready)
+            {
+                currentReadyCount++;
+            }
 
             _readyPlayersCount = currentReadyCount;
             UpdateDynamicLabels();
