@@ -19,7 +19,6 @@ namespace TLMG.DataAccess.Repositories
         // FIXME: Implementar un sistema de gestión de imágenes de perfil.
         private const string DefaultProfileImage = "/img/default.png";
 
-        /// <inheritdoc />
         public bool ExistsByEmail(string email)
         {
             bool exists;
