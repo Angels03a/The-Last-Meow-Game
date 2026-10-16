@@ -60,7 +60,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Communication\AccountRegistrationServiceCallback.cs" />
-    <Compile Include="Communication\RegisterResultEventArgs.cs" />
+    <Compile Include="Communication\RegistrationResultEventArgs.cs" />
     <Compile Include="Connected Services\TLMGService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

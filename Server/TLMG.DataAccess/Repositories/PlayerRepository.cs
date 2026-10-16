@@ -19,6 +19,7 @@ namespace TLMG.DataAccess.Repositories
         // FIXME: Implementar un sistema de gestión de imágenes de perfil.
         private const string DefaultProfileImage = "/img/default.png";
 
+        /// <inheritdoc />
         public bool ExistsByEmail(string email)
         {
             bool exists;
@@ -31,6 +32,7 @@ namespace TLMG.DataAccess.Repositories
             return exists;
         }
 
+        /// <inheritdoc />
         public bool ExistsByNickname(string nickname)
         {
             bool exists;
@@ -43,6 +45,7 @@ namespace TLMG.DataAccess.Repositories
             return exists;
         }
 
+        /// <inheritdoc />
         public void CreatePlayer(string nickname, string email, string passwordHash)
         {
             using (TLMG_DBEntities context = new TLMG_DBEntities())

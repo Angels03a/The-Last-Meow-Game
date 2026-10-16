@@ -130,9 +130,14 @@ namespace TLMG.Client.Views
 
         private int CalculateWinRate(int wins, int gamesPlayed)
         {
-            return gamesPlayed == ZeroGamesPlayed
-                ? ZeroWinRate
-                : (int)Math.Round((double)wins / gamesPlayed * PercentageMultiplier);
+            int winRate = ZeroWinRate;
+
+            if (gamesPlayed != ZeroGamesPlayed)
+            {
+                winRate = (int)Math.Round((double)wins / gamesPlayed * PercentageMultiplier);
+            }
+
+            return winRate;
         }
 
         private void AssignPodiumPlayers(System.Collections.Generic.List<PlayerRankEntry> allPlayers)

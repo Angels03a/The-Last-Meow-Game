@@ -27,6 +27,9 @@ namespace TLMG.Client.Views
         private AccountRegistrationServiceClient _registrationClient;
         private AccountRegistrationServiceCallback _registrationCallback;
 
+        /// <summary>
+        /// Inicializa la pantalla y suscribe la limpieza del cliente WCF al descargarse.
+        /// </summary>
         public CreateAccountScreen()
         {
             InitializeComponent();
@@ -349,13 +352,15 @@ namespace TLMG.Client.Views
         private string ValidateNickname(string inputNicknameString)
         {
             string errorResourceKey = ValidationHelper.GetNicknameValidationErrorKey(inputNicknameString);
-            return errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
+            string errorMessage = errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
+            return errorMessage;
         }
 
         private string ValidateEmailFormat(string inputEmailAddress)
         {
             string validationErrorKey = ValidationHelper.GetEmailValidationErrorKey(inputEmailAddress, "CreateAccount");
-            return validationErrorKey != null ? TryFindResource(validationErrorKey) as string : null;
+            string errorMessage = validationErrorKey != null ? TryFindResource(validationErrorKey) as string : null;
+            return errorMessage;
         }
 
         private class RegistrationFormData

@@ -18,6 +18,10 @@ namespace TLMG.Server
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(Program));
 
+        /// <summary>
+        /// Configura el log, abre el ServiceHost y lo mantiene activo hasta que se presiona Enter.
+        /// </summary>
+        /// <param name="args">Argumentos de la línea de comandos; no se usan.</param>
         public static void Main(string[] args)
         {
             ConfigureLogging();

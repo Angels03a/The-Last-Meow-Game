@@ -1,10 +1,12 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Data.Entity.Core;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
 using System.Data.SqlClient;
 using System.Security.Cryptography;
+
+using log4net;
+
 using TLMG.Contracts.Dtos;
 using TLMG.DataAccess.Repositories;
 using TLMG.Services.Helpers;
@@ -139,7 +141,7 @@ namespace TLMG.Services.Managers
 
         private void SavePlayer(string nickname, string email, string password)
         {
-            // FIXME: Implementar hash
+            // FIXME: Implementar el hash de la contraseña; hoy se guarda en claro.
             _playerRepository.CreatePlayer(nickname, email, password);
         }
 

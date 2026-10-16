@@ -48,7 +48,8 @@ namespace TLMG.Client.Views
         private string ValidateEmail(string inputEmailAddress)
         {
             string errorResourceKey = ValidationHelper.GetEmailValidationErrorKey(inputEmailAddress, "ForgotPassword");
-            return errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
+            string errorMessage = errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
+            return errorMessage;
         }
 
         private bool ValidateAndDisplayEmailError(string inputEmailAddress)

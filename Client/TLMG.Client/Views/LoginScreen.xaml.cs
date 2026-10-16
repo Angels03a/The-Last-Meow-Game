@@ -135,7 +135,8 @@ namespace TLMG.Client.Views
         private string ValidateEmail(string emailAddress)
         {
             string errorResourceKey = ValidationHelper.GetEmailValidationErrorKey(emailAddress, "Login");
-            return errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
+            string errorMessage = errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
+            return errorMessage;
         }
 
         private void BtnShowPassword_Click(object sender, RoutedEventArgs e)
