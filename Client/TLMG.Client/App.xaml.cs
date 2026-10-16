@@ -2,7 +2,7 @@ using System.Windows;
 
 [assembly: log4net.Config.XmlConfigurator(ConfigFile = "log4net.config", Watch = true)]
 
-namespace TLMG
+namespace TLMG.Client
 {
     /// <summary>
     /// Punto de entrada y lógica de inicialización general de la aplicación.

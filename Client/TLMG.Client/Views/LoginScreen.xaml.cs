@@ -9,7 +9,7 @@ using log4net;
 
 using TLMG.DatabaseModel;
 
-namespace TLMG.Views
+namespace TLMG.Client.Views
 {
     /// <summary>
     /// Representa la pantalla de inicio de sesión de usuarios y acceso de invitados.

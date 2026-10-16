@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace TLMG.Views
+namespace TLMG.Client.Views
 {
     /// <summary>
     /// Pantalla base que gestiona la suscripción al cambio de idioma y el refresco de textos dinámicos.

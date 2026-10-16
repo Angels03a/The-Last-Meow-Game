@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace TLMG.Views
+namespace TLMG.Client.Views
 {
     /// <summary>
     /// Representa la pantalla del menú principal de navegación de la aplicación.

@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
-using TLMG.Views;
+using TLMG.Client.Views;
 
-namespace TLMG
+namespace TLMG.Client
 {
     /// <summary>
     /// Ventana principal que contiene las pantallas y administra la navegación entre ellas.

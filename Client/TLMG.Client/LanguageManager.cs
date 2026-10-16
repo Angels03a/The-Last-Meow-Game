@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 
-namespace TLMG
+namespace TLMG.Client
 {
     /// <summary>
     /// Gestiona la cultura, localización y actualización dinámica de diccionarios de recursos de idioma.
@@ -86,7 +86,8 @@ namespace TLMG
                 Collection<ResourceDictionary> mergedDictionaries = Application.Current.Resources.MergedDictionaries;
                 ResourceDictionary newDictionary = new ResourceDictionary
                 {
-                    Source = new Uri($"pack://application:,,,/TLMG;component/Languages/Strings.{cultureCode}.xaml")
+                    Source = new Uri(
+                        $"pack://application:,,,/TLMG.Client;component/Languages/Strings.{cultureCode}.xaml")
                 };
 
                 int targetIndex = NotFoundIndex;

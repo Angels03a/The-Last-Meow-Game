@@ -1,11 +1,12 @@
-﻿<Application x:Class="TLMG.App"
+﻿<Application x:Class="TLMG.Client.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/TLMG;component/Languages/Strings.es-MX.xaml" />
+                <ResourceDictionary
+                    Source="pack://application:,,,/TLMG.Client;component/Languages/Strings.es-MX.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

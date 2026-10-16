@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TLMG.Properties
+namespace TLMG.Client.Properties
 {
 
 

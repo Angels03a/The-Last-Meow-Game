@@ -5,7 +5,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Threading;
 
-namespace TLMG.Views
+namespace TLMG.Client.Views
 {
     /// <summary>
     /// Pantalla de sala previa a la partida (lobby) para coordinar jugadores y cuenta regresiva.

@@ -9,7 +9,7 @@ using log4net;
 
 using TLMG.DatabaseModel;
 
-namespace TLMG.Views
+namespace TLMG.Client.Views
 {
     /// <summary>
     /// Pantalla de registro de cuentas con validación de reglas para nickname, correo y contraseñas.

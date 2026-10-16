@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace TLMG
+namespace TLMG.Client
 {
     /// <summary>
     /// Provee métodos centralizados para validación de datos de entrada y cálculo de contraseñas.

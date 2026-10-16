@@ -1,6 +1,6 @@
 using System;
 
-namespace TLMG.Models
+namespace TLMG.Client.Models
 {
     /// <summary>
     /// Representa los datos de un jugador para mostrarse en el leaderboard.

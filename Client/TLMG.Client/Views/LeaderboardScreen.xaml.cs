@@ -11,9 +11,9 @@ using System.Windows.Media.Imaging;
 using log4net;
 
 using TLMG.DatabaseModel;
-using TLMG.Models;
+using TLMG.Client.Models;
 
-namespace TLMG.Views
+namespace TLMG.Client.Views
 {
     /// <summary>
     /// Pantalla que muestra el podio y la tabla de posiciones de los jugadores (leaderboard).
@@ -21,7 +21,7 @@ namespace TLMG.Views
     public partial class LeaderboardScreen : LocalizableScreen
     {
         private const string PointsFormatResourceKey = "Leaderboard_PointsFormat";
-        private const string DefaultProfileImage = "pack://application:,,,/TLMG;component/img/default.jpg";
+        private const string DefaultProfileImage = "pack://application:,,,/TLMG.Client;component/img/default.jpg";
         private const string DefaultPlayerName = "---";
         private const int RankIndexOffset = 1;
         private const int ZeroGamesPlayed = 0;

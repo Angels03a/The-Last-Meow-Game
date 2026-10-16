@@ -2,7 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace TLMG.Views
+namespace TLMG.Client.Views
 {
     /// <summary>
     /// Representa la pantalla de recuperación de contraseña olvidada mediante envío de código de verificación.
