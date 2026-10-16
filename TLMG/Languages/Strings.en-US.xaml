@@ -15,7 +15,6 @@
     <sys:String x:Key="Login_LogInButton">Log In</sys:String>
     <sys:String x:Key="Login_PlayAsGuestButton">Play as Guest</sys:String>
     <sys:String x:Key="Login_ShowPasswordHint">Show password</sys:String>
-    <sys:String x:Key="Login_EmailRequiredError">Please make sure all required fields are correctly filled in</sys:String>
     <sys:String x:Key="Login_EmailCharactersError">The email contains characters that are not allowed</sys:String>
     <sys:String x:Key="Login_EmailFormatError">The email must contain @ and a valid domain</sys:String>
     <sys:String x:Key="Login_EmailDomainError">This email domain is not allowed (use outlook.com, hotmail.com, live.com, gmail.com, or uv.mx)</sys:String>
@@ -32,9 +31,6 @@
     <sys:String x:Key="Verification_ExpiredCodeError">Code expired</sys:String>
     <sys:String x:Key="Verification_AttemptsExhaustedError">You have run out of allowed attempts. Please request a new code</sys:String>
     <sys:String x:Key="Verification_SuccessMessage">Code successfully verified</sys:String>
-    <sys:String x:Key="ForgotPassword_StepEmail">Enter Email</sys:String>
-    <sys:String x:Key="ForgotPassword_StepVerify">Verify Code</sys:String>
-    <sys:String x:Key="ForgotPassword_StepNewPassword">New Password</sys:String>
     <sys:String x:Key="ForgotPassword_Title">Forgot Your Password?</sys:String>
     <sys:String x:Key="ForgotPassword_Instructions">Enter your email and we'll send you a recovery code</sys:String>
     <sys:String x:Key="ForgotPassword_EmailLabel">Email Address</sys:String>
@@ -128,6 +124,12 @@
     <sys:String x:Key="Common_AstronautCatLabel">ASTRONAUT</sys:String>
     <sys:String x:Key="Common_VampyrCatLabel">VAMPYR</sys:String>
     <sys:String x:Key="Common_GreekCatLabel">GREEK</sys:String>
+    <sys:String x:Key="Common_StepEmail">Enter Email</sys:String>
+    <sys:String x:Key="Common_StepVerify">Verify Code</sys:String>
+    <sys:String x:Key="Common_StepNewPassword">New Password</sys:String>
+    <sys:String x:Key="Common_Wins">WINS</sys:String>
+    <sys:String x:Key="Common_Rank">RANK</sys:String>
+    <sys:String x:Key="Common_BackButton">← Back</sys:String>
     <sys:String x:Key="Options_ResetButton">Reset Options to Default</sys:String>
     <sys:String x:Key="CreateAccount_MismatchError">Passwords do not match</sys:String>
     <sys:String x:Key="MainMenu_Title">THE LAST MEOW</sys:String>
@@ -194,9 +196,7 @@
     <sys:String x:Key="NewPassword_IncompleteFieldsError">Please make sure all required fields are correctly filled in</sys:String>
     <sys:String x:Key="Profile_SidebarTitle">PROFILE</sys:String>
     <sys:String x:Key="Profile_MainTitle">MY PROFILE</sys:String>
-    <sys:String x:Key="Profile_Wins">WINS</sys:String>
     <sys:String x:Key="Profile_Rating">RATING</sys:String>
-    <sys:String x:Key="Profile_Rank">RANK</sys:String>
     <sys:String x:Key="Profile_WinRate">WIN RATE</sys:String>
     <sys:String x:Key="Profile_ChooseAvatar">CHOOSE AN AVATAR</sys:String>
     <sys:String x:Key="Profile_UploadAvatar">UPLOAD</sys:String>
@@ -208,7 +208,6 @@
     <sys:String x:Key="Profile_SecurityTitle">SECURITY</sys:String>
     <sys:String x:Key="Profile_LastPasswordChange">Last password change: {0} days ago</sys:String>
     <sys:String x:Key="Profile_ChangePasswordButton">🔒 Change Password</sys:String>
-    <sys:String x:Key="Profile_BackButton">← Back</sys:String>
     <sys:String x:Key="Friends_SidebarTitle">FRIENDS</sys:String>
     <sys:String x:Key="Friends_SearchPlaceholder">Add friend by nickname or friend code...</sys:String>
     <sys:String x:Key="Friends_AddFriendButton">Add Friend</sys:String>

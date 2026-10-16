@@ -6,6 +6,9 @@ using TLMG.Views;
 
 namespace TLMG
 {
+    /// <summary>
+    /// Ventana principal que contiene las pantallas y administra la navegación entre ellas.
+    /// </summary>
     public partial class MainWindow : Window
     {
         private readonly Stack<UserControl> _navigationHistory;

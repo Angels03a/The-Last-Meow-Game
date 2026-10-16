@@ -15,7 +15,6 @@
     <sys:String x:Key="Login_LogInButton">Iniciar Sesión</sys:String>
     <sys:String x:Key="Login_PlayAsGuestButton">Jugar como Invitado</sys:String>
     <sys:String x:Key="Login_ShowPasswordHint">Mostrar contraseña</sys:String>
-    <sys:String x:Key="Login_EmailRequiredError">Por favor, revise que todos los campos obligatorios estén llenos correctamente</sys:String>
     <sys:String x:Key="Login_EmailCharactersError">El correo contiene caracteres no permitidos</sys:String>
     <sys:String x:Key="Login_EmailFormatError">El correo debe contener @ y un dominio válido</sys:String>
     <sys:String x:Key="Login_EmailDomainError">El dominio del correo no está permitido (use outlook.com, hotmail.com, live.com, gmail.com o uv.mx)</sys:String>
@@ -32,9 +31,6 @@
     <sys:String x:Key="Verification_ExpiredCodeError">Código expirado</sys:String>
     <sys:String x:Key="Verification_AttemptsExhaustedError">Se ha agotado la cantidad de intentos permitidos. Por favor, solicite un nuevo código</sys:String>
     <sys:String x:Key="Verification_SuccessMessage">Código verificado correctamente</sys:String>
-    <sys:String x:Key="ForgotPassword_StepEmail">Ingresar Correo</sys:String>
-    <sys:String x:Key="ForgotPassword_StepVerify">Verificar Código</sys:String>
-    <sys:String x:Key="ForgotPassword_StepNewPassword">Nueva Contraseña</sys:String>
     <sys:String x:Key="ForgotPassword_Title">¿Olvidó su Contraseña?</sys:String>
     <sys:String x:Key="ForgotPassword_Instructions">Ingrese su correo y le enviaremos un código de recuperación</sys:String>
     <sys:String x:Key="ForgotPassword_EmailLabel">Correo Electrónico</sys:String>
@@ -128,6 +124,12 @@
     <sys:String x:Key="Common_AstronautCatLabel">ASTRONAUTA</sys:String>
     <sys:String x:Key="Common_VampyrCatLabel">VAMPIRO</sys:String>
     <sys:String x:Key="Common_GreekCatLabel">GRIEGO</sys:String>
+    <sys:String x:Key="Common_StepEmail">Ingresar Correo</sys:String>
+    <sys:String x:Key="Common_StepVerify">Verificar Código</sys:String>
+    <sys:String x:Key="Common_StepNewPassword">Nueva Contraseña</sys:String>
+    <sys:String x:Key="Common_Wins">VICTORIAS</sys:String>
+    <sys:String x:Key="Common_Rank">RANGO</sys:String>
+    <sys:String x:Key="Common_BackButton">← Regresar</sys:String>
     <sys:String x:Key="Options_ResetButton">Restablecer Opciones por Defecto</sys:String>
     <sys:String x:Key="CreateAccount_MismatchError">Las contraseñas no coinciden</sys:String>
     <sys:String x:Key="MainMenu_Title">EL ÚLTIMO MAULLIDO</sys:String>
@@ -194,9 +196,7 @@
     <sys:String x:Key="NewPassword_IncompleteFieldsError">Por favor, revise que todos los campos obligatorios estén llenos correctamente</sys:String>
     <sys:String x:Key="Profile_SidebarTitle">PERFIL</sys:String>
     <sys:String x:Key="Profile_MainTitle">MI PERFIL</sys:String>
-    <sys:String x:Key="Profile_Wins">VICTORIAS</sys:String>
     <sys:String x:Key="Profile_Rating">PUNTUACIÓN</sys:String>
-    <sys:String x:Key="Profile_Rank">RANGO</sys:String>
     <sys:String x:Key="Profile_WinRate">TASA DE VICTORIAS</sys:String>
     <sys:String x:Key="Profile_ChooseAvatar">ELIGE UN AVATAR</sys:String>
     <sys:String x:Key="Profile_UploadAvatar">SUBIR</sys:String>
@@ -208,7 +208,6 @@
     <sys:String x:Key="Profile_SecurityTitle">SEGURIDAD</sys:String>
     <sys:String x:Key="Profile_LastPasswordChange">Último cambio de contraseña: hace {0} días</sys:String>
     <sys:String x:Key="Profile_ChangePasswordButton">🔒 Cambiar Contraseña</sys:String>
-    <sys:String x:Key="Profile_BackButton">← Regresar</sys:String>
     <sys:String x:Key="Friends_SidebarTitle">AMIGOS</sys:String>
     <sys:String x:Key="Friends_SearchPlaceholder">Añadir amigo por nickname o código de amigo...</sys:String>
     <sys:String x:Key="Friends_AddFriendButton">Añadir Amigo</sys:String>

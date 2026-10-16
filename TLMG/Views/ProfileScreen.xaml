@@ -35,7 +35,7 @@
 
                 <Button Grid.Row="2" 
                         x:Name="btnBack"
-                        Content="{DynamicResource Profile_BackButton}"
+                        Content="{DynamicResource Common_BackButton}"
                         Style="{StaticResource SidebarBackButtonStyle}"
                         Click="BtnBack_Click" />
             </Grid>
@@ -96,7 +96,7 @@
                                                Text="142" 
                                                Style="{StaticResource ProfileStatValueStyle}" 
                                                Foreground="{StaticResource Brush_AccentLight}"/>
-                                    <TextBlock Text="{DynamicResource Profile_Wins}" 
+                                    <TextBlock Text="{DynamicResource Common_Wins}" 
                                                Style="{StaticResource StatCardLabelStyle}" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Margin="0,0,32,0">
@@ -112,7 +112,7 @@
                                                Text="#38" 
                                                Style="{StaticResource ProfileStatValueStyle}" 
                                                Foreground="{StaticResource Brush_Gold}"/>
-                                    <TextBlock Text="{DynamicResource Profile_Rank}" 
+                                    <TextBlock Text="{DynamicResource Common_Rank}" 
                                                Style="{StaticResource StatCardLabelStyle}" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="3">

@@ -35,7 +35,7 @@
 
                 <Button Grid.Row="2" 
                         x:Name="btnBack"
-                        Content="{DynamicResource Profile_BackButton}"
+                        Content="{DynamicResource Common_BackButton}"
                         Style="{StaticResource SidebarBackButtonStyle}"
                         Click="BtnBack_Click" />
             </Grid>

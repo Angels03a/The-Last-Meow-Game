@@ -35,6 +35,11 @@ namespace TLMG.Views
         private int _remainingSecondsUntilResend = CodeResendCooldownSeconds;
         private int _totalFailedAttempts = InitialFailedAttempts;
 
+        /// <summary>
+        /// Inicializa la pantalla de verificación con sus acciones de navegación.
+        /// </summary>
+        /// <param name="onVerifiedCallbackAction">Acción al verificar el código correctamente.</param>
+        /// <param name="onBackCallbackAction">Acción al regresar a la pantalla anterior.</param>
         public VerificationScreen(
             Action onVerifiedCallbackAction,
             Action onBackCallbackAction)

@@ -20,6 +20,9 @@ namespace TLMG.Views
             Loaded += LoadingScreen_Loaded;
         }
 
+        /// <summary>
+        /// Se produce cuando la animación de la barra de carga finaliza su recorrido completo.
+        /// </summary>
         public event EventHandler LoadingCompleted;
 
         private void LoadingScreen_Loaded(object sender, RoutedEventArgs e)
