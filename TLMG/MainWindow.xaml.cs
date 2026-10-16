@@ -14,6 +14,9 @@ namespace TLMG
         private readonly Stack<UserControl> _navigationHistory;
         private UserControl _currentScreen;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="MainWindow"/> y prepara la navegación inicial.
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();

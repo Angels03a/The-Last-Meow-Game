@@ -13,6 +13,9 @@ namespace TLMG.Views
 
         private DispatcherTimer _redirectTimer;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="ForgotPasswordScreen"/> y sus temporizadores.
+        /// </summary>
         public ForgotPasswordScreen()
         {
             InitializeComponent();

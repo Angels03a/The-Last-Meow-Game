@@ -17,6 +17,7 @@ namespace TLMG.Views
             InitializeComponent();
         }
 
+        /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
             string winStreakFormat = TryFindResource(WinStreakFormatResourceKey) as string ?? "{0}";

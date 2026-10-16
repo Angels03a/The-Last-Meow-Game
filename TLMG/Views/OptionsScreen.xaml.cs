@@ -16,6 +16,9 @@ namespace TLMG.Views
         private const string ActiveLanguageButtonStyleKey = "LanguageButtonActiveStyle";
         private const string InactiveLanguageButtonStyleKey = "LanguageButtonInactiveStyle";
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="OptionsScreen"/> con la configuración por defecto.
+        /// </summary>
         public OptionsScreen()
         {
             InitializeComponent();
@@ -23,6 +26,7 @@ namespace TLMG.Views
             InitializeLanguageButtons();
         }
 
+        /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
             UpdateVolumeLabel(lblMusicVol, sldMusic.Value);

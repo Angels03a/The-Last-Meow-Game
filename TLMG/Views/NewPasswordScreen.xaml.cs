@@ -17,6 +17,9 @@ namespace TLMG.Views
 
         private DispatcherTimer _redirectTimer;
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="NewPasswordScreen"/> y sus temporizadores.
+        /// </summary>
         public NewPasswordScreen()
         {
             InitializeComponent();
@@ -34,6 +37,7 @@ namespace TLMG.Views
             _redirectTimer?.Stop();
         }
 
+        /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
             UpdatePasswordStrengthDisplay();

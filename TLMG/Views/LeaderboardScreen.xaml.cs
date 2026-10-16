@@ -89,15 +89,18 @@ namespace TLMG.Views
                                                   player.total_games_played
                                               }).ToList();
 
-                    List<PlayerRankEntry> rankEntries = rankedPlayersQuery.Select((playerRecord, index) => new PlayerRankEntry
-                    {
-                        Rank = index + RankIndexOffset,
-                        AvatarImagePath = ResolveAvatarImagePath(playerRecord.profile_image),
-                        PlayerName = playerRecord.nickname,
-                        Score = playerRecord.total_points,
-                        Wins = playerRecord.total_wins,
-                        WinRatePercentage = CalculateWinRate(playerRecord.total_wins, playerRecord.total_games_played)
-                    }).ToList();
+                    List<PlayerRankEntry> rankEntries =
+                        rankedPlayersQuery.Select((playerRecord, index) => new PlayerRankEntry
+                        {
+                            Rank = index + RankIndexOffset,
+                            AvatarImagePath = ResolveAvatarImagePath(playerRecord.profile_image),
+                            PlayerName = playerRecord.nickname,
+                            Score = playerRecord.total_points,
+                            Wins = playerRecord.total_wins,
+                            WinRatePercentage = CalculateWinRate(
+                                playerRecord.total_wins,
+                                playerRecord.total_games_played)
+                        }).ToList();
 
                     AssignPodiumPlayers(rankEntries);
                     AssignRankedList(rankEntries);

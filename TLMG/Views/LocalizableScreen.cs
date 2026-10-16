@@ -12,7 +12,8 @@ namespace TLMG.Views
     /// </summary>
     public abstract class LocalizableScreen : UserControl
     {
-        private readonly Dictionary<TextBlock, DispatcherTimer> _statusMessageTimers = new Dictionary<TextBlock, DispatcherTimer>();
+        private readonly Dictionary<TextBlock, DispatcherTimer> _statusMessageTimers =
+            new Dictionary<TextBlock, DispatcherTimer>();
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="LocalizableScreen"/>.

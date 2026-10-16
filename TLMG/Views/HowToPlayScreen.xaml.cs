@@ -88,10 +88,10 @@ namespace TLMG.Views
 
         private void UpdateStepVisibility()
         {
-            for (int i = 0; i < _steps.Length; i++)
+            for (int stepIndex = 0; stepIndex < _steps.Length; stepIndex++)
             {
-                StepData step = _steps[i];
-                bool isActive = (i + StepNumberOffset) == _currentStep;
+                StepData step = _steps[stepIndex];
+                bool isActive = (stepIndex + StepNumberOffset) == _currentStep;
 
                 step.ContentGrid.Visibility = isActive ? Visibility.Visible : Visibility.Collapsed;
                 step.SidebarButton.IsDefault = isActive;
@@ -138,11 +138,11 @@ namespace TLMG.Views
         {
             if (sender is Button clickedButton)
             {
-                for (int i = 0; i < _steps.Length; i++)
+                for (int stepIndex = 0; stepIndex < _steps.Length; stepIndex++)
                 {
-                    if (_steps[i].SidebarButton == clickedButton)
+                    if (_steps[stepIndex].SidebarButton == clickedButton)
                     {
-                        _currentStep = i + StepNumberOffset;
+                        _currentStep = stepIndex + StepNumberOffset;
                         break;
                     }
                 }
