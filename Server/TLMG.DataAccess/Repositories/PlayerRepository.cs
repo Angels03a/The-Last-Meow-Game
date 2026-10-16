@@ -1,0 +1,80 @@
+﻿using System;
+using System.Data.Entity;
+using System.Linq;
+
+using TLMG.DataAccess.DatabaseModel;
+
+namespace TLMG.DataAccess.Repositories
+{
+    /// <summary>
+    /// Implementación del acceso a cuentas con Entity Framework 6.
+    /// </summary>
+    public class PlayerRepository : IPlayerRepository
+    {
+        private const int InitialCount = 0;
+
+        // FIXME: Implementar un enum para los estados de usuario.
+        private const string DefaultUserState = "USER_ACTIVE";
+
+        // FIXME: Implementar un sistema de gestión de imágenes de perfil.
+        private const string DefaultProfileImage = "/img/default.png";
+
+        /// <inheritdoc />
+        public bool ExistsByEmail(string email)
+        {
+            bool exists;
+
+            using (TLMG_DBEntities context = new TLMG_DBEntities())
+            {
+                exists = context.User.Any(user => user.email == email);
+            }
+
+            return exists;
+        }
+
+        public bool ExistsByNickname(string nickname)
+        {
+            bool exists;
+
+            using (TLMG_DBEntities context = new TLMG_DBEntities())
+            {
+                exists = context.User.Any(user => user.nickname == nickname);
+            }
+
+            return exists;
+        }
+
+        public void CreatePlayer(string nickname, string email, string passwordHash)
+        {
+            using (TLMG_DBEntities context = new TLMG_DBEntities())
+            using (DbContextTransaction transaction = context.Database.BeginTransaction())
+            {
+                User newUser = new User
+                {
+                    email = email,
+                    nickname = nickname,
+                    password_hash = passwordHash,
+                    state = DefaultUserState,
+                    profile_image = DefaultProfileImage,
+                    last_time = DateTime.Now
+                };
+
+                context.User.Add(newUser);
+                context.SaveChanges();
+
+                Player newPlayer = new Player
+                {
+                    id_user = newUser.id_user,
+                    total_points = InitialCount,
+                    total_wins = InitialCount,
+                    total_games_played = InitialCount
+                };
+
+                context.Player.Add(newPlayer);
+                context.SaveChanges();
+
+                transaction.Commit();
+            }
+        }
+    }
+}
