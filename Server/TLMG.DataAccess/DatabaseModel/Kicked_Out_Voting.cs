@@ -7,19 +7,19 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TLMG.DatabaseModel
+namespace TLMG.DataAccess.DatabaseModel
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class Block_List
+    public partial class Kicked_Out_Voting
     {
-        public int id_block { get; set; }
-        public int id_user_blocker { get; set; }
-        public int id_user_blocked { get; set; }
-        public System.DateTime block_date { get; set; }
+        public int id_vote { get; set; }
+        public int id_game_player_sender { get; set; }
+        public int id_game_player_receiver { get; set; }
+        public System.DateTime vote_date { get; set; }
     
-        public virtual User User { get; set; }
-        public virtual User User1 { get; set; }
+        public virtual Game_Player Game_Player { get; set; }
+        public virtual Game_Player Game_Player1 { get; set; }
     }
 }

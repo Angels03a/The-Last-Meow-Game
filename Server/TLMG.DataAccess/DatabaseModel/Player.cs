@@ -7,27 +7,27 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TLMG.DatabaseModel
+namespace TLMG.DataAccess.DatabaseModel
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class Guest_Session
+    public partial class Player
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Guest_Session()
+        public Player()
         {
             this.Game_Player = new HashSet<Game_Player>();
         }
     
-        public int id_guest { get; set; }
-        public int guest_number { get; set; }
-        public string display_name { get; set; }
-        public string session_token { get; set; }
-        public System.DateTime created_at { get; set; }
-        public Nullable<System.DateTime> ended_at { get; set; }
+        public int id_player { get; set; }
+        public int id_user { get; set; }
+        public int total_points { get; set; }
+        public int total_wins { get; set; }
+        public int total_games_played { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Game_Player> Game_Player { get; set; }
+        public virtual User User { get; set; }
     }
 }

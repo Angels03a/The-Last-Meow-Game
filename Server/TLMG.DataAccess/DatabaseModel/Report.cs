@@ -7,19 +7,21 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TLMG.DatabaseModel
+namespace TLMG.DataAccess.DatabaseModel
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class Ban_Record
+    public partial class Report
     {
-        public int id_ban { get; set; }
-        public int id_user { get; set; }
-        public string type { get; set; }
-        public System.DateTime ban_start_date { get; set; }
-        public Nullable<System.DateTime> ban_ending_date { get; set; }
+        public int id_report { get; set; }
+        public int id_game_player_reporter { get; set; }
+        public int id_game_player_reported { get; set; }
+        public string reason { get; set; }
+        public string comment { get; set; }
+        public System.DateTime report_date { get; set; }
     
-        public virtual User User { get; set; }
+        public virtual Game_Player Game_Player { get; set; }
+        public virtual Game_Player Game_Player1 { get; set; }
     }
 }

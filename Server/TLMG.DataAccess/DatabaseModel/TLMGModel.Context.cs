@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TLMG.DatabaseModel
+namespace TLMG.DataAccess.DatabaseModel
 {
     using System;
     using System.Data.Entity;

@@ -1,0 +1,5 @@
+﻿<Solution>
+  <Project Path="TLMG.Contracts/TLMG.Contracts.csproj" Id="3afc38df-8345-4c35-bcfa-5dcef7aa3236" />
+  <Project Path="TLMG.DataAccess/TLMG.DataAccess.csproj" Id="e2bedb67-55e3-425a-b2d8-022be354c169" />
+  <Project Path="TLMG.Server/TLMG.Server.csproj" Id="72db6392-8ed3-43b4-9dd6-de6181aab64d" />
+</Solution>

@@ -7,24 +7,19 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TLMG.DatabaseModel
+namespace TLMG.DataAccess.DatabaseModel
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class Verification_Code
+    public partial class Ban_Record
     {
-        public int id_code { get; set; }
-        public Nullable<int> id_user { get; set; }
-        public Nullable<int> id_pending { get; set; }
-        public string code_hash { get; set; }
+        public int id_ban { get; set; }
+        public int id_user { get; set; }
         public string type { get; set; }
-        public string state { get; set; }
-        public System.DateTime generation_date { get; set; }
-        public System.DateTime expiration_date { get; set; }
-        public int attempts_failed { get; set; }
+        public System.DateTime ban_start_date { get; set; }
+        public Nullable<System.DateTime> ban_ending_date { get; set; }
     
-        public virtual Pending_Registration Pending_Registration { get; set; }
         public virtual User User { get; set; }
     }
 }

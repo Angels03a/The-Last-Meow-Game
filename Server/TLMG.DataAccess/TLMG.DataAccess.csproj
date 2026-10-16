@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
+          Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E2BEDB67-55E3-425A-B2D8-022BE354C169}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TLMG.DataAccess</RootNamespace>
+    <AssemblyName>TLMG.DataAccess</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DatabaseModel\Ban_Record.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\Block_List.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\Friendship.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\Game.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\Game_Player.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\Guest_Session.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\Kicked_Out_Voting.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\Message.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\Pending_Registration.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\Player.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\Report.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\TLMGModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TLMGModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\TLMGModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\TLMGModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TLMGModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\User.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DatabaseModel\Verification_Code.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EntityDeploy Include="DatabaseModel\TLMGModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>TLMGModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="DatabaseModel\TLMGModel.edmx.diagram">
+      <DependentUpon>TLMGModel.edmx</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DatabaseModel\TLMGModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>TLMGModel.edmx</DependentUpon>
+      <LastGenOutput>TLMGModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="DatabaseModel\TLMGModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>TLMGModel.edmx</DependentUpon>
+      <LastGenOutput>TLMGModel.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="EntityFramework" Version="6.5.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -10,8 +10,8 @@ using System.Windows.Media.Imaging;
 
 using log4net;
 
-using TLMG.DatabaseModel;
 using TLMG.Client.Models;
+using TLMG.DataAccess.DatabaseModel;
 
 namespace TLMG.Client.Views
 {

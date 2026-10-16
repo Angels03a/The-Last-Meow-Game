@@ -7,7 +7,7 @@ using System.Windows;
 
 using log4net;
 
-using TLMG.DatabaseModel;
+using TLMG.DataAccess.DatabaseModel;
 
 namespace TLMG.Client.Views
 {
