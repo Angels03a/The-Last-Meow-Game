@@ -2,8 +2,8 @@
 {
     public interface IPlayerRepository
     {
-        bool ExistsByEmail(string email);
-        bool ExistsByNickname(string nickname);
+        bool PlayerExistsByEmail(string email);
+        bool PlayerExistsByNickname(string nickname);
         void CreatePlayer(string nickname, string email, string passwordHash);
     }
 }

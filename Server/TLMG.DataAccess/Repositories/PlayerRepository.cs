@@ -19,28 +19,33 @@ namespace TLMG.DataAccess.Repositories
         // FIXME: Implementar un sistema de gestión de imágenes de perfil.
         private const string DefaultProfileImage = "/img/default.png";
 
+<<<<<<< HEAD
         public bool ExistsByEmail(string email)
+=======
+        /// <inheritdoc />
+        public bool PlayerExistsByEmail(string email)
+>>>>>>> dev-stella
         {
-            bool exists;
+            bool playerExists;
 
             using (TLMG_DBEntities context = new TLMG_DBEntities())
             {
-                exists = context.User.Any(user => user.email == email);
+                playerExists = context.User.Any(user => user.email == email);
             }
 
-            return exists;
+            return playerExists;
         }
 
-        public bool ExistsByNickname(string nickname)
+        public bool PlayerExistsByNickname(string nickname)
         {
-            bool exists;
+            bool playerExists;
 
             using (TLMG_DBEntities context = new TLMG_DBEntities())
             {
-                exists = context.User.Any(user => user.nickname == nickname);
+                playerExists = context.User.Any(user => user.nickname == nickname);
             }
 
-            return exists;
+            return playerExists;
         }
 
         public void CreatePlayer(string nickname, string email, string passwordHash)

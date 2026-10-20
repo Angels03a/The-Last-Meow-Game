@@ -1,48 +1,46 @@
 ﻿using System.Linq;
 using System.Text.RegularExpressions;
 
-using TLMG.Contracts.Dtos;
+using TLMG.Contracts.DataContracts;
 
 namespace TLMG.Services.Helpers
 {
     /// <summary>
     /// Validaciones del servidor para los datos de registro; el cliente no es confiable.
     /// </summary>
-    public static class AccountValidationHelper
+    public static class PlayerAccountRegistrationValidationHelper
     {
-        private const int NicknameMinLength = 3;
-        private const int NicknameMaxLength = 12;
-        private const int EmailMinLength = 5;
-        private const int EmailMaxLength = 254;
-        private const int PasswordMinLength = 12;
-        private const int PasswordMaxLength = 128;
+        private const int NicknameminimumLength = 3;
+        private const int NicknamemaximunLength = 12;
+        private const int EmailminimumLength = 5;
+        private const int EmailmaximunLength = 254;
+        private const int PasswordminimumLength = 12;
+        private const int PasswordmaximunLength = 128;
         private const string NicknameInvalidErrorKey = "CreateAccount_NicknameFormatError";
         private const string EmailInvalidErrorKey = "CreateAccount_EmailFormatError";
         private const string PasswordInvalidErrorKey = "CreateAccount_PasswordPolicyError";
         private const string TermsNotAcceptedErrorKey = "CreateAccount_TermsError";
-
-        // Se usa \z y no $ para rechazar un salto de línea al final.
         private static readonly Regex _nicknameRegex = new Regex(@"^[a-zA-Z0-9_]+\z", RegexOptions.Compiled);
         private static readonly Regex _emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+\z", RegexOptions.Compiled);
 
         /// <summary>Valida todos los datos del registro.</summary>
-        /// <param name="registration">Datos recibidos del cliente.</param>
+        /// <param name="playerAccountRegistration">Datos recibidos del cliente.</param>
         /// <returns>La clave del primer error encontrado; null si los datos son válidos.</returns>
-        public static string ValidateRegistration(RegistrationData registration)
+        public static string ValidateAccountPlayerRegistration(PlayerAccountRegistration playerAccountRegistration)
         {
-            string errorKey = ValidateNickname(registration.Nickname);
+            string errorKey = ValidateNickname(playerAccountRegistration.Nickname);
 
             if (errorKey == null)
             {
-                errorKey = ValidateEmail(registration.Email);
+                errorKey = ValidateEmail(playerAccountRegistration.Email);
             }
 
             if (errorKey == null)
             {
-                errorKey = ValidatePassword(registration.Password);
+                errorKey = ValidatePassword(playerAccountRegistration.Password);
             }
 
-            if (errorKey == null && !registration.HasAcceptedTerms)
+            if (errorKey == null && !playerAccountRegistration.HasAcceptedTerms)
             {
                 errorKey = TermsNotAcceptedErrorKey;
             }
@@ -53,7 +51,7 @@ namespace TLMG.Services.Helpers
         private static string ValidateNickname(string nickname)
         {
             string errorKey = null;
-            bool isLengthValid = IsLengthInRange(nickname, NicknameMinLength, NicknameMaxLength);
+            bool isLengthValid = IsLengthInRange(nickname, NicknameminimumLength, NicknamemaximunLength);
             bool isFormatValid = isLengthValid && _nicknameRegex.IsMatch(nickname);
 
             if (!isFormatValid)
@@ -67,7 +65,7 @@ namespace TLMG.Services.Helpers
         private static string ValidateEmail(string email)
         {
             string errorKey = null;
-            bool isLengthValid = IsLengthInRange(email, EmailMinLength, EmailMaxLength);
+            bool isLengthValid = IsLengthInRange(email, EmailminimumLength, EmailmaximunLength);
             bool isFormatValid = isLengthValid && _emailRegex.IsMatch(email);
 
             if (!isFormatValid)
@@ -81,7 +79,7 @@ namespace TLMG.Services.Helpers
         private static string ValidatePassword(string password)
         {
             string errorKey = null;
-            bool isLengthValid = IsLengthInRange(password, PasswordMinLength, PasswordMaxLength);
+            bool isLengthValid = IsLengthInRange(password, PasswordminimumLength, PasswordmaximunLength);
             bool isStrong = isLengthValid && HasRequiredCharacterTypes(password);
 
             if (!isStrong)
@@ -92,13 +90,13 @@ namespace TLMG.Services.Helpers
             return errorKey;
         }
 
-        private static bool IsLengthInRange(string text, int minLength, int maxLength)
+        private static bool IsLengthInRange(string text, int minimumLength, int maximunLength)
         {
             bool isInRange = false;
 
             if (text != null)
             {
-                isInRange = text.Length >= minLength && text.Length <= maxLength;
+                isInRange = text.Length >= minimumLength && text.Length <= maximunLength;
             }
 
             return isInRange;

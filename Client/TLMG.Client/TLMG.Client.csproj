@@ -59,9 +59,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+<<<<<<< HEAD
     <Compile Include="Communication\AccountRegistrationServiceCallback.cs" />
     <Compile Include="Communication\RegisterResultEventArgs.cs" />
     <Compile Include="Connected Services\TLMGService\Reference.cs">
+=======
+    <Compile Include="Connected Services\AccountRegistrationServiceReference\Reference.cs">
+>>>>>>> dev-stella
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -204,15 +208,22 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+<<<<<<< HEAD
     <None Include="Connected Services\TLMGService\configuration91.svcinfo" />
     <None Include="Connected Services\TLMGService\configuration.svcinfo" />
     <None Include="Connected Services\TLMGService\Reference.svcmap">
+=======
+    <None Include="Connected Services\AccountRegistrationServiceReference\configuration91.svcinfo" />
+    <None Include="Connected Services\AccountRegistrationServiceReference\configuration.svcinfo" />
+    <None Include="Connected Services\AccountRegistrationServiceReference\Reference.svcmap">
+>>>>>>> dev-stella
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <Content Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+<<<<<<< HEAD
     <None Include="Connected Services\TLMGService\service.wsdl" />
     <None Include="Connected Services\TLMGService\service.xsd">
       <SubType>Designer</SubType>
@@ -221,6 +232,16 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Connected Services\TLMGService\TLMG.Contracts.Dtos.xsd">
+=======
+    <None Include="Connected Services\AccountRegistrationServiceReference\service.wsdl" />
+    <None Include="Connected Services\AccountRegistrationServiceReference\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\AccountRegistrationServiceReference\service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\AccountRegistrationServiceReference\TLMG.Contracts.DataContracts.xsd">
+>>>>>>> dev-stella
       <SubType>Designer</SubType>
     </None>
     <None Include="Properties\Settings.settings">
@@ -250,7 +271,11 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
     <WCFMetadataStorage Include="Connected Services\TLMGService\" />
+=======
+    <WCFMetadataStorage Include="Connected Services\AccountRegistrationServiceReference\" />
+>>>>>>> dev-stella
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,19 +1,33 @@
 using System;
+<<<<<<< HEAD
 using System.ServiceModel;
+=======
+>>>>>>> dev-stella
 using System.Windows;
-
+using System.ServiceModel;
 using log4net;
+<<<<<<< HEAD
 
 using TLMG.Client.Communication;
 using TLMG.Client.TLMGService;
+=======
+using TLMG.Client.AccountRegistrationServiceReference;
+>>>>>>> dev-stella
 
 namespace TLMG.Client.Views
 {
     /// <summary>
+<<<<<<< HEAD
     /// Pantalla de registro de cuentas; valida el formulario y envía el registro al servidor.
+=======
+    /// Pantalla de registro de cuentas. Solo captura datos, invoca al servidor autoritativo
+    /// y reacciona al resultado recibido por callback.
+>>>>>>> dev-stella
     /// </summary>
-    public partial class CreateAccountScreen : LocalizableScreen
+    [CallbackBehavior(UseSynchronizationContext = false)]
+    public partial class CreateAccountScreen : LocalizableScreen, IAccountRegistrationServiceCallback
     {
+<<<<<<< HEAD
         private const string NicknameFormatErrorKey = "CreateAccount_NicknameFormatError";
         private const string NicknameTakenErrorKey = "CreateAccount_NicknameTakenError";
         private const string EmailFormatErrorKey = "CreateAccount_EmailFormatError";
@@ -21,8 +35,25 @@ namespace TLMG.Client.Views
         private const string PasswordPolicyErrorKey = "CreateAccount_PasswordPolicyError";
         private const string ConnectionErrorKey = "CreateAccount_NetworkError";
         private const string UnknownErrorKey = "CreateAccount_DataModelError";
+=======
+        private const bool IsErrorMessage = true;
+
+        private const string MismatchErrorKey = "CreateAccount_MismatchError";
+        private const string NicknameErrorKey = "CreateAccount_NicknameFormatError";
+        private const string NicknameTakenErrorKey = "CreateAccount_NicknameTakenError";
+        private const string EmailErrorKey = "CreateAccount_EmailFormatError";
+        private const string EmailTakenErrorKey = "CreateAccount_EmailTakenError";
+        private const string PasswordErrorKey = "CreateAccount_PasswordPolicyError";
+        private const string UnknownErrorKey = "CreateAccount_DataModelError";
+        private const string ConnectionErrorKey = "CreateAccount_NetworkError";
+
+        private const string SuccessMessageKey = "CreateAccount_SuccessMessage";
+        private const string ConfirmAbandonMessageKey = "CreateAccount_ConfirmAbandonMessage";
+        private const string ConfirmAbandonTitleKey = "CreateAccount_ConfirmAbandonTitle";
+>>>>>>> dev-stella
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(CreateAccountScreen));
+        private AccountRegistrationServiceClient _accountRegistrationClient;
 
         private AccountRegistrationServiceClient _registrationClient;
         private AccountRegistrationServiceCallback _registrationCallback;
@@ -33,6 +64,16 @@ namespace TLMG.Client.Views
             Unloaded += OnScreenUnloaded;
         }
 
+        /// <summary>
+        /// Recibe del servidor el resultado del registro y lo traslada al hilo de la interfaz.
+        /// </summary>
+        /// <param name="operationRegisterPlayerAccountResult">Resultado con éxito o clave de error.</param>
+        public void RegisterPlayerAccountResult(
+            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult)
+        {
+            Dispatcher.BeginInvoke(new Action(() => HandleRegistrationResult(operationRegisterPlayerAccountResult)));
+        }
+
         private void PwdPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
             lblPasswordError.Visibility = Visibility.Hidden;
@@ -40,17 +81,53 @@ namespace TLMG.Client.Views
 
         private void BtnCreateAccount_Click(object sender, RoutedEventArgs e)
         {
+<<<<<<< HEAD
             HideAllMessages();
 
             var formDataForRegistration = new RegistrationFormData
+=======
+            ClearErrorMessages();
+
+            bool doPasswordsMatch = pwdPassword.Password == pwdConfirmPassword.Password;
+
+            if (doPasswordsMatch)
+            {
+                SendRegistrationRequest();
+            }
+            else
+            {
+                ShowStatusMessage(lblConfirmPasswordError, FindMessage(MismatchErrorKey), IsErrorMessage);
+            }
+        }
+
+        private void BtnBack_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult confirmationResult = MessageBox.Show(
+                FindMessage(ConfirmAbandonMessageKey),
+                FindMessage(ConfirmAbandonTitleKey),
+                MessageBoxButton.YesNo);
+
+            bool hasConfirmedAbandon = confirmationResult == MessageBoxResult.Yes;
+
+            if (hasConfirmedAbandon)
+            {
+                CloseRegistrationClient();
+                ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
+            }
+        }
+
+        private void SendRegistrationRequest()
+        {
+            PlayerAccountRegistration playerAccountRegistration = new PlayerAccountRegistration
+>>>>>>> dev-stella
             {
                 Nickname = txtNickname.Text.Trim(),
                 Email = txtEmail.Text.Trim(),
                 Password = pwdPassword.Password,
-                ConfirmPassword = pwdConfirmPassword.Password,
                 HasAcceptedTerms = chkTerms.IsChecked == true
             };
 
+<<<<<<< HEAD
             if (AreFieldsValid(formDataForRegistration))
             {
                 SendRegistration(formDataForRegistration);
@@ -177,10 +254,13 @@ namespace TLMG.Client.Views
                 HasAcceptedTerms = formDataForRegistration.HasAcceptedTerms
             };
 
+=======
+>>>>>>> dev-stella
             btnCreateAccount.IsEnabled = false;
 
             try
             {
+<<<<<<< HEAD
                 _registrationCallback = new AccountRegistrationServiceCallback();
                 _registrationCallback.RegistrationResultReceived += OnRegistrationResultReceived;
 
@@ -323,6 +403,107 @@ namespace TLMG.Client.Views
                 _log.Warn("Se agotó el tiempo al cerrar el canal.", ex);
                 client.Abort();
             }
+=======
+                _accountRegistrationClient = new AccountRegistrationServiceClient(new InstanceContext(this));
+
+                _accountRegistrationClient.RegisterPlayerAccount(playerAccountRegistration);
+            }
+            catch (EndpointNotFoundException ex)
+            {
+                _log.Error("No se encontró el endpoint del servidor al registrar la cuenta.", ex);
+                HandleConnectionFailure();
+            }
+            catch (TimeoutException ex)
+            {
+                _log.Error("El servidor tardó demasiado en recibir la solicitud de registro.", ex);
+                HandleConnectionFailure();
+            }
+            catch (CommunicationException ex)
+            {
+                _log.Error("Error de comunicación al enviar la solicitud de registro.", ex);
+                HandleConnectionFailure();
+            }
+        }
+
+        private void HandleRegistrationResult(OperationRegisterPlayerAccountResult registrationResult)
+        {
+            CloseRegistrationClient();
+            btnCreateAccount.IsEnabled = true;
+
+            if (registrationResult.IsSuccess)
+            {
+                NavigateToVerificationScreen();
+            }
+            else
+            {
+                ShowRegistrationError(registrationResult.ErrorKey);
+            }
+        }
+
+        private void HandleConnectionFailure()
+        {
+            CloseRegistrationClient();
+            btnCreateAccount.IsEnabled = true;
+            ShowStatusMessage(lblFormMessage, FindMessage(ConnectionErrorKey), IsErrorMessage);
+        }
+
+        private void ShowRegistrationError(string errorKey)
+        {
+            string resourceKey = errorKey ?? UnknownErrorKey;
+            string localizedMessage = FindMessage(resourceKey);
+
+            switch (resourceKey)
+            {
+                case NicknameErrorKey:
+                case NicknameTakenErrorKey:
+                    ShowStatusMessage(lblNicknameError, localizedMessage, IsErrorMessage);
+                    break;
+                case EmailErrorKey:
+                case EmailTakenErrorKey:
+                    ShowStatusMessage(lblEmailError, localizedMessage, IsErrorMessage);
+                    break;
+                case PasswordErrorKey:
+                    ShowStatusMessage(lblPasswordError, localizedMessage, IsErrorMessage);
+                    break;
+                default:
+                    ShowStatusMessage(lblFormMessage, localizedMessage, IsErrorMessage);
+                    break;
+            }
+        }
+
+        private void ClearErrorMessages()
+        {
+            lblFormMessage.Visibility = Visibility.Hidden;
+            lblNicknameError.Visibility = Visibility.Hidden;
+            lblEmailError.Visibility = Visibility.Hidden;
+            lblPasswordError.Visibility = Visibility.Hidden;
+            lblConfirmPasswordError.Visibility = Visibility.Hidden;
+        }
+
+        private void CloseRegistrationClient()
+        {
+            if (_accountRegistrationClient != null)
+            {
+                try
+                {
+                    if (_accountRegistrationClient.State == CommunicationState.Faulted)
+                    {
+                        _accountRegistrationClient.Abort();
+                    }
+                    else
+                    {
+                        _accountRegistrationClient.Close();
+                    }
+                }
+                catch (CommunicationException ex)
+                {
+                    _log.Warn("No se pudo cerrar limpiamente el canal de registro.", ex);
+                    _accountRegistrationClient.Abort();
+                }
+
+                _accountRegistrationClient = null;
+            }
+>>>>>>> dev-stella
         }
 
         private void NavigateToVerificationScreen()
@@ -336,16 +517,16 @@ namespace TLMG.Client.Views
 
         private void HandleVerificationCompleted()
         {
-            MessageBox.Show(TryFindResource("CreateAccount_SuccessMessage") as string);
+            MessageBox.Show(FindMessage(SuccessMessageKey));
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new LoginScreen());
         }
 
-        private int CalculatePasswordStrength(string inputPasswordString)
+        private string FindMessage(string resourceKey)
         {
-            return ValidationHelper.CalculatePasswordStrength(inputPasswordString);
-        }
+            string localizedMessage = TryFindResource(resourceKey) as string;
 
+<<<<<<< HEAD
         private string ValidateNickname(string inputNicknameString)
         {
             string errorResourceKey = ValidationHelper.GetNicknameValidationErrorKey(inputNicknameString);
@@ -365,6 +546,9 @@ namespace TLMG.Client.Views
             public string Password { get; set; }
             public string ConfirmPassword { get; set; }
             public bool HasAcceptedTerms { get; set; }
+=======
+            return localizedMessage;
+>>>>>>> dev-stella
         }
     }
 }
