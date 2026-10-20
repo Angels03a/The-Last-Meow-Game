@@ -1,32 +1,35 @@
 using System;
-using System.Data.Entity.Core;
-using System.Data.Entity.Infrastructure;
-using System.Data.SqlClient;
-using System.Linq;
 using System.Windows;
-
+using System.ServiceModel;
 using log4net;
-
-using TLMG.DataAccess.DatabaseModel;
+using TLMG.Client.AccountRegistrationServiceReference;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Pantalla de registro de cuentas con validación de reglas para nickname, correo y contraseñas.
-    /// Integrada con Entity Framework para persistencia en base de datos.
+    /// Pantalla de registro de cuentas. Solo captura datos, invoca al servidor autoritativo
+    /// y reacciona al resultado recibido por callback.
     /// </summary>
-    public partial class CreateAccountScreen : LocalizableScreen
+    [CallbackBehavior(UseSynchronizationContext = false)]
+    public partial class CreateAccountScreen : LocalizableScreen, IAccountRegistrationServiceCallback
     {
-        // FIXME: Usar estado de usuario definido en la base de datos.
-        private const string DefaultUserState = "USER_ACTIVE";
+        private const bool IsErrorMessage = true;
 
-        // FIXME: Usar imagen de perfil por defecto definida.
-        private const string DefaultProfileImage = "/img/default.png";
-        private const int DefaultInitialPoints = 0;
-        private const int DefaultInitialWins = 0;
-        private const int DefaultInitialGamesPlayed = 0;
+        private const string MismatchErrorKey = "CreateAccount_MismatchError";
+        private const string NicknameErrorKey = "CreateAccount_NicknameFormatError";
+        private const string NicknameTakenErrorKey = "CreateAccount_NicknameTakenError";
+        private const string EmailErrorKey = "CreateAccount_EmailFormatError";
+        private const string EmailTakenErrorKey = "CreateAccount_EmailTakenError";
+        private const string PasswordErrorKey = "CreateAccount_PasswordPolicyError";
+        private const string UnknownErrorKey = "CreateAccount_DataModelError";
+        private const string ConnectionErrorKey = "CreateAccount_NetworkError";
+
+        private const string SuccessMessageKey = "CreateAccount_SuccessMessage";
+        private const string ConfirmAbandonMessageKey = "CreateAccount_ConfirmAbandonMessage";
+        private const string ConfirmAbandonTitleKey = "CreateAccount_ConfirmAbandonTitle";
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(CreateAccountScreen));
+        private AccountRegistrationServiceClient _accountRegistrationClient;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="CreateAccountScreen"/>.
@@ -36,6 +39,16 @@ namespace TLMG.Client.Views
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Recibe del servidor el resultado del registro y lo traslada al hilo de la interfaz.
+        /// </summary>
+        /// <param name="operationRegisterPlayerAccountResult">Resultado con éxito o clave de error.</param>
+        public void RegisterPlayerAccountResult(
+            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult)
+        {
+            Dispatcher.BeginInvoke(new Action(() => HandleRegistrationResult(operationRegisterPlayerAccountResult)));
+        }
+
         private void PwdPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
             lblPasswordError.Visibility = Visibility.Hidden;
@@ -43,187 +56,149 @@ namespace TLMG.Client.Views
 
         private void BtnCreateAccount_Click(object sender, RoutedEventArgs e)
         {
-            var formDataForRegistration = new RegistrationFormData
+            ClearErrorMessages();
+
+            bool doPasswordsMatch = pwdPassword.Password == pwdConfirmPassword.Password;
+
+            if (doPasswordsMatch)
+            {
+                SendRegistrationRequest();
+            }
+            else
+            {
+                ShowStatusMessage(lblConfirmPasswordError, FindMessage(MismatchErrorKey), IsErrorMessage);
+            }
+        }
+
+        private void BtnBack_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult confirmationResult = MessageBox.Show(
+                FindMessage(ConfirmAbandonMessageKey),
+                FindMessage(ConfirmAbandonTitleKey),
+                MessageBoxButton.YesNo);
+
+            bool hasConfirmedAbandon = confirmationResult == MessageBoxResult.Yes;
+
+            if (hasConfirmedAbandon)
+            {
+                CloseRegistrationClient();
+                ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
+            }
+        }
+
+        private void SendRegistrationRequest()
+        {
+            PlayerAccountRegistration playerAccountRegistration = new PlayerAccountRegistration
             {
                 Nickname = txtNickname.Text,
                 Email = txtEmail.Text,
                 Password = pwdPassword.Password,
-                ConfirmPassword = pwdConfirmPassword.Password,
                 HasAcceptedTerms = chkTerms.IsChecked == true
             };
 
-            if (AreFieldsValid(formDataForRegistration))
-            {
-                if (TryRegisterUser(formDataForRegistration))
-                {
-                    NavigateToVerificationScreen();
-                }
-            }
-        }
-
-        private bool AreFieldsValid(RegistrationFormData formDataForRegistration)
-        {
-            bool areAllFieldsValid;
-
-            if (AreFieldsEmpty(formDataForRegistration))
-            {
-                areAllFieldsValid = false;
-            }
-            else if (HasFormatErrors(formDataForRegistration))
-            {
-                areAllFieldsValid = false;
-            }
-            else
-            {
-                areAllFieldsValid = true;
-            }
-
-            return areAllFieldsValid;
-        }
-
-        private bool AreFieldsEmpty(RegistrationFormData formDataForRegistration)
-        {
-            bool hasEmptyFields = string.IsNullOrWhiteSpace(formDataForRegistration.Nickname) ||
-                string.IsNullOrWhiteSpace(formDataForRegistration.Email) ||
-                string.IsNullOrWhiteSpace(formDataForRegistration.Password) ||
-                string.IsNullOrWhiteSpace(formDataForRegistration.ConfirmPassword);
-
-            if (hasEmptyFields)
-            {
-                ShowStatusMessage(
-                    lblFormMessage,
-                    TryFindResource("CreateAccount_IncompleteFieldsError") as string,
-                    true);
-            }
-
-            return hasEmptyFields;
-        }
-
-        private bool HasFormatErrors(RegistrationFormData formDataForRegistration)
-        {
-            bool hasErrors = false;
-
-            string nicknameValidationResult = ValidateNickname(formDataForRegistration.Nickname);
-            if (nicknameValidationResult != null)
-            {
-                ShowStatusMessage(lblNicknameError, nicknameValidationResult, true);
-                hasErrors = true;
-            }
-
-            string emailValidationResult = ValidateEmailFormat(formDataForRegistration.Email);
-            if (emailValidationResult != null)
-            {
-                ShowStatusMessage(lblEmailError, emailValidationResult, true);
-                hasErrors = true;
-            }
-
-            if (CalculatePasswordStrength(formDataForRegistration.Password)
-                < ValidationHelper.RequiredPasswordStrengthScore)
-            {
-                ShowStatusMessage(
-                    lblPasswordError,
-                    TryFindResource("CreateAccount_PasswordPolicyError") as string,
-                    true);
-                hasErrors = true;
-            }
-            else if (formDataForRegistration.Password != formDataForRegistration.ConfirmPassword)
-            {
-                ShowStatusMessage(
-                    lblConfirmPasswordError,
-                    TryFindResource("CreateAccount_MismatchError") as string,
-                    true);
-                hasErrors = true;
-            }
-
-            if (!formDataForRegistration.HasAcceptedTerms)
-            {
-                ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_TermsError") as string, true);
-                hasErrors = true;
-            }
-
-            return hasErrors;
-        }
-
-        private bool TryRegisterUser(RegistrationFormData formDataForRegistration)
-        {
-            bool isSuccess = false;
+            btnCreateAccount.IsEnabled = false;
 
             try
             {
-                using (var database = new TLMG_DBEntities())
-                {
-                    bool emailIsTaken = database.User.Any(user => user.email == formDataForRegistration.Email);
-                    bool nicknameIsTaken = database.User.Any(user => user.nickname == formDataForRegistration.Nickname);
+                _accountRegistrationClient = new AccountRegistrationServiceClient(new InstanceContext(this));
 
-                    if (emailIsTaken)
+                _accountRegistrationClient.RegisterPlayerAccount(playerAccountRegistration);
+            }
+            catch (EndpointNotFoundException ex)
+            {
+                _log.Error("No se encontró el endpoint del servidor al registrar la cuenta.", ex);
+                HandleConnectionFailure();
+            }
+            catch (TimeoutException ex)
+            {
+                _log.Error("El servidor tardó demasiado en recibir la solicitud de registro.", ex);
+                HandleConnectionFailure();
+            }
+            catch (CommunicationException ex)
+            {
+                _log.Error("Error de comunicación al enviar la solicitud de registro.", ex);
+                HandleConnectionFailure();
+            }
+        }
+
+        private void HandleRegistrationResult(OperationRegisterPlayerAccountResult registrationResult)
+        {
+            CloseRegistrationClient();
+            btnCreateAccount.IsEnabled = true;
+
+            if (registrationResult.IsSuccess)
+            {
+                NavigateToVerificationScreen();
+            }
+            else
+            {
+                ShowRegistrationError(registrationResult.ErrorKey);
+            }
+        }
+
+        private void HandleConnectionFailure()
+        {
+            CloseRegistrationClient();
+            btnCreateAccount.IsEnabled = true;
+            ShowStatusMessage(lblFormMessage, FindMessage(ConnectionErrorKey), IsErrorMessage);
+        }
+
+        private void ShowRegistrationError(string errorKey)
+        {
+            string resourceKey = errorKey ?? UnknownErrorKey;
+            string localizedMessage = FindMessage(resourceKey);
+
+            switch (resourceKey)
+            {
+                case NicknameErrorKey:
+                case NicknameTakenErrorKey:
+                    ShowStatusMessage(lblNicknameError, localizedMessage, IsErrorMessage);
+                    break;
+                case EmailErrorKey:
+                case EmailTakenErrorKey:
+                    ShowStatusMessage(lblEmailError, localizedMessage, IsErrorMessage);
+                    break;
+                case PasswordErrorKey:
+                    ShowStatusMessage(lblPasswordError, localizedMessage, IsErrorMessage);
+                    break;
+                default:
+                    ShowStatusMessage(lblFormMessage, localizedMessage, IsErrorMessage);
+                    break;
+            }
+        }
+
+        private void ClearErrorMessages()
+        {
+            lblFormMessage.Visibility = Visibility.Hidden;
+            lblNicknameError.Visibility = Visibility.Hidden;
+            lblEmailError.Visibility = Visibility.Hidden;
+            lblPasswordError.Visibility = Visibility.Hidden;
+            lblConfirmPasswordError.Visibility = Visibility.Hidden;
+        }
+
+        private void CloseRegistrationClient()
+        {
+            if (_accountRegistrationClient != null)
+            {
+                try
+                {
+                    if (_accountRegistrationClient.State == CommunicationState.Faulted)
                     {
-                        ShowStatusMessage(
-                            lblEmailError,
-                            TryFindResource("CreateAccount_EmailTakenError") as string,
-                            true);
-                    }
-                    else if (nicknameIsTaken)
-                    {
-                        ShowStatusMessage(
-                            lblNicknameError,
-                            TryFindResource("CreateAccount_NicknameTakenError") as string,
-                            true);
+                        _accountRegistrationClient.Abort();
                     }
                     else
                     {
-                        InsertUserWithPlayerProfile(database, formDataForRegistration);
-
-                        isSuccess = true;
+                        _accountRegistrationClient.Close();
                     }
                 }
+                catch (CommunicationException ex)
+                {
+                    _log.Warn("No se pudo cerrar limpiamente el canal de registro.", ex);
+                    _accountRegistrationClient.Abort();
+                }
+
+                _accountRegistrationClient = null;
             }
-            catch (DbUpdateException ex)
-            {
-                ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_DuplicateDataError") as string, true);
-                _log.Error("Fallo al guardar el registro en la base de datos.", ex);
-            }
-            catch (SqlException ex)
-            {
-                ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_NetworkError") as string, true);
-                _log.Error("Fallo en la conexión con la base de datos.", ex);
-            }
-            catch (EntityException ex)
-            {
-                ShowStatusMessage(lblFormMessage, TryFindResource("CreateAccount_DataModelError") as string, true);
-                _log.Error("Fallo al interactuar con el modelo de datos de la base de datos.", ex);
-            }
-
-            return isSuccess;
-        }
-
-        private void InsertUserWithPlayerProfile(
-            TLMG_DBEntities database,
-            RegistrationFormData formDataForRegistration)
-        {
-            var newUserAccount = new User
-            {
-                email = formDataForRegistration.Email,
-                nickname = formDataForRegistration.Nickname,
-                // FIXME: Integrar algoritmo de hashing antes de insertar en BD.
-                password_hash = formDataForRegistration.Password,
-                state = DefaultUserState,
-                profile_image = DefaultProfileImage,
-                last_time = DateTime.Now
-            };
-
-            database.User.Add(newUserAccount);
-            database.SaveChanges();
-
-            var newPlayerProfile = new Player
-            {
-                id_user = newUserAccount.id_user,
-                total_points = DefaultInitialPoints,
-                total_wins = DefaultInitialWins,
-                total_games_played = DefaultInitialGamesPlayed
-            };
-
-            database.Player.Add(newPlayerProfile);
-            database.SaveChanges();
         }
 
         private void NavigateToVerificationScreen()
@@ -237,67 +212,16 @@ namespace TLMG.Client.Views
 
         private void HandleVerificationCompleted()
         {
-            MessageBox.Show(TryFindResource("CreateAccount_SuccessMessage") as string);
+            MessageBox.Show(FindMessage(SuccessMessageKey));
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new LoginScreen());
         }
 
-        private int CalculatePasswordStrength(string inputPasswordString)
+        private string FindMessage(string resourceKey)
         {
-            return ValidationHelper.CalculatePasswordStrength(inputPasswordString);
-        }
+            string localizedMessage = TryFindResource(resourceKey) as string;
 
-        private string ValidateNickname(string inputNicknameString)
-        {
-            string errorResourceKey = ValidationHelper.GetNicknameValidationErrorKey(inputNicknameString);
-            return errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
-        }
-
-        private string ValidateEmailFormat(string inputEmailAddress)
-        {
-            string validationErrorKey = ValidationHelper.GetEmailValidationErrorKey(inputEmailAddress, "CreateAccount");
-            return validationErrorKey != null ? TryFindResource(validationErrorKey) as string : null;
-        }
-
-        private void BtnBack_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBoxResult confirmationResult = MessageBox.Show(
-                TryFindResource("CreateAccount_ConfirmAbandonMessage") as string,
-                TryFindResource("CreateAccount_ConfirmAbandonTitle") as string,
-                MessageBoxButton.YesNo);
-
-            if (confirmationResult == MessageBoxResult.Yes)
-            {
-                ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
-            }
-        }
-
-        private class RegistrationFormData
-        {
-            /// <summary>
-            /// Obtiene o establece el apodo o nombre del usuario.
-            /// </summary>
-            public string Nickname { get; set; }
-
-            /// <summary>
-            /// Obtiene o establece el correo electrónico del usuario.
-            /// </summary>
-            public string Email { get; set; }
-
-            /// <summary>
-            /// Obtiene o establece la contraseña en texto plano ingresada.
-            /// </summary>
-            public string Password { get; set; }
-
-            /// <summary>
-            /// Obtiene o establece la confirmación de la contraseña.
-            /// </summary>
-            public string ConfirmPassword { get; set; }
-
-            /// <summary>
-            /// Obtiene o establece un valor que indica si el usuario aceptó los términos.
-            /// </summary>
-            public bool HasAcceptedTerms { get; set; }
+            return localizedMessage;
         }
     }
 }
