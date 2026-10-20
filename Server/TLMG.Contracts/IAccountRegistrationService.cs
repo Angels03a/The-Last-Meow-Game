@@ -1,6 +1,6 @@
 ﻿using System.ServiceModel;
 
-using TLMG.Contracts.Dtos;
+using TLMG.Contracts.DataContracts;
 
 namespace TLMG.Contracts
 {
@@ -10,10 +10,10 @@ namespace TLMG.Contracts
     [ServiceContract(CallbackContract = typeof(IAccountRegistrationServiceCallback))]
     public interface IAccountRegistrationService
     {
-        /// <summary>Solicita crear una cuenta; la respuesta llega por OnRegisterResult.</summary>
-        /// <param name="registration">Datos capturados por el jugador.</param>
+        /// <summary>Solicita crear una cuenta; la respuesta llega por RegisterPlayerAccountResult.</summary>
+        /// <param name="playerAccountRegistration">Datos capturados por el jugador.</param>
         [OperationContract(IsOneWay = true)]
-        void Register(RegistrationData registration);
+        void RegisterPlayerAccount(PlayerAccountRegistration playerAccountRegistration);
     }
 
     /// <summary>
@@ -23,8 +23,8 @@ namespace TLMG.Contracts
     public interface IAccountRegistrationServiceCallback
     {
         /// <summary>Entrega el resultado del registro al cliente.</summary>
-        /// <param name="result">Resultado con éxito o clave de error.</param>
+        /// <param name="operationRegisterPlayerAccountResult">Resultado con éxito o clave de error.</param>
         [OperationContract(IsOneWay = true)]
-        void OnRegisterResult(OperationResultData result);
+        void RegisterPlayerAccountResult(OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult);
     }
 }
