@@ -66,6 +66,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="Connected Services\AccountRegistrationServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Models\PlayerRankEntry.cs" />
     <Compile Include="Views\CreateAccountScreen.xaml.cs">
       <DependentUpon>CreateAccountScreen.xaml</DependentUpon>
@@ -210,6 +215,12 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+    <None Include="Connected Services\AccountRegistrationServiceReference\configuration91.svcinfo" />
+    <None Include="Connected Services\AccountRegistrationServiceReference\configuration.svcinfo" />
+    <None Include="Connected Services\AccountRegistrationServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <Content Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -221,6 +232,16 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Connected Services\TLMGService\TLMG.Contracts.Dtos.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\AccountRegistrationServiceReference\service.wsdl" />
+    <None Include="Connected Services\AccountRegistrationServiceReference\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\AccountRegistrationServiceReference\service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\AccountRegistrationServiceReference\TLMG.Contracts.DataContracts.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Properties\Settings.settings">
@@ -251,6 +272,7 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Connected Services\TLMGService\" />
+    <WCFMetadataStorage Include="Connected Services\AccountRegistrationServiceReference\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
