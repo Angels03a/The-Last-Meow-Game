@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3a393fbc9c1f4bbb86e2ed549b5c409f" Name="Diagram1" ZoomLevel="85">
+      <Diagram DiagramId="3a393fbc9c1f4bbb86e2ed549b5c409f" Name="Diagram1" ZoomLevel="163">
         <EntityTypeShape EntityType="TLMG_DBModel.Ban_Record" Width="1.5" PointX="3" PointY="6.875" IsExpanded="true" />
         <EntityTypeShape EntityType="TLMG_DBModel.Block_List" Width="1.5" PointX="3" PointY="9.75" IsExpanded="true" />
         <EntityTypeShape EntityType="TLMG_DBModel.Friendship" Width="1.5" PointX="3" PointY="12.75" IsExpanded="true" />
@@ -13,7 +13,7 @@
         <EntityTypeShape EntityType="TLMG_DBModel.Guest_Session" Width="1.5" PointX="3" PointY="22.375" IsExpanded="true" />
         <EntityTypeShape EntityType="TLMG_DBModel.Kicked_Out_Voting" Width="1.5" PointX="7.5" PointY="15.75" IsExpanded="true" />
         <EntityTypeShape EntityType="TLMG_DBModel.Message" Width="1.5" PointX="7.5" PointY="18.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.Pending_Registration" Width="1.5" PointX="3.75" PointY="3.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Pending_Registration" Width="2.5" PointX="3.75" PointY="3.375" IsExpanded="true" />
         <EntityTypeShape EntityType="TLMG_DBModel.Player" Width="1.5" PointX="3" PointY="15.75" IsExpanded="true" />
         <EntityTypeShape EntityType="TLMG_DBModel.Report" Width="1.5" PointX="7.5" PointY="21.625" IsExpanded="true" />
         <EntityTypeShape EntityType="TLMG_DBModel.User" Width="1.5" PointX="0.75" PointY="10.625" IsExpanded="true" />

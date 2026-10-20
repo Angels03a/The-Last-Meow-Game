@@ -20,28 +20,28 @@ namespace TLMG.DataAccess.Repositories
         private const string DefaultProfileImage = "/img/default.png";
 
         /// <inheritdoc />
-        public bool ExistsByEmail(string email)
+        public bool PlayerExistsByEmail(string email)
         {
-            bool exists;
+            bool playerExists;
 
             using (TLMG_DBEntities context = new TLMG_DBEntities())
             {
-                exists = context.User.Any(user => user.email == email);
+                playerExists = context.User.Any(user => user.email == email);
             }
 
-            return exists;
+            return playerExists;
         }
 
-        public bool ExistsByNickname(string nickname)
+        public bool PlayerExistsByNickname(string nickname)
         {
-            bool exists;
+            bool playerExists;
 
             using (TLMG_DBEntities context = new TLMG_DBEntities())
             {
-                exists = context.User.Any(user => user.nickname == nickname);
+                playerExists = context.User.Any(user => user.nickname == nickname);
             }
 
-            return exists;
+            return playerExists;
         }
 
         public void CreatePlayer(string nickname, string email, string passwordHash)
