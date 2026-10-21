@@ -22,29 +22,28 @@ Formato de entrada:
 
 ## Pendientes
 
-### BL-001 · Decidir el algoritmo de hash de contraseña
-- Creado: 2026-10-20 10:30
-- Por qué: hoy la contraseña se guarda en claro; el SAD dice SHA-256 + salt y se propuso PBKDF2. Bloquea login y registro seguros.
-- Depende de: decisión del equipo y del encargado
-- Estado: Pendiente
+### BL-001 · Hash de contraseña: SHA-256 + sal (decidido), implementar
+- Por qué: hoy la contraseña se guarda en claro. Decisión del equipo (2026-10-20 22:32): SHA-256 con sal por contraseña, opción A, alineada con el SAD; se descartó PBKDF2 por familiaridad del equipo. Implementación prevista: `IPasswordHasher` y `PasswordHasher` en el servidor, formato versionado (`v1$sal$hash`), sal aleatoria, comparación de tiempo constante. Decisión registrada en la bitácora (D-44).
+- Depende de: BL-016 (el login debe pasar por el servidor antes o junto con el hash)
+- Estado: Decidido; pendiente de implementar
 
 ### BL-002 · Renombrar el contrato de registro a `IUsersManager`
 - Creado: 2026-10-20 10:30
 - Por qué: `IAccountRegistrationService` no sigue D-41 ni §3.14. Incluye callback, archivo parcial, endpoint y regenerar el proxy.
 - Depende de: acuerdo con Nicole sobre quién lo hace
-- Estado: Pendiente
+- Depende de: BL-003 y BL-004 (ronda 1, integrada);
 
 ### BL-003 · Renombrar `AccountRegistrationManager`
 - Creado: 2026-10-20 10:30
 - Por qué: `Manager` no aplica a lógica de negocio (§3.14); falta decidir el sufijo (D-42).
 - Depende de: BL-002
-- Estado: Pendiente
+- Estado: Finalizado el 2026-10-20 · commit 879b9e2 (renombre a PlayerAccountRegistrationService) y 3f7dea2 (carpeta Accounts), integrados en d317003
 
 ### BL-004 · Mover `Server/Services` a `Server/TLMG.Services` y pasar a PackageReference
 - Creado: 2026-10-20 10:30
 - Por qué: no sigue la estructura `Server/TLMG.X/`, usa `packages.config` y el ensamblado se llama `Services`.
 - Depende de: BL-002
-- Estado: Pendiente
+- Estado: En curso (parcial): proyecto movido y renombrado a TLMG.Services en el commit 30d5588, integrado en d317003. Falta migrar a PackageReference.
 
 ### BL-005 · Quitar el proxy `…Async` del cliente
 - Creado: 2026-10-20 10:30
@@ -66,7 +65,7 @@ Formato de entrada:
 
 ### BL-008 · Crear la cuenta Gmail emisora y el archivo de secretos
 - Creado: 2026-10-20 10:30
-- Por qué: el envío SMTP necesita credenciales; irán en un archivo cifrado fuera de Git.
+- Por qué: el envío SMTP necesita credenciales; irán en un archivo cifrado fuera de Git. La cuenta Gmail es solo el remitente: los destinatarios siguen la regla RC-E-03. Requiere verificación en dos pasos y contraseña de aplicación (no se pega en chats ni en el repo).
 - Depende de: nada
 - Estado: Pendiente
 
@@ -177,10 +176,16 @@ Formato de entrada:
 
 ### BL-027 · Corregir los hallazgos de Estándar del código de registro integrado y retirar lo sin uso
 - Creado: 2026-10-20 22:15
-- Por qué: usings sin agrupar en `CreateAccountScreen` (§9.4); líneas de más de 120 columnas en `PlayerAccountRegistrationManager` (§9.2) y espacios al final de línea en varios archivos; `OperationRegisterPlayerAccountResult` sin `<summary>` y con la llave en la misma línea (§12.2, §9.6); `FIXME` duplicado del hash de contraseña (ligar a BL-001); `<WCFMetadata Include="Connected Services\" />` sin uso en `TLMG.Server.csproj` y `TLMG.Contracts.csproj`; DTOs sin sufijo `Data` (D-41); proxy `TLMGService` y carpeta `Communication/` sin uso (solo se borran con autorización de Martín).
+- Por qué: usings sin agrupar en `CreateAccountScreen` (§9.4); líneas de más de 120 columnas en `PlayerAccountRegistrationService` (§9.2) y espacios al final de línea en varios archivos; `OperationRegisterPlayerAccountResult` sin `<summary>` y con la llave en la misma línea (§12.2, §9.6); `FIXME` duplicado del hash de contraseña (ligar a BL-001); `<WCFMetadata Include="Connected Services\" />` sin uso en `TLMG.Server.csproj` y `TLMG.Contracts.csproj`; DTOs sin sufijo `Data` (D-41); proxy `TLMGService` y carpeta `Communication/` sin uso (solo se borran con autorización de Martín).
 - Depende de: coordinación con Nicole
 - Estado: Pendiente
 
+### BL-028 · Añadir `Service` a la tabla del Estándar §3.14
+- Creado: 2026-10-20 22:55
+- Por qué: D-49 adopta el sufijo `Service` para la lógica de negocio del servidor y el Estándar §3.14 no lo tiene. Fila a agregar: `Service` · Lógica de negocio del servidor (componentes del SAD, por ejemplo C-06); nunca persistencia ni contratos WCF · `PlayerAccountRegistrationService`.
+- Depende de: D-49
+- Estado: Pendiente
+- 
 ---
 
 ## Finalizados
