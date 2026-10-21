@@ -11,12 +11,12 @@ using TLMG.Contracts.DataContracts;
 using TLMG.DataAccess.Repositories;
 using TLMG.Services.Helpers;
 
-namespace TLMG.Services.Managers
+namespace TLMG.Services.Accounts
 {
     /// <summary>
     /// Lógica del registro de cuentas; no conoce WCF.
     /// </summary>
-    public class PlayerAccountRegistrationManager
+    public class PlayerAccountRegistrationService
     {
         private const int DuplicateIndexErrorNumber = 2601;
         private const int DuplicateKeyErrorNumber = 2627;
@@ -27,13 +27,13 @@ namespace TLMG.Services.Managers
         private const string NicknameTakenErrorKey = "CreateAccount_NicknameTakenError";
         private const string AccountAlreadyExistsErrorKey = "CreateAccount_DuplicateDataError";
 
-        private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerAccountRegistrationManager));
+        private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerAccountRegistrationService));
 
         private readonly IPlayerRepository _playerRepository;
 
-        /// <summary>Crea el manager con su repositorio.</summary>
+        /// <summary>Crea el servicio de registro con su repositorio.</summary>
         /// <param name="playerRepository">Repositorio de cuentas.</param>
-        public PlayerAccountRegistrationManager(IPlayerRepository playerRepository)
+        public PlayerAccountRegistrationService(IPlayerRepository playerRepository)
         {
             _playerRepository = playerRepository;
         }

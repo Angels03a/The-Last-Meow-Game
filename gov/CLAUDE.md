@@ -89,7 +89,7 @@ Client/TLMG.Client/        cliente WPF (MVVM, Languages/, LanguageManager)
 Server/TLMG.Contracts/     contratos WCF y DTO (solo en la solución del servidor)
 Server/TLMG.DataAccess/    EF6, repositorios, procedimientos
 Server/TLMG.Server/        host de consola (self-host WCF)
-Server/Services/           implementación de los contratos (pendiente mover a Server/TLMG.Services/)
+Server/TLMG.Services/      implementación de los contratos y lógica de negocio del servidor
 database/                  script SQL versionado
 docs/                      Estándar, contratos, decisiones, SAD
 gov/                       CLAUDE.md y Backlog_TLMG.md
@@ -103,8 +103,9 @@ gov/                       CLAUDE.md y Backlog_TLMG.md
 Todo nombre debe ser descriptivo y acorde al contexto del juego, respetando el Estándar.
 
 - Proyectos, namespaces y carpetas de proyecto llevan el prefijo `TLMG.` (§3.13).
-- Las clases no llevan prefijo; llevan el sufijo de su responsabilidad: `Screen`, `Window`, `Helper`, `Manager`, `Data`, `Repository`, `ViewModel`, `EventArgs`, etc. (§3.14). Las interfaces llevan el prefijo `I`.
+- Las clases no llevan prefijo; llevan el sufijo de su responsabilidad: `Screen`, `Window`, `Helper`, `Manager`, `Service`, `Data`, `Repository`, `ViewModel`, `EventArgs`, etc. (§3.14). Las interfaces llevan el prefijo `I`.
 - `Manager` solo para recursos globales o contratos WCF; nunca para persistencia ni lógica de negocio.
+- `Service` solo para la lógica de negocio del servidor (D-49); nunca para persistencia ni contratos WCF.
 - Subcarpetas y archivos: nombre descriptivo del contenido, en inglés y PascalCase, un tipo por archivo, y el archivo se llama como su tipo.
 - Métodos: verbo o frase verbal que diga qué hacen en el contexto del juego (§3.7). Nada de nombres genéricos como `Process`, `DoWork` o `Handle`.
 - Contadores de bucle y variables con nombre descriptivo (§3.x), sin una sola letra.

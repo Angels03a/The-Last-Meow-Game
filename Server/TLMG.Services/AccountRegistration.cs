@@ -4,7 +4,7 @@ using System.ServiceModel;
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
 using TLMG.DataAccess.Repositories;
-using TLMG.Services.Managers;
+using TLMG.Services.Accounts;
 
 namespace TLMG.Services
 {
@@ -12,10 +12,10 @@ namespace TLMG.Services
     {
         private const string UnexpectedErrorKey = "CreateAccount_DataModelError";
 
-        private static readonly PlayerAccountRegistrationManager _accountRegistrationManager =
-            new PlayerAccountRegistrationManager(new PlayerRepository());
+        private static readonly PlayerAccountRegistrationService _playerAccountRegistrationService =
+            new PlayerAccountRegistrationService(new PlayerRepository());
 
-        /// <summary>Delega el registro al manager y responde por callback.</summary>
+        /// <summary>Delega el registro al servicio de registro y responde por callback.</summary>
         /// <param name="registrationPlayerAccount">Datos capturados por el jugador.</param>
         public void RegisterPlayerAccount(PlayerAccountRegistration registrationPlayerAccount)
         {
@@ -27,7 +27,7 @@ namespace TLMG.Services
             try
             {
                 operationRegisterPlayerAccountResult =
-                    _accountRegistrationManager.RegisterPlayerAccount(registrationPlayerAccount);
+                    _playerAccountRegistrationService.RegisterPlayerAccount(registrationPlayerAccount);
             }
             catch (Exception ex)
             {
