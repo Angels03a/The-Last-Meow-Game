@@ -60,7 +60,7 @@
   <ItemGroup>
     <Compile Include="AccountRegistration.cs" />
     <Compile Include="Helpers\PlayerAccountRegistrationValidationHelper.cs" />
-    <Compile Include="Managers\PlayerAccountRegistrationService.cs" />
+    <Compile Include="Accounts\PlayerAccountRegistrationService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceImplementation.cs" />
   </ItemGroup>

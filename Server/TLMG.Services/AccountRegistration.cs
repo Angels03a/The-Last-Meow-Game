@@ -4,7 +4,7 @@ using System.ServiceModel;
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
 using TLMG.DataAccess.Repositories;
-using TLMG.Services.Managers;
+using TLMG.Services.Accounts;
 
 namespace TLMG.Services
 {

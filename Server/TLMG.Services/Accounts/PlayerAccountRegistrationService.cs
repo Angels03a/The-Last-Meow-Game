@@ -11,7 +11,7 @@ using TLMG.Contracts.DataContracts;
 using TLMG.DataAccess.Repositories;
 using TLMG.Services.Helpers;
 
-namespace TLMG.Services.Managers
+namespace TLMG.Services.Accounts
 {
     /// <summary>
     /// Lógica del registro de cuentas; no conoce WCF.
