@@ -61,7 +61,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Services\TLMG.Services.csproj">
+    <ProjectReference Include="..\TLMG.Services\TLMG.Services.csproj">
       <Project>{f33c04b5-8f2c-456b-bf3c-4c1907763913}</Project>
       <Name>TLMG.Services</Name>
     </ProjectReference>

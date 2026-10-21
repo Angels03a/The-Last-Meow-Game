@@ -8,8 +8,8 @@
     <ProjectGuid>{F33C04B5-8F2C-456B-BF3C-4C1907763913}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Services</RootNamespace>
-    <AssemblyName>Services</AssemblyName>
+    <RootNamespace>TLMG.Services</RootNamespace>
+    <AssemblyName>TLMG.Services</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
