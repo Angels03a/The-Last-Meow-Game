@@ -37,6 +37,7 @@ namespace TLMG.Client.Views
         public CreateAccountScreen()
         {
             InitializeComponent();
+            Unloaded += OnScreenUnloaded;
         }
 
         /// <summary>
@@ -84,6 +85,11 @@ namespace TLMG.Client.Views
                 CloseRegistrationClient();
                 ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
             }
+        }
+
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        {
+            CloseRegistrationClient();
         }
 
         private void SendRegistrationRequest()

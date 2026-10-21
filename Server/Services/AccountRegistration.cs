@@ -1,4 +1,5 @@
-﻿using System.ServiceModel;
+﻿using System;
+using System.ServiceModel;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
@@ -9,6 +10,8 @@ namespace TLMG.Services
 {
     public partial class ServiceImplementation : IAccountRegistrationService
     {
+        private const string UnexpectedErrorKey = "CreateAccount_DataModelError";
+
         private static readonly PlayerAccountRegistrationManager _accountRegistrationManager =
             new PlayerAccountRegistrationManager(new PlayerRepository());
 
@@ -19,8 +22,21 @@ namespace TLMG.Services
             IAccountRegistrationServiceCallback callback =
                 OperationContext.Current.GetCallbackChannel<IAccountRegistrationServiceCallback>();
 
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult = 
-                _accountRegistrationManager.RegisterPlayerAccount(registrationPlayerAccount);
+            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult;
+
+            try
+            {
+                operationRegisterPlayerAccountResult =
+                    _accountRegistrationManager.RegisterPlayerAccount(registrationPlayerAccount);
+            }
+            catch (Exception ex)
+            {
+                _log.Fatal("Fallo inesperado al registrar una cuenta de jugador.", ex);
+                operationRegisterPlayerAccountResult = new OperationRegisterPlayerAccountResult
+                {
+                    ErrorKey = UnexpectedErrorKey
+                };
+            }
 
             SafeNotify(() => callback.RegisterPlayerAccountResult(operationRegisterPlayerAccountResult));
         }
