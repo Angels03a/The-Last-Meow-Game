@@ -49,7 +49,7 @@ TLMG es un videojuego multijugador de cartas por turnos, no un sistema bancario 
 
 ## 5. Prohibido
 
-- **Hilos, `Task`, `async`/`await`, `Thread`, `ThreadPool`, `BackgroundWorker`, `System.Timers.Timer`, `System.Threading.Timer`.** Ni en cliente ni en servidor. El único temporizador permitido es `DispatcherTimer` en la interfaz (Estándar §11.4).
+- **Hilos, `Task`, `async`/`await`, `Thread`, `ThreadPool`, `BackgroundWorker`, `System.Timers.Timer`, `System.Threading.Timer`.** Ni en cliente ni en servidor. Incluye `Thread.CurrentThread` y `Thread.Sleep`; la cultura se maneja con `CultureInfo.CurrentCulture` y `CurrentUICulture` (Estándar §11.1). El único temporizador permitido es `DispatcherTimer` en la interfaz (Estándar §11.1).
 - Primitivas de sincronización (`lock`, `SemaphoreSlim`, `Interlocked`): solo si hay estado compartido en el servidor y están justificadas. Consulta antes de usarlas.
 - **Prácticas web dentro de WPF.** No HTTP/REST, ASP.NET, JavaScript, CSS, cookies ni almacenamiento del navegador. En la interfaz se usa XAML, Binding, Commands y Styles. Única excepción: la plantilla HTML del correo 2FA, que vive en el servidor.
 - Acceso del cliente a la base de datos. El cliente solo habla con el servidor por los contratos (SAD §4.3).
@@ -78,7 +78,7 @@ El tratamiento depende de quién produce el error y a quién le llega.
 ## 7. Seguridad (Zero-Trust)
 
 - El cliente no es confiable. El servidor valida todo (turnos, permisos, datos) y nunca envía información que el cliente no deba ver.
-- Contraseñas siempre hasheadas, nunca en claro. El algoritmo está pendiente: usa la interfaz `IPasswordHasher` y no lo fijes.
+- Contraseñas siempre hasheadas, nunca en claro. Algoritmo fijado por D-44 y BL-001: SHA-256 con sal aleatoria por contraseña, formato versionado, calculado solo en el servidor mediante la interfaz `IPasswordHasher` (Estándar §16.2).
 - La base de datos se usa con un usuario de mínimo privilegio, no `sa` ni administrador salvo para cambiar la estructura.
 - Secretos (correo SMTP, etc.) fuera del repositorio, en un archivo ignorado por Git y cifrado.
 
@@ -96,25 +96,25 @@ gov/                       CLAUDE.md y Backlog_TLMG.md
 ```
 
 - El cliente usa el proxy generado con svcutil o Add Service Reference. No referencia `TLMG.Contracts`.
-- Hoy el cliente tiene una referencia temporal a `TLMG.DataAccess`; se elimina cuando el login y la clasificación pasen por el servidor.
+- Hoy el cliente tiene una referencia temporal a `TLMG.DataAccess`. Es deuda registrada (Estándar §4.1 regla 2) y se retira con BL-016, cuando el login y la clasificación pasen por el servidor.
 
 ## 9. Nombrado
 
 Todo nombre debe ser descriptivo y acorde al contexto del juego, respetando el Estándar.
 
 - Proyectos, namespaces y carpetas de proyecto llevan el prefijo `TLMG.` (§3.13).
-- Las clases no llevan prefijo; llevan el sufijo de su responsabilidad: `Screen`, `Window`, `Helper`, `Manager`, `Service`, `Data`, `Repository`, `ViewModel`, `EventArgs`, etc. (§3.14). Las interfaces llevan el prefijo `I`.
+- Las clases no llevan prefijo; llevan el sufijo de su responsabilidad: `Screen`, `Window`, `Helper`, `Manager`, `Service`, `Repository`, `ViewModel`, `EventArgs`, etc. (§3.14). Las interfaces llevan el prefijo `I`.
 - `Manager` solo para recursos globales o contratos WCF; nunca para persistencia ni lógica de negocio.
 - `Service` solo para la lógica de negocio del servidor (D-49); nunca para persistencia ni contratos WCF.
-- Subcarpetas y archivos: nombre descriptivo del contenido, en inglés y PascalCase, un tipo por archivo, y el archivo se llama como su tipo.
+- Subcarpetas y archivos: nombre descriptivo del contenido, en inglés y PascalCase, un tipo por archivo, y el archivo se llama como su tipo. Las clases parciales se nombran `Tipo.Aspecto.cs` (Estándar §4.3).
 - Métodos: verbo o frase verbal que diga qué hacen en el contexto del juego (§3.7). Nada de nombres genéricos como `Process`, `DoWork` o `Handle`.
-- Contadores de bucle y variables con nombre descriptivo (§3.x), sin una sola letra.
+- Contadores de bucle y variables con nombre descriptivo (§3.1), sin una sola letra.
 - Si un nombre no queda claro, propón dos opciones en vez de elegir al azar.
 
 ## 10. Reglas de WCF (netTcpBinding dúplex)
 
 - Contratos: `[ServiceContract]` en la interfaz y `[OperationContract]` en cada método. Nombre `I<Área>Manager` e `I<Área>ManagerCallback`.
-- Todo lo que viaja por la red es una clase `[DataContract]` con sufijo `Data`, y cada propiedad lleva `[DataMember]`.
+- Todo lo que viaja por la red es una clase `[DataContract]` en `TLMG.Contracts.DataContracts`, y cada propiedad lleva `[DataMember]`. Los DTO no llevan sufijo `Data` (D-56): se nombran por su contenido; `Request` y `Result` se reservan para la entrada y la salida de una operación (Estándar §17.1).
 - Una sola clase parcial `ServiceImplementation` implementa todos los contratos, un archivo por contrato. `InstanceContextMode.PerSession` y `ConcurrencyMode.Single`.
 - Los callbacks y las operaciones cuyo resultado llega por callback llevan `IsOneWay = true`. La interfaz se actualiza con `Dispatcher.BeginInvoke` y un método con nombre.
 - `sessionToken` en la primera operación de cada contrato dúplex y en las de `IUsersManager` posteriores al login.
@@ -123,7 +123,7 @@ Todo nombre debe ser descriptivo y acorde al contexto del juego, respetando el E
 
 ## 11. Estándar de codificación (resumen; manda el documento completo)
 
-- Un solo `return` al final con variable local. Ternario solo en asignaciones simples de una línea, sin anidar (§13.1, §13.4).
+- Un solo `return` al final con variable local. Ternario solo en asignaciones simples de una línea, sin anidar (§13.2, §13.5).
 - Máximo 120 columnas, también en comentarios. Llaves Allman. Usings agrupados (§9).
 - Lambdas solo de una sentencia; sin lambdas de bloque (§9.8).
 - Comentarios XML en miembros públicos; `<inheritdoc />` donde aplique (§12).
@@ -138,16 +138,13 @@ Todo nombre debe ser descriptivo y acorde al contexto del juego, respetando el E
 
 - Mínimo 300 pruebas unitarias. Para cada funcionalidad: flujo normal, 3 flujos alternos y un caso de excepción.
 - El motor de reglas es una biblioteca pura, sin WPF, WCF ni base de datos, para que las pruebas corran en memoria.
-- El framework de pruebas (MSTest o xUnit) está pendiente de decidir.
+- El marco de pruebas está pendiente de decisión (Estándar §15.1).
 
 ## 14. Documentos de referencia
 
 Léelos antes de proponer cambios. Si falta alguno en el repo, pídelo.
 
-- `docs/Estandar-Codificacion-CSharp.md`
-- `docs/Contratos_WCF_TLMG.md`
-- `docs/Bitacora-de-decisiones.md`
-- `docs/SAD.md` (ADR-01 a ADR-07, §4.2 interfaces, §4.3 reglas de dependencia)
-- `docs/Reglas-de-The-Last-Meow.md`
+- `docs/Estandar.md` (única fuente en `docs/` hoy; es la norma vigente)
+- Bitácora de decisiones, SAD (ADR-01 a ADR-07, §4.2 interfaces, §4.3 reglas de dependencia), Reglas de The Last Meow y Contratos WCF: aún no están en el repo; se agregarán en Markdown (BL-026). No se inventan rutas hasta entonces.
 - `database/TLMG_DB_v3.1.sql` (o la versión vigente)
 - `gov/Backlog_TLMG.md`
