@@ -12,6 +12,10 @@ namespace TLMG.Client
     internal static class LanguageManager
     {
         private const string DefaultCultureCode = "es-MX";
+
+        /// <summary>
+        /// Código de la cultura en inglés (en-US).
+        /// </summary>
         public const string EnglishCultureCode = "en-US";
         private const string EnglishCulturePrefix = "en";
         private const int NotFoundIndex = -1;
@@ -42,9 +46,7 @@ namespace TLMG.Client
                 EnglishCulturePrefix,
                 StringComparison.OrdinalIgnoreCase);
 
-            string normalizedCulture = isEnglishSystemCulture
-                ? EnglishCultureCode
-                : DefaultCultureCode;
+            string normalizedCulture = isEnglishSystemCulture ? EnglishCultureCode : DefaultCultureCode;
 
             ApplyCulture(normalizedCulture);
             UpdateResourceDictionary(normalizedCulture);

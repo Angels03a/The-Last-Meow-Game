@@ -31,7 +31,7 @@ namespace TLMG.Services
             }
             catch (Exception ex)
             {
-                _log.Fatal("Fallo inesperado al registrar una cuenta de jugador.", ex);
+                _log.Error("Fallo inesperado al registrar una cuenta de jugador.", ex);
                 operationRegisterPlayerAccountResult = new OperationRegisterPlayerAccountResult
                 {
                     ErrorKey = UnexpectedErrorKey
