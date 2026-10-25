@@ -70,7 +70,7 @@ El tratamiento depende de quién produce el error y a quién le llega.
 - Nunca mostrar `Exception.Message`, trazas, nombres de tablas ni detalles internos.
 - Los errores esperados (validación, regla de negocio) viajan como `ErrorKey` (Estándar §10.2). El servidor no manda texto traducido: el cliente traduce la clave con sus diccionarios es-MX y en-US según el idioma activo del jugador. Cada `ErrorKey` nueva existe en ambos diccionarios.
 - Los errores inesperados se registran con log4net pasando la excepción como segundo parámetro, y el jugador ve un mensaje genérico en su idioma. `FaultException` solo para lo inesperado.
-- `catch (Exception)` solo en puntos de entrada del servicio, registrado y convertido a un resultado controlado. Nunca un `catch` vacío.
+- `catch (Exception)` solo en puntos de entrada del servicio, en los límites del sistema o como último bloque de una cascada. Se registra con `_log.Error` y la excepción como segundo parámetro (`_log.Fatal` solo en los casos de §10.3 del Estándar) y se relanza con `throw;` o se convierte en un resultado controlado (`ErrorKey`) (§10.2). Nunca un `catch` vacío.
 - Los mensajes de log son para el equipo: en español, sin traducir, con el nivel correcto (Debug, Info, Warn, Error, Fatal). Los logs ya están implementados con log4net; úsalos, no los reemplaces.
 - No registrar en el log contraseñas, códigos de verificación ni correos; el nickname sí puede registrarse (Estándar §10.3).
 - Cuando el servidor deba generar texto para el jugador fuera de la interfaz (por ejemplo, un correo), usa el idioma que el cliente envía en la solicitud.
@@ -123,7 +123,7 @@ Todo nombre debe ser descriptivo y acorde al contexto del juego, respetando el E
 
 ## 11. Estándar de codificación (resumen; manda el documento completo)
 
-- Un solo `return` al final con variable local. Ternario solo en asignaciones simples de una línea, sin anidar (§13.2, §13.5).
+- Un solo `return` al final con variable local. Ternario solo en asignaciones simples de una línea, sin anidar; si no cabe en 120 columnas, se usa `if/else` (§13.2, §13.5).
 - Máximo 120 columnas, también en comentarios. Llaves Allman. Usings agrupados (§9).
 - Lambdas solo de una sentencia; sin lambdas de bloque (§9.8).
 - Comentarios XML en miembros públicos; `<inheritdoc />` donde aplique (§12).
@@ -139,6 +139,7 @@ Todo nombre debe ser descriptivo y acorde al contexto del juego, respetando el E
 - Mínimo 300 pruebas unitarias. Para cada funcionalidad: flujo normal, 3 flujos alternos y un caso de excepción.
 - El motor de reglas es una biblioteca pura, sin WPF, WCF ni base de datos, para que las pruebas corran en memoria.
 - El marco de pruebas está pendiente de decisión (Estándar §15.1).
+- Pruebas unitarias en un proyecto `.Tests` con el nombre exacto del proyecto de producción; las pruebas de integración del servidor van juntas en `/test/TLMG.Server.Tests` (Estándar §15.2).
 
 ## 14. Documentos de referencia
 
