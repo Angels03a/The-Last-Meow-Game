@@ -72,7 +72,7 @@ El tratamiento depende de quién produce el error y a quién le llega.
 - Los errores inesperados se registran con log4net pasando la excepción como segundo parámetro, y el jugador ve un mensaje genérico en su idioma. `FaultException` solo para lo inesperado.
 - `catch (Exception)` solo en puntos de entrada del servicio, registrado y convertido a un resultado controlado. Nunca un `catch` vacío.
 - Los mensajes de log son para el equipo: en español, sin traducir, con el nivel correcto (Debug, Info, Warn, Error, Fatal). Los logs ya están implementados con log4net; úsalos, no los reemplaces.
-- No registrar en el log contraseñas, códigos de verificación ni datos personales completos.
+- No registrar en el log contraseñas, códigos de verificación ni correos; el nickname sí puede registrarse (Estándar §10.3).
 - Cuando el servidor deba generar texto para el jugador fuera de la interfaz (por ejemplo, un correo), usa el idioma que el cliente envía en la solicitud.
 
 ## 7. Seguridad (Zero-Trust)
@@ -118,7 +118,7 @@ Todo nombre debe ser descriptivo y acorde al contexto del juego, respetando el E
 - Una sola clase parcial `ServiceImplementation` implementa todos los contratos, un archivo por contrato. `InstanceContextMode.PerSession` y `ConcurrencyMode.Single`.
 - Los callbacks y las operaciones cuyo resultado llega por callback llevan `IsOneWay = true`. La interfaz se actualiza con `Dispatcher.BeginInvoke` y un método con nombre.
 - `sessionToken` en la primera operación de cada contrato dúplex y en las de `IUsersManager` posteriores al login.
-- Los servicios delegan al dominio; no llevan lógica compleja ni LINQ.
+- Los servicios delegan al dominio; no llevan lógica compleja.
 - Los datos binarios (foto de perfil) viajan como `byte[]` optimizados.
 
 ## 11. Estándar de codificación (resumen; manda el documento completo)
