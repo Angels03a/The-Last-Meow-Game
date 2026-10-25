@@ -33,7 +33,8 @@ Formato de entrada:
 - Por qué: `IAccountRegistrationService` no sigue D-41 ni §3.14. Incluye callback, archivo parcial, endpoint y regenerar el proxy.
 - Depende de: acuerdo con Nicole sobre quién lo hace
 - Depende de: BL-003 y BL-004 (ronda 1, integrada);
-- Nota (2026-10-25): el renombre del contrato, el callback, el archivo parcial y el endpoint del servidor se hicieron en af8fbce, y la regeneración del proxy del cliente en 563cd51. El commit af8fbce cubre solo el servidor, por eso no se cierra aquí; con ambos commits el alcance descrito parece cubierto. Queda la dirección del endpoint, que conserva el nombre `AccountRegistrationService` (sin regla en el Estándar). Falta decidir el cierre y completar el formato de la entrada.
+- Estado: Finalizado el 2026-10-25 · commits af8fbce y 563cd51
+- Nota (2026-10-25): cierre. El renombre del contrato, el callback, el archivo parcial y el endpoint del servidor se hicieron en af8fbce, y la regeneración del proxy del cliente en 563cd51. La dirección del endpoint conserva el nombre `AccountRegistrationService`: el Estándar no tiene regla para ello; decisión del encargado.
 
 ### BL-003 · Renombrar `AccountRegistrationManager`
 - Creado: 2026-10-20 10:30
@@ -118,12 +119,13 @@ Formato de entrada:
 - Por qué: hoy el cliente consulta la BD directamente (el login entra con el servidor apagado); viola SAD §4.3 y Zero-Trust.
 - Depende de: BL-002
 - Estado: Pendiente
-- Nota (2026-10-25): evidencia del acceso directo a la base desde el cliente (git grep sobre Client): LoginScreen.xaml.cs:104 y LeaderboardScreen.xaml.cs:76 abren new TLMG_DBEntities() desde la vista; Client/TLMG.Client/App.config:7 tiene su propia cadena de conexión TLMG_DBEntities; Client/TLMG.Client/TLMG.Client.csproj:242 y Client/TLMG.Client.slnx:3 referencian TLMG.DataAccess. Contradice Estándar §4.1 y Zero-Trust. Comprobación funcional: con el servidor apagado el inicio de sesión sigue funcionando; el registro ya pasa por WCF y con el servidor apagado muestra el error de red controlado. El alcance incluye retirar de la tabla de posiciones su consulta directa y usar un contrato del servidor para la clasificación (el nombre del contrato queda por confirmar).
+- Nota (2026-10-25): evidencia del acceso directo a la base desde el cliente (git grep sobre Client): LoginScreen.xaml.cs:104 y LeaderboardScreen.xaml.cs:76 abren new TLMG_DBEntities() desde la vista; Client/TLMG.Client/App.config:7 tiene su propia cadena de conexión TLMG_DBEntities; Client/TLMG.Client/TLMG.Client.csproj:242 y Client/TLMG.Client.slnx:3 referencian TLMG.DataAccess. Contradice Estándar §4.1 y Zero-Trust. Comprobación funcional: con el servidor apagado el inicio de sesión sigue funcionando; el registro ya pasa por WCF y con el servidor apagado muestra el error de red controlado. El alcance incluye retirar de la tabla de posiciones su consulta directa y usar un contrato del servidor para la clasificación (`ILeaderboardManager`, D-41).
+- Nota (2026-10-25): el cliente conserva el `PackageReference` a EntityFramework (Client/TLMG.Client/TLMG.Client.csproj, alrededor de la línea 233); se retira junto con la referencia a TLMG.DataAccess, cuando ya no quede código del cliente que use TLMG_DBEntities. Quitarlo antes rompería la compilación de LoginScreen y LeaderboardScreen.
 
 ### BL-017 · Centralizar el manejo de errores, `ErrorKey` y mensajes (cliente y servidor)
 - Creado: 2026-10-20 12:30
 - Por qué: hoy el servidor decide la `ErrorKey` de un fallo de guardado dentro del manager (`ResolveSaveFailureErrorKey`, `isDuplicated`, cerca de la línea 152) y la pantalla de registro resuelve las claves y el Dispatcher en `RegisterPlayerAccountResult` (cerca de la línea 46). Ambos acoplan reglas de persistencia, errores e internacionalización en una sola clase. Además, `UnexpectedErrorKey` (en `AccountRegistration.cs`) repite el valor de `InternalErrorKey`, que es `private const` en `PlayerAccountRegistrationManager`: unificar en una sola constante. Hacer primero un inventario de solo lectura (dependencias, llamadas y otros módulos con el mismo patrón) y luego decidir con alternativas.
-- Depende de: inventario previo; decisión de Martín (alternativas por presentar)
+- Depende de: inventario previo; decisión del encargado (alternativas por presentar)
 - Estado: Pendiente
 
 ### BL-018 · Revisar el texto de `CreateAccount_DataModelError`
@@ -152,6 +154,7 @@ Formato de entrada:
 - Hechos verificados (2026-10-20 16:40, lectura de código): las direcciones viven solo en configuración (cliente `net.tcp://localhost:8081/AccountRegistrationService`; base del servidor `net.tcp://localhost:8081/`); ningún `.cs` las escribe. Ninguno de los dos bindings define `mode` ni `clientCredentialType`: rigen los valores por defecto de `netTcpBinding` (Transport y Windows). Sin `<identity>` en el cliente tras la fase 2 se usa la identidad por defecto; falta comprobar si sirve entre dos PC.
 - Depende de: decisión de despliegue del servidor
 - Estado: Pendiente
+- Nota (2026-10-25): revisar `sslProtocols="None"` en Client/TLMG.Client/App.config:14 junto con la seguridad de transporte entre dos PC. El Estándar no regula este punto.
 
 ### BL-022 · Política de caídas y reconexión (servidor y clientes)
 - Creado: 2026-10-20 16:25
@@ -206,6 +209,7 @@ Formato de entrada:
 - Depende de: BL-001, BL-002, BL-016
 - Estado: Pendiente
 - Nota (2026-10-25): el alcance incluye retirar la cadena de conexión TLMG_DBEntities del cliente (Client/TLMG.Client/App.config:7) y la referencia a TLMG.DataAccess (TLMG.Client.csproj:242 y TLMG.Client.slnx:3). Comprobación funcional: con el servidor apagado el inicio de sesión sigue funcionando porque LoginScreen.xaml.cs:104 consulta la base directamente.
+- Nota (2026-10-25): el cliente conserva el `PackageReference` a EntityFramework (Client/TLMG.Client/TLMG.Client.csproj, alrededor de la línea 233); se retira junto con la referencia a TLMG.DataAccess, cuando ya no quede código del cliente que use TLMG_DBEntities. Quitarlo antes rompería la compilación de LoginScreen y LeaderboardScreen.
 
 ### BL-031 · Script SQL: datos ficticios y encabezado versionado
 - Creado: 2026-10-25 00:49
@@ -316,6 +320,12 @@ Formato de entrada:
 - Creado: 2026-10-25 16:50
 - Por qué: configuration.svcinfo, configuration91.svcinfo y service.wsdl de Connected Services/UsersManagerReference contienen la identidad de Windows (UPN) que el servidor publica en el WSDL. Es el mecanismo normal de Visual Studio y ya estaba en los proxies anteriores del historial; esos archivos no se editan a mano (Estándar §4.3).
 - Depende de: BL-021 (seguridad entre dos PC, identidad explícita del endpoint)
+- Estado: Pendiente
+
+### BL-049 · Revisar el nombre del método del callback y el atributo [ServiceContract] en IUsersManagerCallback
+- Creado: 2026-10-25 17:10
+- Por qué: el método `RegisterPlayerAccountResult` termina en sustantivo (§3.7 pide verbo o frase verbal; el ejemplo de §3.10 usa la forma On…) y el callback lleva `[ServiceContract]` mientras el ejemplo de §3.10 no. Cambiarlo obliga a regenerar el proxy, así que se hace en la misma regeneración que BL-030 (login).
+- Depende de: BL-030
 - Estado: Pendiente
 
 ---
