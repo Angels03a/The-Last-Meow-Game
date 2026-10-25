@@ -427,3 +427,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Secretos del servidor (Estándar §5.2 y §8.3): la cadena de conexión real no se versiona
+ConnectionStrings.config

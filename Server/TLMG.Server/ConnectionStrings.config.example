@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Plantilla de ConnectionStrings.config (Estándar §5.2). Cópiala como ConnectionStrings.config en esta misma
+  carpeta y reemplaza los marcadores TU_*. El archivo real no se versiona; este ejemplo no lleva valores reales.
+  TU_AUTENTICACION: por ejemplo "integrated security=True" o "user id=...;password=...".
+-->
+<connectionStrings>
+  <add name="TLMG_DBEntities"
+       connectionString="metadata=res://*/DatabaseModel.TLMGModel.csdl|res://*/DatabaseModel.TLMGModel.ssdl|res://*/DatabaseModel.TLMGModel.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=TU_SERVIDOR;initial catalog=TU_BASE;TU_AUTENTICACION;MultipleActiveResultSets=True;App=EntityFramework&quot;"
+       providerName="System.Data.EntityClient" />
+</connectionStrings>
