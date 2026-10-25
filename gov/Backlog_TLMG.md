@@ -214,6 +214,7 @@ Formato de entrada:
 - Por qué: Estándar §8.3 y §5.2 declaran estas reglas como pendientes. Server/TLMG.Server/App.config lleva la cadena inline; falta ConnectionStrings.config (configSource) y ConnectionStrings.config.example. Reglas de ignorado para ambos y para el archivo DPAPI de SMTP (D-43).
 - Depende de: BL-008
 - Estado: Pendiente
+- Nota (2026-10-25): Cadena de conexión del servidor movida a ConnectionStrings.config y regla de .gitignore hechas en el commit a733631. Pendiente: nombre y patrón del archivo cifrado de SMTP (D-43, BL-008). No cerrada.
 
 ### BL-033 · Nivel de log por configuración y consola del servidor
 - Creado: 2026-10-25 00:49
