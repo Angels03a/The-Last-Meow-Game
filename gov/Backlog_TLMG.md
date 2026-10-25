@@ -26,12 +26,14 @@ Formato de entrada:
 - Por qué: hoy la contraseña se guarda en claro. Decisión del equipo (2026-10-20 22:32): SHA-256 con sal por contraseña, opción A, alineada con el SAD; se descartó PBKDF2 por familiaridad del equipo. Implementación prevista: `IPasswordHasher` y `PasswordHasher` en el servidor, formato versionado (`v1$sal$hash`), sal aleatoria, comparación de tiempo constante. Decisión registrada en la bitácora (D-44).
 - Depende de: BL-016 (el login debe pasar por el servidor antes o junto con el hash)
 - Estado: Decidido; pendiente de implementar
+- Nota (2026-10-25): el hash no puede verificarse mientras el inicio de sesión compare contra la base desde el cliente (LoginScreen.xaml.cs:104); comprobado el 2026-10-25 que con el servidor apagado el inicio de sesión sigue funcionando.
 
 ### BL-002 · Renombrar el contrato de registro a `IUsersManager`
 - Creado: 2026-10-20 10:30
 - Por qué: `IAccountRegistrationService` no sigue D-41 ni §3.14. Incluye callback, archivo parcial, endpoint y regenerar el proxy.
 - Depende de: acuerdo con Nicole sobre quién lo hace
 - Depende de: BL-003 y BL-004 (ronda 1, integrada);
+- Nota (2026-10-25): el renombre del contrato, el callback, el archivo parcial y el endpoint del servidor se hicieron en af8fbce, y la regeneración del proxy del cliente en 563cd51. El commit af8fbce cubre solo el servidor, por eso no se cierra aquí; con ambos commits el alcance descrito parece cubierto. Queda la dirección del endpoint, que conserva el nombre `AccountRegistrationService` (sin regla en el Estándar). Falta decidir el cierre y completar el formato de la entrada.
 
 ### BL-003 · Renombrar `AccountRegistrationManager`
 - Creado: 2026-10-20 10:30
@@ -49,7 +51,7 @@ Formato de entrada:
 - Creado: 2026-10-20 10:30
 - Por qué: ADR-03 y la regla de no usar `Task`. Desmarcar "Allow generation of asynchronous operations" y regenerar la referencia.
 - Depende de: nada
-- Estado: Pendiente
+- Estado: Finalizado el 2026-10-25 · commit 563cd51
 
 ### BL-006 · Script de BD v3.2 con procedimientos del 2FA
 - Creado: 2026-10-20 10:30
@@ -116,6 +118,7 @@ Formato de entrada:
 - Por qué: hoy el cliente consulta la BD directamente (el login entra con el servidor apagado); viola SAD §4.3 y Zero-Trust.
 - Depende de: BL-002
 - Estado: Pendiente
+- Nota (2026-10-25): evidencia del acceso directo a la base desde el cliente (git grep sobre Client): LoginScreen.xaml.cs:104 y LeaderboardScreen.xaml.cs:76 abren new TLMG_DBEntities() desde la vista; Client/TLMG.Client/App.config:7 tiene su propia cadena de conexión TLMG_DBEntities; Client/TLMG.Client/TLMG.Client.csproj:242 y Client/TLMG.Client.slnx:3 referencian TLMG.DataAccess. Contradice Estándar §4.1 y Zero-Trust. Comprobación funcional: con el servidor apagado el inicio de sesión sigue funcionando; el registro ya pasa por WCF y con el servidor apagado muestra el error de red controlado. El alcance incluye retirar de la tabla de posiciones su consulta directa y usar un contrato del servidor para la clasificación (el nombre del contrato queda por confirmar).
 
 ### BL-017 · Centralizar el manejo de errores, `ErrorKey` y mensajes (cliente y servidor)
 - Creado: 2026-10-20 12:30
@@ -202,6 +205,7 @@ Formato de entrada:
 - Por qué: el cliente consulta la BD y compara la contraseña en claro (LoginScreen.xaml.cs:104-108); el registro la guarda en claro (PlayerAccountRegistrationService.cs:97-98, 147-151). Estándar §16.2 y D-44: SHA-256 con sal aleatoria por contraseña, solo en el servidor. Retira también la cadena de conexión y la referencia a DataAccess del cliente (§4.1 regla 2, §5.2).
 - Depende de: BL-001, BL-002, BL-016
 - Estado: Pendiente
+- Nota (2026-10-25): el alcance incluye retirar la cadena de conexión TLMG_DBEntities del cliente (Client/TLMG.Client/App.config:7) y la referencia a TLMG.DataAccess (TLMG.Client.csproj:242 y TLMG.Client.slnx:3). Comprobación funcional: con el servidor apagado el inicio de sesión sigue funcionando porque LoginScreen.xaml.cs:104 consulta la base directamente.
 
 ### BL-031 · Script SQL: datos ficticios y encabezado versionado
 - Creado: 2026-10-25 00:49
@@ -232,7 +236,8 @@ Formato de entrada:
 - Creado: 2026-10-25 00:49
 - Por qué: apuntan a un contrato que ya no existe (OnRegisterResult, OperationResultData) y nadie los usa. La carpeta Communication/ se conserva: es la capa de Comunicación (Estándar §4.1, §4.3). Ya listado en BL-027; se separa para cerrarlo con su propio commit.
 - Depende de: autorización explícita de Martín; BL-005
-- Estado: Pendiente
+- Estado: Finalizado el 2026-10-25 · commit a8cdce2
+- Nota (2026-10-25): el proxy TLMGService y los dos archivos de Communication/ se retiraron en a8cdce2; no quedan referencias en el código. Como Git no guarda carpetas vacías, Communication/ ya no aparece en el repo; BL-036 la vuelve a crear con el callback.
 
 ### BL-036 · Mover el callback y el cierre del canal a Communication/
 - Creado: 2026-10-25 00:49
@@ -281,6 +286,7 @@ Formato de entrada:
 - Por qué: variable con nombre de tipo (PlayerAccountRegistrationService.cs:81); constantes ...minimum/maximun (PlayerAccountRegistrationValidationHelper.cs:13-18); ternarios multilínea (6 sitios); 3 return de expresión (LeaderboardScreen.xaml.cs:187, 235; NewPasswordScreen.xaml.cs:113); manejadores Timer_Tick, CountdownTimer_Tick, ToastTimer_Tick y DigitBox_* (§7.2); <param> y <returns> de ValidationHelper (§12.2, §10.7); public const sin documentar; LoadLeaderboardData de 43 líneas; texto "{0} pts" en código; clave Common_ para CreateAccount_NicknameFormatError; llaves de OperationRegisterPlayerAccountResult.cs:3; referencia System.Web sin uso; Thread.CurrentThread en LanguageManager.cs:77-78 (§11.1); decidir si es variable local o constante en LobbyScreen.xaml.cs:255.
 - Depende de: BL-027
 - Estado: Pendiente
+- Nota (2026-10-25): el uso de Thread.CurrentThread en LanguageManager se corrigió en 64d1ce1. La entrada sigue abierta por el resto de su alcance.
 
 ### BL-044 · Reglas de validación solo en el cliente y desalineación con la BD
 - Creado: 2026-10-25 00:49
@@ -304,6 +310,12 @@ Formato de entrada:
 - Creado: 2026-10-25 14:23
 - Por qué: el estado se maneja con cadenas ("USER_ACTIVE") en PlayerRepository.cs:17 y en la consulta de LeaderboardScreen.xaml.cs:81; usar un enum (PlayerRepository.cs:16) y filtrar por estado activo (LeaderboardScreen.xaml.cs:80).
 - Depende de: nada
+- Estado: Pendiente
+
+### BL-048 · Los archivos generados del proxy contienen la identidad de Windows (UPN) del WSDL
+- Creado: 2026-10-25 16:50
+- Por qué: configuration.svcinfo, configuration91.svcinfo y service.wsdl de Connected Services/UsersManagerReference contienen la identidad de Windows (UPN) que el servidor publica en el WSDL. Es el mecanismo normal de Visual Studio y ya estaba en los proxies anteriores del historial; esos archivos no se editan a mano (Estándar §4.3).
+- Depende de: BL-021 (seguridad entre dos PC, identidad explícita del endpoint)
 - Estado: Pendiente
 
 ---
