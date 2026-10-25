@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TLMG.Client.AccountRegistrationServiceReference {
+namespace TLMG.Client.UsersManagerReference {
     using System.Runtime.Serialization;
     using System;
     
@@ -168,57 +168,50 @@ namespace TLMG.Client.AccountRegistrationServiceReference {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="AccountRegistrationServiceReference.IAccountRegistrationService", CallbackContract=typeof(TLMG.Client.AccountRegistrationServiceReference.IAccountRegistrationServiceCallback))]
-    public interface IAccountRegistrationService {
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="UsersManagerReference.IUsersManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.IUsersManagerCallback))]
+    public interface IUsersManager {
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IAccountRegistrationService/RegisterPlayerAccount")]
-        void RegisterPlayerAccount(TLMG.Client.AccountRegistrationServiceReference.PlayerAccountRegistration playerAccountRegistration);
-        
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IAccountRegistrationService/RegisterPlayerAccount")]
-        System.Threading.Tasks.Task RegisterPlayerAccountAsync(TLMG.Client.AccountRegistrationServiceReference.PlayerAccountRegistration playerAccountRegistration);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IUsersManager/RegisterPlayerAccount")]
+        void RegisterPlayerAccount(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IAccountRegistrationServiceCallback {
+    public interface IUsersManagerCallback {
         
-        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IAccountRegistrationService/RegisterPlayerAccountResult")]
-        void RegisterPlayerAccountResult(TLMG.Client.AccountRegistrationServiceReference.OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult);
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IUsersManager/RegisterPlayerAccountResult")]
+        void RegisterPlayerAccountResult(TLMG.Client.UsersManagerReference.OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IAccountRegistrationServiceChannel : TLMG.Client.AccountRegistrationServiceReference.IAccountRegistrationService, System.ServiceModel.IClientChannel {
+    public interface IUsersManagerChannel : TLMG.Client.UsersManagerReference.IUsersManager, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class AccountRegistrationServiceClient : System.ServiceModel.DuplexClientBase<TLMG.Client.AccountRegistrationServiceReference.IAccountRegistrationService>, TLMG.Client.AccountRegistrationServiceReference.IAccountRegistrationService {
+    public partial class UsersManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.IUsersManager>, TLMG.Client.UsersManagerReference.IUsersManager {
         
-        public AccountRegistrationServiceClient(System.ServiceModel.InstanceContext callbackInstance) : 
+        public UsersManagerClient(System.ServiceModel.InstanceContext callbackInstance) : 
                 base(callbackInstance) {
         }
         
-        public AccountRegistrationServiceClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
+        public UsersManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
                 base(callbackInstance, endpointConfigurationName) {
         }
         
-        public AccountRegistrationServiceClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
+        public UsersManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress) {
         }
         
-        public AccountRegistrationServiceClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
+        public UsersManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress) {
         }
         
-        public AccountRegistrationServiceClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+        public UsersManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, binding, remoteAddress) {
         }
         
-        public void RegisterPlayerAccount(TLMG.Client.AccountRegistrationServiceReference.PlayerAccountRegistration playerAccountRegistration) {
+        public void RegisterPlayerAccount(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration) {
             base.Channel.RegisterPlayerAccount(playerAccountRegistration);
-        }
-        
-        public System.Threading.Tasks.Task RegisterPlayerAccountAsync(TLMG.Client.AccountRegistrationServiceReference.PlayerAccountRegistration playerAccountRegistration) {
-            return base.Channel.RegisterPlayerAccountAsync(playerAccountRegistration);
         }
     }
 }

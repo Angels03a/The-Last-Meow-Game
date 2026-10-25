@@ -66,7 +66,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="Connected Services\AccountRegistrationServiceReference\Reference.cs">
+    <Compile Include="Connected Services\UsersManagerReference\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -215,9 +215,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Connected Services\AccountRegistrationServiceReference\configuration91.svcinfo" />
-    <None Include="Connected Services\AccountRegistrationServiceReference\configuration.svcinfo" />
-    <None Include="Connected Services\AccountRegistrationServiceReference\Reference.svcmap">
+    <None Include="Connected Services\UsersManagerReference\configuration91.svcinfo" />
+    <None Include="Connected Services\UsersManagerReference\configuration.svcinfo" />
+    <None Include="Connected Services\UsersManagerReference\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
@@ -234,14 +234,14 @@
     <None Include="Connected Services\TLMGService\TLMG.Contracts.Dtos.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Connected Services\AccountRegistrationServiceReference\service.wsdl" />
-    <None Include="Connected Services\AccountRegistrationServiceReference\service.xsd">
+    <None Include="Connected Services\UsersManagerReference\service.wsdl" />
+    <None Include="Connected Services\UsersManagerReference\service.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Connected Services\AccountRegistrationServiceReference\service1.xsd">
+    <None Include="Connected Services\UsersManagerReference\service1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Connected Services\AccountRegistrationServiceReference\TLMG.Contracts.DataContracts.xsd">
+    <None Include="Connected Services\UsersManagerReference\TLMG.Contracts.DataContracts.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Properties\Settings.settings">
@@ -272,7 +272,7 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Connected Services\TLMGService\" />
-    <WCFMetadataStorage Include="Connected Services\AccountRegistrationServiceReference\" />
+    <WCFMetadataStorage Include="Connected Services\UsersManagerReference\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

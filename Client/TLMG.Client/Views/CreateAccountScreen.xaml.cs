@@ -2,7 +2,7 @@ using System;
 using System.Windows;
 using System.ServiceModel;
 using log4net;
-using TLMG.Client.AccountRegistrationServiceReference;
+using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Views
 {
@@ -11,7 +11,7 @@ namespace TLMG.Client.Views
     /// y reacciona al resultado recibido por callback.
     /// </summary>
     [CallbackBehavior(UseSynchronizationContext = false)]
-    public partial class CreateAccountScreen : LocalizableScreen, IAccountRegistrationServiceCallback
+    public partial class CreateAccountScreen : LocalizableScreen, IUsersManagerCallback
     {
         private const bool IsErrorMessage = true;
 
@@ -29,7 +29,7 @@ namespace TLMG.Client.Views
         private const string ConfirmAbandonTitleKey = "CreateAccount_ConfirmAbandonTitle";
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(CreateAccountScreen));
-        private AccountRegistrationServiceClient _accountRegistrationClient;
+        private UsersManagerClient _accountRegistrationClient;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="CreateAccountScreen"/>.
@@ -106,7 +106,7 @@ namespace TLMG.Client.Views
 
             try
             {
-                _accountRegistrationClient = new AccountRegistrationServiceClient(new InstanceContext(this));
+                _accountRegistrationClient = new UsersManagerClient(new InstanceContext(this));
 
                 _accountRegistrationClient.RegisterPlayerAccount(playerAccountRegistration);
             }
