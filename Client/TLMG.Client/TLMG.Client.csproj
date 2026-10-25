@@ -59,13 +59,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Communication\AccountRegistrationServiceCallback.cs" />
-    <Compile Include="Communication\RegistrationResultEventArgs.cs" />
-    <Compile Include="Connected Services\TLMGService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="Connected Services\UsersManagerReference\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -209,12 +202,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Connected Services\TLMGService\configuration91.svcinfo" />
-    <None Include="Connected Services\TLMGService\configuration.svcinfo" />
-    <None Include="Connected Services\TLMGService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
     <None Include="Connected Services\UsersManagerReference\configuration91.svcinfo" />
     <None Include="Connected Services\UsersManagerReference\configuration.svcinfo" />
     <None Include="Connected Services\UsersManagerReference\Reference.svcmap">
@@ -224,16 +211,6 @@
     <Content Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="Connected Services\TLMGService\service.wsdl" />
-    <None Include="Connected Services\TLMGService\service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\TLMGService\service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\TLMGService\TLMG.Contracts.Dtos.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Connected Services\UsersManagerReference\service.wsdl" />
     <None Include="Connected Services\UsersManagerReference\service.xsd">
       <SubType>Designer</SubType>
@@ -271,8 +248,10 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Connected Services\TLMGService\" />
     <WCFMetadataStorage Include="Connected Services\UsersManagerReference\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Communication\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
