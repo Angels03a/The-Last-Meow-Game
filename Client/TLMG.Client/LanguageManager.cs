@@ -2,7 +2,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Windows;
 
 namespace TLMG.Client
@@ -74,8 +73,8 @@ namespace TLMG.Client
         private static void ApplyCulture(string cultureCode)
         {
             CultureInfo targetCulture = new CultureInfo(cultureCode);
-            Thread.CurrentThread.CurrentCulture = targetCulture;
-            Thread.CurrentThread.CurrentUICulture = targetCulture;
+            CultureInfo.CurrentCulture = targetCulture;
+            CultureInfo.CurrentUICulture = targetCulture;
             CurrentCulture = cultureCode;
         }
 
