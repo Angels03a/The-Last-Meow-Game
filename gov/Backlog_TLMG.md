@@ -134,6 +134,7 @@ Formato de entrada:
 - Por qué: separar las interfaces de las implementaciones. El Estándar §4.3 (estructura de carpetas y namespaces) no tiene contenido, así que hay que decidir la convención (carpeta y namespace) y extender el Estándar antes de mover archivos. El csproj clásico exige editar las entradas `Compile`.
 - Depende de: decisión de estructura; completar Estándar §4.3
 - Estado: Pendiente
+- Nota (2026-10-25): posiblemente obsoleta por Estándar §4.3; confirmar con Martín.
 
 ### BL-020 · Cierre del canal en `CreateAccountScreen.CloseRegistrationClient`: excepciones y bloqueo de la UI
 - Creado: 2026-10-20 12:32
@@ -154,6 +155,7 @@ Formato de entrada:
 - Por qué: definir qué pasa si el servidor se reinicia, cae abruptamente o se apaga la PC, y si un cliente se cae con una sesión dúplex abierta (jugadores fantasma en lobby o partida, estado de la partida en memoria). Opciones a evaluar sin hilos propios: tiempos de inactividad de WCF y, en el cliente, `DispatcherTimer` para un latido (Estándar §11.4). Es una decisión de arquitectura: requiere ADR y alinear las reglas del juego sobre desconexión.
 - Depende de: BL-021; revisión del SAD y de las reglas del juego
 - Estado: Pendiente
+- Nota (2026-10-25): posiblemente superado por D-01, D-54 y ADR-04; decidir.
 
 ### BL-023 · Revisión de endurecimiento del host WCF
 - Creado: 2026-10-20 16:25
@@ -179,13 +181,130 @@ Formato de entrada:
 - Por qué: usings sin agrupar en `CreateAccountScreen` (§9.4); líneas de más de 120 columnas en `PlayerAccountRegistrationService` (§9.2) y espacios al final de línea en varios archivos; `OperationRegisterPlayerAccountResult` sin `<summary>` y con la llave en la misma línea (§12.2, §9.6); `FIXME` duplicado del hash de contraseña (ligar a BL-001); `<WCFMetadata Include="Connected Services\" />` sin uso en `TLMG.Server.csproj` y `TLMG.Contracts.csproj`; DTOs sin sufijo `Data` (D-41); proxy `TLMGService` y carpeta `Communication/` sin uso (solo se borran con autorización de Martín).
 - Depende de: coordinación con Nicole
 - Estado: Pendiente
+- Nota (2026-10-25): posiblemente obsoleta en el punto de los DTO sin sufijo `Data` por D-56; confirmar con Martín.
 
 ### BL-028 · Añadir `Service` a la tabla del Estándar §3.14
 - Creado: 2026-10-20 22:55
 - Por qué: D-49 adopta el sufijo `Service` para la lógica de negocio del servidor y el Estándar §3.14 no lo tiene. Fila a agregar: `Service` · Lógica de negocio del servidor (componentes del SAD, por ejemplo C-06); nunca persistencia ni contratos WCF · `PlayerAccountRegistrationService`.
 - Depende de: D-49
 - Estado: Pendiente
+- Nota (2026-10-25): cumplido en el Estándar v3; falta el hash de commit para cerrarlo.
 - 
+
+### BL-029 · Alinear gov/CLAUDE.md con el Estándar y reexportar docs/Estandar.md
+- Creado: 2026-10-25 00:49
+- Por qué: alinear gov/CLAUDE.md con el Estándar v3 (paso 1) y reexportar docs/Estandar.md cuando Martín termine de corregir el Estándar en Docs.
+- Depende de: BL-026
+- Estado: Pendiente
+
+### BL-030 · Login por servidor y hash de contraseña (D-44); cierra BL-001 y BL-016 al terminar
+- Creado: 2026-10-25 00:49
+- Por qué: el cliente consulta la BD y compara la contraseña en claro (LoginScreen.xaml.cs:104-108); el registro la guarda en claro (PlayerAccountRegistrationService.cs:97-98, 147-151). Estándar §16.2 y D-44: SHA-256 con sal aleatoria por contraseña, solo en el servidor. Retira también la cadena de conexión y la referencia a DataAccess del cliente (§4.1 regla 2, §5.2).
+- Depende de: BL-001, BL-002, BL-016
+- Estado: Pendiente
+
+### BL-031 · Script SQL: datos ficticios y encabezado versionado
+- Creado: 2026-10-25 00:49
+- Por qué: database/TLMG_DB_v3.1.sql:544-559 trae correos que parecen reales y contraseñas de prueba legibles; sustituirlos por datos ficticios. Estándar §5.3: el encabezado debe listar cada versión con su fecha.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-032 · .gitignore, ConnectionStrings.config y archivo cifrado de secretos
+- Creado: 2026-10-25 00:49
+- Por qué: Estándar §8.3 y §5.2 declaran estas reglas como pendientes. Server/TLMG.Server/App.config lleva la cadena inline; falta ConnectionStrings.config (configSource) y ConnectionStrings.config.example. Reglas de ignorado para ambos y para el archivo DPAPI de SMTP (D-43).
+- Depende de: BL-008
+- Estado: Pendiente
+
+### BL-033 · Nivel de log por configuración y consola del servidor
+- Creado: 2026-10-25 00:49
+- Por qué: ambos log4net.config fijan DEBUG; Estándar §10.3 exige Trace y Debug fuera de las builds de entrega. El servidor define ConsoleAppender pero no lo referencia (Server/TLMG.Server/log4net.config:18-21), contra lo que dice §10.3.
+- Depende de: decisión de mecanismo (transformación o nivel único)
+- Estado: Pendiente
+
+### BL-034 · Tiempos límite y endurecimiento del binding del servidor (D-46)
+- Creado: 2026-10-25 00:49
+- Por qué: el cliente fija 10/15/5 s; Server/TLMG.Server/App.config:25 no define ninguno (Estándar §11.1 lo declara pendiente). Complementa BL-021 y BL-023 (mex, serviceThrottling).
+- Depende de: BL-021
+- Estado: Pendiente
+
+### BL-035 · Retirar el proxy TLMGService y los archivos obsoletos de Communication/
+- Creado: 2026-10-25 00:49
+- Por qué: apuntan a un contrato que ya no existe (OnRegisterResult, OperationResultData) y nadie los usa. La carpeta Communication/ se conserva: es la capa de Comunicación (Estándar §4.1, §4.3). Ya listado en BL-027; se separa para cerrarlo con su propio commit.
+- Depende de: autorización explícita de Martín; BL-005
+- Estado: Pendiente
+
+### BL-036 · Mover el callback y el cierre del canal a Communication/
+- Creado: 2026-10-25 00:49
+- Por qué: Estándar §4.1 y §11.1: la Vista no usa el proxy y el cierre del canal corresponde a Comunicación. Hoy CreateAccountScreen implementa el callback, crea el cliente y cierra el canal (CreateAccountScreen.xaml.cs:13-14, 109, 185-208). Incluye capturar TimeoutException (BL-020).
+- Depende de: BL-020, BL-035; decisión de BL-042
+- Estado: Pendiente
+
+### BL-037 · Sacar EF6 y SqlClient de TLMG.Services; DataAccess devuelve un resultado controlado
+- Creado: 2026-10-25 00:49
+- Por qué: Estándar §4.1 y §5.1: las excepciones de EF y SQL se capturan en DataAccess y las capas superiores no conocen esos tipos. PlayerAccountRegistrationService.cs:2-5, 102-121 y TLMG.Services.csproj:38-43 lo incumplen; PlayerRepository.CreatePlayer deja salir DbUpdateException. Conservar la detección de duplicados (ResolveSaveFailureErrorKey, :153) y moverla a DataAccess; no borrarla.
+- Depende de: decisión del mecanismo (alternativas por presentar); BL-017
+- Estado: Pendiente
+
+### BL-038 · Citar el BL en los comentarios especiales y registrar los faltantes
+- Creado: 2026-10-25 00:49
+- Por qué: Estándar §12.3 exige el formato "// TOKEN: Texto. (BL-xxx)." y el registro en el backlog. Los 13 comentarios actuales no citan BL: LeaderboardScreen.xaml.cs:40, 80, 206, 207; LobbyScreen.xaml.cs:255, 263; ProfileScreen.xaml.cs:77; PlayerRepository.cs:16, 19; PlayerAccountRegistrationService.cs:97, 149, 153. Diez no tienen entrada. El :97 además no lleva punto final.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-039 · Arrancar las pruebas unitarias (proyecto test/ y marco)
+- Creado: 2026-10-25 00:49
+- Por qué: 0 pruebas frente al mínimo de 300 (Estándar §15.1). Elegir marco (§15.1: decisión superior) y crear test/TLMG.Services.Tests con un stub de IPlayerRepository.
+- Depende de: decisión del marco de pruebas
+- Estado: Pendiente
+
+### BL-040 · Crear TLMG.Domain (motor de reglas puro)
+- Creado: 2026-10-25 00:49
+- Por qué: Estándar §4.2 y gov/CLAUDE.md §13; no existe. Base para llegar al mínimo de pruebas sin infraestructura.
+- Depende de: Reglas de The Last Meow en docs/ (BL-026); BL-039
+- Estado: Pendiente
+
+### BL-041 · Migrar las pantallas a MVVM con CommunityToolkit.Mvvm (D-39, D-50)
+- Creado: 2026-10-25 00:49
+- Por qué: hoy no hay ViewModels, comandos ni DataContext y las 12 pantallas atan Click (Estándar §7.1, §6.2). Una pantalla por commit, empezando por CreateAccountScreen.
+- Depende de: aprobación de D-50; BL-042; BL-036
+- Estado: Pendiente
+
+### BL-042 · Mecanismo de navegación y diálogos desde el ViewModel (§18.1)
+- Creado: 2026-10-25 00:49
+- Por qué: Estándar §18.1 deja sin decidir cómo solicita navegación un ViewModel sin referenciar la vista. Hay 27 usos de Application.Current.MainWindow en 11 pantallas y MessageBox en las vistas, que §4.1 prohíbe al ViewModel. La decisión puede tomarse fuera del equipo; mientras tanto no se actúa.
+- Depende de: decisión (alternativas por presentar)
+- Estado: Pendiente
+
+### BL-043 · Limpieza de estilo del diagnóstico (no incluida en BL-027)
+- Creado: 2026-10-25 00:49
+- Por qué: variable con nombre de tipo (PlayerAccountRegistrationService.cs:81); constantes ...minimum/maximun (PlayerAccountRegistrationValidationHelper.cs:13-18); ternarios multilínea (6 sitios); 3 return de expresión (LeaderboardScreen.xaml.cs:187, 235; NewPasswordScreen.xaml.cs:113); manejadores Timer_Tick, CountdownTimer_Tick, ToastTimer_Tick y DigitBox_* (§7.2); <param> y <returns> de ValidationHelper (§12.2, §10.7); public const sin documentar; LoadLeaderboardData de 43 líneas; texto "{0} pts" en código; clave Common_ para CreateAccount_NicknameFormatError; llaves de OperationRegisterPlayerAccountResult.cs:3; referencia System.Web sin uso; Thread.CurrentThread en LanguageManager.cs:77-78 (§11.1); decidir si es variable local o constante en LobbyScreen.xaml.cs:255.
+- Depende de: BL-027
+- Estado: Pendiente
+
+### BL-044 · Reglas de validación solo en el cliente y desalineación con la BD
+- Creado: 2026-10-25 00:49
+- Por qué: dominios de correo, vocabulario ofensivo y apodos reservados solo se validan en el cliente (ValidationHelper.cs:17-27); Estándar §16.1 exige que el servidor valide todo. Correo hasta 254 en el validador contra VARCHAR(100); nickname 12 contra VARCHAR(20) en la BD.
+- Depende de: decisión del equipo; Diccionario de Reglas de Validación en docs/
+- Estado: Pendiente
+
+### BL-045 · Imágenes: carpeta Images/ y valor de profile_image
+- Creado: 2026-10-25 00:49
+- Por qué: Estándar §4.4 pide Images/ y nombres PascalCase. Hoy hay img/default.jpg y la BD guarda "/img/default.png", que no existe y fuerza el HACK de LeaderboardScreen (:206-207). Decidir qué guarda la BD y cuándo entra la foto como byte[] (gov/CLAUDE.md §10, FIXME de PlayerRepository.cs:19).
+- Depende de: decisión del equipo
+- Estado: Pendiente
+
+### BL-046 · Pantallas pendientes: GameplayScreen y ChangePasswordScreen
+- Creado: 2026-10-25 14:23
+- Por qué: LobbyScreen.xaml.cs:263 debe navegar a GameplayScreen al terminar la cuenta regresiva y ProfileScreen.xaml.cs:77 a ChangePasswordScreen; ninguna de las dos pantallas existe.
+- Depende de: BL-040 y Reglas de The Last Meow (GameplayScreen); BL-042 (navegación)
+- Estado: Pendiente
+
+### BL-047 · Estados de usuario como enum
+- Creado: 2026-10-25 14:23
+- Por qué: el estado se maneja con cadenas ("USER_ACTIVE") en PlayerRepository.cs:17 y en la consulta de LeaderboardScreen.xaml.cs:81; usar un enum (PlayerRepository.cs:16) y filtrar por estado activo (LeaderboardScreen.xaml.cs:80).
+- Depende de: nada
+- Estado: Pendiente
+
 ---
 
 ## Finalizados
