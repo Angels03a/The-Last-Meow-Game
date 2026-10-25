@@ -37,7 +37,7 @@ namespace TLMG.Client.Views
         private const int SecondPlaceRank = 2;
         private const int ThirdPlaceRank = 3;
 
-        // FIXME: Estos valores deben venir del jugador actualmente logueado en la sesión.
+        // FIXME: Se reemplaza por los datos del jugador en sesión cuando el login pase al servidor. (BL-030).
         private const int CurrentUserStandingRank = 38;
         private const int CurrentUserStandingPoints = 1840;
 
@@ -77,7 +77,7 @@ namespace TLMG.Client.Views
                 {
                     var rankedPlayersQuery = (from player in database.Player
                                               join user in database.User on player.id_user equals user.id_user
-                                              // FIXME: Filtrar por estado de usuario activo cuando se implemente.
+                                              // FIXME: Filtrar por estado activo con el enum de estados. (BL-047).
                                               where user.state == "USER_ACTIVE"
                                               orderby player.total_points descending
                                               select new
@@ -203,8 +203,8 @@ namespace TLMG.Client.Views
             }
             catch (System.IO.IOException ex)
             {
-                // FIXME: Cambiar imagen a una por defecto si no se puede cargar la imagen del jugador.
-                // HACK: De momento se queda el gato de Stella por defecto.
+                // FIXME: Usar imagen por defecto si falla la del jugador; se define con las imágenes. (BL-045).
+                // HACK: Se queda el gato de Stella por defecto; se reemplaza al definir las imágenes. (BL-045).
                 _log.Warn(
                     string.Format(
                         "Error de E/S al cargar avatar para {0}. Ruta: {1}.",

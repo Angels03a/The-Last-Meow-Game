@@ -13,10 +13,10 @@ namespace TLMG.DataAccess.Repositories
     {
         private const int InitialCount = 0;
 
-        // FIXME: Implementar un enum para los estados de usuario.
+        // FIXME: Representar los estados de usuario con un enum en lugar de cadenas. (BL-047).
         private const string DefaultUserState = "USER_ACTIVE";
 
-        // FIXME: Implementar un sistema de gestión de imágenes de perfil.
+        // FIXME: Implementar la gestión de imágenes de perfil; se define en el pendiente de imágenes. (BL-045).
         private const string DefaultProfileImage = "/img/default.png";
 
         /// <inheritdoc />

@@ -94,7 +94,7 @@ namespace TLMG.Services.Accounts
                 }
                 else
                 {
-                    // FIXME: Implementar hash de contraseña
+                    // FIXME: Calcular el hash de la contraseña con SHA-256 y sal antes de guardar. (BL-001).
                     SavePlayer(nickname, email, playerAccountRegistration.Password); 
                     OperationRegisterPlayerAccountResult.IsSuccess = true;
                 }
@@ -146,11 +146,11 @@ namespace TLMG.Services.Accounts
 
         private void SavePlayer(string nickname, string email, string password)
         {
-            // FIXME: Implementar el hash de la contraseña; hoy se guarda en claro.
+            // FIXME: Hoy la contraseña se guarda en claro; se corrige al implementar el hash. (BL-001).
             _playerRepository.CreatePlayer(nickname, email, password);
         }
 
-        // FIXME: Verificar este método y el de IsDuplicateKeyError para saber si es necesario o si se pueden eliminar. 
+        // FIXME: Evaluar si este método y IsDuplicateKeyError se necesitan; se decide al mover la detección. (BL-037).
         private static string ResolveSaveFailureErrorKey(DbUpdateException exception) 
         {
             string errorKey = DatabaseErrorKey;

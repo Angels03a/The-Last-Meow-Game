@@ -252,7 +252,7 @@ namespace TLMG.Client.Views
         {
             _currentCountdownSeconds--;
 
-            // FIXME: Verificar si es variable local o si es constante, ya que solo se usa aquí.
+            // FIXME: Decidir si es variable local o constante, ya que solo se usa aquí. (BL-043).
             if (_currentCountdownSeconds > CountdownSecondsLimitForStart)
             {
                 lblCountdownTimer.Text = _currentCountdownSeconds.ToString();
@@ -260,7 +260,7 @@ namespace TLMG.Client.Views
             else
             {
                 _countdownTimer.Stop();
-                // TODO: Navegar a GameplayScreen cuando se termine el tiempo.
+                // TODO: Navegar a GameplayScreen al terminar la cuenta regresiva, cuando exista. (BL-046).
                 MessageBox.Show(TryFindResource("Lobby_StartGameMessage") as string);
             }
         }

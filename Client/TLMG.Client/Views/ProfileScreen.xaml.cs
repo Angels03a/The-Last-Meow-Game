@@ -74,7 +74,7 @@ namespace TLMG.Client.Views
 
         private void BtnChangePassword_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Navegar a la pantalla ChangePasswordScreen cuando esté implementada.
+            // TODO: Navegar a ChangePasswordScreen cuando esté implementada. (BL-046).
         }
 
         private void ToggleAvatarEditMode(bool isEditing)
