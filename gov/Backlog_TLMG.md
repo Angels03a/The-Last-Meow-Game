@@ -139,7 +139,7 @@ Formato de entrada:
 - Por qué: separar las interfaces de las implementaciones. El Estándar §4.3 (estructura de carpetas y namespaces) no tiene contenido, así que hay que decidir la convención (carpeta y namespace) y extender el Estándar antes de mover archivos. El csproj clásico exige editar las entradas `Compile`.
 - Depende de: decisión de estructura; completar Estándar §4.3
 - Estado: Pendiente
-- Nota (2026-10-25): posiblemente obsoleta por Estándar §4.3; confirmar con Martín.
+- Nota (2026-10-25): posiblemente obsoleta por Estándar §4.3; confirmar con el encargado.
 
 ### BL-020 · Cierre del canal en `CreateAccountScreen.CloseRegistrationClient`: excepciones y bloqueo de la UI
 - Creado: 2026-10-20 12:32
@@ -179,15 +179,15 @@ Formato de entrada:
 ### BL-026 · Llevar los documentos de referencia a `docs/` y ajustar las referencias de CLAUDE.md
 - Creado: 2026-10-20 22:15
 - Por qué: `CLAUDE.md` cita `docs/Estandar-Codificacion-CSharp.md`, `docs/Contratos_WCF_TLMG.md`, `docs/Bitacora-de-decisiones.md`, `docs/SAD.md` y `docs/Reglas-de-The-Last-Meow.md`, pero hoy viven como .docx en el Project y no en el repo. Decidir formato (convertir a .md o subir los .docx) y corregir los nombres.
-- Depende de: decisión de Martín
+- Depende de: decisión del encargado
 - Estado: Pendiente
 
 ### BL-027 · Corregir los hallazgos de Estándar del código de registro integrado y retirar lo sin uso
 - Creado: 2026-10-20 22:15
-- Por qué: usings sin agrupar en `CreateAccountScreen` (§9.4); líneas de más de 120 columnas en `PlayerAccountRegistrationService` (§9.2) y espacios al final de línea en varios archivos; `OperationRegisterPlayerAccountResult` sin `<summary>` y con la llave en la misma línea (§12.2, §9.6); `FIXME` duplicado del hash de contraseña (ligar a BL-001); `<WCFMetadata Include="Connected Services\" />` sin uso en `TLMG.Server.csproj` y `TLMG.Contracts.csproj`; DTOs sin sufijo `Data` (D-41); proxy `TLMGService` y carpeta `Communication/` sin uso (solo se borran con autorización de Martín).
+- Por qué: usings sin agrupar en `CreateAccountScreen` (§9.4); líneas de más de 120 columnas en `PlayerAccountRegistrationService` (§9.2) y espacios al final de línea en varios archivos; `OperationRegisterPlayerAccountResult` sin `<summary>` y con la llave en la misma línea (§12.2, §9.6); `FIXME` duplicado del hash de contraseña (ligar a BL-001); `<WCFMetadata Include="Connected Services\" />` sin uso en `TLMG.Server.csproj` y `TLMG.Contracts.csproj`; DTOs sin sufijo `Data` (D-41); proxy `TLMGService` y carpeta `Communication/` sin uso (solo se borran con autorización del encargado).
 - Depende de: coordinación con Nicole
 - Estado: Pendiente
-- Nota (2026-10-25): posiblemente obsoleta en el punto de los DTO sin sufijo `Data` por D-56; confirmar con Martín.
+- Nota (2026-10-25): posiblemente obsoleta en el punto de los DTO sin sufijo `Data` por D-56; confirmar con el encargado.
 
 ### BL-028 · Añadir `Service` a la tabla del Estándar §3.14
 - Creado: 2026-10-20 22:55
@@ -199,9 +199,10 @@ Formato de entrada:
 
 ### BL-029 · Alinear gov/CLAUDE.md con el Estándar y reexportar docs/Estandar.md
 - Creado: 2026-10-25 00:49
-- Por qué: alinear gov/CLAUDE.md con el Estándar v3 (paso 1) y reexportar docs/Estandar.md cuando Martín termine de corregir el Estándar en Docs.
+- Por qué: alinear gov/CLAUDE.md con el Estándar v3 (paso 1) y reexportar docs/Estandar.md cuando el encargado termine de corregir el Estándar en Docs.
 - Depende de: BL-026
 - Estado: Pendiente
+- Nota (2026-10-25): la reexportación de docs/Estandar.md está hecha en el commit 1d2f401. Siguen pendientes en gov/CLAUDE.md, frente al Estándar vigente: (1) §6 limita `catch (Exception)` a puntos de entrada del servicio y no indica el nivel de registro; el Estándar §10.2 también lo permite como último bloque de una cascada y en límites del sistema, con `_log.Error` y `Fatal` solo según §10.3; (2) §11 no recoge que, si el ternario no cabe en 120 columnas, se usa if/else (§13.5); (3) §13 no menciona la estructura de proyectos de prueba de §15.2. Sin diferencias en accesibilidad (§10.9, D-57), pack URI (§4.4) ni sufijos Request y Result (§3.14, §17.1). No cerrada.
 
 ### BL-030 · Login por servidor y hash de contraseña (D-44); cierra BL-001 y BL-016 al terminar
 - Creado: 2026-10-25 00:49
@@ -239,7 +240,7 @@ Formato de entrada:
 ### BL-035 · Retirar el proxy TLMGService y los archivos obsoletos de Communication/
 - Creado: 2026-10-25 00:49
 - Por qué: apuntan a un contrato que ya no existe (OnRegisterResult, OperationResultData) y nadie los usa. La carpeta Communication/ se conserva: es la capa de Comunicación (Estándar §4.1, §4.3). Ya listado en BL-027; se separa para cerrarlo con su propio commit.
-- Depende de: autorización explícita de Martín; BL-005
+- Depende de: autorización explícita del encargado; BL-005
 - Estado: Finalizado el 2026-10-25 · commit a8cdce2
 - Nota (2026-10-25): el proxy TLMGService y los dos archivos de Communication/ se retiraron en a8cdce2; no quedan referencias en el código. Como Git no guarda carpetas vacías, Communication/ ya no aparece en el repo; BL-036 la vuelve a crear con el callback.
 
@@ -291,6 +292,7 @@ Formato de entrada:
 - Depende de: BL-027
 - Estado: Pendiente
 - Nota (2026-10-25): el uso de Thread.CurrentThread en LanguageManager se corrigió en 64d1ce1. La entrada sigue abierta por el resto de su alcance.
+- Nota (2026-10-25): el commit 0f14a64 cambió a Error el nivel de log del fallo inesperado en ServiceImplementation.UsersManager.cs, documentó la constante EnglishCultureCode de LanguageManager y dejó su ternario en una sola línea. La entrada sigue abierta por el resto de su alcance.
 
 ### BL-044 · Reglas de validación solo en el cliente y desalineación con la BD
 - Creado: 2026-10-25 00:49
@@ -327,6 +329,12 @@ Formato de entrada:
 - Por qué: el método `RegisterPlayerAccountResult` termina en sustantivo (§3.7 pide verbo o frase verbal; el ejemplo de §3.10 usa la forma On…) y el callback lleva `[ServiceContract]` mientras el ejemplo de §3.10 no. Cambiarlo obliga a regenerar el proxy, así que se hace en la misma regeneración que BL-030 (login).
 - Depende de: BL-030
 - Estado: Pendiente
+
+### BL-050 · Corregir el Estándar tras la revisión de los pasos 4a/4b y publicar docs/Estandar.md
+- Creado: 2026-10-25 17:57
+- Por qué: la revisión de los pasos 4a/4b contra el Estándar dejó correcciones de redacción y de criterio. Cambios: §10.2 y §10.3 (`catch (Exception)` solo en límites, registro con `_log.Error`, Fatal solo según §10.3); §10.9 y D-57 (criterio de accesibilidad relajado; D-32 no cambia); §15.2 (pruebas de integración del servidor en un único proyecto /test/TLMG.Server.Tests); §4.4 y §7.3 (se aceptan las dos formas de pack URI); §13.5 (ternario en una sola línea); §3.14, §17.1 y §20.2 (sufijo Request y D-56); se retiró del Estándar el estado actual y las menciones a BL. D-57 se registra en la Bitácora, que vive fuera del repositorio.
+- Depende de: nada
+- Estado: Finalizado el 2026-10-25 · commit 1d2f401
 
 ---
 
