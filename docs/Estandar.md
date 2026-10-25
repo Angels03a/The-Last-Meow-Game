@@ -56,7 +56,7 @@ Equipo 3
 
 [4.1. Arquitectura general (capas del cliente y del servidor)	24](#arquitectura-general-\(capas-del-cliente-y-del-servidor\))
 
-[4.2. Separación entre el motor de reglas y la infraestructura	26](#separación-entre-el-motor-de-reglas-y-la-infraestructura)
+[4.2. Separación entre el motor de reglas y la infraestructura	27](#separación-entre-el-motor-de-reglas-y-la-infraestructura)
 
 [4.3. Estructura de carpetas y namespaces	28](#estructura-de-carpetas-y-namespaces)
 
@@ -84,9 +84,9 @@ Equipo 3
 
 [7.3. Localización de textos y alcance de claves	40](#localización-de-textos-y-alcance-de-claves)
 
-[**8\. Control de versiones	43**](#control-de-versiones)
+[**8\. Control de versiones	44**](#control-de-versiones)
 
-[8.1. Herramienta y repositorio remoto	43](#herramienta-y-repositorio-remoto)
+[8.1. Herramienta y repositorio remoto	44](#herramienta-y-repositorio-remoto)
 
 [8.2. Política de commits	44](#política-de-commits)
 
@@ -194,7 +194,9 @@ Equipo 3
 
 [16.1. Centralización de validaciones	97](#centralización-de-validaciones)
 
-[16.2. Prevención de trampas y manipulación de datos del cliente	97](#prevención-de-trampas-y-manipulación-de-datos-del-cliente)
+[16.2. Manejo de datos sensibles	97](#manejo-de-datos-sensibles)
+
+[16.3. Prevención de trampas y manipulación de datos del cliente	97](#prevención-de-trampas-y-manipulación-de-datos-del-cliente)
 
 [**17\. DTO y contratos de datos	98**](#dto-y-contratos-de-datos)
 
@@ -1090,6 +1092,7 @@ Los nombres de las clases deberán reflejar de forma explícita su responsabilid
 | EventArgs | Clases con datos de eventos | ScoreEventArgs |
 | EventHandler | Delegados manejadores de eventos | PlayerDisconnectedEventHandler |
 | ViewModel | Lógica de presentación de una pantalla MVVM | LoginViewModel |
+| Request | DTO con los datos de entrada de una operación del contrato (S17.1; D-56)  | OperationRegisterPlayerAccountRequest  |
 | Result | DTO con el resultado de una operación del contrato (S17.1) | OperationRegisterPlayerAccountResult |
 
 Manager nunca se usa para persistencia; para eso Repository.
@@ -1302,7 +1305,7 @@ namespace TLMG.Client.Pantallas
 
    Las imágenes del cliente viven en la carpeta Images/ del proyecto TLMG.Client. Los archivos llevan nombre en inglés, PascalCase, descriptivo del contenido (por ejemplo, DefaultAvatar.png, CardBack.png). Las imágenes no deben contener texto traducible: el texto se muestra desde los diccionarios de idioma (S7.3).
 
-   Los recursos se compilan en el ensamblado con la acción de compilación indicada en la tabla y se referencian con un URI de paquete (pack URI) de la forma de ensamblado local. Nunca se usan rutas absolutas del disco.
+   Los recursos se compilan en el ensamblado con la acción de compilación indicada en la tabla y se referencian con un URI de paquete (pack URI). Se aceptan dos formas: la de ensamblado local (pack://application:,,,/Images/DefaultAvatar.png) y la que incluye el nombre del ensamblado (pack://application:,,,/TLMG.Client;component/Images/DefaultAvatar.png), Nunca usan rutas absolutas del disco.
 
 | Tipo de recurso | Carpeta | Acción de compilación | Ejemplo |
 | :---- | :---- | :---- | :---- |
@@ -1365,7 +1368,7 @@ public bool PlayerExistsByNickname(string nickname)
 }
 ```
 
-**Respaldo:** Microsoft (s.f.-) documenta que el contexto vive desde que se crea la instancia hasta que se libera, y Microsoft (s.f.-{) documenta las consultas SQL con parámetros. Que el repositorio devuelva datos ya materializados y no IQueryable es una regla del equipo.
+Que el repositorio devuelva datos ya materializados y no IQueryable es una regla del equipo.
 
 2. ## Configuración externa (archivos de settings y credenciales) {#configuración-externa-(archivos-de-settings-y-credenciales)}
 
@@ -1444,7 +1447,7 @@ public void Register(string nickname, string email, string password)
 }
 ```
 
-**Respaldo:** ADR-01 (Zero-Trust), ADR-02, S4.1 y S4.2, D-49. El orden de cinco pasos es una convención del equipo. Hoy solo el flujo de registro la cumple.
+**Respaldo:** ADR-01 (Zero-Trust), ADR-02, S4.1 y S4.2, D-49. El orden de cinco pasos es una convención del equipo. 
 
 2. ## Patrones de diseño utilizados y su justificación {#patrones-de-diseño-utilizados-y-su-justificación}
 
@@ -1521,7 +1524,7 @@ Incorrecto (comando con lambda)
 LoginCommand = new RelayCommand(() => ExecuteLogin());
 ```
 
-**Respaldo:** Microsoft (s.f.-w) documenta ObservableObject y SetProperty, y Microsoft (s.f.-}) documenta RelayCommand. Exponer los comandos con un método nombrado y sin lambdas es una regla del equipo (S9.8; D-50, borrador pendiente de aprobación).
+**Respaldo:** Microsoft (s.f.-w) documenta ObservableObject y SetProperty, y Microsoft (s.f.-}) documenta RelayCommand. Exponer los comandos con un método nombrado y sin lambdas es una regla del equipo(S9.8; D-50).
 
 El ViewModel no referencia controles de WPF ni muestra ventanas. Para los errores expone la clave del recurso (ErrorKey, S10.2), nunca el texto traducido; la vista la resuelve con el diccionario activo.
 
@@ -1744,6 +1747,8 @@ Ejemplo incorrecto
 
 **Respaldo:** Microsoft (s.f.-z) documenta la forma pack://application:,,,/Ruta de los URI de recursos del ensamblado local.
 
+La forma con el nombre del ensamblado y ;component es la que Microsoft documenta para ensamblados referenciados; para el ensamblado local, el equipo acepta ambas formas.
+
 8. # Control de versiones {#control-de-versiones}
 
    1. ## Herramienta y repositorio remoto {#herramienta-y-repositorio-remoto}
@@ -1770,7 +1775,7 @@ Update login screen
 
 3. ## Archivos ignorados (.gitignore) {#archivos-ignorados-(.gitignore)}
 
-El repositorio parte de la plantilla de Visual Studio para .gitignore. Los archivos de secretos (la cadena de conexión y las credenciales del correo, S5.2) deben tener reglas explícitas en este archivo; esas reglas aún no existen y están pendientes de registrar en el backlog.
+El repositorio parte de la plantilla de Visual Studio para .gitignore. Los archivos de secretos (la cadena de conexión y las credenciales del correo, S5.2) deben tener reglas explícitas en este archivo. 
 
 9. # Estilo de código {#estilo-de-código}
 
@@ -2296,7 +2301,7 @@ public void ValidateNickname(string nickname)
 }
 ```
 
-Los bloques catch deberán capturar el tipo de excepción más específico disponible. No deberá usarse Exception o SystemException como captura general ni como única captura. Se permite capturar Exception únicamente como el último bloque de una cascada de excepciones o en los límites del sistema (como manejadores globales o puntos de entrada de servicios); en estos casos, la excepción deberá registrarse con \_log.Error o \_log.Fatal (incluyendo la excepción como segundo parámetro) y relanzarse con throw; o bien convertirse en un resultado controlado, quedando estrictamente prohibido silenciar el error.
+Los bloques catch deberán capturar el tipo de excepción más específico disponible. No deberá usarse Exception o SystemException como captura general ni como única captura. Se permite capturar Exception únicamente como el último bloque de una cascada de excepciones o en los límites del sistema (como manejadores globales o puntos de entrada de servicios); en estos casos, la excepción deberá registrarse con \_log.Error (incluyendo la excepción como segundo parámetro; \_log.Fatal solo en los casos de la sección 10.3) y relanzarse con throw; o bien convertirse en un resultado controlado. En un punto de entrada de servicio, un único catch (Exception) que registra con \_log.Error y responde con una ErrorKey es válido.
 
 Ejemplo correcto (catch específico y cascada con Exception al final)
 
@@ -2312,12 +2317,12 @@ catch (SmtpException ex)
 }
 catch (Exception ex)
 {
-    _log.Fatal(string.Format("Fallo inesperado al enviar el código al jugador {0}.", playerId), ex);
+    _log.Error(string.Format("Fallo inesperado al enviar el código al jugador {0}.", playerId), ex);
     throw;
 }
 ```
 
-Ejemplo incorrecto (una sola captura genérica, sin cascada y sin relanzar)
+Ejemplo incorrecto (captura genérica dentro de la lógica, sin cascada: registra, pero ni relanza ni devuelve un resultado controlado)
 
 ```c#
 try
@@ -2507,11 +2512,11 @@ Los mensajes del log se escriben en español y no se traducen (S10.2). Las sigui
 | Módulo | Qué registra hoy | Niveles |
 | :---- | :---- | :---- |
 | Servidor · Program | Arranque, apertura y cierre del host, errores de arranque | Info, Warn, Fatal |
-| Servidor · ServiceImplementation | Operaciones rechazadas | Warn |
+| Servidor · ServiceImplementation | Operaciones rechazadas y fallos inesperados de una petición  | Warn, Error |
 | Servidor · PlayerAccountRegistrationService | Fallos del registro | Error |
 | Cliente · LoginScreen, CreateAccountScreen, LeaderboardScreen | Fallos de comunicación y de pantalla | Error, Warn, Info |
 
-Configuración actual: el cliente escribe en logs\\aplicacion.log (10 MB, 5 respaldos) y el servidor en consola y en logs\\servidor.log. Ambos están a nivel DEBUG, lo que contradice la regla de que Trace y Debug no estén habilitados en las compilaciones de entrega; el ajuste está pendiente de registrar en el backlog.
+Configuración: el cliente escribe en logs\\aplicacion.log (10 MB, 5 respaldos) y el servidor en consola y en logs\\servidor.log. En las compilaciones de entrega no se habilitan los niveles Trace ni Debug. 
 
 Ningún mensaje de log ni traza de pila deberá incluir información confidencial (contraseñas, tokens de sesión, datos personales); esa información deberá omitirse o enmascararse antes de registrarse.
 
@@ -2938,9 +2943,9 @@ public class PlayerManager
 }
 ```
 
-Todo miembro (campo, propiedad, método, clase) deberá declararse con el modificador de acceso más restrictivo que permita su correcto funcionamiento. No deberá declararse public por comodidad si el uso real está limitado a la clase o al ensamblado.
+Lo que solo usa su propia clase (campos, propiedades y métodos) se declara private. Los tipos (clases, interfaces, enumeraciones) y los miembros que usan otras clases pueden ser public o internal: se prefiere internal cuando solo se usan dentro de su proyecto, y public cuando los consume otro proyecto, el framework (WCF, XAML, Entity Framework) o un proyecto de pruebas.
 
-Excepciones a la regla de accesibilidad más restrictiva (D-32):
+Casos particulares de accesibilidad (D-32): 
 
 * Clases parciales XAML: Las clases parciales de la interfaz de usuario generadas por WPF se mantienen public, que es el modificador con el que WPF genera su parte de marcado.
 
@@ -2962,10 +2967,6 @@ Ejemplo incorrecto
 
 ```c#
 public void ValidateInput(string input)
-{
-}
-
-public class InvitationCodeParser
 {
 }
 ```
@@ -3084,15 +3085,15 @@ En TLMG no se crean ni se administran hilos propios, ni en el cliente ni en el s
 | System.Threading.Timer y System.Timers.Timer | Disparan en hilos del ThreadPool, no en el de la interfaz | DispatcherTimer |
 | lock, SemaphoreSlim, Interlocked | Solo se justifican con estado compartido entre sesiones en el servidor | Requieren autorización del encargado y justificación documentada |
 
-El servidor no usa temporizadores propios: guarda cada plazo como hora límite en UTC y lo revisa con su propio reloj cuando llega un latido (S10.4; D-54). El cliente muestra la cuenta regresiva con DispatcherTimer. El registro de sesiones sigue siendo estado compartido entre sesiones; proteger su acceso con lock depende de la autorización del encargado (BL-009).
+El servidor no usa temporizadores propios: guarda cada plazo como hora límite en UTC y lo revisa con su propio reloj cuando llega un latido (S10.4; D-54). El cliente muestra la cuenta regresiva con DispatcherTimer. El registro de sesiones sigue siendo estado compartido entre sesiones; proteger su acceso con lock depende de la autorización del encargado. 
 
 Configuración actual del servicio y del canal:
 
 * ServiceImplementation usa InstanceContextMode.PerSession y ConcurrencyMode.Single (D-41).  
-* El cliente fija los tiempos del binding: apertura 10 s, envío 15 s y cierre 5 s (D-46). El servidor aún no define tiempos; el ajuste está pendiente de registrar en el backlog.  
+* El cliente fija los tiempos del binding: apertura 10 s, envío 15 s y cierre 5 s (D-46).   
 * Los callbacks del cliente se declaran con UseSynchronizationContext \= false, por lo que llegan en un hilo del runtime de WCF y deben pasar por el Dispatcher antes de tocar la interfaz.  
 * El servidor tiene includeExceptionDetailInFaults \= "false": no envía detalle técnico al cliente (S10.2).  
-* El cierre del canal (Close, o Abort cuando falla) corresponde a la capa Comunicación (S4.1). Hoy CreateAccountScreen lo invoca desde su code-behind; el cambio está pendiente de registrar en el backlog.
+* El cierre del canal (Close, o Abort cuando falla) corresponde a la capa Comunicación (S4.1).
 
 Ejemplo correcto (pausa con DispatcherTimer de un solo disparo)
 
@@ -3541,7 +3542,7 @@ public string GetStateMessageKey(RoomState roomState)
 
 5. ## Uso del operador ternario {#uso-del-operador-ternario}
 
-El operador ternario (? :) solo se utilizará para asignaciones condicionales simples y cortas de una sola línea; queda estrictamente prohibido anidar operadores ternarios.
+El operador ternario (? :) solo se utilizará para asignaciones condicionales simples y cortas de una sola línea; queda estrictamente prohibido anidar operadores ternarios. Si la expresión no cabe en el límite de 120 columnas (sección 9.2), se usa if/else.
 
 Ejemplo correcto
 
@@ -3751,7 +3752,7 @@ public void AddScore_VariousAmounts_IncreasesScoreByAmount()
 
 2. ## Estructura de proyectos de prueba y nomenclatura de clases {#estructura-de-proyectos-de-prueba-y-nomenclatura-de-clases}
 
-El código de producción reside en sus propios proyectos y las pruebas unitarias deben ubicarse en proyectos separados organizados en una carpeta de solución llamada test/. Cada proyecto de prueba debe llevar el sufijo .Tests correspondiendo exactamente al nombre del proyecto de producción que prueba (por ejemplo, /Server/TLMG.Domain \-\> /test/TLMG.Domain.Tests, /Server/TLMG.Server \-\> /test/TLMG.Server.Tests, /Client/TLMG.Client \-\> /test/TLMG.Client.Tests).
+El código de producción reside en sus propios proyectos y las pruebas unitarias deben ubicarse en proyectos separados organizados en una carpeta de solución llamada test/. Cada proyecto de pruebas unitarias debe llevar el sufijo .Tests correspondiendo exactamente al nombre del proyecto de producción que prueba (por ejemplo, /Server/TLMG.Domain \-\> /test/TLMG.Domain.Tests, /Server/TLMG.Services \-\> /test/TLMG.Services.Tests, /Client/TLMG.Client \-\> /test/TLMG.Client.Tests). Las pruebas de integración de la solución del servidor (repositorios con la base de datos y host WCF) van juntas en un único proyecto, /test/TLMG.Server.Tests, nombrado con el host que las ejecuta.
 
 Ejemplo correcto de estructura de proyectos
 
@@ -4191,9 +4192,7 @@ La validación del formato de los datos vive en clases Helper (S3.14): en el ser
 
 El cliente valida para dar una respuesta inmediata al jugador, y el servidor valida de nuevo todo lo que recibe, porque el cliente no es confiable (ADR-01). Las reglas de formato (longitudes, caracteres permitidos y su ErrorKey) están en el diccionario de reglas de validación del proyecto y no se repiten en este documento. El nickname admite letras, números y guion bajo (D-23).
 
-```
 2. ## Manejo de datos sensibles {#manejo-de-datos-sensibles}
-```
 
 * La contraseña se captura con PasswordBox (S7.1) y viaja al servidor. Solo el servidor calcula su hash, con SHA-256 y una sal aleatoria por contraseña (D-44); la contraseña en texto plano no se guarda ni se registra.
 
@@ -4201,9 +4200,9 @@ El cliente valida para dar una respuesta inmediata al jugador, y el servidor val
 
 * La cadena de conexión y las credenciales del correo viven fuera de Git (S5.2).
 
-* El servidor se conecta a SQL Server con una cuenta de mínimo privilegio (S5.2; D-53, pendiente de aprobación).
+* El servidor se conecta a SQL Server con una cuenta de mínimo privilegio (S5.2; D-53).
 
-  2. ## Prevención de trampas y manipulación de datos del cliente {#prevención-de-trampas-y-manipulación-de-datos-del-cliente}
+  3. ## Prevención de trampas y manipulación de datos del cliente {#prevención-de-trampas-y-manipulación-de-datos-del-cliente}
 
 El servidor es la autoridad de la partida (ADR-01; Zero-Trust, S6.1). De ello se derivan tres reglas:
 
@@ -4231,7 +4230,7 @@ Los DTO se serializan con el serializador de contratos de datos de WCF, por lo q
 
 La aplicación cliente tiene una ventana principal, MainWindow, que muestra una pantalla a la vez. Toda pantalla hereda de LocalizableScreen (S4.3) y se muestra con MainWindow.ShowScreen(UserControl newScreen, bool saveInHistory \= true): reemplaza la pantalla visible y, cuando saveInHistory es true, la guarda en el historial para poder volver a ella.
 
-La forma en que un ViewModel solicita una navegación sin referenciar la vista no está decidida; queda pendiente de registrar en el backlog.
+La forma en que un ViewModel solicita una navegación sin referenciar la vista no está decidida.
 
 2. ## Mensajes y retroalimentación al jugador {#mensajes-y-retroalimentación-al-jugador}
 
@@ -4244,11 +4243,11 @@ Todo texto que ve el jugador sale de una clave de recurso (S7.3). Los errores qu
 | Paquete | Versión | Dónde | Para qué | Estado |
 | :---- | :---- | :---- | :---- | :---- |
 | Entity Framework | 6.5.2 | Servidor (TLMG.DataAccess) | Acceso a SQL Server mediante repositorios (S5.1) | En uso |
-| log4net | 3.5.0 | Cliente y servidor | Registro de eventos (S10.3) | En uso; el proyecto TLMG.Services aún usa packages.config |
+| log4net | 3.5.0 | Cliente y servidor | Registro de eventos (S10.3) | En uso  |
 | CommunityToolkit.Mvvm | 8.4.2 | Cliente | ObservableObject y RelayCommand (S7.1) | Por instalar |
 | Framework de pruebas | Por decidir | Proyectos de prueba | Pruebas unitarias y de integración (S15.1) | Pendiente de decisión |
 
-Respaldo: D-50 (borrador, pendiente de aprobación) para CommunityToolkit.Mvvm; la versión de Entity Framework y de log4net es la que usa el código al 21 de octubre de 2026\.
+Respaldo: D-50 para CommunityToolkit.Mvvm;  la versión de Entity Framework y de log4net es la que usa el código al 21 de octubre de 2026\.
 
 20. # Anexos {#anexos}
 
@@ -4268,7 +4267,7 @@ Respaldo: D-50 (borrador, pendiente de aprobación) para CommunityToolkit.Mvvm; 
 
     2. ## Documentación de decisiones de arquitectura {#documentación-de-decisiones-de-arquitectura}
 
-Este Estándar documenta lo que está en el código, lo que está decidido (decisiones D-xx de las bitácoras y ADR del SAD) o lo que está en el backlog. La siguiente tabla lista las decisiones en que se apoya y la sección donde se citan. Si una decisión resumida aquí contradice a su bitácora o al SAD, gana la bitácora o el SAD.
+Este Estándar recoge lo que está decidido (decisiones D-xx de las bitácoras y ADR del SAD). La siguiente tabla lista las decisiones en que se apoya y la sección donde se citan. Si una decisión resumida aquí contradice a su bitácora o al SAD, gana la bitácora o el SAD.
 
 | Decisión | Qué fija | Se cita en |
 | :---- | :---- | :---- |
@@ -4303,6 +4302,8 @@ Este Estándar documenta lo que está en el código, lo que está decidido (deci
 | D-53 | Login de SQL Server de mínimo privilegio | S16.2, S5.2  |
 | D-54 | Temporizadores por hora límite, sin hilos en el servidor | S10.4, S11.1 |
 | D-55 | ADR-07 corregido: comunicación por el canal dúplex  | S11.1  |
+| D-56  | DTO sin sufijo genérico Data ni Info; Request y Result reservados a la entrada y la salida de una operación. | S17.1  |
+| D-57 | Accesibilidad: private para lo que solo usa su clase; los tipos y los miembros compartidos pueden ser public o internal  | S10.9 |
 | ADR-01 | Servidor autoritativo y Zero-Trust | S6.1, S6.2, S16.1, S16.3, S20.1 |
 | ADR-02 | Aislamiento del motor de reglas | S4.2, S6.1, S6.2 |
 | ADR-03 | WCF dúplex con callbacks | S6.2, S11.1 |
