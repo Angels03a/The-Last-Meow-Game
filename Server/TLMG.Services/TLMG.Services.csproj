@@ -58,7 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccountRegistration.cs" />
+    <Compile Include="ServiceImplementation.UsersManager.cs" />
     <Compile Include="Helpers\PlayerAccountRegistrationValidationHelper.cs" />
     <Compile Include="Accounts\PlayerAccountRegistrationService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

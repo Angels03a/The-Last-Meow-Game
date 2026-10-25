@@ -8,7 +8,7 @@ using TLMG.Services.Accounts;
 
 namespace TLMG.Services
 {
-    public partial class ServiceImplementation : IAccountRegistrationService
+    public partial class ServiceImplementation : IUsersManager
     {
         private const string UnexpectedErrorKey = "CreateAccount_DataModelError";
 
@@ -19,8 +19,8 @@ namespace TLMG.Services
         /// <param name="registrationPlayerAccount">Datos capturados por el jugador.</param>
         public void RegisterPlayerAccount(PlayerAccountRegistration registrationPlayerAccount)
         {
-            IAccountRegistrationServiceCallback callback =
-                OperationContext.Current.GetCallbackChannel<IAccountRegistrationServiceCallback>();
+            IUsersManagerCallback callback =
+                OperationContext.Current.GetCallbackChannel<IUsersManagerCallback>();
 
             OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult;
 

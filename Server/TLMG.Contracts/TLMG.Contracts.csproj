@@ -41,7 +41,8 @@
   <ItemGroup>
     <Compile Include="DataContracts\OperationRegisterPlayerAccountResult.cs" />
     <Compile Include="DataContracts\PlayerAccountRegistration.cs" />
-    <Compile Include="IAccountRegistrationService.cs" />
+    <Compile Include="IUsersManager.cs" />
+    <Compile Include="IUsersManagerCallback.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
