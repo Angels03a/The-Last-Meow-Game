@@ -9,6 +9,13 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="PlayerAccountRegistration" nillable="true" type="tns:PlayerAccountRegistration" />
+  <xs:complexType name="OperationLogInRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationLogInRequest" nillable="true" type="tns:OperationLogInRequest" />
   <xs:complexType name="OperationRegisterPlayerAccountResult">
     <xs:sequence>
       <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
@@ -16,4 +23,11 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="OperationRegisterPlayerAccountResult" nillable="true" type="tns:OperationRegisterPlayerAccountResult" />
+  <xs:complexType name="OperationLogInResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationLogInResult" nillable="true" type="tns:OperationLogInResult" />
 </xs:schema>

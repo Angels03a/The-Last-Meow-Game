@@ -43,15 +43,27 @@
   <wsdl:message name="IUsersManager_RegisterPlayerAccount_InputMessage">
     <wsdl:part name="parameters" element="tns:RegisterPlayerAccount" />
   </wsdl:message>
+  <wsdl:message name="IUsersManager_LogIn_InputMessage">
+    <wsdl:part name="parameters" element="tns:LogIn" />
+  </wsdl:message>
   <wsdl:message name="IUsersManager_RegisterPlayerAccountResult_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:RegisterPlayerAccountResult" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_LogInResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:LogInResult" />
   </wsdl:message>
   <wsdl:portType name="IUsersManager">
     <wsdl:operation name="RegisterPlayerAccount">
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/RegisterPlayerAccount" message="tns:IUsersManager_RegisterPlayerAccount_InputMessage" />
     </wsdl:operation>
+    <wsdl:operation name="LogIn">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/LogIn" message="tns:IUsersManager_LogIn_InputMessage" />
+    </wsdl:operation>
     <wsdl:operation name="RegisterPlayerAccountResult">
       <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/RegisterPlayerAccountResult" message="tns:IUsersManager_RegisterPlayerAccountResult_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LogInResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/LogInResult" message="tns:IUsersManager_LogInResult_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetTcpBinding_IUsersManager" type="tns:IUsersManager">
@@ -64,8 +76,20 @@
         <soap12:body use="literal" />
       </wsdl:input>
     </wsdl:operation>
+    <wsdl:operation name="LogIn">
+      <soap12:operation soapAction="http://tempuri.org/IUsersManager/LogIn" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
     <wsdl:operation name="RegisterPlayerAccountResult">
       <soap12:operation soapAction="http://tempuri.org/IUsersManager/RegisterPlayerAccountResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LogInResult">
+      <soap12:operation soapAction="http://tempuri.org/IUsersManager/LogInResult" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>

@@ -11,6 +11,8 @@ namespace TLMG.Client.Views
     /// y reacciona al resultado recibido por callback.
     /// </summary>
     [CallbackBehavior(UseSynchronizationContext = false)]
+
+
     public partial class CreateAccountScreen : LocalizableScreen, IUsersManagerCallback
     {
         private const bool IsErrorMessage = true;
@@ -49,6 +51,13 @@ namespace TLMG.Client.Views
         {
             Dispatcher.BeginInvoke(new Action(() => HandleRegistrationResult(operationRegisterPlayerAccountResult)));
         }
+
+        /// <inheritdoc />
+        public void LogInResult(OperationLogInResult operationLogInResult)
+        {
+            // TODO: Mover los callbacks a la capa Comunicación. (BL-036).
+        }
+
 
         private void PwdPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
