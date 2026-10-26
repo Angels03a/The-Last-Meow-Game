@@ -230,19 +230,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="EntityFramework" Version="6.5.2" />
     <PackageReference Include="log4net">
       <Version>3.5.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="img\default.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Server\TLMG.DataAccess\TLMG.DataAccess.csproj">
-      <Project>{E2BEDB67-55E3-425A-B2D8-022BE354C169}</Project>
-      <Name>TLMG.DataAccess</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
