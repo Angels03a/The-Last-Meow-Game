@@ -25,8 +25,8 @@ Formato de entrada:
 ### BL-001 · Hash de contraseña: SHA-256 + sal (decidido), implementar
 - Por qué: hoy la contraseña se guarda en claro. Decisión del equipo (2026-10-20 22:32): SHA-256 con sal por contraseña, opción A, alineada con el SAD; se descartó PBKDF2 por familiaridad del equipo. Implementación prevista: `IPasswordHasher` y `PasswordHasher` en el servidor, formato versionado (`v1$sal$hash`), sal aleatoria, comparación de tiempo constante. Decisión registrada en la bitácora (D-44).
 - Depende de: BL-016 (el login debe pasar por el servidor antes o junto con el hash)
-- Estado: Decidido; pendiente de implementar
-- Nota (2026-10-25): el hash no puede verificarse mientras el inicio de sesión compare contra la base desde el cliente (LoginScreen.xaml.cs:104); comprobado el 2026-10-25 que con el servidor apagado el inicio de sesión sigue funcionando.
+- Estado: Finalizado el 2026-10-25 · commits 3b6c905, bdd0dfe y 445d216
+- Nota (2026-10-25): cierre. El hash lo calcula el servidor (`IPasswordHasher` y `PasswordHasher`, formato `v1$sal$hash`) y el inicio de sesión pasa por el servidor. Las cuentas viejas con la contraseña en claro ya no pueden iniciar sesión.
 
 ### BL-002 · Renombrar el contrato de registro a `IUsersManager`
 - Creado: 2026-10-20 10:30
@@ -121,6 +121,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-25): evidencia del acceso directo a la base desde el cliente (git grep sobre Client): LoginScreen.xaml.cs:104 y LeaderboardScreen.xaml.cs:76 abren new TLMG_DBEntities() desde la vista; Client/TLMG.Client/App.config:7 tiene su propia cadena de conexión TLMG_DBEntities; Client/TLMG.Client/TLMG.Client.csproj:242 y Client/TLMG.Client.slnx:3 referencian TLMG.DataAccess. Contradice Estándar §4.1 y Zero-Trust. Comprobación funcional: con el servidor apagado el inicio de sesión sigue funcionando; el registro ya pasa por WCF y con el servidor apagado muestra el error de red controlado. El alcance incluye retirar de la tabla de posiciones su consulta directa y usar un contrato del servidor para la clasificación (`ILeaderboardManager`, D-41).
 - Nota (2026-10-25): el cliente conserva el `PackageReference` a EntityFramework (Client/TLMG.Client/TLMG.Client.csproj, alrededor de la línea 233); se retira junto con la referencia a TLMG.DataAccess, cuando ya no quede código del cliente que use TLMG_DBEntities. Quitarlo antes rompería la compilación de LoginScreen y LeaderboardScreen.
+- Nota (2026-10-25): el login y el hash están hechos (3b6c905, bdd0dfe, 445d216). Las referencias a LoginScreen.xaml.cs:104 y a las líneas de consulta directa de esa pantalla ya no existen: LoginScreen usa el servidor. Queda el ranking por el servidor (`ILeaderboardManager`, LeaderboardScreen.xaml.cs:76) y, cuando LeaderboardScreen deje de usar TLMG_DBEntities, retirar TLMG_DBEntities de App.config, el `PackageReference` a EntityFramework, la referencia a TLMG.DataAccess y Client.slnx. No cerrada.
 
 ### BL-017 · Centralizar el manejo de errores, `ErrorKey` y mensajes (cliente y servidor)
 - Creado: 2026-10-20 12:30
@@ -133,6 +134,7 @@ Formato de entrada:
 - Por qué: se usa como clave genérica de error inesperado (servidor y cliente) pero su texto habla del "modelo de datos", que es un detalle interno que el jugador no debe ver.
 - Depende de: BL-017
 - Estado: Pendiente
+- Nota (2026-10-25): `Login_DataModelError` ya tiene texto neutro (445d216); `CreateAccount_DataModelError` sigue con texto técnico. Pendiente: actualizar a mano la fila de `Login_DataModelError` en TLMG_Diccionario_v3.xlsx.
 
 ### BL-019 · Carpeta para las interfaces de repositorios en `TLMG.DataAccess`
 - Creado: 2026-10-20 12:30
@@ -211,12 +213,15 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-25): el alcance incluye retirar la cadena de conexión TLMG_DBEntities del cliente (Client/TLMG.Client/App.config:7) y la referencia a TLMG.DataAccess (TLMG.Client.csproj:242 y TLMG.Client.slnx:3). Comprobación funcional: con el servidor apagado el inicio de sesión sigue funcionando porque LoginScreen.xaml.cs:104 consulta la base directamente.
 - Nota (2026-10-25): el cliente conserva el `PackageReference` a EntityFramework (Client/TLMG.Client/TLMG.Client.csproj, alrededor de la línea 233); se retira junto con la referencia a TLMG.DataAccess, cuando ya no quede código del cliente que use TLMG_DBEntities. Quitarlo antes rompería la compilación de LoginScreen y LeaderboardScreen.
+- Nota (2026-10-25): el login y el hash están hechos (3b6c905, bdd0dfe, 445d216). Ya no existen las referencias a LoginScreen.xaml.cs:104-108 ni a PlayerAccountRegistrationService.cs:97-98 y 147-151: el servidor hashea con `IPasswordHasher` y LoginScreen usa `LogIn`. Queda el ranking por el servidor (`ILeaderboardManager`) y, cuando LeaderboardScreen deje de usar TLMG_DBEntities, retirar TLMG_DBEntities de App.config, el `PackageReference` a EntityFramework, la referencia a TLMG.DataAccess y Client.slnx. No cerrada.
+- Nota (2026-10-25): los valores fijos del jugador actual en el ranking (`CurrentUserStandingRank` y `CurrentUserStandingPoints`, FIXME en LeaderboardScreen.xaml.cs:40, que cita esta entrada) dependen del registro de sesiones (D-41) y de `ILeaderboardManager`.
 
 ### BL-031 · Script SQL: datos ficticios y encabezado versionado
 - Creado: 2026-10-25 00:49
 - Por qué: database/TLMG_DB_v3.1.sql:544-559 trae correos que parecen reales y contraseñas de prueba legibles; sustituirlos por datos ficticios. Estándar §5.3: el encabezado debe listar cada versión con su fecha.
 - Depende de: nada
 - Estado: Pendiente
+- Nota (2026-10-25): las cuentas de prueba con contraseña en claro ya no sirven para iniciar sesión; los datos de prueba deben crearse registrando cuentas desde la aplicación o con un mecanismo que genere el hash.
 
 ### BL-032 · .gitignore, ConnectionStrings.config y archivo cifrado de secretos
 - Creado: 2026-10-25 00:49
@@ -249,6 +254,7 @@ Formato de entrada:
 - Por qué: Estándar §4.1 y §11.1: la Vista no usa el proxy y el cierre del canal corresponde a Comunicación. Hoy CreateAccountScreen implementa el callback, crea el cliente y cierra el canal (CreateAccountScreen.xaml.cs:13-14, 109, 185-208). Incluye capturar TimeoutException (BL-020).
 - Depende de: BL-020, BL-035; decisión de BL-042
 - Estado: Pendiente
+- Nota (2026-10-25): los dos TODO provisionales que citan esta entrada: callback `LogInResult` vacío en CreateAccountScreen.xaml.cs:58 y callback `RegisterPlayerAccountResult` vacío en LoginScreen.xaml.cs:57. Se quitan al mover los callbacks a la capa Comunicación.
 
 ### BL-037 · Sacar EF6 y SqlClient de TLMG.Services; DataAccess devuelve un resultado controlado
 - Creado: 2026-10-25 00:49
@@ -335,6 +341,42 @@ Formato de entrada:
 - Por qué: la revisión de los pasos 4a/4b contra el Estándar dejó correcciones de redacción y de criterio. Cambios: §10.2 y §10.3 (`catch (Exception)` solo en límites, registro con `_log.Error`, Fatal solo según §10.3); §10.9 y D-57 (criterio de accesibilidad relajado; D-32 no cambia); §15.2 (pruebas de integración del servidor en un único proyecto /test/TLMG.Server.Tests); §4.4 y §7.3 (se aceptan las dos formas de pack URI); §13.5 (ternario en una sola línea); §3.14, §17.1 y §20.2 (sufijo Request y D-56); se retiró del Estándar el estado actual y las menciones a BL. D-57 se registra en la Bitácora, que vive fuera del repositorio.
 - Depende de: nada
 - Estado: Finalizado el 2026-10-25 · commit 1d2f401
+
+### BL-051 · Medir el rendimiento del login y del ranking
+- Creado: 2026-10-25 19:32
+- Por qué: medir primero el tiempo desde el clic hasta la respuesta. Hipótesis a descartar: costo de la primera consulta de EF6, carga de la entidad completa con seguimiento de cambios, y la unión del ranking con la imagen de todos.
+- Depende de: BL-016 y BL-030
+- Estado: Pendiente
+
+### BL-052 · Estados USER_SUSPENDED y USER_BANNED en el login
+- Creado: 2026-10-25 19:32
+- Por qué: CU-03 no define qué pasa ni el texto para estas cuentas; hoy reciben el error genérico de credenciales inválidas.
+- Depende de: definir la regla y los textos
+- Estado: Pendiente
+
+### BL-053 · Login con 2FA tras 30 días de inactividad (CU-03 FA-02)
+- Creado: 2026-10-25 19:32
+- Por qué: CU-03 FA-02 pide un segundo factor cuando la cuenta lleva 30 días sin iniciar sesión. El servidor ya guarda last_time en UTC (3b6c905).
+- Depende de: BL-007 y BL-008 (el 2FA está apagado)
+- Estado: Pendiente
+
+### BL-054 · Revisión del esquema de la tabla User
+- Creado: 2026-10-25 19:32
+- Por qué: evaluar un catálogo de estados o el perfil en una tabla aparte, en una etapa más avanzada y después de medir (BL-051). Impacto si se hace: versión mayor del script (§5.3), modelo de EF, la base de la compañera, diccionario y SAD.
+- Depende de: BL-051
+- Estado: Pendiente
+
+### BL-055 · Nombre del helper de validación de correo
+- Creado: 2026-10-25 19:32
+- Por qué: `PlayerAccountRegistrationValidationHelper` lo usa también el login; evaluar un nombre o ubicación común. Prioridad baja.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-056 · Registrar en la Bitácora D-57 y la enmienda a D-40
+- Creado: 2026-10-25 19:32
+- Por qué: la Bitácora vive fuera del repositorio. Falta registrar D-57 (criterio de accesibilidad) y la enmienda a D-40: la referencia de servicio de Visual Studio usa el mismo generador que svcutil.exe. Queda abierta hasta que el encargado lo haga.
+- Depende de: el encargado
+- Estado: Pendiente
 
 ---
 
