@@ -289,6 +289,192 @@ namespace TLMG.Client.UsersManagerReference {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OperationGetLeaderboardResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class OperationGetLeaderboardResult : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ErrorKeyField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsSuccessField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.LeaderboardPlayer[] PlayersField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ErrorKey {
+            get {
+                return this.ErrorKeyField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ErrorKeyField, value) != true)) {
+                    this.ErrorKeyField = value;
+                    this.RaisePropertyChanged("ErrorKey");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsSuccess {
+            get {
+                return this.IsSuccessField;
+            }
+            set {
+                if ((this.IsSuccessField.Equals(value) != true)) {
+                    this.IsSuccessField = value;
+                    this.RaisePropertyChanged("IsSuccess");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.LeaderboardPlayer[] Players {
+            get {
+                return this.PlayersField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.PlayersField, value) != true)) {
+                    this.PlayersField = value;
+                    this.RaisePropertyChanged("Players");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="LeaderboardPlayer", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class LeaderboardPlayer : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string NicknameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ProfileImageField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int TotalGamesPlayedField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int TotalPointsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int TotalWinsField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Nickname {
+            get {
+                return this.NicknameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true)) {
+                    this.NicknameField = value;
+                    this.RaisePropertyChanged("Nickname");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ProfileImage {
+            get {
+                return this.ProfileImageField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ProfileImageField, value) != true)) {
+                    this.ProfileImageField = value;
+                    this.RaisePropertyChanged("ProfileImage");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int TotalGamesPlayed {
+            get {
+                return this.TotalGamesPlayedField;
+            }
+            set {
+                if ((this.TotalGamesPlayedField.Equals(value) != true)) {
+                    this.TotalGamesPlayedField = value;
+                    this.RaisePropertyChanged("TotalGamesPlayed");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int TotalPoints {
+            get {
+                return this.TotalPointsField;
+            }
+            set {
+                if ((this.TotalPointsField.Equals(value) != true)) {
+                    this.TotalPointsField = value;
+                    this.RaisePropertyChanged("TotalPoints");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int TotalWins {
+            get {
+                return this.TotalWinsField;
+            }
+            set {
+                if ((this.TotalWinsField.Equals(value) != true)) {
+                    this.TotalWinsField = value;
+                    this.RaisePropertyChanged("TotalWins");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="UsersManagerReference.IUsersManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.IUsersManagerCallback))]
     public interface IUsersManager {
@@ -344,6 +530,54 @@ namespace TLMG.Client.UsersManagerReference {
         
         public void LogIn(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest) {
             base.Channel.LogIn(operationLogInRequest);
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="UsersManagerReference.ILeaderboardManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.ILeaderboardManagerCallback))]
+    public interface ILeaderboardManager {
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILeaderboardManager/GetLeaderboard")]
+        void GetLeaderboard();
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    public interface ILeaderboardManagerCallback {
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILeaderboardManager/GetLeaderboardResult")]
+        void GetLeaderboardResult(TLMG.Client.UsersManagerReference.OperationGetLeaderboardResult operationGetLeaderboardResult);
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    public interface ILeaderboardManagerChannel : TLMG.Client.UsersManagerReference.ILeaderboardManager, System.ServiceModel.IClientChannel {
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    public partial class LeaderboardManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.ILeaderboardManager>, TLMG.Client.UsersManagerReference.ILeaderboardManager {
+        
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance) : 
+                base(callbackInstance) {
+        }
+        
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
+                base(callbackInstance, endpointConfigurationName) {
+        }
+        
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
+                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+        }
+        
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
+                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+        }
+        
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+                base(callbackInstance, binding, remoteAddress) {
+        }
+        
+        public void GetLeaderboard() {
+            base.Channel.GetLeaderboard();
         }
     }
 }

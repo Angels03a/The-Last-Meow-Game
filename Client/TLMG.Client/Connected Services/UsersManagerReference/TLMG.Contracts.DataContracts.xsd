@@ -30,4 +30,28 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="OperationLogInResult" nillable="true" type="tns:OperationLogInResult" />
+  <xs:complexType name="OperationGetLeaderboardResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Players" nillable="true" type="tns:ArrayOfLeaderboardPlayer" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationGetLeaderboardResult" nillable="true" type="tns:OperationGetLeaderboardResult" />
+  <xs:complexType name="ArrayOfLeaderboardPlayer">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="LeaderboardPlayer" nillable="true" type="tns:LeaderboardPlayer" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfLeaderboardPlayer" nillable="true" type="tns:ArrayOfLeaderboardPlayer" />
+  <xs:complexType name="LeaderboardPlayer">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ProfileImage" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TotalGamesPlayed" type="xs:int" />
+      <xs:element minOccurs="0" name="TotalPoints" type="xs:int" />
+      <xs:element minOccurs="0" name="TotalWins" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="LeaderboardPlayer" nillable="true" type="tns:LeaderboardPlayer" />
 </xs:schema>
