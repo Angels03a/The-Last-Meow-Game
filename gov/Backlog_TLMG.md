@@ -201,8 +201,8 @@ Formato de entrada:
 - Creado: 2026-10-25 00:49
 - Por qué: alinear gov/CLAUDE.md con el Estándar v3 (paso 1) y reexportar docs/Estandar.md cuando el encargado termine de corregir el Estándar en Docs.
 - Depende de: BL-026
-- Estado: Pendiente
-- Nota (2026-10-25): la reexportación de docs/Estandar.md está hecha en el commit 1d2f401. Siguen pendientes en gov/CLAUDE.md, frente al Estándar vigente: (1) §6 limita `catch (Exception)` a puntos de entrada del servicio y no indica el nivel de registro; el Estándar §10.2 también lo permite como último bloque de una cascada y en límites del sistema, con `_log.Error` y `Fatal` solo según §10.3; (2) §11 no recoge que, si el ternario no cabe en 120 columnas, se usa if/else (§13.5); (3) §13 no menciona la estructura de proyectos de prueba de §15.2. Sin diferencias en accesibilidad (§10.9, D-57), pack URI (§4.4) ni sufijos Request y Result (§3.14, §17.1). No cerrada.
+- Estado: Finalizado el 2026-10-25 · commit bcc901f
+- Nota (2026-10-25): cierre. La entrada se cumplió en tres commits: 1d2f401 (reexportación de docs/Estandar.md), 92ca7e4 y bcc901f (alineación de gov/CLAUDE.md con el Estándar).
 
 ### BL-030 · Login por servidor y hash de contraseña (D-44); cierra BL-001 y BL-016 al terminar
 - Creado: 2026-10-25 00:49
