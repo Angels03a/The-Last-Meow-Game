@@ -1,26 +1,30 @@
 using System;
-using System.Data.Entity.Core;
-using System.Data.SqlClient;
-using System.Linq;
+using System.ServiceModel;
 using System.Windows;
 using System.Windows.Threading;
 
 using log4net;
 
-using TLMG.DataAccess.DatabaseModel;
+using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
     /// Representa la pantalla de inicio de sesión de usuarios y acceso de invitados.
-    /// Integrada con Entity Framework para validación de credenciales en base de datos.
+    /// Envía las credenciales al servidor autoritativo y reacciona al resultado recibido por callback.
     /// </summary>
-    public partial class LoginScreen : LocalizableScreen
+    [CallbackBehavior(UseSynchronizationContext = false)]
+    public partial class LoginScreen : LocalizableScreen, IUsersManagerCallback
     {
         private const int ScreenTransitionDelayMilliseconds = 1000;
+        private const string SuccessMessageKey = "Login_SuccessMessage";
+        private const string ConnectionErrorKey = "Login_NetworkError";
+        private const string UnknownErrorKey = "Login_DataModelError";
+
         private static readonly ILog _log = LogManager.GetLogger(typeof(LoginScreen));
 
         private DispatcherTimer _redirectTimer;
+        private UsersManagerClient _logInClient;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="LoginScreen"/>.
@@ -37,9 +41,26 @@ namespace TLMG.Client.Views
             _redirectTimer.Tick += OnRedirectTimerTick;
         }
 
+        /// <summary>
+        /// Recibe del servidor el resultado del inicio de sesión y lo traslada al hilo de la interfaz.
+        /// </summary>
+        /// <param name="operationLogInResult">Resultado con éxito o clave de error.</param>
+        public void LogInResult(OperationLogInResult operationLogInResult)
+        {
+            Dispatcher.BeginInvoke(new Action(() => HandleLogInResult(operationLogInResult)));
+        }
+
+        /// <inheritdoc />
+        public void RegisterPlayerAccountResult(
+            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult)
+        {
+            // TODO: Mover los callbacks a la capa Comunicación. (BL-036).
+        }
+
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
             _redirectTimer?.Stop();
+            CloseLogInClient();
         }
 
         private void BtnLogIn_Click(object sender, RoutedEventArgs e)
@@ -53,13 +74,7 @@ namespace TLMG.Client.Views
 
             if (AreCredentialsValidFormat(inputEmailAddress, inputPasswordText))
             {
-                bool isLoginSuccessful = TryAuthenticateUser(inputEmailAddress, inputPasswordText);
-
-                if (isLoginSuccessful)
-                {
-                    ShowStatusMessage(lblFormMessage, TryFindResource("Login_SuccessMessage") as string, false);
-                    _redirectTimer.Start();
-                }
+                SendLogInRequest(inputEmailAddress, inputPasswordText);
             }
         }
 
@@ -95,41 +110,86 @@ namespace TLMG.Client.Views
             return areCredentialsValid;
         }
 
-        private bool TryAuthenticateUser(string email, string password)
+        private void SendLogInRequest(string email, string password)
         {
-            bool isAuthenticationSuccessful = false;
+            OperationLogInRequest operationLogInRequest = new OperationLogInRequest
+            {
+                Email = email,
+                Password = password
+            };
+
+            btnLogIn.IsEnabled = false;
 
             try
             {
-                using (var database = new TLMG_DBEntities())
-                {
-                    User registeredUser = database.User.FirstOrDefault(user => user.email == email);
+                _logInClient = new UsersManagerClient(new InstanceContext(this));
 
-                    if (registeredUser == null || registeredUser.password_hash.Trim() != password.Trim())
+                _logInClient.LogIn(operationLogInRequest);
+            }
+            catch (EndpointNotFoundException ex)
+            {
+                _log.Error("No se encontró el endpoint del servidor al iniciar sesión.", ex);
+                HandleConnectionFailure();
+            }
+            catch (TimeoutException ex)
+            {
+                _log.Error("El servidor tardó demasiado en recibir la solicitud de inicio de sesión.", ex);
+                HandleConnectionFailure();
+            }
+            catch (CommunicationException ex)
+            {
+                _log.Error("Error de comunicación al enviar la solicitud de inicio de sesión.", ex);
+                HandleConnectionFailure();
+            }
+        }
+
+        private void HandleLogInResult(OperationLogInResult operationLogInResult)
+        {
+            CloseLogInClient();
+            btnLogIn.IsEnabled = true;
+
+            if (operationLogInResult.IsSuccess)
+            {
+                ShowStatusMessage(lblFormMessage, TryFindResource(SuccessMessageKey) as string, false);
+                _redirectTimer.Start();
+            }
+            else
+            {
+                string resourceKey = operationLogInResult.ErrorKey ?? UnknownErrorKey;
+                ShowStatusMessage(lblFormMessage, TryFindResource(resourceKey) as string, true);
+            }
+        }
+
+        private void HandleConnectionFailure()
+        {
+            CloseLogInClient();
+            btnLogIn.IsEnabled = true;
+            ShowStatusMessage(lblFormMessage, TryFindResource(ConnectionErrorKey) as string, true);
+        }
+
+        private void CloseLogInClient()
+        {
+            if (_logInClient != null)
+            {
+                try
+                {
+                    if (_logInClient.State == CommunicationState.Faulted)
                     {
-                        ShowStatusMessage(
-                            lblFormMessage, TryFindResource("Login_InvalidCredentialsError") as string, true);
+                        _logInClient.Abort();
                     }
                     else
                     {
-                        registeredUser.last_time = DateTime.Now;
-                        database.SaveChanges();
-                        isAuthenticationSuccessful = true;
+                        _logInClient.Close();
                     }
                 }
-            }
-            catch (SqlException ex)
-            {
-                ShowStatusMessage(lblFormMessage, TryFindResource("Login_NetworkError") as string, true);
-                _log.Error("Fallo en la conexión de la base de datos", ex);
-            }
-            catch (EntityException ex)
-            {
-                ShowStatusMessage(lblFormMessage, TryFindResource("Login_DataModelError") as string, true);
-                _log.Error("Fallo en encontrar el modelo de datos", ex);
-            }
+                catch (CommunicationException ex)
+                {
+                    _log.Warn("No se pudo cerrar limpiamente el canal de inicio de sesión.", ex);
+                    _logInClient.Abort();
+                }
 
-            return isAuthenticationSuccessful;
+                _logInClient = null;
+            }
         }
 
         private string ValidateEmail(string emailAddress)

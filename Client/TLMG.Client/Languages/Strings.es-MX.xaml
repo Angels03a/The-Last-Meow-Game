@@ -192,7 +192,7 @@
     <sys:String x:Key="Leaderboard_DataModelErrorMessage">Error en el modelo de datos.</sys:String>
     <sys:String x:Key="Leaderboard_ErrorTitle">Error</sys:String>
     <sys:String x:Key="Login_NetworkError">Error de red. Por favor, inténtalo de nuevo más tarde.</sys:String>
-    <sys:String x:Key="Login_DataModelError">Error: el modelo de datos no se encuentra disponible.</sys:String>
+    <sys:String x:Key="Login_DataModelError">Ocurrió un problema al iniciar sesión. Intenta de nuevo más tarde.</sys:String>
     <sys:String x:Key="NewPassword_IncompleteFieldsError">Por favor, revise que todos los campos obligatorios estén llenos correctamente</sys:String>
     <sys:String x:Key="Profile_SidebarTitle">PERFIL</sys:String>
     <sys:String x:Key="Profile_MainTitle">MI PERFIL</sys:String>

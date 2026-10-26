@@ -192,7 +192,7 @@
     <sys:String x:Key="Leaderboard_DataModelErrorMessage">Data model error.</sys:String>
     <sys:String x:Key="Leaderboard_ErrorTitle">Error</sys:String>
     <sys:String x:Key="Login_NetworkError">Network error. Please try again later.</sys:String>
-    <sys:String x:Key="Login_DataModelError">Error: the data model is not available.</sys:String>
+    <sys:String x:Key="Login_DataModelError">There was a problem logging in. Please try again later.</sys:String>
     <sys:String x:Key="NewPassword_IncompleteFieldsError">Please make sure all required fields are correctly filled in</sys:String>
     <sys:String x:Key="Profile_SidebarTitle">PROFILE</sys:String>
     <sys:String x:Key="Profile_MainTitle">MY PROFILE</sys:String>
