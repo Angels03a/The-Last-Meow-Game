@@ -25,7 +25,7 @@ Todo pendiente, `FIXME`, `TODO` o actividad por hacer se registra en `gov/Backlo
 - Lleva una justificación breve del porqué.
 - Indica de qué depende, si depende de algo.
 - Al terminar se marca como finalizada con el día y el commit: `Finalizado el AAAA-MM-DD · commit <hash>`.
-- Si agregas un `FIXME` o `TODO` en el código, debe existir su entrada en el backlog.
+- Si agregas un `FIXME` o `TODO` en el código, debe existir su entrada en el backlog. El comentario usa el formato `// TOKEN: Texto descriptivo. (BL-xxx).` (token en mayúsculas, dos puntos, un espacio, mayúscula inicial y punto final), cita su identificador BL y solo admite los tokens `TODO`, `FIXME`, `HACK` y `UNDONE` (Estándar §12.3).
 - Propón las entradas nuevas; no cierres ninguna sin que exista el commit.
 
 ## 3. Reutilizar y mantenerlo simple
@@ -95,7 +95,7 @@ docs/                      Estándar, contratos, decisiones, SAD
 gov/                       CLAUDE.md y Backlog_TLMG.md
 ```
 
-- El cliente usa el proxy generado con svcutil o Add Service Reference. No referencia `TLMG.Contracts`.
+- El cliente usa el proxy generado con svcutil.exe. No referencia `TLMG.Contracts`.
 - Hoy el cliente tiene una referencia temporal a `TLMG.DataAccess`. Es deuda registrada (Estándar §4.1 regla 2) y se retira con BL-016, cuando el login y la clasificación pasen por el servidor.
 
 ## 9. Nombrado
