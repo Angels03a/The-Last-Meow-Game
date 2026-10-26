@@ -118,10 +118,11 @@ Formato de entrada:
 - Creado: 2026-10-20 11:40
 - Por qué: hoy el cliente consulta la BD directamente (el login entra con el servidor apagado); viola SAD §4.3 y Zero-Trust.
 - Depende de: BL-002
-- Estado: Pendiente
+- Estado: Finalizado el 2026-10-25 · commits 3b6c905, bdd0dfe, 445d216, c0fc127, e09ed5b, ea27455, b628f1b
 - Nota (2026-10-25): evidencia del acceso directo a la base desde el cliente (git grep sobre Client): LoginScreen.xaml.cs:104 y LeaderboardScreen.xaml.cs:76 abren new TLMG_DBEntities() desde la vista; Client/TLMG.Client/App.config:7 tiene su propia cadena de conexión TLMG_DBEntities; Client/TLMG.Client/TLMG.Client.csproj:242 y Client/TLMG.Client.slnx:3 referencian TLMG.DataAccess. Contradice Estándar §4.1 y Zero-Trust. Comprobación funcional: con el servidor apagado el inicio de sesión sigue funcionando; el registro ya pasa por WCF y con el servidor apagado muestra el error de red controlado. El alcance incluye retirar de la tabla de posiciones su consulta directa y usar un contrato del servidor para la clasificación (`ILeaderboardManager`, D-41).
 - Nota (2026-10-25): el cliente conserva el `PackageReference` a EntityFramework (Client/TLMG.Client/TLMG.Client.csproj, alrededor de la línea 233); se retira junto con la referencia a TLMG.DataAccess, cuando ya no quede código del cliente que use TLMG_DBEntities. Quitarlo antes rompería la compilación de LoginScreen y LeaderboardScreen.
 - Nota (2026-10-25): el login y el hash están hechos (3b6c905, bdd0dfe, 445d216). Las referencias a LoginScreen.xaml.cs:104 y a las líneas de consulta directa de esa pantalla ya no existen: LoginScreen usa el servidor. Queda el ranking por el servidor (`ILeaderboardManager`, LeaderboardScreen.xaml.cs:76) y, cuando LeaderboardScreen deje de usar TLMG_DBEntities, retirar TLMG_DBEntities de App.config, el `PackageReference` a EntityFramework, la referencia a TLMG.DataAccess y Client.slnx. No cerrada.
+- Nota (2026-10-25): cierre. El login pasa por `IUsersManager` (3b6c905, bdd0dfe, 445d216) y el ranking por `ILeaderboardManager` (servidor c0fc127, proxy e09ed5b, pantalla ea27455). Con b628f1b el cliente quedó sin Entity Framework, sin referencia a TLMG.DataAccess y sin la cadena de conexión TLMG_DBEntities (git grep sobre Client: sin coincidencias de TLMG_DBEntities, System.Data.Entity, TLMG.DataAccess ni EntityFramework). Quedan fuera de esta entrada los valores fijos del jugador actual (BL-030) y la capa Comunicación (BL-036).
 
 ### BL-017 · Centralizar el manejo de errores, `ErrorKey` y mensajes (cliente y servidor)
 - Creado: 2026-10-20 12:30
@@ -135,6 +136,7 @@ Formato de entrada:
 - Depende de: BL-017
 - Estado: Pendiente
 - Nota (2026-10-25): `Login_DataModelError` ya tiene texto neutro (445d216); `CreateAccount_DataModelError` sigue con texto técnico. Pendiente: actualizar a mano la fila de `Login_DataModelError` en TLMG_Diccionario_v3.xlsx.
+- Nota (2026-10-25): `Leaderboard_DataModelErrorMessage` ya no se referencia en ningún `.cs` ni `.xaml` (git grep: solo aparece en Strings.es-MX.xaml:192 y Strings.en-US.xaml:192, sus definiciones). Es candidata a retirarse de ambos diccionarios y de TLMG_Diccionario_v3.xlsx.
 
 ### BL-019 · Carpeta para las interfaces de repositorios en `TLMG.DataAccess`
 - Creado: 2026-10-20 12:30
@@ -213,8 +215,8 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-25): el alcance incluye retirar la cadena de conexión TLMG_DBEntities del cliente (Client/TLMG.Client/App.config:7) y la referencia a TLMG.DataAccess (TLMG.Client.csproj:242 y TLMG.Client.slnx:3). Comprobación funcional: con el servidor apagado el inicio de sesión sigue funcionando porque LoginScreen.xaml.cs:104 consulta la base directamente.
 - Nota (2026-10-25): el cliente conserva el `PackageReference` a EntityFramework (Client/TLMG.Client/TLMG.Client.csproj, alrededor de la línea 233); se retira junto con la referencia a TLMG.DataAccess, cuando ya no quede código del cliente que use TLMG_DBEntities. Quitarlo antes rompería la compilación de LoginScreen y LeaderboardScreen.
-- Nota (2026-10-25): el login y el hash están hechos (3b6c905, bdd0dfe, 445d216). Ya no existen las referencias a LoginScreen.xaml.cs:104-108 ni a PlayerAccountRegistrationService.cs:97-98 y 147-151: el servidor hashea con `IPasswordHasher` y LoginScreen usa `LogIn`. Queda el ranking por el servidor (`ILeaderboardManager`) y, cuando LeaderboardScreen deje de usar TLMG_DBEntities, retirar TLMG_DBEntities de App.config, el `PackageReference` a EntityFramework, la referencia a TLMG.DataAccess y Client.slnx. No cerrada.
-- Nota (2026-10-25): los valores fijos del jugador actual en el ranking (`CurrentUserStandingRank` y `CurrentUserStandingPoints`, FIXME en LeaderboardScreen.xaml.cs:40, que cita esta entrada) dependen del registro de sesiones (D-41) y de `ILeaderboardManager`.
+- Nota (2026-10-25): el login y el hash están hechos (3b6c905, bdd0dfe, 445d216). Ya no existen las referencias a LoginScreen.xaml.cs:104-108 ni a PlayerAccountRegistrationService.cs:97-98 y 147-151: el servidor hashea con `IPasswordHasher` y LoginScreen usa `LogIn`.
+- Nota (2026-10-25): el ranking ya viaja por `ILeaderboardManager` (c0fc127, e09ed5b, ea27455): máximo 100 jugadores, solo cuentas USER_ACTIVE, ordenados por puntos y luego por nickname; el cliente ya no usa EF ni TLMG.DataAccess (b628f1b). Queda pendiente: los valores fijos del jugador actual (`CurrentUserStandingRank` y `CurrentUserStandingPoints`, FIXME en LeaderboardScreen.xaml.cs:43, que cita esta entrada), que dependen del registro de sesiones (D-41). `ILeaderboardManager` se puede consultar sin sesión porque el ranking es público; se revisará cuando exista el registro de sesiones. No cerrada.
 
 ### BL-031 · Script SQL: datos ficticios y encabezado versionado
 - Creado: 2026-10-25 00:49
@@ -255,6 +257,7 @@ Formato de entrada:
 - Depende de: BL-020, BL-035; decisión de BL-042
 - Estado: Pendiente
 - Nota (2026-10-25): los dos TODO provisionales que citan esta entrada: callback `LogInResult` vacío en CreateAccountScreen.xaml.cs:58 y callback `RegisterPlayerAccountResult` vacío en LoginScreen.xaml.cs:57. Se quitan al mover los callbacks a la capa Comunicación.
+- Nota (2026-10-25): LeaderboardScreen ya implementa `ILeaderboardManagerCallback` con su propio canal (ea27455); es la tercera pantalla con el patrón. TODO vigentes que citan esta entrada (git grep): CreateAccountScreen.xaml.cs:58, LoginScreen.xaml.cs:57 y LeaderboardScreen.xaml.cs:73, los tres con el texto "Mover ... a la capa Comunicación".
 
 ### BL-037 · Sacar EF6 y SqlClient de TLMG.Services; DataAccess devuelve un resultado controlado
 - Creado: 2026-10-25 00:49
@@ -273,6 +276,7 @@ Formato de entrada:
 - Por qué: 0 pruebas frente al mínimo de 300 (Estándar §15.1). Elegir marco (§15.1: decisión superior) y crear test/TLMG.Services.Tests con un stub de IPlayerRepository.
 - Depende de: decisión del marco de pruebas
 - Estado: Pendiente
+- Nota (2026-10-25): el marco de pruebas sigue sin decidirse (Estándar §15.1 y §19.1). Se recomendó xUnit.net, sin decisión del equipo; consultar al profesor o la rúbrica. No se ha creado ningún proyecto de pruebas.
 
 ### BL-040 · Crear TLMG.Domain (motor de reglas puro)
 - Creado: 2026-10-25 00:49
@@ -347,6 +351,7 @@ Formato de entrada:
 - Por qué: medir primero el tiempo desde el clic hasta la respuesta. Hipótesis a descartar: costo de la primera consulta de EF6, carga de la entidad completa con seguimiento de cambios, y la unión del ranking con la imagen de todos.
 - Depende de: BL-016 y BL-030
 - Estado: Pendiente
+- Nota (2026-10-25): observación: el login tarda unos 5 s con unas 20 cuentas; el tamaño de la tabla no lo explica. Hipótesis sin medir: arranque en frío de EF en la primera consulta. Pendiente: comparar el primer y el segundo inicio de sesión en la misma ejecución del servidor, y medir el ranking.
 
 ### BL-052 · Estados USER_SUSPENDED y USER_BANNED en el login
 - Creado: 2026-10-25 19:32
@@ -376,6 +381,12 @@ Formato de entrada:
 - Creado: 2026-10-25 19:32
 - Por qué: la Bitácora vive fuera del repositorio. Falta registrar D-57 (criterio de accesibilidad) y la enmienda a D-40: la referencia de servicio de Visual Studio usa el mismo generador que svcutil.exe. Queda abierta hasta que el encargado lo haga.
 - Depende de: el encargado
+- Estado: Pendiente
+
+### BL-057 · Revisar App.config del cliente tras actualizar la referencia de servicio
+- Creado: 2026-10-25 20:30
+- Por qué: al regenerar la referencia de servicio, Visual Studio crea el binding nuevo con valores por defecto y agrega la identidad de la máquina de quien actualiza. Revisar Client/TLMG.Client/App.config: los bindings deben conservar los tiempos de D-46 (10/15/5 s) y los endpoints no deben llevar `<identity>` con cuentas de Windows.
+- Depende de: nada
 - Estado: Pendiente
 
 ---
