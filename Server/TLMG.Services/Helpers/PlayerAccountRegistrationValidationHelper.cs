@@ -62,7 +62,10 @@ namespace TLMG.Services.Helpers
             return errorKey;
         }
 
-        private static string ValidateEmail(string email)
+        /// <summary>Valida la longitud y el formato de un correo.</summary>
+        /// <param name="email">Correo recibido del cliente.</param>
+        /// <returns>La clave del error encontrado; null si el correo es válido.</returns>
+        public static string ValidateEmail(string email)
         {
             string errorKey = null;
             bool isLengthValid = IsLengthInRange(email, EmailminimumLength, EmailmaximunLength);

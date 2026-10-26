@@ -39,6 +39,8 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataContracts\OperationLogInRequest.cs" />
+    <Compile Include="DataContracts\OperationLogInResult.cs" />
     <Compile Include="DataContracts\OperationRegisterPlayerAccountResult.cs" />
     <Compile Include="DataContracts\PlayerAccountRegistration.cs" />
     <Compile Include="IUsersManager.cs" />

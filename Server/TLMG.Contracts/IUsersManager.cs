@@ -14,5 +14,10 @@ namespace TLMG.Contracts
         /// <param name="playerAccountRegistration">Datos capturados por el jugador.</param>
         [OperationContract(IsOneWay = true)]
         void RegisterPlayerAccount(PlayerAccountRegistration playerAccountRegistration);
+
+        /// <summary>Solicita iniciar sesión; la respuesta llega por LogInResult.</summary>
+        /// <param name="operationLogInRequest">Credenciales capturadas por el jugador.</param>
+        [OperationContract(IsOneWay = true)]
+        void LogIn(OperationLogInRequest operationLogInRequest);
     }
 }

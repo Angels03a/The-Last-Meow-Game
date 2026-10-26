@@ -14,5 +14,10 @@ namespace TLMG.Contracts
         /// <param name="operationRegisterPlayerAccountResult">Resultado con éxito o clave de error.</param>
         [OperationContract(IsOneWay = true)]
         void RegisterPlayerAccountResult(OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult);
+
+        /// <summary>Entrega el resultado del inicio de sesión al cliente.</summary>
+        /// <param name="operationLogInResult">Resultado con éxito o clave de error.</param>
+        [OperationContract(IsOneWay = true)]
+        void LogInResult(OperationLogInResult operationLogInResult);
     }
 }

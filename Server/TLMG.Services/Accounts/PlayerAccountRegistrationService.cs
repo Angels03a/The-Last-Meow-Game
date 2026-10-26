@@ -30,12 +30,15 @@ namespace TLMG.Services.Accounts
         private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerAccountRegistrationService));
 
         private readonly IPlayerRepository _playerRepository;
+        private readonly IPasswordHasher _passwordHasher;
 
-        /// <summary>Crea el servicio de registro con su repositorio.</summary>
+        /// <summary>Crea el servicio de registro con sus dependencias.</summary>
         /// <param name="playerRepository">Repositorio de cuentas.</param>
-        public PlayerAccountRegistrationService(IPlayerRepository playerRepository)
+        /// <param name="passwordHasher">Calculador del hash de contraseñas.</param>
+        public PlayerAccountRegistrationService(IPlayerRepository playerRepository, IPasswordHasher passwordHasher)
         {
             _playerRepository = playerRepository;
+            _passwordHasher = passwordHasher;
         }
 
         /// <summary>Valida los datos y crea la cuenta.</summary>
@@ -94,7 +97,6 @@ namespace TLMG.Services.Accounts
                 }
                 else
                 {
-                    // FIXME: Calcular el hash de la contraseña con SHA-256 y sal antes de guardar. (BL-001).
                     SavePlayer(nickname, email, playerAccountRegistration.Password); 
                     OperationRegisterPlayerAccountResult.IsSuccess = true;
                 }
@@ -146,8 +148,8 @@ namespace TLMG.Services.Accounts
 
         private void SavePlayer(string nickname, string email, string password)
         {
-            // FIXME: Hoy la contraseña se guarda en claro; se corrige al implementar el hash. (BL-001).
-            _playerRepository.CreatePlayer(nickname, email, password);
+            string passwordHash = _passwordHasher.HashPassword(password);
+            _playerRepository.CreatePlayer(nickname, email, passwordHash);
         }
 
         // FIXME: Evaluar si este método y IsDuplicateKeyError se necesitan; se decide al mover la detección. (BL-037).
