@@ -33,5 +33,10 @@ namespace TLMG.DataAccess.Repositories
         /// <param name="lastLogInTimeUtc">Momento del inicio de sesión, en UTC.</param>
         /// <returns>true si se guardó; false si la cuenta no existe o la operación falló.</returns>
         bool UpdateLastLogInTime(int userId, DateTime lastLogInTimeUtc);
+
+        /// <summary>Obtiene los jugadores activos con más puntos, ordenados de mayor a menor.</summary>
+        /// <param name="maximumPlayerCount">Cantidad máxima de jugadores a devolver.</param>
+        /// <returns>Los jugadores y su estado de consulta; nunca es null.</returns>
+        LeaderboardLookup FindTopRankedPlayers(int maximumPlayerCount);
     }
 }

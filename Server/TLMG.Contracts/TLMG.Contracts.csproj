@@ -39,10 +39,14 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataContracts\LeaderboardPlayer.cs" />
+    <Compile Include="DataContracts\OperationGetLeaderboardResult.cs" />
     <Compile Include="DataContracts\OperationLogInRequest.cs" />
     <Compile Include="DataContracts\OperationLogInResult.cs" />
     <Compile Include="DataContracts\OperationRegisterPlayerAccountResult.cs" />
     <Compile Include="DataContracts\PlayerAccountRegistration.cs" />
+    <Compile Include="ILeaderboardManager.cs" />
+    <Compile Include="ILeaderboardManagerCallback.cs" />
     <Compile Include="IUsersManager.cs" />
     <Compile Include="IUsersManagerCallback.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

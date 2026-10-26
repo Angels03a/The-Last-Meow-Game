@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Core;
 using System.Data.SqlClient;
@@ -24,6 +25,9 @@ namespace TLMG.DataAccess.Repositories
 
         // FIXME: Implementar la gestión de imágenes de perfil; se define en el pendiente de imágenes. (BL-045).
         private const string DefaultProfileImage = "/img/default.png";
+
+        // FIXME: Representar los estados de usuario con un enum en lugar de cadenas. (BL-047).
+        private const string ActiveUserState = "USER_ACTIVE";
 
         /// <inheritdoc />
         public bool PlayerExistsByEmail(string email)
@@ -156,6 +160,61 @@ namespace TLMG.DataAccess.Repositories
             }
 
             return wasUpdated;
+        }
+
+        /// <inheritdoc />
+        public LeaderboardLookup FindTopRankedPlayers(int maximumPlayerCount)
+        {
+            LeaderboardLookup leaderboardLookup;
+
+            try
+            {
+                using (TLMG_DBEntities context = new TLMG_DBEntities())
+                {
+                    var rankedPlayersQuery = from player in context.Player.AsNoTracking()
+                                             join user in context.User.AsNoTracking()
+                                                 on player.id_user equals user.id_user
+                                             where user.state == ActiveUserState
+                                             orderby player.total_points descending, user.nickname
+                                             select new RankedPlayer
+                                             {
+                                                 Nickname = user.nickname,
+                                                 ProfileImage = user.profile_image,
+                                                 TotalPoints = player.total_points,
+                                                 TotalWins = player.total_wins,
+                                                 TotalGamesPlayed = player.total_games_played
+                                             };
+
+                    leaderboardLookup = new LeaderboardLookup
+                    {
+                        WasSuccessful = true,
+                        Players = rankedPlayersQuery.Take(maximumPlayerCount).ToList()
+                    };
+                }
+            }
+            catch (SqlException ex)
+            {
+                _log.Error("Error de SQL Server al consultar la tabla de posiciones.", ex);
+                leaderboardLookup = CreateFailedLeaderboardLookup();
+            }
+            catch (EntityException ex)
+            {
+                _log.Error("La base de datos no respondió al consultar la tabla de posiciones.", ex);
+                leaderboardLookup = CreateFailedLeaderboardLookup();
+            }
+
+            return leaderboardLookup;
+        }
+
+        private static LeaderboardLookup CreateFailedLeaderboardLookup()
+        {
+            LeaderboardLookup leaderboardLookup = new LeaderboardLookup
+            {
+                WasSuccessful = false,
+                Players = new List<RankedPlayer>()
+            };
+
+            return leaderboardLookup;
         }
     }
 }
