@@ -427,6 +427,36 @@ Formato de entrada:
 - Depende de: BL-013
 - Estado: Pendiente
 
+### BL-064 · Emitir las autorizaciones de entrada al aceptar una invitación
+- Creado: 2026-10-29 19:30
+- Por qué: `ISessionRegistry.IssueRoomEntryAuthorization` existe y EnterLobby ya las exige y las consume, pero nadie las emite todavía (hay un UNDONE que cita esta entrada). Las emitirá el paso de invitaciones, al aceptar el invitado; y quien invita debe estar en la sala y tener al invitado como amigo aceptado (IFriendshipRepository).
+- Depende de: paso de invitaciones
+- Estado: Pendiente
+
+### BL-065 · Avisar a la sala cuando una sesión termina o es reemplazada
+- Creado: 2026-10-29 19:30
+- Por qué: `StartSession` (reemplazo) y `EndSession` retiran al jugador de su sala, de su callback y de sus autorizaciones, pero no avisan a los demás jugadores: ven la lista vieja hasta el siguiente cambio. Hay que devolver los avisos desde el registro y entregarlos fuera del candado, como ya se hace en EnterLobby y LeaveLobby.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-066 · Vencimiento de autorizaciones de entrada y de sesiones sin canal de lobby
+- Creado: 2026-10-29 19:30
+- Por qué: una autorización emitida y nunca usada, o una sesión que no vuelve a abrir su canal de lobby, ocupa memoria hasta que la sala se elimina o la sesión termina. Medir el plazo por hora límite en UTC al recibir el latido, sin temporizadores (Estándar §10.4, D-54).
+- Depende de: BL-058
+- Estado: Pendiente
+
+### BL-067 · Agregar al cliente las claves de idioma del lobby
+- Creado: 2026-10-29 19:30
+- Por qué: el servidor ya devuelve Lobby_InvalidSessionError, Lobby_AlreadyInRoomError, Lobby_CannotJoinRoomError, Lobby_RoomFullError y Lobby_UnexpectedError. Faltan en Strings.es-MX.xaml y Strings.en-US.xaml, con paridad exacta.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-068 · Registrar en el Estándar y la Bitácora el estado de salas en SessionRegistry
+- Creado: 2026-10-29 19:30
+- Por qué: la autorización de lock de D-58 ahora cubre también las salas, las pertenencias, los callbacks y las autorizaciones de entrada; el límite de 6 jugadores por sala vive en `SessionRegistry` (Reglas §1.1.1). Falta reflejarlo en §11.1 y en la Bitácora (fuera del repositorio). Complementa BL-059.
+- Depende de: decisión del encargado
+- Estado: Pendiente
+
 ---
 
 ## Finalizados
