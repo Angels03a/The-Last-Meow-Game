@@ -1094,6 +1094,7 @@ Los nombres de las clases deberán reflejar de forma explícita su responsabilid
 | ViewModel | Lógica de presentación de una pantalla MVVM | LoginViewModel |
 | Request | DTO con los datos de entrada de una operación del contrato (S17.1; D-56)  | OperationRegisterPlayerAccountRequest  |
 | Result | DTO con el resultado de una operación del contrato (S17.1) | OperationRegisterPlayerAccountResult |
+| Registry | Estado compartido en memoria entre las sesiones del servidor; su acceso se protege conforme a S11.1  | SessionRegistry |
 
 Manager nunca se usa para persistencia; para eso Repository.
 
@@ -1247,7 +1248,7 @@ Respaldo: SAD S4.3 (regla prohibida de ADR-02), C-04, Drivers ADR-02. Los nombre
 
 3. ## Estructura de carpetas y namespaces {#estructura-de-carpetas-y-namespaces}
 
-El repositorio se organiza en carpetas de primer nivel por función: Client/ (solución del cliente), Server/ (solución del servidor), database/ (script de la base de datos), docs/ (documentación) y gov/ (gobierno del proyecto: bitácoras y backlog).
+El repositorio se organiza en carpetas de primer nivel por función: Client/ (solución del cliente), Server/ (solución del servidor), database/ (script de la base de datos y, en database/seed/, scripts de datos de demostración) , docs/ (documentación) y gov/ (gobierno del proyecto: bitácoras y backlog).
 
 En cada proyecto, el namespace raíz es el nombre del proyecto y cada carpeta agrega un nivel con su mismo nombre (S3.13). El nombre de cada archivo coincide con el del tipo que contiene, y cada archivo contiene un solo tipo de nivel superior. Las clases parciales se nombran Tipo.Aspecto.cs (por ejemplo, ServiceImplementation.UsersManager.cs). Las carpetas llevan nombres en inglés y PascalCase.
 
@@ -1270,7 +1271,7 @@ En cada proyecto, el namespace raíz es el nombre del proyecto y cada carpeta ag
 | Proyecto | Carpetas | Namespaces |
 | :---- | :---- | :---- |
 | TLMG.Contracts | raíz (interfaces WCF), DataContracts (DTO) | TLMG.Contracts, TLMG.Contracts.DataContracts |
-| TLMG.Services | raíz (ServiceImplementation parcial), Accounts, Helpers | TLMG.Services, TLMG.Services.Accounts, TLMG.Services.Helpers |
+| TLMG.Services | raíz (ServiceImplementation parcial), Accounts, Friends, Helpers, Leaderboard, Lobby, Sessions  | TLMG.Services, TLMG.Services.Accounts, TLMG.Services.Friends, TLMG.Services.Helpers, TLMG.Services.Lobby, TLMG.Services.Sessions  TLMG.Services.Leaderboard. |
 | TLMG.DataAccess | DatabaseModel (EF), Repositories | TLMG.DataAccess.DatabaseModel, TLMG.DataAccess.Repositories |
 | TLMG.Server | raíz (arranque y configuración) | TLMG.Server |
 
@@ -1384,6 +1385,8 @@ Que el repositorio devuelva datos ya materializados y no IQueryable es una regla
 | Credenciales del correo (SMTP) | Archivo ignorado por Git y cifrado con DPAPI en el servidor (D-43) | No |
 | Tiempos y reglas del juego | Constantes en el código (S10.4) | Sí |
 
+La dirección que se versiona en el cliente es la del equipo de desarrollo (localhost); la IP de un entorno concreto se ajusta de forma local y no se sube a Git. 
+
 El archivo .gitignore debe tener reglas explícitas para los archivos de secretos. Como DPAPI cifra por equipo, cada servidor genera su propio archivo cifrado, que no es portable.
 
 Correcto: App.config solo apunta al archivo externo, ignorado por Git
@@ -1402,9 +1405,11 @@ Incorrecto: credencial en un App.config rastreado por Git
 
 3. ## Versionado del script de base de datos {#versionado-del-script-de-base-de-datos}
 
-   La carpeta database/ contiene un único script vigente, con el nombre TLMG\_DB\_v\<mayor\>.\<menor\>.sql. La versión mayor cambia cuando el esquema deja de ser compatible con la anterior, y la menor cuando solo se agregan elementos. Al cambiar la versión se renombra el archivo (git mv) y el historial anterior queda en Git. El encabezado del script lista cada versión con su fecha y una descripción breve del cambio.
+   La carpeta database/ contiene un único script vigente, con el nombre TLMG\_DB\_v\<mayor\>.sql. La versión mayor cambia cuando el esquema deja de ser compatible con la anterior, y la menor cuando solo se agregan elementos. Al cambiar la versión se renombra el archivo (git mv) y el historial anterior queda en Git. El encabezado del script lista cada versión con su fecha y una descripción breve del cambio.
 
    El script y el modelo de Entity Framework se actualizan en el mismo commit, y la versión vigente se menciona en la bitácora de decisiones.
+
+> Los scripts de datos de demostración viven en database/seed/. No forman parte del esquema, no cambian su versión, no contienen contraseñas ni datos personales reales y los ejecuta una cuenta administradora, no la de la aplicación (S5.2; D-59).
 
 6. # Capa de lógica de negocio y de juego {#capa-de-lógica-de-negocio-y-de-juego}
 
@@ -1463,9 +1468,10 @@ La siguiente tabla recoge solo los patrones que el proyecto usa o que ya tienen 
 | Puertos y adaptadores | TLMG.Domain (S4.2) | PENDIENTE | Reglas comprobables en memoria | Más indirección al inicio | Reglas dentro de los servicios |
 | Máquina de estados | Ciclo de vida de sala, partida y sesión | Decidido; por implementar. ADR-04 | Impide jugadas en fases indebidas | Más clases por estado | Banderas booleanas sueltas |
 | Instantánea (Memento) | Reconexión de un jugador | Decidido; por implementar. ADR-04 | Restaura la mesa completa tras reconectar | Costo de serializar al reconectar | Reenviar solo cambios sueltos |
-| Registro de sesiones (SessionRegistry) | Servidor | Decidido; por implementar. D-41 | Un solo lugar conoce a los jugadores conectados | Estado compartido que hay que proteger | Cada contrato con su lista |
+| Registro de sesiones (SessionRegistry) | Servidor | Decidido; por implementar. D-41, D-58 | Un solo lugar conoce a los jugadores conectados y une los canales de un mismo jugador por su sessionToken  | Estado compartido entre sesiones; se protege con un único lock (S11.1)  | Cada contrato con su lista; ConcurrentDictionary; InstanceContextMode.Single  |
 | Limitador de tasa (Token Bucket) | Envío del código 2FA | Decidido, función apagada por ahora. ADR-05, D-42 | Protege la cuenta de correo | Un reenvío rápido puede rechazarse | Cola con hilo propio (choca con S11.1) |
 | Inyección de dependencias | Raíz de composición de cada solución | Decidido con condiciones; implementación diferida. D-51 | Dependencias por interfaz y sustituibles en pruebas | Configuración adicional y WCF necesita un proveedor propio de instancias | Crear las dependencias a mano |
+| Observador (eventos .NET)  | Capa Comunicación del cliente (ServerConnectionManager)  | Decidido; por implementar. D-60, ADR-08  | Las pantallas reaccionan a los callbacks del servidor sin conocer WCF  | Hay que desuscribir en OnScreenUnloaded (S14.2)  | Proxy y callback propios en cada pantalla |
 
 **Respaldo:** SAD S3 (ADR-01 a ADR-06) y S4.1, Drivers (definiciones de patrones) y bitácoras (D-41, D-42, D-50, D-51). Las ventajas y desventajas son las de los Drivers, resumidas.
 
@@ -2514,7 +2520,10 @@ Los mensajes del log se escriben en español y no se traducen (S10.2). Las sigui
 | Servidor · Program | Arranque, apertura y cierre del host, errores de arranque | Info, Warn, Fatal |
 | Servidor · ServiceImplementation | Operaciones rechazadas y fallos inesperados de una petición  | Warn, Error |
 | Servidor · PlayerAccountRegistrationService | Fallos del registro | Error |
-| Cliente · LoginScreen, CreateAccountScreen, LeaderboardScreen | Fallos de comunicación y de pantalla | Error, Warn, Info |
+| Cliente · LoginScreen, CreateAccountScreen, LeaderboardScreen, LobbyScreen, FriendsScreen, ServerConnectionManager  | Fallos de comunicación y de pantalla | Error, Warn, Info |
+| Servidor · SessionRegistry  | Alta, baja y sustitución de sesiones por inicio de sesión repetido (sin el token)  | Info |
+| Servidor · PlayerRepository, FriendshipRepository | Fallos de acceso a datos (excepciones de EF y SQL) | Error |
+| Servidor · LobbyService, FriendsService  | Operaciones rechazadas (sesión no válida, invitación no válida, sala llena) y fallos al notificar a un cliente  | Info, Warn, Error  |
 
 Configuración: el cliente escribe en logs\\aplicacion.log (10 MB, 5 respaldos) y el servidor en consola y en logs\\servidor.log. En las compilaciones de entrega no se habilitan los niveles Trace ni Debug. 
 
@@ -3085,7 +3094,61 @@ En TLMG no se crean ni se administran hilos propios, ni en el cliente ni en el s
 | System.Threading.Timer y System.Timers.Timer | Disparan en hilos del ThreadPool, no en el de la interfaz | DispatcherTimer |
 | lock, SemaphoreSlim, Interlocked | Solo se justifican con estado compartido entre sesiones en el servidor | Requieren autorización del encargado y justificación documentada |
 
-El servidor no usa temporizadores propios: guarda cada plazo como hora límite en UTC y lo revisa con su propio reloj cuando llega un latido (S10.4; D-54). El cliente muestra la cuenta regresiva con DispatcherTimer. El registro de sesiones sigue siendo estado compartido entre sesiones; proteger su acceso con lock depende de la autorización del encargado. 
+El servidor no usa temporizadores propios: guarda cada plazo como hora límite en UTC y lo revisa con su propio reloj cuando llega un latido (S10.4; D-54). El cliente muestra la cuenta regresiva con DispatcherTimer. El registro de sesiones (SessionRegistry) es estado compartido entre las sesiones y su acceso se protege con un único lock, autorizado por el encargado (D-58). Cualquier otro uso de lock, SemaphoreSlim o Interlocked sigue requiriendo autorización. 
+
+El lock de SessionRegistry se usa con tres reglas: 
+
+(1) un único objeto de candado, privado y de solo lectura, para que no pueda haber interbloqueo entre candados.
+
+ (2) dentro del lock no se accede a datos, no se invoca ningún callback, no se escribe en el log ni se espera nada: solo se lee o se modifica el estado en memoria.
+
+ (3) la sección protegida es corta: dentro se decide y se copia lo necesario (por ejemplo, la lista de callbacks a notificar) y la notificación se hace fuera. Una operación compuesta sobre el registro, como comprobar el cupo de una sala y ocuparlo, se hace dentro de una misma sección protegida. 
+
+Ejemplo correcto (Nombres ilustrativos):
+
+```c#
+private static readonly object _sessionRegistryLock = new object();
+
+List<ILobbyManagerCallback> roomCallbacks;
+lock (_sessionRegistryLock)
+{
+    roomCallbacks = new List<ILobbyManagerCallback>(room.PlayerCallbacks);
+}
+
+foreach (ILobbyManagerCallback roomCallback in roomCallbacks)
+{
+    roomCallback.OnLobbyPlayersUpdated(lobbyPlayers);
+}
+```
+
+Ejemplo incorrecto (Nombres ilustrativos):
+
+```c#
+private static readonly object _sessionRegistryLock = new object();
+
+List<ILobbyManagerCallback> roomCallbacks;
+lock (_sessionRegistryLock)
+{
+    roomCallbacks = new List<ILobbyManagerCallback>(room.PlayerCallbacks);
+}
+
+foreach (ILobbyManagerCallback roomCallback in roomCallbacks)
+{
+    roomCallback.OnLobbyPlayersUpdated(lobbyPlayers);
+}
+```
+
+Ejemplo Ejemplo incorrecto (invoca los callbacks dentro del lock: un cliente lento detiene a todas las sesiones):
+
+```c#
+lock (_sessionRegistryLock)
+{
+    foreach (ILobbyManagerCallback roomCallback in room.PlayerCallbacks)
+    {
+        roomCallback.OnLobbyPlayersUpdated(lobbyPlayers);
+    }
+}
+```
 
 Configuración actual del servicio y del canal:
 
@@ -3677,7 +3740,7 @@ private void OnScreenLoaded(object sender, RoutedEventArgs e)
 
 El curso exige un mínimo de 300 pruebas, y cada caso de uso cubre un flujo normal, tres alternos y uno de excepción.
 
-El proyecto utilizará un único framework de pruebas unitarias para todos sus casos de prueba. Los candidatos son MSTest, NUnit y xUnit.net, los tres compatibles con .NET CLI y Visual Studio; la elección del framework queda pendiente de decisión superior y los ejemplos usan atributos de xUnit solo como referencia.
+El proyecto utiliza xUnit.net como único framework de pruebas para todos sus casos de prueba (D-61). Es compatible con .NET CLI y Visual Studio, y sus pruebas parametrizadas (\[Theory\] con \[InlineData\]) son las que esta sección exige para evitar lógica de control dentro de la prueba. 
 
 El nombre de cada método de prueba deberá estar compuesto por tres partes que expresen, en ese orden, el nombre del método que se prueba, el escenario bajo el cual se prueba y el comportamiento esperado ante ese escenario.
 
@@ -4196,11 +4259,13 @@ El cliente valida para dar una respuesta inmediata al jugador, y el servidor val
 
 * La contraseña se captura con PasswordBox (S7.1) y viaja al servidor. Solo el servidor calcula su hash, con SHA-256 y una sal aleatoria por contraseña (D-44); la contraseña en texto plano no se guarda ni se registra.
 
-* Ningún log ni traza incluye contraseñas, códigos de verificación ni datos personales (S10.3).
+* Ningún log ni traza incluye contraseñas, códigos de verificación, tokens de sesión ni datos personales (S10.3).
 
 * La cadena de conexión y las credenciales del correo viven fuera de Git (S5.2).
 
 * El servidor se conecta a SQL Server con una cuenta de mínimo privilegio (S5.2; D-53).
+
+* El token de sesión (sessionToken) lo genera solo el servidor con un generador criptográfico, no es adivinable y se valida en cada operación que lo recibe (S6.1; D-41, D-58).
 
   3. ## Prevención de trampas y manipulación de datos del cliente {#prevención-de-trampas-y-manipulación-de-datos-del-cliente}
 
@@ -4245,9 +4310,9 @@ Todo texto que ve el jugador sale de una clave de recurso (S7.3). Los errores qu
 | Entity Framework | 6.5.2 | Servidor (TLMG.DataAccess) | Acceso a SQL Server mediante repositorios (S5.1) | En uso |
 | log4net | 3.5.0 | Cliente y servidor | Registro de eventos (S10.3) | En uso  |
 | CommunityToolkit.Mvvm | 8.4.2 | Cliente | ObservableObject y RelayCommand (S7.1) | Por instalar |
-| Framework de pruebas | Por decidir | Proyectos de prueba | Pruebas unitarias y de integración (S15.1) | Pendiente de decisión |
+| Framework de pruebas | \<versión al instalarlo\>  | Proyectos de prueba | Pruebas unitarias y de integración (S15.1) | Por instalar |
 
-Respaldo: D-50 para CommunityToolkit.Mvvm;  la versión de Entity Framework y de log4net es la que usa el código al 21 de octubre de 2026\.
+Respaldo: D-50 para CommunityToolkit.Mvvm;  la versión de Entity Framework y de log4net es la que usa el código al 21 de octubre de 2026 y D-61 para el framework de pruebas” 
 
 20. # Anexos {#anexos}
 
@@ -4304,12 +4369,17 @@ Este Estándar recoge lo que está decidido (decisiones D-xx de las bitácoras y
 | D-55 | ADR-07 corregido: comunicación por el canal dúplex  | S11.1  |
 | D-56  | DTO sin sufijo genérico Data ni Info; Request y Result reservados a la entrada y la salida de una operación. | S17.1  |
 | D-57 | Accesibilidad: private para lo que solo usa su clase; los tipos y los miembros compartidos pueden ser public o internal  | S10.9 |
+| D-58  | SessionRegistry: único lock autorizado, sessionToken generado por el servidor y el último inicio de sesión reemplaza al anterior  | S6.2, S11.1, S16.2  |
+| D-59  | Scripts de datos de demostración en database/seed/  | S4.3, S5.3  |
+| D-60  | Capa de comunicación del cliente (ServerConnectionManager): conserva el token y levanta eventos hacia las pantallas  | S4.1, S6.2  |
+| D-61  | Marco de pruebas: xUnit.net  | S15.1, S19.1  |
 | ADR-01 | Servidor autoritativo y Zero-Trust | S6.1, S6.2, S16.1, S16.3, S20.1 |
 | ADR-02 | Aislamiento del motor de reglas | S4.2, S6.1, S6.2 |
 | ADR-03 | WCF dúplex con callbacks | S6.2, S11.1 |
 | ADR-04 | Latidos, ventana de gracia y snapshot | S6.2 |
 | ADR-05 | Token Bucket para el 2FA | S6.2, S11.1 |
 | ADR-06 | Internacionalización dinámica | S6.2 |
+| ADR-08  | Identidad y estado de sesión del jugador entre canales  | S6.2, S11.1, S16.2  |
 
 3. ## Referencias externas consultadas  {#referencias-externas-consultadas}
 

@@ -389,6 +389,44 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Pendiente
 
+### BL-058 · Cerrar las sesiones abandonadas del SessionRegistry
+- Creado: 2026-10-29 12:55
+- Por qué: `SessionRegistry.EndSession` aún no tiene quién lo llame y el registro no vence sesiones. Si el cliente cierra la ventana o pierde la conexión, su sesión y su token quedan en memoria hasta reiniciar el servidor. El vencimiento debe medirse por hora límite en UTC al recibir el latido, sin temporizadores (Estándar §10.4, D-54).
+- Depende de: BL-022; del paso que agregue cerrar sesión y latido
+- Estado: Pendiente
+
+
+### BL-059 · Registrar en la Bitácora las decisiones D-58 a D-61
+- Creado: 2026-10-29 HH:MM
+- Por qué: el Estándar (§3.14, §4.3, §5.3, §10.3, §11.1, §15.1, §16.2, §19.1, §20.2) y el SAD (ADR-08, C-02, C-06, §4.2, §4.3, §7.3) ya citan D-58 a D-61 y ADR-08, pero la Bitácora (fuera del repositorio, BL-056) aún no las contiene: D-58 (SessionRegistry con lock único, sessionToken, el último inicio de sesión gana), D-59 (scripts de demostración en database/seed/), D-60 (ServerConnectionManager) y D-61 (xUnit.net). Relacionada con BL-009 y BL-056.
+- Depende de: decisión del encargado sobre la redacción
+- Estado: Pendiente
+
+
+### BL-060 · Retirar o reemplazar el script de demostración de amistades
+- Creado: 2026-10-29 13:05
+- Por qué: `database/seed/TLMG_Seed_FriendshipDemo.sql` (D-59) existe solo para revisar el lobby mientras las solicitudes reales no estén implementadas. No es parte del esquema y no debe llegar a una instalación real. Se elimina, o se sustituye por datos de prueba más completos, cuando exista BL-062.
+- Depende de: BL-062
+- Estado: Pendiente
+
+### BL-061 · Definir la regla de unicidad por pareja en Friendship
+- Creado: 2026-10-29 13:05
+- Por qué: `UQ_Friendship_pair` es dirigido (sender, receiver) y no hay restricción de orden entre ids: la base permite A→B y B→A como dos filas. Por ahora se acepta y todas las consultas del repositorio consideran ambos sentidos. Falta decidir si se impone una fila por pareja (CHECK de orden entre ids, índice único sobre la pareja ordenada o regla en el servicio) y el cambio de esquema que eso implique (Estándar §5.3).
+- Depende de: decisión del encargado
+- Estado: Pendiente
+
+### BL-062 · Implementar las solicitudes de amistad reales
+- Creado: 2026-10-29 13:05
+- Por qué: solicitar, aceptar, rechazar y cancelar amistades quedó fuera del paso 4; hoy solo se precargan con el script de demostración. `FriendshipRepository` solo consulta aceptadas. Incluye los estados FRIEND_PENDING y FRIEND_REJECTED, el contrato y la pantalla de amigos.
+- Depende de: BL-061
+- Estado: Pendiente
+
+### BL-063 · Definir en el repositorio los permisos de la cuenta de mínimo privilegio
+- Creado: 2026-10-29 13:05
+- Por qué: `database/TLMG_DB_v3.1.sql` no tiene GRANT, DENY, CREATE USER ni CREATE LOGIN, y ningún documento del repositorio detalla qué permisos tiene la cuenta de la aplicación (D-53, Estándar §5.2). No se puede comprobar que pueda leer `Friendship` y `User` sin ejecutar la aplicación contra la base. Verificación local del 29-oct-2026: el servidor de desarrollo se conecta con Integrated Security=True (cuenta de Windows), por lo que no se pudo comprobar el mínimo privilegio con la cuenta de la aplicación.
+- Depende de: BL-013
+- Estado: Pendiente
+
 ---
 
 ## Finalizados
