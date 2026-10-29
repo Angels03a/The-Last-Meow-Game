@@ -4,6 +4,7 @@ using System.ServiceModel;
 using log4net;
 
 using TLMG.Services.Accounts;
+using TLMG.Services.Lobby;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services
@@ -30,6 +31,7 @@ namespace TLMG.Services
         {
             _sessionRegistry = new SessionRegistry();
             _playerLogInService = new PlayerLogInService(_playerRepository, _passwordHasher, _sessionRegistry);
+            _lobbyService = new LobbyService(_sessionRegistry);
         }
 
         /// <summary>
