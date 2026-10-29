@@ -488,6 +488,47 @@ Formato de entrada:
 - Depende de: decisión del encargado
 - Estado: Pendiente
 
+### BL-075 · El cliente no conoce su propio nickname ni su id de usuario
+- Creado: 2026-10-29 16:36
+- Por qué: OperationLogInResult solo trae IsSuccess, ErrorKey y SessionToken (decisión del paso 3), y OperationSubscribeToFriendsResult solo trae los amigos. ServerConnectionManager guarda únicamente el token, así que MainMenuScreen y LobbyScreen no pueden mostrar el nombre propio ni distinguirse en la lista de la sala. Hay que decidir si el login lo devuelve o si se agrega una operación de perfil.
+- Depende de: decisión del encargado
+- Estado: Pendiente
+
+### BL-076 · Los eventos del servidor se pierden si ninguna pantalla está suscrita
+- Creado: 2026-10-29 16:36
+- Por qué: ServerConnectionManager dispara FriendListReceived, RoomInvitationReceived y los demás eventos solo a quien esté suscrito en ese momento. La lista de amigos llega justo después del login y una invitación puede llegar con el menú principal abierto. Hay que decidir quién escucha siempre (por ejemplo MainWindow) y cómo se muestra una invitación fuera de FriendsScreen. Mitigación actual: RequestFriendList().
+- Depende de: pieza de FriendsScreen
+- Estado: Pendiente
+
+### BL-077 · Mostrar en pantalla el fallo de la suscripción a los amigos
+- Creado: 2026-10-29 16:36
+- Por qué: si SubscribeToFriends responde con ErrorKey (por ejemplo, fallo de la base de datos), el jugador queda con sesión pero sin canal de amigos registrado en el servidor y nadie lo ve. El manager pasa el error tal cual y ninguna pantalla lo atiende todavía.
+- Depende de: BL-076
+- Estado: Pendiente
+
+### BL-078 · Unificar el cierre de canales WCF en el cliente
+- Creado: 2026-10-29 16:36
+- Por qué: ServerConnectionManager.CloseClientSafely repite la lógica Faulted→Abort / Close con Abort de respaldo que ya tienen LoginScreen, CreateAccountScreen y LeaderboardScreen. Al migrar esas pantallas a la capa de comunicación (BL-036) debe quedar una sola implementación, en el ServerConnectionManager de instancia que vive en App.
+- Depende de: BL-036
+- Estado: Pendiente
+
+### BL-079 · El cliente se bloquea hasta 10 s al abrir un canal sin servidor
+- Creado: 2026-10-29 16:36
+- Por qué: Open() es síncrono con el openTimeout de D-46. Si el servidor no responde, la interfaz se congela hasta 10 s en el login, en OpenLobbyChannel y en el envío. Sin Task ni hilos, la salida es una pantalla de espera con DispatcherTimer o abrir el canal antes de mostrarla. El Estándar no lo regula.
+- Depende de: BL-022
+- Estado: Pendiente
+
+### BL-080 · Extraer IServerConnectionManager cuando exista el primer ViewModel o prueba que lo necesite
+- Creado: 2026-10-29 16:36
+- Por qué: ServerConnectionManager es una clase de instancia que vive en App ((App)Application.Current).ServerConnection), con API y eventos públicos y sin estado estático. Para probar un ViewModel o una pantalla (D-61, D-51, ADR-02) hay que sustituirlo por una versión simulada, lo que exige una interfaz. Se extrae con un cambio mecánico solo cuando haya un primer consumidor que la necesite (D-31); la acción de crear los clientes WCF seguirá dentro del manager o de una fábrica que se decida entonces.
+- Depende de: BL-039; BL-041
+- Estado: Pendiente
+
+### BL-081 · Hallazgos de estilo del Estándar para la capa de comunicación
+- Creado: 2026-10-29 16:36
+- Por qué: §3.14 no define un sufijo para la implementación de los callbacks (ServerCallback, nombrada por analogía con las interfaces I…ManagerCallback). Además, el manejador de Closed/Faulted y el último catch de la apertura de canales registran y no relanzan, igual que los del servidor; §10.2 sigue pidiendo relanzar o devolver un resultado y no cubre manejadores de eventos de canal. (Se retiró de esta entrada lo que dependía de la forma estática: el acceso global ya está cubierto por el patrón existente ((MainWindow)Application.Current.MainWindow).)
+- Depende de: decisión del encargado
+- Estado: Pendiente
 
 ---
 
