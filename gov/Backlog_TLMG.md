@@ -457,6 +457,38 @@ Formato de entrada:
 - Depende de: decisión del encargado
 - Estado: Pendiente
 
+### BL-069 · Rechazar, cancelar y vencer invitaciones a sala
+- Creado: 2026-10-30 10:00
+- Por qué: hoy una invitación solo se acepta; solo desaparece al aceptarla, al eliminarse su sala o al terminar la sesión de quien invita o de quien recibe. Faltan rechazarla (invitado), cancelarla (quien invita) y vencerla por hora límite en UTC al recibir el latido, sin temporizadores (Estándar §10.4, D-54). Una invitación repetida al mismo jugador para la misma sala no vuelve a avisar, así que si el primer aviso se perdió el invitado no la ve.
+- Depende de: BL-058
+- Estado: Pendiente
+### BL-070 · Entregar los avisos de EndSession cuando exista cerrar sesión
+- Creado: 2026-10-30 10:00
+- Por qué: `ISessionRegistry.EndSession` ya devuelve la sala y la presencia que hay que avisar (BL-065), pero nadie lo llama: el cierre de sesión por el jugador no existe. Cuando exista, el servicio que lo llame debe entregar `SessionNotificationHelper.CreateSessionEndNotifications` fuera del lock, como ya hace el login que reemplaza una sesión.
+- Depende de: BL-058
+- Estado: Pendiente
+### BL-071 · Actualizar la lista de amigos guardada en el canal cuando cambien las amistades
+- Creado: 2026-10-30 10:00
+- Por qué: el registro guarda los ids de amigos de cada canal al suscribirse, para avisar la presencia sin consultar la base de datos al terminar la sesión. Cuando existan solicitudes de amistad reales (BL-062), un amigo nuevo o eliminado no se refleja hasta que el jugador se vuelva a suscribir; hay que refrescar esa lista o avisar el cambio.
+- Depende de: BL-062
+- Estado: Pendiente
+### BL-072 · Retirar la autorización de entrada que ya no sirve
+- Creado: 2026-10-30 10:00
+- Por qué: una autorización emitida al aceptar una invitación se conserva si el invitado nunca llama EnterLobby, o si la sala estaba llena. Solo se retira al entrar, al eliminarse la sala o al terminar la sesión del invitado. Definir su vencimiento junto con BL-066.
+- Depende de: BL-066
+- Estado: Pendiente
+### BL-073 · Agregar al cliente las claves de idioma de amigos y los renombres de errores
+- Creado: 2026-10-30 10:00
+- Por qué: faltan en Strings.es-MX.xaml y Strings.en-US.xaml, con paridad exacta, las claves nuevas (Friends_NotInRoomError, Friends_CannotInviteError, Friends_InvitationNotValidError) y los renombres Common_InvalidSessionError, Common_UnexpectedError y Common_RoomFullError (antes Lobby_*). Complementa BL-067, cuya lista queda desactualizada.
+- Depende de: nada
+- Estado: Pendiente
+### BL-074 · Registrar en la Bitácora el canal de amigos como presencia
+- Creado: 2026-10-30 10:00
+- Por qué: "en línea" significa tener un canal de amigos vivo, no tener sesión, y cerrar ese canal termina la sesión del jugador (ADR-08, D-58). Falta registrarlo en la Bitácora (fuera del repositorio) y reflejarlo en §6.2 del Estándar.
+- Depende de: decisión del encargado
+- Estado: Pendiente
+
+
 ---
 
 ## Finalizados
