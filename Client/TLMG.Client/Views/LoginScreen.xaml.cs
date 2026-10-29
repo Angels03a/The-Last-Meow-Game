@@ -150,13 +150,25 @@ namespace TLMG.Client.Views
 
             if (operationLogInResult.IsSuccess)
             {
-                ShowStatusMessage(lblFormMessage, TryFindResource(SuccessMessageKey) as string, false);
-                _redirectTimer.Start();
+                StartSessionAndRedirect(operationLogInResult);
             }
             else
             {
                 string resourceKey = operationLogInResult.ErrorKey ?? UnknownErrorKey;
                 ShowStatusMessage(lblFormMessage, TryFindResource(resourceKey) as string, true);
+            }
+        }
+
+        private void StartSessionAndRedirect(OperationLogInResult operationLogInResult)
+        {
+            if (((App)Application.Current).ServerConnection.StartRegisteredSession(operationLogInResult))
+            {
+                ShowStatusMessage(lblFormMessage, TryFindResource(SuccessMessageKey) as string, false);
+                _redirectTimer.Start();
+            }
+            else
+            {
+                ShowStatusMessage(lblFormMessage, TryFindResource(ConnectionErrorKey) as string, true);
             }
         }
 

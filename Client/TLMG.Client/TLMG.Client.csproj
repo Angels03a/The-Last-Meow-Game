@@ -59,6 +59,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Communication\ServerCallback.cs" />
+    <Compile Include="Communication\ServerConnectionManager.cs" />
+    <Compile Include="Communication\ServerEventArgs.cs" />
     <Compile Include="Connected Services\UsersManagerReference\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +12,8 @@ namespace TLMG.Client
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const string ConnectionLostMessageKey = "Common_ConnectionLostError";
+
         private readonly Stack<UserControl> _navigationHistory;
         private UserControl _currentScreen;
 
@@ -20,6 +23,8 @@ namespace TLMG.Client
         public MainWindow()
         {
             InitializeComponent();
+            ((App)Application.Current).ServerConnection.ConnectionLost += OnServerConnectionLost;
+            Closed += OnMainWindowClosed;
             _navigationHistory = new Stack<UserControl>();
             LoadingScreen loadingScreen = new LoadingScreen();
             loadingScreen.LoadingCompleted += (eventSender, eventArguments) => ShowScreen(new LoginScreen(), false);
@@ -70,6 +75,18 @@ namespace TLMG.Client
         public void ClearHistory()
         {
             _navigationHistory.Clear();
+        }
+
+        private void OnMainWindowClosed(object sender, EventArgs eventArguments)
+        {
+            ((App)Application.Current).ServerConnection.ConnectionLost -= OnServerConnectionLost;
+        }
+
+        private void OnServerConnectionLost(object sender, EventArgs eventArguments)
+        {
+            ClearHistory();
+            ShowScreen(new LoginScreen(), false);
+            MessageBox.Show(TryFindResource(ConnectionLostMessageKey) as string);
         }
     }
 }

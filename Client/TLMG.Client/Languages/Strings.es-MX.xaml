@@ -130,6 +130,7 @@
     <sys:String x:Key="Common_Wins">VICTORIAS</sys:String>
     <sys:String x:Key="Common_Rank">RANGO</sys:String>
     <sys:String x:Key="Common_BackButton">← Regresar</sys:String>
+    <sys:String x:Key="Common_ConnectionLostError">Se perdió la conexión con el servidor. Inicia sesión de nuevo.</sys:String>
     <sys:String x:Key="Options_ResetButton">Restablecer Opciones por Defecto</sys:String>
     <sys:String x:Key="CreateAccount_MismatchError">Las contraseñas no coinciden</sys:String>
     <sys:String x:Key="MainMenu_Title">EL ÚLTIMO MAULLIDO</sys:String>

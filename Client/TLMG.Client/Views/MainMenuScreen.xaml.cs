@@ -58,6 +58,7 @@ namespace TLMG.Client.Views
 
         private void BtnLogOut_Click(object sender, RoutedEventArgs e)
         {
+            ((App)Application.Current).ServerConnection.Disconnect();
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
         }
     }

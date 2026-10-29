@@ -1,5 +1,7 @@
 using System.Windows;
 
+using TLMG.Client.Communication;
+
 [assembly: log4net.Config.XmlConfigurator(ConfigFile = "log4net.config", Watch = true)]
 
 namespace TLMG.Client
@@ -15,6 +17,23 @@ namespace TLMG.Client
         public App()
         {
             LanguageManager.InitializeLanguage();
+            ServerConnection = new ServerConnectionManager(Dispatcher);
+        }
+
+        /// <summary>
+        /// Obtiene la conexión con el servidor, única para toda la aplicación. Las pantallas la alcanzan con
+        /// ((App)Application.Current).ServerConnection.
+        /// </summary>
+        internal ServerConnectionManager ServerConnection { get; }
+
+        /// <summary>
+        /// Cierra los canales con el servidor al salir de la aplicación, lo que termina la sesión del jugador.
+        /// </summary>
+        /// <param name="exitEventArguments">Datos de la salida de la aplicación.</param>
+        protected override void OnExit(ExitEventArgs exitEventArguments)
+        {
+            ServerConnection.Disconnect();
+            base.OnExit(exitEventArguments);
         }
     }
 }

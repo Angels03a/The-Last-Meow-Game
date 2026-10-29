@@ -130,6 +130,7 @@
     <sys:String x:Key="Common_Wins">WINS</sys:String>
     <sys:String x:Key="Common_Rank">RANK</sys:String>
     <sys:String x:Key="Common_BackButton">← Back</sys:String>
+    <sys:String x:Key="Common_ConnectionLostError">The connection to the server was lost. Please log in again.</sys:String>
     <sys:String x:Key="Options_ResetButton">Reset Options to Default</sys:String>
     <sys:String x:Key="CreateAccount_MismatchError">Passwords do not match</sys:String>
     <sys:String x:Key="MainMenu_Title">THE LAST MEOW</sys:String>
