@@ -27,6 +27,7 @@
     <xs:sequence>
       <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+      <xs:element minOccurs="0" name="SessionToken" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="OperationLogInResult" nillable="true" type="tns:OperationLogInResult" />
@@ -54,4 +55,91 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="LeaderboardPlayer" nillable="true" type="tns:LeaderboardPlayer" />
+  <xs:complexType name="OperationCreateRoomResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Room" nillable="true" type="tns:LobbyRoom" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationCreateRoomResult" nillable="true" type="tns:OperationCreateRoomResult" />
+  <xs:complexType name="LobbyRoom">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Players" nillable="true" type="tns:ArrayOfLobbyPlayer" />
+      <xs:element minOccurs="0" name="RoomId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="LobbyRoom" nillable="true" type="tns:LobbyRoom" />
+  <xs:complexType name="ArrayOfLobbyPlayer">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="LobbyPlayer" nillable="true" type="tns:LobbyPlayer" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfLobbyPlayer" nillable="true" type="tns:ArrayOfLobbyPlayer" />
+  <xs:complexType name="LobbyPlayer">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="LobbyPlayer" nillable="true" type="tns:LobbyPlayer" />
+  <xs:complexType name="OperationEnterLobbyResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Room" nillable="true" type="tns:LobbyRoom" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationEnterLobbyResult" nillable="true" type="tns:OperationEnterLobbyResult" />
+  <xs:complexType name="OperationLeaveLobbyResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationLeaveLobbyResult" nillable="true" type="tns:OperationLeaveLobbyResult" />
+  <xs:complexType name="OperationSubscribeToFriendsResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Friends" nillable="true" type="tns:ArrayOfFriend" />
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationSubscribeToFriendsResult" nillable="true" type="tns:OperationSubscribeToFriendsResult" />
+  <xs:complexType name="ArrayOfFriend">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Friend" nillable="true" type="tns:Friend" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfFriend" nillable="true" type="tns:ArrayOfFriend" />
+  <xs:complexType name="Friend">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="IsOnline" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Friend" nillable="true" type="tns:Friend" />
+  <xs:complexType name="OperationInviteFriendToRoomResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationInviteFriendToRoomResult" nillable="true" type="tns:OperationInviteFriendToRoomResult" />
+  <xs:complexType name="OperationAcceptRoomInvitationResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+      <xs:element minOccurs="0" name="RoomId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationAcceptRoomInvitationResult" nillable="true" type="tns:OperationAcceptRoomInvitationResult" />
+  <xs:complexType name="RoomInvitation">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="InvitationId" type="xs:int" />
+      <xs:element minOccurs="0" name="InviterNickname" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="RoomInvitation" nillable="true" type="tns:RoomInvitation" />
 </xs:schema>
