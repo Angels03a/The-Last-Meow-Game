@@ -97,7 +97,12 @@
       <DependentUpon>TLMGModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\AcceptedFriend.cs" />
     <Compile Include="Repositories\CredentialsLookupStatus.cs" />
+    <Compile Include="Repositories\FriendListLookup.cs" />
+    <Compile Include="Repositories\FriendshipLookupStatus.cs" />
+    <Compile Include="Repositories\FriendshipRepository.cs" />
+    <Compile Include="Repositories\IFriendshipRepository.cs" />
     <Compile Include="Repositories\IPlayerRepository.cs" />
     <Compile Include="Repositories\LeaderboardLookup.cs" />
     <Compile Include="Repositories\PlayerCredentials.cs" />
