@@ -42,10 +42,14 @@ namespace TLMG.Services.Accounts
 
         /// <summary>Valida las credenciales, registra el acceso del jugador y abre su sesión.</summary>
         /// <param name="operationLogInRequest">Credenciales recibidas del cliente.</param>
-        /// <returns>Resultado con IsSuccess y, según el caso, la clave de error o el token de sesión.</returns>
-        public OperationLogInResult LogIn(OperationLogInRequest operationLogInRequest)
+        /// <returns>
+        /// El resultado con IsSuccess y, según el caso, la clave de error o el token de sesión; y los avisos para la
+        /// sala y los amigos de la sesión anterior de la misma cuenta, si la había.
+        /// </returns>
+        public SessionOutcome<OperationLogInResult> LogIn(OperationLogInRequest operationLogInRequest)
         {
             string sessionToken = null;
+            SessionEnd replacedSession = null;
             string errorKey = ValidateLogInRequest(operationLogInRequest);
 
             if (errorKey == null)
@@ -55,7 +59,10 @@ namespace TLMG.Services.Accounts
 
                 if (errorKey == null)
                 {
-                    sessionToken = _sessionRegistry.StartSession(playerCredentials.UserId, playerCredentials.Nickname);
+                    sessionToken = _sessionRegistry.StartSession(
+                        playerCredentials.UserId,
+                        playerCredentials.Nickname,
+                        out replacedSession);
                 }
             }
 
@@ -66,7 +73,11 @@ namespace TLMG.Services.Accounts
                 SessionToken = sessionToken
             };
 
-            return operationLogInResult;
+            SessionOutcome<OperationLogInResult> sessionOutcome = new SessionOutcome<OperationLogInResult>(
+                operationLogInResult,
+                SessionNotificationHelper.CreateSessionEndNotifications(replacedSession));
+
+            return sessionOutcome;
         }
 
         private static string ValidateLogInRequest(OperationLogInRequest operationLogInRequest)

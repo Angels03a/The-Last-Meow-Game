@@ -1,4 +1,6 @@
-﻿using TLMG.Contracts;
+﻿using System.Collections.Generic;
+
+using TLMG.Contracts;
 
 namespace TLMG.Services.Sessions
 {
@@ -11,11 +13,17 @@ namespace TLMG.Services.Sessions
         /// <param name="userId">Identificador de la cuenta del jugador.</param>
         /// <param name="channelId">Identificador del canal de amigos.</param>
         /// <param name="callback">Callback del canal de amigos.</param>
-        public FriendsChannel(int userId, string channelId, IFriendsManagerCallback callback)
+        /// <param name="friendUserIds">Ids de sus amigos aceptados al suscribirse; no debe modificarse.</param>
+        public FriendsChannel(
+            int userId,
+            string channelId,
+            IFriendsManagerCallback callback,
+            IReadOnlyList<int> friendUserIds)
         {
             UserId = userId;
             ChannelId = channelId;
             Callback = callback;
+            FriendUserIds = friendUserIds;
         }
 
         /// <summary>Obtiene el identificador de la cuenta del jugador.</summary>
@@ -26,5 +34,8 @@ namespace TLMG.Services.Sessions
 
         /// <summary>Obtiene el callback del canal de amigos.</summary>
         public IFriendsManagerCallback Callback { get; }
+
+        /// <summary>Obtiene los ids de sus amigos aceptados al suscribirse, para avisarles su presencia.</summary>
+        public IReadOnlyList<int> FriendUserIds { get; }
     }
 }

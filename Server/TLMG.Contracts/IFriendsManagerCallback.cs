@@ -26,6 +26,11 @@ namespace TLMG.Contracts
         [OperationContract(IsOneWay = true)]
         void AcceptRoomInvitationResult(OperationAcceptRoomInvitationResult operationAcceptRoomInvitationResult);
 
+        /// <summary>Avisa que un amigo aceptado pasó a estar en línea o dejó de estarlo.</summary>
+        /// <param name="friend">El amigo con su presencia actual.</param>
+        [OperationContract(IsOneWay = true)]
+        void OnFriendPresenceChanged(Friend friend);
+
         /// <summary>Avisa que un amigo invitó al jugador a su sala.</summary>
         /// <param name="roomInvitation">La invitación recibida.</param>
         [OperationContract(IsOneWay = true)]

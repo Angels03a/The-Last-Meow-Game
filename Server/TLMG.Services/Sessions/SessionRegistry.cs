@@ -22,32 +22,29 @@ namespace TLMG.Services.Sessions
         private readonly Dictionary<int, string> _tokensByUserId = new Dictionary<int, string>();
 
         /// <inheritdoc />
-        public string StartSession(int userId, string nickname)
+        public string StartSession(int userId, string nickname, out SessionEnd replacedSession)
         {
             string sessionToken = SessionTokenHelper.GenerateSessionToken();
             PlayerSession newSession = new PlayerSession(userId, nickname);
-            string previousToken;
-            bool wasReplaced;
-            int departedRoomId = LobbyMembershipChange.NoRoomId;
+            replacedSession = null;
 
             lock (_sessionsLock)
             {
-                wasReplaced = _tokensByUserId.TryGetValue(userId, out previousToken);
+                string previousToken;
 
-                if (wasReplaced)
+                if (_tokensByUserId.TryGetValue(userId, out previousToken))
                 {
-                    _sessionsByToken.Remove(previousToken);
-                    departedRoomId = RemoveSessionStateOfUser(userId);
+                    replacedSession = EndSessionInLock(_sessionsByToken[previousToken]);
                 }
 
                 _sessionsByToken[sessionToken] = newSession;
                 _tokensByUserId[userId] = sessionToken;
             }
 
-            if (wasReplaced)
+            if (replacedSession != null)
             {
                 _log.InfoFormat("La sesión anterior del jugador {0} fue reemplazada por un nuevo inicio.", userId);
-                LogDepartureOfEndedSession(userId, departedRoomId);
+                LogDepartureOfEndedSession(replacedSession);
             }
 
             _log.InfoFormat("Sesión iniciada para el jugador {0}.", userId);
@@ -73,44 +70,52 @@ namespace TLMG.Services.Sessions
         }
 
         /// <inheritdoc />
-        public bool EndSession(string sessionToken)
+        public bool EndSession(string sessionToken, out SessionEnd sessionEnd)
         {
-            PlayerSession endedSession = null;
-            int departedRoomId = LobbyMembershipChange.NoRoomId;
+            sessionEnd = null;
 
             if (!string.IsNullOrEmpty(sessionToken))
             {
                 lock (_sessionsLock)
                 {
+                    PlayerSession endedSession;
+
                     if (_sessionsByToken.TryGetValue(sessionToken, out endedSession))
                     {
-                        _sessionsByToken.Remove(sessionToken);
-                        _tokensByUserId.Remove(endedSession.UserId);
-                        departedRoomId = RemoveSessionStateOfUser(endedSession.UserId);
+                        sessionEnd = EndSessionInLock(endedSession);
                     }
                 }
             }
 
-            bool wasEnded = endedSession != null;
+            bool wasEnded = sessionEnd != null;
 
             if (wasEnded)
             {
-                _log.InfoFormat("Sesión cerrada para el jugador {0}.", endedSession.UserId);
-                LogDepartureOfEndedSession(endedSession.UserId, departedRoomId);
+                _log.InfoFormat("Sesión cerrada para el jugador {0}.", sessionEnd.UserId);
+                LogDepartureOfEndedSession(sessionEnd);
             }
 
             return wasEnded;
         }
 
-        private static void LogDepartureOfEndedSession(int userId, int departedRoomId)
+        private static void LogDepartureOfEndedSession(SessionEnd sessionEnd)
         {
-            if (departedRoomId != LobbyMembershipChange.NoRoomId)
+            if (sessionEnd.RoomDeparture.RoomId != LobbyMembershipChange.NoRoomId)
             {
                 _log.InfoFormat(
                     "El jugador {0} salió de la sala {1} porque su sesión terminó.",
-                    userId,
-                    departedRoomId);
+                    sessionEnd.UserId,
+                    sessionEnd.RoomDeparture.RoomId);
             }
+        }
+
+        private SessionEnd EndSessionInLock(PlayerSession endedSession)
+        {
+            _sessionsByToken.Remove(_tokensByUserId[endedSession.UserId]);
+            _tokensByUserId.Remove(endedSession.UserId);
+            SessionEnd sessionEnd = RemoveSessionStateOfUser(endedSession);
+
+            return sessionEnd;
         }
     }
 }

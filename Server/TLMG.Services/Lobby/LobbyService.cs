@@ -56,7 +56,7 @@ namespace TLMG.Services.Lobby
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
                 operationCreateRoomResult.IsSuccess = true;
-                operationCreateRoomResult.Room = ConvertToLobbyRoom(lobbyMembershipChange.Room);
+                operationCreateRoomResult.Room = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
                 _log.InfoFormat(
                     "El jugador {0} creó la sala {1}.",
                     lobbyMembershipChange.UserId,
@@ -94,7 +94,7 @@ namespace TLMG.Services.Lobby
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
                 operationEnterLobbyResult.IsSuccess = true;
-                operationEnterLobbyResult.Room = ConvertToLobbyRoom(lobbyMembershipChange.Room);
+                operationEnterLobbyResult.Room = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
                 lobbyNotifications = CreateNotifications(lobbyMembershipChange);
                 _log.InfoFormat("El jugador {0} entró a la sala {1}.", lobbyMembershipChange.UserId, roomId);
             }
@@ -195,7 +195,7 @@ namespace TLMG.Services.Lobby
 
             if (lobbyMembershipChange.Room != null)
             {
-                LobbyRoom lobbyRoom = ConvertToLobbyRoom(lobbyMembershipChange.Room);
+                LobbyRoom lobbyRoom = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
 
                 foreach (ILobbyManagerCallback recipientCallback in lobbyMembershipChange.RecipientCallbacks)
                 {
@@ -204,26 +204,6 @@ namespace TLMG.Services.Lobby
             }
 
             return lobbyNotifications.AsReadOnly();
-        }
-
-        private static LobbyRoom ConvertToLobbyRoom(LobbyRoomSnapshot lobbyRoomSnapshot)
-        {
-            LobbyRoom lobbyRoom = new LobbyRoom
-            {
-                RoomId = lobbyRoomSnapshot.RoomId,
-                Players = new List<LobbyPlayer>()
-            };
-
-            foreach (PlayerSession playerSession in lobbyRoomSnapshot.Players)
-            {
-                lobbyRoom.Players.Add(new LobbyPlayer
-                {
-                    UserId = playerSession.UserId,
-                    Nickname = playerSession.Nickname
-                });
-            }
-
-            return lobbyRoom;
         }
     }
 }

@@ -9,6 +9,9 @@ namespace TLMG.Services.Sessions
     // tomado y solo toca memoria: la amistad se comprueba en la base de datos antes de llamar a este registro.
     public partial class SessionRegistry
     {
+        private static readonly IReadOnlyList<IFriendsManagerCallback> _noFriendsCallbacks =
+            new List<IFriendsManagerCallback>().AsReadOnly();
+
         private readonly Dictionary<int, FriendsChannel> _friendsChannelsByUserId =
             new Dictionary<int, FriendsChannel>();
         private readonly Dictionary<string, int> _userIdsByFriendsChannelId = new Dictionary<string, int>();
@@ -35,6 +38,37 @@ namespace TLMG.Services.Sessions
             }
 
             return friendsSubscription;
+        }
+
+        /// <inheritdoc />
+        public bool TryEndSessionByFriendsChannel(string channelId, out SessionEnd sessionEnd)
+        {
+            sessionEnd = null;
+
+            if (!string.IsNullOrEmpty(channelId))
+            {
+                lock (_sessionsLock)
+                {
+                    int userId;
+
+                    if (_userIdsByFriendsChannelId.TryGetValue(channelId, out userId))
+                    {
+                        sessionEnd = EndSessionInLock(_sessionsByToken[_tokensByUserId[userId]]);
+                    }
+                }
+            }
+
+            bool wasEnded = sessionEnd != null;
+
+            if (wasEnded)
+            {
+                _log.InfoFormat(
+                    "Sesión cerrada para el jugador {0} porque su canal de amigos terminó.",
+                    sessionEnd.UserId);
+                LogDepartureOfEndedSession(sessionEnd);
+            }
+
+            return wasEnded;
         }
 
         /// <inheritdoc />
@@ -91,13 +125,26 @@ namespace TLMG.Services.Sessions
             }
             else
             {
-                // El último canal gana: si la sesión ya tenía uno, se reemplaza.
+                // El último canal gana: si la sesión ya tenía uno, se reemplaza y no cambia su presencia.
+                IReadOnlyList<IFriendsManagerCallback> presenceRecipients = _noFriendsCallbacks;
+
+                if (!_friendsChannelsByUserId.ContainsKey(playerSession.UserId))
+                {
+                    presenceRecipients = FindOnlineCallbacks(friendUserIds);
+                }
+
                 RemoveFriendsChannelOfUser(playerSession.UserId);
-                _friendsChannelsByUserId[playerSession.UserId] =
-                    new FriendsChannel(playerSession.UserId, channelId, friendsCallback);
+                _friendsChannelsByUserId[playerSession.UserId] = new FriendsChannel(
+                    playerSession.UserId,
+                    channelId,
+                    friendsCallback,
+                    new List<int>(friendUserIds).AsReadOnly());
                 _userIdsByFriendsChannelId[channelId] = playerSession.UserId;
-                friendsSubscription =
-                    FriendsSubscription.CreateApplied(playerSession.UserId, FindOnlineUserIds(friendUserIds));
+                friendsSubscription = FriendsSubscription.CreateApplied(
+                    playerSession.UserId,
+                    playerSession.Nickname,
+                    FindOnlineUserIds(friendUserIds),
+                    presenceRecipients);
             }
 
             return friendsSubscription;
@@ -250,6 +297,37 @@ namespace TLMG.Services.Sessions
             IReadOnlyList<int> readOnlyUserIds = onlineUserIds.AsReadOnly();
 
             return readOnlyUserIds;
+        }
+
+        private IReadOnlyList<IFriendsManagerCallback> FindOnlineCallbacks(IReadOnlyList<int> userIds)
+        {
+            List<IFriendsManagerCallback> callbacks = new List<IFriendsManagerCallback>();
+            FriendsChannel friendsChannel;
+
+            foreach (int userId in userIds)
+            {
+                if (_friendsChannelsByUserId.TryGetValue(userId, out friendsChannel))
+                {
+                    callbacks.Add(friendsChannel.Callback);
+                }
+            }
+
+            IReadOnlyList<IFriendsManagerCallback> readOnlyCallbacks = callbacks.AsReadOnly();
+
+            return readOnlyCallbacks;
+        }
+
+        private IReadOnlyList<IFriendsManagerCallback> FindPresenceRecipientsOfUser(int userId)
+        {
+            IReadOnlyList<IFriendsManagerCallback> presenceRecipients = _noFriendsCallbacks;
+            FriendsChannel friendsChannel;
+
+            if (_friendsChannelsByUserId.TryGetValue(userId, out friendsChannel))
+            {
+                presenceRecipients = FindOnlineCallbacks(friendsChannel.FriendUserIds);
+            }
+
+            return presenceRecipients;
         }
 
         private void RemoveFriendsChannelOfUser(int userId)

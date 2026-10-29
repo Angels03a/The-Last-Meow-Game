@@ -65,7 +65,9 @@
     <Compile Include="ServiceImplementation.UsersManager.cs" />
     <Compile Include="Friends\FriendsService.cs" />
     <Compile Include="Helpers\CommonErrorKeyHelper.cs" />
+    <Compile Include="Helpers\LobbyRoomHelper.cs" />
     <Compile Include="Helpers\PlayerAccountRegistrationValidationHelper.cs" />
+    <Compile Include="Helpers\SessionNotificationHelper.cs" />
     <Compile Include="Helpers\SessionTokenHelper.cs" />
     <Compile Include="Lobby\LobbyNotification.cs" />
     <Compile Include="Lobby\LobbyOutcome.cs" />
@@ -88,6 +90,7 @@
     <Compile Include="Sessions\RoomInvitationAcceptance.cs" />
     <Compile Include="Sessions\RoomInvitationCreation.cs" />
     <Compile Include="Sessions\RoomInvitationRecord.cs" />
+    <Compile Include="Sessions\SessionEnd.cs" />
     <Compile Include="Sessions\SessionOutcome.cs" />
     <Compile Include="Sessions\SessionRegistry.cs" />
     <Compile Include="Sessions\SessionRegistry.Friends.cs" />

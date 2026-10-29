@@ -61,26 +61,19 @@ namespace TLMG.Services.Friends
             string channelId,
             IFriendsManagerCallback friendsCallback)
         {
-            OperationSubscribeToFriendsResult operationSubscribeToFriendsResult =
-                new OperationSubscribeToFriendsResult();
+            SessionOutcome<OperationSubscribeToFriendsResult> sessionOutcome;
             PlayerSession playerSession;
 
             if (!_sessionRegistry.TryFindSessionByToken(sessionToken, out playerSession))
             {
-                operationSubscribeToFriendsResult.ErrorKey = CommonErrorKeyHelper.InvalidSessionErrorKey;
                 LogRejectedOperation("suscribirse a los amigos", LobbyMembershipChange.NoUserId, "sesión no válida");
+                sessionOutcome = new SessionOutcome<OperationSubscribeToFriendsResult>(
+                    new OperationSubscribeToFriendsResult { ErrorKey = CommonErrorKeyHelper.InvalidSessionErrorKey });
             }
             else
             {
-                operationSubscribeToFriendsResult = SubscribeFriendsChannel(
-                    playerSession,
-                    sessionToken,
-                    channelId,
-                    friendsCallback);
+                sessionOutcome = SubscribeFriendsChannel(playerSession, sessionToken, channelId, friendsCallback);
             }
-
-            SessionOutcome<OperationSubscribeToFriendsResult> sessionOutcome =
-                new SessionOutcome<OperationSubscribeToFriendsResult>(operationSubscribeToFriendsResult);
 
             return sessionOutcome;
         }
@@ -166,7 +159,22 @@ namespace TLMG.Services.Friends
             return sessionOutcome;
         }
 
-        private OperationSubscribeToFriendsResult SubscribeFriendsChannel(
+        /// <summary>
+        /// Termina la sesión del jugador cuyo canal de amigos se cerró o falló: sale de su sala, pierde sus
+        /// invitaciones y su callback, y se avisa a su sala y a sus amigos en línea.
+        /// </summary>
+        /// <param name="channelId">Identificador del canal de amigos que terminó.</param>
+        /// <returns>Los avisos para los demás jugadores; vacía si el canal ya no era el de ninguna sesión.</returns>
+        public IReadOnlyList<Action> EndSessionByFriendsChannel(string channelId)
+        {
+            SessionEnd sessionEnd;
+            _sessionRegistry.TryEndSessionByFriendsChannel(channelId, out sessionEnd);
+            IReadOnlyList<Action> notifications = SessionNotificationHelper.CreateSessionEndNotifications(sessionEnd);
+
+            return notifications;
+        }
+
+        private SessionOutcome<OperationSubscribeToFriendsResult> SubscribeFriendsChannel(
             PlayerSession playerSession,
             string sessionToken,
             string channelId,
@@ -174,6 +182,7 @@ namespace TLMG.Services.Friends
         {
             OperationSubscribeToFriendsResult operationSubscribeToFriendsResult =
                 new OperationSubscribeToFriendsResult();
+            IReadOnlyList<Action> notifications = new List<Action>().AsReadOnly();
             FriendListLookup friendListLookup = _friendshipRepository.FindAcceptedFriends(playerSession.UserId);
 
             if (!friendListLookup.WasSuccessful)
@@ -194,6 +203,11 @@ namespace TLMG.Services.Friends
                     operationSubscribeToFriendsResult.IsSuccess = true;
                     operationSubscribeToFriendsResult.Friends =
                         ConvertToFriends(friendListLookup.Friends, friendsSubscription.OnlineFriendUserIds);
+                    notifications = SessionNotificationHelper.CreatePresenceNotifications(
+                        friendsSubscription.PresenceRecipientCallbacks,
+                        friendsSubscription.UserId,
+                        friendsSubscription.Nickname,
+                        true);
                     _log.InfoFormat("El jugador {0} se suscribió a sus amigos.", friendsSubscription.UserId);
                 }
                 else
@@ -206,7 +220,10 @@ namespace TLMG.Services.Friends
                 }
             }
 
-            return operationSubscribeToFriendsResult;
+            SessionOutcome<OperationSubscribeToFriendsResult> sessionOutcome =
+                new SessionOutcome<OperationSubscribeToFriendsResult>(operationSubscribeToFriendsResult, notifications);
+
+            return sessionOutcome;
         }
 
         // Devuelve la clave de error si la amistad no permite invitar, o null si se puede seguir con el registro.

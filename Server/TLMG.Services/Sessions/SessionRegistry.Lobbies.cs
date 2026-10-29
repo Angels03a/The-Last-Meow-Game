@@ -258,14 +258,18 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        private int RemoveSessionStateOfUser(int userId)
+        private SessionEnd RemoveSessionStateOfUser(PlayerSession endedSession)
         {
-            LobbyMembershipChange departure = RemoveUserFromRoom(userId);
-            _authorizedRoomIdsByUserId.Remove(userId);
-            RemoveFriendsChannelOfUser(userId);
-            RemoveInvitationsOfUser(userId);
+            LobbyMembershipChange roomDeparture = RemoveUserFromRoom(endedSession.UserId);
+            _authorizedRoomIdsByUserId.Remove(endedSession.UserId);
+            IReadOnlyList<IFriendsManagerCallback> presenceRecipients =
+                FindPresenceRecipientsOfUser(endedSession.UserId);
+            RemoveFriendsChannelOfUser(endedSession.UserId);
+            RemoveInvitationsOfUser(endedSession.UserId);
+            SessionEnd sessionEnd =
+                new SessionEnd(endedSession.UserId, endedSession.Nickname, roomDeparture, presenceRecipients);
 
-            return departure.RoomId;
+            return sessionEnd;
         }
 
         private bool IsUserOrChannelInRoom(int userId, string channelId)

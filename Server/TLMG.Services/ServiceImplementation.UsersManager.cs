@@ -5,6 +5,7 @@ using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
 using TLMG.DataAccess.Repositories;
 using TLMG.Services.Accounts;
+using TLMG.Services.Sessions;
 
 namespace TLMG.Services
 {
@@ -56,22 +57,21 @@ namespace TLMG.Services
             IUsersManagerCallback callback =
                 OperationContext.Current.GetCallbackChannel<IUsersManagerCallback>();
 
-            OperationLogInResult operationLogInResult;
+            SessionOutcome<OperationLogInResult> sessionOutcome;
 
             try
             {
-                operationLogInResult = _playerLogInService.LogIn(operationLogInRequest);
+                sessionOutcome = _playerLogInService.LogIn(operationLogInRequest);
             }
             catch (Exception ex)
             {
                 _log.Error("Fallo inesperado al iniciar sesión.", ex);
-                operationLogInResult = new OperationLogInResult
-                {
-                    ErrorKey = UnexpectedLogInErrorKey
-                };
+                sessionOutcome = new SessionOutcome<OperationLogInResult>(
+                    new OperationLogInResult { ErrorKey = UnexpectedLogInErrorKey });
             }
 
-            SafeNotify(() => callback.LogInResult(operationLogInResult));
+            SafeNotify(() => callback.LogInResult(sessionOutcome.Result));
+            SafeNotifyAll(sessionOutcome.Notifications);
         }
     }
 }

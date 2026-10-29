@@ -15,8 +15,11 @@ namespace TLMG.Services.Sessions
         /// </summary>
         /// <param name="userId">Identificador de la cuenta.</param>
         /// <param name="nickname">Nickname de la cuenta.</param>
+        /// <param name="replacedSession">
+        /// Lo que hay que avisar por la sesión anterior que se reemplazó; null si la cuenta no tenía otra.
+        /// </param>
         /// <returns>El token de la sesión nueva; nunca es null.</returns>
-        string StartSession(int userId, string nickname);
+        string StartSession(int userId, string nickname, out SessionEnd replacedSession);
 
         /// <summary>Busca la sesión de un token.</summary>
         /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
@@ -28,8 +31,18 @@ namespace TLMG.Services.Sessions
         /// Cierra la sesión de un token; el jugador pierde también su sala, su callback y sus autorizaciones.
         /// </summary>
         /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
+        /// <param name="sessionEnd">Lo que hay que avisar por la sesión cerrada; null si no había sesión.</param>
         /// <returns>true si había una sesión vigente y se cerró; en caso contrario, false.</returns>
-        bool EndSession(string sessionToken);
+        bool EndSession(string sessionToken, out SessionEnd sessionEnd);
+
+        /// <summary>
+        /// Termina la sesión del jugador cuyo canal de amigos se cerró o falló; si el canal ya no es el registrado
+        /// (porque se reemplazó) no hace nada.
+        /// </summary>
+        /// <param name="channelId">Identificador del canal de amigos que terminó.</param>
+        /// <param name="sessionEnd">Lo que hay que avisar por la sesión cerrada; null si no se cerró ninguna.</param>
+        /// <returns>true si el canal era el de amigos de una sesión y esta se cerró; si no, false.</returns>
+        bool TryEndSessionByFriendsChannel(string channelId, out SessionEnd sessionEnd);
 
         /// <summary>Crea una sala nueva y deja dentro al jugador de la sesión.</summary>
         /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
@@ -73,7 +86,7 @@ namespace TLMG.Services.Sessions
 
         /// <summary>
         /// Registra el canal de amigos de la sesión, lo que deja al jugador en línea; si la sesión ya tenía uno,
-        /// gana el último.
+        /// gana el último. Devuelve también a quién avisar que el jugador pasó a estar en línea.
         /// </summary>
         /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
         /// <param name="channelId">Identificador del canal de amigos desde el que llama el jugador.</param>
