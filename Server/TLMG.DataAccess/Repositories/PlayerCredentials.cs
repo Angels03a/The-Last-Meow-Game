@@ -11,6 +11,9 @@
         /// <summary>Identificador de la cuenta; solo tiene valor cuando Status es Found.</summary>
         public int UserId { get; set; }
 
+        /// <summary>Nickname de la cuenta; solo tiene valor cuando Status es Found.</summary>
+        public string Nickname { get; set; }
+
         /// <summary>Hash guardado de la contraseña; solo tiene valor cuando Status es Found.</summary>
         public string PasswordHash { get; set; }
 

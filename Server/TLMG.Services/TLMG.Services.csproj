@@ -62,12 +62,16 @@
     <Compile Include="ServiceImplementation.LeaderboardManager.cs" />
     <Compile Include="ServiceImplementation.UsersManager.cs" />
     <Compile Include="Helpers\PlayerAccountRegistrationValidationHelper.cs" />
+    <Compile Include="Helpers\SessionTokenHelper.cs" />
     <Compile Include="Accounts\IPasswordHasher.cs" />
     <Compile Include="Accounts\PasswordHasher.cs" />
     <Compile Include="Accounts\PlayerAccountRegistrationService.cs" />
     <Compile Include="Accounts\PlayerLogInService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceImplementation.cs" />
+    <Compile Include="Sessions\ISessionRegistry.cs" />
+    <Compile Include="Sessions\PlayerSession.cs" />
+    <Compile Include="Sessions\SessionRegistry.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TLMG.Contracts\TLMG.Contracts.csproj">

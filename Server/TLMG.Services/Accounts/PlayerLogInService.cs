@@ -5,6 +5,7 @@ using log4net;
 using TLMG.Contracts.DataContracts;
 using TLMG.DataAccess.Repositories;
 using TLMG.Services.Helpers;
+using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Accounts
 {
@@ -23,32 +24,46 @@ namespace TLMG.Services.Accounts
 
         private readonly IPlayerRepository _playerRepository;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly ISessionRegistry _sessionRegistry;
 
         /// <summary>Crea el servicio de inicio de sesión con sus dependencias.</summary>
         /// <param name="playerRepository">Repositorio de cuentas.</param>
         /// <param name="passwordHasher">Verificador de contraseñas.</param>
-        public PlayerLogInService(IPlayerRepository playerRepository, IPasswordHasher passwordHasher)
+        /// <param name="sessionRegistry">Registro de las sesiones iniciadas.</param>
+        public PlayerLogInService(
+            IPlayerRepository playerRepository,
+            IPasswordHasher passwordHasher,
+            ISessionRegistry sessionRegistry)
         {
             _playerRepository = playerRepository;
             _passwordHasher = passwordHasher;
+            _sessionRegistry = sessionRegistry;
         }
 
-        /// <summary>Valida las credenciales y registra el acceso del jugador.</summary>
+        /// <summary>Valida las credenciales, registra el acceso del jugador y abre su sesión.</summary>
         /// <param name="operationLogInRequest">Credenciales recibidas del cliente.</param>
-        /// <returns>Resultado con IsSuccess y, si falla, la clave de error.</returns>
+        /// <returns>Resultado con IsSuccess y, según el caso, la clave de error o el token de sesión.</returns>
         public OperationLogInResult LogIn(OperationLogInRequest operationLogInRequest)
         {
+            string sessionToken = null;
             string errorKey = ValidateLogInRequest(operationLogInRequest);
 
             if (errorKey == null)
             {
-                errorKey = AuthenticatePlayer(operationLogInRequest);
+                PlayerCredentials playerCredentials;
+                errorKey = AuthenticatePlayer(operationLogInRequest, out playerCredentials);
+
+                if (errorKey == null)
+                {
+                    sessionToken = _sessionRegistry.StartSession(playerCredentials.UserId, playerCredentials.Nickname);
+                }
             }
 
             OperationLogInResult operationLogInResult = new OperationLogInResult
             {
                 IsSuccess = errorKey == null,
-                ErrorKey = errorKey
+                ErrorKey = errorKey,
+                SessionToken = sessionToken
             };
 
             return operationLogInResult;
@@ -72,11 +87,13 @@ namespace TLMG.Services.Accounts
             return errorKey;
         }
 
-        private string AuthenticatePlayer(OperationLogInRequest operationLogInRequest)
+        private string AuthenticatePlayer(
+            OperationLogInRequest operationLogInRequest,
+            out PlayerCredentials playerCredentials)
         {
             string errorKey = InvalidCredentialsErrorKey;
             string email = operationLogInRequest.Email.ToLowerInvariant();
-            PlayerCredentials playerCredentials = _playerRepository.FindCredentialsByEmail(email);
+            playerCredentials = _playerRepository.FindCredentialsByEmail(email);
 
             if (playerCredentials.Status == CredentialsLookupStatus.DataFailure)
             {

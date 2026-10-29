@@ -20,8 +20,8 @@ namespace TLMG.Services
         private static readonly PlayerAccountRegistrationService _playerAccountRegistrationService =
             new PlayerAccountRegistrationService(_playerRepository, _passwordHasher);
 
-        private static readonly PlayerLogInService _playerLogInService =
-            new PlayerLogInService(_playerRepository, _passwordHasher);
+        // Se asigna en el constructor estático de ServiceImplementation.cs porque depende del registro de sesiones.
+        private static readonly PlayerLogInService _playerLogInService;
 
         /// <summary>Delega el registro al servicio de registro y responde por callback.</summary>
         /// <param name="registrationPlayerAccount">Datos capturados por el jugador.</param>

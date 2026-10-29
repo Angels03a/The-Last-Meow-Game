@@ -15,5 +15,9 @@ namespace TLMG.Contracts.DataContracts
         /// <summary>Clave del texto de error; null si el inicio de sesión fue aceptado.</summary>
         [DataMember]
         public string ErrorKey { get; set; }
+
+        /// <summary>Token de la sesión del jugador; null si el inicio de sesión falló.</summary>
+        [DataMember]
+        public string SessionToken { get; set; }
     }
 }

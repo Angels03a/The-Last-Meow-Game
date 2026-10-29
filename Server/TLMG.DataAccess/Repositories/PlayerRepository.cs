@@ -106,6 +106,7 @@ namespace TLMG.DataAccess.Repositories
                         {
                             Status = CredentialsLookupStatus.Found,
                             UserId = user.id_user,
+                            Nickname = user.nickname,
                             PasswordHash = user.password_hash,
                             State = user.state
                         })
