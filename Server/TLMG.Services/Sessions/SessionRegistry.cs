@@ -7,9 +7,10 @@ using TLMG.Services.Helpers;
 namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Guarda las sesiones iniciadas y las salas (SessionRegistry.Lobbies.cs). Un solo candado protege todo el estado
-    /// compartido y dentro de él no hay datos, callbacks, log ni esperas: solo se lee o modifica memoria, se copia lo
-    /// necesario y el log y los avisos se hacen siempre después de salir del candado.
+    /// Guarda las sesiones iniciadas, las salas (SessionRegistry.Lobbies.cs) y los canales de amigos y las invitaciones
+    /// (SessionRegistry.Friends.cs). Un solo candado protege todo el estado compartido y dentro de él no hay datos,
+    /// callbacks, log ni esperas: solo se lee o modifica memoria, se copia lo necesario y el log y los avisos se hacen
+    /// siempre después de salir del candado.
     /// </summary>
     public partial class SessionRegistry : ISessionRegistry
     {
@@ -36,7 +37,7 @@ namespace TLMG.Services.Sessions
                 if (wasReplaced)
                 {
                     _sessionsByToken.Remove(previousToken);
-                    departedRoomId = RemoveLobbyStateOfUser(userId);
+                    departedRoomId = RemoveSessionStateOfUser(userId);
                 }
 
                 _sessionsByToken[sessionToken] = newSession;
@@ -85,7 +86,7 @@ namespace TLMG.Services.Sessions
                     {
                         _sessionsByToken.Remove(sessionToken);
                         _tokensByUserId.Remove(endedSession.UserId);
-                        departedRoomId = RemoveLobbyStateOfUser(endedSession.UserId);
+                        departedRoomId = RemoveSessionStateOfUser(endedSession.UserId);
                     }
                 }
             }

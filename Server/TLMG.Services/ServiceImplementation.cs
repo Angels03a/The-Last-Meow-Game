@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ServiceModel;
 
 using log4net;
 
+using TLMG.DataAccess.Repositories;
 using TLMG.Services.Accounts;
+using TLMG.Services.Friends;
 using TLMG.Services.Lobby;
 using TLMG.Services.Sessions;
 
@@ -32,6 +35,20 @@ namespace TLMG.Services
             _sessionRegistry = new SessionRegistry();
             _playerLogInService = new PlayerLogInService(_playerRepository, _passwordHasher, _sessionRegistry);
             _lobbyService = new LobbyService(_sessionRegistry);
+            _friendshipRepository = new FriendshipRepository();
+            _friendsService = new FriendsService(_friendshipRepository, _sessionRegistry);
+        }
+
+        /// <summary>
+        /// Entrega varias notificaciones, una por una, sin que un cliente caído impida avisar a los demás.
+        /// </summary>
+        /// <param name="notifications">Invocaciones de callbacks que ya no dependen de ningún candado.</param>
+        private void SafeNotifyAll(IReadOnlyList<Action> notifications)
+        {
+            foreach (Action notification in notifications)
+            {
+                SafeNotify(notification);
+            }
         }
 
         /// <summary>

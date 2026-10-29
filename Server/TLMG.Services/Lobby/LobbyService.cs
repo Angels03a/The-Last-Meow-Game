@@ -4,6 +4,7 @@ using log4net;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using TLMG.Services.Helpers;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Lobby
@@ -14,13 +15,8 @@ namespace TLMG.Services.Lobby
     /// </summary>
     public class LobbyService
     {
-        /// <summary>Clave del error inesperado; la usa el punto de entrada del servicio si esta clase falla.</summary>
-        public const string UnexpectedErrorKey = "Lobby_UnexpectedError";
-
-        private const string InvalidSessionErrorKey = "Lobby_InvalidSessionError";
         private const string AlreadyInRoomErrorKey = "Lobby_AlreadyInRoomError";
         private const string CannotJoinRoomErrorKey = "Lobby_CannotJoinRoomError";
-        private const string RoomFullErrorKey = "Lobby_RoomFullError";
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(LobbyService));
 
@@ -28,10 +24,10 @@ namespace TLMG.Services.Lobby
         private static readonly Dictionary<LobbyChangeStatus, string> _errorKeysByStatus =
             new Dictionary<LobbyChangeStatus, string>
             {
-                { LobbyChangeStatus.InvalidSession, InvalidSessionErrorKey },
+                { LobbyChangeStatus.InvalidSession, CommonErrorKeyHelper.InvalidSessionErrorKey },
                 { LobbyChangeStatus.AlreadyInRoom, AlreadyInRoomErrorKey },
                 { LobbyChangeStatus.NotAuthorized, CannotJoinRoomErrorKey },
-                { LobbyChangeStatus.RoomFull, RoomFullErrorKey }
+                { LobbyChangeStatus.RoomFull, CommonErrorKeyHelper.RoomFullErrorKey }
             };
 
         private readonly ISessionRegistry _sessionRegistry;
@@ -174,7 +170,7 @@ namespace TLMG.Services.Lobby
 
             if (!_errorKeysByStatus.TryGetValue(lobbyChangeStatus, out errorKey))
             {
-                errorKey = UnexpectedErrorKey;
+                errorKey = CommonErrorKeyHelper.UnexpectedErrorKey;
             }
 
             return errorKey;

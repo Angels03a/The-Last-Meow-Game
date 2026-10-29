@@ -39,17 +39,24 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataContracts\Friend.cs" />
     <Compile Include="DataContracts\LeaderboardPlayer.cs" />
     <Compile Include="DataContracts\LobbyPlayer.cs" />
     <Compile Include="DataContracts\LobbyRoom.cs" />
+    <Compile Include="DataContracts\OperationAcceptRoomInvitationResult.cs" />
     <Compile Include="DataContracts\OperationCreateRoomResult.cs" />
     <Compile Include="DataContracts\OperationEnterLobbyResult.cs" />
     <Compile Include="DataContracts\OperationGetLeaderboardResult.cs" />
+    <Compile Include="DataContracts\OperationInviteFriendToRoomResult.cs" />
     <Compile Include="DataContracts\OperationLeaveLobbyResult.cs" />
     <Compile Include="DataContracts\OperationLogInRequest.cs" />
     <Compile Include="DataContracts\OperationLogInResult.cs" />
     <Compile Include="DataContracts\OperationRegisterPlayerAccountResult.cs" />
+    <Compile Include="DataContracts\OperationSubscribeToFriendsResult.cs" />
     <Compile Include="DataContracts\PlayerAccountRegistration.cs" />
+    <Compile Include="DataContracts\RoomInvitation.cs" />
+    <Compile Include="IFriendsManager.cs" />
+    <Compile Include="IFriendsManagerCallback.cs" />
     <Compile Include="ILeaderboardManager.cs" />
     <Compile Include="ILeaderboardManagerCallback.cs" />
     <Compile Include="ILobbyManager.cs" />

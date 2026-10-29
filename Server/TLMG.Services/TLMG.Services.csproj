@@ -59,9 +59,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Leaderboard\LeaderboardService.cs" />
+    <Compile Include="ServiceImplementation.FriendsManager.cs" />
     <Compile Include="ServiceImplementation.LeaderboardManager.cs" />
     <Compile Include="ServiceImplementation.LobbyManager.cs" />
     <Compile Include="ServiceImplementation.UsersManager.cs" />
+    <Compile Include="Friends\FriendsService.cs" />
+    <Compile Include="Helpers\CommonErrorKeyHelper.cs" />
     <Compile Include="Helpers\PlayerAccountRegistrationValidationHelper.cs" />
     <Compile Include="Helpers\SessionTokenHelper.cs" />
     <Compile Include="Lobby\LobbyNotification.cs" />
@@ -73,13 +76,21 @@
     <Compile Include="Accounts\PlayerLogInService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceImplementation.cs" />
+    <Compile Include="Sessions\FriendsChangeStatus.cs" />
+    <Compile Include="Sessions\FriendsChannel.cs" />
+    <Compile Include="Sessions\FriendsSubscription.cs" />
     <Compile Include="Sessions\ISessionRegistry.cs" />
     <Compile Include="Sessions\LobbyChangeStatus.cs" />
     <Compile Include="Sessions\LobbyMember.cs" />
     <Compile Include="Sessions\LobbyMembershipChange.cs" />
     <Compile Include="Sessions\LobbyRoomSnapshot.cs" />
     <Compile Include="Sessions\PlayerSession.cs" />
+    <Compile Include="Sessions\RoomInvitationAcceptance.cs" />
+    <Compile Include="Sessions\RoomInvitationCreation.cs" />
+    <Compile Include="Sessions\RoomInvitationRecord.cs" />
+    <Compile Include="Sessions\SessionOutcome.cs" />
     <Compile Include="Sessions\SessionRegistry.cs" />
+    <Compile Include="Sessions\SessionRegistry.Friends.cs" />
     <Compile Include="Sessions\SessionRegistry.Lobbies.cs" />
   </ItemGroup>
   <ItemGroup>

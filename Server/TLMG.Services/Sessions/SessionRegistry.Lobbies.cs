@@ -105,27 +105,35 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        // UNDONE: Nadie emite autorizaciones de entrada todavía; las emitirá el paso de invitaciones. (BL-064).
         /// <inheritdoc />
         public bool IssueRoomEntryAuthorization(int userId, int roomId)
         {
-            bool wasIssued = false;
+            bool wasIssued;
 
             lock (_sessionsLock)
             {
-                if (_tokensByUserId.ContainsKey(userId) && _membersByRoomId.ContainsKey(roomId))
+                wasIssued = IssueRoomEntryAuthorizationInLock(userId, roomId);
+            }
+
+            return wasIssued;
+        }
+
+        private bool IssueRoomEntryAuthorizationInLock(int userId, int roomId)
+        {
+            bool wasIssued = false;
+
+            if (_tokensByUserId.ContainsKey(userId) && _membersByRoomId.ContainsKey(roomId))
+            {
+                HashSet<int> authorizedRoomIds;
+
+                if (!_authorizedRoomIdsByUserId.TryGetValue(userId, out authorizedRoomIds))
                 {
-                    HashSet<int> authorizedRoomIds;
-
-                    if (!_authorizedRoomIdsByUserId.TryGetValue(userId, out authorizedRoomIds))
-                    {
-                        authorizedRoomIds = new HashSet<int>();
-                        _authorizedRoomIdsByUserId[userId] = authorizedRoomIds;
-                    }
-
-                    authorizedRoomIds.Add(roomId);
-                    wasIssued = true;
+                    authorizedRoomIds = new HashSet<int>();
+                    _authorizedRoomIdsByUserId[userId] = authorizedRoomIds;
                 }
+
+                authorizedRoomIds.Add(roomId);
+                wasIssued = true;
             }
 
             return wasIssued;
@@ -242,6 +250,7 @@ namespace TLMG.Services.Sessions
                 {
                     _membersByRoomId.Remove(roomId);
                     RemoveRoomEntryAuthorizations(roomId);
+                    RemoveInvitationsOfRoom(roomId);
                     lobbyMembershipChange = LobbyMembershipChange.CreateApplied(userId, roomId, null);
                 }
             }
@@ -249,10 +258,12 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        private int RemoveLobbyStateOfUser(int userId)
+        private int RemoveSessionStateOfUser(int userId)
         {
             LobbyMembershipChange departure = RemoveUserFromRoom(userId);
             _authorizedRoomIdsByUserId.Remove(userId);
+            RemoveFriendsChannelOfUser(userId);
+            RemoveInvitationsOfUser(userId);
 
             return departure.RoomId;
         }

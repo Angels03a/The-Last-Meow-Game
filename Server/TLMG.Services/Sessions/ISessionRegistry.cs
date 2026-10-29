@@ -1,4 +1,6 @@
-﻿using TLMG.Contracts;
+﻿using System.Collections.Generic;
+
+using TLMG.Contracts;
 
 namespace TLMG.Services.Sessions
 {
@@ -63,10 +65,49 @@ namespace TLMG.Services.Sessions
         /// <returns>Applied o NotInRoom; nunca es null.</returns>
         LobbyMembershipChange LeaveRoomByChannel(string channelId);
 
-        /// <summary>Emite la autorización para que un jugador entre a una sala existente.</summary>
+        /// <summary>Emite la autorización para que un jugador entre a una sala existente, sin invitación.</summary>
         /// <param name="userId">Identificador de la cuenta autorizada; debe tener sesión vigente.</param>
         /// <param name="roomId">Identificador de la sala a la que se autoriza.</param>
         /// <returns>true si quedó emitida; false si el jugador no tiene sesión o la sala no existe.</returns>
         bool IssueRoomEntryAuthorization(int userId, int roomId);
+
+        /// <summary>
+        /// Registra el canal de amigos de la sesión, lo que deja al jugador en línea; si la sesión ya tenía uno,
+        /// gana el último.
+        /// </summary>
+        /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
+        /// <param name="channelId">Identificador del canal de amigos desde el que llama el jugador.</param>
+        /// <param name="friendsCallback">Callback del canal de amigos del jugador.</param>
+        /// <param name="friendUserIds">Ids de los amigos aceptados del jugador, ya consultados en la base.</param>
+        /// <returns>Applied con cuáles de esos amigos están en línea, o InvalidSession; nunca es null.</returns>
+        FriendsSubscription SubscribeFriendsChannel(
+            string sessionToken,
+            string channelId,
+            IFriendsManagerCallback friendsCallback,
+            IReadOnlyList<int> friendUserIds);
+
+        /// <summary>
+        /// Crea la invitación del jugador de la sesión a su sala para un amigo en línea que no está en una sala. La
+        /// amistad ya debe estar comprobada en la base de datos; una invitación repetida no crea otra.
+        /// </summary>
+        /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
+        /// <param name="friendUserId">Id de la cuenta del amigo invitado.</param>
+        /// <returns>
+        /// Applied con la invitación y el callback del invitado, InvalidSession, NotInRoom, RoomFull o CannotInvite;
+        /// CannotInvite cubre que el invitado no esté en línea o ya esté en una sala. Nunca es null.
+        /// </returns>
+        RoomInvitationCreation CreateRoomInvitation(string sessionToken, int friendUserId);
+
+        /// <summary>
+        /// Acepta una invitación del jugador de la sesión: la consume y emite la autorización de entrada a su sala.
+        /// No mete al jugador en la sala.
+        /// </summary>
+        /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
+        /// <param name="invitationId">Id de la invitación recibida.</param>
+        /// <returns>
+        /// Applied con el id de la sala, InvalidSession o InvitationNotValid; InvitationNotValid cubre que la
+        /// invitación no exista, no sea del jugador o su sala ya no exista. Nunca es null.
+        /// </returns>
+        RoomInvitationAcceptance AcceptRoomInvitation(string sessionToken, int invitationId);
     }
 }

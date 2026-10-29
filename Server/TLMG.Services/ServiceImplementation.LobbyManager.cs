@@ -4,6 +4,7 @@ using System.ServiceModel;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using TLMG.Services.Helpers;
 using TLMG.Services.Lobby;
 
 namespace TLMG.Services
@@ -33,7 +34,7 @@ namespace TLMG.Services
             {
                 _log.Error("Fallo inesperado al crear una sala.", ex);
                 lobbyOutcome = new LobbyOutcome<OperationCreateRoomResult>(
-                    new OperationCreateRoomResult { ErrorKey = LobbyService.UnexpectedErrorKey });
+                    new OperationCreateRoomResult { ErrorKey = CommonErrorKeyHelper.UnexpectedErrorKey });
             }
 
             SafeNotify(() => callback.CreateRoomResult(lobbyOutcome.Result));
@@ -58,7 +59,7 @@ namespace TLMG.Services
             {
                 _log.Error("Fallo inesperado al entrar a una sala.", ex);
                 lobbyOutcome = new LobbyOutcome<OperationEnterLobbyResult>(
-                    new OperationEnterLobbyResult { ErrorKey = LobbyService.UnexpectedErrorKey });
+                    new OperationEnterLobbyResult { ErrorKey = CommonErrorKeyHelper.UnexpectedErrorKey });
             }
 
             SafeNotify(() => callback.EnterLobbyResult(lobbyOutcome.Result));
@@ -82,7 +83,7 @@ namespace TLMG.Services
             {
                 _log.Error("Fallo inesperado al salir de una sala.", ex);
                 lobbyOutcome = new LobbyOutcome<OperationLeaveLobbyResult>(
-                    new OperationLeaveLobbyResult { ErrorKey = LobbyService.UnexpectedErrorKey });
+                    new OperationLeaveLobbyResult { ErrorKey = CommonErrorKeyHelper.UnexpectedErrorKey });
             }
 
             SafeNotify(() => callback.LeaveLobbyResult(lobbyOutcome.Result));
