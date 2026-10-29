@@ -431,13 +431,13 @@ Formato de entrada:
 - Creado: 2026-10-29 19:30
 - Por qué: `ISessionRegistry.IssueRoomEntryAuthorization` existe y EnterLobby ya las exige y las consume, pero nadie las emite todavía (hay un UNDONE que cita esta entrada). Las emitirá el paso de invitaciones, al aceptar el invitado; y quien invita debe estar en la sala y tener al invitado como amigo aceptado (IFriendshipRepository).
 - Depende de: paso de invitaciones
-- Estado: Pendiente
+- Estado: Finalizado el 2026-10-29 · commit bac66e1
 
 ### BL-065 · Avisar a la sala cuando una sesión termina o es reemplazada
 - Creado: 2026-10-29 19:30
 - Por qué: `StartSession` (reemplazo) y `EndSession` retiran al jugador de su sala, de su callback y de sus autorizaciones, pero no avisan a los demás jugadores: ven la lista vieja hasta el siguiente cambio. Hay que devolver los avisos desde el registro y entregarlos fuera del candado, como ya se hace en EnterLobby y LeaveLobby.
 - Depende de: nada
-- Estado: Pendiente
+- Estado: Finalizado el 2026-10-29 · commit d6d6326
 
 ### BL-066 · Vencimiento de autorizaciones de entrada y de sesiones sin canal de lobby
 - Creado: 2026-10-29 19:30
