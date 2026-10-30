@@ -74,6 +74,16 @@ namespace TLMG.Client.Communication
         public bool HasFriendsChannel => _friendsClient != null && !string.IsNullOrEmpty(_sessionToken);
 
         /// <summary>
+        /// Obtiene la última foto de la sala del jugador que entregó el servidor, o null si no está en una sala. El
+        /// manager la actualiza al recibir los callbacks de lobby aunque ninguna pantalla esté suscrita, para que la
+        /// sala sobreviva a la pantalla que la muestra; se limpia al salir de la sala o al terminar la sesión.
+        /// </summary>
+        public LobbyRoom CurrentRoom { get; private set; }
+
+        /// <summary>Obtiene si se pidió crear una sala y su resultado todavía no llega.</summary>
+        public bool IsRoomCreationPending { get; private set; }
+
+        /// <summary>
         /// Guarda el sessionToken del jugador registrado que entró, abre su canal de amigos y se suscribe a ellos. Un
         /// invitado no tiene token y no pasa por aquí.
         /// </summary>
@@ -120,6 +130,7 @@ namespace TLMG.Client.Communication
             _lobbyClient = null;
             _lobbyChannel = null;
             _sessionToken = null;
+            ClearCurrentRoom();
         }
 
         /// <summary>Pide de nuevo la lista de amigos; la respuesta llega por FriendListReceived.</summary>
@@ -207,6 +218,7 @@ namespace TLMG.Client.Communication
             if (OpenLobbyChannel())
             {
                 wasSent = TrySend(() => _lobbyClient.CreateRoom(_sessionToken), "crear una sala");
+                IsRoomCreationPending = wasSent;
             }
 
             return wasSent;
@@ -230,11 +242,15 @@ namespace TLMG.Client.Communication
             return wasSent;
         }
 
-        /// <summary>Sale de la sala actual; el resultado llega por LeaveLobbyResultReceived.</summary>
+        /// <summary>
+        /// Sale de la sala actual y la libera en el cliente sin esperar la respuesta, porque salir sin estar en una
+        /// sala también es éxito en el servidor; el resultado llega por LeaveLobbyResultReceived.
+        /// </summary>
         /// <returns>true si se envió; false si no hay sesión registrada o falló el canal o el envío.</returns>
         public bool LeaveLobby()
         {
             bool wasSent = false;
+            ClearCurrentRoom();
 
             if (OpenLobbyChannel())
             {
@@ -297,8 +313,19 @@ namespace TLMG.Client.Communication
 
         /// <summary>Dispara CreateRoomResultReceived.</summary>
         /// <param name="operationCreateRoomResult">Resultado que llegó del servidor.</param>
+        /// <remarks>
+        /// Guarda la sala solo si la creación seguía pendiente: si el jugador salió antes de que llegara el
+        /// resultado, el servidor ya lo sacó de esa sala.
+        /// </remarks>
         internal void NotifyCreateRoomResultReceived(OperationCreateRoomResult operationCreateRoomResult)
         {
+            if (IsRoomCreationPending && operationCreateRoomResult.IsSuccess)
+            {
+                CurrentRoom = operationCreateRoomResult.Room;
+            }
+
+            IsRoomCreationPending = false;
+
             CreateRoomResultReceived?.Invoke(
                 this,
                 new ServerEventArgs<OperationCreateRoomResult>(operationCreateRoomResult));
@@ -308,6 +335,11 @@ namespace TLMG.Client.Communication
         /// <param name="operationEnterLobbyResult">Resultado que llegó del servidor.</param>
         internal void NotifyEnterLobbyResultReceived(OperationEnterLobbyResult operationEnterLobbyResult)
         {
+            if (operationEnterLobbyResult.IsSuccess)
+            {
+                CurrentRoom = operationEnterLobbyResult.Room;
+            }
+
             EnterLobbyResultReceived?.Invoke(
                 this,
                 new ServerEventArgs<OperationEnterLobbyResult>(operationEnterLobbyResult));
@@ -317,16 +349,42 @@ namespace TLMG.Client.Communication
         /// <param name="operationLeaveLobbyResult">Resultado que llegó del servidor.</param>
         internal void NotifyLeaveLobbyResultReceived(OperationLeaveLobbyResult operationLeaveLobbyResult)
         {
+            if (!operationLeaveLobbyResult.IsSuccess)
+            {
+                _log.WarnFormat(
+                    "El servidor rechazó la salida de la sala. ErrorKey: {0}.",
+                    operationLeaveLobbyResult.ErrorKey);
+            }
+
             LeaveLobbyResultReceived?.Invoke(
                 this,
                 new ServerEventArgs<OperationLeaveLobbyResult>(operationLeaveLobbyResult));
         }
 
-        /// <summary>Dispara LobbyRoomChanged.</summary>
+        /// <summary>
+        /// Actualiza la sala actual y dispara LobbyRoomChanged. Ignora el aviso de una sala que ya no es la del
+        /// jugador, como uno que venía en camino cuando salió.
+        /// </summary>
         /// <param name="lobbyRoom">La sala con la lista actualizada de jugadores.</param>
         internal void NotifyLobbyRoomChanged(LobbyRoom lobbyRoom)
         {
-            LobbyRoomChanged?.Invoke(this, new ServerEventArgs<LobbyRoom>(lobbyRoom));
+            bool isCurrentRoom = CurrentRoom != null && lobbyRoom != null && lobbyRoom.RoomId == CurrentRoom.RoomId;
+
+            if (isCurrentRoom)
+            {
+                CurrentRoom = lobbyRoom;
+                LobbyRoomChanged?.Invoke(this, new ServerEventArgs<LobbyRoom>(lobbyRoom));
+            }
+            else
+            {
+                _log.Debug("Se ignoró el aviso de una sala que no es la sala actual del jugador.");
+            }
+        }
+
+        private void ClearCurrentRoom()
+        {
+            CurrentRoom = null;
+            IsRoomCreationPending = false;
         }
 
         private bool IsRegisteredSessionResult(OperationLogInResult operationLogInResult)

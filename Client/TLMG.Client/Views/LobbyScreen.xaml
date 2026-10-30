@@ -139,7 +139,7 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Margin="24,32,24,32">
-                        <Grid Margin="0,0,0,24">
+                        <Grid Margin="0,0,0,24" Visibility="Collapsed">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
@@ -157,7 +157,7 @@
                             </StackPanel>
                         </Grid>
 
-                        <Grid Margin="0,0,0,32">
+                        <Grid Margin="0,0,0,32" Visibility="Collapsed">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="*" />
@@ -214,19 +214,18 @@
                         <TextBlock Text="{DynamicResource Lobby_MainTitle}" 
                                    Style="{StaticResource TitleMediumTextStyle}" 
                                    Margin="0,0,0,4"/>
-                        <TextBlock Text="{DynamicResource Lobby_RoomInformation}" 
+                        <TextBlock x:Name="lblRoomInformation"
                                    Style="{StaticResource SubtitleTextStyle}" />
                     </StackPanel>
 
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
                         <TextBlock Text="{DynamicResource Lobby_CardsPerPlayer}" 
                                    Style="{StaticResource StatCardLabelStyle}" 
                                    VerticalAlignment="Center" 
                                    Margin="0,0,16,0" />
                         <ComboBox x:Name="cmbGameMode" 
                                   Width="280" 
-                                  Style="{StaticResource DarkComboBoxStyle}" 
-                                  SelectionChanged="CmbGameMode_SelectionChanged">
+                                  Style="{StaticResource DarkComboBoxStyle}">
                             <ComboBoxItem Content="{DynamicResource Lobby_GameMode4Cards}" IsSelected="True" />
                             <ComboBoxItem Content="{DynamicResource Lobby_GameMode6Cards}" />
                             <ComboBoxItem Content="{DynamicResource Lobby_GameMode8Cards}" />
@@ -236,106 +235,33 @@
 
                 <Border Grid.Row="0" BorderBrush="{StaticResource Brush_Border}" BorderThickness="0,0,0,1" Margin="40,32,40,0" VerticalAlignment="Bottom" />
 
-                <UniformGrid Grid.Row="1" Rows="2" Columns="3" Margin="80,48,80,48">
-                    <Border x:Name="brdPlayer1" Style="{StaticResource LobbyCardNotReadyStyle}" MouseLeftButtonDown="BrdPlayer1_MouseLeftButtonDown">
-                        <StackPanel VerticalAlignment="Center">
-                            <Border Style="{StaticResource FriendAvatarBorderStyle}" HorizontalAlignment="Center" Margin="0,0,0,16">
-                                <TextBlock Text="🐱" 
-                                           Style="{StaticResource FriendAvatarEmojiStyle}" 
-                                           FontFamily="Segoe UI Emoji" />
+                <ItemsControl x:Name="lstLobbyPlayers" Grid.Row="1" Margin="80,48,80,48">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="2" Columns="3" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource LobbyCardNotReadyStyle}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <Border Style="{StaticResource FriendAvatarBorderStyle}" HorizontalAlignment="Center" Margin="0,0,0,16">
+                                        <TextBlock Text="🐱"
+                                                   Style="{StaticResource FriendAvatarEmojiStyle}"
+                                                   FontFamily="Segoe UI Emoji" />
+                                    </Border>
+                                    <TextBlock Text="{Binding Nickname}"
+                                               Style="{StaticResource FriendNameTextStyle}"
+                                               HorizontalAlignment="Center" />
+                                </StackPanel>
                             </Border>
-                            <TextBlock Text="WhiskerKnight" 
-                                       Style="{StaticResource FriendNameTextStyle}" 
-                                       HorizontalAlignment="Center" />
-                            <Border Style="{StaticResource RoleBadgeStyle}" Margin="0,8,0,16">
-                                <TextBlock Text="{DynamicResource Lobby_RoleCreator}" 
-                                           Style="{StaticResource BadgeTextInactiveStyle}" />
-                            </Border>
-                            <Border x:Name="brdStatus1" Style="{StaticResource StatusBadgeNotReadyStyle}">
-                                <TextBlock x:Name="lblStatus1" 
-                                           Text="{DynamicResource Lobby_StatusNotReady}" 
-                                           Style="{StaticResource StatusTextNotReadyStyle}" />
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
-                    <Border x:Name="brdPlayer2" Style="{StaticResource LobbyCardReadyStyle}" MouseLeftButtonDown="BrdPlayer2_MouseLeftButtonDown" MouseRightButtonDown="BrdPlayer_MouseRightButtonDown">
-                        <StackPanel VerticalAlignment="Center">
-                            <Border Style="{StaticResource FriendAvatarBorderStyle}" HorizontalAlignment="Center" Margin="0,0,0,16">
-                                <TextBlock Text="🐯" 
-                                           Style="{StaticResource FriendAvatarEmojiStyle}" 
-                                           FontFamily="Segoe UI Emoji" />
-                            </Border>
-                            <TextBlock Text="NyanProwler" 
-                                       Style="{StaticResource FriendNameTextStyle}" 
-                                       HorizontalAlignment="Center" 
-                                       Margin="0,0,0,40" />
-                            <Border x:Name="brdStatus2" Style="{StaticResource StatusBadgeReadyStyle}">
-                                <TextBlock x:Name="lblStatus2" 
-                                           Text="{DynamicResource Lobby_StatusReady}" 
-                                           Style="{StaticResource StatusTextReadyStyle}" />
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
-                    <Border x:Name="brdPlayer3" Style="{StaticResource LobbyCardNotReadyStyle}" MouseLeftButtonDown="BrdPlayer3_MouseLeftButtonDown" MouseRightButtonDown="BrdPlayer_MouseRightButtonDown">
-                        <StackPanel VerticalAlignment="Center">
-                            <Border Style="{StaticResource FriendAvatarBorderStyle}" HorizontalAlignment="Center" Margin="0,0,0,16">
-                                <TextBlock Text="🐱" Style="{StaticResource FriendAvatarEmojiStyle}" FontFamily="Segoe UI Emoji" />
-                            </Border>
-                            <TextBlock Text="CatNapper9000" 
-                                       Style="{StaticResource FriendNameTextStyle}" 
-                                       HorizontalAlignment="Center" 
-                                       Margin="0,0,0,40"/>
-                            <Border x:Name="brdStatus3" Style="{StaticResource StatusBadgeNotReadyStyle}">
-                                <TextBlock x:Name="lblStatus3" 
-                                           Text="{DynamicResource Lobby_StatusNotReady}" 
-                                           Style="{StaticResource StatusTextNotReadyStyle}" />
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Style="{StaticResource LobbyCardEmptyStyle}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="+" 
-                                       FontSize="24" 
-                                       Foreground="{StaticResource Brush_TextFaint}" 
-                                       HorizontalAlignment="Center" 
-                                       Margin="0,0,0,16" />
-                            <TextBlock Text="{DynamicResource Lobby_Waiting}" 
-                                       Style="{StaticResource StatusTextOfflineStyle}" 
-                                       HorizontalAlignment="Center" />
-                        </StackPanel>
-                    </Border>
-                    <Border Style="{StaticResource LobbyCardEmptyStyle}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="+" 
-                                       FontSize="24" 
-                                       Foreground="{StaticResource Brush_TextFaint}" 
-                                       HorizontalAlignment="Center" 
-                                       Margin="0,0,0,16" />
-                            <TextBlock Text="{DynamicResource Lobby_Waiting}" 
-                                       Style="{StaticResource StatusTextOfflineStyle}" 
-                                       HorizontalAlignment="Center" />
-                        </StackPanel>
-                    </Border>
-                    <Border Style="{StaticResource LobbyCardEmptyStyle}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="+" 
-                                       FontSize="24" 
-                                       Foreground="{StaticResource Brush_TextFaint}" 
-                                       HorizontalAlignment="Center" 
-                                       Margin="0,0,0,16" />
-                            <TextBlock Text="{DynamicResource Lobby_Waiting}" 
-                                       Style="{StaticResource StatusTextOfflineStyle}" 
-                                       HorizontalAlignment="Center" />
-                        </StackPanel>
-                    </Border>
-                </UniformGrid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
                 <Border Grid.Row="1" BorderBrush="{StaticResource Brush_Border}" BorderThickness="0,0,0,1" Margin="40,0,40,0" VerticalAlignment="Bottom" />
 
-                <Grid Grid.Row="2" Margin="40,16,40,24">
+                <Grid Grid.Row="2" Margin="40,16,40,24" Visibility="Collapsed">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
@@ -391,7 +317,7 @@
                 </Grid>
             </Grid>
 
-            <Border Grid.Column="2" Style="{StaticResource SidePanelRightBorderStyle}">
+            <Border Grid.Column="2" Style="{StaticResource SidePanelRightBorderStyle}" Visibility="Collapsed">
                 <StackPanel VerticalAlignment="Center" Margin="24,0">
                     <TextBlock Text="{DynamicResource Lobby_PlayersReadyTitle}" 
                                Style="{StaticResource StatCardLabelStyle}" 

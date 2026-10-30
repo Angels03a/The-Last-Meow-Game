@@ -131,6 +131,8 @@
     <sys:String x:Key="Common_Rank">RANGO</sys:String>
     <sys:String x:Key="Common_BackButton">← Regresar</sys:String>
     <sys:String x:Key="Common_ConnectionLostError">Se perdió la conexión con el servidor. Inicia sesión de nuevo.</sys:String>
+    <sys:String x:Key="Common_InvalidSessionError">Tu sesión ya no es válida. Inicia sesión de nuevo.</sys:String>
+    <sys:String x:Key="Common_UnexpectedError">Ocurrió un error inesperado. Inténtalo de nuevo.</sys:String>
     <sys:String x:Key="Options_ResetButton">Restablecer Opciones por Defecto</sys:String>
     <sys:String x:Key="CreateAccount_MismatchError">Las contraseñas no coinciden</sys:String>
     <sys:String x:Key="MainMenu_Title">EL ÚLTIMO MAULLIDO</sys:String>
@@ -258,10 +260,13 @@
     <sys:String x:Key="Lobby_GameMode6Cards">6 cartas (1 Gato Fatal + 5 seguras)</sys:String>
     <sys:String x:Key="Lobby_GameMode8Cards">8 cartas (2 Gatos Fatales + 6 seguras)</sys:String>
     <sys:String x:Key="Lobby_MainTitle">SALA DE JUEGO</sys:String>
-    <sys:String x:Key="Lobby_RoomInformation">Sala #4821 · 3/6 jugadores</sys:String>
+    <sys:String x:Key="Lobby_RoomInformationFormat">Sala #{0} · {1}/{2} jugadores</sys:String>
     <sys:String x:Key="Lobby_CardsPerPlayer">CARTAS POR JUGADOR:</sys:String>
     <sys:String x:Key="Lobby_ChatSystemPrefix">Sistema:</sys:String>
     <sys:String x:Key="Lobby_SystemJoinedMessage">CatNapper9000 se unió a la sala.</sys:String>
     <sys:String x:Key="Lobby_MockChatPlayer">¡Listo para jugar! </sys:String>
     <sys:String x:Key="Lobby_StartGameMessage">Iniciando partida...</sys:String>
+    <sys:String x:Key="Lobby_ErrorTitle">Error</sys:String>
+    <sys:String x:Key="Lobby_AlreadyInRoomError">Ya estás en una sala.</sys:String>
+    <sys:String x:Key="Lobby_GuestCannotCreateRoomError">Los invitados no pueden crear salas. Inicia sesión con tu cuenta para jugar con tus amigos.</sys:String>
 </ResourceDictionary>

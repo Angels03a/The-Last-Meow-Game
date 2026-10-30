@@ -5,25 +5,30 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Threading;
 
+using TLMG.Client.Communication;
+using TLMG.Client.UsersManagerReference;
+
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Pantalla de sala previa a la partida (lobby) para coordinar jugadores y cuenta regresiva.
+    /// Pantalla de sala previa a la partida (lobby): crea la sala del jugador registrado, o muestra la que ya tiene,
+    /// con los jugadores que entrega el servidor. La sala vive en el ServerConnectionManager, no en la pantalla.
     /// </summary>
     public partial class LobbyScreen : LocalizableScreen
     {        
-        private const int TotalLobbyPlayersCount = 3;
         private const int LobbyStartCountdownSeconds = 3;
-        private const string FormatReadyFraction = "{0}/{1}";
         private const int CountdownSecondsLimitForStart = 0; 
         private const int CountdownTickIntervalSeconds = 1;
         private const int ToastDurationMilliseconds = 3000; 
 
-        private bool _isLocalPlayerReady;
-        private bool _isPlayer2Ready;
-        private bool _isPlayer3Ready;
+        // Máximo de jugadores por sala (Reglas de The Last Meow, §1.1.1); solo se muestra, el servidor lo aplica.
+        private const int MaximumPlayersPerRoom = 6;
+        private const int EmptyPlayerCount = 0;
+        private const string RoomInformationFormatKey = "Lobby_RoomInformationFormat";
+        private const string GuestCannotCreateRoomErrorKey = "Lobby_GuestCannotCreateRoomError";
+        private const string UnexpectedErrorKey = "Common_UnexpectedError";
+        private const string ErrorTitleKey = "Lobby_ErrorTitle";
 
-        private int _readyPlayersCount;
         private int _currentCountdownSeconds;
 
         private bool _hasVotedToKick;
@@ -38,26 +43,51 @@ namespace TLMG.Client.Views
         public LobbyScreen()
         {
             InitializeComponent();
+            Loaded += OnScreenLoaded;
             Unloaded += OnScreenUnloaded;
 
-            _isLocalPlayerReady = false;
-            _isPlayer2Ready = true;
-            _isPlayer3Ready = false;
             _hasVotedToKick = false;
             _isCountdownActive = false;
 
             InitializeTimers();
-            UpdateReadyCountAndUI();
         }
+
+        private static ServerConnectionManager ServerConnection => ((App)Application.Current).ServerConnection;
 
         /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
-            lblReadyFraction.Text = string.Format(FormatReadyFraction, _readyPlayersCount, TotalLobbyPlayersCount);
+            LobbyRoom currentRoom = ServerConnection.CurrentRoom;
+            string roomInformation = string.Empty;
+
+            if (currentRoom != null)
+            {
+                string roomInformationFormat = TryFindResource(RoomInformationFormatKey) as string ?? "{0} {1}/{2}";
+                roomInformation = string.Format(
+                    roomInformationFormat,
+                    currentRoom.RoomId,
+                    CountPlayers(currentRoom),
+                    MaximumPlayersPerRoom);
+            }
+
+            lblRoomInformation.Text = roomInformation;
+        }
+
+        // Loaded se repite cuando la pantalla vuelve del historial (por ejemplo, desde FriendsScreen): por eso la
+        // suscripción va aquí y no en el constructor, y la sala se pide solo si el jugador todavía no tiene una.
+        private void OnScreenLoaded(object sender, RoutedEventArgs e)
+        {
+            ServerConnection.CreateRoomResultReceived -= OnCreateRoomResultReceived;
+            ServerConnection.CreateRoomResultReceived += OnCreateRoomResultReceived;
+            ServerConnection.LobbyRoomChanged -= OnLobbyRoomChanged;
+            ServerConnection.LobbyRoomChanged += OnLobbyRoomChanged;
+            ShowOrCreateRoom();
         }
 
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
+            ServerConnection.CreateRoomResultReceived -= OnCreateRoomResultReceived;
+            ServerConnection.LobbyRoomChanged -= OnLobbyRoomChanged;
             _countdownTimer?.Stop();
             _toastTimer?.Stop();
         }
@@ -82,6 +112,7 @@ namespace TLMG.Client.Views
 
             if (confirmationResult == MessageBoxResult.Yes)
             {
+                ServerConnection.LeaveLobby();
                 var applicationMainWindow = (MainWindow)Application.Current.MainWindow;
                 applicationMainWindow.ClearHistory();
                 applicationMainWindow.ShowScreen(new MainMenuScreen(), false);
@@ -92,44 +123,6 @@ namespace TLMG.Client.Views
         {
             var applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new FriendsScreen());
-        }
-
-        private void CmbGameMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (IsLoaded)
-            {
-                _isLocalPlayerReady = false;
-                _isPlayer2Ready = false;
-                _isPlayer3Ready = false;
-                UpdateReadyCountAndUI();
-            }
-        }
-
-        private void BrdPlayer1_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!_isCountdownActive)
-            {
-                _isLocalPlayerReady = !_isLocalPlayerReady;
-                UpdateReadyCountAndUI();
-            }
-        }
-
-        private void BrdPlayer2_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!_isCountdownActive)
-            {
-                _isPlayer2Ready = !_isPlayer2Ready;
-                UpdateReadyCountAndUI();
-            }
-        }
-
-        private void BrdPlayer3_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!_isCountdownActive)
-            {
-                _isPlayer3Ready = !_isPlayer3Ready;
-                UpdateReadyCountAndUI();
-            }
         }
 
         private void BrdPlayer_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -182,58 +175,6 @@ namespace TLMG.Client.Views
             brdToast.Visibility = Visibility.Collapsed;
         }
 
-        private void UpdateReadyCountAndUI()
-        {
-            int currentReadyCount = 0;
-
-            if (_isLocalPlayerReady)
-            {
-                currentReadyCount++;
-            }
-
-            if (_isPlayer2Ready)
-            {
-                currentReadyCount++;
-            }
-
-            if (_isPlayer3Ready)
-            {
-                currentReadyCount++;
-            }
-
-            _readyPlayersCount = currentReadyCount;
-            UpdateDynamicLabels();
-
-            ApplyPlayerStyle(brdPlayer1, brdStatus1, lblStatus1, _isLocalPlayerReady);
-            ApplyPlayerStyle(brdPlayer2, brdStatus2, lblStatus2, _isPlayer2Ready);
-            ApplyPlayerStyle(brdPlayer3, brdStatus3, lblStatus3, _isPlayer3Ready);
-
-            bool areAllPlayersReady = _readyPlayersCount == TotalLobbyPlayersCount;
-
-            if (areAllPlayersReady && !_isCountdownActive)
-            {
-                StartCountdown();
-            }
-        }
-
-        private void ApplyPlayerStyle(Border cardBorder, Border statusBadge, TextBlock statusLabel, bool isReady)
-        {
-            if (isReady)
-            {
-                cardBorder.Style = (Style)FindResource("LobbyCardReadyStyle");
-                statusBadge.Style = (Style)FindResource("StatusBadgeReadyStyle");
-                statusLabel.Style = (Style)FindResource("StatusTextReadyStyle");
-                statusLabel.Text = TryFindResource("Lobby_StatusReady") as string;
-            }
-            else
-            {
-                cardBorder.Style = (Style)FindResource("LobbyCardNotReadyStyle");
-                statusBadge.Style = (Style)FindResource("StatusBadgeNotReadyStyle");
-                statusLabel.Style = (Style)FindResource("StatusTextNotReadyStyle");
-                statusLabel.Text = TryFindResource("Lobby_StatusNotReady") as string;
-            }
-        }
-
         private void StartCountdown()
         {
             _isCountdownActive = true;
@@ -274,9 +215,6 @@ namespace TLMG.Client.Views
             grdMainCenter.IsEnabled = true;
             btnLeaveLobby.IsEnabled = true;
             btnInviteFriends.IsEnabled = true;
-
-            _isLocalPlayerReady = false;
-            UpdateReadyCountAndUI();
         }
 
         private void TxtChatInput_KeyDown(object sender, KeyEventArgs e)
@@ -319,6 +257,84 @@ namespace TLMG.Client.Views
                 txtChatInput.Text = string.Empty;
                 scrChat.ScrollToEnd();
             }
+        }
+
+        private void ShowOrCreateRoom()
+        {
+            ShowCurrentRoom();
+            bool needsRoom = ServerConnection.CurrentRoom == null && !ServerConnection.IsRoomCreationPending;
+
+            if (needsRoom && !ServerConnection.HasFriendsChannel)
+            {
+                ShowLobbyError(GuestCannotCreateRoomErrorKey);
+            }
+            else if (needsRoom)
+            {
+                // Si el envío falla, el manager dispara ConnectionLost y MainWindow regresa al inicio de sesión.
+                ServerConnection.CreateRoom();
+            }
+        }
+
+        private void OnCreateRoomResultReceived(
+            object sender,
+            ServerEventArgs<OperationCreateRoomResult> serverEventArguments)
+        {
+            if (serverEventArguments.Payload.IsSuccess)
+            {
+                ShowCurrentRoom();
+            }
+            else
+            {
+                ShowLobbyError(serverEventArguments.Payload.ErrorKey);
+            }
+        }
+
+        private void OnLobbyRoomChanged(object sender, ServerEventArgs<LobbyRoom> serverEventArguments)
+        {
+            ShowCurrentRoom();
+        }
+
+        // Muestra solo los jugadores que trajo el servidor; sin sala, la lista queda vacía.
+        private void ShowCurrentRoom()
+        {
+            LobbyRoom currentRoom = ServerConnection.CurrentRoom;
+            LobbyPlayer[] roomPlayers = new LobbyPlayer[EmptyPlayerCount];
+
+            if (currentRoom != null && currentRoom.Players != null)
+            {
+                roomPlayers = currentRoom.Players;
+            }
+
+            lstLobbyPlayers.ItemsSource = roomPlayers;
+            UpdateDynamicLabels();
+        }
+
+        private static int CountPlayers(LobbyRoom lobbyRoom)
+        {
+            int playersCount = EmptyPlayerCount;
+
+            if (lobbyRoom.Players != null)
+            {
+                playersCount = lobbyRoom.Players.Length;
+            }
+
+            return playersCount;
+        }
+
+        private void ShowLobbyError(string errorKey)
+        {
+            string errorMessage = TryFindResource(errorKey ?? UnexpectedErrorKey) as string;
+
+            if (errorMessage == null)
+            {
+                errorMessage = TryFindResource(UnexpectedErrorKey) as string;
+            }
+
+            MessageBox.Show(
+                errorMessage,
+                TryFindResource(ErrorTitleKey) as string,
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
     }
 }

@@ -131,6 +131,8 @@
     <sys:String x:Key="Common_Rank">RANK</sys:String>
     <sys:String x:Key="Common_BackButton">← Back</sys:String>
     <sys:String x:Key="Common_ConnectionLostError">The connection to the server was lost. Please log in again.</sys:String>
+    <sys:String x:Key="Common_InvalidSessionError">Your session is no longer valid. Please log in again.</sys:String>
+    <sys:String x:Key="Common_UnexpectedError">An unexpected error occurred. Please try again.</sys:String>
     <sys:String x:Key="Options_ResetButton">Reset Options to Default</sys:String>
     <sys:String x:Key="CreateAccount_MismatchError">Passwords do not match</sys:String>
     <sys:String x:Key="MainMenu_Title">THE LAST MEOW</sys:String>
@@ -231,7 +233,7 @@
     <sys:String x:Key="Friends_EmptyPending">No pending requests.</sys:String>
     <sys:String x:Key="Friends_EmptyBlocked">No blocked players.</sys:String>
     <sys:String x:Key="Lobby_MainTitle">GAME LOBBY</sys:String>
-    <sys:String x:Key="Lobby_RoomInformation">Room #4821 · 3/6 players</sys:String>
+    <sys:String x:Key="Lobby_RoomInformationFormat">Room #{0} · {1}/{2} players</sys:String>
     <sys:String x:Key="Lobby_CardsPerPlayer">CARDS PER PLAYER:</sys:String>
     <sys:String x:Key="Lobby_RoomCreator">Room Creator</sys:String>
     <sys:String x:Key="Lobby_InviteFriends">Invite Friends</sys:String>
@@ -264,4 +266,7 @@
     <sys:String x:Key="Lobby_SystemJoinedMessage">CatNapper9000 joined the lobby.</sys:String>
     <sys:String x:Key="Lobby_MockChatPlayer">Ready to play!</sys:String>
     <sys:String x:Key="Lobby_StartGameMessage">Starting game...</sys:String>
+    <sys:String x:Key="Lobby_ErrorTitle">Error</sys:String>
+    <sys:String x:Key="Lobby_AlreadyInRoomError">You are already in a room.</sys:String>
+    <sys:String x:Key="Lobby_GuestCannotCreateRoomError">Guests cannot create rooms. Log in with your account to play with your friends.</sys:String>
 </ResourceDictionary>
