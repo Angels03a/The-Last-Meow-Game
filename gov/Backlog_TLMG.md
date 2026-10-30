@@ -27,6 +27,7 @@ Formato de entrada:
 - Por qué: no sigue la estructura `Server/TLMG.X/`, usa `packages.config` y el ensamblado se llama `Services`.
 - Depende de: BL-002
 - Estado: En curso (parcial): proyecto movido y renombrado a TLMG.Services en el commit 30d5588, integrado en d317003. Falta migrar a PackageReference.
+- Nota (2026-10-29 22:53): TLMG.DataAccess, TLMG.Server y TLMG.Client ya usan PackageReference. Solo TLMG.Services conserva packages.config (EntityFramework 6.5.2 y log4net 3.5.0, con targetFramework="net472" aunque el proyecto es v4.8) y HintPath en TLMG.Services.csproj:39, 42 y 45. Si BL-037 saca EF de TLMG.Services, solo quedaría log4net por migrar.
 
 ### BL-006 · Script de BD v3.2 con procedimientos del 2FA
 - Creado: 2026-10-20 10:30
@@ -51,6 +52,7 @@ Formato de entrada:
 - Por qué: ADR-05 usa primitivas de `System.Threading`; la regla del curso es no usar threading.
 - Depende de: antes de BL-007
 - Estado: Pendiente
+- Nota (2026-10-29 22:53): la parte del lock quedó resuelta por D-58: el Estándar §11.1 autoriza un único lock para SessionRegistry y exige autorización del encargado para cualquier otro uso de lock, SemaphoreSlim o Interlocked. En 53263f1 los 12 lock del código son todos _sessionsLock y SemaphoreSlim tiene 0 usos. Sigue abierta la parte del SemaphoreSlim del 2FA, porque D-42 y ADR-05 todavía lo prescriben y BL-007 depende de ello.
 
 ### BL-010 · Revisar ADR-07 (colas priorizadas del chat) contra la regla de no usar hilos
 - Creado: 2026-10-20 10:30
@@ -93,6 +95,7 @@ Formato de entrada:
 - Por qué: hoy el servidor decide la `ErrorKey` de un fallo de guardado dentro del manager (`ResolveSaveFailureErrorKey`, `isDuplicated`, cerca de la línea 152) y la pantalla de registro resuelve las claves y el Dispatcher en `RegisterPlayerAccountResult` (cerca de la línea 46). Ambos acoplan reglas de persistencia, errores e internacionalización en una sola clase. Además, `UnexpectedErrorKey` (en `AccountRegistration.cs`) repite el valor de `InternalErrorKey`, que es `private const` en `PlayerAccountRegistrationManager`: unificar en una sola constante. Hacer primero un inventario de solo lectura (dependencias, llamadas y otros módulos con el mismo patrón) y luego decidir con alternativas.
 - Depende de: inventario previo; decisión del encargado (alternativas por presentar)
 - Estado: Pendiente
+- Nota (2026-10-29 22:53): AccountRegistration.cs ya no existe. El servidor tiene CommonErrorKeyHelper (Common_UnexpectedError, usado por lobby y amigos) y el cliente ErrorMessageHelper (33dc497), que traduce la ErrorKey y cae en Common_UnexpectedError. Siguen tres claves de error inesperado: CreateAccount_DataModelError (ServiceImplementation.UsersManager.cs:14, PlayerAccountRegistrationService.cs:24-25, con dos constantes del mismo valor), Login_DataModelError (ServiceImplementation.UsersManager.cs:15, PlayerLogInService.cs:21) y Common_UnexpectedError. ResolveSaveFailureErrorKey está en PlayerAccountRegistrationService.cs:156.
 
 ### BL-018 · Revisar el texto de `CreateAccount_DataModelError`
 - Creado: 2026-10-20 12:30
@@ -100,14 +103,7 @@ Formato de entrada:
 - Depende de: BL-017
 - Estado: Pendiente
 - Nota (2026-10-25): `Login_DataModelError` ya tiene texto neutro (445d216); `CreateAccount_DataModelError` sigue con texto técnico. Pendiente: actualizar a mano la fila de `Login_DataModelError` en TLMG_Diccionario_v3.xlsx.
-- Nota (2026-10-25): `Leaderboard_DataModelErrorMessage` ya no se referencia en ningún `.cs` ni `.xaml` (git grep: solo aparece en Strings.es-MX.xaml:192 y Strings.en-US.xaml:192, sus definiciones). Es candidata a retirarse de ambos diccionarios y de TLMG_Diccionario_v3.xlsx.
-
-### BL-019 · Carpeta para las interfaces de repositorios en `TLMG.DataAccess`
-- Creado: 2026-10-20 12:30
-- Por qué: separar las interfaces de las implementaciones. El Estándar §4.3 (estructura de carpetas y namespaces) no tiene contenido, así que hay que decidir la convención (carpeta y namespace) y extender el Estándar antes de mover archivos. El csproj clásico exige editar las entradas `Compile`.
-- Depende de: decisión de estructura; completar Estándar §4.3
-- Estado: Pendiente
-- Nota (2026-10-25): posiblemente obsoleta por Estándar §4.3; confirmar con el encargado.
+- Nota (2026-10-25): `Leaderboard_DataModelErrorMessage` ya no se referencia en ningún `.cs` ni `.xaml` (git grep: solo aparece en Strings.es-MX.xaml:199 y Strings.en-US.xaml:199, sus definiciones). Es candidata a retirarse de ambos diccionarios y de TLMG_Diccionario_v3.xlsx.
 
 ### BL-020 · Cierre del canal en `CreateAccountScreen.CloseRegistrationClient`: excepciones y bloqueo de la UI
 - Creado: 2026-10-20 12:32
@@ -115,6 +111,7 @@ Formato de entrada:
 - Hallazgo (2026-10-20 16:20, análisis de solo lectura): el canal se abre de forma implícita en la primera llamada (`CreateAccountScreen.xaml.cs`, línea 111) y todo ocurre síncrono en el hilo de la interfaz. Ninguno de los dos `App.config` define tiempos límite, así que rigen los valores por defecto de WCF (1 min de apertura, envío y cierre). Con el servidor apagado la ventana se bloquea de unos segundos (conexión rechazada) hasta 1 minuto (puerto que no responde). El mensaje de error se oculta a los 4 s. No lo introdujo la fase 2. Observado en pruebas (2026-10-20 22:06): con el servidor encendido, el clic en "Crear Cuenta" deja la ventana aparentemente congelada unos 4 s antes de pasar a la verificación; con el servidor apagado, el error aparece en unos 5 a 6 s; el texto de error queda en el borde inferior de la ventana y es fácil no verlo.
 - Depende de: decisión sobre timeouts del binding en `App.config` (mínimo y sin hilos); fase 2, cambio 3 (lo hace más visible)
 - Estado: En curso (mitigación parcial: timeouts del binding en commit 95279e7, integrado en 9e4365d; cierre del canal en Unloaded en 84e35b8, integrado en 8e260fc). Falta capturar `TimeoutException` y `CommunicationException` en `CloseRegistrationClient` y decidir sobre el bloqueo de la interfaz.
+- Nota (2026-10-29 22:53): CloseRegistrationClient ya captura CommunicationException (CreateAccountScreen.xaml.cs:209-213) pero no TimeoutException. El mismo hueco está en LoginScreen.CloseLogInClient (:182) y LeaderboardScreen.CloseLeaderboardClient (:172); ServerConnectionManager.CloseClientSafely sí captura las dos. Con closeTimeout de 5 s (App.config:9) el bloqueo máximo es de 5 s. Se resuelve junto con BL-078.
 
 ### BL-021 · Probar el cliente contra un servidor en otra PC
 - Creado: 2026-10-20 16:25
@@ -122,14 +119,7 @@ Formato de entrada:
 - Hechos verificados (2026-10-20 16:40, lectura de código): las direcciones viven solo en configuración (cliente `net.tcp://localhost:8081/AccountRegistrationService`; base del servidor `net.tcp://localhost:8081/`); ningún `.cs` las escribe. Ninguno de los dos bindings define `mode` ni `clientCredentialType`: rigen los valores por defecto de `netTcpBinding` (Transport y Windows). Sin `<identity>` en el cliente tras la fase 2 se usa la identidad por defecto; falta comprobar si sirve entre dos PC.
 - Depende de: decisión de despliegue del servidor
 - Estado: Pendiente
-- Nota (2026-10-25): revisar `sslProtocols="None"` en Client/TLMG.Client/App.config:14 junto con la seguridad de transporte entre dos PC. El Estándar no regula este punto.
-
-### BL-022 · Política de caídas y reconexión (servidor y clientes)
-- Creado: 2026-10-20 16:25
-- Por qué: definir qué pasa si el servidor se reinicia, cae abruptamente o se apaga la PC, y si un cliente se cae con una sesión dúplex abierta (jugadores fantasma en lobby o partida, estado de la partida en memoria). Opciones a evaluar sin hilos propios: tiempos de inactividad de WCF y, en el cliente, `DispatcherTimer` para un latido (Estándar §11.4). Es una decisión de arquitectura: requiere ADR y alinear las reglas del juego sobre desconexión.
-- Depende de: BL-021; revisión del SAD y de las reglas del juego
-- Estado: Pendiente
-- Nota (2026-10-25): posiblemente superado por D-01, D-54 y ADR-04; decidir.
+- Nota (2026-10-25): revisar `sslProtocols="None"` en App.config:12, 18, 24 y 30 (los cuatro bindings) junto con la seguridad de transporte entre dos PC. El Estándar no regula este punto.
 
 ### BL-023 · Revisión de endurecimiento del host WCF
 - Creado: 2026-10-20 16:25
@@ -149,6 +139,7 @@ Formato de entrada:
 - Por qué: `CLAUDE.md` cita `docs/Estandar-Codificacion-CSharp.md`, `docs/Contratos_WCF_TLMG.md`, `docs/Bitacora-de-decisiones.md`, `docs/SAD.md` y `docs/Reglas-de-The-Last-Meow.md`, pero hoy viven como .docx en el Project y no en el repo. Decidir formato (convertir a .md o subir los .docx) y corregir los nombres.
 - Depende de: decisión del encargado
 - Estado: Pendiente
+- Nota (2026-10-29 22:53): el Estándar ya vive en docs/Estandar.md (55d7070) y gov/CLAUDE.md §14 ya no cita rutas inventadas (92ca7e4, bcc901f). Faltan la Bitácora, el SAD, las Reglas de The Last Meow y los Contratos WCF.
 
 ### BL-027 · Corregir los hallazgos de Estándar del código de registro integrado y retirar lo sin uso
 - Creado: 2026-10-20 22:15
@@ -156,13 +147,7 @@ Formato de entrada:
 - Depende de: coordinación con Nicole
 - Estado: Pendiente
 - Nota (2026-10-25): posiblemente obsoleta en el punto de los DTO sin sufijo `Data` por D-56; confirmar con el encargado.
-
-### BL-028 · Añadir `Service` a la tabla del Estándar §3.14
-- Creado: 2026-10-20 22:55
-- Por qué: D-49 adopta el sufijo `Service` para la lógica de negocio del servidor y el Estándar §3.14 no lo tiene. Fila a agregar: `Service` · Lógica de negocio del servidor (componentes del SAD, por ejemplo C-06); nunca persistencia ni contratos WCF · `PlayerAccountRegistrationService`.
-- Depende de: D-49
-- Estado: Pendiente
-- Nota (2026-10-25): cumplido en el Estándar v3; falta el hash de commit para cerrarlo.
+- Nota (2026-10-29 22:53): estado en 53263f1. Hecho: el proxy TLMGService se retiró (a8cdce2, BL-035) y el FIXME del hash desapareció con BL-001. Obsoleto: los DTO sin sufijo Data (D-56, Estándar §17.1). Pendiente: usings sin agrupar en CreateAccountScreen.xaml.cs:1-5; 4 líneas de más de 120 columnas en PlayerAccountRegistrationService.cs (:47, 76, 82, 155); espacios al final de línea en 7 archivos .cs (PlayerAccountRegistrationService.cs 6, ServiceImplementation.cs 5, entre otros); OperationRegisterPlayerAccountResult.cs con la llave del namespace en la línea 3 y propiedades sin <summary>; <WCFMetadata Include="Connected Services\" /> en TLMG.Contracts.csproj:69 y TLMG.Server.csproj:81.
 
 ### BL-030 · Login por servidor y hash de contraseña (D-44); cierra BL-001 y BL-016 al terminar
 - Creado: 2026-10-25 00:49
@@ -190,13 +175,13 @@ Formato de entrada:
 
 ### BL-033 · Nivel de log por configuración y consola del servidor
 - Creado: 2026-10-25 00:49
-- Por qué: ambos log4net.config fijan DEBUG; Estándar §10.3 exige Trace y Debug fuera de las builds de entrega. El servidor define ConsoleAppender pero no lo referencia (Server/TLMG.Server/log4net.config:18-21), contra lo que dice §10.3.
+- Por qué: ambos log4net.config fijan DEBUG; Estándar §10.3 exige Trace y Debug fuera de las builds de entrega. El servidor define ConsoleAppender pero no lo referencia (definido en Server/TLMG.Server/log4net.config:2; root en :18-21 solo referencia FileAppender), contra lo que dice §10.3.
 - Depende de: decisión de mecanismo (transformación o nivel único)
 - Estado: Pendiente
 
 ### BL-034 · Tiempos límite y endurecimiento del binding del servidor (D-46)
 - Creado: 2026-10-25 00:49
-- Por qué: el cliente fija 10/15/5 s; Server/TLMG.Server/App.config:25 no define ninguno (Estándar §11.1 lo declara pendiente). Complementa BL-021 y BL-023 (mex, serviceThrottling).
+- Por qué: el cliente fija 10/15/5 s; Server/TLMG.Server/App.config:21 no define ninguno (Estándar §11.1 lo declara pendiente). Complementa BL-021 y BL-023 (mex, serviceThrottling).
 - Depende de: BL-021
 - Estado: Pendiente
 
@@ -207,17 +192,12 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-25): los dos TODO provisionales que citan esta entrada: callback `LogInResult` vacío en CreateAccountScreen.xaml.cs:58 y callback `RegisterPlayerAccountResult` vacío en LoginScreen.xaml.cs:57. Se quitan al mover los callbacks a la capa Comunicación.
 - Nota (2026-10-25): LeaderboardScreen ya implementa `ILeaderboardManagerCallback` con su propio canal (ea27455); es la tercera pantalla con el patrón. TODO vigentes que citan esta entrada (git grep): CreateAccountScreen.xaml.cs:58, LoginScreen.xaml.cs:57 y LeaderboardScreen.xaml.cs:73, los tres con el texto "Mover ... a la capa Comunicación".
+- Nota (2026-10-29 22:53): Communication/ ya existe (928bcaf) y concentra los canales de lobby y amigos (1db83da, 33dc497, e685982). Login, CreateAccount y Leaderboard conservan su propio canal y callback. Los TODO siguen en CreateAccountScreen.xaml.cs:58, LoginScreen.xaml.cs:57 y LeaderboardScreen.xaml.cs:73. Las líneas del "Por qué" cambiaron: el callback está en CreateAccountScreen.xaml.cs:14-16, la creación del cliente en :118 y el cierre en :194-217. BL-035 ya está cerrada.
 
 ### BL-037 · Sacar EF6 y SqlClient de TLMG.Services; DataAccess devuelve un resultado controlado
 - Creado: 2026-10-25 00:49
-- Por qué: Estándar §4.1 y §5.1: las excepciones de EF y SQL se capturan en DataAccess y las capas superiores no conocen esos tipos. PlayerAccountRegistrationService.cs:2-5, 102-121 y TLMG.Services.csproj:38-43 lo incumplen; PlayerRepository.CreatePlayer deja salir DbUpdateException. Conservar la detección de duplicados (ResolveSaveFailureErrorKey, :153) y moverla a DataAccess; no borrarla.
+- Por qué: Estándar §4.1 y §5.1: las excepciones de EF y SQL se capturan en DataAccess y las capas superiores no conocen esos tipos. PlayerAccountRegistrationService.cs:2-5, 104-128 y TLMG.Services.csproj:38-43 lo incumplen; PlayerRepository.CreatePlayer deja salir DbUpdateException. Conservar la detección de duplicados (ResolveSaveFailureErrorKey, :156) y moverla a DataAccess; no borrarla.
 - Depende de: decisión del mecanismo (alternativas por presentar); BL-017
-- Estado: Pendiente
-
-### BL-038 · Citar el BL en los comentarios especiales y registrar los faltantes
-- Creado: 2026-10-25 00:49
-- Por qué: Estándar §12.3 exige el formato "// TOKEN: Texto. (BL-xxx)." y el registro en el backlog. Los 13 comentarios actuales no citan BL: LeaderboardScreen.xaml.cs:40, 80, 206, 207; LobbyScreen.xaml.cs:255, 263; ProfileScreen.xaml.cs:77; PlayerRepository.cs:16, 19; PlayerAccountRegistrationService.cs:97, 149, 153. Diez no tienen entrada. El :97 además no lleva punto final.
-- Depende de: nada
 - Estado: Pendiente
 
 ### BL-039 · Arrancar las pruebas unitarias (proyecto test/ y marco)
@@ -226,6 +206,7 @@ Formato de entrada:
 - Depende de: decisión del marco de pruebas
 - Estado: Pendiente
 - Nota (2026-10-25): el marco de pruebas sigue sin decidirse (Estándar §15.1 y §19.1). Se recomendó xUnit.net, sin decisión del equipo; consultar al profesor o la rúbrica. No se ha creado ningún proyecto de pruebas.
+- Nota (2026-10-29 22:53): el marco ya está decidido: xUnit.net (D-61, Estándar §15.1). Sigue sin existir ningún proyecto de pruebas.
 
 ### BL-040 · Crear TLMG.Domain (motor de reglas puro)
 - Creado: 2026-10-25 00:49
@@ -235,7 +216,7 @@ Formato de entrada:
 
 ### BL-041 · Migrar las pantallas a MVVM con CommunityToolkit.Mvvm (D-39, D-50)
 - Creado: 2026-10-25 00:49
-- Por qué: hoy no hay ViewModels, comandos ni DataContext y las 12 pantallas atan Click (Estándar §7.1, §6.2). Una pantalla por commit, empezando por CreateAccountScreen.
+- Por qué: hoy no hay ViewModels, comandos ni DataContext y las 13 pantallas atan Click (Estándar §7.1, §6.2). Una pantalla por commit, empezando por CreateAccountScreen.
 - Depende de: aprobación de D-50; BL-042; BL-036
 - Estado: Pendiente
 
@@ -252,6 +233,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-25): el uso de Thread.CurrentThread en LanguageManager se corrigió en 64d1ce1. La entrada sigue abierta por el resto de su alcance.
 - Nota (2026-10-25): el commit 0f14a64 cambió a Error el nivel de log del fallo inesperado en ServiceImplementation.UsersManager.cs, documentó la constante EnglishCultureCode de LanguageManager y dejó su ternario en una sola línea. La entrada sigue abierta por el resto de su alcance.
+- Nota (2026-10-29 22:53): estado en 53263f1. Pendiente: variable con nombre de tipo (PlayerAccountRegistrationService.cs:83); constantes ...minimum/maximun (PlayerAccountRegistrationValidationHelper.cs:13-18); 4 ternarios multilínea (LocalizableScreen.cs:47-49, LoginScreen.xaml.cs:70-71, NewPasswordScreen.xaml.cs:99-100, VerificationScreen.xaml.cs:198-199); return de expresión (LeaderboardScreen.xaml.cs:301, NewPasswordScreen.xaml.cs:113); manejadores Timer_Tick (VerificationScreen.xaml.cs:126), CountdownTimer_Tick (LobbyScreen.xaml.cs:191), ToastTimer_Tick (:171) y DigitBox_* (VerificationScreen.xaml.cs:68, 85); public const sin documentar (ValidationHelper.cs:12-16); "{0} pts" como respaldo en LeaderboardScreen.xaml.cs:299; llaves de OperationRegisterPlayerAccountResult.cs:3; referencia System.Web en TLMG.Services.csproj:52; FIXME de LobbyScreen.xaml.cs:195 (antes :255). Ya no aplica: LoadLeaderboardData (se reemplazó en ea27455).
 
 ### BL-044 · Reglas de validación solo en el cliente y desalineación con la BD
 - Creado: 2026-10-25 00:49
@@ -261,19 +243,19 @@ Formato de entrada:
 
 ### BL-045 · Imágenes: carpeta Images/ y valor de profile_image
 - Creado: 2026-10-25 00:49
-- Por qué: Estándar §4.4 pide Images/ y nombres PascalCase. Hoy hay img/default.jpg y la BD guarda "/img/default.png", que no existe y fuerza el HACK de LeaderboardScreen (:206-207). Decidir qué guarda la BD y cuándo entra la foto como byte[] (gov/CLAUDE.md §10, FIXME de PlayerRepository.cs:19).
+- Por qué: Estándar §4.4 pide Images/ y nombres PascalCase. Hoy hay img/default.jpg y la BD guarda "/img/default.png", que no existe y fuerza el HACK de LeaderboardScreen (LeaderboardScreen.xaml.cs:272-273). Decidir qué guarda la BD y cuándo entra la foto como byte[] (gov/CLAUDE.md §10, FIXME de PlayerRepository.cs:26).
 - Depende de: decisión del equipo
 - Estado: Pendiente
 
 ### BL-046 · Pantallas pendientes: GameplayScreen y ChangePasswordScreen
 - Creado: 2026-10-25 14:23
-- Por qué: LobbyScreen.xaml.cs:263 debe navegar a GameplayScreen al terminar la cuenta regresiva y ProfileScreen.xaml.cs:77 a ChangePasswordScreen; ninguna de las dos pantallas existe.
+- Por qué: LobbyScreen.xaml.cs:203 debe navegar a GameplayScreen al terminar la cuenta regresiva y ProfileScreen.xaml.cs:77 a ChangePasswordScreen; ninguna de las dos pantallas existe.
 - Depende de: BL-040 y Reglas de The Last Meow (GameplayScreen); BL-042 (navegación)
 - Estado: Pendiente
 
 ### BL-047 · Estados de usuario como enum
 - Creado: 2026-10-25 14:23
-- Por qué: el estado se maneja con cadenas ("USER_ACTIVE") en PlayerRepository.cs:17 y en la consulta de LeaderboardScreen.xaml.cs:81; usar un enum (PlayerRepository.cs:16) y filtrar por estado activo (LeaderboardScreen.xaml.cs:80).
+- Por qué: el estado se maneja con cadenas ("USER_ACTIVE") en PlayerRepository.cs:23-24 y 29-30 y en PlayerLogInService.cs:17; usar un enum.
 - Depende de: nada
 - Estado: Pendiente
 
@@ -286,8 +268,9 @@ Formato de entrada:
 ### BL-049 · Revisar el nombre del método del callback y el atributo [ServiceContract] en IUsersManagerCallback
 - Creado: 2026-10-25 17:10
 - Por qué: el método `RegisterPlayerAccountResult` termina en sustantivo (§3.7 pide verbo o frase verbal; el ejemplo de §3.10 usa la forma On…) y el callback lleva `[ServiceContract]` mientras el ejemplo de §3.10 no. Cambiarlo obliga a regenerar el proxy, así que se hace en la misma regeneración que BL-030 (login).
-- Depende de: BL-030
+- Depende de: decisión del encargado (extender Estándar §3.10 o renombrar)
 - Estado: Pendiente
+- Nota (2026-10-29 22:53): ya no depende de BL-030: el proxy se regeneró (445d216, 3fd8662) sin este cambio. Hoy los cuatro callbacks llevan [ServiceContract] (I*ManagerCallback.cs) y las respuestas usan el patrón …Result (CreateRoomResult, LogInResult…); la forma On… se usa solo para avisos (OnLobbyRoomChanged, OnFriendPresenceChanged). Se propone resolverlo extendiendo el Estándar §3.10 para aceptar …Result en respuestas por callback, en lugar de renombrar.
 
 ### BL-051 · Medir el rendimiento del login y del ranking
 - Creado: 2026-10-25 19:32
@@ -326,17 +309,12 @@ Formato de entrada:
 - Depende de: el encargado
 - Estado: Pendiente
 
-### BL-057 · Revisar App.config del cliente tras actualizar la referencia de servicio
-- Creado: 2026-10-25 20:30
-- Por qué: al regenerar la referencia de servicio, Visual Studio crea el binding nuevo con valores por defecto y agrega la identidad de la máquina de quien actualiza. Revisar Client/TLMG.Client/App.config: los bindings deben conservar los tiempos de D-46 (10/15/5 s) y los endpoints no deben llevar `<identity>` con cuentas de Windows.
-- Depende de: nada
-- Estado: Pendiente
-
 ### BL-058 · Cerrar las sesiones abandonadas del SessionRegistry
 - Creado: 2026-10-29 12:55
 - Por qué: `SessionRegistry.EndSession` aún no tiene quién lo llame y el registro no vence sesiones. Si el cliente cierra la ventana o pierde la conexión, su sesión y su token quedan en memoria hasta reiniciar el servidor. El vencimiento debe medirse por hora límite en UTC al recibir el latido, sin temporizadores (Estándar §10.4, D-54).
-- Depende de: BL-022; del paso que agregue cerrar sesión y latido
+- Depende de: ADR-04 y D-54; del paso que agregue el latido
 - Estado: Pendiente
+- Nota (2026-10-29 22:53): avance. La sesión termina cuando el canal de amigos se cierra o falla (d6d6326; ServiceImplementation.FriendsManager.cs:121, FriendsService.EndSessionByFriendsChannel), así que cerrar la ventana o perder la conexión ya libera sesión, sala y presencia. Siguen sin vencerse una sesión cuyo canal de amigos nunca se abrió (login exitoso con SubscribeToFriends fallido o cliente caído antes de abrirlo) y una conexión TCP medio abierta, que solo detecta el receiveTimeout de WCF [S: el servidor no lo define, rige el valor por defecto]. Falta el latido de ADR-04.
 
 ### BL-059 · Registrar en la Bitácora las decisiones D-58 a D-61
 - Creado: 2026-10-29 13:08
@@ -391,6 +369,7 @@ Formato de entrada:
 - Por qué: `ISessionRegistry.EndSession` ya devuelve la sala y la presencia que hay que avisar (BL-065), pero nadie lo llama: el cierre de sesión por el jugador no existe. Cuando exista, el servicio que lo llame debe entregar `SessionNotificationHelper.CreateSessionEndNotifications` fuera del lock, como ya hace el login que reemplaza una sesión.
 - Depende de: BL-058
 - Estado: Pendiente
+- Nota (2026-10-29 22:53): el cierre de sesión ya existe sin EndSession(token): MainMenuScreen.BtnLogOut_Click llama a Disconnect, que cierra el canal de amigos, y el servidor termina la sesión con sus avisos al detectar el cierre (d6d6326; ServiceImplementation.FriendsManager.cs:121). EndSession(token) (SessionRegistry.cs:73) sigue sin quién lo llame. Decidir entre retirarlo o agregar una operación LogOut explícita; con la primera opción la entrada se cierra.
 
 ### BL-071 · Actualizar la lista de amigos guardada en el canal cuando cambien las amistades
 - Creado: 2026-10-29 15:42
@@ -416,17 +395,12 @@ Formato de entrada:
 - Depende de: decisión del encargado
 - Estado: Pendiente
 
-### BL-076 · Los eventos del servidor se pierden si ninguna pantalla está suscrita
-- Creado: 2026-10-29 16:36
-- Por qué: ServerConnectionManager dispara FriendListReceived, RoomInvitationReceived y los demás eventos solo a quien esté suscrito en ese momento. La lista de amigos llega justo después del login y una invitación puede llegar con el menú principal abierto. Hay que decidir quién escucha siempre (por ejemplo MainWindow) y cómo se muestra una invitación fuera de FriendsScreen. Mitigación actual: RequestFriendList().
-- Depende de: pieza de FriendsScreen
-- Estado: Pendiente
-
 ### BL-077 · Mostrar en pantalla el fallo de la suscripción a los amigos
 - Creado: 2026-10-29 16:36
 - Por qué: si SubscribeToFriends responde con ErrorKey (por ejemplo, fallo de la base de datos), el jugador queda con sesión pero sin canal de amigos registrado en el servidor y nadie lo ve. El manager pasa el error tal cual y ninguna pantalla lo atiende todavía.
 - Depende de: BL-076
 - Estado: Pendiente
+- Nota (2026-10-29 22:53): avance (33dc497). Si FriendsScreen está abierta, muestra el fallo traducido; si FriendList es null al abrirla, pide la lista otra vez. Fuera de esa pantalla, el fallo sigue sin mostrarse.
 
 ### BL-078 · Unificar el cierre de canales WCF en el cliente
 - Creado: 2026-10-29 16:36
@@ -437,7 +411,7 @@ Formato de entrada:
 ### BL-079 · El cliente se bloquea hasta 10 s al abrir un canal sin servidor
 - Creado: 2026-10-29 16:36
 - Por qué: Open() es síncrono con el openTimeout de D-46. Si el servidor no responde, la interfaz se congela hasta 10 s en el login, en OpenLobbyChannel y en el envío. Sin Task ni hilos, la salida es una pantalla de espera con DispatcherTimer o abrir el canal antes de mostrarla. El Estándar no lo regula.
-- Depende de: BL-022
+- Depende de: decisión del encargado (pantalla de espera o abrir el canal antes de mostrarla); relacionada con BL-020
 - Estado: Pendiente
 
 ### BL-080 · Extraer IServerConnectionManager cuando exista el primer ViewModel o prueba que lo necesite
@@ -494,6 +468,30 @@ Formato de entrada:
 - Depende de: decisión del encargado; revisión del 30-oct
 - Estado: Pendiente
 
+### BL-089 · Invitados en LobbyScreen y FriendsScreen: aviso repetido y botón Invitar Amigos visible
+- Creado: 2026-10-29 22:53
+- Por qué: LobbyScreen muestra Lobby_GuestCannotCreateRoomError en un MessageBox en cada Loaded (LobbyScreen.xaml.cs:28 y ShowOrCreateRoom), así que vuelve a salir al regresar de FriendsScreen; FriendsScreen reescribe su mensaje de invitado en cada carga (FriendsScreen.xaml.cs:139). El botón "Invitar Amigos" de LobbyScreen sigue visible y habilitado para el invitado, que no tiene amigos. Decidir si el invitado entra siquiera a LobbyScreen y FriendsScreen desde el menú (MainMenuScreen.xaml.cs:32, 37) o si se ocultan esos botones.
+- Depende de: decisión del encargado (rol invitado en el lobby, gov/CLAUDE.md §4)
+- Estado: Pendiente
+
+### BL-090 · El ejemplo de LanguageManager del Estándar dice public y el código es internal
+- Creado: 2026-10-29 22:53
+- Por qué: docs/Estandar.md:1686 (§7.3) declara "public static class LanguageManager"; Client/TLMG.Client/LanguageManager.cs:12 es "internal static class". Corregir el ejemplo del Estándar (el código es correcto: el tipo no se usa fuera del ensamblado).
+- Depende de: el encargado (el Estándar se edita en Docs y se reexporta, BL-050)
+- Estado: Pendiente
+
+### BL-091 · Puesto y puntos del jugador en sesión en LeaderboardScreen
+- Creado: 2026-10-29 22:53
+- Por qué: LeaderboardScreen.xaml.cs:43-45 muestra un puesto (#38) y unos puntos (1840) fijos. El ranking ya viene del servidor, pero el cliente no sabe quién es (BL-075) y ILeaderboardManager no devuelve la posición de quien consulta. Sustituye el pendiente que quedaba en BL-030; su FIXME debe citar esta entrada.
+- Depende de: BL-075; decisión de contrato (ILeaderboardManager con sessionToken o dato en el login)
+- Estado: Pendiente
+
+### BL-092 · El historial de navegación crece sin límite
+- Creado: 2026-10-29 22:53
+- Por qué: ShowScreen guarda la pantalla anterior por defecto (MainWindow.xaml.cs, saveInHistory = true), y los botones de regreso de Options, Profile, HowToPlay y Leaderboard crean un MainMenuScreen nuevo (OptionsScreen.xaml.cs:94, ProfileScreen.xaml.cs:36, HowToPlayScreen.xaml.cs:161, LeaderboardScreen.xaml.cs:326) en lugar de usar GoBack. Cerrar Sesión (MainMenuScreen.xaml.cs:62) también apila el menú y el login apila LoginScreen (LoginScreen.xaml.cs:86, 233). Cada ida y vuelta deja pantallas vivas en la pila. Solo FriendsScreen usa GoBack. Decidir una regla de navegación (GoBack o ShowScreen sin historial) junto con BL-042.
+- Depende de: BL-042
+- Estado: Pendiente
+
 ## Finalizados
 
 ### BL-001 · Hash de contraseña: SHA-256 + sal (decidido), implementar
@@ -532,11 +530,35 @@ Formato de entrada:
 - Nota (2026-10-25): el login y el hash están hechos (3b6c905, bdd0dfe, 445d216). Las referencias a LoginScreen.xaml.cs:104 y a las líneas de consulta directa de esa pantalla ya no existen: LoginScreen usa el servidor. Queda el ranking por el servidor (`ILeaderboardManager`, LeaderboardScreen.xaml.cs:76) y, cuando LeaderboardScreen deje de usar TLMG_DBEntities, retirar TLMG_DBEntities de App.config, el `PackageReference` a EntityFramework, la referencia a TLMG.DataAccess y Client.slnx. No cerrada.
 - Nota (2026-10-25): cierre. El login pasa por `IUsersManager` (3b6c905, bdd0dfe, 445d216) y el ranking por `ILeaderboardManager` (servidor c0fc127, proxy e09ed5b, pantalla ea27455). Con b628f1b el cliente quedó sin Entity Framework, sin referencia a TLMG.DataAccess y sin la cadena de conexión TLMG_DBEntities (git grep sobre Client: sin coincidencias de TLMG_DBEntities, System.Data.Entity, TLMG.DataAccess ni EntityFramework). Quedan fuera de esta entrada los valores fijos del jugador actual (BL-030) y la capa Comunicación (BL-036).
 
+### BL-019 · Carpeta para las interfaces de repositorios en `TLMG.DataAccess`
+- Creado: 2026-10-20 12:30
+- Por qué: separar las interfaces de las implementaciones. El Estándar §4.3 (estructura de carpetas y namespaces) no tiene contenido, así que hay que decidir la convención (carpeta y namespace) y extender el Estándar antes de mover archivos. El csproj clásico exige editar las entradas `Compile`.
+- Depende de: decisión de estructura; completar Estándar §4.3
+- Estado: Finalizado el 2026-10-25 · commit 55d7070
+- Nota (2026-10-25): posiblemente obsoleta por Estándar §4.3; confirmar con el encargado.
+- Nota (2026-10-29 22:53): se cierra como decisión adoptada: el Estándar §4.3 fija para TLMG.DataAccess las carpetas DatabaseModel y Repositories. Las interfaces (IPlayerRepository, IFriendshipRepository) viven en Repositories junto a sus implementaciones; no hay que mover nada ni queda implementación pendiente.
+
+### BL-022 · Política de caídas y reconexión (servidor y clientes)
+- Creado: 2026-10-20 16:25
+- Por qué: definir qué pasa si el servidor se reinicia, cae abruptamente o se apaga la PC, y si un cliente se cae con una sesión dúplex abierta (jugadores fantasma en lobby o partida, estado de la partida en memoria). Opciones a evaluar sin hilos propios: tiempos de inactividad de WCF y, en el cliente, `DispatcherTimer` para un latido (Estándar §11.4). Es una decisión de arquitectura: requiere ADR y alinear las reglas del juego sobre desconexión.
+- Depende de: BL-021; revisión del SAD y de las reglas del juego
+- Estado: Finalizado el 2026-10-25 · commit 55d7070
+- Nota (2026-10-25): posiblemente superado por D-01, D-54 y ADR-04; decidir.
+- Nota (2026-10-29 22:53): se cierra como decisión adoptada. El Estándar ya adopta ADR-04 (latidos, ventana de gracia y snapshot), D-01 y D-54 (plazos por hora límite en UTC, sin temporizadores en el servidor). La implementación sigue en BL-058 y BL-066.
+
 ### BL-025 · Reparar `origin/main` (marcadores de conflicto en 74e5f9a)
 - Creado: 2026-10-20 22:15
 - Por qué: `main` se subió con marcadores de conflicto en 4 archivos y no compila. `dev-LS_Angel` ya contiene el contenido válido de los commits de armasstella (reproducidos en 25aae1c y 53c0e8b; integrados en bb13661) y la fase 2 (8e260fc, 9e4365d). Plan: registrar `74e5f9a` en `dev-LS_Angel` con `merge -s ours` (el árbol no cambia) y avanzar `main` por fast-forward, sin forzar historia.
 - Depende de: nada
 - Estado: Finalizado el 2026-10-20 · commit 17a2738 (merge -s ours de main y avance de main por fast-forward, de 74e5f9a a 17a2738)
+
+### BL-028 · Añadir `Service` a la tabla del Estándar §3.14
+- Creado: 2026-10-20 22:55
+- Por qué: D-49 adopta el sufijo `Service` para la lógica de negocio del servidor y el Estándar §3.14 no lo tiene. Fila a agregar: `Service` · Lógica de negocio del servidor (componentes del SAD, por ejemplo C-06); nunca persistencia ni contratos WCF · `PlayerAccountRegistrationService`.
+- Depende de: D-49
+- Estado: Finalizado el 2026-10-25 · commit 55d7070
+- Nota (2026-10-25): cumplido en el Estándar v3; falta el hash de commit para cerrarlo.
+- Nota (2026-10-29 22:53): cierre. La fila `Service` está en docs/Estandar.md:1089 desde la primera versión en Markdown (55d7070). El límite "nunca persistencia ni contratos WCF" lo cubre la fila de la capa TLMG.Services (docs/Estandar.md:1164).
 
 ### BL-029 · Alinear gov/CLAUDE.md con el Estándar y reexportar docs/Estandar.md
 - Creado: 2026-10-25 00:49
@@ -552,11 +574,25 @@ Formato de entrada:
 - Estado: Finalizado el 2026-10-25 · commit a8cdce2
 - Nota (2026-10-25): el proxy TLMGService y los dos archivos de Communication/ se retiraron en a8cdce2; no quedan referencias en el código. Como Git no guarda carpetas vacías, Communication/ ya no aparece en el repo; BL-036 la vuelve a crear con el callback.
 
+### BL-038 · Citar el BL en los comentarios especiales y registrar los faltantes
+- Creado: 2026-10-25 00:49
+- Por qué: Estándar §12.3 exige el formato "// TOKEN: Texto. (BL-xxx)." y el registro en el backlog. Los 13 comentarios actuales no citan BL: LeaderboardScreen.xaml.cs:40, 80, 206, 207; LobbyScreen.xaml.cs:255, 263; ProfileScreen.xaml.cs:77; PlayerRepository.cs:16, 19; PlayerAccountRegistrationService.cs:97, 149, 153. Diez no tienen entrada. El :97 además no lleva punto final.
+- Depende de: nada
+- Estado: Finalizado el 2026-10-25 · commit 7ee6f16
+- Nota (2026-10-29 22:53): cierre. Los 13 comentarios especiales del código citan un BL existente y abierto, con el formato de §12.3 (git grep sobre 53263f1). Los que no tenían entrada quedaron registrados en BL-043 a BL-047.
+
 ### BL-050 · Corregir el Estándar tras la revisión de los pasos 4a/4b y publicar docs/Estandar.md
 - Creado: 2026-10-25 17:57
 - Por qué: la revisión de los pasos 4a/4b contra el Estándar dejó correcciones de redacción y de criterio. Cambios: §10.2 y §10.3 (`catch (Exception)` solo en límites, registro con `_log.Error`, Fatal solo según §10.3); §10.9 y D-57 (criterio de accesibilidad relajado; D-32 no cambia); §15.2 (pruebas de integración del servidor en un único proyecto /test/TLMG.Server.Tests); §4.4 y §7.3 (se aceptan las dos formas de pack URI); §13.5 (ternario en una sola línea); §3.14, §17.1 y §20.2 (sufijo Request y D-56); se retiró del Estándar el estado actual y las menciones a BL. D-57 se registra en la Bitácora, que vive fuera del repositorio.
 - Depende de: nada
 - Estado: Finalizado el 2026-10-25 · commit 1d2f401
+
+### BL-057 · Revisar App.config del cliente tras actualizar la referencia de servicio
+- Creado: 2026-10-25 20:30
+- Por qué: al regenerar la referencia de servicio, Visual Studio crea el binding nuevo con valores por defecto y agrega la identidad de la máquina de quien actualiza. Revisar Client/TLMG.Client/App.config: los bindings deben conservar los tiempos de D-46 (10/15/5 s) y los endpoints no deben llevar `<identity>` con cuentas de Windows.
+- Depende de: nada
+- Estado: Finalizado el 2026-10-29 · commit 3fd8662
+- Nota (2026-10-29 22:53): verificado sobre 53263f1. Los cuatro bindings de Client/TLMG.Client/App.config conservan 5/10/15 s (D-46) y ningún endpoint lleva <identity>. La revisión debe repetirse en cada regeneración del proxy; se propone llevarla como paso fijo de la regeneración (Estándar, D-40) en lugar de una entrada abierta.
 
 ### BL-064 · Emitir las autorizaciones de entrada al aceptar una invitación
 - Creado: 2026-10-29 15:07
@@ -581,3 +617,10 @@ Formato de entrada:
 - Por qué: faltan en Strings.es-MX.xaml y Strings.en-US.xaml, con paridad exacta, las claves nuevas (Friends_NotInRoomError, Friends_CannotInviteError, Friends_InvitationNotValidError) y los renombres Common_InvalidSessionError, Common_UnexpectedError y Common_RoomFullError (antes Lobby_*). Complementa BL-067, cuya lista queda desactualizada.
 - Depende de: nada
 - Estado: Finalizado el 2026-10-29 · commits 1db83da, 33dc497 y e685982
+
+### BL-076 · Los eventos del servidor se pierden si ninguna pantalla está suscrita
+- Creado: 2026-10-29 16:36
+- Por qué: ServerConnectionManager dispara FriendListReceived, RoomInvitationReceived y los demás eventos solo a quien esté suscrito en ese momento. La lista de amigos llega justo después del login y una invitación puede llegar con el menú principal abierto. Hay que decidir quién escucha siempre (por ejemplo MainWindow) y cómo se muestra una invitación fuera de FriendsScreen. Mitigación actual: RequestFriendList().
+- Depende de: pieza de FriendsScreen
+- Estado: Finalizado el 2026-10-29 · commits 1db83da, 33dc497 y e685982
+- Nota (2026-10-29 22:53): cierre. ServerConnectionManager conserva la sala (CurrentRoom) y la lista de amigos (FriendList) aunque no haya pantalla suscrita, y MainWindow escucha siempre las invitaciones y el resultado de aceptar y entrar. Lo que queda del fallo de suscripción sigue en BL-077.
