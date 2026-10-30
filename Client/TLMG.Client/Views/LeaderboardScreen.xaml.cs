@@ -40,7 +40,7 @@ namespace TLMG.Client.Views
         private const string ConnectionErrorKey = "Leaderboard_ConnectionErrorMessage";
         private const string ErrorTitleKey = "Leaderboard_ErrorTitle";
 
-        // FIXME: Se reemplaza por los datos del jugador en sesión cuando el login pase al servidor. (BL-030).
+        // FIXME: Mostrar el puesto y los puntos del jugador en sesión cuando el cliente los conozca. (BL-091).
         private const int CurrentUserStandingRank = 38;
         private const int CurrentUserStandingPoints = 1840;
 
