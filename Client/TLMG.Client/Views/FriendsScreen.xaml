@@ -58,31 +58,37 @@
                 <TextBox x:Name="txtSearch" 
                          Grid.Column="0" 
                          Style="{StaticResource SearchFieldStyle}" 
-                         Tag="{DynamicResource Friends_SearchPlaceholder}" />
+                         Tag="{DynamicResource Friends_SearchPlaceholder}"
+                         Visibility="Collapsed" />
 
                 <Button x:Name="btnAddFriend" 
                         Grid.Column="2" 
                         Content="{DynamicResource Friends_AddFriendButton}" 
-                        Style="{StaticResource AddFriendButtonStyle}" />
+                        Style="{StaticResource AddFriendButtonStyle}"
+                        Visibility="Collapsed" />
+
+                <TextBlock x:Name="lblFriendsStatusMessage"
+                           Grid.Column="0"
+                           Style="{StaticResource FormMessageTextStyle}"
+                           Visibility="Collapsed" />
             </Grid>
 
             <Border Grid.Row="1" BorderBrush="{StaticResource Brush_Border}" BorderThickness="0,0,0,1" Margin="40,0,40,0">
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="btnTabFriends" 
                             Style="{StaticResource TabNavActiveButtonStyle}" 
-                            Click="BtnBack_Click">
+                            Click="BtnTab_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Friends_TabFriends}" 
                                        VerticalAlignment="Center" />
                             <Border x:Name="brdBadgeFriends" Style="{StaticResource BadgeActiveStyle}">
                                 <TextBlock x:Name="lblBadgeFriends" 
-                                           Text="5" 
                                            Style="{StaticResource BadgeTextActiveStyle}" />
                             </Border>
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="btnTabPending" Style="{StaticResource TabNavInactiveButtonStyle}" Click="BtnTab_Click">
+                    <Button x:Name="btnTabPending" Style="{StaticResource TabNavInactiveButtonStyle}" Click="BtnTab_Click" Visibility="Collapsed">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Friends_TabPending}" 
                                        VerticalAlignment="Center" />
@@ -94,7 +100,7 @@
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="btnTabBlocked" Style="{StaticResource TabNavInactiveButtonStyle}" Click="BtnTab_Click">
+                    <Button x:Name="btnTabBlocked" Style="{StaticResource TabNavInactiveButtonStyle}" Click="BtnTab_Click" Visibility="Collapsed">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Friends_TabBlocked}" 
                                        VerticalAlignment="Center" />
@@ -111,167 +117,58 @@
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="40,24,40,24">
                 <Grid>
                     <StackPanel x:Name="pnlFriendsContent" Visibility="Visible">
-                        <Border Style="{StaticResource FriendCardBorderStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                        <ItemsControl x:Name="lstFriends">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource FriendCardBorderStyle}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
 
-                                <Grid Grid.Column="0" Margin="0,0,16,0">
-                                    <Border Style="{StaticResource FriendAvatarBorderStyle}">
-                                        <TextBlock Text="🐯" 
-                                                   Style="{StaticResource FriendAvatarEmojiStyle}" />
+                                            <Grid Grid.Column="0" Margin="0,0,16,0">
+                                                <Border Style="{StaticResource FriendAvatarBorderStyle}">
+                                                    <TextBlock Text="🐱"
+                                                               Style="{StaticResource FriendAvatarEmojiStyle}" />
+                                                </Border>
+                                                <Ellipse x:Name="ellFriendStatus" Style="{StaticResource StatusDotOfflineStyle}" />
+                                            </Grid>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Nickname}"
+                                                           Style="{StaticResource FriendNameTextStyle}" />
+                                                <TextBlock x:Name="lblFriendStatus"
+                                                           Text="{DynamicResource Friends_StatusOffline}"
+                                                           Style="{StaticResource StatusTextOfflineStyle}" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Button x:Name="btnInviteFriend"
+                                                        Content="{DynamicResource Friends_InviteButton}"
+                                                        Style="{StaticResource ActionPrimarySmallButtonStyle}"
+                                                        IsEnabled="{Binding CanBeInvited}"
+                                                        Click="BtnInviteFriend_Click" />
+                                                <Button Content="{DynamicResource Friends_BlockButton}"
+                                                        Style="{StaticResource ActionDangerOutlineButtonStyle}"
+                                                        Visibility="Collapsed" />
+                                            </StackPanel>
+                                        </Grid>
                                     </Border>
-                                    <Ellipse Style="{StaticResource StatusDotOnlineStyle}" />
-                                </Grid>
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="NyanProwler" 
-                                               Style="{StaticResource FriendNameTextStyle}" />
-                                    <TextBlock Text="{DynamicResource Friends_StatusOnline}" 
-                                               Style="{StaticResource StatusTextOnlineStyle}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2" Style="{StaticResource ScoreContainerStyle}">
-                                    <TextBlock Text="⭐" 
-                                               Style="{StaticResource ScoreStarStyle}" />
-                                    <TextBlock Text="1920" 
-                                               Style="{StaticResource ScoreValueStyle}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_InviteButton}" 
-                                            Style="{StaticResource ActionPrimarySmallButtonStyle}" />
-                                    <Button Content="{DynamicResource Friends_BlockButton}" 
-                                            Style="{StaticResource ActionDangerOutlineButtonStyle}" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <Border Style="{StaticResource FriendCardBorderStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0" Margin="0,0,16,0">
-                                    <Border Style="{StaticResource FriendAvatarBorderStyle}">
-                                        <TextBlock Text="🐱" 
-                                                   Style="{StaticResource FriendAvatarEmojiStyle}" />
-                                    </Border>
-                                    <Ellipse Style="{StaticResource StatusDotInGameStyle}" />
-                                </Grid>
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="CatNapper9000" 
-                                               Style="{StaticResource FriendNameTextStyle}" />
-                                    <TextBlock Text="{DynamicResource Friends_StatusInGame}" 
-                                               Style="{StaticResource StatusTextInGameStyle}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2" Style="{StaticResource ScoreContainerStyle}">
-                                    <TextBlock Text="⭐" 
-                                               Style="{StaticResource ScoreStarStyle}" />
-                                    <TextBlock Text="1750" 
-                                               Style="{StaticResource ScoreValueStyle}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_InviteButton}" 
-                                            Style="{StaticResource ActionPrimarySmallButtonStyle}" />
-                                    <Button Content="{DynamicResource Friends_BlockButton}" 
-                                            Style="{StaticResource ActionDangerOutlineButtonStyle}" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <Border Style="{StaticResource FriendCardBorderStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0" Margin="0,0,16,0">
-                                    <Border Style="{StaticResource FriendAvatarBorderStyle}">
-                                        <TextBlock Text="🧟" 
-                                                   Style="{StaticResource FriendAvatarEmojiStyle}" />
-                                    </Border>
-                                    <Ellipse Style="{StaticResource StatusDotOnlineStyle}" />
-                                </Grid>
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="MeowMaster" 
-                                               Style="{StaticResource FriendNameTextStyle}" />
-                                    <TextBlock Text="{DynamicResource Friends_StatusOnline}" 
-                                               Style="{StaticResource StatusTextOnlineStyle}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2" Style="{StaticResource ScoreContainerStyle}">
-                                    <TextBlock Text="⭐" 
-                                               Style="{StaticResource ScoreStarStyle}" />
-                                    <TextBlock Text="2100" 
-                                               Style="{StaticResource ScoreValueStyle}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_InviteButton}" 
-                                            Style="{StaticResource ActionPrimarySmallButtonStyle}" />
-                                    <Button Content="{DynamicResource Friends_BlockButton}" 
-                                            Style="{StaticResource ActionDangerOutlineButtonStyle}" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <Border Style="{StaticResource FriendCardBorderStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0" Margin="0,0,16,0">
-                                    <Border Style="{StaticResource FriendAvatarBorderStyle}">
-                                        <TextBlock Text="💀" 
-                                                   Style="{StaticResource FriendAvatarEmojiStyle}" />
-                                    </Border>
-                                    <Ellipse Style="{StaticResource StatusDotOfflineStyle}" />
-                                </Grid>
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="PurrfectStorm" 
-                                               Style="{StaticResource FriendNameTextStyle}" />
-                                    <TextBlock Text="{DynamicResource Friends_StatusOffline}" 
-                                               Style="{StaticResource StatusTextOfflineStyle}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2" Style="{StaticResource ScoreContainerStyle}">
-                                    <TextBlock Text="⭐" 
-                                               Style="{StaticResource ScoreStarStyle}" />
-                                    <TextBlock Text="1600" 
-                                               Style="{StaticResource ScoreValueStyle}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_InviteButton}" 
-                                            Style="{StaticResource ActionGhostSmallButtonStyle}" 
-                                            IsEnabled="False" 
-                                            Opacity="0.5" />
-                                    <Button Content="{DynamicResource Friends_BlockButton}" 
-                                            Style="{StaticResource ActionDangerOutlineButtonStyle}" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsOnline}" Value="True">
+                                            <Setter TargetName="ellFriendStatus" Property="Style" Value="{StaticResource StatusDotOnlineStyle}" />
+                                            <Setter TargetName="lblFriendStatus" Property="Text" Value="{DynamicResource Friends_StatusOnline}" />
+                                            <Setter TargetName="lblFriendStatus" Property="Style" Value="{StaticResource StatusTextOnlineStyle}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CanBeInvited}" Value="False">
+                                            <Setter TargetName="btnInviteFriend" Property="Opacity" Value="0.5" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
 
                     <TextBlock x:Name="lblEmptyFriends" 

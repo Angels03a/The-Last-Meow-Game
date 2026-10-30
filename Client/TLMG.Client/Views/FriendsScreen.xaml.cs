@@ -1,17 +1,22 @@
-﻿using System.Windows;
+﻿using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
+
+using TLMG.Client.Communication;
+using TLMG.Client.Models;
+using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Pantalla para la gestión de amigos, solicitudes pendientes y usuarios bloqueados.
+    /// Pantalla de amigos: muestra la lista real que conserva el ServerConnectionManager, con su presencia, e invita
+    /// a un amigo en línea a la sala del jugador. Las solicitudes y los bloqueos aún no tienen servidor.
     /// </summary>
     public partial class FriendsScreen : LocalizableScreen
     {
         private const int TabIndexFriends = 0;
         private const int TabIndexPending = 1;
         private const int TabIndexBlocked = 2;
-        private const string CountFriends = "5";
         private const string CountPending = "2";
         private const string CountBlocked = "1";
         private const string ActiveTabButtonStyleKey = "TabNavActiveButtonStyle";
@@ -20,6 +25,11 @@ namespace TLMG.Client.Views
         private const string InactiveBadgeStyleKey = "BadgeInactiveStyle";
         private const string ActiveBadgeTextStyleKey = "BadgeTextActiveStyle";
         private const string InactiveBadgeTextStyleKey = "BadgeTextInactiveStyle";
+        private const string EmptyFriendsMessageKey = "Friends_EmptyFriends";
+        private const string GuestWithoutFriendsMessageKey = "Friends_GuestWithoutFriendsMessage";
+        private const string InvitationSentMessageKey = "Friends_InvitationSentMessage";
+        private const bool IsErrorMessage = true;
+        private const int EmptyFriendCount = 0;
 
         private int _currentTabIndex;
         private TabViews[] _tabViews;
@@ -30,6 +40,8 @@ namespace TLMG.Client.Views
         public FriendsScreen()
         {
             InitializeComponent();
+            Loaded += OnScreenLoaded;
+            Unloaded += OnScreenUnloaded;
             _currentTabIndex = TabIndexFriends;
             InitializeTabViews();
             InitializeBadges();
@@ -48,7 +60,6 @@ namespace TLMG.Client.Views
 
         private void InitializeBadges()
         {
-            lblBadgeFriends.Text = CountFriends;
             lblBadgePending.Text = CountPending;
             lblBadgeBlocked.Text = CountBlocked;
         }
@@ -95,6 +106,120 @@ namespace TLMG.Client.Views
             }
 
             _currentTabIndex = targetTabIndex;
+        }
+
+        private static ServerConnectionManager ServerConnection => ((App)Application.Current).ServerConnection;
+
+        private void OnScreenLoaded(object sender, RoutedEventArgs e)
+        {
+            ServerConnection.FriendListReceived -= OnFriendListReceived;
+            ServerConnection.FriendListReceived += OnFriendListReceived;
+            ServerConnection.FriendPresenceChanged -= OnFriendPresenceChanged;
+            ServerConnection.FriendPresenceChanged += OnFriendPresenceChanged;
+            ServerConnection.InviteFriendResultReceived -= OnInviteFriendResultReceived;
+            ServerConnection.InviteFriendResultReceived += OnInviteFriendResultReceived;
+            ShowOrRequestFriendList();
+        }
+
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        {
+            ServerConnection.FriendListReceived -= OnFriendListReceived;
+            ServerConnection.FriendPresenceChanged -= OnFriendPresenceChanged;
+            ServerConnection.InviteFriendResultReceived -= OnInviteFriendResultReceived;
+        }
+
+        // Un invitado no tiene canal de amigos: se le avisa sin llamar al servidor. Si la lista aún no llegó (por
+        // ejemplo, falló la suscripción del login), se pide de nuevo y llega por FriendListReceived.
+        private void ShowOrRequestFriendList()
+        {
+            ShowFriendList();
+
+            if (!ServerConnection.HasFriendsChannel)
+            {
+                lblEmptyFriends.SetResourceReference(TextBlock.TextProperty, GuestWithoutFriendsMessageKey);
+                lblEmptyFriends.Visibility = Visibility.Visible;
+            }
+            else if (ServerConnection.FriendList == null)
+            {
+                ServerConnection.RequestFriendList();
+            }
+        }
+
+        private void OnFriendListReceived(
+            object sender,
+            ServerEventArgs<OperationSubscribeToFriendsResult> serverEventArguments)
+        {
+            if (serverEventArguments.Payload.IsSuccess)
+            {
+                ShowFriendList();
+            }
+            else
+            {
+                ShowStatusMessage(
+                    lblFriendsStatusMessage,
+                    ErrorMessageHelper.FindErrorMessage(this, serverEventArguments.Payload.ErrorKey),
+                    IsErrorMessage);
+            }
+        }
+
+        private void OnFriendPresenceChanged(object sender, ServerEventArgs<Friend> serverEventArguments)
+        {
+            ShowFriendList();
+        }
+
+        private void OnInviteFriendResultReceived(
+            object sender,
+            ServerEventArgs<OperationInviteFriendToRoomResult> serverEventArguments)
+        {
+            if (serverEventArguments.Payload.IsSuccess)
+            {
+                ShowStatusMessage(
+                    lblFriendsStatusMessage,
+                    TryFindResource(InvitationSentMessageKey) as string,
+                    !IsErrorMessage);
+            }
+            else
+            {
+                ShowStatusMessage(
+                    lblFriendsStatusMessage,
+                    ErrorMessageHelper.FindErrorMessage(this, serverEventArguments.Payload.ErrorKey),
+                    IsErrorMessage);
+            }
+        }
+
+        private void BtnInviteFriend_Click(object sender, RoutedEventArgs e)
+        {
+            FriendEntry invitedFriend = (FriendEntry)((Button)sender).DataContext;
+
+            // Si el envío falla, el manager dispara ConnectionLost y MainWindow regresa al inicio de sesión.
+            ServerConnection.InviteFriendToRoom(invitedFriend.UserId);
+        }
+
+        // Invitar se habilita solo con el amigo en línea y una sala propia; el servidor vuelve a validar todo.
+        private void ShowFriendList()
+        {
+            List<FriendEntry> friendEntries = new List<FriendEntry>();
+            bool hasRoom = ServerConnection.CurrentRoom != null;
+
+            if (ServerConnection.FriendList != null)
+            {
+                foreach (Friend friend in ServerConnection.FriendList)
+                {
+                    friendEntries.Add(new FriendEntry
+                    {
+                        UserId = friend.UserId,
+                        Nickname = friend.Nickname,
+                        IsOnline = friend.IsOnline,
+                        CanBeInvited = friend.IsOnline && hasRoom
+                    });
+                }
+            }
+
+            lstFriends.ItemsSource = friendEntries;
+            lblBadgeFriends.Text = friendEntries.Count.ToString();
+            lblEmptyFriends.SetResourceReference(TextBlock.TextProperty, EmptyFriendsMessageKey);
+            bool hasNoFriends = friendEntries.Count == EmptyFriendCount;
+            lblEmptyFriends.Visibility = hasNoFriends ? Visibility.Visible : Visibility.Collapsed;
         }
 
         /// <summary>

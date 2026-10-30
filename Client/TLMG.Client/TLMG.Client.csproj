@@ -67,6 +67,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="Models\FriendEntry.cs" />
     <Compile Include="Models\PlayerRankEntry.cs" />
     <Compile Include="Views\CreateAccountScreen.xaml.cs">
       <DependentUpon>CreateAccountScreen.xaml</DependentUpon>
@@ -124,6 +125,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ErrorMessageHelper.cs" />
     <Compile Include="LanguageManager.cs" />
     <Compile Include="ValidationHelper.cs" />
     <Compile Include="MainWindow.xaml.cs">

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ServiceModel;
 using System.Windows.Threading;
 
@@ -84,6 +85,13 @@ namespace TLMG.Client.Communication
         public bool IsRoomCreationPending { get; private set; }
 
         /// <summary>
+        /// Obtiene la última lista de amigos que entregó el servidor, con su presencia al día, o null si todavía no
+        /// llega. Como la sala, la conserva el manager aunque ninguna pantalla esté suscrita: la lista llega justo
+        /// después del login, antes de que exista FriendsScreen. Se limpia al terminar la sesión.
+        /// </summary>
+        public IReadOnlyList<Friend> FriendList { get; private set; }
+
+        /// <summary>
         /// Guarda el sessionToken del jugador registrado que entró, abre su canal de amigos y se suscribe a ellos. Un
         /// invitado no tiene token y no pasa por aquí.
         /// </summary>
@@ -130,6 +138,7 @@ namespace TLMG.Client.Communication
             _lobbyClient = null;
             _lobbyChannel = null;
             _sessionToken = null;
+            FriendList = null;
             ClearCurrentRoom();
         }
 
@@ -272,15 +281,21 @@ namespace TLMG.Client.Communication
         internal void NotifyFriendListReceived(
             OperationSubscribeToFriendsResult operationSubscribeToFriendsResult)
         {
+            if (operationSubscribeToFriendsResult.IsSuccess)
+            {
+                FriendList = operationSubscribeToFriendsResult.Friends ?? Array.Empty<Friend>();
+            }
+
             FriendListReceived?.Invoke(
                 this,
                 new ServerEventArgs<OperationSubscribeToFriendsResult>(operationSubscribeToFriendsResult));
         }
 
-        /// <summary>Dispara FriendPresenceChanged.</summary>
+        /// <summary>Actualiza la presencia del amigo en la lista guardada y dispara FriendPresenceChanged.</summary>
         /// <param name="friend">El amigo con su presencia actual.</param>
         internal void NotifyFriendPresenceChanged(Friend friend)
         {
+            UpdateFriendPresence(friend);
             FriendPresenceChanged?.Invoke(this, new ServerEventArgs<Friend>(friend));
         }
 
@@ -378,6 +393,20 @@ namespace TLMG.Client.Communication
             else
             {
                 _log.Debug("Se ignoró el aviso de una sala que no es la sala actual del jugador.");
+            }
+        }
+
+        private void UpdateFriendPresence(Friend friend)
+        {
+            if (FriendList != null && friend != null)
+            {
+                foreach (Friend listedFriend in FriendList)
+                {
+                    if (listedFriend.UserId == friend.UserId)
+                    {
+                        listedFriend.IsOnline = friend.IsOnline;
+                    }
+                }
             }
         }
 

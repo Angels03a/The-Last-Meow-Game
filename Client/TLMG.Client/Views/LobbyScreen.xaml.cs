@@ -26,7 +26,6 @@ namespace TLMG.Client.Views
         private const int EmptyPlayerCount = 0;
         private const string RoomInformationFormatKey = "Lobby_RoomInformationFormat";
         private const string GuestCannotCreateRoomErrorKey = "Lobby_GuestCannotCreateRoomError";
-        private const string UnexpectedErrorKey = "Common_UnexpectedError";
         private const string ErrorTitleKey = "Lobby_ErrorTitle";
 
         private int _currentCountdownSeconds;
@@ -323,15 +322,8 @@ namespace TLMG.Client.Views
 
         private void ShowLobbyError(string errorKey)
         {
-            string errorMessage = TryFindResource(errorKey ?? UnexpectedErrorKey) as string;
-
-            if (errorMessage == null)
-            {
-                errorMessage = TryFindResource(UnexpectedErrorKey) as string;
-            }
-
             MessageBox.Show(
-                errorMessage,
+                ErrorMessageHelper.FindErrorMessage(this, errorKey),
                 TryFindResource(ErrorTitleKey) as string,
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
