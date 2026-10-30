@@ -449,7 +449,7 @@ Formato de entrada:
 - Creado: 2026-10-29 19:30
 - Por qué: el servidor ya devuelve Lobby_InvalidSessionError, Lobby_AlreadyInRoomError, Lobby_CannotJoinRoomError, Lobby_RoomFullError y Lobby_UnexpectedError. Faltan en Strings.es-MX.xaml y Strings.en-US.xaml, con paridad exacta.
 - Depende de: nada
-- Estado: Pendiente
+- Estado: Finalizado el 2026-10-29 · commits 1db83da, 33dc497 y e685982
 
 ### BL-068 · Registrar en el Estándar y la Bitácora el estado de salas en SessionRegistry
 - Creado: 2026-10-29 19:30
@@ -481,7 +481,7 @@ Formato de entrada:
 - Creado: 2026-10-30 10:00
 - Por qué: faltan en Strings.es-MX.xaml y Strings.en-US.xaml, con paridad exacta, las claves nuevas (Friends_NotInRoomError, Friends_CannotInviteError, Friends_InvitationNotValidError) y los renombres Common_InvalidSessionError, Common_UnexpectedError y Common_RoomFullError (antes Lobby_*). Complementa BL-067, cuya lista queda desactualizada.
 - Depende de: nada
-- Estado: Pendiente
+- Estado: Finalizado el 2026-10-29 · commits 1db83da, 33dc497 y e685982
 ### BL-074 · Registrar en la Bitácora el canal de amigos como presencia
 - Creado: 2026-10-30 10:00
 - Por qué: "en línea" significa tener un canal de amigos vivo, no tener sesión, y cerrar ese canal termina la sesión del jugador (ADR-08, D-58). Falta registrarlo en la Bitácora (fuera del repositorio) y reflejarlo en §6.2 del Estándar.
@@ -530,7 +530,50 @@ Formato de entrada:
 - Depende de: decisión del encargado
 - Estado: Pendiente
 
+### BL-082 · Reactivar los controles ocultos de LobbyScreen
+- Creado: 2026-10-29 21:38
+- Por qué: la Pieza 2 ocultó (Collapsed) el chat, el panel de jugadores listos, el combo de cartas por jugador, el bloque del perfil propio, y dejó sin uso el modal de expulsión, el toast, la cuenta regresiva y el popup de opciones; no tienen servidor detrás. StartCountdown y BrdPlayer_MouseRightButtonDown quedan sin quien los llame. Los controles ocultos conservan textos de prueba (NYANPROWLER, WhiskerKnight, 142, #38, 1/3, chat simulado, Lobby_KickModalDescription con NyanProwler). La simulación de "listo" sobre las tarjetas de prueba se retiró; se recupera de 376a6fe.
+- Depende de: contratos de listo, chat y expulsión; BL-075 (perfil propio); BL-046 (GameplayScreen)
+- Estado: Pendiente
+
+### BL-083 · El cliente no puede consultar al servidor su sala actual
+- Creado: 2026-10-29 21:38
+- Por qué: ILobbyManager no tiene una operación para pedir la sala del jugador; la foto vive solo en ServerConnectionManager.CurrentRoom. Si se perdiera con la sesión viva, CreateRoom respondería Lobby_AlreadyInRoomError sin sala y el jugador quedaría atorado hasta salir o cerrar sesión.
+- Depende de: decisión del encargado
+- Estado: Pendiente
+
+### BL-084 · El máximo de jugadores por sala está duplicado en el cliente
+- Creado: 2026-10-29 21:38
+- Por qué: LobbyScreen usa la constante 6 (Reglas §1.1.1) solo para mostrar "n/6"; el valor que manda es el de SessionRegistry. LobbyRoom no trae la capacidad. Decidir si se agrega al DTO o se acepta la duplicación.
+- Depende de: decisión del encargado
+- Estado: Pendiente
+
+### BL-085 · Reactivar los controles ocultos de FriendsScreen
+- Creado: 2026-10-29 21:52
+- Por qué: las Piezas 3 y 4 ocultaron (Collapsed) buscar, añadir amigo, las pestañas Pendientes y Bloqueados con sus datos de prueba (AstroKitty, SchroBinger, ToxicTabby, contadores 2 y 1) y el botón Bloquear de la plantilla; no tienen servidor detrás. El puntaje que mostraban las tarjetas de prueba se quitó porque Friend no lo trae.
+- Depende de: BL-062 (solicitudes de amistad); contratos de bloqueo
+- Estado: Pendiente
+
+### BL-086 · Mostrar si un amigo ya está en una sala
+- Creado: 2026-10-29 21:52
+- Por qué: Friend solo trae IsOnline; el cliente habilita Invitar con cualquier amigo en línea y el servidor rechaza con Friends_CannotInviteError si ya está en una sala. Falta decidir si la presencia incluye "en sala" o "en partida" (Friends_StatusInGame existe sin uso).
+- Depende de: decisión del encargado
+- Estado: Pendiente
+
+### BL-087 · Aviso de invitación propio en lugar de MessageBox
+- Creado: 2026-10-29 21:52
+- Por qué: la invitación usa MessageBox Sí/No: los botones los traduce Windows y no dicen Aceptar/Rechazar, es modal, y dos invitaciones seguidas apilan avisos. Rechazar no avisa a quien invitó (BL-069).
+- Depende de: BL-042; BL-069
+- Estado: Pendiente
+
+
 ---
+
+### BL-088 · Marca visual del creador de la sala en LobbyScreen
+- Creado: 2026-10-29 22:40
+- Por qué: se pidió destacar al jugador que creó la sala (por ejemplo con un contorno de color), solo como marca visual y sin ninguna capacidad: la Regla 1.1.2 y el RF-12 dicen que ningún jugador inicia ni lidera la partida. LobbyRoom y LobbyPlayer no traen quién creó la sala; hace falta un dato en el contrato (por ejemplo IsCreator) o decidir una inferencia. Cambia contrato, servidor y proxy.
+- Depende de: decisión del encargado; revisión del 30-oct
+- Estado: Pendiente
 
 ## Finalizados
 
