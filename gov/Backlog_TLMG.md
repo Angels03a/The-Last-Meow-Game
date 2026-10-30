@@ -22,37 +22,11 @@ Formato de entrada:
 
 ## Pendientes
 
-### BL-001 · Hash de contraseña: SHA-256 + sal (decidido), implementar
-- Por qué: hoy la contraseña se guarda en claro. Decisión del equipo (2026-10-20 22:32): SHA-256 con sal por contraseña, opción A, alineada con el SAD; se descartó PBKDF2 por familiaridad del equipo. Implementación prevista: `IPasswordHasher` y `PasswordHasher` en el servidor, formato versionado (`v1$sal$hash`), sal aleatoria, comparación de tiempo constante. Decisión registrada en la bitácora (D-44).
-- Depende de: BL-016 (el login debe pasar por el servidor antes o junto con el hash)
-- Estado: Finalizado el 2026-10-25 · commits 3b6c905, bdd0dfe y 445d216
-- Nota (2026-10-25): cierre. El hash lo calcula el servidor (`IPasswordHasher` y `PasswordHasher`, formato `v1$sal$hash`) y el inicio de sesión pasa por el servidor. Las cuentas viejas con la contraseña en claro ya no pueden iniciar sesión.
-
-### BL-002 · Renombrar el contrato de registro a `IUsersManager`
-- Creado: 2026-10-20 10:30
-- Por qué: `IAccountRegistrationService` no sigue D-41 ni §3.14. Incluye callback, archivo parcial, endpoint y regenerar el proxy.
-- Depende de: acuerdo con Nicole sobre quién lo hace
-- Depende de: BL-003 y BL-004 (ronda 1, integrada);
-- Estado: Finalizado el 2026-10-25 · commits af8fbce y 563cd51
-- Nota (2026-10-25): cierre. El renombre del contrato, el callback, el archivo parcial y el endpoint del servidor se hicieron en af8fbce, y la regeneración del proxy del cliente en 563cd51. La dirección del endpoint conserva el nombre `AccountRegistrationService`: el Estándar no tiene regla para ello; decisión del encargado.
-
-### BL-003 · Renombrar `AccountRegistrationManager`
-- Creado: 2026-10-20 10:30
-- Por qué: `Manager` no aplica a lógica de negocio (§3.14); falta decidir el sufijo (D-42).
-- Depende de: BL-002
-- Estado: Finalizado el 2026-10-20 · commit 879b9e2 (renombre a PlayerAccountRegistrationService) y 3f7dea2 (carpeta Accounts), integrados en d317003
-
 ### BL-004 · Mover `Server/Services` a `Server/TLMG.Services` y pasar a PackageReference
 - Creado: 2026-10-20 10:30
 - Por qué: no sigue la estructura `Server/TLMG.X/`, usa `packages.config` y el ensamblado se llama `Services`.
 - Depende de: BL-002
 - Estado: En curso (parcial): proyecto movido y renombrado a TLMG.Services en el commit 30d5588, integrado en d317003. Falta migrar a PackageReference.
-
-### BL-005 · Quitar el proxy `…Async` del cliente
-- Creado: 2026-10-20 10:30
-- Por qué: ADR-03 y la regla de no usar `Task`. Desmarcar "Allow generation of asynchronous operations" y regenerar la referencia.
-- Depende de: nada
-- Estado: Finalizado el 2026-10-25 · commit 563cd51
 
 ### BL-006 · Script de BD v3.2 con procedimientos del 2FA
 - Creado: 2026-10-20 10:30
@@ -113,16 +87,6 @@ Formato de entrada:
 - Por qué: puede ser que `total_points` no tenga datos o un fallo previo; verificar.
 - Depende de: nada
 - Estado: Pendiente
-
-### BL-016 · Migrar login y clasificación al servidor y quitar la referencia a TLMG.DataAccess del cliente
-- Creado: 2026-10-20 11:40
-- Por qué: hoy el cliente consulta la BD directamente (el login entra con el servidor apagado); viola SAD §4.3 y Zero-Trust.
-- Depende de: BL-002
-- Estado: Finalizado el 2026-10-25 · commits 3b6c905, bdd0dfe, 445d216, c0fc127, e09ed5b, ea27455, b628f1b
-- Nota (2026-10-25): evidencia del acceso directo a la base desde el cliente (git grep sobre Client): LoginScreen.xaml.cs:104 y LeaderboardScreen.xaml.cs:76 abren new TLMG_DBEntities() desde la vista; Client/TLMG.Client/App.config:7 tiene su propia cadena de conexión TLMG_DBEntities; Client/TLMG.Client/TLMG.Client.csproj:242 y Client/TLMG.Client.slnx:3 referencian TLMG.DataAccess. Contradice Estándar §4.1 y Zero-Trust. Comprobación funcional: con el servidor apagado el inicio de sesión sigue funcionando; el registro ya pasa por WCF y con el servidor apagado muestra el error de red controlado. El alcance incluye retirar de la tabla de posiciones su consulta directa y usar un contrato del servidor para la clasificación (`ILeaderboardManager`, D-41).
-- Nota (2026-10-25): el cliente conserva el `PackageReference` a EntityFramework (Client/TLMG.Client/TLMG.Client.csproj, alrededor de la línea 233); se retira junto con la referencia a TLMG.DataAccess, cuando ya no quede código del cliente que use TLMG_DBEntities. Quitarlo antes rompería la compilación de LoginScreen y LeaderboardScreen.
-- Nota (2026-10-25): el login y el hash están hechos (3b6c905, bdd0dfe, 445d216). Las referencias a LoginScreen.xaml.cs:104 y a las líneas de consulta directa de esa pantalla ya no existen: LoginScreen usa el servidor. Queda el ranking por el servidor (`ILeaderboardManager`, LeaderboardScreen.xaml.cs:76) y, cuando LeaderboardScreen deje de usar TLMG_DBEntities, retirar TLMG_DBEntities de App.config, el `PackageReference` a EntityFramework, la referencia a TLMG.DataAccess y Client.slnx. No cerrada.
-- Nota (2026-10-25): cierre. El login pasa por `IUsersManager` (3b6c905, bdd0dfe, 445d216) y el ranking por `ILeaderboardManager` (servidor c0fc127, proxy e09ed5b, pantalla ea27455). Con b628f1b el cliente quedó sin Entity Framework, sin referencia a TLMG.DataAccess y sin la cadena de conexión TLMG_DBEntities (git grep sobre Client: sin coincidencias de TLMG_DBEntities, System.Data.Entity, TLMG.DataAccess ni EntityFramework). Quedan fuera de esta entrada los valores fijos del jugador actual (BL-030) y la capa Comunicación (BL-036).
 
 ### BL-017 · Centralizar el manejo de errores, `ErrorKey` y mensajes (cliente y servidor)
 - Creado: 2026-10-20 12:30
@@ -201,13 +165,6 @@ Formato de entrada:
 - Nota (2026-10-25): cumplido en el Estándar v3; falta el hash de commit para cerrarlo.
 - 
 
-### BL-029 · Alinear gov/CLAUDE.md con el Estándar y reexportar docs/Estandar.md
-- Creado: 2026-10-25 00:49
-- Por qué: alinear gov/CLAUDE.md con el Estándar v3 (paso 1) y reexportar docs/Estandar.md cuando el encargado termine de corregir el Estándar en Docs.
-- Depende de: BL-026
-- Estado: Finalizado el 2026-10-25 · commit bcc901f
-- Nota (2026-10-25): cierre. La entrada se cumplió en tres commits: 1d2f401 (reexportación de docs/Estandar.md), 92ca7e4 y bcc901f (alineación de gov/CLAUDE.md con el Estándar).
-
 ### BL-030 · Login por servidor y hash de contraseña (D-44); cierra BL-001 y BL-016 al terminar
 - Creado: 2026-10-25 00:49
 - Por qué: el cliente consulta la BD y compara la contraseña en claro (LoginScreen.xaml.cs:104-108); el registro la guarda en claro (PlayerAccountRegistrationService.cs:97-98, 147-151). Estándar §16.2 y D-44: SHA-256 con sal aleatoria por contraseña, solo en el servidor. Retira también la cadena de conexión y la referencia a DataAccess del cliente (§4.1 regla 2, §5.2).
@@ -243,13 +200,6 @@ Formato de entrada:
 - Por qué: el cliente fija 10/15/5 s; Server/TLMG.Server/App.config:25 no define ninguno (Estándar §11.1 lo declara pendiente). Complementa BL-021 y BL-023 (mex, serviceThrottling).
 - Depende de: BL-021
 - Estado: Pendiente
-
-### BL-035 · Retirar el proxy TLMGService y los archivos obsoletos de Communication/
-- Creado: 2026-10-25 00:49
-- Por qué: apuntan a un contrato que ya no existe (OnRegisterResult, OperationResultData) y nadie los usa. La carpeta Communication/ se conserva: es la capa de Comunicación (Estándar §4.1, §4.3). Ya listado en BL-027; se separa para cerrarlo con su propio commit.
-- Depende de: autorización explícita del encargado; BL-005
-- Estado: Finalizado el 2026-10-25 · commit a8cdce2
-- Nota (2026-10-25): el proxy TLMGService y los dos archivos de Communication/ se retiraron en a8cdce2; no quedan referencias en el código. Como Git no guarda carpetas vacías, Communication/ ya no aparece en el repo; BL-036 la vuelve a crear con el callback.
 
 ### BL-036 · Mover el callback y el cierre del canal a Communication/
 - Creado: 2026-10-25 00:49
@@ -340,12 +290,6 @@ Formato de entrada:
 - Depende de: BL-030
 - Estado: Pendiente
 
-### BL-050 · Corregir el Estándar tras la revisión de los pasos 4a/4b y publicar docs/Estandar.md
-- Creado: 2026-10-25 17:57
-- Por qué: la revisión de los pasos 4a/4b contra el Estándar dejó correcciones de redacción y de criterio. Cambios: §10.2 y §10.3 (`catch (Exception)` solo en límites, registro con `_log.Error`, Fatal solo según §10.3); §10.9 y D-57 (criterio de accesibilidad relajado; D-32 no cambia); §15.2 (pruebas de integración del servidor en un único proyecto /test/TLMG.Server.Tests); §4.4 y §7.3 (se aceptan las dos formas de pack URI); §13.5 (ternario en una sola línea); §3.14, §17.1 y §20.2 (sufijo Request y D-56); se retiró del Estándar el estado actual y las menciones a BL. D-57 se registra en la Bitácora, que vive fuera del repositorio.
-- Depende de: nada
-- Estado: Finalizado el 2026-10-25 · commit 1d2f401
-
 ### BL-051 · Medir el rendimiento del login y del ranking
 - Creado: 2026-10-25 19:32
 - Por qué: medir primero el tiempo desde el clic hasta la respuesta. Hipótesis a descartar: costo de la primera consulta de EF6, carga de la entidad completa con seguimiento de cambios, y la unión del ranking con la imagen de todos.
@@ -427,29 +371,11 @@ Formato de entrada:
 - Depende de: BL-013
 - Estado: Pendiente
 
-### BL-064 · Emitir las autorizaciones de entrada al aceptar una invitación
-- Creado: 2026-10-29 19:30
-- Por qué: `ISessionRegistry.IssueRoomEntryAuthorization` existe y EnterLobby ya las exige y las consume, pero nadie las emite todavía (hay un UNDONE que cita esta entrada). Las emitirá el paso de invitaciones, al aceptar el invitado; y quien invita debe estar en la sala y tener al invitado como amigo aceptado (IFriendshipRepository).
-- Depende de: paso de invitaciones
-- Estado: Finalizado el 2026-10-29 · commit bac66e1
-
-### BL-065 · Avisar a la sala cuando una sesión termina o es reemplazada
-- Creado: 2026-10-29 19:30
-- Por qué: `StartSession` (reemplazo) y `EndSession` retiran al jugador de su sala, de su callback y de sus autorizaciones, pero no avisan a los demás jugadores: ven la lista vieja hasta el siguiente cambio. Hay que devolver los avisos desde el registro y entregarlos fuera del candado, como ya se hace en EnterLobby y LeaveLobby.
-- Depende de: nada
-- Estado: Finalizado el 2026-10-29 · commit d6d6326
-
 ### BL-066 · Vencimiento de autorizaciones de entrada y de sesiones sin canal de lobby
 - Creado: 2026-10-29 19:30
 - Por qué: una autorización emitida y nunca usada, o una sesión que no vuelve a abrir su canal de lobby, ocupa memoria hasta que la sala se elimina o la sesión termina. Medir el plazo por hora límite en UTC al recibir el latido, sin temporizadores (Estándar §10.4, D-54).
 - Depende de: BL-058
 - Estado: Pendiente
-
-### BL-067 · Agregar al cliente las claves de idioma del lobby
-- Creado: 2026-10-29 19:30
-- Por qué: el servidor ya devuelve Lobby_InvalidSessionError, Lobby_AlreadyInRoomError, Lobby_CannotJoinRoomError, Lobby_RoomFullError y Lobby_UnexpectedError. Faltan en Strings.es-MX.xaml y Strings.en-US.xaml, con paridad exacta.
-- Depende de: nada
-- Estado: Finalizado el 2026-10-29 · commits 1db83da, 33dc497 y e685982
 
 ### BL-068 · Registrar en el Estándar y la Bitácora el estado de salas en SessionRegistry
 - Creado: 2026-10-29 19:30
@@ -477,11 +403,6 @@ Formato de entrada:
 - Por qué: una autorización emitida al aceptar una invitación se conserva si el invitado nunca llama EnterLobby, o si la sala estaba llena. Solo se retira al entrar, al eliminarse la sala o al terminar la sesión del invitado. Definir su vencimiento junto con BL-066.
 - Depende de: BL-066
 - Estado: Pendiente
-### BL-073 · Agregar al cliente las claves de idioma de amigos y los renombres de errores
-- Creado: 2026-10-30 10:00
-- Por qué: faltan en Strings.es-MX.xaml y Strings.en-US.xaml, con paridad exacta, las claves nuevas (Friends_NotInRoomError, Friends_CannotInviteError, Friends_InvitationNotValidError) y los renombres Common_InvalidSessionError, Common_UnexpectedError y Common_RoomFullError (antes Lobby_*). Complementa BL-067, cuya lista queda desactualizada.
-- Depende de: nada
-- Estado: Finalizado el 2026-10-29 · commits 1db83da, 33dc497 y e685982
 ### BL-074 · Registrar en la Bitácora el canal de amigos como presencia
 - Creado: 2026-10-30 10:00
 - Por qué: "en línea" significa tener un canal de amigos vivo, no tener sesión, y cerrar ese canal termina la sesión del jugador (ADR-08, D-58). Falta registrarlo en la Bitácora (fuera del repositorio) y reflejarlo en §6.2 del Estándar.
@@ -576,6 +497,86 @@ Formato de entrada:
 - Estado: Pendiente
 
 ## Finalizados
+
+### BL-001 · Hash de contraseña: SHA-256 + sal (decidido), implementar
+- Por qué: hoy la contraseña se guarda en claro. Decisión del equipo (2026-10-20 22:32): SHA-256 con sal por contraseña, opción A, alineada con el SAD; se descartó PBKDF2 por familiaridad del equipo. Implementación prevista: `IPasswordHasher` y `PasswordHasher` en el servidor, formato versionado (`v1$sal$hash`), sal aleatoria, comparación de tiempo constante. Decisión registrada en la bitácora (D-44).
+- Depende de: BL-016 (el login debe pasar por el servidor antes o junto con el hash)
+- Estado: Finalizado el 2026-10-25 · commits 3b6c905, bdd0dfe y 445d216
+- Nota (2026-10-25): cierre. El hash lo calcula el servidor (`IPasswordHasher` y `PasswordHasher`, formato `v1$sal$hash`) y el inicio de sesión pasa por el servidor. Las cuentas viejas con la contraseña en claro ya no pueden iniciar sesión.
+
+### BL-002 · Renombrar el contrato de registro a `IUsersManager`
+- Creado: 2026-10-20 10:30
+- Por qué: `IAccountRegistrationService` no sigue D-41 ni §3.14. Incluye callback, archivo parcial, endpoint y regenerar el proxy.
+- Depende de: acuerdo con Nicole sobre quién lo hace
+- Depende de: BL-003 y BL-004 (ronda 1, integrada);
+- Estado: Finalizado el 2026-10-25 · commits af8fbce y 563cd51
+- Nota (2026-10-25): cierre. El renombre del contrato, el callback, el archivo parcial y el endpoint del servidor se hicieron en af8fbce, y la regeneración del proxy del cliente en 563cd51. La dirección del endpoint conserva el nombre `AccountRegistrationService`: el Estándar no tiene regla para ello; decisión del encargado.
+
+### BL-003 · Renombrar `AccountRegistrationManager`
+- Creado: 2026-10-20 10:30
+- Por qué: `Manager` no aplica a lógica de negocio (§3.14); falta decidir el sufijo (D-42).
+- Depende de: BL-002
+- Estado: Finalizado el 2026-10-20 · commit 879b9e2 (renombre a PlayerAccountRegistrationService) y 3f7dea2 (carpeta Accounts), integrados en d317003
+
+### BL-005 · Quitar el proxy `…Async` del cliente
+- Creado: 2026-10-20 10:30
+- Por qué: ADR-03 y la regla de no usar `Task`. Desmarcar "Allow generation of asynchronous operations" y regenerar la referencia.
+- Depende de: nada
+- Estado: Finalizado el 2026-10-25 · commit 563cd51
+
+### BL-016 · Migrar login y clasificación al servidor y quitar la referencia a TLMG.DataAccess del cliente
+- Creado: 2026-10-20 11:40
+- Por qué: hoy el cliente consulta la BD directamente (el login entra con el servidor apagado); viola SAD §4.3 y Zero-Trust.
+- Depende de: BL-002
+- Estado: Finalizado el 2026-10-25 · commits 3b6c905, bdd0dfe, 445d216, c0fc127, e09ed5b, ea27455, b628f1b
+- Nota (2026-10-25): evidencia del acceso directo a la base desde el cliente (git grep sobre Client): LoginScreen.xaml.cs:104 y LeaderboardScreen.xaml.cs:76 abren new TLMG_DBEntities() desde la vista; Client/TLMG.Client/App.config:7 tiene su propia cadena de conexión TLMG_DBEntities; Client/TLMG.Client/TLMG.Client.csproj:242 y Client/TLMG.Client.slnx:3 referencian TLMG.DataAccess. Contradice Estándar §4.1 y Zero-Trust. Comprobación funcional: con el servidor apagado el inicio de sesión sigue funcionando; el registro ya pasa por WCF y con el servidor apagado muestra el error de red controlado. El alcance incluye retirar de la tabla de posiciones su consulta directa y usar un contrato del servidor para la clasificación (`ILeaderboardManager`, D-41).
+- Nota (2026-10-25): el cliente conserva el `PackageReference` a EntityFramework (Client/TLMG.Client/TLMG.Client.csproj, alrededor de la línea 233); se retira junto con la referencia a TLMG.DataAccess, cuando ya no quede código del cliente que use TLMG_DBEntities. Quitarlo antes rompería la compilación de LoginScreen y LeaderboardScreen.
+- Nota (2026-10-25): el login y el hash están hechos (3b6c905, bdd0dfe, 445d216). Las referencias a LoginScreen.xaml.cs:104 y a las líneas de consulta directa de esa pantalla ya no existen: LoginScreen usa el servidor. Queda el ranking por el servidor (`ILeaderboardManager`, LeaderboardScreen.xaml.cs:76) y, cuando LeaderboardScreen deje de usar TLMG_DBEntities, retirar TLMG_DBEntities de App.config, el `PackageReference` a EntityFramework, la referencia a TLMG.DataAccess y Client.slnx. No cerrada.
+- Nota (2026-10-25): cierre. El login pasa por `IUsersManager` (3b6c905, bdd0dfe, 445d216) y el ranking por `ILeaderboardManager` (servidor c0fc127, proxy e09ed5b, pantalla ea27455). Con b628f1b el cliente quedó sin Entity Framework, sin referencia a TLMG.DataAccess y sin la cadena de conexión TLMG_DBEntities (git grep sobre Client: sin coincidencias de TLMG_DBEntities, System.Data.Entity, TLMG.DataAccess ni EntityFramework). Quedan fuera de esta entrada los valores fijos del jugador actual (BL-030) y la capa Comunicación (BL-036).
+
+### BL-029 · Alinear gov/CLAUDE.md con el Estándar y reexportar docs/Estandar.md
+- Creado: 2026-10-25 00:49
+- Por qué: alinear gov/CLAUDE.md con el Estándar v3 (paso 1) y reexportar docs/Estandar.md cuando el encargado termine de corregir el Estándar en Docs.
+- Depende de: BL-026
+- Estado: Finalizado el 2026-10-25 · commit bcc901f
+- Nota (2026-10-25): cierre. La entrada se cumplió en tres commits: 1d2f401 (reexportación de docs/Estandar.md), 92ca7e4 y bcc901f (alineación de gov/CLAUDE.md con el Estándar).
+
+### BL-035 · Retirar el proxy TLMGService y los archivos obsoletos de Communication/
+- Creado: 2026-10-25 00:49
+- Por qué: apuntan a un contrato que ya no existe (OnRegisterResult, OperationResultData) y nadie los usa. La carpeta Communication/ se conserva: es la capa de Comunicación (Estándar §4.1, §4.3). Ya listado en BL-027; se separa para cerrarlo con su propio commit.
+- Depende de: autorización explícita del encargado; BL-005
+- Estado: Finalizado el 2026-10-25 · commit a8cdce2
+- Nota (2026-10-25): el proxy TLMGService y los dos archivos de Communication/ se retiraron en a8cdce2; no quedan referencias en el código. Como Git no guarda carpetas vacías, Communication/ ya no aparece en el repo; BL-036 la vuelve a crear con el callback.
+
+### BL-050 · Corregir el Estándar tras la revisión de los pasos 4a/4b y publicar docs/Estandar.md
+- Creado: 2026-10-25 17:57
+- Por qué: la revisión de los pasos 4a/4b contra el Estándar dejó correcciones de redacción y de criterio. Cambios: §10.2 y §10.3 (`catch (Exception)` solo en límites, registro con `_log.Error`, Fatal solo según §10.3); §10.9 y D-57 (criterio de accesibilidad relajado; D-32 no cambia); §15.2 (pruebas de integración del servidor en un único proyecto /test/TLMG.Server.Tests); §4.4 y §7.3 (se aceptan las dos formas de pack URI); §13.5 (ternario en una sola línea); §3.14, §17.1 y §20.2 (sufijo Request y D-56); se retiró del Estándar el estado actual y las menciones a BL. D-57 se registra en la Bitácora, que vive fuera del repositorio.
+- Depende de: nada
+- Estado: Finalizado el 2026-10-25 · commit 1d2f401
+
+### BL-064 · Emitir las autorizaciones de entrada al aceptar una invitación
+- Creado: 2026-10-29 19:30
+- Por qué: `ISessionRegistry.IssueRoomEntryAuthorization` existe y EnterLobby ya las exige y las consume, pero nadie las emite todavía (hay un UNDONE que cita esta entrada). Las emitirá el paso de invitaciones, al aceptar el invitado; y quien invita debe estar en la sala y tener al invitado como amigo aceptado (IFriendshipRepository).
+- Depende de: paso de invitaciones
+- Estado: Finalizado el 2026-10-29 · commit bac66e1
+
+### BL-065 · Avisar a la sala cuando una sesión termina o es reemplazada
+- Creado: 2026-10-29 19:30
+- Por qué: `StartSession` (reemplazo) y `EndSession` retiran al jugador de su sala, de su callback y de sus autorizaciones, pero no avisan a los demás jugadores: ven la lista vieja hasta el siguiente cambio. Hay que devolver los avisos desde el registro y entregarlos fuera del candado, como ya se hace en EnterLobby y LeaveLobby.
+- Depende de: nada
+- Estado: Finalizado el 2026-10-29 · commit d6d6326
+
+### BL-067 · Agregar al cliente las claves de idioma del lobby
+- Creado: 2026-10-29 19:30
+- Por qué: el servidor ya devuelve Lobby_InvalidSessionError, Lobby_AlreadyInRoomError, Lobby_CannotJoinRoomError, Lobby_RoomFullError y Lobby_UnexpectedError. Faltan en Strings.es-MX.xaml y Strings.en-US.xaml, con paridad exacta.
+- Depende de: nada
+- Estado: Finalizado el 2026-10-29 · commits 1db83da, 33dc497 y e685982
+
+### BL-073 · Agregar al cliente las claves de idioma de amigos y los renombres de errores
+- Creado: 2026-10-30 10:00
+- Por qué: faltan en Strings.es-MX.xaml y Strings.en-US.xaml, con paridad exacta, las claves nuevas (Friends_NotInRoomError, Friends_CannotInviteError, Friends_InvitationNotValidError) y los renombres Common_InvalidSessionError, Common_UnexpectedError y Common_RoomFullError (antes Lobby_*). Complementa BL-067, cuya lista queda desactualizada.
+- Depende de: nada
+- Estado: Finalizado el 2026-10-29 · commits 1db83da, 33dc497 y e685982
 
 ### BL-025 · Reparar `origin/main` (marcadores de conflicto en 74e5f9a)
 - Creado: 2026-10-20 22:15
