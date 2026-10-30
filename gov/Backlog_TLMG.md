@@ -163,7 +163,6 @@ Formato de entrada:
 - Depende de: D-49
 - Estado: Pendiente
 - Nota (2026-10-25): cumplido en el Estándar v3; falta el hash de commit para cerrarlo.
-- 
 
 ### BL-030 · Login por servidor y hash de contraseña (D-44); cierra BL-001 y BL-016 al terminar
 - Creado: 2026-10-25 00:49
@@ -339,13 +338,11 @@ Formato de entrada:
 - Depende de: BL-022; del paso que agregue cerrar sesión y latido
 - Estado: Pendiente
 
-
 ### BL-059 · Registrar en la Bitácora las decisiones D-58 a D-61
-- Creado: 2026-10-29 HH:MM
+- Creado: 2026-10-29 13:08
 - Por qué: el Estándar (§3.14, §4.3, §5.3, §10.3, §11.1, §15.1, §16.2, §19.1, §20.2) y el SAD (ADR-08, C-02, C-06, §4.2, §4.3, §7.3) ya citan D-58 a D-61 y ADR-08, pero la Bitácora (fuera del repositorio, BL-056) aún no las contiene: D-58 (SessionRegistry con lock único, sessionToken, el último inicio de sesión gana), D-59 (scripts de demostración en database/seed/), D-60 (ServerConnectionManager) y D-61 (xUnit.net). Relacionada con BL-009 y BL-056.
 - Depende de: decisión del encargado sobre la redacción
 - Estado: Pendiente
-
 
 ### BL-060 · Retirar o reemplazar el script de demostración de amistades
 - Creado: 2026-10-29 13:05
@@ -372,39 +369,43 @@ Formato de entrada:
 - Estado: Pendiente
 
 ### BL-066 · Vencimiento de autorizaciones de entrada y de sesiones sin canal de lobby
-- Creado: 2026-10-29 19:30
+- Creado: 2026-10-29 15:07
 - Por qué: una autorización emitida y nunca usada, o una sesión que no vuelve a abrir su canal de lobby, ocupa memoria hasta que la sala se elimina o la sesión termina. Medir el plazo por hora límite en UTC al recibir el latido, sin temporizadores (Estándar §10.4, D-54).
 - Depende de: BL-058
 - Estado: Pendiente
 
 ### BL-068 · Registrar en el Estándar y la Bitácora el estado de salas en SessionRegistry
-- Creado: 2026-10-29 19:30
+- Creado: 2026-10-29 15:07
 - Por qué: la autorización de lock de D-58 ahora cubre también las salas, las pertenencias, los callbacks y las autorizaciones de entrada; el límite de 6 jugadores por sala vive en `SessionRegistry` (Reglas §1.1.1). Falta reflejarlo en §11.1 y en la Bitácora (fuera del repositorio). Complementa BL-059.
 - Depende de: decisión del encargado
 - Estado: Pendiente
 
 ### BL-069 · Rechazar, cancelar y vencer invitaciones a sala
-- Creado: 2026-10-30 10:00
+- Creado: 2026-10-29 15:42
 - Por qué: hoy una invitación solo se acepta; solo desaparece al aceptarla, al eliminarse su sala o al terminar la sesión de quien invita o de quien recibe. Faltan rechazarla (invitado), cancelarla (quien invita) y vencerla por hora límite en UTC al recibir el latido, sin temporizadores (Estándar §10.4, D-54). Una invitación repetida al mismo jugador para la misma sala no vuelve a avisar, así que si el primer aviso se perdió el invitado no la ve.
 - Depende de: BL-058
 - Estado: Pendiente
+
 ### BL-070 · Entregar los avisos de EndSession cuando exista cerrar sesión
-- Creado: 2026-10-30 10:00
+- Creado: 2026-10-29 15:42
 - Por qué: `ISessionRegistry.EndSession` ya devuelve la sala y la presencia que hay que avisar (BL-065), pero nadie lo llama: el cierre de sesión por el jugador no existe. Cuando exista, el servicio que lo llame debe entregar `SessionNotificationHelper.CreateSessionEndNotifications` fuera del lock, como ya hace el login que reemplaza una sesión.
 - Depende de: BL-058
 - Estado: Pendiente
+
 ### BL-071 · Actualizar la lista de amigos guardada en el canal cuando cambien las amistades
-- Creado: 2026-10-30 10:00
+- Creado: 2026-10-29 15:42
 - Por qué: el registro guarda los ids de amigos de cada canal al suscribirse, para avisar la presencia sin consultar la base de datos al terminar la sesión. Cuando existan solicitudes de amistad reales (BL-062), un amigo nuevo o eliminado no se refleja hasta que el jugador se vuelva a suscribir; hay que refrescar esa lista o avisar el cambio.
 - Depende de: BL-062
 - Estado: Pendiente
+
 ### BL-072 · Retirar la autorización de entrada que ya no sirve
-- Creado: 2026-10-30 10:00
+- Creado: 2026-10-29 15:42
 - Por qué: una autorización emitida al aceptar una invitación se conserva si el invitado nunca llama EnterLobby, o si la sala estaba llena. Solo se retira al entrar, al eliminarse la sala o al terminar la sesión del invitado. Definir su vencimiento junto con BL-066.
 - Depende de: BL-066
 - Estado: Pendiente
+
 ### BL-074 · Registrar en la Bitácora el canal de amigos como presencia
-- Creado: 2026-10-30 10:00
+- Creado: 2026-10-29 15:42
 - Por qué: "en línea" significa tener un canal de amigos vivo, no tener sesión, y cerrar ese canal termina la sesión del jugador (ADR-08, D-58). Falta registrarlo en la Bitácora (fuera del repositorio) y reflejarlo en §6.2 del Estándar.
 - Depende de: decisión del encargado
 - Estado: Pendiente
@@ -487,9 +488,6 @@ Formato de entrada:
 - Depende de: BL-042; BL-069
 - Estado: Pendiente
 
-
----
-
 ### BL-088 · Marca visual del creador de la sala en LobbyScreen
 - Creado: 2026-10-29 22:40
 - Por qué: se pidió destacar al jugador que creó la sala (por ejemplo con un contorno de color), solo como marca visual y sin ninguna capacidad: la Regla 1.1.2 y el RF-12 dicen que ningún jugador inicia ni lidera la partida. LobbyRoom y LobbyPlayer no traen quién creó la sala; hace falta un dato en el contrato (por ejemplo IsCreator) o decidir una inferencia. Cambia contrato, servidor y proxy.
@@ -499,6 +497,7 @@ Formato de entrada:
 ## Finalizados
 
 ### BL-001 · Hash de contraseña: SHA-256 + sal (decidido), implementar
+- Creado: 2026-10-20 10:30
 - Por qué: hoy la contraseña se guarda en claro. Decisión del equipo (2026-10-20 22:32): SHA-256 con sal por contraseña, opción A, alineada con el SAD; se descartó PBKDF2 por familiaridad del equipo. Implementación prevista: `IPasswordHasher` y `PasswordHasher` en el servidor, formato versionado (`v1$sal$hash`), sal aleatoria, comparación de tiempo constante. Decisión registrada en la bitácora (D-44).
 - Depende de: BL-016 (el login debe pasar por el servidor antes o junto con el hash)
 - Estado: Finalizado el 2026-10-25 · commits 3b6c905, bdd0dfe y 445d216
@@ -507,8 +506,7 @@ Formato de entrada:
 ### BL-002 · Renombrar el contrato de registro a `IUsersManager`
 - Creado: 2026-10-20 10:30
 - Por qué: `IAccountRegistrationService` no sigue D-41 ni §3.14. Incluye callback, archivo parcial, endpoint y regenerar el proxy.
-- Depende de: acuerdo con Nicole sobre quién lo hace
-- Depende de: BL-003 y BL-004 (ronda 1, integrada);
+- Depende de: acuerdo con Nicole sobre quién lo hace; BL-003 y BL-004 (ronda 1, integrada)
 - Estado: Finalizado el 2026-10-25 · commits af8fbce y 563cd51
 - Nota (2026-10-25): cierre. El renombre del contrato, el callback, el archivo parcial y el endpoint del servidor se hicieron en af8fbce, y la regeneración del proxy del cliente en 563cd51. La dirección del endpoint conserva el nombre `AccountRegistrationService`: el Estándar no tiene regla para ello; decisión del encargado.
 
@@ -534,6 +532,12 @@ Formato de entrada:
 - Nota (2026-10-25): el login y el hash están hechos (3b6c905, bdd0dfe, 445d216). Las referencias a LoginScreen.xaml.cs:104 y a las líneas de consulta directa de esa pantalla ya no existen: LoginScreen usa el servidor. Queda el ranking por el servidor (`ILeaderboardManager`, LeaderboardScreen.xaml.cs:76) y, cuando LeaderboardScreen deje de usar TLMG_DBEntities, retirar TLMG_DBEntities de App.config, el `PackageReference` a EntityFramework, la referencia a TLMG.DataAccess y Client.slnx. No cerrada.
 - Nota (2026-10-25): cierre. El login pasa por `IUsersManager` (3b6c905, bdd0dfe, 445d216) y el ranking por `ILeaderboardManager` (servidor c0fc127, proxy e09ed5b, pantalla ea27455). Con b628f1b el cliente quedó sin Entity Framework, sin referencia a TLMG.DataAccess y sin la cadena de conexión TLMG_DBEntities (git grep sobre Client: sin coincidencias de TLMG_DBEntities, System.Data.Entity, TLMG.DataAccess ni EntityFramework). Quedan fuera de esta entrada los valores fijos del jugador actual (BL-030) y la capa Comunicación (BL-036).
 
+### BL-025 · Reparar `origin/main` (marcadores de conflicto en 74e5f9a)
+- Creado: 2026-10-20 22:15
+- Por qué: `main` se subió con marcadores de conflicto en 4 archivos y no compila. `dev-LS_Angel` ya contiene el contenido válido de los commits de armasstella (reproducidos en 25aae1c y 53c0e8b; integrados en bb13661) y la fase 2 (8e260fc, 9e4365d). Plan: registrar `74e5f9a` en `dev-LS_Angel` con `merge -s ours` (el árbol no cambia) y avanzar `main` por fast-forward, sin forzar historia.
+- Depende de: nada
+- Estado: Finalizado el 2026-10-20 · commit 17a2738 (merge -s ours de main y avance de main por fast-forward, de 74e5f9a a 17a2738)
+
 ### BL-029 · Alinear gov/CLAUDE.md con el Estándar y reexportar docs/Estandar.md
 - Creado: 2026-10-25 00:49
 - Por qué: alinear gov/CLAUDE.md con el Estándar v3 (paso 1) y reexportar docs/Estandar.md cuando el encargado termine de corregir el Estándar en Docs.
@@ -555,32 +559,25 @@ Formato de entrada:
 - Estado: Finalizado el 2026-10-25 · commit 1d2f401
 
 ### BL-064 · Emitir las autorizaciones de entrada al aceptar una invitación
-- Creado: 2026-10-29 19:30
+- Creado: 2026-10-29 15:07
 - Por qué: `ISessionRegistry.IssueRoomEntryAuthorization` existe y EnterLobby ya las exige y las consume, pero nadie las emite todavía (hay un UNDONE que cita esta entrada). Las emitirá el paso de invitaciones, al aceptar el invitado; y quien invita debe estar en la sala y tener al invitado como amigo aceptado (IFriendshipRepository).
 - Depende de: paso de invitaciones
 - Estado: Finalizado el 2026-10-29 · commit bac66e1
 
 ### BL-065 · Avisar a la sala cuando una sesión termina o es reemplazada
-- Creado: 2026-10-29 19:30
+- Creado: 2026-10-29 15:07
 - Por qué: `StartSession` (reemplazo) y `EndSession` retiran al jugador de su sala, de su callback y de sus autorizaciones, pero no avisan a los demás jugadores: ven la lista vieja hasta el siguiente cambio. Hay que devolver los avisos desde el registro y entregarlos fuera del candado, como ya se hace en EnterLobby y LeaveLobby.
 - Depende de: nada
 - Estado: Finalizado el 2026-10-29 · commit d6d6326
 
 ### BL-067 · Agregar al cliente las claves de idioma del lobby
-- Creado: 2026-10-29 19:30
+- Creado: 2026-10-29 15:07
 - Por qué: el servidor ya devuelve Lobby_InvalidSessionError, Lobby_AlreadyInRoomError, Lobby_CannotJoinRoomError, Lobby_RoomFullError y Lobby_UnexpectedError. Faltan en Strings.es-MX.xaml y Strings.en-US.xaml, con paridad exacta.
 - Depende de: nada
 - Estado: Finalizado el 2026-10-29 · commits 1db83da, 33dc497 y e685982
 
 ### BL-073 · Agregar al cliente las claves de idioma de amigos y los renombres de errores
-- Creado: 2026-10-30 10:00
+- Creado: 2026-10-29 15:42
 - Por qué: faltan en Strings.es-MX.xaml y Strings.en-US.xaml, con paridad exacta, las claves nuevas (Friends_NotInRoomError, Friends_CannotInviteError, Friends_InvitationNotValidError) y los renombres Common_InvalidSessionError, Common_UnexpectedError y Common_RoomFullError (antes Lobby_*). Complementa BL-067, cuya lista queda desactualizada.
 - Depende de: nada
 - Estado: Finalizado el 2026-10-29 · commits 1db83da, 33dc497 y e685982
-
-### BL-025 · Reparar `origin/main` (marcadores de conflicto en 74e5f9a)
-- Creado: 2026-10-20 22:15
-- Por qué: `main` se subió con marcadores de conflicto en 4 archivos y no compila. `dev-LS_Angel` ya contiene el contenido válido de los commits de armasstella (reproducidos en 25aae1c y 53c0e8b; integrados en bb13661) y la fase 2 (8e260fc, 9e4365d). Plan: registrar `74e5f9a` en `dev-LS_Angel` con `merge -s ours` (el árbol no cambia) y avanzar `main` por fast-forward, sin forzar historia.
-- Depende de: nada
-- Estado: Finalizado el 2026-10-20 · commit 17a2738 (merge -s ours de main y avance de main por fast-forward, de 74e5f9a a 17a2738)
-
