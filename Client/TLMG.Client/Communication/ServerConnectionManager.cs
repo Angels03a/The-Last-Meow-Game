@@ -28,6 +28,7 @@ namespace TLMG.Client.Communication
         private LobbyManagerClient _lobbyClient;
         private IClientChannel _lobbyChannel;
         private string _sessionToken;
+        private int? _enteringRoomId;
 
         /// <summary>Crea el manager sin conexión alguna.</summary>
         /// <param name="interfaceDispatcher">Dispatcher del hilo de la interfaz, donde se disparan los eventos.</param>
@@ -246,6 +247,11 @@ namespace TLMG.Client.Communication
             if (OpenLobbyChannel())
             {
                 wasSent = TrySend(() => _lobbyClient.EnterLobby(_sessionToken, roomId), "entrar a una sala");
+
+                if (wasSent)
+                {
+                    _enteringRoomId = roomId;
+                }
             }
 
             return wasSent;
@@ -348,12 +354,26 @@ namespace TLMG.Client.Communication
 
         /// <summary>Dispara EnterLobbyResultReceived.</summary>
         /// <param name="operationEnterLobbyResult">Resultado que llegó del servidor.</param>
+        /// <remarks>
+        /// Guarda la sala solo si el jugador seguía entrando a ella: si salió antes de que llegara el resultado, el
+        /// servidor ya lo sacó. Si un aviso de la misma sala llegó antes que este resultado, se conserva la foto del
+        /// aviso: el servidor la tomó después, porque el jugador ya era miembro cuando otro cambio la generó.
+        /// </remarks>
         internal void NotifyEnterLobbyResultReceived(OperationEnterLobbyResult operationEnterLobbyResult)
         {
-            if (operationEnterLobbyResult.IsSuccess)
+            LobbyRoom enteredRoom = operationEnterLobbyResult.Room;
+            bool isExpectedEntry = operationEnterLobbyResult.IsSuccess
+                && enteredRoom != null
+                && enteredRoom.RoomId == _enteringRoomId;
+            bool isAlreadyShowingRoom = CurrentRoom != null && enteredRoom != null
+                && CurrentRoom.RoomId == enteredRoom.RoomId;
+
+            if (isExpectedEntry && !isAlreadyShowingRoom)
             {
-                CurrentRoom = operationEnterLobbyResult.Room;
+                CurrentRoom = enteredRoom;
             }
+
+            _enteringRoomId = null;
 
             EnterLobbyResultReceived?.Invoke(
                 this,
@@ -377,15 +397,17 @@ namespace TLMG.Client.Communication
         }
 
         /// <summary>
-        /// Actualiza la sala actual y dispara LobbyRoomChanged. Ignora el aviso de una sala que ya no es la del
-        /// jugador, como uno que venía en camino cuando salió.
+        /// Actualiza la sala actual y dispara LobbyRoomChanged. Acepta también el aviso de la sala a la que el jugador
+        /// está entrando, que puede llegar antes que EnterLobbyResult; ignora el de una sala que ya no es la suya,
+        /// como uno que venía en camino cuando salió.
         /// </summary>
         /// <param name="lobbyRoom">La sala con la lista actualizada de jugadores.</param>
         internal void NotifyLobbyRoomChanged(LobbyRoom lobbyRoom)
         {
             bool isCurrentRoom = CurrentRoom != null && lobbyRoom != null && lobbyRoom.RoomId == CurrentRoom.RoomId;
+            bool isEnteringRoom = lobbyRoom != null && lobbyRoom.RoomId == _enteringRoomId;
 
-            if (isCurrentRoom)
+            if (isCurrentRoom || isEnteringRoom)
             {
                 CurrentRoom = lobbyRoom;
                 LobbyRoomChanged?.Invoke(this, new ServerEventArgs<LobbyRoom>(lobbyRoom));
@@ -414,6 +436,7 @@ namespace TLMG.Client.Communication
         {
             CurrentRoom = null;
             IsRoomCreationPending = false;
+            _enteringRoomId = null;
         }
 
         private bool IsRegisteredSessionResult(OperationLogInResult operationLogInResult)

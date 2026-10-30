@@ -134,6 +134,9 @@
     <sys:String x:Key="Common_InvalidSessionError">Tu sesión ya no es válida. Inicia sesión de nuevo.</sys:String>
     <sys:String x:Key="Common_UnexpectedError">Ocurrió un error inesperado. Inténtalo de nuevo.</sys:String>
     <sys:String x:Key="Common_RoomFullError">La sala ya está llena.</sys:String>
+    <sys:String x:Key="Common_ErrorTitle">Error</sys:String>
+    <sys:String x:Key="Common_RoomInvitationTitle">Invitación a sala</sys:String>
+    <sys:String x:Key="Common_RoomInvitationMessageFormat">{0} te invitó a su sala. ¿Quieres unirte?</sys:String>
     <sys:String x:Key="Options_ResetButton">Restablecer Opciones por Defecto</sys:String>
     <sys:String x:Key="CreateAccount_MismatchError">Las contraseñas no coinciden</sys:String>
     <sys:String x:Key="MainMenu_Title">EL ÚLTIMO MAULLIDO</sys:String>
@@ -237,6 +240,7 @@
     <sys:String x:Key="Friends_InvitationSentMessage">Invitación enviada.</sys:String>
     <sys:String x:Key="Friends_NotInRoomError">Necesitas estar en una sala para invitar. Abre la Sala de juego primero.</sys:String>
     <sys:String x:Key="Friends_CannotInviteError">No puedes invitar a este jugador ahora. Puede que ya no esté en línea o que ya esté en una sala.</sys:String>
+    <sys:String x:Key="Friends_InvitationNotValidError">La invitación ya no es válida. Puede que la sala ya no exista.</sys:String>
     <sys:String x:Key="Lobby_RoomCreator">Creador de la sala</sys:String>
     <sys:String x:Key="Lobby_InviteFriends">Invitar Amigos</sys:String>
     <sys:String x:Key="Lobby_LeaveLobby">Salir de la Sala</sys:String>
@@ -274,4 +278,5 @@
     <sys:String x:Key="Lobby_ErrorTitle">Error</sys:String>
     <sys:String x:Key="Lobby_AlreadyInRoomError">Ya estás en una sala.</sys:String>
     <sys:String x:Key="Lobby_GuestCannotCreateRoomError">Los invitados no pueden crear salas. Inicia sesión con tu cuenta para jugar con tus amigos.</sys:String>
+    <sys:String x:Key="Lobby_CannotJoinRoomError">No puedes entrar a esta sala.</sys:String>
 </ResourceDictionary>

@@ -134,6 +134,9 @@
     <sys:String x:Key="Common_InvalidSessionError">Your session is no longer valid. Please log in again.</sys:String>
     <sys:String x:Key="Common_UnexpectedError">An unexpected error occurred. Please try again.</sys:String>
     <sys:String x:Key="Common_RoomFullError">The room is already full.</sys:String>
+    <sys:String x:Key="Common_ErrorTitle">Error</sys:String>
+    <sys:String x:Key="Common_RoomInvitationTitle">Room invitation</sys:String>
+    <sys:String x:Key="Common_RoomInvitationMessageFormat">{0} invited you to their room. Do you want to join?</sys:String>
     <sys:String x:Key="Options_ResetButton">Reset Options to Default</sys:String>
     <sys:String x:Key="CreateAccount_MismatchError">Passwords do not match</sys:String>
     <sys:String x:Key="MainMenu_Title">THE LAST MEOW</sys:String>
@@ -237,6 +240,7 @@
     <sys:String x:Key="Friends_InvitationSentMessage">Invitation sent.</sys:String>
     <sys:String x:Key="Friends_NotInRoomError">You need to be in a room to invite. Open the Game Lobby first.</sys:String>
     <sys:String x:Key="Friends_CannotInviteError">You cannot invite this player right now. They may be offline or already in a room.</sys:String>
+    <sys:String x:Key="Friends_InvitationNotValidError">The invitation is no longer valid. The room may no longer exist.</sys:String>
     <sys:String x:Key="Lobby_MainTitle">GAME LOBBY</sys:String>
     <sys:String x:Key="Lobby_RoomInformationFormat">Room #{0} · {1}/{2} players</sys:String>
     <sys:String x:Key="Lobby_CardsPerPlayer">CARDS PER PLAYER:</sys:String>
@@ -274,4 +278,5 @@
     <sys:String x:Key="Lobby_ErrorTitle">Error</sys:String>
     <sys:String x:Key="Lobby_AlreadyInRoomError">You are already in a room.</sys:String>
     <sys:String x:Key="Lobby_GuestCannotCreateRoomError">Guests cannot create rooms. Log in with your account to play with your friends.</sys:String>
+    <sys:String x:Key="Lobby_CannotJoinRoomError">You cannot join this room.</sys:String>
 </ResourceDictionary>

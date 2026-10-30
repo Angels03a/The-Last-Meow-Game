@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
+using TLMG.Client.Communication;
+using TLMG.Client.UsersManagerReference;
 using TLMG.Client.Views;
 
 namespace TLMG.Client
@@ -13,6 +15,9 @@ namespace TLMG.Client
     public partial class MainWindow : Window
     {
         private const string ConnectionLostMessageKey = "Common_ConnectionLostError";
+        private const string RoomInvitationTitleKey = "Common_RoomInvitationTitle";
+        private const string RoomInvitationMessageFormatKey = "Common_RoomInvitationMessageFormat";
+        private const string ErrorTitleKey = "Common_ErrorTitle";
 
         private readonly Stack<UserControl> _navigationHistory;
         private UserControl _currentScreen;
@@ -24,6 +29,9 @@ namespace TLMG.Client
         {
             InitializeComponent();
             ((App)Application.Current).ServerConnection.ConnectionLost += OnServerConnectionLost;
+            ServerConnection.RoomInvitationReceived += OnRoomInvitationReceived;
+            ServerConnection.AcceptInvitationResultReceived += OnAcceptInvitationResultReceived;
+            ServerConnection.EnterLobbyResultReceived += OnEnterLobbyResultReceived;
             Closed += OnMainWindowClosed;
             _navigationHistory = new Stack<UserControl>();
             LoadingScreen loadingScreen = new LoadingScreen();
@@ -80,6 +88,9 @@ namespace TLMG.Client
         private void OnMainWindowClosed(object sender, EventArgs eventArguments)
         {
             ((App)Application.Current).ServerConnection.ConnectionLost -= OnServerConnectionLost;
+            ServerConnection.RoomInvitationReceived -= OnRoomInvitationReceived;
+            ServerConnection.AcceptInvitationResultReceived -= OnAcceptInvitationResultReceived;
+            ServerConnection.EnterLobbyResultReceived -= OnEnterLobbyResultReceived;
         }
 
         private void OnServerConnectionLost(object sender, EventArgs eventArguments)
@@ -87,6 +98,67 @@ namespace TLMG.Client
             ClearHistory();
             ShowScreen(new LoginScreen(), false);
             MessageBox.Show(TryFindResource(ConnectionLostMessageKey) as string);
+        }
+
+        private static ServerConnectionManager ServerConnection => ((App)Application.Current).ServerConnection;
+
+        // MainWindow vive toda la sesión: por eso escucha las invitaciones, que pueden llegar con cualquier pantalla
+        // abierta. Rechazar no tiene operación en el servidor; la invitación simplemente se ignora.
+        private void OnRoomInvitationReceived(object sender, ServerEventArgs<RoomInvitation> serverEventArguments)
+        {
+            RoomInvitation roomInvitation = serverEventArguments.Payload;
+            string invitationFormat = TryFindResource(RoomInvitationMessageFormatKey) as string ?? "{0}";
+
+            MessageBoxResult invitationAnswer = MessageBox.Show(
+                string.Format(invitationFormat, roomInvitation.InviterNickname),
+                TryFindResource(RoomInvitationTitleKey) as string,
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (invitationAnswer == MessageBoxResult.Yes)
+            {
+                ServerConnection.AcceptRoomInvitation(roomInvitation.InvitationId);
+            }
+        }
+
+        // Aceptar solo autoriza la entrada; el jugador entra a la sala con EnterLobby.
+        private void OnAcceptInvitationResultReceived(
+            object sender,
+            ServerEventArgs<OperationAcceptRoomInvitationResult> serverEventArguments)
+        {
+            if (serverEventArguments.Payload.IsSuccess)
+            {
+                ServerConnection.EnterLobby(serverEventArguments.Payload.RoomId);
+            }
+            else
+            {
+                ShowServerError(serverEventArguments.Payload.ErrorKey);
+            }
+        }
+
+        // Única navegación hacia la sala invitada: LobbyScreen toma la foto que ya guardó el manager.
+        private void OnEnterLobbyResultReceived(
+            object sender,
+            ServerEventArgs<OperationEnterLobbyResult> serverEventArguments)
+        {
+            if (serverEventArguments.Payload.IsSuccess && ServerConnection.CurrentRoom != null)
+            {
+                ClearHistory();
+                ShowScreen(new LobbyScreen(), false);
+            }
+            else if (!serverEventArguments.Payload.IsSuccess)
+            {
+                ShowServerError(serverEventArguments.Payload.ErrorKey);
+            }
+        }
+
+        private void ShowServerError(string errorKey)
+        {
+            MessageBox.Show(
+                ErrorMessageHelper.FindErrorMessage(this, errorKey),
+                TryFindResource(ErrorTitleKey) as string,
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
     }
 }
