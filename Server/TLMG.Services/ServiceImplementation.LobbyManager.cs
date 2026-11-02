@@ -4,14 +4,12 @@ using System.ServiceModel;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
-using TLMG.Services.Helpers;
 using TLMG.Services.Lobby;
 
 namespace TLMG.Services
 {
     public partial class ServiceImplementation : ILobbyManager
     {
-        // Se asigna en el constructor estático de ServiceImplementation.cs porque depende del registro de sesiones.
         private static readonly LobbyService _lobbyService;
 
         private bool _isLobbyChannelObserved;
@@ -24,18 +22,8 @@ namespace TLMG.Services
             ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
             ObserveLobbyChannel();
 
-            LobbyOutcome<OperationCreateRoomResult> lobbyOutcome;
-
-            try
-            {
-                lobbyOutcome = _lobbyService.CreateRoom(sessionToken, _lobbyChannelId, callback);
-            }
-            catch (Exception ex)
-            {
-                _log.Error("Fallo inesperado al crear una sala.", ex);
-                lobbyOutcome = new LobbyOutcome<OperationCreateRoomResult>(
-                    new OperationCreateRoomResult { ErrorKey = CommonErrorKeyHelper.UnexpectedErrorKey });
-            }
+            LobbyOutcome<OperationCreateRoomResult> lobbyOutcome =
+                _lobbyService.CreateRoom(sessionToken, _lobbyChannelId, callback);
 
             SafeNotify(() => callback.CreateRoomResult(lobbyOutcome.Result));
             NotifyLobbyMembers(lobbyOutcome.Notifications);
@@ -49,18 +37,8 @@ namespace TLMG.Services
             ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
             ObserveLobbyChannel();
 
-            LobbyOutcome<OperationEnterLobbyResult> lobbyOutcome;
-
-            try
-            {
-                lobbyOutcome = _lobbyService.EnterLobby(sessionToken, roomId, _lobbyChannelId, callback);
-            }
-            catch (Exception ex)
-            {
-                _log.Error("Fallo inesperado al entrar a una sala.", ex);
-                lobbyOutcome = new LobbyOutcome<OperationEnterLobbyResult>(
-                    new OperationEnterLobbyResult { ErrorKey = CommonErrorKeyHelper.UnexpectedErrorKey });
-            }
+            LobbyOutcome<OperationEnterLobbyResult> lobbyOutcome =
+                _lobbyService.EnterLobby(sessionToken, roomId, _lobbyChannelId, callback);
 
             SafeNotify(() => callback.EnterLobbyResult(lobbyOutcome.Result));
             NotifyLobbyMembers(lobbyOutcome.Notifications);
@@ -73,25 +51,12 @@ namespace TLMG.Services
             ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
             ObserveLobbyChannel();
 
-            LobbyOutcome<OperationLeaveLobbyResult> lobbyOutcome;
-
-            try
-            {
-                lobbyOutcome = _lobbyService.LeaveLobby(sessionToken);
-            }
-            catch (Exception ex)
-            {
-                _log.Error("Fallo inesperado al salir de una sala.", ex);
-                lobbyOutcome = new LobbyOutcome<OperationLeaveLobbyResult>(
-                    new OperationLeaveLobbyResult { ErrorKey = CommonErrorKeyHelper.UnexpectedErrorKey });
-            }
+            LobbyOutcome<OperationLeaveLobbyResult> lobbyOutcome = _lobbyService.LeaveLobby(sessionToken);
 
             SafeNotify(() => callback.LeaveLobbyResult(lobbyOutcome.Result));
             NotifyLobbyMembers(lobbyOutcome.Notifications);
         }
 
-        // El canal vive tanto como esta instancia (PerSession), así que sus eventos no se desuscriben: el canal que
-        // los publica termina antes que cualquier otro objeto que pudiera quedar referenciado.
         private void ObserveLobbyChannel()
         {
             if (!_isLobbyChannelObserved)
@@ -114,18 +79,9 @@ namespace TLMG.Services
             RemovePlayerOfLobbyChannel();
         }
 
-        // Se ejecuta en un hilo del canal y nadie recibe un resultado: una excepción sin capturar aquí tumbaría al
-        // servidor, así que este límite del sistema registra el fallo y no lo relanza.
         private void RemovePlayerOfLobbyChannel()
         {
-            try
-            {
-                NotifyLobbyMembers(_lobbyService.LeaveLobbyByChannel(_lobbyChannelId));
-            }
-            catch (Exception ex)
-            {
-                _log.Error("Fallo inesperado al sacar de la sala al jugador de un canal de lobby cerrado.", ex);
-            }
+            NotifyLobbyMembers(_lobbyService.LeaveLobbyByChannel(_lobbyChannelId));
         }
 
         private void NotifyLobbyMembers(IReadOnlyList<LobbyNotification> lobbyNotifications)

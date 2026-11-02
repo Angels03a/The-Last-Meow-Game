@@ -79,8 +79,6 @@ namespace TLMG.DataAccess.Repositories
             {
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
                 {
-                    // Un remitente y un receptor dentro del par equivalen a la pareja en cualquier sentido, porque
-                    // CK_Friendship_not_self impide que ambos sean la misma cuenta.
                     bool areAcceptedFriends = context.Friendship.AsNoTracking()
                         .Where(friendship => friendship.state == AcceptedFriendshipState)
                         .Where(friendship => friendship.id_user_sender == userId

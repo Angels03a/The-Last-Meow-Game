@@ -1,9 +1,4 @@
-﻿using System;
-using System.Data.Entity.Core;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Validation;
-using System.Data.SqlClient;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 using log4net;
 
@@ -14,18 +9,14 @@ using TLMG.Services.Helpers;
 namespace TLMG.Services.Accounts
 {
     /// <summary>
-    /// Lógica del registro de cuentas; no conoce WCF.
+    /// Lógica del registro de cuentas; no conoce WCF ni Entity Framework.
     /// </summary>
     public class PlayerAccountRegistrationService
     {
-        private const int DuplicateIndexErrorNumber = 2601;
-        private const int DuplicateKeyErrorNumber = 2627;
         private const string InvalidRequestErrorKey = "CreateAccount_IncompleteFieldsError";
         private const string DatabaseErrorKey = "CreateAccount_DataModelError";
-        private const string InternalErrorKey = "CreateAccount_DataModelError";
         private const string EmailTakenErrorKey = "CreateAccount_EmailTakenError";
         private const string NicknameTakenErrorKey = "CreateAccount_NicknameTakenError";
-        private const string AccountAlreadyExistsErrorKey = "CreateAccount_DuplicateDataError";
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerAccountRegistrationService));
 
@@ -44,11 +35,12 @@ namespace TLMG.Services.Accounts
         /// <summary>Valida los datos y crea la cuenta.</summary>
         /// <param name="playerAccountRegistration">Datos recibidos del cliente.</param>
         /// <returns>Resultado con IsSuccess y, si falla, la clave de error.</returns>
-        public OperationRegisterPlayerAccountResult RegisterPlayerAccount(PlayerAccountRegistration playerAccountRegistration)
+        public OperationRegisterPlayerAccountResult RegisterPlayerAccount(
+            PlayerAccountRegistration playerAccountRegistration)
         {
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult 
-                = new OperationRegisterPlayerAccountResult();
-            
+            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult =
+                new OperationRegisterPlayerAccountResult();
+
             string validationErrorKey = ValidateRegisterPlayerAccountRequest(playerAccountRegistration);
 
             if (validationErrorKey != null)
@@ -57,7 +49,7 @@ namespace TLMG.Services.Accounts
             }
             else
             {
-                operationRegisterPlayerAccountResult = TryCreateAccount(playerAccountRegistration);
+                operationRegisterPlayerAccountResult = CreateAccount(playerAccountRegistration);
             }
 
             return operationRegisterPlayerAccountResult;
@@ -73,106 +65,96 @@ namespace TLMG.Services.Accounts
             }
             else
             {
-                errorKey = PlayerAccountRegistrationValidationHelper.ValidateAccountPlayerRegistration(playerAccountRegistration);
+                errorKey = PlayerAccountRegistrationValidationHelper.ValidateAccountPlayerRegistration(
+                    playerAccountRegistration);
             }
 
             return errorKey;
         }
 
-        private OperationRegisterPlayerAccountResult TryCreateAccount(PlayerAccountRegistration playerAccountRegistration)
+        private static string ResolveExistenceErrorKey(
+            PlayerExistenceLookupStatus playerExistenceLookupStatus,
+            string takenErrorKey)
         {
-            OperationRegisterPlayerAccountResult OperationRegisterPlayerAccountResult = 
+            string errorKey = null;
+
+            if (playerExistenceLookupStatus == PlayerExistenceLookupStatus.Exists)
+            {
+                errorKey = takenErrorKey;
+            }
+            else if (playerExistenceLookupStatus == PlayerExistenceLookupStatus.DataFailure)
+            {
+                errorKey = DatabaseErrorKey;
+            }
+
+            return errorKey;
+        }
+
+        private OperationRegisterPlayerAccountResult CreateAccount(PlayerAccountRegistration playerAccountRegistration)
+        {
+            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult =
                 new OperationRegisterPlayerAccountResult();
-            
+
             string nickname = playerAccountRegistration.Nickname;
             string email = playerAccountRegistration.Email.ToLowerInvariant();
+            string errorKey = FindDuplicateAccountErrorKey(email, nickname);
 
-            try
+            if (errorKey == null)
             {
-                string duplicateAccountErrorKey = FindDuplicateAccountErrorKey(email, nickname);
-
-                if (duplicateAccountErrorKey != null)
-                {
-                    OperationRegisterPlayerAccountResult.ErrorKey = duplicateAccountErrorKey;
-                }
-                else
-                {
-                    SavePlayer(nickname, email, playerAccountRegistration.Password); 
-                    OperationRegisterPlayerAccountResult.IsSuccess = true;
-                }
-            }
-            catch (DbUpdateException ex)
-            {
-                _log.Error(string.Format("Error al guardar al jugador {0}.", nickname), ex);
-                OperationRegisterPlayerAccountResult.ErrorKey = ResolveSaveFailureErrorKey(ex);
-            }
-            catch (DbEntityValidationException ex)
-            {
-                _log.Error(string.Format("Datos inválidos para la base de datos del jugador {0}.", nickname), ex);
-                OperationRegisterPlayerAccountResult.ErrorKey = DatabaseErrorKey;
-            }
-            catch (EntityException ex)
-            {
-                _log.Error(string.Format("La base de datos no respondió al registrar a {0}.", nickname), ex);
-                OperationRegisterPlayerAccountResult.ErrorKey = DatabaseErrorKey;
-            }
-            catch (SqlException ex)
-            {
-                _log.Error(string.Format("Error de SQL Server al registrar a {0}.", nickname), ex);
-                OperationRegisterPlayerAccountResult.ErrorKey = DatabaseErrorKey;
-            }
-            catch (CryptographicException ex)
-            {
-                _log.Error(string.Format("Falló el hash de la contraseña de {0}.", nickname), ex);
-                OperationRegisterPlayerAccountResult.ErrorKey = InternalErrorKey;
+                errorKey = SavePlayer(nickname, email, playerAccountRegistration.Password);
             }
 
-            return OperationRegisterPlayerAccountResult;
+            if (errorKey == null)
+            {
+                operationRegisterPlayerAccountResult.IsSuccess = true;
+            }
+            else
+            {
+                operationRegisterPlayerAccountResult.ErrorKey = errorKey;
+            }
+
+            return operationRegisterPlayerAccountResult;
         }
 
         private string FindDuplicateAccountErrorKey(string email, string nickname)
         {
+            string errorKey = ResolveExistenceErrorKey(
+                _playerRepository.FindEmailExistenceStatus(email),
+                EmailTakenErrorKey);
+
+            if (errorKey == null)
+            {
+                errorKey = ResolveExistenceErrorKey(
+                    _playerRepository.FindNicknameExistenceStatus(nickname),
+                    NicknameTakenErrorKey);
+            }
+
+            return errorKey;
+        }
+
+        private string SavePlayer(string nickname, string email, string password)
+        {
             string errorKey = null;
+            string passwordHash = null;
 
-            if (_playerRepository.PlayerExistsByEmail(email))
+            try
             {
-                errorKey = EmailTakenErrorKey;
+                passwordHash = _passwordHasher.HashPassword(password);
             }
-            else if (_playerRepository.PlayerExistsByNickname(nickname))
+            catch (CryptographicException cryptographicException)
             {
-                errorKey = NicknameTakenErrorKey;
+                _log.Error(
+                    string.Format("Falló el hash de la contraseña de {0}.", nickname),
+                    cryptographicException);
+                errorKey = CommonErrorKeyHelper.UnexpectedErrorKey;
             }
 
-            return errorKey;
-        }
-
-        private void SavePlayer(string nickname, string email, string password)
-        {
-            string passwordHash = _passwordHasher.HashPassword(password);
-            _playerRepository.CreatePlayer(nickname, email, passwordHash);
-        }
-
-        // FIXME: Evaluar si este método y IsDuplicateKeyError se necesitan; se decide al mover la detección. (BL-037).
-        private static string ResolveSaveFailureErrorKey(DbUpdateException exception) 
-        {
-            string errorKey = DatabaseErrorKey;
-            Exception rootException = exception.GetBaseException();
-
-            if (rootException is SqlException sqlException && IsDuplicateKeyError(sqlException))
+            if (errorKey == null && !_playerRepository.CreatePlayer(nickname, email, passwordHash))
             {
-                errorKey = AccountAlreadyExistsErrorKey;
+                errorKey = DatabaseErrorKey;
             }
 
             return errorKey;
-        }
-
-        private static bool IsDuplicateKeyError(SqlException sqlException)
-        {
-            bool isDuplicateIndex = sqlException.Number == DuplicateIndexErrorNumber;
-            bool isDuplicateKey = sqlException.Number == DuplicateKeyErrorNumber;
-            bool isDuplicate = isDuplicateIndex || isDuplicateKey;
-
-            return isDuplicate;
         }
     }
 }

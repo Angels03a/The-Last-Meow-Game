@@ -1,5 +1,4 @@
-﻿using System;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
@@ -10,10 +9,6 @@ namespace TLMG.Services
 {
     public partial class ServiceImplementation : ILeaderboardManager
     {
-        private const string UnexpectedLeaderboardErrorKey = "Leaderboard_ConnectionErrorMessage";
-
-        // El repositorio se crea aquí y no se comparte con el otro archivo parcial: el orden en que se inicializan
-        // los campos estáticos entre archivos parciales no está definido.
         private static readonly LeaderboardService _leaderboardService =
             new LeaderboardService(new PlayerRepository());
 
@@ -23,20 +18,7 @@ namespace TLMG.Services
             ILeaderboardManagerCallback callback =
                 OperationContext.Current.GetCallbackChannel<ILeaderboardManagerCallback>();
 
-            OperationGetLeaderboardResult operationGetLeaderboardResult;
-
-            try
-            {
-                operationGetLeaderboardResult = _leaderboardService.GetLeaderboard();
-            }
-            catch (Exception ex)
-            {
-                _log.Error("Fallo inesperado al consultar la tabla de posiciones.", ex);
-                operationGetLeaderboardResult = new OperationGetLeaderboardResult
-                {
-                    ErrorKey = UnexpectedLeaderboardErrorKey
-                };
-            }
+            OperationGetLeaderboardResult operationGetLeaderboardResult = _leaderboardService.GetLeaderboard();
 
             SafeNotify(() => callback.GetLeaderboardResult(operationGetLeaderboardResult));
         }

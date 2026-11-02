@@ -1,5 +1,4 @@
-﻿using System;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
@@ -11,9 +10,6 @@ namespace TLMG.Services
 {
     public partial class ServiceImplementation : IUsersManager
     {
-        private const string UnexpectedErrorKey = "CreateAccount_DataModelError";
-        private const string UnexpectedLogInErrorKey = "Login_DataModelError";
-
         private static readonly IPlayerRepository _playerRepository = new PlayerRepository();
 
         private static readonly IPasswordHasher _passwordHasher = new PasswordHasher();
@@ -31,21 +27,8 @@ namespace TLMG.Services
             IUsersManagerCallback callback =
                 OperationContext.Current.GetCallbackChannel<IUsersManagerCallback>();
 
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult;
-
-            try
-            {
-                operationRegisterPlayerAccountResult =
-                    _playerAccountRegistrationService.RegisterPlayerAccount(registrationPlayerAccount);
-            }
-            catch (Exception ex)
-            {
-                _log.Error("Fallo inesperado al registrar una cuenta de jugador.", ex);
-                operationRegisterPlayerAccountResult = new OperationRegisterPlayerAccountResult
-                {
-                    ErrorKey = UnexpectedErrorKey
-                };
-            }
+            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult =
+                _playerAccountRegistrationService.RegisterPlayerAccount(registrationPlayerAccount);
 
             SafeNotify(() => callback.RegisterPlayerAccountResult(operationRegisterPlayerAccountResult));
         }
@@ -57,18 +40,7 @@ namespace TLMG.Services
             IUsersManagerCallback callback =
                 OperationContext.Current.GetCallbackChannel<IUsersManagerCallback>();
 
-            SessionOutcome<OperationLogInResult> sessionOutcome;
-
-            try
-            {
-                sessionOutcome = _playerLogInService.LogIn(operationLogInRequest);
-            }
-            catch (Exception ex)
-            {
-                _log.Error("Fallo inesperado al iniciar sesión.", ex);
-                sessionOutcome = new SessionOutcome<OperationLogInResult>(
-                    new OperationLogInResult { ErrorKey = UnexpectedLogInErrorKey });
-            }
+            SessionOutcome<OperationLogInResult> sessionOutcome = _playerLogInService.LogIn(operationLogInRequest);
 
             SafeNotify(() => callback.LogInResult(sessionOutcome.Result));
             SafeNotifyAll(sessionOutcome.Notifications);
