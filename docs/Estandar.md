@@ -650,6 +650,8 @@ public void AddScore(int ScoreAmount)
 }
 ```
 
+Excepción: los métodos de un contrato callback de WCF pueden nombrarse con el prefijo "On" (S3.10) y los que entregan un resultado se nombran con el resultado (por ejemplo, CreateRoomResult).
+
 8. ## Eventos y delegados {#eventos-y-delegados}
 
 Los eventos deberán nombrarse utilizando PascalCase y un verbo o frase verbal que describa la acción asociada. Todo evento público deberá declararse utilizando el tipo genérico EventHandler o EventHandler\<TEventArgs\>, según requiera o no transmitir información asociada al evento; se prohíbe el uso de delegados genéricos Action para la exposición de eventos públicos.
@@ -869,6 +871,22 @@ public interface IChatManagerCallback
     [OperationContract(IsOneWay = true)]
     void OnMessageReceived(string message);
 }
+```
+
+Los métodos de un contrato callback de WCF (I…ManagerCallback) que avisan de un suceso iniciado por el servidor llevan el prefijo "On" seguido de lo ocurrido en participio (por ejemplo, OnLobbyRoomChanged, OnRoomInvitationReceived). Los métodos que entregan el resultado de una operación del cliente se nombran con el resultado (por ejemplo, CreateRoomResult) y no llevan "On".
+
+Ejemplo correcto
+
+```c#
+[OperationContract(IsOneWay = true)]
+void OnLobbyRoomChanged(LobbyRoom lobbyRoom);
+```
+
+Ejemplo incorrecto (aviso del servidor sin prefijo "On")
+
+```c#
+[OperationContract(IsOneWay = true)]
+void LobbyRoomChanged(LobbyRoom lobbyRoom);
 ```
 
 Excepción: la implementación de los contratos de servicio WCF es una sola clase parcial (por ejemplo, ServiceImplementation) que implementa todos los contratos, porque un ServiceHost aloja una única clase. Cada contrato se implementa en su propio archivo parcial.
@@ -2370,7 +2388,7 @@ catch (SmtpException)
 
 Queda prohibido capturar una excepción y retornar un valor vacío, nulo o por defecto sin haber registrado (logueado) o propagado el incidente. Silenciar el error de esta forma oculta el fallo real y obliga a depurar a ciegas en producción.
 
-Ejemplo correcto (registra el incidente y responde con una ErrorKey)
+Ejemplo correcto 
 
 ```c#
 public string SendVerificationCode(int playerId, string playerEmail, string verificationCode)
@@ -4373,6 +4391,7 @@ Este Estándar recoge lo que está decidido (decisiones D-xx de las bitácoras y
 | D-59  | Scripts de datos de demostración en database/seed/  | S4.3, S5.3  |
 | D-60  | Capa de comunicación del cliente (ServerConnectionManager): conserva el token y levanta eventos hacia las pantallas  | S4.1, S6.2  |
 | D-61  | Marco de pruebas: xUnit.net  | S15.1, S19.1  |
+| D-62 | Los avisos de los callbacks WCF llevan el prefijo "On"; los resultados de operación se nombran con el resultado | S3.7, S3.10  |
 | ADR-01 | Servidor autoritativo y Zero-Trust | S6.1, S6.2, S16.1, S16.3, S20.1 |
 | ADR-02 | Aislamiento del motor de reglas | S4.2, S6.1, S6.2 |
 | ADR-03 | WCF dúplex con callbacks | S6.2, S11.1 |
