@@ -108,6 +108,7 @@
     <Compile Include="Repositories\PlayerCredentials.cs" />
     <Compile Include="Repositories\PlayerRepository.cs" />
     <Compile Include="Repositories\RankedPlayer.cs" />
+	<Compile Include="Repositories\PlayerExistenceLookupStatus.cs" />
   </ItemGroup>
   <ItemGroup>
     <EntityDeploy Include="DatabaseModel\TLMGModel.edmx">
