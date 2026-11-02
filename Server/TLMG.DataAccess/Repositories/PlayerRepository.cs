@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Core;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Validation;
 using System.Data.SqlClient;
 using System.Linq;
 
@@ -16,78 +18,106 @@ namespace TLMG.DataAccess.Repositories
     /// </summary>
     public class PlayerRepository : IPlayerRepository
     {
-        private const int InitialCount = 0;
-
-        private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerRepository));
-
-        // FIXME: Representar los estados de usuario con un enum en lugar de cadenas. (BL-047).
-        private const string DefaultUserState = "USER_ACTIVE";
-
-        // FIXME: Implementar la gestión de imágenes de perfil; se define en el pendiente de imágenes. (BL-045).
-        private const string DefaultProfileImage = "/img/default.png";
+        private const int InitialStatisticValue = 0;
 
         // FIXME: Representar los estados de usuario con un enum en lugar de cadenas. (BL-047).
         private const string ActiveUserState = "USER_ACTIVE";
 
-        /// <inheritdoc />
-        public bool PlayerExistsByEmail(string email)
-        {
-            bool playerExists;
+        // FIXME: Implementar la gestión de imágenes de perfil; se define en el pendiente de imágenes. (BL-045).
+        private const string DefaultProfileImage = "/img/default.png";
 
-            using (TLMG_DBEntities context = new TLMG_DBEntities())
+        private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerRepository));
+
+        /// <inheritdoc />
+        public PlayerExistenceLookupStatus FindEmailExistenceStatus(string email)
+        {
+            PlayerExistenceLookupStatus playerExistenceLookupStatus;
+
+            try
             {
-                playerExists = context.User.Any(user => user.email == email);
+                using (TLMG_DBEntities context = new TLMG_DBEntities())
+                {
+                    bool playerExists = context.User.Any(user => user.email == email);
+                    playerExistenceLookupStatus = ConvertToExistenceStatus(playerExists);
+                }
+            }
+            catch (SqlException sqlException)
+            {
+                _log.Error("Error de SQL Server al comprobar el correo de una cuenta.", sqlException);
+                playerExistenceLookupStatus = PlayerExistenceLookupStatus.DataFailure;
+            }
+            catch (EntityException entityException)
+            {
+                _log.Error("La base de datos falló al comprobar el correo de una cuenta.", entityException);
+                playerExistenceLookupStatus = PlayerExistenceLookupStatus.DataFailure;
             }
 
-            return playerExists;
+            return playerExistenceLookupStatus;
         }
 
         /// <inheritdoc />
-        public bool PlayerExistsByNickname(string nickname)
+        public PlayerExistenceLookupStatus FindNicknameExistenceStatus(string nickname)
         {
-            bool playerExists;
+            PlayerExistenceLookupStatus playerExistenceLookupStatus;
 
-            using (TLMG_DBEntities context = new TLMG_DBEntities())
+            try
             {
-                playerExists = context.User.Any(user => user.nickname == nickname);
+                using (TLMG_DBEntities context = new TLMG_DBEntities())
+                {
+                    bool playerExists = context.User.Any(user => user.nickname == nickname);
+                    playerExistenceLookupStatus = ConvertToExistenceStatus(playerExists);
+                }
+            }
+            catch (SqlException sqlException)
+            {
+                _log.Error("Error de SQL Server al comprobar el nickname de una cuenta.", sqlException);
+                playerExistenceLookupStatus = PlayerExistenceLookupStatus.DataFailure;
+            }
+            catch (EntityException entityException)
+            {
+                _log.Error("La base de datos falló al comprobar el nickname de una cuenta.", entityException);
+                playerExistenceLookupStatus = PlayerExistenceLookupStatus.DataFailure;
             }
 
-            return playerExists;
+            return playerExistenceLookupStatus;
         }
 
         /// <inheritdoc />
-        public void CreatePlayer(string nickname, string email, string passwordHash)
+        public bool CreatePlayer(string nickname, string email, string passwordHash)
         {
-            using (TLMG_DBEntities context = new TLMG_DBEntities())
-            using (DbContextTransaction transaction = context.Database.BeginTransaction())
+            bool wasCreated = false;
+
+            try
             {
-                User newUser = new User
-                {
-                    email = email,
-                    nickname = nickname,
-                    password_hash = passwordHash,
-                    state = DefaultUserState,
-                    profile_image = DefaultProfileImage,
-                    // Se guarda en UTC con el reloj del servidor
-                    last_time = DateTime.UtcNow
-                };
-
-                context.User.Add(newUser);
-                context.SaveChanges();
-
-                Player newPlayer = new Player
-                {
-                    id_user = newUser.id_user,
-                    total_points = InitialCount,
-                    total_wins = InitialCount,
-                    total_games_played = InitialCount
-                };
-
-                context.Player.Add(newPlayer);
-                context.SaveChanges();
-
-                transaction.Commit();
+                InsertPlayerWithInitialStatistics(nickname, email, passwordHash);
+                wasCreated = true;
             }
+            catch (DbUpdateException dbUpdateException)
+            {
+                _log.Error(
+                    string.Format("Error al guardar la cuenta del jugador {0}.", nickname),
+                    dbUpdateException);
+            }
+            catch (DbEntityValidationException dbEntityValidationException)
+            {
+                _log.Error(
+                    string.Format("Datos inválidos para la base de datos del jugador {0}.", nickname),
+                    dbEntityValidationException);
+            }
+            catch (EntityException entityException)
+            {
+                _log.Error(
+                    string.Format("La base de datos no respondió al registrar a {0}.", nickname),
+                    entityException);
+            }
+            catch (SqlException sqlException)
+            {
+                _log.Error(
+                    string.Format("Error de SQL Server al registrar a {0}.", nickname),
+                    sqlException);
+            }
+
+            return wasCreated;
         }
 
         /// <inheritdoc />
@@ -118,14 +148,16 @@ namespace TLMG.DataAccess.Repositories
                     playerCredentials = new PlayerCredentials { Status = CredentialsLookupStatus.NotFound };
                 }
             }
-            catch (SqlException ex)
+            catch (SqlException sqlException)
             {
-                _log.Error("Error de SQL Server al buscar las credenciales de una cuenta.", ex);
+                _log.Error("Error de SQL Server al buscar las credenciales de una cuenta.", sqlException);
                 playerCredentials = new PlayerCredentials { Status = CredentialsLookupStatus.DataFailure };
             }
-            catch (EntityException ex)
+            catch (EntityException entityException)
             {
-                _log.Error("La base de datos no respondió al buscar las credenciales de una cuenta.", ex);
+                _log.Error(
+                    "La base de datos no respondió al buscar las credenciales de una cuenta.",
+                    entityException);
                 playerCredentials = new PlayerCredentials { Status = CredentialsLookupStatus.DataFailure };
             }
 
@@ -151,13 +183,17 @@ namespace TLMG.DataAccess.Repositories
                     }
                 }
             }
-            catch (SqlException ex)
+            catch (SqlException sqlException)
             {
-                _log.Error(string.Format("Error de SQL Server al guardar el acceso del jugador {0}.", userId), ex);
+                _log.Error(
+                    string.Format("Error de SQL Server al guardar el acceso del jugador {0}.", userId),
+                    sqlException);
             }
-            catch (EntityException ex)
+            catch (EntityException entityException)
             {
-                _log.Error(string.Format("La base de datos falló al guardar el acceso del jugador {0}.", userId), ex);
+                _log.Error(
+                    string.Format("La base de datos falló al guardar el acceso del jugador {0}.", userId),
+                    entityException);
             }
 
             return wasUpdated;
@@ -193,18 +229,30 @@ namespace TLMG.DataAccess.Repositories
                     };
                 }
             }
-            catch (SqlException ex)
+            catch (SqlException sqlException)
             {
-                _log.Error("Error de SQL Server al consultar la tabla de posiciones.", ex);
+                _log.Error("Error de SQL Server al consultar la tabla de posiciones.", sqlException);
                 leaderboardLookup = CreateFailedLeaderboardLookup();
             }
-            catch (EntityException ex)
+            catch (EntityException entityException)
             {
-                _log.Error("La base de datos no respondió al consultar la tabla de posiciones.", ex);
+                _log.Error("La base de datos no respondió al consultar la tabla de posiciones.", entityException);
                 leaderboardLookup = CreateFailedLeaderboardLookup();
             }
 
             return leaderboardLookup;
+        }
+
+        private static PlayerExistenceLookupStatus ConvertToExistenceStatus(bool playerExists)
+        {
+            PlayerExistenceLookupStatus playerExistenceLookupStatus = PlayerExistenceLookupStatus.NotFound;
+
+            if (playerExists)
+            {
+                playerExistenceLookupStatus = PlayerExistenceLookupStatus.Exists;
+            }
+
+            return playerExistenceLookupStatus;
         }
 
         private static LeaderboardLookup CreateFailedLeaderboardLookup()
@@ -216,6 +264,39 @@ namespace TLMG.DataAccess.Repositories
             };
 
             return leaderboardLookup;
+        }
+
+        private static void InsertPlayerWithInitialStatistics(string nickname, string email, string passwordHash)
+        {
+            using (TLMG_DBEntities context = new TLMG_DBEntities())
+            using (DbContextTransaction transaction = context.Database.BeginTransaction())
+            {
+                User newUser = new User
+                {
+                    email = email,
+                    nickname = nickname,
+                    password_hash = passwordHash,
+                    state = ActiveUserState,
+                    profile_image = DefaultProfileImage,
+                    last_time = DateTime.UtcNow
+                };
+
+                context.User.Add(newUser);
+                context.SaveChanges();
+
+                Player newPlayer = new Player
+                {
+                    id_user = newUser.id_user,
+                    total_points = InitialStatisticValue,
+                    total_wins = InitialStatisticValue,
+                    total_games_played = InitialStatisticValue
+                };
+
+                context.Player.Add(newPlayer);
+                context.SaveChanges();
+
+                transaction.Commit();
+            }
         }
     }
 }

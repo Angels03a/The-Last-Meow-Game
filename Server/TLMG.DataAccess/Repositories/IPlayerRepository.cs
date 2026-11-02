@@ -7,21 +7,22 @@ namespace TLMG.DataAccess.Repositories
     /// </summary>
     public interface IPlayerRepository
     {
-        /// <summary>Indica si ya existe una cuenta con el correo dado.</summary>
+        /// <summary>Comprueba si ya existe una cuenta con el correo dado.</summary>
         /// <param name="email">Correo a buscar, en minúsculas.</param>
-        /// <returns>true si el correo ya está registrado; en caso contrario, false.</returns>
-        bool PlayerExistsByEmail(string email);
+        /// <returns>Exists, NotFound o DataFailure; un fallo nunca debe tratarse como "no existe".</returns>
+        PlayerExistenceLookupStatus FindEmailExistenceStatus(string email);
 
-        /// <summary>Indica si ya existe una cuenta con el nickname dado.</summary>
+        /// <summary>Comprueba si ya existe una cuenta con el nickname dado.</summary>
         /// <param name="nickname">Nickname a buscar.</param>
-        /// <returns>true si el nickname ya está registrado; en caso contrario, false.</returns>
-        bool PlayerExistsByNickname(string nickname);
+        /// <returns>Exists, NotFound o DataFailure; un fallo nunca debe tratarse como "no existe".</returns>
+        PlayerExistenceLookupStatus FindNicknameExistenceStatus(string nickname);
 
         /// <summary>Crea el usuario y su jugador asociado en una sola transacción.</summary>
         /// <param name="nickname">Nickname de la cuenta.</param>
         /// <param name="email">Correo de la cuenta, en minúsculas.</param>
         /// <param name="passwordHash">Hash de la contraseña.</param>
-        void CreatePlayer(string nickname, string email, string passwordHash);
+        /// <returns>true si la cuenta quedó guardada; false si el guardado falló.</returns>
+        bool CreatePlayer(string nickname, string email, string passwordHash);
 
         /// <summary>Obtiene las credenciales de la cuenta con el correo dado.</summary>
         /// <param name="email">Correo a buscar, en minúsculas.</param>

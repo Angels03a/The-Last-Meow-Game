@@ -55,31 +55,32 @@ namespace TLMG.Services
         /// Envía una notificación al cliente sin que un cliente caído afecte al servidor.
         /// </summary>
         /// <param name="notificationOfResult">Invocación del callback.</param>
-        private void SafeNotify(Action notificationOfResult) 
+        private void SafeNotify(Action notificationOfResult)
         {
             try
             {
-                notificationOfResult(); 
+                notificationOfResult();
             }
-            catch (CommunicationObjectAbortedException ex)
+            catch (CommunicationObjectAbortedException abortedException)
             {
-                _log.Warn("El cliente cerró el canal antes de recibir la notificación.", ex);
+                _log.Warn("El cliente cerró el canal antes de recibir la notificación.", abortedException);
             }
-            catch (CommunicationObjectFaultedException ex) 
+            catch (CommunicationObjectFaultedException faultedException)
             {
-                _log.Warn("El canal del cliente está en falla.", ex);
+                _log.Warn("El canal del cliente está en falla.", faultedException);
             }
-            catch (CommunicationException ex) 
+            catch (CommunicationException communicationException)
             {
-                _log.Warn("Error de comunicación al notificar al cliente, verifque la conexión.", ex);
+                _log.Warn("Error de comunicación al notificar al cliente; verifique la conexión.", 
+                    communicationException);
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException timeoutException)
             {
-                _log.Warn("El cliente tardó demasiado en recibir la notificación.", ex);
+                _log.Warn("El cliente tardó demasiado en recibir la notificación.", timeoutException);
             }
-            catch (ObjectDisposedException ex) 
+            catch (ObjectDisposedException disposedException)
             {
-                _log.Warn("El canal del cliente ya fue liberado.", ex);
+                _log.Warn("El canal del cliente ya fue liberado.", disposedException);
             }
         }
     }
