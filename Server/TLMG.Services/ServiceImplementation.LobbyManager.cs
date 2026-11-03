@@ -10,6 +10,7 @@ namespace TLMG.Services
 {
     public partial class ServiceImplementation : ILobbyManager
     {
+        // Se asigna en el constructor estático de ServiceImplementation.cs porque depende del registro de sesiones.
         private static readonly LobbyService _lobbyService;
 
         private bool _isLobbyChannelObserved;
@@ -57,6 +58,8 @@ namespace TLMG.Services
             NotifyLobbyMembers(lobbyOutcome.Notifications);
         }
 
+        // No se desuscriben porque el canal (quien publica los eventos) y esta instancia (quien los atiende) viven
+        // lo mismo: ambos terminan con la sesión (PerSession).
         private void ObserveLobbyChannel()
         {
             if (!_isLobbyChannelObserved)

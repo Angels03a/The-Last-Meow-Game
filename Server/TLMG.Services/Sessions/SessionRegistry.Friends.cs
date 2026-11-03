@@ -125,6 +125,7 @@ namespace TLMG.Services.Sessions
             }
             else
             {
+                // El último canal gana: si la sesión ya tenía uno, se reemplaza y no cambia su presencia.
                 IReadOnlyList<IFriendsManagerCallback> presenceRecipients = _noFriendsCallbacks;
 
                 if (!_friendsChannelsByUserId.ContainsKey(playerSession.UserId))
@@ -232,6 +233,7 @@ namespace TLMG.Services.Sessions
             return roomInvitationAcceptance;
         }
 
+        // Una invitación repetida al mismo jugador para la misma sala no crea otra: se devuelve la que ya existe.
         private RoomInvitationCreation CreateOrFindInvitation(
             PlayerSession inviterSession,
             int friendUserId,

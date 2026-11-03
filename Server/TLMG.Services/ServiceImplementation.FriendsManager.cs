@@ -11,6 +11,7 @@ namespace TLMG.Services
 {
     public partial class ServiceImplementation : IFriendsManager
     {
+        // Se asignan en el constructor estático de ServiceImplementation.cs porque dependen del registro de sesiones.
         private static readonly IFriendshipRepository _friendshipRepository;
         private static readonly FriendsService _friendsService;
 
@@ -59,6 +60,8 @@ namespace TLMG.Services
             SafeNotifyAll(sessionOutcome.Notifications);
         }
 
+        // No se desuscriben porque el canal (quien publica los eventos) y esta instancia (quien los atiende) viven
+        // lo mismo: ambos terminan con la sesión (PerSession).
         private void ObserveFriendsChannel()
         {
             if (!_isFriendsChannelObserved)

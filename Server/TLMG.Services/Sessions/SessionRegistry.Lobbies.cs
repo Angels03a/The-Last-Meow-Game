@@ -8,6 +8,7 @@ namespace TLMG.Services.Sessions
     // se invoca únicamente con _sessionsLock tomado y solo toca memoria.
     public partial class SessionRegistry
     {
+        // Máximo de jugadores por sala (Reglas de The Last Meow, §1.1.1).
         private const int MaximumPlayersPerRoom = 6;
         private const int EmptyCount = 0;
 

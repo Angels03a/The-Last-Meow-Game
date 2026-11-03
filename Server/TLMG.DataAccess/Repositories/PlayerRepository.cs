@@ -278,6 +278,7 @@ namespace TLMG.DataAccess.Repositories
                     password_hash = passwordHash,
                     state = ActiveUserState,
                     profile_image = DefaultProfileImage,
+                    // Se guarda en UTC con el reloj del servidor.
                     last_time = DateTime.UtcNow
                 };
 
