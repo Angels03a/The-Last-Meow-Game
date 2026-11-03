@@ -47,7 +47,7 @@ namespace TLMG.Client.Views
         /// <param name="operationLogInResult">Resultado con éxito o clave de error.</param>
         public void LogInResult(OperationLogInResult operationLogInResult)
         {
-            Dispatcher.BeginInvoke(new Action(() => HandleLogInResult(operationLogInResult)));
+            Dispatcher.BeginInvoke(new Action(() => FinishLogInAttempt(operationLogInResult)));
         }
 
         /// <inheritdoc />
@@ -129,21 +129,21 @@ namespace TLMG.Client.Views
             catch (EndpointNotFoundException ex)
             {
                 _log.Error("No se encontró el endpoint del servidor al iniciar sesión.", ex);
-                HandleConnectionFailure();
+                ShowConnectionError();
             }
             catch (TimeoutException ex)
             {
                 _log.Error("El servidor tardó demasiado en recibir la solicitud de inicio de sesión.", ex);
-                HandleConnectionFailure();
+                ShowConnectionError();
             }
             catch (CommunicationException ex)
             {
                 _log.Error("Error de comunicación al enviar la solicitud de inicio de sesión.", ex);
-                HandleConnectionFailure();
+                ShowConnectionError();
             }
         }
 
-        private void HandleLogInResult(OperationLogInResult operationLogInResult)
+        private void FinishLogInAttempt(OperationLogInResult operationLogInResult)
         {
             CloseLogInClient();
             btnLogIn.IsEnabled = true;
@@ -172,7 +172,7 @@ namespace TLMG.Client.Views
             }
         }
 
-        private void HandleConnectionFailure()
+        private void ShowConnectionError()
         {
             CloseLogInClient();
             btnLogIn.IsEnabled = true;

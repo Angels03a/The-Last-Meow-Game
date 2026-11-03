@@ -51,7 +51,7 @@ namespace TLMG.Client.Views
         public void RegisterPlayerAccountResult(
             OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult)
         {
-            Dispatcher.BeginInvoke(new Action(() => HandleRegistrationResult(operationRegisterPlayerAccountResult)));
+            Dispatcher.BeginInvoke(new Action(() => FinishRegistrationAttempt(operationRegisterPlayerAccountResult)));
         }
 
         /// <inheritdoc />
@@ -124,21 +124,21 @@ namespace TLMG.Client.Views
             catch (EndpointNotFoundException ex)
             {
                 _log.Error("No se encontró el endpoint del servidor al registrar la cuenta.", ex);
-                HandleConnectionFailure();
+                ShowConnectionError();
             }
             catch (TimeoutException ex)
             {
                 _log.Error("El servidor tardó demasiado en recibir la solicitud de registro.", ex);
-                HandleConnectionFailure();
+                ShowConnectionError();
             }
             catch (CommunicationException ex)
             {
                 _log.Error("Error de comunicación al enviar la solicitud de registro.", ex);
-                HandleConnectionFailure();
+                ShowConnectionError();
             }
         }
 
-        private void HandleRegistrationResult(OperationRegisterPlayerAccountResult registrationResult)
+        private void FinishRegistrationAttempt(OperationRegisterPlayerAccountResult registrationResult)
         {
             CloseRegistrationClient();
             btnCreateAccount.IsEnabled = true;
@@ -153,7 +153,7 @@ namespace TLMG.Client.Views
             }
         }
 
-        private void HandleConnectionFailure()
+        private void ShowConnectionError()
         {
             CloseRegistrationClient();
             btnCreateAccount.IsEnabled = true;
@@ -222,12 +222,12 @@ namespace TLMG.Client.Views
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new VerificationScreen(
-                onVerifiedCallbackAction: HandleVerificationCompleted,
+                onVerifiedCallbackAction: ReturnToLogInAfterVerification,
                 onBackCallbackAction: () => applicationMainWindow.ShowScreen(new CreateAccountScreen())
             ));
         }
 
-        private void HandleVerificationCompleted()
+        private void ReturnToLogInAfterVerification()
         {
             MessageBox.Show(FindMessage(SuccessMessageKey));
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;

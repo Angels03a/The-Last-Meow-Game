@@ -71,7 +71,7 @@ namespace TLMG.Client.Views
         public void GetLeaderboardResult(OperationGetLeaderboardResult operationGetLeaderboardResult)
         {
             // TODO: Mover el callback y el cierre del canal a la capa Comunicación. (BL-036).
-            Dispatcher.BeginInvoke(new Action(() => HandleLeaderboardResult(operationGetLeaderboardResult)));
+            Dispatcher.BeginInvoke(new Action(() => ShowLeaderboardResult(operationGetLeaderboardResult)));
         }
 
         /// <inheritdoc />
@@ -103,21 +103,21 @@ namespace TLMG.Client.Views
             catch (EndpointNotFoundException ex)
             {
                 _log.Error("No se encontró el endpoint del servidor al consultar la tabla de posiciones.", ex);
-                HandleConnectionFailure();
+                ShowConnectionError();
             }
             catch (TimeoutException ex)
             {
                 _log.Error("El servidor tardó demasiado en recibir la consulta de la tabla de posiciones.", ex);
-                HandleConnectionFailure();
+                ShowConnectionError();
             }
             catch (CommunicationException ex)
             {
                 _log.Error("Error de comunicación al consultar la tabla de posiciones.", ex);
-                HandleConnectionFailure();
+                ShowConnectionError();
             }
         }
 
-        private void HandleLeaderboardResult(OperationGetLeaderboardResult operationGetLeaderboardResult)
+        private void ShowLeaderboardResult(OperationGetLeaderboardResult operationGetLeaderboardResult)
         {
             CloseLeaderboardClient();
 
@@ -131,7 +131,7 @@ namespace TLMG.Client.Views
             }
         }
 
-        private void HandleConnectionFailure()
+        private void ShowConnectionError()
         {
             CloseLeaderboardClient();
             ShowLeaderboardError(ConnectionErrorKey);
