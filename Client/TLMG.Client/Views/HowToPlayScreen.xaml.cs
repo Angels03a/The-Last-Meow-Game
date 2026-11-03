@@ -106,10 +106,9 @@ namespace TLMG.Client.Views
 
             RefreshStepIndicatorText();
 
-            btnPrevious.Visibility =
-                _currentStep > MinStep ? Visibility.Visible : Visibility.Hidden;
-            btnNext.SetResourceReference(ContentControl.ContentProperty,
-                _currentStep == MaxStep ? "HowToPlay_FinishButton" : "HowToPlay_NextButton");
+            btnPrevious.Visibility = _currentStep > MinStep ? Visibility.Visible : Visibility.Hidden;
+            string nextButtonResourceKey = _currentStep == MaxStep ? "HowToPlay_FinishButton" : "HowToPlay_NextButton";
+            btnNext.SetResourceReference(ContentControl.ContentProperty, nextButtonResourceKey);
         }
 
         private void BtnNext_Click(object sender, RoutedEventArgs e)
