@@ -9,10 +9,14 @@ namespace TLMG.Client
     internal static class ValidationHelper
     {
 
+        /// <summary>Cantidad mínima de caracteres que acepta un nickname.</summary>
         public const int MinNicknameLengthCharacters = 3;
+        /// <summary>Cantidad máxima de caracteres que acepta un nickname.</summary>
         public const int MaxNicknameLengthCharacters = 12;
         private const int MinPasswordLengthCharacters = 12;
+        /// <summary>Puntaje de fuerza que debe alcanzar una contraseña nueva, en la escala de 0 a 5.</summary>
         public const int RequiredPasswordStrengthScore = 5;
+        /// <summary>Tiempo que un mensaje de estado permanece visible antes de ocultarse.</summary>
         public const int StatusMessageDurationMilliseconds = 4000;
         private static readonly string[] _unavailableNicknames = { "admin", "whiskers" };
         private static readonly string[] _offensiveVocabularyWords = { "idiota", "estúpido" };

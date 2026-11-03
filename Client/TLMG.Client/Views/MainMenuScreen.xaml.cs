@@ -12,6 +12,9 @@ namespace TLMG.Client.Views
         private const string WinStreakFormatResourceKey = "MainMenu_WinStreakFormat";
         private const string NextRankFormatResourceKey = "MainMenu_NextRankFormat";
 
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="MainMenuScreen"/>.
+        /// </summary>
         public MainMenuScreen()
         {
             InitializeComponent();
