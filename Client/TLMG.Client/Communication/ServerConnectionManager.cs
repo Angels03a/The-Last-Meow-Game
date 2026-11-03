@@ -473,7 +473,7 @@ namespace TLMG.Client.Communication
 
                 if (!isOpen)
                 {
-                    HandleConnectionFailure();
+                    DisconnectAndNotifyConnectionLost();
                 }
             }
 
@@ -520,12 +520,12 @@ namespace TLMG.Client.Communication
             catch (CommunicationException ex)
             {
                 _log.Error(string.Format("Error de comunicación al {0}.", operationDescription), ex);
-                HandleConnectionFailure();
+                DisconnectAndNotifyConnectionLost();
             }
             catch (TimeoutException ex)
             {
                 _log.Error(string.Format("Se agotó el tiempo al {0}.", operationDescription), ex);
-                HandleConnectionFailure();
+                DisconnectAndNotifyConnectionLost();
             }
 
             return wasSent;
@@ -549,11 +549,11 @@ namespace TLMG.Client.Communication
         // Closed y Faulted llegan en un hilo de WCF: el estado solo se toca en el hilo de la interfaz.
         private void OnServerChannelEnded(object sender, EventArgs eventArguments)
         {
-            RunOnInterface(() => HandleChannelEnded(sender));
+            RunOnInterface(() => DisconnectIfCurrentChannelEnded(sender));
         }
 
         // Registra el detalle técnico y no lo relanza: el jugador solo recibe ConnectionLost (hallazgo para §10.2).
-        private void HandleChannelEnded(object channel)
+        private void DisconnectIfCurrentChannelEnded(object channel)
         {
             bool isFriendsChannel = ReferenceEquals(channel, _friendsChannel);
             bool isCurrentChannel = isFriendsChannel || ReferenceEquals(channel, _lobbyChannel);
@@ -564,11 +564,11 @@ namespace TLMG.Client.Communication
                 _log.WarnFormat(
                     "Un canal con el servidor terminó sin que la aplicación lo pidiera. Estado: {0}.",
                     channelState);
-                HandleConnectionFailure();
+                DisconnectAndNotifyConnectionLost();
             }
         }
 
-        private void HandleConnectionFailure()
+        private void DisconnectAndNotifyConnectionLost()
         {
             Disconnect();
             ConnectionLost?.Invoke(this, EventArgs.Empty);
