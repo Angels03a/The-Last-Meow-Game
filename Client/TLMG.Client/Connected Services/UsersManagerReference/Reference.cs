@@ -244,7 +244,13 @@ namespace TLMG.Client.UsersManagerReference {
         private bool IsSuccessField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string NicknameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string SessionTokenField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int UserIdField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -283,6 +289,19 @@ namespace TLMG.Client.UsersManagerReference {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Nickname {
+            get {
+                return this.NicknameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true)) {
+                    this.NicknameField = value;
+                    this.RaisePropertyChanged("Nickname");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string SessionToken {
             get {
                 return this.SessionTokenField;
@@ -291,6 +310,19 @@ namespace TLMG.Client.UsersManagerReference {
                 if ((object.ReferenceEquals(this.SessionTokenField, value) != true)) {
                     this.SessionTokenField = value;
                     this.RaisePropertyChanged("SessionToken");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int UserId {
+            get {
+                return this.UserIdField;
+            }
+            set {
+                if ((this.UserIdField.Equals(value) != true)) {
+                    this.UserIdField = value;
+                    this.RaisePropertyChanged("UserId");
                 }
             }
         }

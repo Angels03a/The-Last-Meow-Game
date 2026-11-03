@@ -27,7 +27,9 @@
     <xs:sequence>
       <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="SessionToken" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserId" type="xs:int" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="OperationLogInResult" nillable="true" type="tns:OperationLogInResult" />
