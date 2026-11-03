@@ -1,10 +1,10 @@
 <local:LocalizableScreen x:Class="TLMG.Client.Views.HowToPlayScreen"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:TLMG.Client.Views"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="720" d:DesignWidth="1280"
              Background="#0D0D14">
 
@@ -30,93 +30,97 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" 
-                           Text="{DynamicResource HowToPlay_ScreenTitle}" 
-                           Foreground="White" 
-                           FontSize="20" 
-                           FontWeight="Bold" 
+                <TextBlock Grid.Row="0"
+                           Text="{DynamicResource HowToPlay_ScreenTitle}"
+                           Foreground="White"
+                           FontSize="20"
+                           FontWeight="Bold"
                            Margin="24,0,0,32" />
 
                 <StackPanel Grid.Row="1">
-                    <Button x:Name="btnStep1" 
-                            Style="{StaticResource HowToPlaySidebarButtonStyle}" 
-                            Click="BtnSidebarStep_Click" 
+                    <Button x:Name="btnStep1"
+                            Style="{StaticResource HowToPlaySidebarButtonStyle}"
+                            Click="BtnSidebarStep_Click"
                             IsDefault="True">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="24" Height="24" CornerRadius="12" Background="#8A2BE2" Margin="0,0,16,0">
-                                <TextBlock Text="1" 
-                                           Foreground="White" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="1"
+                                           Foreground="White"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
                             </Border>
-                            <TextBlock Text="{DynamicResource HowToPlay_MenuStep1}" 
+                            <TextBlock Text="{DynamicResource HowToPlay_MenuStep1}"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button x:Name="btnStep2" 
-                            Style="{StaticResource HowToPlaySidebarButtonStyle}" 
+                    <Button x:Name="btnStep2"
+                            Style="{StaticResource HowToPlaySidebarButtonStyle}"
                             Click="BtnSidebarStep_Click">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="24" Height="24" CornerRadius="12" Background="#2E2E3E" Margin="0,0,16,0">
-                                <TextBlock Text="2" 
-                                           Foreground="White" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="2"
+                                           Foreground="White"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
                             </Border>
-                            <TextBlock Text="{DynamicResource HowToPlay_MenuStep2}" 
+                            <TextBlock Text="{DynamicResource HowToPlay_MenuStep2}"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button x:Name="btnStep3" 
-                            Style="{StaticResource HowToPlaySidebarButtonStyle}" 
+                    <Button x:Name="btnStep3"
+                            Style="{StaticResource HowToPlaySidebarButtonStyle}"
                             Click="BtnSidebarStep_Click">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="24" Height="24" CornerRadius="12" Background="#2E2E3E" Margin="0,0,16,0">
-                                <TextBlock Text="3" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <TextBlock
+                                    Text="3"
+                                    Foreground="White"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" />
                             </Border>
-                            <TextBlock Text="{DynamicResource HowToPlay_MenuStep3}" 
+                            <TextBlock Text="{DynamicResource HowToPlay_MenuStep3}"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button x:Name="btnStep4" 
-                            Style="{StaticResource HowToPlaySidebarButtonStyle}" 
+                    <Button x:Name="btnStep4"
+                            Style="{StaticResource HowToPlaySidebarButtonStyle}"
                             Click="BtnSidebarStep_Click">
                         <StackPanel Orientation="Horizontal">
-                            <Border Width="24" 
-                                    Height="24" 
-                                    CornerRadius="12" 
-                                    Background="#2E2E3E" 
+                            <Border Width="24"
+                                    Height="24"
+                                    CornerRadius="12"
+                                    Background="#2E2E3E"
                                     Margin="0,0,16,0">
-                                <TextBlock Text="4" 
-                                           Foreground="White" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="4"
+                                           Foreground="White"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
                             </Border>
-                            <TextBlock Text="{DynamicResource HowToPlay_MenuStep4}" 
+                            <TextBlock Text="{DynamicResource HowToPlay_MenuStep4}"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    <Button x:Name="btnStep5" 
-                            Style="{StaticResource HowToPlaySidebarButtonStyle}" 
+                    <Button x:Name="btnStep5"
+                            Style="{StaticResource HowToPlaySidebarButtonStyle}"
                             Click="BtnSidebarStep_Click">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="24" Height="24" CornerRadius="12" Background="#2E2E3E" Margin="0,0,16,0">
-                                <TextBlock Text="5" 
-                                           Foreground="White" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="5"
+                                           Foreground="White"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
                             </Border>
-                            <TextBlock Text="{DynamicResource HowToPlay_MenuStep5}" 
+                            <TextBlock Text="{DynamicResource HowToPlay_MenuStep5}"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                 </StackPanel>
 
-                <Button x:Name="btnBack" 
-                        Grid.Row="2" 
-                        Content="{DynamicResource HowToPlay_BackButton}" 
-                        Style="{StaticResource SidebarBackButtonStyle}" 
-                        Margin="24,0,24,0" 
+                <Button x:Name="btnBack"
+                        Grid.Row="2"
+                        Content="{DynamicResource HowToPlay_BackButton}"
+                        Style="{StaticResource SidebarBackButtonStyle}"
+                        Margin="24,0,24,0"
                         Click="BtnBack_Click" />
             </Grid>
         </Border>
@@ -129,22 +133,29 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,32">
-                <Border Width="64" Height="64" CornerRadius="32" BorderBrush="#2E2E3E" BorderThickness="1" Background="#1A1A24" Margin="0,0,24,0">
-                    <TextBlock x:Name="lblHeaderEmoji" 
-                               Text="🃏" 
-                               FontSize="32" 
-                               HorizontalAlignment="Center" 
+                <Border
+                    Width="64"
+                    Height="64"
+                    CornerRadius="32"
+                    BorderBrush="#2E2E3E"
+                    BorderThickness="1"
+                    Background="#1A1A24"
+                    Margin="0,0,24,0">
+                    <TextBlock x:Name="lblHeaderEmoji"
+                               Text="🃏"
+                               FontSize="32"
+                               HorizontalAlignment="Center"
                                VerticalAlignment="Center" />
                 </Border>
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock x:Name="lblStepIndicator" 
-                               Foreground="#8A2BE2" 
-                               FontWeight="Bold" 
-                               FontSize="14" 
+                    <TextBlock x:Name="lblStepIndicator"
+                               Foreground="#8A2BE2"
+                               FontWeight="Bold"
+                               FontSize="14"
                                Margin="0,0,0,4" />
-                    <TextBlock x:Name="lblStepTitle" 
-                               Foreground="White" 
-                               FontSize="36" 
+                    <TextBlock x:Name="lblStepTitle"
+                               Foreground="White"
+                               FontSize="36"
                                FontWeight="Bold" />
                 </StackPanel>
             </StackPanel>
@@ -152,95 +163,95 @@
             <Grid x:Name="grdStep1" Grid.Row="1" Visibility="Visible">
                 <StackPanel>
                     <Border Style="{StaticResource HowToPlayInfoBoxStyle}">
-                        <TextBlock Text="{DynamicResource HowToPlay_Step1Description}" 
-                                   Foreground="#B0B0C0" 
-                                   FontSize="16" 
-                                   TextWrapping="Wrap" 
+                        <TextBlock Text="{DynamicResource HowToPlay_Step1Description}"
+                                   Foreground="#B0B0C0"
+                                   FontSize="16"
+                                   TextWrapping="Wrap"
                                    LineHeight="24" />
                     </Border>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
                         <Border Style="{StaticResource HowToPlayCardStyle}" BorderBrush="#B8860B">
                             <StackPanel>
-                                <TextBlock Text="🐱" 
-                                           FontSize="48" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="🐱"
+                                           FontSize="48"
+                                           HorizontalAlignment="Center"
                                            Margin="0,0,0,16"/>
-                                <TextBlock Text="{DynamicResource HowToPlay_CatEgyptian}" 
-                                           Foreground="#FFD700" 
-                                           FontWeight="Bold" 
+                                <TextBlock Text="{DynamicResource HowToPlay_CatEgyptian}"
+                                           Foreground="#FFD700"
+                                           FontWeight="Bold"
                                            HorizontalAlignment="Center" />
-                                <TextBlock Text="{DynamicResource HowToPlay_CatEgyptianSubtitle}" 
-                                           Foreground="#808090" 
-                                           FontSize="11" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="{DynamicResource HowToPlay_CatEgyptianSubtitle}"
+                                           Foreground="#808090"
+                                           FontSize="11"
+                                           HorizontalAlignment="Center"
                                            Margin="0,4,0,0" />
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource HowToPlayCardStyle}" BorderBrush="#2E8B57">
                             <StackPanel>
-                                <TextBlock Text="🧟" 
-                                           FontSize="48" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="🧟"
+                                           FontSize="48"
+                                           HorizontalAlignment="Center"
                                            Margin="0,0,0,16"/>
-                                <TextBlock Text="{DynamicResource HowToPlay_CatZombie}" 
-                                           Foreground="#3CB371" 
-                                           FontWeight="Bold" 
+                                <TextBlock Text="{DynamicResource HowToPlay_CatZombie}"
+                                           Foreground="#3CB371"
+                                           FontWeight="Bold"
                                            HorizontalAlignment="Center" />
-                                <TextBlock Text="{DynamicResource HowToPlay_CatZombieSubtitle}" 
-                                           Foreground="#808090" 
-                                           FontSize="11" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="{DynamicResource HowToPlay_CatZombieSubtitle}"
+                                           Foreground="#808090"
+                                           FontSize="11"
+                                           HorizontalAlignment="Center"
                                            Margin="0,4,0,0" />
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource HowToPlayCardStyle}" BorderBrush="#4169E1">
                             <StackPanel>
-                                <TextBlock Text="🛡️" 
-                                           FontSize="48" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="🛡️"
+                                           FontSize="48"
+                                           HorizontalAlignment="Center"
                                            Margin="0,0,0,16"/>
-                                <TextBlock Text="{DynamicResource HowToPlay_CatGuardian}" 
-                                           Foreground="#6495ED" 
-                                           FontWeight="Bold" 
+                                <TextBlock Text="{DynamicResource HowToPlay_CatGuardian}"
+                                           Foreground="#6495ED"
+                                           FontWeight="Bold"
                                            HorizontalAlignment="Center" />
-                                <TextBlock Text="{DynamicResource HowToPlay_CatGuardianSubtitle}" 
-                                           Foreground="#808090" 
-                                           FontSize="11" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="{DynamicResource HowToPlay_CatGuardianSubtitle}"
+                                           Foreground="#808090"
+                                           FontSize="11"
+                                           HorizontalAlignment="Center"
                                            Margin="0,4,0,0" />
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource HowToPlayCardStyle}" BorderBrush="#8A2BE2">
                             <StackPanel>
-                                <TextBlock Text="☠️" 
-                                           FontSize="48" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="☠️"
+                                           FontSize="48"
+                                           HorizontalAlignment="Center"
                                            Margin="0,0,0,16"/>
-                                <TextBlock Text="{DynamicResource HowToPlay_CatFatal}" 
-                                           Foreground="#DDA0DD" 
-                                           FontWeight="Bold" 
+                                <TextBlock Text="{DynamicResource HowToPlay_CatFatal}"
+                                           Foreground="#DDA0DD"
+                                           FontWeight="Bold"
                                            HorizontalAlignment="Center" />
-                                <TextBlock Text="{DynamicResource HowToPlay_CatFatalSubtitle}" 
-                                           Foreground="#808090" 
-                                           FontSize="11" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="{DynamicResource HowToPlay_CatFatalSubtitle}"
+                                           Foreground="#808090"
+                                           FontSize="11"
+                                           HorizontalAlignment="Center"
                                            Margin="0,4,0,0" />
                             </StackPanel>
                         </Border>
                     </StackPanel>
                     <Border Style="{StaticResource HowToPlayInfoBoxStyle}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource HowToPlay_CardsPerPlayer}" 
-                                       Foreground="#606070" 
-                                       FontWeight="Bold" 
+                            <TextBlock Text="{DynamicResource HowToPlay_CardsPerPlayer}"
+                                       Foreground="#606070"
+                                       FontWeight="Bold"
                                        Margin="0,0,0,16" />
-                            <TextBlock Text="{DynamicResource HowToPlay_CardCount4}" 
-                                       Foreground="White" 
+                            <TextBlock Text="{DynamicResource HowToPlay_CardCount4}"
+                                       Foreground="White"
                                        Margin="0,0,0,8" />
-                            <TextBlock Text="{DynamicResource HowToPlay_CardCount6}" 
-                                       Foreground="White" 
+                            <TextBlock Text="{DynamicResource HowToPlay_CardCount6}"
+                                       Foreground="White"
                                        Margin="0,0,0,8" />
-                            <TextBlock Text="{DynamicResource HowToPlay_CardCount8}" 
+                            <TextBlock Text="{DynamicResource HowToPlay_CardCount8}"
                                        Foreground="White" />
                         </StackPanel>
                     </Border>
@@ -250,35 +261,48 @@
             <Grid x:Name="grdStep2" Grid.Row="1" Visibility="Collapsed">
                 <StackPanel>
                     <Border Style="{StaticResource HowToPlayInfoBoxStyle}">
-                        <TextBlock Text="{DynamicResource HowToPlay_Step2Description}" 
-                                   Foreground="#B0B0C0" 
-                                   FontSize="16" 
-                                   TextWrapping="Wrap" 
+                        <TextBlock Text="{DynamicResource HowToPlay_Step2Description}"
+                                   Foreground="#B0B0C0"
+                                   FontSize="16"
+                                   TextWrapping="Wrap"
                                    LineHeight="24" />
                     </Border>
                     <Border Style="{StaticResource HowToPlayInfoBoxStyle}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource HowToPlay_Step2Action}" 
-                                       Foreground="White" 
-                                       FontSize="16" 
-                                       VerticalAlignment="Center" 
+                            <TextBlock Text="{DynamicResource HowToPlay_Step2Action}"
+                                       Foreground="White"
+                                       FontSize="16"
+                                       VerticalAlignment="Center"
                                        Margin="0,0,24,0" />
-                            <Border Width="64" Height="80" CornerRadius="8" Background="#2A2A3D" BorderBrush="#8A2BE2" BorderThickness="2" Margin="0,0,16,0">
-                                <TextBlock Text="🐱" 
-                                           FontSize="32" 
-                                           HorizontalAlignment="Center" 
+                            <Border
+                                Width="64"
+                                Height="80"
+                                CornerRadius="8"
+                                Background="#2A2A3D"
+                                BorderBrush="#8A2BE2"
+                                BorderThickness="2"
+                                Margin="0,0,16,0">
+                                <TextBlock Text="🐱"
+                                           FontSize="32"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
                             </Border>
-                            <TextBlock Text="→" 
-                                       Foreground="#606070" 
-                                       FontSize="24" 
-                                       VerticalAlignment="Center" 
+                            <TextBlock Text="→"
+                                       Foreground="#606070"
+                                       FontSize="24"
+                                       VerticalAlignment="Center"
                                        Margin="0,0,16,0" />
-                            <Border Width="64" Height="80" CornerRadius="8" Background="#15151D" BorderBrush="#404050" BorderThickness="1">
-                                <TextBlock Text="🎴" 
-                                           FontSize="32" 
-                                           Foreground="#404050" 
-                                           HorizontalAlignment="Center" 
+                            <Border
+                                Width="64"
+                                Height="80"
+                                CornerRadius="8"
+                                Background="#15151D"
+                                BorderBrush="#404050"
+                                BorderThickness="1">
+                                <TextBlock Text="🎴"
+                                           FontSize="32"
+                                           Foreground="#404050"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
                             </Border>
                         </StackPanel>
@@ -289,50 +313,50 @@
             <Grid x:Name="grdStep3" Grid.Row="1" Visibility="Collapsed">
                 <StackPanel>
                     <Border Style="{StaticResource HowToPlayInfoBoxStyle}">
-                        <TextBlock Text="{DynamicResource HowToPlay_Step3Description}" 
-                                   Foreground="#B0B0C0" 
-                                   FontSize="16" 
-                                   TextWrapping="Wrap" 
+                        <TextBlock Text="{DynamicResource HowToPlay_Step3Description}"
+                                   Foreground="#B0B0C0"
+                                   FontSize="16"
+                                   TextWrapping="Wrap"
                                    LineHeight="24" />
                     </Border>
                     <Border Style="{StaticResource HowToPlayInfoBoxStyle}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource HowToPlay_BidExample}" 
-                                       Foreground="White" 
-                                       FontSize="16" 
-                                       VerticalAlignment="Center" 
+                            <TextBlock Text="{DynamicResource HowToPlay_BidExample}"
+                                       Foreground="White"
+                                       FontSize="16"
+                                       VerticalAlignment="Center"
                                        Margin="0,0,24,0" />
                             <Border Width="40" Height="40" CornerRadius="20" Background="#2A2A3D" Margin="0,0,16,0">
-                                <TextBlock Text="2" 
-                                           Foreground="White" 
-                                           FontWeight="Bold" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="2"
+                                           Foreground="White"
+                                           FontWeight="Bold"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
                             </Border>
                             <Border Width="40" Height="40" CornerRadius="20" Background="#2A2A3D" Margin="0,0,16,0">
-                                <TextBlock Text="3" 
-                                           Foreground="White" 
-                                           FontWeight="Bold" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="3"
+                                           Foreground="White"
+                                           FontWeight="Bold"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
                             </Border>
                             <Border Width="40" Height="40" CornerRadius="20" Background="#2A2A3D" Margin="0,0,16,0">
-                                <TextBlock Text="5" 
-                                           Foreground="White" 
-                                           FontWeight="Bold" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="5"
+                                           Foreground="White"
+                                           FontWeight="Bold"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
                             </Border>
                             <Border Width="40" Height="40" CornerRadius="20" Background="#8A2BE2" Margin="0,0,16,0">
-                                <TextBlock Text="7" 
-                                           Foreground="White" 
-                                           FontWeight="Bold" 
-                                           HorizontalAlignment="Center" 
+                                <TextBlock Text="7"
+                                           Foreground="White"
+                                           FontWeight="Bold"
+                                           HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
                             </Border>
-                            <TextBlock Text="{DynamicResource HowToPlay_CurrentBid}" 
-                                       Foreground="#FFA500" 
-                                       FontWeight="Bold" 
+                            <TextBlock Text="{DynamicResource HowToPlay_CurrentBid}"
+                                       Foreground="#FFA500"
+                                       FontWeight="Bold"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Border>
@@ -342,50 +366,50 @@
             <Grid x:Name="grdStep4" Grid.Row="1" Visibility="Collapsed">
                 <StackPanel>
                     <Border Style="{StaticResource HowToPlayInfoBoxStyle}">
-                        <TextBlock Text="{DynamicResource HowToPlay_Step4Description}" 
-                                   Foreground="#B0B0C0" 
-                                   FontSize="16" 
-                                   TextWrapping="Wrap" 
+                        <TextBlock Text="{DynamicResource HowToPlay_Step4Description}"
+                                   Foreground="#B0B0C0"
+                                   FontSize="16"
+                                   TextWrapping="Wrap"
                                    LineHeight="24" />
                     </Border>
                     <Border Style="{StaticResource HowToPlayInfoBoxStyle}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource HowToPlay_FlippingOrder}" 
-                                       Foreground="White" 
+                            <TextBlock Text="{DynamicResource HowToPlay_FlippingOrder}"
+                                       Foreground="White"
                                        Margin="0,0,0,16" />
                             <StackPanel Orientation="Horizontal">
                                 <Border Style="{StaticResource HowToPlayCardStyle}" BorderBrush="#4169E1">
                                     <StackPanel>
-                                        <TextBlock Text="{DynamicResource HowToPlay_YouFirst}" 
-                                                   Foreground="#6495ED" 
-                                                   FontWeight="Bold" 
+                                        <TextBlock Text="{DynamicResource HowToPlay_YouFirst}"
+                                                   Foreground="#6495ED"
+                                                   FontWeight="Bold"
                                                    Margin="0,0,0,8"/>
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="🐱" 
-                                                       FontSize="24" 
+                                            <TextBlock Text="🐱"
+                                                       FontSize="24"
                                                        Margin="0,0,8,0"/>
-                                            <TextBlock Text="🧟" 
+                                            <TextBlock Text="🧟"
                                                        FontSize="24" />
                                         </StackPanel>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource HowToPlayCardStyle}" BorderBrush="#404050">
                                     <StackPanel>
-                                        <TextBlock Text="{DynamicResource HowToPlay_OpponentA}" 
-                                                   Foreground="#A0A0B0" 
-                                                   FontWeight="Bold" 
+                                        <TextBlock Text="{DynamicResource HowToPlay_OpponentA}"
+                                                   Foreground="#A0A0B0"
+                                                   FontWeight="Bold"
                                                    Margin="0,0,0,8"/>
-                                        <TextBlock Text="🐱" 
+                                        <TextBlock Text="🐱"
                                                    FontSize="24" />
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource HowToPlayCardStyle}" BorderBrush="#8B0000">
                                     <StackPanel>
-                                        <TextBlock Text="{DynamicResource HowToPlay_OpponentB}" 
-                                                   Foreground="#CD5C5C" 
-                                                   FontWeight="Bold" 
+                                        <TextBlock Text="{DynamicResource HowToPlay_OpponentB}"
+                                                   Foreground="#CD5C5C"
+                                                   FontWeight="Bold"
                                                    Margin="0,0,0,8"/>
-                                        <TextBlock Text="☠️" 
+                                        <TextBlock Text="☠️"
                                                    FontSize="24" />
                                     </StackPanel>
                                 </Border>
@@ -398,37 +422,39 @@
             <Grid x:Name="grdStep5" Grid.Row="1" Visibility="Collapsed">
                 <StackPanel>
                     <Border Style="{StaticResource HowToPlayInfoBoxStyle}">
-                        <TextBlock Text="{DynamicResource HowToPlay_Step5Description}" 
-                                   Foreground="#B0B0C0" 
-                                   FontSize="16" 
-                                   TextWrapping="Wrap" 
+                        <TextBlock Text="{DynamicResource HowToPlay_Step5Description}"
+                                   Foreground="#B0B0C0"
+                                   FontSize="16"
+                                   TextWrapping="Wrap"
                                    LineHeight="24" />
                     </Border>
                     <Border Style="{StaticResource HowToPlayInfoBoxStyle}" BorderBrush="#8A2BE2" Background="#151020">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource HowToPlay_EightCardOnlyLabel}" 
-                                       Foreground="#DDA0DD" 
-                                       FontWeight="Bold" 
+                            <TextBlock Text="{DynamicResource HowToPlay_EightCardOnlyLabel}"
+                                       Foreground="#DDA0DD"
+                                       FontWeight="Bold"
                                        Margin="0,0,0,16" />
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="🐾" 
-                                           FontSize="16" 
+                                <TextBlock Text="🐾"
+                                           FontSize="16"
                                            Margin="0,0,12,0" />
-                                <TextBlock Text="{DynamicResource HowToPlay_FugitiveKitten}" 
-                                           Foreground="White" 
+                                <TextBlock Text="{DynamicResource HowToPlay_FugitiveKitten}"
+                                           Foreground="White"
                                            FontWeight="Bold" />
                                 <TextBlock Text=" " />
-                                <TextBlock Text="{DynamicResource HowToPlay_FugitiveKittenDescription}" Foreground="#B0B0C0" />
+                                <TextBlock
+                                    Text="{DynamicResource HowToPlay_FugitiveKittenDescription}"
+                                    Foreground="#B0B0C0" />
                             </StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🛡️" 
-                                           FontSize="16" 
+                                <TextBlock Text="🛡️"
+                                           FontSize="16"
                                            Margin="0,0,12,0" />
-                                <TextBlock Text="{DynamicResource HowToPlay_ExtraLife}" 
-                                           Foreground="White" 
+                                <TextBlock Text="{DynamicResource HowToPlay_ExtraLife}"
+                                           Foreground="White"
                                            FontWeight="Bold" />
                                 <TextBlock Text=" " />
-                                <TextBlock Text="{DynamicResource HowToPlay_ExtraLifeDescription}" 
+                                <TextBlock Text="{DynamicResource HowToPlay_ExtraLifeDescription}"
                                            Foreground="#B0B0C0" />
                             </StackPanel>
                         </StackPanel>
@@ -443,14 +469,18 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <Button x:Name="btnPrevious" 
-                        Grid.Column="0" 
-                        Content="{DynamicResource HowToPlay_PreviousButton}" 
-                        Style="{DynamicResource GhostButtonStyle}" 
-                        Visibility="Hidden" 
+                <Button x:Name="btnPrevious"
+                        Grid.Column="0"
+                        Content="{DynamicResource HowToPlay_PreviousButton}"
+                        Style="{DynamicResource GhostButtonStyle}"
+                        Visibility="Hidden"
                         Click="BtnPrevious_Click" />
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
                     <Ellipse x:Name="ellDot1" Style="{StaticResource PaginationDotStyle}" Tag="Active" />
                     <Ellipse x:Name="ellDot2" Style="{StaticResource PaginationDotStyle}" />
                     <Ellipse x:Name="ellDot3" Style="{StaticResource PaginationDotStyle}" />
@@ -458,10 +488,10 @@
                     <Ellipse x:Name="ellDot5" Style="{StaticResource PaginationDotStyle}" />
                 </StackPanel>
 
-                <Button x:Name="btnNext" 
-                        Grid.Column="2" 
-                        Content="{DynamicResource HowToPlay_NextButton}" 
-                        Style="{StaticResource PrimaryButtonStyle}" 
+                <Button x:Name="btnNext"
+                        Grid.Column="2"
+                        Content="{DynamicResource HowToPlay_NextButton}"
+                        Style="{StaticResource PrimaryButtonStyle}"
                         Click="BtnNext_Click" />
             </Grid>
         </Grid>
