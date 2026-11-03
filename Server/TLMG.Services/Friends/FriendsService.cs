@@ -22,6 +22,9 @@ namespace TLMG.Services.Friends
         private const string CannotInviteErrorKey = "Friends_CannotInviteError";
         private const string InvitationNotValidErrorKey = "Friends_InvitationNotValidError";
 
+        // Id que se registra en el log cuando el token no corresponde a ninguna sesión.
+        private const int NoUserId = 0;
+
         private static readonly ILog _log = LogManager.GetLogger(typeof(FriendsService));
 
         // CannotInvite cubre "no es tu amigo", "no está en línea" y "ya está en una sala": misma clave, sin filtrar
@@ -66,7 +69,7 @@ namespace TLMG.Services.Friends
 
             if (!_sessionRegistry.TryFindSessionByToken(sessionToken, out playerSession))
             {
-                LogRejectedOperation("suscribirse a los amigos", LobbyMembershipChange.NoUserId, "sesión no válida");
+                LogRejectedOperation("suscribirse a los amigos", NoUserId, "sesión no válida");
                 sessionOutcome = new SessionOutcome<OperationSubscribeToFriendsResult>(
                     new OperationSubscribeToFriendsResult { ErrorKey = CommonErrorKeyHelper.InvalidSessionErrorKey });
             }
@@ -94,7 +97,7 @@ namespace TLMG.Services.Friends
             if (!_sessionRegistry.TryFindSessionByToken(sessionToken, out playerSession))
             {
                 operationInviteFriendToRoomResult.ErrorKey = CommonErrorKeyHelper.InvalidSessionErrorKey;
-                LogRejectedOperation("invitar a un amigo", LobbyMembershipChange.NoUserId, "sesión no válida");
+                LogRejectedOperation("invitar a un amigo", NoUserId, "sesión no válida");
             }
             else
             {
