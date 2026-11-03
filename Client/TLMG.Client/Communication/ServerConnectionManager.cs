@@ -362,11 +362,8 @@ namespace TLMG.Client.Communication
         internal void NotifyEnterLobbyResultReceived(OperationEnterLobbyResult operationEnterLobbyResult)
         {
             LobbyRoom enteredRoom = operationEnterLobbyResult.Room;
-            bool isExpectedEntry = operationEnterLobbyResult.IsSuccess
-                && enteredRoom != null
-                && enteredRoom.RoomId == _enteringRoomId;
-            bool isAlreadyShowingRoom = CurrentRoom != null && enteredRoom != null
-                && CurrentRoom.RoomId == enteredRoom.RoomId;
+            bool isExpectedEntry = operationEnterLobbyResult.IsSuccess && IsEnteringRoom(enteredRoom);
+            bool isAlreadyShowingRoom = IsSameRoom(CurrentRoom, enteredRoom);
 
             if (isExpectedEntry && !isAlreadyShowingRoom)
             {
@@ -404,8 +401,8 @@ namespace TLMG.Client.Communication
         /// <param name="lobbyRoom">La sala con la lista actualizada de jugadores.</param>
         internal void NotifyLobbyRoomChanged(LobbyRoom lobbyRoom)
         {
-            bool isCurrentRoom = CurrentRoom != null && lobbyRoom != null && lobbyRoom.RoomId == CurrentRoom.RoomId;
-            bool isEnteringRoom = lobbyRoom != null && lobbyRoom.RoomId == _enteringRoomId;
+            bool isCurrentRoom = IsSameRoom(CurrentRoom, lobbyRoom);
+            bool isEnteringRoom = IsEnteringRoom(lobbyRoom);
 
             if (isCurrentRoom || isEnteringRoom)
             {
@@ -437,6 +434,21 @@ namespace TLMG.Client.Communication
             CurrentRoom = null;
             IsRoomCreationPending = false;
             _enteringRoomId = null;
+        }
+
+        private static bool IsSameRoom(LobbyRoom firstRoom, LobbyRoom secondRoom)
+        {
+            bool areBothRooms = firstRoom != null && secondRoom != null;
+            bool isSameRoom = areBothRooms && firstRoom.RoomId == secondRoom.RoomId;
+
+            return isSameRoom;
+        }
+
+        private bool IsEnteringRoom(LobbyRoom lobbyRoom)
+        {
+            bool isEnteringRoom = lobbyRoom != null && lobbyRoom.RoomId == _enteringRoomId;
+
+            return isEnteringRoom;
         }
 
         private bool IsRegisteredSessionResult(OperationLogInResult operationLogInResult)
