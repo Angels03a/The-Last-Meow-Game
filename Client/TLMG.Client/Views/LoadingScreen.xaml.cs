@@ -20,7 +20,7 @@ namespace TLMG.Client.Views
         public LoadingScreen()
         {
             InitializeComponent();
-            Loaded += LoadingScreen_Loaded;
+            Loaded += OnScreenLoaded;
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace TLMG.Client.Views
         /// </summary>
         public event EventHandler LoadingCompleted;
 
-        private void LoadingScreen_Loaded(object sender, RoutedEventArgs e)
+        private void OnScreenLoaded(object sender, RoutedEventArgs e)
         {
             var loadingAnimation = new DoubleAnimation
             {
