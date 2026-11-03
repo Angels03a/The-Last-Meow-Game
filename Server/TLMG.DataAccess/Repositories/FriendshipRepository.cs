@@ -27,17 +27,17 @@ namespace TLMG.DataAccess.Repositories
             {
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
                 {
-                    var sentFriendIds = context.Friendship.AsNoTracking()
+                    IQueryable<int> sentFriendIds = context.Friendship.AsNoTracking()
                         .Where(friendship => friendship.state == AcceptedFriendshipState
                             && friendship.id_user_sender == userId)
                         .Select(friendship => friendship.id_user_receiver);
 
-                    var receivedFriendIds = context.Friendship.AsNoTracking()
+                    IQueryable<int> receivedFriendIds = context.Friendship.AsNoTracking()
                         .Where(friendship => friendship.state == AcceptedFriendshipState
                             && friendship.id_user_receiver == userId)
                         .Select(friendship => friendship.id_user_sender);
 
-                    var friendIds = sentFriendIds.Union(receivedFriendIds);
+                    IQueryable<int> friendIds = sentFriendIds.Union(receivedFriendIds);
 
                     var friendsQuery = from user in context.User.AsNoTracking()
                                        where friendIds.Contains(user.id_user)
