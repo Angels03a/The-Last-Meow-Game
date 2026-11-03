@@ -218,11 +218,11 @@ namespace TLMG.Client.Views
             }
             else
             {
-                ProcessFailedVerificationAttempt();
+                RecordFailedVerificationAttempt();
             }
         }
 
-        private void ProcessFailedVerificationAttempt()
+        private void RecordFailedVerificationAttempt()
         {
             _totalFailedAttempts++;
             UpdateAttemptIndicatorDots();

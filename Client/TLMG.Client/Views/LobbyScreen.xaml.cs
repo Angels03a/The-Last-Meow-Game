@@ -222,16 +222,16 @@ namespace TLMG.Client.Views
 
             if (isEnterPressed)
             {
-                ProcessOutgoingChatMessage();
+                AppendOutgoingChatMessage();
             }
         }
 
         private void BtnSendChat_Click(object sender, RoutedEventArgs e)
         {
-            ProcessOutgoingChatMessage();
+            AppendOutgoingChatMessage();
         }
 
-        private void ProcessOutgoingChatMessage()
+        private void AppendOutgoingChatMessage()
         {
             string messageText = txtChatInput.Text.Trim();
             bool isMessageValid = !string.IsNullOrWhiteSpace(messageText);
