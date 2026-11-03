@@ -134,7 +134,7 @@ namespace TLMG.Client.Views
         {
             ShowFriendList();
 
-            if (!ServerConnection.HasFriendsChannel)
+            if (!ServerConnection.HasRegisteredSession)
             {
                 lblEmptyFriends.SetResourceReference(TextBlock.TextProperty, GuestWithoutFriendsMessageKey);
                 lblEmptyFriends.Visibility = Visibility.Visible;

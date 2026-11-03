@@ -70,7 +70,7 @@ namespace TLMG.Client.Communication
         public event EventHandler ConnectionLost;
 
         /// <summary>Obtiene si hay una sesión de jugador registrado con su canal de amigos abierto.</summary>
-        public bool HasFriendsChannel => _friendsClient != null && !string.IsNullOrEmpty(_sessionToken);
+        public bool HasRegisteredSession => _friendsClient != null && !string.IsNullOrEmpty(_sessionToken);
 
         /// <summary>
         /// Obtiene la última foto de la sala del jugador que entregó el servidor, o null si no está en una sala. El
@@ -146,7 +146,7 @@ namespace TLMG.Client.Communication
         {
             bool wasSent = false;
 
-            if (HasFriendsChannel)
+            if (HasRegisteredSession)
             {
                 wasSent = TrySend(() => _friendsClient.SubscribeToFriends(_sessionToken), "pedir la lista de amigos");
             }
@@ -161,7 +161,7 @@ namespace TLMG.Client.Communication
         {
             bool wasSent = false;
 
-            if (HasFriendsChannel)
+            if (HasRegisteredSession)
             {
                 wasSent = TrySend(
                     () => _friendsClient.InviteFriendToRoom(_sessionToken, friendUserId),
@@ -181,7 +181,7 @@ namespace TLMG.Client.Communication
         {
             bool wasSent = false;
 
-            if (HasFriendsChannel)
+            if (HasRegisteredSession)
             {
                 wasSent = TrySend(
                     () => _friendsClient.AcceptRoomInvitation(_sessionToken, invitationId),
@@ -467,7 +467,7 @@ namespace TLMG.Client.Communication
         {
             bool isOpen = _lobbyClient != null;
 
-            if (!isOpen && HasFriendsChannel)
+            if (!isOpen && HasRegisteredSession)
             {
                 isOpen = TryOpenLobbyChannel();
 

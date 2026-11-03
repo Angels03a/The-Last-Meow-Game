@@ -263,7 +263,7 @@ namespace TLMG.Client.Views
             ShowCurrentRoom();
             bool needsRoom = ServerConnection.CurrentRoom == null && !ServerConnection.IsRoomCreationPending;
 
-            if (needsRoom && !ServerConnection.HasFriendsChannel)
+            if (needsRoom && !ServerConnection.HasRegisteredSession)
             {
                 ShowLobbyError(GuestCannotCreateRoomErrorKey);
             }
