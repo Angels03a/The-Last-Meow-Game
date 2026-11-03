@@ -150,6 +150,7 @@ Formato de entrada:
 - Nota (2026-10-25): posiblemente obsoleta en el punto de los DTO sin sufijo `Data` por D-56; confirmar con el encargado.
 - Nota (2026-10-29 22:53): estado en 53263f1. Hecho: el proxy TLMGService se retiró (a8cdce2, BL-035) y el FIXME del hash desapareció con BL-001. Obsoleto: los DTO sin sufijo Data (D-56, Estándar §17.1). Pendiente: usings sin agrupar en CreateAccountScreen.xaml.cs:1-5; 4 líneas de más de 120 columnas en PlayerAccountRegistrationService.cs (:47, 76, 82, 155); espacios al final de línea en 7 archivos .cs (PlayerAccountRegistrationService.cs 6, ServiceImplementation.cs 5, entre otros); OperationRegisterPlayerAccountResult.cs con la llave del namespace en la línea 3 y propiedades sin <summary>; <WCFMetadata Include="Connected Services\" /> en TLMG.Contracts.csproj:69 y TLMG.Server.csproj:81.
 - Nota (2026-11-02 16:06): 0358fe9 eliminó las líneas de más de 120 columnas de PlayerAccountRegistrationService. Siguen los usings de CreateAccountScreen.xaml.cs:1-5, OperationRegisterPlayerAccountResult.cs y WCFMetadata.
+- Nota (2026-11-02 20:33): avance. 085948b quitó los espacios finales de ServiceImplementation.cs, LobbyScreen, HowToPlayScreen y OptionsScreen; 993fb59 agrupó los usings de CreateAccountScreen; ca112d2 documentó las propiedades de OperationRegisterPlayerAccountResult y PlayerAccountRegistration. Quedan la llave del namespace en la misma línea (OperationRegisterPlayerAccountResult.cs:3) y <WCFMetadata Include="Connected Services\" /> en TLMG.Contracts.csproj:69 y TLMG.Server.csproj:81.
 
 ### BL-031 · Script SQL: datos ficticios y encabezado versionado
 - Creado: 2026-10-25 00:49
@@ -227,6 +228,7 @@ Formato de entrada:
 - Nota (2026-10-25): el uso de Thread.CurrentThread en LanguageManager se corrigió en 64d1ce1. La entrada sigue abierta por el resto de su alcance.
 - Nota (2026-10-25): el commit 0f14a64 cambió a Error el nivel de log del fallo inesperado en ServiceImplementation.UsersManager.cs, documentó la constante EnglishCultureCode de LanguageManager y dejó su ternario en una sola línea. La entrada sigue abierta por el resto de su alcance.
 - Nota (2026-10-29 22:53): estado en 53263f1. Pendiente: variable con nombre de tipo (PlayerAccountRegistrationService.cs:83); constantes ...minimum/maximun (PlayerAccountRegistrationValidationHelper.cs:13-18); 4 ternarios multilínea (LocalizableScreen.cs:47-49, LoginScreen.xaml.cs:70-71, NewPasswordScreen.xaml.cs:99-100, VerificationScreen.xaml.cs:198-199); return de expresión (LeaderboardScreen.xaml.cs:301, NewPasswordScreen.xaml.cs:113); manejadores Timer_Tick (VerificationScreen.xaml.cs:126), CountdownTimer_Tick (LobbyScreen.xaml.cs:191), ToastTimer_Tick (:171) y DigitBox_* (VerificationScreen.xaml.cs:68, 85); public const sin documentar (ValidationHelper.cs:12-16); "{0} pts" como respaldo en LeaderboardScreen.xaml.cs:299; llaves de OperationRegisterPlayerAccountResult.cs:3; referencia System.Web en TLMG.Services.csproj:52; FIXME de LobbyScreen.xaml.cs:195 (antes :255). Ya no aplica: LoadLeaderboardData (se reemplazó en ea27455).
+- Nota (2026-11-02 20:33): avance. ca112d2 documentó las public const de ValidationHelper y 391433c renombró LoadingScreen_Loaded a OnScreenLoaded; la variable con nombre de tipo ya no existe desde 0358fe9. Sigue pendiente (git grep sobre 635c66f): constantes ...minimum/maximun (PlayerAccountRegistrationValidationHelper.cs:13-18); 4 ternarios multilínea (LocalizableScreen.cs:47-49, LoginScreen.xaml.cs:70-71, NewPasswordScreen.xaml.cs:99-100, VerificationScreen.xaml.cs:198-199); return de expresión (LeaderboardScreen.xaml.cs:301, NewPasswordScreen.xaml.cs:113); manejadores Timer_Tick (VerificationScreen.xaml.cs:126), DigitBox_* (:68, 85), ToastTimer_Tick y CountdownTimer_Tick (LobbyScreen.xaml.cs:171, 191); <param> y <returns> de los tres métodos públicos de ValidationHelper (:36, 62, 97); "{0} pts" como respaldo (LeaderboardScreen.xaml.cs:299); llaves de OperationRegisterPlayerAccountResult.cs:3; referencia System.Web (TLMG.Services.csproj:52); FIXME de LobbyScreen.xaml.cs:195.
 
 ### BL-044 · Reglas de validación solo en el cliente y desalineación con la BD
 - Creado: 2026-10-25 00:49
@@ -507,32 +509,12 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-02 17:23): diferida por decisión del encargado; pendiente conocido.
 
-### BL-096 · Restaurar los comentarios del porqué retirados en 0358fe9
-- Creado: 2026-11-02 16:06
-- Por qué: 0358fe9 borró once comentarios que explicaban decisiones no evidentes: el orden de los campos estáticos entre partials (ServiceImplementation.*Manager), por qué los canales del servidor no se desuscriben, por qué el manejador de canal no relanza, la cita de las Reglas §1.1.1 junto a MaximumPlayersPerRoom (SessionRegistry.Lobbies.cs:11), "el último canal gana", "una invitación repetida no crea otra" y la equivalencia de pareja por CK_Friendship_not_self (FriendshipRepository). Los textos están en 53263f1.
-- Depende de: nada (ajustar después de BL-093 los que hablen del catch)
-- Estado: Pendiente
-- Nota (2026-11-02 20:17): se restauraron 12 líneas de comentario. No se restauran los dos comentarios sobre por qué el manejador de canal no relanza (el catch ya no existe) ni los dos FIXME retirados (uno duplicado y otro sobre métodos que ya no existen).
-
-### BL-097 · Hallazgos de estilo del Estándar en el lobby y en 0358fe9
-- Creado: 2026-11-02 16:06
-- Por qué: orden de miembros (§9.5) en MainWindow.xaml.cs:103 y FriendsScreen.xaml.cs:111; más de 3 operadores (§10.5) en ServerConnectionManager.cs:365, 368 y 407; return de expresión (§13.2) en LobbyService.cs:206 y SessionRegistry.Lobbies.cs:357; var con métodos (§9.7) en FriendshipRepository.cs:30, 35 y 40; espacios finales (§9.3) en ServiceImplementation.cs:74 (nuevo), LobbyScreen.xaml.cs:18, 20 y 22, HowToPlayScreen.xaml.cs:109 y 111 y OptionsScreen.xaml.cs:12; constructor sin <summary> en MainMenuScreen.xaml.cs:15 (§12.2); LoadingScreen_Loaded en lugar de OnScreenLoaded (§7.2). Ninguno cambia el comportamiento.
-- Depende de: nada
-- Estado: Pendiente
-- Nota (2026-11-02 17:23): en esta pasada se corrigen todos los puntos listados: orden de miembros y uso de la propiedad ServerConnection en MainWindow (§9.5), IsSameRoom en ServerConnectionManager (§10.5), return con variable local (§13.2), tipos explícitos en FriendshipRepository (§9.7), espacios finales (§9.3), <summary> del constructor de MainMenuScreen (§12.2) y OnScreenLoaded en LoadingScreen (§7.2). También se agregan los <summary> de ValidationHelper, OperationRegisterPlayerAccountResult y PlayerAccountRegistration (§12.2), se agrupan los usings de CreateAccountScreen (§9.4) y FriendsService usa una constante propia de usuario ausente en lugar de la del lobby.
-
 ### BL-098 · Dos mecanismos de avisos en el servidor
 - Creado: 2026-11-02 16:06
 - Por qué: el lobby usa LobbyOutcome y LobbyNotification con NotifyLobbyMembers, y amigos y sesiones usan SessionOutcome con Action y SafeNotifyAll; LobbyService.CreateNotifications y SessionNotificationHelper.CreateRoomNotifications repiten la conversión de la foto de sala. Unificar en SessionOutcome y unir los manejadores Closed y Faulted de cada canal en uno solo.
 - Depende de: BL-093 (mismos archivos)
 - Estado: Pendiente
 - Nota (2026-11-02 17:23): diferida por decisión del encargado; pendiente conocido.
-
-### BL-099 · Código sin uso y visibilidad de más en el lobby
-- Creado: 2026-11-02 16:06
-- Por qué: ISessionRegistry.IssueRoomEntryAuthorization (ISessionRegistry.cs:85, SessionRegistry.Lobbies.cs:108) no tiene usos; ServerConnectionManager.LeaveLobbyResultReceived (:64) no tiene suscriptores; OpenLobbyChannel (:205) es público y solo lo usa su clase (§10.9).
-- Depende de: nada
-- Estado: Pendiente
 
 ### BL-100 · MainMenuScreen muestra datos de prueba visibles
 - Creado: 2026-11-02 16:06
@@ -552,6 +534,7 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Pendiente
 - Nota (2026-11-02 17:23): en esta pasada se renombran los Handle* de las pantallas y de ServerConnectionManager, los Process* de LobbyScreen y VerificationScreen y HasFriendsChannel, que pasa a HasRegisteredSession. CommonErrorKeyHelper no se renombra: depende de la decisión sobre las claves de error (BL-017).
+- Nota (2026-11-02 20:33): avance. d6b9ecf (ServerConnectionManager: DisconnectAndNotifyConnectionLost y DisconnectIfCurrentChannelEnded), 09a74d1 (HasRegisteredSession), bc85a6d (FinishRegistrationAttempt, FinishLogInAttempt, ShowLeaderboardResult, ShowConnectionError, ReturnToLogInAfterVerification) y bf490af (AppendOutgoingChatMessage, RecordFailedVerificationAttempt). Queda CommonErrorKeyHelper, que depende de la decisión de BL-017.
 
 ## Finalizados
 
@@ -696,3 +679,26 @@ Formato de entrada:
 - Depende de: pieza de FriendsScreen
 - Estado: Finalizado el 2026-10-29 · commits 1db83da, 33dc497 y e685982
 - Nota (2026-10-29 22:53): cierre. ServerConnectionManager conserva la sala (CurrentRoom) y la lista de amigos (FriendList) aunque no haya pantalla suscrita, y MainWindow escucha siempre las invitaciones y el resultado de aceptar y entrar. Lo que queda del fallo de suscripción sigue en BL-077.
+
+### BL-096 · Restaurar los comentarios del porqué retirados en 0358fe9
+- Creado: 2026-11-02 16:06
+- Por qué: 0358fe9 borró once comentarios que explicaban decisiones no evidentes: el orden de los campos estáticos entre partials (ServiceImplementation.*Manager), por qué los canales del servidor no se desuscriben, por qué el manejador de canal no relanza, la cita de las Reglas §1.1.1 junto a MaximumPlayersPerRoom (SessionRegistry.Lobbies.cs:11), "el último canal gana", "una invitación repetida no crea otra" y la equivalencia de pareja por CK_Friendship_not_self (FriendshipRepository). Los textos están en 53263f1.
+- Depende de: nada (ajustar después de BL-093 los que hablen del catch)
+- Estado: Finalizado el 2026-11-02 · commit 1dcd92d
+- Nota (2026-11-02 20:17): se restauraron 12 líneas de comentario. No se restauran los dos comentarios sobre por qué el manejador de canal no relanza (el catch ya no existe) ni los dos FIXME retirados (uno duplicado y otro sobre métodos que ya no existen).
+- Nota (2026-11-02 20:33): cierre. Los nueve comentarios del porqué están en el código (git grep sobre 635c66f): ServiceImplementation.FriendsManager, .LobbyManager y .LeaderboardManager, SessionRegistry.Friends y .Lobbies (con la cita de las Reglas §1.1.1), FriendshipRepository y PlayerRepository.
+
+### BL-097 · Hallazgos de estilo del Estándar en el lobby y en 0358fe9
+- Creado: 2026-11-02 16:06
+- Por qué: orden de miembros (§9.5) en MainWindow.xaml.cs:103 y FriendsScreen.xaml.cs:111; más de 3 operadores (§10.5) en ServerConnectionManager.cs:365, 368 y 407; return de expresión (§13.2) en LobbyService.cs:206 y SessionRegistry.Lobbies.cs:357; var con métodos (§9.7) en FriendshipRepository.cs:30, 35 y 40; espacios finales (§9.3) en ServiceImplementation.cs:74 (nuevo), LobbyScreen.xaml.cs:18, 20 y 22, HowToPlayScreen.xaml.cs:109 y 111 y OptionsScreen.xaml.cs:12; constructor sin <summary> en MainMenuScreen.xaml.cs:15 (§12.2); LoadingScreen_Loaded en lugar de OnScreenLoaded (§7.2). Ninguno cambia el comportamiento.
+- Depende de: nada
+- Estado: Finalizado el 2026-11-02 · commits 535509d, 923f821, aa216fa, 53c6db6, 085948b, ca112d2, 391433c y 635c66f
+- Nota (2026-11-02 17:23): en esta pasada se corrigen todos los puntos listados: orden de miembros y uso de la propiedad ServerConnection en MainWindow (§9.5), IsSameRoom en ServerConnectionManager (§10.5), return con variable local (§13.2), tipos explícitos en FriendshipRepository (§9.7), espacios finales (§9.3), <summary> del constructor de MainMenuScreen (§12.2) y OnScreenLoaded en LoadingScreen (§7.2). También se agregan los <summary> de ValidationHelper, OperationRegisterPlayerAccountResult y PlayerAccountRegistration (§12.2), se agrupan los usings de CreateAccountScreen (§9.4) y FriendsService usa una constante propia de usuario ausente en lugar de la del lobby.
+- Nota (2026-11-02 20:33): cierre. Verificado sobre 635c66f: ServerConnection va después del constructor en MainWindow y FriendsScreen y MainWindow ya no usa ((App)Application.Current).ServerConnection; ninguna expresión booleana de ServerConnectionManager pasa de 3 operadores; no queda return x.AsReadOnly(); FriendshipRepository solo conserva el var de la consulta en sintaxis LINQ; los cuatro archivos ya no tienen espacios finales; el constructor de MainMenuScreen tiene <summary>; no queda LoadingScreen_Loaded; FriendsService ya no usa LobbyMembershipChange.
+
+### BL-099 · Código sin uso y visibilidad de más en el lobby
+- Creado: 2026-11-02 16:06
+- Por qué: ISessionRegistry.IssueRoomEntryAuthorization (ISessionRegistry.cs:85, SessionRegistry.Lobbies.cs:108) no tiene usos; ServerConnectionManager.LeaveLobbyResultReceived (:64) no tiene suscriptores; OpenLobbyChannel (:205) es público y solo lo usa su clase (§10.9).
+- Depende de: nada
+- Estado: Finalizado el 2026-11-02 · commit 131f701
+- Nota (2026-11-02 20:33): cierre. git grep sobre 635c66f: no quedan IssueRoomEntryAuthorization (solo su versión InLock, que usa la aceptación de invitaciones) ni el evento LeaveLobbyResultReceived, y OpenLobbyChannel es privado. NotifyLeaveLobbyResultReceived se conserva a propósito: registra en el log si el servidor rechaza la salida.
