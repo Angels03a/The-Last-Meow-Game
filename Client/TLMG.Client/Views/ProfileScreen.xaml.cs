@@ -39,7 +39,7 @@ namespace TLMG.Client.Views
         private void BtnEditAvatar_Click(object sender, RoutedEventArgs e)
         {
             _isEditingAvatar = !_isEditingAvatar;
-            ToggleAvatarEditMode(_isEditingAvatar);
+            SetAvatarEditMode(_isEditingAvatar);
         }
 
         private void BtnSelectAvatar_Click(object sender, RoutedEventArgs e)
@@ -48,7 +48,7 @@ namespace TLMG.Client.Views
             {
                 lblCurrentAvatar.Text = buttonSender.Tag.ToString();
                 _isEditingAvatar = false;
-                ToggleAvatarEditMode(_isEditingAvatar);
+                SetAvatarEditMode(_isEditingAvatar);
             }
         }
 
@@ -56,7 +56,7 @@ namespace TLMG.Client.Views
         {
             _isEditingNickname = true;
             txtEditNickname.Text = lblDisplayNickname.Text;
-            ToggleNicknameEditMode(_isEditingNickname);
+            SetNicknameEditMode(_isEditingNickname);
         }
 
         private void BtnSaveNickname_Click(object sender, RoutedEventArgs e)
@@ -68,7 +68,7 @@ namespace TLMG.Client.Views
                 lblDisplayNickname.Text = txtEditNickname.Text;
                 lblHeaderUsername.Text = txtEditNickname.Text;
                 _isEditingNickname = false;
-                ToggleNicknameEditMode(_isEditingNickname);
+                SetNicknameEditMode(_isEditingNickname);
             }
         }
 
@@ -77,7 +77,7 @@ namespace TLMG.Client.Views
             // TODO: Navegar a ChangePasswordScreen cuando esté implementada. (BL-046).
         }
 
-        private void ToggleAvatarEditMode(bool isEditing)
+        private void SetAvatarEditMode(bool isEditing)
         {
             if (isEditing)
             {
@@ -91,7 +91,7 @@ namespace TLMG.Client.Views
             }
         }
 
-        private void ToggleNicknameEditMode(bool isEditing)
+        private void SetNicknameEditMode(bool isEditing)
         {
             if (isEditing)
             {
