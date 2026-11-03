@@ -355,7 +355,9 @@ namespace TLMG.Services.Sessions
                 callbacks.Add(member.Callback);
             }
 
-            return callbacks.AsReadOnly();
+            IReadOnlyList<ILobbyManagerCallback> readOnlyCallbacks = callbacks.AsReadOnly();
+
+            return readOnlyCallbacks;
         }
     }
 }

@@ -203,7 +203,9 @@ namespace TLMG.Services.Lobby
                 }
             }
 
-            return lobbyNotifications.AsReadOnly();
+            IReadOnlyList<LobbyNotification> readOnlyNotifications = lobbyNotifications.AsReadOnly();
+
+            return readOnlyNotifications;
         }
     }
 }
