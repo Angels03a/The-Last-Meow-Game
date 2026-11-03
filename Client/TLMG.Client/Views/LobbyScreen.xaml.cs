@@ -15,11 +15,11 @@ namespace TLMG.Client.Views
     /// con los jugadores que entrega el servidor. La sala vive en el ServerConnectionManager, no en la pantalla.
     /// </summary>
     public partial class LobbyScreen : LocalizableScreen
-    {        
+    {
         private const int LobbyStartCountdownSeconds = 3;
-        private const int CountdownSecondsLimitForStart = 0; 
+        private const int CountdownSecondsLimitForStart = 0;
         private const int CountdownTickIntervalSeconds = 1;
-        private const int ToastDurationMilliseconds = 3000; 
+        private const int ToastDurationMilliseconds = 3000;
 
         // Máximo de jugadores por sala (Reglas de The Last Meow, §1.1.1); solo se muestra, el servidor lo aplica.
         private const int MaximumPlayersPerRoom = 6;

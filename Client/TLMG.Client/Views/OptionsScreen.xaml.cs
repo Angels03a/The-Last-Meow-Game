@@ -9,7 +9,7 @@ namespace TLMG.Client.Views
     public partial class OptionsScreen : LocalizableScreen
     {
         private const double DefaultMusicVolumeLevel = 50.0;
-        private const double DefaultSoundEffectsVolumeLevel = 50.0;        
+        private const double DefaultSoundEffectsVolumeLevel = 50.0;
         private const double VolumeScalePercentFactor = 100.0;
         private const string EnglishCultureIdentifier = "en-US";
         private const string SpanishCultureIdentifier = "es-MX";

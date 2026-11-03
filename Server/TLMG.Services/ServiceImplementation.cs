@@ -71,7 +71,7 @@ namespace TLMG.Services
             }
             catch (CommunicationException communicationException)
             {
-                _log.Warn("Error de comunicación al notificar al cliente; verifique la conexión.", 
+                _log.Warn("Error de comunicación al notificar al cliente; verifique la conexión.",
                     communicationException);
             }
             catch (TimeoutException timeoutException)
