@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -6,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 
 using TLMG.Client.Communication;
+using TLMG.Client.Models;
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Views
@@ -297,14 +299,21 @@ namespace TLMG.Client.Views
         private void ShowCurrentRoom()
         {
             LobbyRoom currentRoom = ServerConnection.CurrentRoom;
-            LobbyPlayer[] roomPlayers = new LobbyPlayer[EmptyPlayerCount];
+            List<LobbyPlayerEntry> playerEntries = new List<LobbyPlayerEntry>();
 
             if (currentRoom != null && currentRoom.Players != null)
             {
-                roomPlayers = currentRoom.Players;
+                foreach (LobbyPlayer roomPlayer in currentRoom.Players)
+                {
+                    playerEntries.Add(new LobbyPlayerEntry
+                    {
+                        Nickname = roomPlayer.Nickname,
+                        IsLocalPlayer = roomPlayer.UserId == ServerConnection.PlayerUserId
+                    });
+                }
             }
 
-            lstLobbyPlayers.ItemsSource = roomPlayers;
+            lstLobbyPlayers.ItemsSource = playerEntries;
             UpdateDynamicLabels();
         }
 

@@ -243,7 +243,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource LobbyCardNotReadyStyle}">
+                            <Border x:Name="brdLobbyPlayerCard" Style="{StaticResource LobbyCardNotReadyStyle}">
                                 <StackPanel VerticalAlignment="Center">
                                     <Border Style="{StaticResource FriendAvatarBorderStyle}" HorizontalAlignment="Center" Margin="0,0,0,16">
                                         <TextBlock Text="🐱"
@@ -253,8 +253,21 @@
                                     <TextBlock Text="{Binding Nickname}"
                                                Style="{StaticResource FriendNameTextStyle}"
                                                HorizontalAlignment="Center" />
+                                    <Border x:Name="brdLocalPlayerBadge"
+                                            Style="{StaticResource RoleBadgeStyle}"
+                                            Margin="0,8,0,0"
+                                            Visibility="Collapsed">
+                                        <TextBlock Text="{DynamicResource Lobby_LocalPlayerLabel}"
+                                                   Style="{StaticResource BadgeTextActiveStyle}" />
+                                    </Border>
                                 </StackPanel>
                             </Border>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsLocalPlayer}" Value="True">
+                                    <Setter TargetName="brdLocalPlayerBadge" Property="Visibility" Value="Visible" />
+                                    <Setter TargetName="brdLobbyPlayerCard" Property="BorderBrush" Value="{StaticResource Brush_Accent}" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

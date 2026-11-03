@@ -270,6 +270,7 @@
     <sys:String x:Key="Lobby_GameMode8Cards">8 cartas (2 Gatos Fatales + 6 seguras)</sys:String>
     <sys:String x:Key="Lobby_MainTitle">SALA DE JUEGO</sys:String>
     <sys:String x:Key="Lobby_RoomInformationFormat">Sala #{0} · {1}/{2} jugadores</sys:String>
+    <sys:String x:Key="Lobby_LocalPlayerLabel">TÚ</sys:String>
     <sys:String x:Key="Lobby_CardsPerPlayer">CARTAS POR JUGADOR:</sys:String>
     <sys:String x:Key="Lobby_ChatSystemPrefix">Sistema:</sys:String>
     <sys:String x:Key="Lobby_SystemJoinedMessage">CatNapper9000 se unió a la sala.</sys:String>

@@ -68,6 +68,7 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Models\FriendEntry.cs" />
+    <Compile Include="Models\LobbyPlayerEntry.cs" />
     <Compile Include="Models\PlayerRankEntry.cs" />
     <Compile Include="Views\CreateAccountScreen.xaml.cs">
       <DependentUpon>CreateAccountScreen.xaml</DependentUpon>

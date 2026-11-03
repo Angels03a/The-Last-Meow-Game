@@ -243,6 +243,7 @@
     <sys:String x:Key="Friends_InvitationNotValidError">The invitation is no longer valid. The room may no longer exist.</sys:String>
     <sys:String x:Key="Lobby_MainTitle">GAME LOBBY</sys:String>
     <sys:String x:Key="Lobby_RoomInformationFormat">Room #{0} · {1}/{2} players</sys:String>
+    <sys:String x:Key="Lobby_LocalPlayerLabel">YOU</sys:String>
     <sys:String x:Key="Lobby_CardsPerPlayer">CARDS PER PLAYER:</sys:String>
     <sys:String x:Key="Lobby_RoomCreator">Room Creator</sys:String>
     <sys:String x:Key="Lobby_InviteFriends">Invite Friends</sys:String>
