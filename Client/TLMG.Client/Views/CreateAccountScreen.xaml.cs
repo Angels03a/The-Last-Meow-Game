@@ -1,7 +1,9 @@
 using System;
-using System.Windows;
 using System.ServiceModel;
+using System.Windows;
+
 using log4net;
+
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Views
