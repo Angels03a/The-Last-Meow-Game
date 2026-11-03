@@ -6,7 +6,7 @@ using System.Windows.Media.Animation;
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Pantalla de bienvenida y carga inicial con barra animada de progreso de recursos.
+    /// Pantalla de bienvenida con una barra animada que señala el fin de la presentación inicial.
     /// </summary>
     public partial class LoadingScreen : UserControl
     {
