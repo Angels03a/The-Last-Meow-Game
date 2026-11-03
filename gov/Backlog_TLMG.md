@@ -386,14 +386,6 @@ Formato de entrada:
 - Depende de: decisión del encargado
 - Estado: Pendiente
 
-### BL-075 · El cliente no conoce su propio nickname ni su id de usuario
-- Creado: 2026-10-29 16:36
-- Por qué: OperationLogInResult solo trae IsSuccess, ErrorKey y SessionToken (decisión del paso 3), y OperationSubscribeToFriendsResult solo trae los amigos. ServerConnectionManager guarda únicamente el token, así que MainMenuScreen y LobbyScreen no pueden mostrar el nombre propio ni distinguirse en la lista de la sala. Hay que decidir si el login lo devuelve o si se agrega una operación de perfil.
-- Depende de: decisión del encargado
-- Estado: Pendiente
-- Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Falta que el encargado regenere el proxy y que el cliente guarde esos datos (ServerConnectionManager) y los muestre.
-- Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente: ServerConnectionManager guarda la identidad (PlayerUserId, PlayerNickname) y LobbyScreen marca al jugador propio.
-
 ### BL-077 · Mostrar en pantalla el fallo de la suscripción a los amigos
 - Creado: 2026-10-29 16:36
 - Por qué: si SubscribeToFriends responde con ErrorKey (por ejemplo, fallo de la base de datos), el jugador queda con sesión pero sin canal de amigos registrado en el servidor y nadie lo ve. El manager pasa el error tal cual y ninguna pantalla lo atiende todavía.
@@ -474,6 +466,7 @@ Formato de entrada:
 - Por qué: LobbyScreen muestra Lobby_GuestCannotCreateRoomError en un MessageBox en cada Loaded (LobbyScreen.xaml.cs:28 y ShowOrCreateRoom), así que vuelve a salir al regresar de FriendsScreen; FriendsScreen reescribe su mensaje de invitado en cada carga (FriendsScreen.xaml.cs:139). El botón "Invitar Amigos" de LobbyScreen sigue visible y habilitado para el invitado, que no tiene amigos. Decidir si el invitado entra siquiera a LobbyScreen y FriendsScreen desde el menú (MainMenuScreen.xaml.cs:32, 37) o si se ocultan esos botones.
 - Depende de: decisión del encargado (rol invitado en el lobby, gov/CLAUDE.md §4)
 - Estado: Pendiente
+- Nota (2026-11-03 15:41): cuando el invitado pase por el servidor, su número lo debe asignar el servidor y no el cliente, porque dos clientes podrían elegir el mismo. El formato lo fijan hoy las Reglas §3.0.1 ("Jugador N"); si se prefiere otro, hay que cambiar las Reglas en el mismo paso.
 
 ### BL-090 · El ejemplo de LanguageManager del Estándar dice public y el código es internal
 - Creado: 2026-10-29 22:53
@@ -488,6 +481,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Como LeaderboardPlayer no trae id, el cliente puede ubicarse en el ranking por su nickname (único en User); si el jugador no está entre los primeros 100, el puesto y los puntos propios siguen ocultos hasta BL-103.
 - Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente que resalta la fila propia por nickname; el puesto y los puntos propios siguen ocultos hasta BL-103.
+- Nota (2026-11-03 15:41): sigue abierta: el resaltado de la fila propia por nickname (parche 3 de G6) aún no se aplica. El puesto y los puntos propios dejan esta entrada y pasan a BL-103.
 
 ### BL-092 · El historial de navegación crece sin límite
 - Creado: 2026-10-29 22:53
@@ -523,14 +517,6 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-02 17:23): diferida por decisión del encargado; pendiente conocido.
 
-### BL-100 · MainMenuScreen muestra datos de prueba visibles
-- Creado: 2026-11-02 16:06
-- Por qué: MainMenuScreen.xaml:44, 62, 69 y 76 muestran "interStella", 142, "1,840" y "#38", y MainMenuScreen.xaml.cs:10-11 fija una racha de 3 y 120 puntos. El jugador ve datos que no son suyos.
-- Depende de: BL-075
-- Estado: Pendiente
-- Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Con eso se puede mostrar el nickname; los puntos, el rango y la racha siguen ocultos hasta BL-103.
-- Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente que muestra el nickname real; los puntos, el rango y la racha quedan ocultos hasta BL-103.
-
 ### BL-101 · Corregir los defectos del Estándar detectados en las revisiones del lobby
 - Creado: 2026-11-02 16:06
 - Por qué: §10.2 (línea 2391) "Ejemplo correcto " perdió su descripción en 53226c4; §11.1 tiene un "Ejemplo incorrecto" idéntico al correcto, "Ejemplo Ejemplo incorrecto" y espacios sueltos en las reglas (2) y (3); §5.3 tiene sangría de 3 espacios y "v<mayor>" frente al archivo v3.1; §4.3 (1251, 1274) tiene errores de puntuación; §6.2 marca SessionRegistry y Observador como "por implementar"; la tabla de §10.3 no coincide con el código; §10.2 no dice que todo punto de entrada y todo manejador de canal deba tener red, lo que permitió 0358fe9. Complementa BL-090.
@@ -549,6 +535,12 @@ Formato de entrada:
 - Creado: 2026-11-03 10:31
 - Por qué: la opción 1 de G6 solo agrega UserId y Nickname a OperationLogInResult; no trae puntos, rango ni racha. Hace falta una operación con sessionToken que devuelva el perfil del jugador en sesión (la identidad sale del token, nunca de un id enviado por el cliente). Mientras no exista, BL-091 y BL-100 siguen mostrando esos valores ocultos.
 - Depende de: G6 (parte del cliente: regenerar el proxy y guardar la identidad en ServerConnectionManager); decisión del encargado sobre el contrato
+- Estado: Pendiente
+
+### BL-104 · Campo _hasVotedToKick de LobbyScreen asignado y nunca leído
+- Creado: 2026-11-03 15:41
+- Por qué: LobbyScreen.xaml.cs:35 declara _hasVotedToKick, que se asigna en :50 y :160 pero nunca se lee; el compilador lo avisa con CS0414. Es parte de la votación de expulsión oculta (BL-082): quitarlo o usarlo cuando esa función se reactive.
+- Depende de: nada
 - Estado: Pendiente
 
 ## Finalizados
@@ -688,6 +680,15 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Finalizado el 2026-10-29 · commits 1db83da, 33dc497 y e685982
 
+### BL-075 · El cliente no conoce su propio nickname ni su id de usuario
+- Creado: 2026-10-29 16:36
+- Por qué: OperationLogInResult solo trae IsSuccess, ErrorKey y SessionToken (decisión del paso 3), y OperationSubscribeToFriendsResult solo trae los amigos. ServerConnectionManager guarda únicamente el token, así que MainMenuScreen y LobbyScreen no pueden mostrar el nombre propio ni distinguirse en la lista de la sala. Hay que decidir si el login lo devuelve o si se agrega una operación de perfil.
+- Depende de: decisión del encargado
+- Estado: Finalizado el 2026-11-03 · commits 7f23bda, bcf1ca7, b241a87 y eb765d6
+- Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Falta que el encargado regenere el proxy y que el cliente guarde esos datos (ServerConnectionManager) y los muestre.
+- Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente: ServerConnectionManager guarda la identidad (PlayerUserId, PlayerNickname) y LobbyScreen marca al jugador propio.
+- Nota (2026-11-03 15:41): cierre. Verificado en eb765d6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda); el proxy los trae (bcf1ca7); ServerConnectionManager los guarda solo con un inicio de sesión aceptado y los limpia en Disconnect (PlayerUserId, PlayerNickname; b241a87); MainMenuScreen muestra el nickname propio (b241a87) y LobbyScreen marca la tarjeta propia comparando UserId (eb765d6). El ranking sigue en BL-091.
+
 ### BL-076 · Los eventos del servidor se pierden si ninguna pantalla está suscrita
 - Creado: 2026-10-29 16:36
 - Por qué: ServerConnectionManager dispara FriendListReceived, RoomInvitationReceived y los demás eventos solo a quien esté suscrito en ese momento. La lista de amigos llega justo después del login y una invitación puede llegar con el menú principal abierto. Hay que decidir quién escucha siempre (por ejemplo MainWindow) y cómo se muestra una invitación fuera de FriendsScreen. Mitigación actual: RequestFriendList().
@@ -717,3 +718,12 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Finalizado el 2026-11-02 · commit 131f701
 - Nota (2026-11-02 20:33): cierre. git grep sobre 635c66f: no quedan IssueRoomEntryAuthorization (solo su versión InLock, que usa la aceptación de invitaciones) ni el evento LeaveLobbyResultReceived, y OpenLobbyChannel es privado. NotifyLeaveLobbyResultReceived se conserva a propósito: registra en el log si el servidor rechaza la salida.
+
+### BL-100 · MainMenuScreen muestra datos de prueba visibles
+- Creado: 2026-11-02 16:06
+- Por qué: MainMenuScreen.xaml:44, 62, 69 y 76 muestran "interStella", 142, "1,840" y "#38", y MainMenuScreen.xaml.cs:10-11 fija una racha de 3 y 120 puntos. El jugador ve datos que no son suyos.
+- Depende de: BL-075
+- Estado: Finalizado el 2026-11-03 · commit b241a87
+- Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Con eso se puede mostrar el nickname; los puntos, el rango y la racha siguen ocultos hasta BL-103.
+- Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente que muestra el nickname real; los puntos, el rango y la racha quedan ocultos hasta BL-103.
+- Nota (2026-11-03 15:41): cierre. Verificado en eb765d6: el menú muestra el nickname real (lblPlayerNickname) y ya no enseña datos ajenos: el panel de victorias, puntos y puesto y las tarjetas de última victoria, racha y siguiente rango quedan ocultos (Collapsed; los textos de prueba siguen en el XAML oculto), y se quitaron las constantes de racha y siguiente rango. Mostrar esos valores reales queda en BL-103.
