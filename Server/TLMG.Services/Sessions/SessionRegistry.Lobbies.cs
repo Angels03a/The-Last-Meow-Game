@@ -105,19 +105,6 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        /// <inheritdoc />
-        public bool IssueRoomEntryAuthorization(int userId, int roomId)
-        {
-            bool wasIssued;
-
-            lock (_sessionsLock)
-            {
-                wasIssued = IssueRoomEntryAuthorizationInLock(userId, roomId);
-            }
-
-            return wasIssued;
-        }
-
         private bool IssueRoomEntryAuthorizationInLock(int userId, int roomId)
         {
             bool wasIssued = false;

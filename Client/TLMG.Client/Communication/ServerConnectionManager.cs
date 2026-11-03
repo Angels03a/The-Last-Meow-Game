@@ -60,9 +60,6 @@ namespace TLMG.Client.Communication
         /// <summary>Se dispara con el resultado de entrar a una sala.</summary>
         public event EventHandler<ServerEventArgs<OperationEnterLobbyResult>> EnterLobbyResultReceived;
 
-        /// <summary>Se dispara con el resultado de salir de una sala.</summary>
-        public event EventHandler<ServerEventArgs<OperationLeaveLobbyResult>> LeaveLobbyResultReceived;
-
         /// <summary>Se dispara cuando cambian los jugadores de la sala del jugador.</summary>
         public event EventHandler<ServerEventArgs<LobbyRoom>> LobbyRoomChanged;
 
@@ -194,31 +191,6 @@ namespace TLMG.Client.Communication
             return wasSent;
         }
 
-        /// <summary>
-        /// Abre el canal de lobby si todavía no está abierto. Las operaciones de sala lo abren solas; se expone para
-        /// abrirlo antes de mostrar la sala.
-        /// </summary>
-        /// <returns>
-        /// true si el canal de lobby está abierto; false si no hay sesión registrada o el servidor no respondió,
-        /// caso en el que además se dispara ConnectionLost.
-        /// </returns>
-        public bool OpenLobbyChannel()
-        {
-            bool isOpen = _lobbyClient != null;
-
-            if (!isOpen && HasFriendsChannel)
-            {
-                isOpen = TryOpenLobbyChannel();
-
-                if (!isOpen)
-                {
-                    HandleConnectionFailure();
-                }
-            }
-
-            return isOpen;
-        }
-
         /// <summary>Crea una sala y deja al jugador dentro; el resultado llega por CreateRoomResultReceived.</summary>
         /// <returns>true si se envió; false si no hay sesión registrada o falló el canal o el envío.</returns>
         public bool CreateRoom()
@@ -259,7 +231,7 @@ namespace TLMG.Client.Communication
 
         /// <summary>
         /// Sale de la sala actual y la libera en el cliente sin esperar la respuesta, porque salir sin estar en una
-        /// sala también es éxito en el servidor; el resultado llega por LeaveLobbyResultReceived.
+        /// sala también es éxito en el servidor; si el servidor la rechaza, el manager lo registra en el log.
         /// </summary>
         /// <returns>true si se envió; false si no hay sesión registrada o falló el canal o el envío.</returns>
         public bool LeaveLobby()
@@ -377,7 +349,10 @@ namespace TLMG.Client.Communication
                 new ServerEventArgs<OperationEnterLobbyResult>(operationEnterLobbyResult));
         }
 
-        /// <summary>Dispara LeaveLobbyResultReceived.</summary>
+        /// <summary>
+        /// Registra en el log el rechazo de la salida de la sala. La sala ya se liberó en el cliente al enviar la
+        /// salida, así que ninguna pantalla espera este resultado.
+        /// </summary>
         /// <param name="operationLeaveLobbyResult">Resultado que llegó del servidor.</param>
         internal void NotifyLeaveLobbyResultReceived(OperationLeaveLobbyResult operationLeaveLobbyResult)
         {
@@ -387,10 +362,6 @@ namespace TLMG.Client.Communication
                     "El servidor rechazó la salida de la sala. ErrorKey: {0}.",
                     operationLeaveLobbyResult.ErrorKey);
             }
-
-            LeaveLobbyResultReceived?.Invoke(
-                this,
-                new ServerEventArgs<OperationLeaveLobbyResult>(operationLeaveLobbyResult));
         }
 
         /// <summary>
@@ -488,6 +459,25 @@ namespace TLMG.Client.Communication
             }
 
             return wasOpened;
+        }
+
+        // Abre el canal de lobby si todavía no está abierto; lo usan las operaciones de sala. Devuelve false si no
+        // hay sesión registrada o el servidor no respondió, caso en el que además se dispara ConnectionLost.
+        private bool OpenLobbyChannel()
+        {
+            bool isOpen = _lobbyClient != null;
+
+            if (!isOpen && HasFriendsChannel)
+            {
+                isOpen = TryOpenLobbyChannel();
+
+                if (!isOpen)
+                {
+                    HandleConnectionFailure();
+                }
+            }
+
+            return isOpen;
         }
 
         private bool TryOpenLobbyChannel()

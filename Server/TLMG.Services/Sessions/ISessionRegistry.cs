@@ -78,12 +78,6 @@ namespace TLMG.Services.Sessions
         /// <returns>Applied o NotInRoom; nunca es null.</returns>
         LobbyMembershipChange LeaveRoomByChannel(string channelId);
 
-        /// <summary>Emite la autorización para que un jugador entre a una sala existente, sin invitación.</summary>
-        /// <param name="userId">Identificador de la cuenta autorizada; debe tener sesión vigente.</param>
-        /// <param name="roomId">Identificador de la sala a la que se autoriza.</param>
-        /// <returns>true si quedó emitida; false si el jugador no tiene sesión o la sala no existe.</returns>
-        bool IssueRoomEntryAuthorization(int userId, int roomId);
-
         /// <summary>
         /// Registra el canal de amigos de la sesión, lo que deja al jugador en línea; si la sesión ya tenía uno,
         /// gana el último. Devuelve también a quién avisar que el jugador pasó a estar en línea.
