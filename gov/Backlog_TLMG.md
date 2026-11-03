@@ -392,6 +392,7 @@ Formato de entrada:
 - Depende de: decisión del encargado
 - Estado: Pendiente
 - Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Falta que el encargado regenere el proxy y que el cliente guarde esos datos (ServerConnectionManager) y los muestre.
+- Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente: ServerConnectionManager guarda la identidad (PlayerUserId, PlayerNickname) y LobbyScreen marca al jugador propio.
 
 ### BL-077 · Mostrar en pantalla el fallo de la suscripción a los amigos
 - Creado: 2026-10-29 16:36
@@ -430,6 +431,7 @@ Formato de entrada:
 - Depende de: contratos de listo, chat y expulsión; BL-075 (perfil propio); BL-046 (GameplayScreen)
 - Estado: Pendiente
 - Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Con eso se puede reactivar el nombre del bloque del perfil propio; las victorias y el rango siguen sin dato del servidor (BL-103).
+- Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente; las victorias y el rango del bloque del perfil siguen sin dato del servidor (BL-103).
 
 ### BL-083 · El cliente no puede consultar al servidor su sala actual
 - Creado: 2026-10-29 21:38
@@ -485,6 +487,7 @@ Formato de entrada:
 - Depende de: BL-075; decisión de contrato (ILeaderboardManager con sessionToken o dato en el login)
 - Estado: Pendiente
 - Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Como LeaderboardPlayer no trae id, el cliente puede ubicarse en el ranking por su nickname (único en User); si el jugador no está entre los primeros 100, el puesto y los puntos propios siguen ocultos hasta BL-103.
+- Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente que resalta la fila propia por nickname; el puesto y los puntos propios siguen ocultos hasta BL-103.
 
 ### BL-092 · El historial de navegación crece sin límite
 - Creado: 2026-10-29 22:53
@@ -526,6 +529,7 @@ Formato de entrada:
 - Depende de: BL-075
 - Estado: Pendiente
 - Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Con eso se puede mostrar el nickname; los puntos, el rango y la racha siguen ocultos hasta BL-103.
+- Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente que muestra el nickname real; los puntos, el rango y la racha quedan ocultos hasta BL-103.
 
 ### BL-101 · Corregir los defectos del Estándar detectados en las revisiones del lobby
 - Creado: 2026-11-02 16:06

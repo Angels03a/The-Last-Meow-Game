@@ -3,15 +3,12 @@ using System.Windows;
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Representa la pantalla del menú principal de navegación de la aplicación.
+    /// Representa la pantalla del menú principal de navegación de la aplicación. Muestra el nickname del jugador en
+    /// sesión; las victorias, los puntos, el puesto y la racha quedan ocultos hasta que el servidor los entregue
+    /// (BL-103).
     /// </summary>
     public partial class MainMenuScreen : LocalizableScreen
     {
-        private const int DefaultWinStreakCount = 3;
-        private const int DefaultPointsToNextRank = 120;
-        private const string WinStreakFormatResourceKey = "MainMenu_WinStreakFormat";
-        private const string NextRankFormatResourceKey = "MainMenu_NextRankFormat";
-
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="MainMenuScreen"/>.
         /// </summary>
@@ -23,11 +20,8 @@ namespace TLMG.Client.Views
         /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
-            string winStreakFormat = TryFindResource(WinStreakFormatResourceKey) as string ?? "{0}";
-            lblWinStreakValue.Text = string.Format(winStreakFormat, DefaultWinStreakCount);
-
-            string nextRankFormat = TryFindResource(NextRankFormatResourceKey) as string ?? "{0}";
-            lblNextRankValue.Text = string.Format(nextRankFormat, DefaultPointsToNextRank);
+            // TODO: Mostrar lo que se decida para el invitado, que no tiene nickname; hoy queda vacío. (BL-089).
+            lblPlayerNickname.Text = ((App)Application.Current).ServerConnection.PlayerNickname ?? string.Empty;
         }
 
         private void BtnLobby_Click(object sender, RoutedEventArgs e)

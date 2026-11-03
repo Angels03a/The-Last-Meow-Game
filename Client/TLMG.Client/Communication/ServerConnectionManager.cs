@@ -20,6 +20,9 @@ namespace TLMG.Client.Communication
     /// </summary>
     internal sealed class ServerConnectionManager
     {
+        // Id del jugador mientras no hay una sesión registrada; coincide con el que envía el servidor en un fallo.
+        private const int NoUserId = 0;
+
         private static readonly ILog _log = LogManager.GetLogger(typeof(ServerConnectionManager));
 
         private readonly Dispatcher _interfaceDispatcher;
@@ -90,6 +93,19 @@ namespace TLMG.Client.Communication
         public IReadOnlyList<Friend> FriendList { get; private set; }
 
         /// <summary>
+        /// Obtiene el id de la cuenta del jugador en sesión, tal como lo entregó el inicio de sesión, o 0 si no hay
+        /// sesión registrada. Solo sirve para mostrar: el servidor identifica al jugador por su token, nunca por este
+        /// id. Se limpia al terminar la sesión.
+        /// </summary>
+        public int PlayerUserId { get; private set; }
+
+        /// <summary>
+        /// Obtiene el nickname del jugador en sesión, o null si no hay sesión registrada (por ejemplo, un invitado).
+        /// Solo sirve para mostrar. Se limpia al terminar la sesión.
+        /// </summary>
+        public string PlayerNickname { get; private set; }
+
+        /// <summary>
         /// Guarda el sessionToken del jugador registrado que entró, abre su canal de amigos y se suscribe a ellos. Un
         /// invitado no tiene token y no pasa por aquí.
         /// </summary>
@@ -106,6 +122,8 @@ namespace TLMG.Client.Communication
             if (IsRegisteredSessionResult(operationLogInResult))
             {
                 _sessionToken = operationLogInResult.SessionToken;
+                PlayerUserId = operationLogInResult.UserId;
+                PlayerNickname = operationLogInResult.Nickname;
                 wasStarted = TryOpenFriendsChannel();
 
                 if (!wasStarted)
@@ -136,6 +154,8 @@ namespace TLMG.Client.Communication
             _lobbyClient = null;
             _lobbyChannel = null;
             _sessionToken = null;
+            PlayerUserId = NoUserId;
+            PlayerNickname = null;
             FriendList = null;
             ClearCurrentRoom();
         }
