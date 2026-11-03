@@ -20,6 +20,9 @@ namespace TLMG.Services.Accounts
         private const string InvalidCredentialsErrorKey = "Login_InvalidCredentialsError";
         private const string DatabaseErrorKey = "Login_DataModelError";
 
+        // Id que viaja en el resultado cuando el inicio de sesión falla.
+        private const int NoUserId = 0;
+
         private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerLogInService));
 
         private readonly IPlayerRepository _playerRepository;
@@ -43,12 +46,15 @@ namespace TLMG.Services.Accounts
         /// <summary>Valida las credenciales, registra el acceso del jugador y abre su sesión.</summary>
         /// <param name="operationLogInRequest">Credenciales recibidas del cliente.</param>
         /// <returns>
-        /// El resultado con IsSuccess y, según el caso, la clave de error o el token de sesión; y los avisos para la
-        /// sala y los amigos de la sesión anterior de la misma cuenta, si la había.
+        /// El resultado con IsSuccess y, según el caso, la clave de error o el token de sesión con el id y el
+        /// nickname del jugador; y los avisos para la sala y los amigos de la sesión anterior de la misma cuenta, si
+        /// la había.
         /// </returns>
         public SessionOutcome<OperationLogInResult> LogIn(OperationLogInRequest operationLogInRequest)
         {
             string sessionToken = null;
+            int userId = NoUserId;
+            string nickname = null;
             SessionEnd replacedSession = null;
             string errorKey = ValidateLogInRequest(operationLogInRequest);
 
@@ -63,6 +69,8 @@ namespace TLMG.Services.Accounts
                         playerCredentials.UserId,
                         playerCredentials.Nickname,
                         out replacedSession);
+                    userId = playerCredentials.UserId;
+                    nickname = playerCredentials.Nickname;
                 }
             }
 
@@ -70,7 +78,9 @@ namespace TLMG.Services.Accounts
             {
                 IsSuccess = errorKey == null,
                 ErrorKey = errorKey,
-                SessionToken = sessionToken
+                SessionToken = sessionToken,
+                UserId = userId,
+                Nickname = nickname
             };
 
             SessionOutcome<OperationLogInResult> sessionOutcome = new SessionOutcome<OperationLogInResult>(

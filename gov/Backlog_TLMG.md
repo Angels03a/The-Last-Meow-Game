@@ -171,6 +171,7 @@ Formato de entrada:
 - Por qué: ambos log4net.config fijan DEBUG; Estándar §10.3 exige Trace y Debug fuera de las builds de entrega. El servidor define ConsoleAppender pero no lo referencia (definido en Server/TLMG.Server/log4net.config:2; root en :18-21 solo referencia FileAppender), contra lo que dice §10.3.
 - Depende de: decisión de mecanismo (transformación o nivel único)
 - Estado: Pendiente
+- Nota (2026-11-03 10:31): avance. ea295c1 agregó el ConsoleAppender al root de Server/TLMG.Server/log4net.config: la consola del servidor ya muestra los mensajes de log. Sigue pendiente el nivel de log por compilación (Trace y Debug fuera de las builds de entrega) en ambos log4net.config.
 
 ### BL-034 · Tiempos límite y endurecimiento del binding del servidor (D-46)
 - Creado: 2026-10-25 00:49
@@ -390,6 +391,7 @@ Formato de entrada:
 - Por qué: OperationLogInResult solo trae IsSuccess, ErrorKey y SessionToken (decisión del paso 3), y OperationSubscribeToFriendsResult solo trae los amigos. ServerConnectionManager guarda únicamente el token, así que MainMenuScreen y LobbyScreen no pueden mostrar el nombre propio ni distinguirse en la lista de la sala. Hay que decidir si el login lo devuelve o si se agrega una operación de perfil.
 - Depende de: decisión del encargado
 - Estado: Pendiente
+- Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Falta que el encargado regenere el proxy y que el cliente guarde esos datos (ServerConnectionManager) y los muestre.
 
 ### BL-077 · Mostrar en pantalla el fallo de la suscripción a los amigos
 - Creado: 2026-10-29 16:36
@@ -427,6 +429,7 @@ Formato de entrada:
 - Por qué: la Pieza 2 ocultó (Collapsed) el chat, el panel de jugadores listos, el combo de cartas por jugador, el bloque del perfil propio, y dejó sin uso el modal de expulsión, el toast, la cuenta regresiva y el popup de opciones; no tienen servidor detrás. StartCountdown y BrdPlayer_MouseRightButtonDown quedan sin quien los llame. Los controles ocultos conservan textos de prueba (NYANPROWLER, WhiskerKnight, 142, #38, 1/3, chat simulado, Lobby_KickModalDescription con NyanProwler). La simulación de "listo" sobre las tarjetas de prueba se retiró; se recupera de 376a6fe.
 - Depende de: contratos de listo, chat y expulsión; BL-075 (perfil propio); BL-046 (GameplayScreen)
 - Estado: Pendiente
+- Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Con eso se puede reactivar el nombre del bloque del perfil propio; las victorias y el rango siguen sin dato del servidor (BL-103).
 
 ### BL-083 · El cliente no puede consultar al servidor su sala actual
 - Creado: 2026-10-29 21:38
@@ -481,6 +484,7 @@ Formato de entrada:
 - Por qué: LeaderboardScreen.xaml.cs:43-45 muestra un puesto (#38) y unos puntos (1840) fijos. El ranking ya viene del servidor, pero el cliente no sabe quién es (BL-075) y ILeaderboardManager no devuelve la posición de quien consulta. Sustituye el pendiente que quedaba en BL-030; su FIXME debe citar esta entrada.
 - Depende de: BL-075; decisión de contrato (ILeaderboardManager con sessionToken o dato en el login)
 - Estado: Pendiente
+- Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Como LeaderboardPlayer no trae id, el cliente puede ubicarse en el ranking por su nickname (único en User); si el jugador no está entre los primeros 100, el puesto y los puntos propios siguen ocultos hasta BL-103.
 
 ### BL-092 · El historial de navegación crece sin límite
 - Creado: 2026-10-29 22:53
@@ -521,6 +525,7 @@ Formato de entrada:
 - Por qué: MainMenuScreen.xaml:44, 62, 69 y 76 muestran "interStella", 142, "1,840" y "#38", y MainMenuScreen.xaml.cs:10-11 fija una racha de 3 y 120 puntos. El jugador ve datos que no son suyos.
 - Depende de: BL-075
 - Estado: Pendiente
+- Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Con eso se puede mostrar el nickname; los puntos, el rango y la racha siguen ocultos hasta BL-103.
 
 ### BL-101 · Corregir los defectos del Estándar detectados en las revisiones del lobby
 - Creado: 2026-11-02 16:06
@@ -535,6 +540,12 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-02 17:23): en esta pasada se renombran los Handle* de las pantallas y de ServerConnectionManager, los Process* de LobbyScreen y VerificationScreen y HasFriendsChannel, que pasa a HasRegisteredSession. CommonErrorKeyHelper no se renombra: depende de la decisión sobre las claves de error (BL-017).
 - Nota (2026-11-02 20:33): avance. d6b9ecf (ServerConnectionManager: DisconnectAndNotifyConnectionLost y DisconnectIfCurrentChannelEnded), 09a74d1 (HasRegisteredSession), bc85a6d (FinishRegistrationAttempt, FinishLogInAttempt, ShowLeaderboardResult, ShowConnectionError, ReturnToLogInAfterVerification) y bf490af (AppendOutgoingChatMessage, RecordFailedVerificationAttempt). Queda CommonErrorKeyHelper, que depende de la decisión de BL-017.
+
+### BL-103 · Operación de perfil con puntos, rango y racha del jugador en sesión
+- Creado: 2026-11-03 10:31
+- Por qué: la opción 1 de G6 solo agrega UserId y Nickname a OperationLogInResult; no trae puntos, rango ni racha. Hace falta una operación con sessionToken que devuelva el perfil del jugador en sesión (la identidad sale del token, nunca de un id enviado por el cliente). Mientras no exista, BL-091 y BL-100 siguen mostrando esos valores ocultos.
+- Depende de: G6 (parte del cliente: regenerar el proxy y guardar la identidad en ServerConnectionManager); decisión del encargado sobre el contrato
+- Estado: Pendiente
 
 ## Finalizados
 
