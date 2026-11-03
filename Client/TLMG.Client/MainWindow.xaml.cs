@@ -28,7 +28,7 @@ namespace TLMG.Client
         public MainWindow()
         {
             InitializeComponent();
-            ((App)Application.Current).ServerConnection.ConnectionLost += OnServerConnectionLost;
+            ServerConnection.ConnectionLost += OnServerConnectionLost;
             ServerConnection.RoomInvitationReceived += OnRoomInvitationReceived;
             ServerConnection.AcceptInvitationResultReceived += OnAcceptInvitationResultReceived;
             ServerConnection.EnterLobbyResultReceived += OnEnterLobbyResultReceived;
@@ -38,6 +38,8 @@ namespace TLMG.Client
             loadingScreen.LoadingCompleted += (eventSender, eventArguments) => ShowScreen(new LoginScreen(), false);
             ShowScreen(loadingScreen, false);
         }
+
+        private static ServerConnectionManager ServerConnection => ((App)Application.Current).ServerConnection;
 
         /// <summary>
         /// Muestra una nueva pantalla en el contenedor principal de la ventana, permitiendo
@@ -87,7 +89,7 @@ namespace TLMG.Client
 
         private void OnMainWindowClosed(object sender, EventArgs eventArguments)
         {
-            ((App)Application.Current).ServerConnection.ConnectionLost -= OnServerConnectionLost;
+            ServerConnection.ConnectionLost -= OnServerConnectionLost;
             ServerConnection.RoomInvitationReceived -= OnRoomInvitationReceived;
             ServerConnection.AcceptInvitationResultReceived -= OnAcceptInvitationResultReceived;
             ServerConnection.EnterLobbyResultReceived -= OnEnterLobbyResultReceived;
@@ -99,8 +101,6 @@ namespace TLMG.Client
             ShowScreen(new LoginScreen(), false);
             MessageBox.Show(TryFindResource(ConnectionLostMessageKey) as string);
         }
-
-        private static ServerConnectionManager ServerConnection => ((App)Application.Current).ServerConnection;
 
         // MainWindow vive toda la sesión: por eso escucha las invitaciones, que pueden llegar con cualquier pantalla
         // abierta. Rechazar no tiene operación en el servidor; la invitación simplemente se ignora.

@@ -48,6 +48,8 @@ namespace TLMG.Client.Views
             SwitchTab(_currentTabIndex);
         }
 
+        private static ServerConnectionManager ServerConnection => ((App)Application.Current).ServerConnection;
+
         private void InitializeTabViews()
         {
             _tabViews = new[]
@@ -107,8 +109,6 @@ namespace TLMG.Client.Views
 
             _currentTabIndex = targetTabIndex;
         }
-
-        private static ServerConnectionManager ServerConnection => ((App)Application.Current).ServerConnection;
 
         private void OnScreenLoaded(object sender, RoutedEventArgs e)
         {
