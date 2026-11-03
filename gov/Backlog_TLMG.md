@@ -96,6 +96,7 @@ Formato de entrada:
 - Depende de: inventario previo; decisión del encargado (alternativas por presentar)
 - Estado: Pendiente
 - Nota (2026-10-29 22:53): AccountRegistration.cs ya no existe. El servidor tiene CommonErrorKeyHelper (Common_UnexpectedError, usado por lobby y amigos) y el cliente ErrorMessageHelper (33dc497), que traduce la ErrorKey y cae en Common_UnexpectedError. Siguen tres claves de error inesperado: CreateAccount_DataModelError (ServiceImplementation.UsersManager.cs:14, PlayerAccountRegistrationService.cs:24-25, con dos constantes del mismo valor), Login_DataModelError (ServiceImplementation.UsersManager.cs:15, PlayerLogInService.cs:21) y Common_UnexpectedError. ResolveSaveFailureErrorKey está en PlayerAccountRegistrationService.cs:156.
+- Nota (2026-11-02 16:06): hoy hay cinco claves para un fallo inesperado o de datos: Common_UnexpectedError, CreateAccount_DataModelError, Login_DataModelError, Leaderboard_ConnectionErrorMessage (el servidor la usa para un fallo de datos, LeaderboardService.cs:14) y, en el cliente, Common_ConnectionLostError. Se propone una sola clave del servidor (Common_UnexpectedError) y reutilizar ErrorMessageHelper en Login, CreateAccount y Leaderboard.
 
 ### BL-018 · Revisar el texto de `CreateAccount_DataModelError`
 - Creado: 2026-10-20 12:30
@@ -148,6 +149,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-25): posiblemente obsoleta en el punto de los DTO sin sufijo `Data` por D-56; confirmar con el encargado.
 - Nota (2026-10-29 22:53): estado en 53263f1. Hecho: el proxy TLMGService se retiró (a8cdce2, BL-035) y el FIXME del hash desapareció con BL-001. Obsoleto: los DTO sin sufijo Data (D-56, Estándar §17.1). Pendiente: usings sin agrupar en CreateAccountScreen.xaml.cs:1-5; 4 líneas de más de 120 columnas en PlayerAccountRegistrationService.cs (:47, 76, 82, 155); espacios al final de línea en 7 archivos .cs (PlayerAccountRegistrationService.cs 6, ServiceImplementation.cs 5, entre otros); OperationRegisterPlayerAccountResult.cs con la llave del namespace en la línea 3 y propiedades sin <summary>; <WCFMetadata Include="Connected Services\" /> en TLMG.Contracts.csproj:69 y TLMG.Server.csproj:81.
+- Nota (2026-11-02 16:06): 0358fe9 eliminó las líneas de más de 120 columnas de PlayerAccountRegistrationService. Siguen los usings de CreateAccountScreen.xaml.cs:1-5, OperationRegisterPlayerAccountResult.cs y WCFMetadata.
 
 ### BL-031 · Script SQL: datos ficticios y encabezado versionado
 - Creado: 2026-10-25 00:49
@@ -189,6 +191,7 @@ Formato de entrada:
 - Por qué: Estándar §4.1 y §5.1: las excepciones de EF y SQL se capturan en DataAccess y las capas superiores no conocen esos tipos. PlayerAccountRegistrationService.cs:2-5, 104-128 y TLMG.Services.csproj:38-43 lo incumplen; PlayerRepository.CreatePlayer deja salir DbUpdateException. Conservar la detección de duplicados (ResolveSaveFailureErrorKey, :156) y moverla a DataAccess; no borrarla.
 - Depende de: decisión del mecanismo (alternativas por presentar); BL-017
 - Estado: Pendiente
+- Nota (2026-11-02 16:06): avance en 0358fe9. PlayerAccountRegistrationService ya no conoce EF ni SQL y PlayerRepository captura sus excepciones y devuelve PlayerExistenceLookupStatus o bool. Falta: la detección de duplicados se borró en lugar de moverse (BL-094), y TLMG.Services.csproj:3 y 38-43 y packages.config siguen referenciando EntityFramework.
 
 ### BL-039 · Arrancar las pruebas unitarias (proyecto test/ y marco)
 - Creado: 2026-10-25 00:49
@@ -261,6 +264,7 @@ Formato de entrada:
 - Depende de: decisión del encargado (extender Estándar §3.10 o renombrar)
 - Estado: Pendiente
 - Nota (2026-10-29 22:53): ya no depende de BL-030: el proxy se regeneró (445d216, 3fd8662) sin este cambio. Hoy los cuatro callbacks llevan [ServiceContract] (I*ManagerCallback.cs) y las respuestas usan el patrón …Result (CreateRoomResult, LogInResult…); la forma On… se usa solo para avisos (OnLobbyRoomChanged, OnFriendPresenceChanged). Se propone resolverlo extendiendo el Estándar §3.10 para aceptar …Result en respuestas por callback, en lugar de renombrar.
+- Nota (2026-11-02 16:06): la parte de nombres queda cumplida por D-62 (Estándar §3.7 y §3.10, 53226c4). Sigue abierto el atributo [ServiceContract] en los cuatro I*ManagerCallback.cs, que el ejemplo de §3.10 no lleva.
 
 ### BL-051 · Medir el rendimiento del login y del ranking
 - Creado: 2026-10-25 19:32
@@ -481,6 +485,73 @@ Formato de entrada:
 - Por qué: ShowScreen guarda la pantalla anterior por defecto (MainWindow.xaml.cs, saveInHistory = true), y los botones de regreso de Options, Profile, HowToPlay y Leaderboard crean un MainMenuScreen nuevo (OptionsScreen.xaml.cs:94, ProfileScreen.xaml.cs:36, HowToPlayScreen.xaml.cs:161, LeaderboardScreen.xaml.cs:326) en lugar de usar GoBack. Cerrar Sesión (MainMenuScreen.xaml.cs:62) también apila el menú y el login apila LoginScreen (LoginScreen.xaml.cs:86, 233). Cada ida y vuelta deja pantallas vivas en la pila. Solo FriendsScreen usa GoBack. Decidir una regla de navegación (GoBack o ShowScreen sin historial) junto con BL-042.
 - Depende de: BL-042
 - Estado: Pendiente
+
+### BL-093 · Red de seguridad de excepciones en los puntos de entrada y en los cierres de canal del servidor
+- Creado: 2026-11-02 16:06
+- Por qué: 0358fe9 quitó los catch (Exception) de las 10 operaciones de contrato (ServiceImplementation.*Manager) y de RemovePlayerOfLobbyChannel y EndSessionOfFriendsChannel. §10.2 los permite en puntos de entrada y límites, y D-45 pide registrar lo inesperado y responder con un mensaje genérico. Hoy un error inesperado no llega a log4net (no hay IErrorHandler ni trazas WCF; includeExceptionDetailInFaults=false), falla el canal y el jugador ve "Se perdió la conexión"; en un manejador de cierre de canal puede terminar el proceso del servidor. Opción recomendada: un método privado que envuelva cada operación y cada limpieza de canal con un único catch que registra con _log.Error y responde con Common_UnexpectedError.
+- Depende de: decisión del encargado (un catch por operación o un método común)
+- Estado: Pendiente
+- Nota (2026-11-02 17:23): diferida por decisión del encargado; pendiente conocido. Severidad alta: es una deuda latente; un error inesperado no deja rastro en el log y en un cierre de canal puede terminar el proceso del servidor.
+
+### BL-094 · El registro ya no distingue el correo o nickname duplicado al guardar
+- Creado: 2026-11-02 16:06
+- Por qué: 0358fe9 cambió PlayerRepository.CreatePlayer a bool (PlayerRepository.cs:86) y borró ResolveSaveFailureErrorKey e IsDuplicateKeyError, que BL-037 pedía mover a DataAccess y no borrar. Si dos registros con el mismo correo o nickname coinciden, el jugador recibe CreateAccount_DataModelError en lugar de EmailTaken o NicknameTaken. Seguir el patrón de PlayerExistenceLookupStatus: un estado de creación (Created, EmailTaken, NicknameTaken, DataFailure) decidido en DataAccess.
+- Depende de: nada
+- Estado: Pendiente
+- Nota (2026-11-02 17:23): diferida por decisión del encargado; pendiente conocido.
+
+### BL-095 · El cliente no tiene red para excepciones no controladas
+- Creado: 2026-11-02 16:06
+- Por qué: App.xaml.cs no maneja DispatcherUnhandledException, y CloseRegistrationClient, CloseLogInClient y CloseLeaderboardClient no capturan TimeoutException (CreateAccountScreen.xaml.cs:209, LoginScreen.xaml.cs:197, LeaderboardScreen.xaml.cs:187). Un error en la interfaz cierra la aplicación sin log ni mensaje. Agregar un manejador en App que registre con Error, muestre Common_UnexpectedError y regrese al inicio de sesión, como OnServerConnectionLost.
+- Depende de: BL-017 (clave única de error inesperado)
+- Estado: Pendiente
+- Nota (2026-11-02 17:23): diferida por decisión del encargado; pendiente conocido.
+
+### BL-096 · Restaurar los comentarios del porqué retirados en 0358fe9
+- Creado: 2026-11-02 16:06
+- Por qué: 0358fe9 borró once comentarios que explicaban decisiones no evidentes: el orden de los campos estáticos entre partials (ServiceImplementation.*Manager), por qué los canales del servidor no se desuscriben, por qué el manejador de canal no relanza, la cita de las Reglas §1.1.1 junto a MaximumPlayersPerRoom (SessionRegistry.Lobbies.cs:11), "el último canal gana", "una invitación repetida no crea otra" y la equivalencia de pareja por CK_Friendship_not_self (FriendshipRepository). Los textos están en 53263f1.
+- Depende de: nada (ajustar después de BL-093 los que hablen del catch)
+- Estado: Pendiente
+- Nota (2026-11-02 20:17): se restauraron 12 líneas de comentario. No se restauran los dos comentarios sobre por qué el manejador de canal no relanza (el catch ya no existe) ni los dos FIXME retirados (uno duplicado y otro sobre métodos que ya no existen).
+
+### BL-097 · Hallazgos de estilo del Estándar en el lobby y en 0358fe9
+- Creado: 2026-11-02 16:06
+- Por qué: orden de miembros (§9.5) en MainWindow.xaml.cs:103 y FriendsScreen.xaml.cs:111; más de 3 operadores (§10.5) en ServerConnectionManager.cs:365, 368 y 407; return de expresión (§13.2) en LobbyService.cs:206 y SessionRegistry.Lobbies.cs:357; var con métodos (§9.7) en FriendshipRepository.cs:30, 35 y 40; espacios finales (§9.3) en ServiceImplementation.cs:74 (nuevo), LobbyScreen.xaml.cs:18, 20 y 22, HowToPlayScreen.xaml.cs:109 y 111 y OptionsScreen.xaml.cs:12; constructor sin <summary> en MainMenuScreen.xaml.cs:15 (§12.2); LoadingScreen_Loaded en lugar de OnScreenLoaded (§7.2). Ninguno cambia el comportamiento.
+- Depende de: nada
+- Estado: Pendiente
+- Nota (2026-11-02 17:23): en esta pasada se corrigen todos los puntos listados: orden de miembros y uso de la propiedad ServerConnection en MainWindow (§9.5), IsSameRoom en ServerConnectionManager (§10.5), return con variable local (§13.2), tipos explícitos en FriendshipRepository (§9.7), espacios finales (§9.3), <summary> del constructor de MainMenuScreen (§12.2) y OnScreenLoaded en LoadingScreen (§7.2). También se agregan los <summary> de ValidationHelper, OperationRegisterPlayerAccountResult y PlayerAccountRegistration (§12.2), se agrupan los usings de CreateAccountScreen (§9.4) y FriendsService usa una constante propia de usuario ausente en lugar de la del lobby.
+
+### BL-098 · Dos mecanismos de avisos en el servidor
+- Creado: 2026-11-02 16:06
+- Por qué: el lobby usa LobbyOutcome y LobbyNotification con NotifyLobbyMembers, y amigos y sesiones usan SessionOutcome con Action y SafeNotifyAll; LobbyService.CreateNotifications y SessionNotificationHelper.CreateRoomNotifications repiten la conversión de la foto de sala. Unificar en SessionOutcome y unir los manejadores Closed y Faulted de cada canal en uno solo.
+- Depende de: BL-093 (mismos archivos)
+- Estado: Pendiente
+- Nota (2026-11-02 17:23): diferida por decisión del encargado; pendiente conocido.
+
+### BL-099 · Código sin uso y visibilidad de más en el lobby
+- Creado: 2026-11-02 16:06
+- Por qué: ISessionRegistry.IssueRoomEntryAuthorization (ISessionRegistry.cs:85, SessionRegistry.Lobbies.cs:108) no tiene usos; ServerConnectionManager.LeaveLobbyResultReceived (:64) no tiene suscriptores; OpenLobbyChannel (:205) es público y solo lo usa su clase (§10.9).
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-100 · MainMenuScreen muestra datos de prueba visibles
+- Creado: 2026-11-02 16:06
+- Por qué: MainMenuScreen.xaml:44, 62, 69 y 76 muestran "interStella", 142, "1,840" y "#38", y MainMenuScreen.xaml.cs:10-11 fija una racha de 3 y 120 puntos. El jugador ve datos que no son suyos.
+- Depende de: BL-075
+- Estado: Pendiente
+
+### BL-101 · Corregir los defectos del Estándar detectados en las revisiones del lobby
+- Creado: 2026-11-02 16:06
+- Por qué: §10.2 (línea 2391) "Ejemplo correcto " perdió su descripción en 53226c4; §11.1 tiene un "Ejemplo incorrecto" idéntico al correcto, "Ejemplo Ejemplo incorrecto" y espacios sueltos en las reglas (2) y (3); §5.3 tiene sangría de 3 espacios y "v<mayor>" frente al archivo v3.1; §4.3 (1251, 1274) tiene errores de puntuación; §6.2 marca SessionRegistry y Observador como "por implementar"; la tabla de §10.3 no coincide con el código; §10.2 no dice que todo punto de entrada y todo manejador de canal deba tener red, lo que permitió 0358fe9. Complementa BL-090.
+- Depende de: el encargado (se edita en Docs y se reexporta, BL-050)
+- Estado: Pendiente
+
+### BL-102 · Nombres genéricos en el cliente
+- Creado: 2026-11-02 16:06
+- Por qué: Handle* (ServerConnectionManager.cs:554 y 569; CreateAccountScreen.xaml.cs:139, 154 y 228; LoginScreen.xaml.cs:146 y 175; LeaderboardScreen.xaml.cs:120 y 134) y Process* (LobbyScreen.xaml.cs:234; VerificationScreen.xaml.cs:225) no dicen qué hacen (§3.7, gov/CLAUDE.md §9). HasFriendsChannel describe el mecanismo y no el significado ("es jugador registrado"). CommonErrorKeyHelper solo contiene constantes. Propuestas en el informe del 2026-11-02.
+- Depende de: nada
+- Estado: Pendiente
+- Nota (2026-11-02 17:23): en esta pasada se renombran los Handle* de las pantallas y de ServerConnectionManager, los Process* de LobbyScreen y VerificationScreen y HasFriendsChannel, que pasa a HasRegisteredSession. CommonErrorKeyHelper no se renombra: depende de la decisión sobre las claves de error (BL-017).
 
 ## Finalizados
 
