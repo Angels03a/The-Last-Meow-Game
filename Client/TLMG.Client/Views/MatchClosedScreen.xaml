@@ -1,0 +1,41 @@
+﻿<local:LocalizableScreen x:Class="TLMG.Client.Views.MatchClosedScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:TLMG.Client.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="720"
+             d:DesignWidth="1280">
+    <local:LocalizableScreen.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/TLMG.Client;component/Styles/GlobalStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </local:LocalizableScreen.Resources>
+
+    <Grid Background="{StaticResource Brush_BackgroundDark}">
+        <Border Style="{StaticResource MatchClosedCardBorderStyle}">
+            <StackPanel>
+                <TextBlock Text="😴" Style="{StaticResource HeroMainEmojiStyle}" />
+
+                <TextBlock Text="{DynamicResource MatchClosed_Title}"
+                           Style="{StaticResource MatchClosedTitleTextStyle}" />
+
+                <Border Style="{StaticResource MatchClosedMessageBorderStyle}">
+                    <TextBlock x:Name="lblInactivityMessage"
+                               Style="{StaticResource MatchClosedMessageTextStyle}" />
+                </Border>
+
+                <TextBlock Text="{DynamicResource MatchClosed_NoPenaltyMessage}"
+                           Style="{StaticResource MatchClosedNoteTextStyle}" />
+
+                <Button x:Name="btnMainMenu"
+                        Content="{DynamicResource MatchClosed_MainMenuButton}"
+                        Style="{StaticResource MatchClosedButtonStyle}"
+                        Click="BtnMainMenu_Click" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</local:LocalizableScreen>

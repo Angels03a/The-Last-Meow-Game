@@ -128,8 +128,6 @@ namespace TLMG.Client.Views
             ServerConnection.InviteFriendResultReceived -= OnInviteFriendResultReceived;
         }
 
-        // Un invitado no tiene canal de amigos: se le avisa sin llamar al servidor. Si la lista aún no llegó (por
-        // ejemplo, falló la suscripción del login), se pide de nuevo y llega por FriendListReceived.
         private void ShowOrRequestFriendList()
         {
             ShowFriendList();
@@ -191,11 +189,9 @@ namespace TLMG.Client.Views
         {
             FriendEntry invitedFriend = (FriendEntry)((Button)sender).DataContext;
 
-            // Si el envío falla, el manager dispara ConnectionLost y MainWindow regresa al inicio de sesión.
             ServerConnection.InviteFriendToRoom(invitedFriend.UserId);
         }
 
-        // Invitar se habilita solo con el amigo en línea y una sala propia; el servidor vuelve a validar todo.
         private void ShowFriendList()
         {
             List<FriendEntry> friendEntries = new List<FriendEntry>();

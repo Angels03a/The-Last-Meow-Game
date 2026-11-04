@@ -1,0 +1,171 @@
+﻿<local:LocalizableScreen x:Class="TLMG.Client.Views.RoundResultScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:TLMG.Client.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="720"
+             d:DesignWidth="1280">
+    <local:LocalizableScreen.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/TLMG.Client;component/Styles/GlobalStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </local:LocalizableScreen.Resources>
+
+    <Grid Background="{StaticResource Brush_BackgroundDark}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Border Style="{StaticResource ResultPanelBorderStyle}">
+                <StackPanel>
+                    <TextBlock Text="🏆" 
+                               Style="{StaticResource RoundResultTrophyEmojiStyle}" />
+                    <TextBlock x:Name="lblWinnerTitle" 
+                               Style="{StaticResource RoundResultTitleTextStyle}" />
+                    <TextBlock x:Name="lblBidCompleted" 
+                               Style="{StaticResource RoundResultSubtitleTextStyle}" />
+
+                    <TextBlock Text="{DynamicResource RoundResult_FlippedCardsLabel}"
+                               Style="{StaticResource RoundResultSectionTitleTextStyle}" />
+
+                    <UniformGrid Style="{StaticResource ResultCardsGridStyle}">
+                        <Border Style="{StaticResource RoundResultSafeCardBorderStyle}">
+                            <StackPanel>
+                                <TextBlock Text="🐱" 
+                                           Style="{StaticResource RoundResultCardEmojiStyle}" />
+                                <TextBlock Text="{DynamicResource RoundResult_EgyptianCatLabel}"
+                                           Style="{StaticResource RoundResultSafeCardNameStyle}" />
+
+                                <!--  FIXME: Los siguientes TextBlock están hardcodeados y deberían ser reemplazados 
+                                con bindings dinámicos a los nombres de los jugadores. -->
+
+                                <TextBlock Text="NyanProwler" 
+                                           Style="{StaticResource RoundResultCardOwnerTextStyle}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource RoundResultSafeCardBorderStyle}">
+                            <StackPanel>
+                                <TextBlock Text="🧟" 
+                                           Style="{StaticResource RoundResultCardEmojiStyle}" />
+                                <TextBlock Text="{DynamicResource RoundResult_ZombieCatLabel}"
+                                           Style="{StaticResource RoundResultSafeCardNameStyle}" />
+                                <TextBlock Text="CatNapper9000" 
+                                           Style="{StaticResource RoundResultCardOwnerTextStyle}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource RoundResultSafeCardBorderStyle}">
+                            <StackPanel>
+                                <TextBlock Text="🐱" 
+                                           Style="{StaticResource RoundResultCardEmojiStyle}" />
+                                <TextBlock Text="{DynamicResource RoundResult_EgyptianCatLabel}"
+                                           Style="{StaticResource RoundResultSafeCardNameStyle}" />
+                                <TextBlock Text="WhiskerKnight" 
+                                           Style="{StaticResource RoundResultCardOwnerTextStyle}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource RoundResultSkullCardBorderStyle}">
+                            <StackPanel>
+                                <TextBlock Text="☠️"
+                                           Style="{StaticResource RoundResultCardEmojiStyle}" />
+                                <TextBlock Text="{DynamicResource RoundResult_SkullCardLabel}"
+                                           Style="{StaticResource RoundResultSkullCardNameStyle}" />
+                                <TextBlock Text="GraveyardPaws" 
+                                           Style="{StaticResource RoundResultCardOwnerTextStyle}" />
+                                <TextBlock Text="💥" 
+                                           Style="{StaticResource RoundResultExplosionEmojiStyle}" />
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+
+                    <Border Style="{StaticResource RoundResultEliminationBorderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="🐱"
+                                       Style="{StaticResource RoundResultEliminationEmojiStyle}" />
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock x:Name="lblEliminatedTitle"
+                                           Style="{StaticResource RoundResultEliminationTitleTextStyle}" />
+                                <TextBlock Text="{DynamicResource RoundResult_EliminatedMessage}"
+                                           Style="{StaticResource RoundResultEliminationMessageTextStyle}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <TextBlock x:Name="lblScoresTitle" 
+                               Style="{StaticResource RoundResultSectionTitleTextStyle}" />
+
+                    <UniformGrid Style="{StaticResource ResultCardsGridStyle}">
+                        <Border Style="{StaticResource RoundResultScoreCardWinnerBorderStyle}">
+                            <StackPanel>
+                                <TextBlock Text="🐱" 
+                                           Style="{StaticResource RoundResultScoreEmojiStyle}" />
+                                <TextBlock Text="WhiskerKnight" 
+                                           Style="{StaticResource RoundResultScoreNameTextStyle}" />
+                                <StackPanel Style="{StaticResource RoundResultScoreDotsPanelStyle}">
+                                    <Ellipse Style="{StaticResource RoundResultScoreDotFilledStyle}" />
+                                    <Ellipse Style="{StaticResource RoundResultScoreDotFilledStyle}" />
+                                </StackPanel>
+                                <TextBlock Text="{DynamicResource RoundResult_WinnerStatusLabel}"
+                                           Style="{StaticResource RoundResultWinnerStatusTextStyle}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource RoundResultScoreCardBorderStyle}">
+                            <StackPanel>
+                                <TextBlock Text="🐯" 
+                                           Style="{StaticResource RoundResultScoreEmojiStyle}" />
+                                <TextBlock Text="NyanProwler" 
+                                           Style="{StaticResource RoundResultScoreNameTextStyle}" />
+                                <StackPanel Style="{StaticResource RoundResultScoreDotsPanelStyle}">
+                                    <Ellipse Style="{StaticResource RoundResultScoreDotFilledStyle}" />
+                                    <Ellipse Style="{StaticResource RoundResultScoreDotEmptyStyle}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource RoundResultScoreCardBorderStyle}">
+                            <StackPanel>
+                                <TextBlock Text="🐱" 
+                                           Style="{StaticResource RoundResultScoreEmojiStyle}" />
+                                <TextBlock Text="CatNapper9000" 
+                                           Style="{StaticResource RoundResultScoreNameTextStyle}" />
+                                <StackPanel Style="{StaticResource RoundResultScoreDotsPanelStyle}">
+                                    <Ellipse Style="{StaticResource RoundResultScoreDotEmptyStyle}" />
+                                    <Ellipse Style="{StaticResource RoundResultScoreDotEmptyStyle}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource RoundResultScoreCardEliminatedBorderStyle}">
+                            <StackPanel>
+                                <TextBlock Text="🐱" 
+                                           Style="{StaticResource RoundResultScoreEmojiStyle}" />
+                                <TextBlock Text="GraveyardPaws" 
+                                           Style="{StaticResource RoundResultScoreNameTextStyle}" />
+                                <StackPanel Style="{StaticResource RoundResultScoreDotsPanelStyle}">
+                                    <Ellipse Style="{StaticResource RoundResultScoreDotEmptyStyle}" />
+                                    <Ellipse Style="{StaticResource RoundResultScoreDotEmptyStyle}" />
+                                </StackPanel>
+                                <TextBlock Text="{DynamicResource RoundResult_EliminatedStatusLabel}"
+                                           Style="{StaticResource RoundResultEliminatedStatusTextStyle}" />
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+
+                    <StackPanel Style="{StaticResource ResultActionsPanelStyle}">
+                        <Button x:Name="btnContinue"
+                                Content="{DynamicResource RoundResult_ContinueButton}"
+                                Style="{StaticResource RoundResultContinueButtonStyle}"
+                                Click="BtnContinue_Click" />
+                        <Button x:Name="btnBackToMenu"
+                                Content="{DynamicResource RoundResult_BackToMenuButton}"
+                                Style="{StaticResource ResultSecondaryButtonStyle}"
+                                Click="BtnBackToMenu_Click" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+    </Grid>
+</local:LocalizableScreen>
