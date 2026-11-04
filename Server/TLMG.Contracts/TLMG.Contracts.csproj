@@ -39,6 +39,10 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataContracts\OperationChangePlayerReadinessRequest.cs" />
+    <Compile Include="DataContracts\OperationChangePlayerReadinessResult.cs" />
+    <Compile Include="DataContracts\OperationRequestMatchStartRequest.cs" />
+    <Compile Include="DataContracts\OperationRequestMatchStartResult.cs" />
     <Compile Include="DataContracts\Friend.cs" />
     <Compile Include="DataContracts\LeaderboardPlayer.cs" />
     <Compile Include="DataContracts\LobbyPlayer.cs" />

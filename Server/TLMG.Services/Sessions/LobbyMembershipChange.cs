@@ -44,7 +44,7 @@ namespace TLMG.Services.Sessions
         /// <summary>Obtiene la sala tras el cambio; null si se rechazó o si la sala se borró por vacía.</summary>
         public LobbyRoomSnapshot Room { get; }
 
-        /// <summary>Obtiene los callbacks de los demás jugadores a quienes hay que avisar; nunca es null.</summary>
+        /// <summary>Obtiene los callbacks destinatarios del cambio; nunca es null.</summary>
         public IReadOnlyList<ILobbyManagerCallback> RecipientCallbacks { get; }
 
         /// <summary>Crea un resultado de cambio rechazado.</summary>
@@ -75,7 +75,9 @@ namespace TLMG.Services.Sessions
         /// <param name="userId">Id de la cuenta del jugador.</param>
         /// <param name="roomId">Id de la sala afectada.</param>
         /// <param name="room">La sala tras el cambio; null si la sala se eliminó.</param>
-        /// <param name="recipientCallbacks">Callbacks de los demás jugadores; no debe modificarse después.</param>
+        /// <param name="recipientCallbacks">
+        /// Callbacks destinatarios, incluido el solicitante cuando corresponda; no se modifica después.
+        /// </param>
         /// <returns>El resultado aplicado; nunca es null.</returns>
         public static LobbyMembershipChange CreateApplied(
             int userId,

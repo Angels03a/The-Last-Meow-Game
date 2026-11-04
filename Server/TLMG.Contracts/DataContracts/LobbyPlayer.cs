@@ -15,5 +15,9 @@ namespace TLMG.Contracts.DataContracts
         /// <summary>Nickname del jugador.</summary>
         [DataMember]
         public string Nickname { get; set; }
+
+        /// <summary>Indica si el jugador está Listo; al entrar siempre es false.</summary>
+        [DataMember]
+        public bool IsReady { get; set; }
     }
 }

@@ -11,7 +11,6 @@ namespace TLMG.Client.Views
         private const double DefaultMusicVolumeLevel = 50.0;
         private const double DefaultSoundEffectsVolumeLevel = 50.0;
         private const double VolumeScalePercentFactor = 100.0;
-        private const string EnglishCultureIdentifier = "en-US";
         private const string SpanishCultureIdentifier = "es-MX";
         private const string ActiveLanguageButtonStyleKey = "LanguageButtonActiveStyle";
         private const string InactiveLanguageButtonStyleKey = "LanguageButtonInactiveStyle";
@@ -70,7 +69,7 @@ namespace TLMG.Client.Views
 
         private void BtnLanguageEnglish_Click(object sender, RoutedEventArgs e)
         {
-            LanguageManager.ChangeLanguage(EnglishCultureIdentifier);
+            LanguageManager.ChangeLanguage(LanguageManager.EnglishCultureCode);
             btnLanguageEnglish.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
             btnLanguageSpanish.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
         }
@@ -84,8 +83,7 @@ namespace TLMG.Client.Views
 
         private void BtnReset_Click(object sender, RoutedEventArgs e)
         {
-            sldMusic.Value = DefaultMusicVolumeLevel;
-            sldSoundEffects.Value = DefaultSoundEffectsVolumeLevel;
+            InitializeDefaultSettings();
         }
 
         private void BtnBack_Click(object sender, RoutedEventArgs e)

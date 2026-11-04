@@ -109,7 +109,8 @@ namespace TLMG.Services.Sessions
         {
             bool wasIssued = false;
 
-            if (_tokensByUserId.ContainsKey(userId) && _membersByRoomId.ContainsKey(roomId))
+            if (_tokensByUserId.ContainsKey(userId) && _membersByRoomId.ContainsKey(roomId)
+                && !_startsByRoomId[roomId].MatchId.HasValue)
             {
                 HashSet<int> authorizedRoomIds;
 
@@ -150,6 +151,7 @@ namespace TLMG.Services.Sessions
                 _lastRoomId++;
                 List<LobbyMember> members = new List<LobbyMember>();
                 _membersByRoomId[_lastRoomId] = members;
+                _startsByRoomId[_lastRoomId] = new LobbyStartState();
                 LobbyMember creator = new LobbyMember(playerSession.UserId, channelId, lobbyCallback);
                 AddMemberToRoom(_lastRoomId, members, creator);
                 lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
@@ -183,6 +185,11 @@ namespace TLMG.Services.Sessions
                     LobbyMembershipChange.CreateRejected(LobbyChangeStatus.AlreadyInRoom, playerSession.UserId);
             }
             else if (!TryFindAuthorizedRoom(playerSession.UserId, roomId, out members))
+            {
+                lobbyMembershipChange =
+                    LobbyMembershipChange.CreateRejected(LobbyChangeStatus.NotAuthorized, playerSession.UserId);
+            }
+            else if (_startsByRoomId[roomId].MatchId.HasValue)
             {
                 lobbyMembershipChange =
                     LobbyMembershipChange.CreateRejected(LobbyChangeStatus.NotAuthorized, playerSession.UserId);
@@ -224,9 +231,11 @@ namespace TLMG.Services.Sessions
                 members.Remove(leavingMember);
                 _roomIdsByUserId.Remove(userId);
                 _userIdsByChannelId.Remove(leavingMember.ChannelId);
+                _startsByRoomId[roomId].ReadyUserIds.Remove(userId);
 
                 if (members.Count > EmptyCount)
                 {
+                    RefreshLobbyCountdownInLock(roomId);
                     lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
                         userId,
                         roomId,
@@ -236,6 +245,7 @@ namespace TLMG.Services.Sessions
                 else
                 {
                     _membersByRoomId.Remove(roomId);
+                    _startsByRoomId.Remove(roomId);
                     RemoveRoomEntryAuthorizations(roomId);
                     RemoveInvitationsOfRoom(roomId);
                     lobbyMembershipChange = LobbyMembershipChange.CreateApplied(userId, roomId, null);
@@ -286,6 +296,7 @@ namespace TLMG.Services.Sessions
             members.Add(member);
             _roomIdsByUserId[member.UserId] = roomId;
             _userIdsByChannelId[member.ChannelId] = member.UserId;
+            RefreshLobbyCountdownInLock(roomId);
         }
 
         private void ConsumeRoomEntryAuthorization(int userId, int roomId)
@@ -328,7 +339,8 @@ namespace TLMG.Services.Sessions
                 players.Add(_sessionsByToken[_tokensByUserId[member.UserId]]);
             }
 
-            LobbyRoomSnapshot lobbyRoomSnapshot = new LobbyRoomSnapshot(roomId, players.AsReadOnly());
+            LobbyRoomSnapshot lobbyRoomSnapshot =
+                new LobbyRoomSnapshot(roomId, players.AsReadOnly(), CreateStartSnapshotInLock(roomId));
 
             return lobbyRoomSnapshot;
         }

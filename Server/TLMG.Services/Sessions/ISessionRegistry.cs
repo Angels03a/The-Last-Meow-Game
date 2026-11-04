@@ -60,7 +60,7 @@ namespace TLMG.Services.Sessions
         /// <param name="lobbyCallback">Callback del canal de lobby del jugador.</param>
         /// <returns>
         /// Applied con la sala y los demás jugadores, InvalidSession, AlreadyInRoom, NotAuthorized o RoomFull;
-        /// NotAuthorized cubre tanto una sala inexistente como la falta de autorización. Nunca es null.
+        /// NotAuthorized cubre sala inexistente, falta de autorización o partida ya iniciada. Nunca es null.
         /// </returns>
         LobbyMembershipChange EnterRoom(
             string sessionToken,
@@ -116,5 +116,27 @@ namespace TLMG.Services.Sessions
         /// invitación no exista, no sea del jugador o su sala ya no exista. Nunca es null.
         /// </returns>
         RoomInvitationAcceptance AcceptRoomInvitation(string sessionToken, int invitationId);
+
+        /// <summary>
+        /// Cambia el estado Listo del propio jugador. Valida token y canal antes de copiar el estado.
+        /// </summary>
+        /// <param name="sessionToken">Token de la sesión vigente.</param>
+        /// <param name="channelId">Canal de lobby vinculado al jugador.</param>
+        /// <param name="roomId">Sala indicada por la petición.</param>
+        /// <param name="isReady">Estado Listo deseado del propio jugador; repetirlo no renueva la cuenta.</param>
+        /// <returns>Estado actual y destinatarios, o rechazo sin datos de la sala.</returns>
+        LobbyMembershipChange ChangePlayerReadiness(string sessionToken, string channelId, int roomId, bool isReady);
+
+        /// <summary>
+        /// Valida la generación y el plazo UTC para iniciar. Valida token y canal antes de copiar el estado.
+        /// </summary>
+        /// <param name="sessionToken">Token de la sesión vigente.</param>
+        /// <param name="channelId">Canal de lobby vinculado al jugador.</param>
+        /// <param name="roomId">Sala indicada por la petición.</param>
+        /// <param name="countdownId">
+        /// Generación de cuenta observada; una generación vieja solo devuelve el estado.
+        /// </param>
+        /// <returns>Estado actual y destinatarios, o rechazo sin datos de la sala.</returns>
+        LobbyMembershipChange RequestMatchStart(string sessionToken, string channelId, int roomId, long countdownId);
     }
 }

@@ -13,7 +13,7 @@ namespace TLMG.Services.Lobby
     /// Lógica de las salas: valida, delega la regla atómica en el registro de sesiones y arma las respuestas y los
     /// avisos; no conoce WCF y nunca notifica, eso lo hace quien la llama fuera de cualquier candado.
     /// </summary>
-    public class LobbyService
+    public partial class LobbyService
     {
         private const string AlreadyInRoomErrorKey = "Lobby_AlreadyInRoomError";
         private const string CannotJoinRoomErrorKey = "Lobby_CannotJoinRoomError";
@@ -27,7 +27,9 @@ namespace TLMG.Services.Lobby
                 { LobbyChangeStatus.InvalidSession, CommonErrorKeyHelper.InvalidSessionErrorKey },
                 { LobbyChangeStatus.AlreadyInRoom, AlreadyInRoomErrorKey },
                 { LobbyChangeStatus.NotAuthorized, CannotJoinRoomErrorKey },
-                { LobbyChangeStatus.RoomFull, CommonErrorKeyHelper.RoomFullErrorKey }
+                { LobbyChangeStatus.RoomFull, CommonErrorKeyHelper.RoomFullErrorKey },
+                { LobbyChangeStatus.NotInRoom, NotInRoomErrorKey },
+                { LobbyChangeStatus.MatchAlreadyStarted, MatchAlreadyStartedErrorKey }
             };
 
         private readonly ISessionRegistry _sessionRegistry;
