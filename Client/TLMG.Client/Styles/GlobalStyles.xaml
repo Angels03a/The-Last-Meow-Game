@@ -1852,4 +1852,1146 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <Color x:Key="Color_GoldSoft">#26F59E0B</Color>
+    <Color x:Key="Color_GoldBorder">#80F59E0B</Color>
+    <Color x:Key="Color_OnlineSoft">#2610B981</Color>
+    <Color x:Key="Color_OnlineBorder">#8010B981</Color>
+    <Color x:Key="Color_ErrorSoft">#26EF4444</Color>
+    <Color x:Key="Color_ErrorBorder">#80EF4444</Color>
+
+    <SolidColorBrush x:Key="Brush_GoldSoft" Color="{StaticResource Color_GoldSoft}" />
+    <SolidColorBrush x:Key="Brush_GoldBorder" Color="{StaticResource Color_GoldBorder}" />
+    <SolidColorBrush x:Key="Brush_OnlineSoft" Color="{StaticResource Color_OnlineSoft}" />
+    <SolidColorBrush x:Key="Brush_OnlineBorder" Color="{StaticResource Color_OnlineBorder}" />
+    <SolidColorBrush x:Key="Brush_ErrorSoft" Color="{StaticResource Color_ErrorSoft}" />
+    <SolidColorBrush x:Key="Brush_ErrorBorder" Color="{StaticResource Color_ErrorBorder}" />
+
+    <DropShadowEffect x:Key="Effect_GoldGlow" Color="{StaticResource Color_Gold}" BlurRadius="24" ShadowDepth="0" Opacity="0.6" />
+    <DropShadowEffect x:Key="Effect_CardShadow" Color="Black" BlurRadius="12" ShadowDepth="4" Opacity="0.5" />
+
+    <Style x:Key="GameplayHeaderBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="Padding" Value="24,10" />
+    </Style>
+
+    <Style x:Key="GameplayHeaderTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SidebarBrandTitleStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_AccentLight}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,24,0" />
+    </Style>
+
+    <Style x:Key="GameplayRoundPillBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundDark}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="14,6" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayRoundPillTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+    </Style>
+
+    <Style x:Key="GameplayScoreboardPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayScoreboardItemStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Margin" Value="12,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayScoreboardEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Margin" Value="0,0,6,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayScoreboardNameStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayScoreboardValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_Gold}" />
+        <Setter Property="Margin" Value="6,0,0,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayExitButtonStyle" TargetType="Button" BasedOn="{StaticResource OutlineButtonStyle}">
+        <Setter Property="Height" Value="36" />
+        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayTableEllipseStyle" TargetType="Ellipse">
+        <Setter Property="Width" Value="580" />
+        <Setter Property="Height" Value="440" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Stroke" Value="{StaticResource Brush_Border}" />
+        <Setter Property="StrokeThickness" Value="3" />
+        <Setter Property="Fill">
+            <Setter.Value>
+                <RadialGradientBrush>
+                    <GradientStop Color="{StaticResource Color_BackgroundPanel}" Offset="0" />
+                    <GradientStop Color="{StaticResource Color_BackgroundDark}" Offset="1" />
+                </RadialGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GameplayModerationHintTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Margin" Value="0,16,24,0" />
+    </Style>
+
+    <Style x:Key="GameplayTableHintTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+        <Setter Property="Margin" Value="0,0,0,80" />
+    </Style>
+
+    <Style x:Key="GameplayOpponentTopPanelStyle" TargetType="StackPanel">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Margin" Value="0,14,0,0" />
+    </Style>
+
+    <Style x:Key="GameplayOpponentLeftPanelStyle" TargetType="StackPanel">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="40,0,0,0" />
+    </Style>
+
+    <Style x:Key="GameplayOpponentRightPanelStyle" TargetType="StackPanel">
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,40,0" />
+    </Style>
+
+    <Style x:Key="GameplayAvatarGridStyle" TargetType="Grid">
+        <Setter Property="Width" Value="70" />
+        <Setter Property="Height" Value="68" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayAvatarBorderStyle" TargetType="Border">
+        <Setter Property="Width" Value="64" />
+        <Setter Property="Height" Value="64" />
+        <Setter Property="CornerRadius" Value="32" />
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+
+    <Style x:Key="GameplayAvatarEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayWinBadgeBorderStyle" TargetType="Border">
+        <Setter Property="Width" Value="20" />
+        <Setter Property="Height" Value="20" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Background" Value="{StaticResource Brush_Gold}" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+    </Style>
+
+    <Style x:Key="GameplayWinBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_BackgroundDark}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayPlayerNameTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,6,0,8" />
+    </Style>
+
+    <Style x:Key="GameplayMiniCardsPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayMiniCardBorderStyle" TargetType="Border">
+        <Setter Property="Width" Value="24" />
+        <Setter Property="Height" Value="28" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundDark}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Margin" Value="3,0" />
+    </Style>
+
+    <Style x:Key="GameplayMiniCardEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayCenterCardsPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,10,0,0" />
+    </Style>
+
+    <Style x:Key="GameplayCenterCardBaseStyle" TargetType="Border">
+        <Setter Property="Width" Value="64" />
+        <Setter Property="Height" Value="92" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Background" Value="{StaticResource Brush_SurfaceHover}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Margin" Value="4,0" />
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+        <Setter Property="Effect" Value="{StaticResource Effect_CardShadow}" />
+    </Style>
+
+    <Style x:Key="GameplayCenterCardFirstStyle" TargetType="Border" BasedOn="{StaticResource GameplayCenterCardBaseStyle}">
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <RotateTransform Angle="-8" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GameplayCenterCardSecondStyle" TargetType="Border" BasedOn="{StaticResource GameplayCenterCardBaseStyle}">
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <RotateTransform Angle="-3" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GameplayCenterCardThirdStyle" TargetType="Border" BasedOn="{StaticResource GameplayCenterCardBaseStyle}">
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <RotateTransform Angle="3" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GameplayCenterCardFourthStyle" TargetType="Border" BasedOn="{StaticResource GameplayCenterCardBaseStyle}">
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <RotateTransform Angle="8" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GameplayCenterCardEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="26" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayCurrentBidBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_Accent}" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="Padding" Value="20,8" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,0,80" />
+    </Style>
+
+    <Style x:Key="GameplayCurrentBidPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+    </Style>
+
+    <Style x:Key="GameplayCurrentBidLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_White}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayCurrentBidValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="Black" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_White}" />
+        <Setter Property="Margin" Value="6,0,0,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayContextMenuBorderStyle" TargetType="Border" BasedOn="{StaticResource ContextMenuBorderStyle}">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Visibility" Value="Collapsed" />
+    </Style>
+
+    <Style x:Key="GameplayContextMenuReportItemStyle" TargetType="Button" BasedOn="{StaticResource ContextMenuItemStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_Gold}" />
+    </Style>
+
+    <Style x:Key="GameplayContextMenuKickItemStyle" TargetType="Button" BasedOn="{StaticResource ContextMenuItemStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_AccentLight}" />
+    </Style>
+
+    <Style x:Key="GameplayContextMenuCancelItemStyle" TargetType="Button" BasedOn="{StaticResource ContextMenuItemStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+    </Style>
+
+    <Style x:Key="GameplayBottomBarBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="0,1,0,0" />
+        <Setter Property="Padding" Value="24,12" />
+    </Style>
+
+    <Style x:Key="GameplayLocalPlayerPanelStyle" TargetType="StackPanel">
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayLocalAvatarGridStyle" TargetType="Grid">
+        <Setter Property="Width" Value="84" />
+        <Setter Property="Height" Value="78" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayLocalAvatarBorderStyle" TargetType="Border">
+        <Setter Property="Width" Value="72" />
+        <Setter Property="Height" Value="72" />
+        <Setter Property="CornerRadius" Value="36" />
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Gold}" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+        <Setter Property="Effect" Value="{StaticResource Effect_GoldGlow}" />
+    </Style>
+
+    <Style x:Key="GameplayLocalAvatarEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="36" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayTurnMarkerTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+
+    <Style x:Key="GameplayLocalPlayerNameTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_AccentLight}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,6,0,8" />
+    </Style>
+
+    <Style x:Key="GameplayHandPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayHandLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="24,0,12,0" />
+    </Style>
+
+    <Style x:Key="GameplayHandCardButtonBaseStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Width" Value="64" />
+        <Setter Property="Height" Value="80" />
+        <Setter Property="Margin" Value="0,0,10,0" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="BorderThickness" Value="2" />
+    </Style>
+
+    <Style x:Key="GameplayHandCardEgyptianButtonStyle" TargetType="Button" BasedOn="{StaticResource GameplayHandCardButtonBaseStyle}">
+        <Setter Property="Background" Value="{StaticResource Brush_GoldSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_GoldBorder}" />
+    </Style>
+
+    <Style x:Key="GameplayHandCardZombieButtonStyle" TargetType="Button" BasedOn="{StaticResource GameplayHandCardButtonBaseStyle}">
+        <Setter Property="Background" Value="{StaticResource Brush_OnlineSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_OnlineBorder}" />
+    </Style>
+
+    <Style x:Key="GameplayHandCardSkullButtonStyle" TargetType="Button" BasedOn="{StaticResource GameplayHandCardButtonBaseStyle}">
+        <Setter Property="Background" Value="{StaticResource Brush_AccentSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+    </Style>
+
+    <Style x:Key="GameplayHandCardEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,0,6" />
+    </Style>
+
+    <Style x:Key="GameplayHandCardLabelBaseStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="9" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayHandCardEgyptianLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource GameplayHandCardLabelBaseStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_Gold}" />
+    </Style>
+
+    <Style x:Key="GameplayHandCardZombieLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource GameplayHandCardLabelBaseStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_Online}" />
+    </Style>
+
+    <Style x:Key="GameplayHandCardSkullLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource GameplayHandCardLabelBaseStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_AccentLight}" />
+    </Style>
+
+    <Style x:Key="GameplayActionsPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayBidSelectorBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundDark}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Height" Value="44" />
+        <Setter Property="Margin" Value="0,0,16,0" />
+    </Style>
+
+    <Style x:Key="GameplayBidStepButtonStyle" TargetType="Button" BasedOn="{StaticResource LinkButtonStyle}">
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="42" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextPrimary}" />
+    </Style>
+
+    <Style x:Key="GameplayBidValueTextStyle" TargetType="TextBlock">
+        <Setter Property="MinWidth" Value="36" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_White}" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameplayChallengeButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+        <Setter Property="Height" Value="44" />
+        <Setter Property="MinWidth" Value="124" />
+        <Setter Property="Margin" Value="0,0,12,0" />
+    </Style>
+
+    <Style x:Key="GameplaySurrenderButtonStyle" TargetType="Button" BasedOn="{StaticResource OutlineButtonStyle}">
+        <Setter Property="Height" Value="44" />
+        <Setter Property="MinWidth" Value="124" />
+        <Setter Property="Background" Value="{StaticResource Brush_SurfaceHover}" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+    </Style>
+
+    <Style x:Key="GameplayChatTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+        <Setter Property="Margin" Value="20,18,20,12" />
+    </Style>
+
+    <Style x:Key="GameplayChatMessagesScrollViewerStyle" TargetType="ScrollViewer">
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="Padding" Value="20,12" />
+    </Style>
+
+    <Style x:Key="GameplayChatMessageTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+
+    <Style x:Key="GameplayChatAuthorRunStyle" TargetType="Run">
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_Gold}" />
+    </Style>
+
+    <Style x:Key="GameplayChatFooterBorderStyle" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="0,1,0,1" />
+        <Setter Property="Padding" Value="16,12" />
+    </Style>
+
+    <Style x:Key="GameplayChatInputStyle" TargetType="TextBox" BasedOn="{StaticResource FieldStyle}">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="CaretBrush" Value="{StaticResource Brush_TextPrimary}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                        <Grid>
+                            <TextBlock x:Name="lblPlaceholder"
+                                       Text="{TemplateBinding Tag}"
+                                       Foreground="{StaticResource Brush_TextFaint}"
+                                       Margin="12,0"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False"
+                                       Visibility="Collapsed" />
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="12,0" VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Text.Length, RelativeSource={RelativeSource Self}}" Value="0">
+                            <Setter TargetName="lblPlaceholder" Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GameplaySendChatButtonStyle" TargetType="Button" BasedOn="{StaticResource OutlineButtonStyle}">
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="36" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Margin" Value="8,0,0,0" />
+        <Setter Property="Background" Value="{StaticResource Brush_SurfaceHover}" />
+    </Style>
+
+    <Style x:Key="GameplayDemoPanelStyle" TargetType="StackPanel">
+        <Setter Property="Margin" Value="16,14,16,8" />
+    </Style>
+
+    <Style x:Key="GameplayDemoTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+
+    <Style x:Key="GameplayDemoButtonStyle" TargetType="Button" BasedOn="{StaticResource OutlineButtonStyle}">
+        <Setter Property="Height" Value="34" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundDark}" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+    </Style>
+
+    <Style x:Key="ResultPanelBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1,0,1,0" />
+        <Setter Property="Width" Value="720" />
+        <Setter Property="Padding" Value="48,24" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="ResultCardsGridStyle" TargetType="UniformGrid">
+        <Setter Property="Rows" Value="1" />
+        <Setter Property="Columns" Value="4" />
+    </Style>
+
+    <Style x:Key="ResultActionsPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,32,0,24" />
+    </Style>
+
+    <Style x:Key="ResultPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+        <Setter Property="Height" Value="48" />
+        <Setter Property="MinWidth" Value="180" />
+        <Setter Property="Margin" Value="0,0,16,0" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style x:Key="ResultSecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource OutlineButtonStyle}">
+        <Setter Property="Height" Value="48" />
+        <Setter Property="MinWidth" Value="140" />
+        <Setter Property="Padding" Value="24,0" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style x:Key="RoundResultContinueButtonStyle" TargetType="Button" BasedOn="{StaticResource ResultPrimaryButtonStyle}">
+        <Setter Property="FontFamily" Value="Georgia" />
+        <Setter Property="FontSize" Value="15" />
+    </Style>
+
+    <Style x:Key="RoundResultTrophyEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="56" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,8,0,8" />
+    </Style>
+
+    <Style x:Key="RoundResultTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource TitleTextStyle}">
+        <Setter Property="FontSize" Value="36" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_Gold}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Effect" Value="{StaticResource Effect_GoldGlow}" />
+    </Style>
+
+    <Style x:Key="RoundResultSubtitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SubtitleLargeTextStyle}">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,12,0,24" />
+    </Style>
+
+    <Style x:Key="RoundResultSectionTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SectionTitleStyle}">
+        <Setter Property="Margin" Value="6,24,0,12" />
+    </Style>
+
+    <Style x:Key="RoundResultSafeCardBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_OnlineSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_OnlineBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="12,24" />
+        <Setter Property="Margin" Value="6,0" />
+    </Style>
+
+    <Style x:Key="RoundResultSkullCardBorderStyle" TargetType="Border" BasedOn="{StaticResource RoundResultSafeCardBorderStyle}">
+        <Setter Property="Background" Value="{StaticResource Brush_ErrorSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_ErrorBorder}" />
+    </Style>
+
+    <Style x:Key="RoundResultCardEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="RoundResultSafeCardNameStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_Online}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,12,0,4" />
+    </Style>
+
+    <Style x:Key="RoundResultSkullCardNameStyle" TargetType="TextBlock" BasedOn="{StaticResource RoundResultSafeCardNameStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_Error}" />
+    </Style>
+
+    <Style x:Key="RoundResultCardOwnerTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="RoundResultExplosionEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,8,0,0" />
+    </Style>
+
+    <Style x:Key="RoundResultEliminationBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_ErrorSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_ErrorBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="24,18" />
+        <Setter Property="Margin" Value="6,24,6,0" />
+    </Style>
+
+    <Style x:Key="RoundResultEliminationEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,20,0" />
+    </Style>
+
+    <Style x:Key="RoundResultEliminationTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_Error}" />
+        <Setter Property="Margin" Value="0,0,0,4" />
+    </Style>
+
+    <Style x:Key="RoundResultEliminationMessageTextStyle" TargetType="TextBlock" BasedOn="{StaticResource OptionDescriptionStyle}" />
+
+    <Style x:Key="RoundResultScoreCardBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundDark}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="12,20" />
+        <Setter Property="Margin" Value="6,0" />
+    </Style>
+
+    <Style x:Key="RoundResultScoreCardWinnerBorderStyle" TargetType="Border" BasedOn="{StaticResource RoundResultScoreCardBorderStyle}">
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Gold}" />
+    </Style>
+
+    <Style x:Key="RoundResultScoreCardEliminatedBorderStyle" TargetType="Border" BasedOn="{StaticResource RoundResultScoreCardBorderStyle}">
+        <Setter Property="Opacity" Value="0.55" />
+    </Style>
+
+    <Style x:Key="RoundResultScoreEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="26" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="RoundResultScoreNameTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextPrimary}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,10,0,10" />
+    </Style>
+
+    <Style x:Key="RoundResultScoreDotsPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="RoundResultScoreDotFilledStyle" TargetType="Ellipse">
+        <Setter Property="Width" Value="14" />
+        <Setter Property="Height" Value="14" />
+        <Setter Property="Margin" Value="4,0" />
+        <Setter Property="Fill" Value="{StaticResource Brush_Gold}" />
+    </Style>
+
+    <Style x:Key="RoundResultScoreDotEmptyStyle" TargetType="Ellipse" BasedOn="{StaticResource RoundResultScoreDotFilledStyle}">
+        <Setter Property="Fill" Value="{StaticResource Brush_Border}" />
+    </Style>
+
+    <Style x:Key="RoundResultWinnerStatusTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_Gold}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,10,0,0" />
+    </Style>
+
+    <Style x:Key="RoundResultEliminatedStatusTextStyle" TargetType="TextBlock" BasedOn="{StaticResource RoundResultWinnerStatusTextStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_Error}" />
+    </Style>
+
+    <Style x:Key="GameOverHeaderTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,28,0,24" />
+    </Style>
+
+    <Style x:Key="GameOverWinnerGridStyle" TargetType="Grid">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Height" Value="120" />
+    </Style>
+
+    <Style x:Key="GameOverWinnerAvatarBorderStyle" TargetType="Border">
+        <Setter Property="Width" Value="108" />
+        <Setter Property="Height" Value="108" />
+        <Setter Property="CornerRadius" Value="54" />
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Gold}" />
+        <Setter Property="BorderThickness" Value="3" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Effect" Value="{StaticResource Effect_GoldGlow}" />
+    </Style>
+
+    <Style x:Key="GameOverWinnerEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="56" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameOverTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource TitleLargeTextStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_Gold}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,24,0,32" />
+        <Setter Property="Effect" Value="{StaticResource Effect_GoldGlow}" />
+    </Style>
+
+    <Style x:Key="GameOverStandingsBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="24" />
+        <Setter Property="Width" Value="620" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameOverStandingsTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SectionTitleStyle}">
+        <Setter Property="Margin" Value="0,0,0,16" />
+    </Style>
+
+    <Style x:Key="GameOverRowBorderStyle" TargetType="Border">
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="16,14" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+
+    <Style x:Key="GameOverRowFirstStyle" TargetType="Border" BasedOn="{StaticResource GameOverRowBorderStyle}">
+        <Setter Property="Background" Value="{StaticResource Brush_GoldSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_GoldBorder}" />
+    </Style>
+
+    <Style x:Key="GameOverRowLocalStyle" TargetType="Border" BasedOn="{StaticResource GameOverRowBorderStyle}">
+        <Setter Property="Background" Value="{StaticResource Brush_AccentSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+    </Style>
+
+    <Style x:Key="GameOverRankTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Georgia" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameOverRankFirstTextStyle" TargetType="TextBlock" BasedOn="{StaticResource GameOverRankTextStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_Gold}" />
+    </Style>
+
+    <Style x:Key="GameOverPlayerPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="16,0,0,0" />
+    </Style>
+
+    <Style x:Key="GameOverPlayerNameTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextPrimary}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameOverLocalTagTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_AccentLight}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="8,0,0,0" />
+    </Style>
+
+    <Style x:Key="GameOverWinsPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="GameOverWinsValueTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_Gold}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="GameOverWinsLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="4,0,0,0" />
+    </Style>
+
+    <Style x:Key="GameOverTrophyEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+
+    <Style x:Key="MatchClosedCardBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="24" />
+        <Setter Property="Padding" Value="48" />
+        <Setter Property="Width" Value="480" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="MatchClosedTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource TitleTextStyle}">
+        <Setter Property="FontSize" Value="26" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,0,24" />
+    </Style>
+
+    <Style x:Key="MatchClosedMessageBorderStyle" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="24,18" />
+        <Setter Property="Margin" Value="0,0,0,24" />
+    </Style>
+
+    <Style x:Key="MatchClosedMessageTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SubtitleLargeTextStyle}">
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="MatchClosedNoteTextStyle" TargetType="TextBlock" BasedOn="{StaticResource StatusTextStyle}">
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,0,24" />
+    </Style>
+
+    <Style x:Key="MatchClosedButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+        <Setter Property="Height" Value="48" />
+        <Setter Property="MinWidth" Value="260" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+    <Style x:Key="ModerationCardBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="Padding" Value="44" />
+        <Setter Property="Width" Value="560" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,40" />
+    </Style>
+
+    <Style x:Key="ModerationTargetBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundDark}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="20" />
+    </Style>
+
+    <Style x:Key="ModerationTargetAvatarBorderStyle" TargetType="Border">
+        <Setter Property="Width" Value="50" />
+        <Setter Property="Height" Value="50" />
+        <Setter Property="CornerRadius" Value="25" />
+        <Setter Property="Background" Value="{StaticResource Brush_SurfaceHover}" />
+    </Style>
+
+    <Style x:Key="ModerationTargetAvatarEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="ModerationTargetInfoPanelStyle" TargetType="StackPanel">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="16,0,0,0" />
+    </Style>
+
+    <Style x:Key="ModerationTargetNameTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_White}" />
+    </Style>
+
+    <Style x:Key="ModerationTargetSubtitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+        <Setter Property="Margin" Value="0,2,0,0" />
+    </Style>
+
+    <Style x:Key="ModerationTabsGridStyle" TargetType="UniformGrid">
+        <Setter Property="Rows" Value="1" />
+        <Setter Property="Columns" Value="2" />
+        <Setter Property="Margin" Value="-4,16,-4,24" />
+    </Style>
+
+    <Style x:Key="ModerationTabButtonBaseStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Height" Value="46" />
+        <Setter Property="Margin" Value="4,0" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="BorderThickness" Value="2" />
+    </Style>
+
+    <Style x:Key="ModerationTabInactiveButtonStyle" TargetType="Button" BasedOn="{StaticResource ModerationTabButtonBaseStyle}">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundDark}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{StaticResource Brush_BorderHover}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ModerationTabReportActiveButtonStyle" TargetType="Button" BasedOn="{StaticResource ModerationTabButtonBaseStyle}">
+        <Setter Property="Background" Value="{StaticResource Brush_GoldSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Gold}" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_Gold}" />
+    </Style>
+
+    <Style x:Key="ModerationTabBlockActiveButtonStyle" TargetType="Button" BasedOn="{StaticResource ModerationTabButtonBaseStyle}">
+        <Setter Property="Background" Value="{StaticResource Brush_ErrorSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Error}" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_Error}" />
+    </Style>
+
+    <Style x:Key="ModerationReportTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource TitleTextStyle}">
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="Margin" Value="0,0,0,4" />
+    </Style>
+
+    <Style x:Key="ModerationBlockTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource ModerationReportTitleTextStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_Error}" />
+    </Style>
+
+    <Style x:Key="ModerationDetailsLabelPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Margin" Value="0,16,0,6" />
+    </Style>
+
+    <Style x:Key="ModerationDetailsLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+    </Style>
+
+    <Style x:Key="ModerationOptionalLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
+        <Setter Property="Margin" Value="6,0,0,0" />
+    </Style>
+
+    <Style x:Key="ModerationDetailsInputStyle" TargetType="TextBox" BasedOn="{StaticResource FieldStyle}">
+        <Setter Property="Height" Value="110" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="AcceptsReturn" Value="True" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="CaretBrush" Value="{StaticResource Brush_TextPrimary}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                        <Grid>
+                            <TextBlock x:Name="lblPlaceholder"
+                                       Text="{TemplateBinding Tag}"
+                                       Foreground="{StaticResource Brush_TextFaint}"
+                                       Margin="14,10"
+                                       VerticalAlignment="Top"
+                                       IsHitTestVisible="False"
+                                       Visibility="Collapsed" />
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="14,10" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Text.Length, RelativeSource={RelativeSource Self}}" Value="0">
+                            <Setter TargetName="lblPlaceholder" Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ModerationDisclaimerTextStyle" TargetType="TextBlock" BasedOn="{StaticResource StatusTextStyle}">
+        <Setter Property="LineHeight" Value="18" />
+        <Setter Property="Margin" Value="0,16,0,20" />
+    </Style>
+
+    <Style x:Key="ModerationActionButtonBaseStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Height" Value="46" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_White}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ModerationSubmitButtonStyle" TargetType="Button" BasedOn="{StaticResource ModerationActionButtonBaseStyle}">
+        <Setter Property="Background" Value="{StaticResource Brush_Gold}" />
+    </Style>
+
+    <Style x:Key="ModerationConfirmBlockButtonStyle" TargetType="Button" BasedOn="{StaticResource ModerationActionButtonBaseStyle}">
+        <Setter Property="Background" Value="{StaticResource Brush_Error}" />
+    </Style>
+
+    <Style x:Key="ModerationCancelButtonStyle" TargetType="Button" BasedOn="{StaticResource OutlineButtonStyle}">
+        <Setter Property="Height" Value="46" />
+        <Setter Property="MinWidth" Value="96" />
+        <Setter Property="Margin" Value="12,0,0,0" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+    </Style>
+
+    <Style x:Key="ModerationBlockMessageBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_ErrorSoft}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_ErrorBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="20,16" />
+        <Setter Property="Margin" Value="0,12,0,24" />
+    </Style>
+
+    <Style x:Key="ModerationBlockMessageTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="LineHeight" Value="22" />
+    </Style>
+
+    <Style x:Key="ModerationBlockPlayerNameRunStyle" TargetType="Run">
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_White}" />
+    </Style>
+
+    <Style x:Key="ModerationBlockHintTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Margin" Value="0,16,0,0" />
+    </Style>
+
+    <Style x:Key="ModerationSuccessCardBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="Padding" Value="56,48" />
+        <Setter Property="Width" Value="500" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Visibility" Value="Collapsed" />
+    </Style>
+
+    <Style x:Key="ModerationSuccessEmojiStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="64" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,0,24" />
+    </Style>
+
+    <Style x:Key="ModerationSuccessTitleTextStyle" TargetType="TextBlock" BasedOn="{StaticResource TitleTextStyle}">
+        <Setter Property="FontSize" Value="26" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_Online}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,0,16" />
+    </Style>
+
+    <Style x:Key="ModerationSuccessMessageTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SubtitleLargeTextStyle}">
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="LineHeight" Value="22" />
+        <Setter Property="Margin" Value="0,0,0,32" />
+    </Style>
+
+    <Style x:Key="ModerationReturnButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+        <Setter Property="Height" Value="46" />
+        <Setter Property="FontSize" Value="14" />
+    </Style>
 </ResourceDictionary>

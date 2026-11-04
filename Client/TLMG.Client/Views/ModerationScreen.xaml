@@ -1,0 +1,147 @@
+﻿<local:LocalizableScreen x:Class="TLMG.Client.Views.ModerationScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:TLMG.Client.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="720"
+             d:DesignWidth="1280">
+    <local:LocalizableScreen.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/TLMG.Client;component/Styles/GlobalStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </local:LocalizableScreen.Resources>
+
+    <Grid Background="{StaticResource Brush_BackgroundDark}">
+        <ScrollViewer x:Name="scrForm" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Border Style="{StaticResource ModerationCardBorderStyle}">
+                <StackPanel>
+                    <Border Style="{StaticResource ModerationTargetBorderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource ModerationTargetAvatarBorderStyle}">
+                                <TextBlock Text="🐱" 
+                                           Style="{StaticResource ModerationTargetAvatarEmojiStyle}" />
+                            </Border>
+                            <StackPanel Grid.Column="1" Style="{StaticResource ModerationTargetInfoPanelStyle}">
+                                <TextBlock x:Name="lblTargetPlayerName"
+                                           Style="{StaticResource ModerationTargetNameTextStyle}" />
+                                <TextBlock Text="{DynamicResource Moderation_TargetSubtitleLabel}"
+                                           Style="{StaticResource ModerationTargetSubtitleTextStyle}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <UniformGrid Style="{StaticResource ModerationTabsGridStyle}">
+                        <Button x:Name="btnReportTab"
+                                Content="{DynamicResource Moderation_ReportTabButton}"
+                                Style="{StaticResource ModerationTabInactiveButtonStyle}"
+                                Click="BtnReportTab_Click" />
+                        <Button x:Name="btnBlockTab"
+                                Content="{DynamicResource Moderation_BlockTabButton}"
+                                Style="{StaticResource ModerationTabInactiveButtonStyle}"
+                                Click="BtnBlockTab_Click" />
+                    </UniformGrid>
+
+                    <StackPanel x:Name="pnlReportForm">
+                        <TextBlock Text="{DynamicResource Moderation_ReportTitle}"
+                                   Style="{StaticResource ModerationReportTitleTextStyle}" />
+
+                        <TextBlock Text="{DynamicResource Moderation_ReasonLabel}"
+                                   Style="{StaticResource FieldLabelTextStyle}" />
+                        <ComboBox x:Name="cmbReportReason" Style="{StaticResource DarkComboBoxStyle}">
+                            <ComboBoxItem Content="{DynamicResource Moderation_ReasonAbusiveLanguageLabel}" />
+                            <ComboBoxItem Content="{DynamicResource Moderation_ReasonHarassmentLabel}" />
+                            <ComboBoxItem Content="{DynamicResource Moderation_ReasonCheatingLabel}" />
+                            <ComboBoxItem Content="{DynamicResource Moderation_ReasonSpamLabel}" />
+                            <ComboBoxItem Content="{DynamicResource Moderation_ReasonInappropriateIdentityLabel}" />
+                            <ComboBoxItem Content="{DynamicResource Moderation_ReasonOtherLabel}" />
+                        </ComboBox>
+
+                        <StackPanel Style="{StaticResource ModerationDetailsLabelPanelStyle}">
+                            <TextBlock Text="{DynamicResource Moderation_DetailsLabel}"
+                                       Style="{StaticResource ModerationDetailsLabelTextStyle}" />
+                            <TextBlock Text="{DynamicResource Moderation_OptionalLabel}"
+                                       Style="{StaticResource ModerationOptionalLabelTextStyle}" />
+                        </StackPanel>
+                        <TextBox x:Name="txtReportDetails"
+                                 Tag="{DynamicResource Moderation_DetailsPlaceholder}"
+                                 Style="{StaticResource ModerationDetailsInputStyle}" />
+
+                        <TextBlock Text="{DynamicResource Moderation_ReportDisclaimerMessage}"
+                                   Style="{StaticResource ModerationDisclaimerTextStyle}" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0"
+                                    x:Name="btnSubmitReport"
+                                    Content="{DynamicResource Moderation_SubmitReportButton}"
+                                    Style="{StaticResource ModerationSubmitButtonStyle}"
+                                    Click="BtnSubmitReport_Click" />
+                            <Button Grid.Column="1"
+                                    x:Name="btnCancelReport"
+                                    Content="{DynamicResource Moderation_CancelButton}"
+                                    Style="{StaticResource ModerationCancelButtonStyle}"
+                                    Click="BtnCancel_Click" />
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel x:Name="pnlBlockForm" Visibility="Collapsed">
+                        <TextBlock Text="{DynamicResource Moderation_BlockTitle}"
+                                   Style="{StaticResource ModerationBlockTitleTextStyle}" />
+
+                        <Border Style="{StaticResource ModerationBlockMessageBorderStyle}">
+                            <StackPanel>
+                                <TextBlock x:Name="lblBlockMessage"
+                                           Style="{StaticResource ModerationBlockMessageTextStyle}" />
+                                <TextBlock Text="{DynamicResource Moderation_BlockUnblockHint}"
+                                           Style="{StaticResource ModerationBlockHintTextStyle}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0"
+                                    x:Name="btnConfirmBlock"
+                                    Content="{DynamicResource Moderation_ConfirmBlockButton}"
+                                    Style="{StaticResource ModerationConfirmBlockButtonStyle}"
+                                    Click="BtnConfirmBlock_Click" />
+                            <Button Grid.Column="1"
+                                    x:Name="btnCancelBlock"
+                                    Content="{DynamicResource Moderation_CancelButton}"
+                                    Style="{StaticResource ModerationCancelButtonStyle}"
+                                    Click="BtnCancel_Click" />
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </ScrollViewer>
+
+        <Border x:Name="brdSuccessCard" Style="{StaticResource ModerationSuccessCardBorderStyle}">
+            <StackPanel>
+                <TextBlock Text="✅" 
+                           Style="{StaticResource ModerationSuccessEmojiStyle}" />
+                <TextBlock x:Name="lblSuccessTitle" 
+                           Style="{StaticResource ModerationSuccessTitleTextStyle}" />
+                <TextBlock x:Name="lblSuccessMessage" 
+                           Style="{StaticResource ModerationSuccessMessageTextStyle}" />
+                <Button x:Name="btnReturnToGame"
+                        Content="{DynamicResource Moderation_ReturnToGameButton}"
+                        Style="{StaticResource ModerationReturnButtonStyle}"
+                        Click="BtnReturnToGame_Click" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</local:LocalizableScreen>

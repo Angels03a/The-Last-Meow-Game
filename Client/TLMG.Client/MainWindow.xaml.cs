@@ -18,6 +18,7 @@ namespace TLMG.Client
         private const string RoomInvitationTitleKey = "Common_RoomInvitationTitle";
         private const string RoomInvitationMessageFormatKey = "Common_RoomInvitationMessageFormat";
         private const string ErrorTitleKey = "Common_ErrorTitle";
+        private const int ZeroHistorySize = 0;
 
         private readonly Stack<UserControl> _navigationHistory;
         private UserControl _currentScreen;
@@ -67,7 +68,7 @@ namespace TLMG.Client
         /// </summary>
         public void GoBack()
         {
-            if (_navigationHistory.Count > 0)
+            if (_navigationHistory.Count > ZeroHistorySize)
             {
                 _currentScreen = _navigationHistory.Pop();
                 grdMainContainer.Children.Clear();
@@ -102,8 +103,6 @@ namespace TLMG.Client
             MessageBox.Show(TryFindResource(ConnectionLostMessageKey) as string);
         }
 
-        // MainWindow vive toda la sesión: por eso escucha las invitaciones, que pueden llegar con cualquier pantalla
-        // abierta. Rechazar no tiene operación en el servidor; la invitación simplemente se ignora.
         private void OnRoomInvitationReceived(object sender, ServerEventArgs<RoomInvitation> serverEventArguments)
         {
             RoomInvitation roomInvitation = serverEventArguments.Payload;
@@ -121,7 +120,6 @@ namespace TLMG.Client
             }
         }
 
-        // Aceptar solo autoriza la entrada; el jugador entra a la sala con EnterLobby.
         private void OnAcceptInvitationResultReceived(
             object sender,
             ServerEventArgs<OperationAcceptRoomInvitationResult> serverEventArguments)
@@ -136,7 +134,6 @@ namespace TLMG.Client
             }
         }
 
-        // Única navegación hacia la sala invitada: LobbyScreen toma la foto que ya guardó el manager.
         private void OnEnterLobbyResultReceived(
             object sender,
             ServerEventArgs<OperationEnterLobbyResult> serverEventArguments)

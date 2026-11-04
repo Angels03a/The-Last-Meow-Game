@@ -1,0 +1,396 @@
+﻿<local:LocalizableScreen x:Class="TLMG.Client.Views.GameplayScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:TLMG.Client.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="720"
+             d:DesignWidth="1280">
+    <local:LocalizableScreen.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/TLMG.Client;component/Styles/GlobalStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </local:LocalizableScreen.Resources>
+
+    <Grid Background="{StaticResource Brush_BackgroundDark}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="280" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource GameplayHeaderBorderStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Text="{DynamicResource Gameplay_Title}"
+                               Style="{StaticResource GameplayHeaderTitleTextStyle}" />
+
+                    <Border Grid.Column="1" Style="{StaticResource GameplayRoundPillBorderStyle}">
+                        <TextBlock x:Name="lblRoundPhase" 
+                                   Style="{StaticResource GameplayRoundPillTextStyle}" />
+                    </Border>
+
+                    <StackPanel Grid.Column="2" Style="{StaticResource GameplayScoreboardPanelStyle}">
+                        <StackPanel Style="{StaticResource GameplayScoreboardItemStyle}">
+                            <TextBlock Text="🐯" 
+                                       Style="{StaticResource GameplayScoreboardEmojiStyle}" />
+                            
+                            <!--  FIXME: Los siguientes TextBlock están hardcodeados y deberían ser reemplazados con 
+                            bindings dinámicos a los nombres de los jugadores. -->
+                            
+                            <TextBlock Text="NyanProwler" 
+                                       Style="{StaticResource GameplayScoreboardNameStyle}" />
+                            <TextBlock Text="1/2" 
+                                       Style="{StaticResource GameplayScoreboardValueStyle}" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource GameplayScoreboardItemStyle}">
+                            <TextBlock Text="🐱" 
+                                       Style="{StaticResource GameplayScoreboardEmojiStyle}" />
+                            <TextBlock Text="CatNapper9000" 
+                                       Style="{StaticResource GameplayScoreboardNameStyle}" />
+                            <TextBlock Text="0/2" 
+                                       Style="{StaticResource GameplayScoreboardValueStyle}" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource GameplayScoreboardItemStyle}">
+                            <TextBlock Text="🐱" 
+                                       Style="{StaticResource GameplayScoreboardEmojiStyle}" />
+                            <TextBlock Text="WhiskerKnight" 
+                                       Style="{StaticResource GameplayScoreboardNameStyle}" />
+                            <TextBlock Text="1/2" 
+                                       Style="{StaticResource GameplayScoreboardValueStyle}" />
+                        </StackPanel>
+                        <StackPanel Style="{StaticResource GameplayScoreboardItemStyle}">
+                            <TextBlock Text="🐱" 
+                                       Style="{StaticResource GameplayScoreboardEmojiStyle}" />
+                            <TextBlock Text="GraveyardPaws" 
+                                       Style="{StaticResource GameplayScoreboardNameStyle}" />
+                            <TextBlock Text="0/2" 
+                                       Style="{StaticResource GameplayScoreboardValueStyle}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button Grid.Column="3"
+                            x:Name="btnExit"
+                            Content="{DynamicResource Gameplay_ExitButton}"
+                            Style="{StaticResource GameplayExitButtonStyle}"
+                            Click="BtnExit_Click" />
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="1"
+                  x:Name="grdTable"
+                  Background="{StaticResource Brush_BackgroundDark}"
+                  MouseLeftButtonDown="GrdTable_MouseLeftButtonDown">
+                <Ellipse Style="{StaticResource GameplayTableEllipseStyle}" />
+
+                <TextBlock Text="{DynamicResource Gameplay_ModerationHint}"
+                           Style="{StaticResource GameplayModerationHintTextStyle}" />
+
+                <TextBlock Text="{DynamicResource Gameplay_TableHint}"
+                           Style="{StaticResource GameplayTableHintTextStyle}" />
+
+                <StackPanel Style="{StaticResource GameplayCenterCardsPanelStyle}">
+                    <Border Style="{StaticResource GameplayCenterCardFirstStyle}">
+                        <TextBlock Text="🎴" 
+                                   Style="{StaticResource GameplayCenterCardEmojiStyle}" />
+                    </Border>
+                    <Border Style="{StaticResource GameplayCenterCardSecondStyle}">
+                        <TextBlock Text="🎴" 
+                                   Style="{StaticResource GameplayCenterCardEmojiStyle}" />
+                    </Border>
+                    <Border Style="{StaticResource GameplayCenterCardThirdStyle}">
+                        <TextBlock Text="🎴" 
+                                   Style="{StaticResource GameplayCenterCardEmojiStyle}" />
+                    </Border>
+                    <Border Style="{StaticResource GameplayCenterCardFourthStyle}">
+                        <TextBlock Text="🎴" 
+                                   Style="{StaticResource GameplayCenterCardEmojiStyle}" />
+                    </Border>
+                </StackPanel>
+
+                <Border Style="{StaticResource GameplayCurrentBidBorderStyle}">
+                    <StackPanel Style="{StaticResource GameplayCurrentBidPanelStyle}">
+                        <TextBlock Text="{DynamicResource Gameplay_CurrentBidLabel}"
+                                   Style="{StaticResource GameplayCurrentBidLabelStyle}" />
+                        <TextBlock x:Name="lblCurrentBidValue"
+                                   Style="{StaticResource GameplayCurrentBidValueStyle}" />
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Style="{StaticResource GameplayOpponentTopPanelStyle}"
+                            Tag="NyanProwler"
+                            MouseRightButtonUp="PnlOpponent_MouseRightButtonUp">
+                    <Grid Style="{StaticResource GameplayAvatarGridStyle}">
+                        <Border Style="{StaticResource GameplayAvatarBorderStyle}">
+                            <TextBlock Text="🐯" 
+                                       Style="{StaticResource GameplayAvatarEmojiStyle}" />
+                        </Border>
+                        <Border Style="{StaticResource GameplayWinBadgeBorderStyle}">
+                            <TextBlock Text="1" 
+                                       Style="{StaticResource GameplayWinBadgeTextStyle}" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="NyanProwler" 
+                               Style="{StaticResource GameplayPlayerNameTextStyle}" />
+                    <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}">
+                        <Border Style="{StaticResource GameplayMiniCardBorderStyle}">
+                            <TextBlock Text="🎴" 
+                                       Style="{StaticResource GameplayMiniCardEmojiStyle}" />
+                        </Border>
+                        <Border Style="{StaticResource GameplayMiniCardBorderStyle}">
+                            <TextBlock Text="🎴" 
+                                       Style="{StaticResource GameplayMiniCardEmojiStyle}" />
+                        </Border>
+                        <Border Style="{StaticResource GameplayMiniCardBorderStyle}">
+                            <TextBlock Text="🎴" 
+                                       Style="{StaticResource GameplayMiniCardEmojiStyle}" />
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Style="{StaticResource GameplayOpponentLeftPanelStyle}"
+                            Tag="CatNapper9000"
+                            MouseRightButtonUp="PnlOpponent_MouseRightButtonUp">
+                    <Grid Style="{StaticResource GameplayAvatarGridStyle}">
+                        <Border Style="{StaticResource GameplayAvatarBorderStyle}">
+                            <TextBlock Text="🐱" 
+                                       Style="{StaticResource GameplayAvatarEmojiStyle}" />
+                        </Border>
+                        <Border Style="{StaticResource GameplayWinBadgeBorderStyle}">
+                            <TextBlock Text="0" 
+                                       Style="{StaticResource GameplayWinBadgeTextStyle}" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="CatNapper9000" 
+                               Style="{StaticResource GameplayPlayerNameTextStyle}" />
+                    <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}">
+                        <Border Style="{StaticResource GameplayMiniCardBorderStyle}">
+                            <TextBlock Text="🎴" 
+                                       Style="{StaticResource GameplayMiniCardEmojiStyle}" />
+                        </Border>
+                        <Border Style="{StaticResource GameplayMiniCardBorderStyle}">
+                            <TextBlock Text="🎴" 
+                                       Style="{StaticResource GameplayMiniCardEmojiStyle}" />
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Style="{StaticResource GameplayOpponentRightPanelStyle}"
+                            Tag="GraveyardPaws"
+                            MouseRightButtonUp="PnlOpponent_MouseRightButtonUp">
+                    <Grid Style="{StaticResource GameplayAvatarGridStyle}">
+                        <Border Style="{StaticResource GameplayAvatarBorderStyle}">
+                            <TextBlock Text="🐱" 
+                                       Style="{StaticResource GameplayAvatarEmojiStyle}" />
+                        </Border>
+                        <Border Style="{StaticResource GameplayWinBadgeBorderStyle}">
+                            <TextBlock Text="0" 
+                                       Style="{StaticResource GameplayWinBadgeTextStyle}" />
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="GraveyardPaws" 
+                               Style="{StaticResource GameplayPlayerNameTextStyle}" />
+                    <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}">
+                        <Border Style="{StaticResource GameplayMiniCardBorderStyle}">
+                            <TextBlock Text="🎴" 
+                                       Style="{StaticResource GameplayMiniCardEmojiStyle}" />
+                        </Border>
+                        <Border Style="{StaticResource GameplayMiniCardBorderStyle}">
+                            <TextBlock Text="🎴" 
+                                       Style="{StaticResource GameplayMiniCardEmojiStyle}" />
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <Border x:Name="brdPlayerContextMenu" Style="{StaticResource GameplayContextMenuBorderStyle}">
+                    <StackPanel>
+                        <TextBlock x:Name="lblContextMenuPlayerName"
+                                   Style="{StaticResource ContextMenuHeaderStyle}" />
+                        <Button x:Name="btnMenuReport"
+                                Content="{DynamicResource Gameplay_MenuReportButton}"
+                                Style="{StaticResource GameplayContextMenuReportItemStyle}"
+                                Click="BtnMenuReport_Click" />
+                        <Button x:Name="btnMenuKick"
+                                Content="{DynamicResource Gameplay_MenuKickButton}"
+                                Style="{StaticResource GameplayContextMenuKickItemStyle}"
+                                Click="BtnMenuKick_Click" />
+                        <Button x:Name="btnMenuBlock"
+                                Content="{DynamicResource Gameplay_MenuBlockButton}"
+                                Style="{StaticResource ContextMenuDangerItemStyle}"
+                                Click="BtnMenuBlock_Click" />
+                        <Button x:Name="btnMenuCancel"
+                                Content="{DynamicResource Gameplay_MenuCancelButton}"
+                                Style="{StaticResource GameplayContextMenuCancelItemStyle}"
+                                Click="BtnMenuCancel_Click" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Grid.Row="2" Style="{StaticResource GameplayBottomBarBorderStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Style="{StaticResource GameplayLocalPlayerPanelStyle}">
+                        <Grid Style="{StaticResource GameplayLocalAvatarGridStyle}">
+                            <Border Style="{StaticResource GameplayLocalAvatarBorderStyle}">
+                                <TextBlock Text="🐱" 
+                                           Style="{StaticResource GameplayLocalAvatarEmojiStyle}" />
+                            </Border>
+                            <TextBlock Text="🎯" 
+                                       Style="{StaticResource GameplayTurnMarkerTextStyle}" />
+                            <Border Style="{StaticResource GameplayWinBadgeBorderStyle}">
+                                <TextBlock Text="1" 
+                                           Style="{StaticResource GameplayWinBadgeTextStyle}" />
+                            </Border>
+                        </Grid>
+                        <TextBlock Text="InterStella" 
+                                   Style="{StaticResource GameplayLocalPlayerNameTextStyle}" />
+                        <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}">
+                            <Border Style="{StaticResource GameplayMiniCardBorderStyle}">
+                                <TextBlock Text="🎴" 
+                                           Style="{StaticResource GameplayMiniCardEmojiStyle}" />
+                            </Border>
+                            <Border Style="{StaticResource GameplayMiniCardBorderStyle}">
+                                <TextBlock Text="🎴" 
+                                           Style="{StaticResource GameplayMiniCardEmojiStyle}" />
+                            </Border>
+                            <Border Style="{StaticResource GameplayMiniCardBorderStyle}">
+                                <TextBlock Text="🎴" 
+                                           Style="{StaticResource GameplayMiniCardEmojiStyle}" />
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Style="{StaticResource GameplayHandPanelStyle}">
+                        <TextBlock Text="{DynamicResource Gameplay_YourHandLabel}"
+                                   Style="{StaticResource GameplayHandLabelTextStyle}" />
+                        <Button Style="{StaticResource GameplayHandCardEgyptianButtonStyle}">
+                            <StackPanel>
+                                <TextBlock Text="🎴" 
+                                           Style="{StaticResource GameplayHandCardEmojiStyle}" />
+                                <TextBlock Text="{DynamicResource Common_EgyptianCatLabel}"
+                                           Style="{StaticResource GameplayHandCardEgyptianLabelStyle}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource GameplayHandCardZombieButtonStyle}">
+                            <StackPanel>
+                                <TextBlock Text="🎴" 
+                                           Style="{StaticResource GameplayHandCardEmojiStyle}" />
+                                <TextBlock Text="{DynamicResource Common_ZombieCatLabel}"
+                                           Style="{StaticResource GameplayHandCardZombieLabelStyle}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource GameplayHandCardSkullButtonStyle}">
+                            <StackPanel>
+                                <TextBlock Text="☠️" 
+                                           Style="{StaticResource GameplayHandCardEmojiStyle}" />
+                                <TextBlock Text="{DynamicResource Common_SkullCatLabel}"
+                                           Style="{StaticResource GameplayHandCardSkullLabelStyle}" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="3" Style="{StaticResource GameplayActionsPanelStyle}">
+                        <Border Style="{StaticResource GameplayBidSelectorBorderStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <Button x:Name="btnDecreaseBid"
+                                        Content="−"
+                                        Style="{StaticResource GameplayBidStepButtonStyle}"
+                                        Click="BtnDecreaseBid_Click" />
+                                <TextBlock x:Name="lblBidAmount" Style="{StaticResource GameplayBidValueTextStyle}" />
+                                <Button x:Name="btnIncreaseBid"
+                                        Content="+"
+                                        Style="{StaticResource GameplayBidStepButtonStyle}"
+                                        Click="BtnIncreaseBid_Click" />
+                            </StackPanel>
+                        </Border>
+                        <Button Content="{DynamicResource Gameplay_ChallengeButton}"
+                                Style="{StaticResource GameplayChallengeButtonStyle}" />
+                        <Button Content="{DynamicResource Gameplay_SurrenderButton}"
+                                Style="{StaticResource GameplaySurrenderButtonStyle}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Column="1" Style="{StaticResource SidePanelRightBorderStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Text="{DynamicResource Gameplay_ChatTitle}"
+                           Style="{StaticResource GameplayChatTitleTextStyle}" />
+
+                <ScrollViewer Grid.Row="1" Style="{StaticResource GameplayChatMessagesScrollViewerStyle}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource GameplayChatMessageTextStyle}">
+                            <Run Text="" Style="{StaticResource GameplayChatAuthorRunStyle}" />
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource GameplayChatMessageTextStyle}">
+                            <Run Text="" Style="{StaticResource GameplayChatAuthorRunStyle}" />
+                        </TextBlock>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <Border Grid.Row="2" Style="{StaticResource GameplayChatFooterBorderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"
+                                 x:Name="txtChatMessage"
+                                 Tag="{DynamicResource Gameplay_ChatPlaceholder}"
+                                 Style="{StaticResource GameplayChatInputStyle}" />
+                        <Button Grid.Column="1"
+                                Content="{DynamicResource Gameplay_SendChatButton}"
+                                Style="{StaticResource GameplaySendChatButtonStyle}" />
+                    </Grid>
+                </Border>
+
+                <StackPanel Grid.Row="3" Style="{StaticResource GameplayDemoPanelStyle}">
+                    <TextBlock Text="{DynamicResource Gameplay_DemoTitle}"
+                               Style="{StaticResource GameplayDemoTitleTextStyle}" />
+                    <Button x:Name="btnDemoRevealCards"
+                            Content="{DynamicResource Gameplay_DemoRevealCardsButton}"
+                            Style="{StaticResource GameplayDemoButtonStyle}"
+                            Click="BtnDemoRevealCards_Click" />
+                    <Button x:Name="btnDemoGameOver"
+                            Content="{DynamicResource Gameplay_DemoGameOverButton}"
+                            Style="{StaticResource GameplayDemoButtonStyle}"
+                            Click="BtnDemoGameOver_Click" />
+                    <Button x:Name="btnDemoInactivity"
+                            Content="{DynamicResource Gameplay_DemoInactivityButton}"
+                            Style="{StaticResource GameplayDemoButtonStyle}"
+                            Click="BtnDemoInactivity_Click" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</local:LocalizableScreen>
