@@ -21,6 +21,9 @@
         RoomFull,
 
         /// <summary>El jugador no estaba en ninguna sala.</summary>
-        NotInRoom
+        NotInRoom,
+
+        /// <summary>La partida ya fue autorizada y no admite cambios de preparación.</summary>
+        MatchAlreadyStarted
     }
 }

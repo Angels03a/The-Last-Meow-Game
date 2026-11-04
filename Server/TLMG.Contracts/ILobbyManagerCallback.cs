@@ -25,9 +25,19 @@ namespace TLMG.Contracts
         [OperationContract(IsOneWay = true)]
         void LeaveLobbyResult(OperationLeaveLobbyResult operationLeaveLobbyResult);
 
-        /// <summary>Avisa que la sala del jugador cambió porque otro jugador entró o salió.</summary>
+        /// <summary>Avisa cambios de miembros, estado Listo, cuenta o inicio autorizado de la partida.</summary>
         /// <param name="lobbyRoom">La sala con la lista actualizada de jugadores.</param>
         [OperationContract(IsOneWay = true)]
         void OnLobbyRoomChanged(LobbyRoom lobbyRoom);
+
+        /// <summary>Entrega el resultado de ChangePlayerReadiness al solicitante.</summary>
+        /// <param name="result">Resultado con el estado actual o la clave de error.</param>
+        [OperationContract(IsOneWay = true)]
+        void ChangePlayerReadinessResult(OperationChangePlayerReadinessResult result);
+
+        /// <summary>Entrega el resultado de RequestMatchStart al solicitante.</summary>
+        /// <param name="result">Resultado con el estado actual o la clave de error.</param>
+        [OperationContract(IsOneWay = true)]
+        void RequestMatchStartResult(OperationRequestMatchStartResult result);
     }
 }

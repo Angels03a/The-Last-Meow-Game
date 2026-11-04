@@ -727,3 +727,10 @@ Formato de entrada:
 - Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Con eso se puede mostrar el nickname; los puntos, el rango y la racha siguen ocultos hasta BL-103.
 - Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente que muestra el nickname real; los puntos, el rango y la racha quedan ocultos hasta BL-103.
 - Nota (2026-11-03 15:41): cierre. Verificado en eb765d6: el menú muestra el nickname real (lblPlayerNickname) y ya no enseña datos ajenos: el panel de victorias, puntos y puesto y las tarjetas de última victoria, racha y siguiente rango quedan ocultos (Collapsed; los textos de prueba siguen en el XAML oculto), y se quitaron las constantes de racha y siguiente rango. Mostrar esos valores reales queda en BL-103.
+
+
+### BL-105 · Llevar la modalidad colaborativa al servidor
+- Creado: 2026-11-03 23:24
+- Por qué: DefaultCardsPerPlayerCount queda fija en 4 hasta que la modalidad llegue al servidor; entonces deberá reflejar la selección colaborativa de 4, 6 u 8 cartas.
+- Depende de: cambio de modalidad colaborativa del lobby
+- Estado: Pendiente

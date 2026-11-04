@@ -1,5 +1,7 @@
 ﻿using System.ServiceModel;
 
+using TLMG.Contracts.DataContracts;
+
 namespace TLMG.Contracts
 {
     /// <summary>
@@ -23,5 +25,17 @@ namespace TLMG.Contracts
         /// <param name="sessionToken">Token de la sesión del jugador.</param>
         [OperationContract(IsOneWay = true)]
         void LeaveLobby(string sessionToken);
+
+        /// <summary>Solicita cambiar el estado Listo del propio jugador.</summary>
+        /// <param name="sessionToken">Token de la sesión del jugador.</param>
+        /// <param name="request">Datos de la petición; null se rechaza sin revelar la sala.</param>
+        [OperationContract(IsOneWay = true)]
+        void ChangePlayerReadiness(string sessionToken, OperationChangePlayerReadinessRequest request);
+
+        /// <summary>Solicita validar la cuenta y autorizar el inicio con el reloj del servidor.</summary>
+        /// <param name="sessionToken">Token de la sesión del jugador.</param>
+        /// <param name="request">Datos de la petición; null se rechaza sin revelar la sala.</param>
+        [OperationContract(IsOneWay = true)]
+        void RequestMatchStart(string sessionToken, OperationRequestMatchStartRequest request);
     }
 }

@@ -165,6 +165,10 @@ namespace TLMG.Services.Sessions
             {
                 roomInvitationCreation = RoomInvitationCreation.CreateRejected(FriendsChangeStatus.NotInRoom);
             }
+            else if (_startsByRoomId[roomId].MatchId.HasValue)
+            {
+                roomInvitationCreation = RoomInvitationCreation.CreateRejected(FriendsChangeStatus.CannotInvite);
+            }
             else if (_membersByRoomId[roomId].Count >= MaximumPlayersPerRoom)
             {
                 roomInvitationCreation = RoomInvitationCreation.CreateRejected(FriendsChangeStatus.RoomFull);
