@@ -6,6 +6,7 @@ using log4net;
 
 using TLMG.DataAccess.Repositories;
 using TLMG.Services.Accounts;
+using TLMG.Services.Chat;
 using TLMG.Services.Friends;
 using TLMG.Services.Lobby;
 using TLMG.Services.Sessions;
@@ -35,6 +36,7 @@ namespace TLMG.Services
             _sessionRegistry = new SessionRegistry();
             _playerLogInService = new PlayerLogInService(_playerRepository, _passwordHasher, _sessionRegistry);
             _lobbyService = new LobbyService(_sessionRegistry);
+            _chatService = new ChatService(_sessionRegistry);
             _friendshipRepository = new FriendshipRepository();
             _friendsService = new FriendsService(_friendshipRepository, _sessionRegistry);
         }

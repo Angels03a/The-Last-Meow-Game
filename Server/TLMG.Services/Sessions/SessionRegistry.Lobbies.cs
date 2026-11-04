@@ -218,6 +218,7 @@ namespace TLMG.Services.Sessions
         private LobbyMembershipChange RemoveUserFromRoom(int userId)
         {
             LobbyMembershipChange lobbyMembershipChange;
+            RemoveChatChannelOfUserInLock(userId);
             int roomId;
 
             if (!_roomIdsByUserId.TryGetValue(userId, out roomId))

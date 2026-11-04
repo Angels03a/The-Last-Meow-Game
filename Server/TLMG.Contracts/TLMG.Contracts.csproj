@@ -39,6 +39,12 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IChatManagerCallback.cs" />
+    <Compile Include="IChatManager.cs" />
+    <Compile Include="DataContracts\OperationSubscribeToChatResult.cs" />
+    <Compile Include="DataContracts\OperationSendChatMessageResult.cs" />
+    <Compile Include="DataContracts\OperationSendChatMessageRequest.cs" />
+    <Compile Include="DataContracts\ChatMessage.cs" />
     <Compile Include="DataContracts\OperationChangePlayerReadinessRequest.cs" />
     <Compile Include="DataContracts\OperationChangePlayerReadinessResult.cs" />
     <Compile Include="DataContracts\OperationRequestMatchStartRequest.cs" />

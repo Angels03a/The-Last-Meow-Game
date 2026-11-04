@@ -6,8 +6,6 @@ namespace TLMG.Services.Lobby
 {
     public partial class LobbyService
     {
-        private const string NotInRoomErrorKey = "Lobby_NotInRoomError";
-        private const string MatchAlreadyStartedErrorKey = "Lobby_MatchAlreadyStartedError";
         private const int LobbyStartCheckRetrySeconds = 1;
 
         /// <summary>Cambia el estado Listo y prepara el resultado y los avisos fuera del candado.</summary>
@@ -20,28 +18,52 @@ namespace TLMG.Services.Lobby
             string channelId,
             OperationChangePlayerReadinessRequest request)
         {
-            LobbyMembershipChange lobbyMembershipChange = request == null
-                ? LobbyMembershipChange.CreateRejected(LobbyChangeStatus.InvalidSession, LobbyMembershipChange.NoUserId)
-                : _sessionRegistry.ChangePlayerReadiness(sessionToken, channelId, request.RoomId, request.IsReady);
+            LobbyMembershipChange lobbyMembershipChange;
+            int requestedRoomId = LobbyMembershipChange.NoRoomId;
+
+            if (request == null)
+            {
+                lobbyMembershipChange = LobbyMembershipChange.CreateRejected(
+                    LobbyChangeStatus.InvalidSession, LobbyMembershipChange.NoUserId);
+            }
+            else
+            {
+                requestedRoomId = request.RoomId;
+                lobbyMembershipChange = _sessionRegistry.ChangePlayerReadiness(
+                    sessionToken, channelId, requestedRoomId, request.IsReady);
+            }
+
             OperationChangePlayerReadinessResult operationChangePlayerReadinessResult =
                 new OperationChangePlayerReadinessResult
                 {
-                    IsSuccess = lobbyMembershipChange.Status == LobbyChangeStatus.Applied,
-                    ErrorKey = lobbyMembershipChange.Status == LobbyChangeStatus.Applied
-                        ? null
-                        : ResolveErrorKey(lobbyMembershipChange.Status),
-                    Room = lobbyMembershipChange.Room == null
-                        ? null
-                        : LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room)
+                    IsSuccess = lobbyMembershipChange.Status == LobbyChangeStatus.Applied
                 };
+
+            if (operationChangePlayerReadinessResult.IsSuccess)
+            {
+                operationChangePlayerReadinessResult.ErrorKey = null;
+            }
+            else
+            {
+                operationChangePlayerReadinessResult.ErrorKey = ResolveErrorKey(lobbyMembershipChange.Status);
+            }
+
+            if (lobbyMembershipChange.Room == null)
+            {
+                operationChangePlayerReadinessResult.Room = null;
+            }
+            else
+            {
+                operationChangePlayerReadinessResult.Room =
+                    LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
+            }
+
             if (lobbyMembershipChange.Status != LobbyChangeStatus.Applied)
             {
                 LogRejectedOperation(
                     "cambiar el estado Listo",
                     lobbyMembershipChange,
-                    request == null
-                        ? LobbyMembershipChange.NoRoomId
-                        : request.RoomId);
+                    requestedRoomId);
             }
 
             LobbyOutcome<OperationChangePlayerReadinessResult> lobbyOutcome =
@@ -64,19 +86,44 @@ namespace TLMG.Services.Lobby
             string channelId,
             OperationRequestMatchStartRequest request)
         {
-            LobbyMembershipChange lobbyMembershipChange = request == null
-                ? LobbyMembershipChange.CreateRejected(LobbyChangeStatus.InvalidSession, LobbyMembershipChange.NoUserId)
-                : _sessionRegistry.RequestMatchStart(sessionToken, channelId, request.RoomId, request.CountdownId);
-            OperationRequestMatchStartResult operationRequestMatchStartResult = new OperationRequestMatchStartResult
+            LobbyMembershipChange lobbyMembershipChange;
+            int requestedRoomId = LobbyMembershipChange.NoRoomId;
+
+            if (request == null)
             {
-                IsSuccess = lobbyMembershipChange.Status == LobbyChangeStatus.Applied,
-                ErrorKey = lobbyMembershipChange.Status == LobbyChangeStatus.Applied
-                    ? null
-                    : ResolveErrorKey(lobbyMembershipChange.Status),
-                Room = lobbyMembershipChange.Room == null
-                    ? null
-                    : LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room)
-            };
+                lobbyMembershipChange = LobbyMembershipChange.CreateRejected(
+                    LobbyChangeStatus.InvalidSession, LobbyMembershipChange.NoUserId);
+            }
+            else
+            {
+                requestedRoomId = request.RoomId;
+                lobbyMembershipChange = _sessionRegistry.RequestMatchStart(
+                    sessionToken, channelId, requestedRoomId, request.CountdownId);
+            }
+
+            OperationRequestMatchStartResult operationRequestMatchStartResult =
+                new OperationRequestMatchStartResult
+                {
+                    IsSuccess = lobbyMembershipChange.Status == LobbyChangeStatus.Applied
+                };
+
+            if (operationRequestMatchStartResult.IsSuccess)
+            {
+                operationRequestMatchStartResult.ErrorKey = null;
+            }
+            else
+            {
+                operationRequestMatchStartResult.ErrorKey = ResolveErrorKey(lobbyMembershipChange.Status);
+            }
+
+            if (lobbyMembershipChange.Room == null)
+            {
+                operationRequestMatchStartResult.Room = null;
+            }
+            else
+            {
+                operationRequestMatchStartResult.Room = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
+            }
 
             if (operationRequestMatchStartResult.Room != null
                 && operationRequestMatchStartResult.Room.CountdownEndsAtUtc.HasValue)
@@ -89,9 +136,7 @@ namespace TLMG.Services.Lobby
                 LogRejectedOperation(
                     "solicitar el inicio de la partida",
                     lobbyMembershipChange,
-                    request == null
-                        ? LobbyMembershipChange.NoRoomId
-                        : request.RoomId);
+                    requestedRoomId);
             }
 
             if (lobbyMembershipChange.RecipientCallbacks.Count > 0)

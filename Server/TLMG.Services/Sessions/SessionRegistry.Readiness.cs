@@ -90,8 +90,9 @@ namespace TLMG.Services.Sessions
             int channelUserId;
             int currentRoomId;
 
-            if (!string.IsNullOrEmpty(sessionToken) && !string.IsNullOrEmpty(channelId)
-                && _sessionsByToken.TryGetValue(sessionToken, out playerSession))
+            bool hasSessionAndChannel = !string.IsNullOrEmpty(sessionToken) && !string.IsNullOrEmpty(channelId);
+
+            if (hasSessionAndChannel && _sessionsByToken.TryGetValue(sessionToken, out playerSession))
             {
                 bool hasChannel = _userIdsByChannelId.TryGetValue(channelId, out channelUserId);
                 bool hasRoom = _roomIdsByUserId.TryGetValue(playerSession.UserId, out currentRoomId);
@@ -162,9 +163,7 @@ namespace TLMG.Services.Sessions
             DateTime nowUtc = DateTime.UtcNow;
             LobbyMembershipChange lobbyMembershipChange;
 
-            if (!lobbyStartState.MatchId.HasValue && lobbyStartState.CountdownEndsAtUtc.HasValue
-                && lobbyStartState.CountdownId == countdownId && nowUtc >= lobbyStartState.CountdownEndsAtUtc.Value
-                && AreLobbyPlayersReadyInLock(roomId))
+            if (CanAuthorizeMatchStartInLock(roomId, countdownId, nowUtc))
             {
                 lobbyStartState.MatchId = Guid.NewGuid();
                 lobbyStartState.MatchStartedAtUtc = nowUtc;
@@ -179,6 +178,28 @@ namespace TLMG.Services.Sessions
             }
 
             return lobbyMembershipChange;
+        }
+
+        /// <summary>Comprueba una cuenta vigente y vencida antes de autorizar bajo _sessionsLock.</summary>
+        /// <param name="roomId">Sala existente.</param>
+        /// <param name="countdownId">Generación solicitada.</param>
+        /// <param name="nowUtc">Reloj UTC leído bajo el candado.</param>
+        /// <returns>true si la cuenta vigente venció y todos los miembros cumplen la preparación.</returns>
+        private bool CanAuthorizeMatchStartInLock(int roomId, long countdownId, DateTime nowUtc)
+        {
+            LobbyStartState lobbyStartState = _startsByRoomId[roomId];
+            bool hasActiveCountdown = !lobbyStartState.MatchId.HasValue
+                && lobbyStartState.CountdownEndsAtUtc.HasValue;
+            bool canAuthorize = false;
+
+            if (hasActiveCountdown)
+            {
+                bool hasRequestedGeneration = lobbyStartState.CountdownId == countdownId;
+                bool hasCountdownExpired = nowUtc >= lobbyStartState.CountdownEndsAtUtc.Value;
+                canAuthorize = hasRequestedGeneration && hasCountdownExpired && AreLobbyPlayersReadyInLock(roomId);
+            }
+
+            return canAuthorize;
         }
 
         /// <summary>Renueva la versión y recalcula la cuenta tras un cambio real; requiere _sessionsLock.</summary>
@@ -207,8 +228,9 @@ namespace TLMG.Services.Sessions
         {
             List<LobbyMember> lobbyMembers = _membersByRoomId[roomId];
             LobbyStartState lobbyStartState = _startsByRoomId[roomId];
-            bool areReady = lobbyMembers.Count >= MinimumPlayersToStartCount
-                && lobbyMembers.Count <= MaximumPlayersPerRoom
+            bool hasRequiredPlayerCount = lobbyMembers.Count >= MinimumPlayersToStartCount
+                && lobbyMembers.Count <= MaximumPlayersPerRoom;
+            bool areReady = hasRequiredPlayerCount
                 && lobbyMembers.TrueForAll(member => lobbyStartState.ReadyUserIds.Contains(member.UserId));
 
             return areReady;

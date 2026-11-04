@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using TLMG.Contracts;
 
@@ -138,5 +139,34 @@ namespace TLMG.Services.Sessions
         /// </param>
         /// <returns>Estado actual y destinatarios, o rechazo sin datos de la sala.</returns>
         LobbyMembershipChange RequestMatchStart(string sessionToken, string channelId, int roomId, long countdownId);
+
+        /// <summary>Suscribe el canal a la sala actual; la última suscripción válida de la sesión gana.</summary>
+        /// <param name="sessionToken">Token de cuenta registrada.</param>
+        /// <param name="channelId">Identificador del canal de chat.</param>
+        /// <param name="callback">Callback del canal de chat.</param>
+        /// <returns>null si se suscribió; clave de error si se rechazó.</returns>
+        string SubscribeToChat(string sessionToken, string channelId, IChatManagerCallback callback);
+
+        /// <summary>Valida identidad, canal y sala y reserva atómicamente el intervalo del envío.</summary>
+        /// <param name="sessionToken">Token vigente.</param>
+        /// <param name="channelId">Canal suscrito del emisor.</param>
+        /// <param name="roomId">Sala solicitada.</param>
+        /// <param name="clientMessageId">Correlación del cliente.</param>
+        /// <param name="normalizedText">Texto validado por ChatValidationHelper; no se guarda en el registro.</param>
+        /// <param name="validationErrorKey">Resultado de validar el texto; null si es válido.</param>
+        /// <param name="chatDelivery">Copia efímera de identidad, mensaje y destinatarios; null si se rechaza.</param>
+        /// <returns>null si se aceptó; clave de error si se rechazó.</returns>
+        string AcceptChatMessage(
+            string sessionToken,
+            string channelId,
+            int roomId,
+            Guid clientMessageId,
+            string normalizedText,
+            string validationErrorKey,
+            out ChatDelivery chatDelivery);
+
+        /// <summary>Retira solo el canal que aún coincide; no borra el intervalo de envíos del jugador.</summary>
+        /// <param name="channelId">Canal que se cerró o falló.</param>
+        void RemoveChatChannel(string channelId);
     }
 }

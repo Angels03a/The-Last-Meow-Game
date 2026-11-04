@@ -734,3 +734,10 @@ Formato de entrada:
 - Por qué: DefaultCardsPerPlayerCount queda fija en 4 hasta que la modalidad llegue al servidor; entonces deberá reflejar la selección colaborativa de 4, 6 u 8 cartas.
 - Depende de: cambio de modalidad colaborativa del lobby
 - Estado: Pendiente
+
+
+### BL-106 · Conservar el chat 24 horas (RF-51)
+- Creado: 2026-11-03 23:53
+- Por qué: hoy el chat es solo en memoria y sin historial; falta conservar los mensajes durante 24 horas.
+- Depende de: persistencia del chat
+- Estado: Pendiente

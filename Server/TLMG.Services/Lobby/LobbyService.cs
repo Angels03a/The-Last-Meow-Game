@@ -28,8 +28,8 @@ namespace TLMG.Services.Lobby
                 { LobbyChangeStatus.AlreadyInRoom, AlreadyInRoomErrorKey },
                 { LobbyChangeStatus.NotAuthorized, CannotJoinRoomErrorKey },
                 { LobbyChangeStatus.RoomFull, CommonErrorKeyHelper.RoomFullErrorKey },
-                { LobbyChangeStatus.NotInRoom, NotInRoomErrorKey },
-                { LobbyChangeStatus.MatchAlreadyStarted, MatchAlreadyStartedErrorKey }
+                { LobbyChangeStatus.NotInRoom, LobbyErrorKeyHelper.NotInRoomErrorKey },
+                { LobbyChangeStatus.MatchAlreadyStarted, LobbyErrorKeyHelper.MatchAlreadyStartedErrorKey }
             };
 
         private readonly ISessionRegistry _sessionRegistry;
