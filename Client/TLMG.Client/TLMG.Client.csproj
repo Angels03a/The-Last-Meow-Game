@@ -79,6 +79,12 @@
     <Compile Include="Views\FriendsScreen.xaml.cs">
       <DependentUpon>FriendsScreen.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\GameOverScreen.xaml.cs">
+      <DependentUpon>GameOverScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GameplayScreen.xaml.cs">
+      <DependentUpon>GameplayScreen.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\HowToPlayScreen.xaml.cs">
       <DependentUpon>HowToPlayScreen.xaml</DependentUpon>
     </Compile>
@@ -95,6 +101,9 @@
     <Compile Include="Views\LoginScreen.xaml.cs">
       <DependentUpon>LoginScreen.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\MatchClosedScreen.xaml.cs">
+      <DependentUpon>MatchClosedScreen.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\NewPasswordScreen.xaml.cs">
       <DependentUpon>NewPasswordScreen.xaml</DependentUpon>
     </Compile>
@@ -106,6 +115,9 @@
     </Compile>
     <Compile Include="Views\ProfileScreen.xaml.cs">
       <DependentUpon>ProfileScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RoundResult.xaml.cs">
+      <DependentUpon>RoundResult.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VerificationScreen.xaml.cs">
       <DependentUpon>VerificationScreen.xaml</DependentUpon>
@@ -149,6 +161,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\GameOverScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\GameplayScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\HowToPlayScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -169,6 +189,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\MatchClosedScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\NewPasswordScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -182,6 +206,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ProfileScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RoundResult.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -249,8 +277,6 @@
   <ItemGroup>
     <WCFMetadataStorage Include="Connected Services\UsersManagerReference\" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Communication\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
