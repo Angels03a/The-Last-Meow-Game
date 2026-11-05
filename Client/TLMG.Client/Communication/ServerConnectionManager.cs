@@ -18,7 +18,7 @@ namespace TLMG.Client.Communication
     /// desuscribirse en OnScreenUnloaded (§14.2). Se usa solo desde el hilo de la interfaz y no crea hilos, tareas ni
     /// temporizadores (D-60, ADR-08).
     /// </summary>
-    internal sealed class ServerConnectionManager
+    internal sealed partial class ServerConnectionManager
     {
         // Id del jugador mientras no hay una sesión registrada; coincide con el que envía el servidor en un fallo.
         private const int NoUserId = 0;
@@ -38,6 +38,7 @@ namespace TLMG.Client.Communication
         public ServerConnectionManager(Dispatcher interfaceDispatcher)
         {
             _interfaceDispatcher = interfaceDispatcher;
+            Countdown.StartRequested += OnCountdownStartRequested;
         }
 
         /// <summary>Se dispara con la lista de amigos que responde el servidor a la suscripción.</summary>
@@ -334,7 +335,7 @@ namespace TLMG.Client.Communication
         {
             if (IsRoomCreationPending && operationCreateRoomResult.IsSuccess)
             {
-                CurrentRoom = operationCreateRoomResult.Room;
+                ApplyRoomSnapshot(operationCreateRoomResult.Room);
             }
 
             IsRoomCreationPending = false;
@@ -348,8 +349,8 @@ namespace TLMG.Client.Communication
         /// <param name="operationEnterLobbyResult">Resultado que llegó del servidor.</param>
         /// <remarks>
         /// Guarda la sala solo si el jugador seguía entrando a ella: si salió antes de que llegara el resultado, el
-        /// servidor ya lo sacó. Si un aviso de la misma sala llegó antes que este resultado, se conserva la foto del
-        /// aviso: el servidor la tomó después, porque el jugador ya era miembro cuando otro cambio la generó.
+        /// servidor ya lo sacó. Si un aviso de la misma sala llegó antes, se conserva la foto con mayor Version;
+        /// las respuestas atrasadas nunca reemplazan una foto más reciente.
         /// </remarks>
         internal void NotifyEnterLobbyResultReceived(OperationEnterLobbyResult operationEnterLobbyResult)
         {
@@ -357,9 +358,9 @@ namespace TLMG.Client.Communication
             bool isExpectedEntry = operationEnterLobbyResult.IsSuccess && IsEnteringRoom(enteredRoom);
             bool isAlreadyShowingRoom = IsSameRoom(CurrentRoom, enteredRoom);
 
-            if (isExpectedEntry && !isAlreadyShowingRoom)
+            if (isExpectedEntry || isAlreadyShowingRoom)
             {
-                CurrentRoom = enteredRoom;
+                ApplyRoomSnapshot(enteredRoom);
             }
 
             _enteringRoomId = null;
@@ -397,8 +398,7 @@ namespace TLMG.Client.Communication
 
             if (isCurrentRoom || isEnteringRoom)
             {
-                CurrentRoom = lobbyRoom;
-                LobbyRoomChanged?.Invoke(this, new ServerEventArgs<LobbyRoom>(lobbyRoom));
+                ApplyRoomSnapshot(lobbyRoom);
             }
             else
             {
@@ -422,6 +422,7 @@ namespace TLMG.Client.Communication
 
         private void ClearCurrentRoom()
         {
+            Countdown.Reset();
             CurrentRoom = null;
             IsRoomCreationPending = false;
             _enteringRoomId = null;

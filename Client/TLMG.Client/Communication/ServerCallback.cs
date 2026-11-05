@@ -94,14 +94,20 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyLobbyRoomChanged(lobbyRoom));
         }
 
+        /// <summary>Entrega el resultado de ChangePlayerReadiness por el dispatcher de la interfaz.</summary>
+        /// <param name="result">Resultado recibido del servidor.</param>
         public void ChangePlayerReadinessResult(OperationChangePlayerReadinessResult result)
         {
-            throw new System.NotImplementedException();
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyReadinessResultReceived(result));
         }
 
+        /// <summary>Entrega el resultado de RequestMatchStart por el dispatcher de la interfaz.</summary>
+        /// <param name="result">Resultado recibido del servidor.</param>
         public void RequestMatchStartResult(OperationRequestMatchStartResult result)
         {
-            throw new System.NotImplementedException();
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyMatchStartResultReceived(result));
         }
     }
 }

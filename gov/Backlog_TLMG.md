@@ -543,6 +543,12 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Pendiente
 
+### BL-107 · Filtrar palabras ofensivas en el chat y el nickname (RC-M-01, RC-N-01)
+- Creado: 2026-11-04 16:40
+- Por qué: el servidor valida longitud y caracteres del chat, pero no filtra palabras ofensivas; el diccionario de validación lo exige para chat y nickname, en español e inglés.
+- Depende de: definir la fuente de la lista de palabras y dónde se valida (servidor)
+- Estado: Pendiente
+
 ## Finalizados
 
 ### BL-001 · Hash de contraseña: SHA-256 + sal (decidido), implementar

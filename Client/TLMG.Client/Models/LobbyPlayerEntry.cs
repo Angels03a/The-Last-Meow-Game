@@ -15,5 +15,8 @@ namespace TLMG.Client.Models
         /// la tarjeta; no da ningún permiso.
         /// </summary>
         public bool IsLocalPlayer { get; set; }
+
+        /// <summary>Obtiene o establece el estado Listo recibido del servidor.</summary>
+        public bool IsReady { get; set; }
     }
 }

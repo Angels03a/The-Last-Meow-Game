@@ -352,4 +352,11 @@
     <sys:String x:Key="Moderation_BlockSuccessTitle">PLAYER BLOCKED</sys:String>
     <sys:String x:Key="Moderation_BlockSuccessMessageFormat">{0} has been blocked. You can unblock them at any time from your Friends list.</sys:String>
     <sys:String x:Key="Moderation_ReturnToGameButton">Return to Game</sys:String>
+    <sys:String x:Key="Lobby_NotInRoomError">You are not in this room.</sys:String>
+    <sys:String x:Key="Lobby_MatchAlreadyStartedError">The match has already started.</sys:String>
+    <sys:String x:Key="Lobby_MarkReadyButton">Mark Ready</sys:String>
+    <sys:String x:Key="Lobby_MarkNotReadyButton">Mark Not Ready</sys:String>
+    <sys:String x:Key="Lobby_CountdownSecondsFormat">{0}</sys:String>
+    <sys:String x:Key="Lobby_CountdownWaitingLabel">Waiting for the server…</sys:String>
+    <sys:String x:Key="Lobby_GameplayUnavailableError">The gameplay screen is not available yet.</sys:String>
 </ResourceDictionary>

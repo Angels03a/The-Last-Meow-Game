@@ -59,6 +59,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Communication\LobbyCountdown.cs" />
+    <Compile Include="Communication\ServerConnectionManager.Readiness.cs" />
     <Compile Include="Communication\ServerCallback.cs" />
     <Compile Include="Communication\ServerConnectionManager.cs" />
     <Compile Include="Communication\ServerEventArgs.cs" />

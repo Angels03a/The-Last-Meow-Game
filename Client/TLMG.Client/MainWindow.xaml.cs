@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 
+using log4net;
+
 using TLMG.Client.Communication;
 using TLMG.Client.UsersManagerReference;
 using TLMG.Client.Views;
@@ -20,6 +22,9 @@ namespace TLMG.Client
         private const string ErrorTitleKey = "Common_ErrorTitle";
         private const int ZeroHistorySize = 0;
 
+        private static readonly ILog _log = LogManager.GetLogger(typeof(MainWindow));
+
+        private readonly HashSet<Guid> _enteredMatchIds = new HashSet<Guid>();
         private readonly Stack<UserControl> _navigationHistory;
         private UserControl _currentScreen;
 
@@ -33,6 +38,7 @@ namespace TLMG.Client
             ServerConnection.RoomInvitationReceived += OnRoomInvitationReceived;
             ServerConnection.AcceptInvitationResultReceived += OnAcceptInvitationResultReceived;
             ServerConnection.EnterLobbyResultReceived += OnEnterLobbyResultReceived;
+            ServerConnection.LobbyRoomChanged += OnAuthorizedRoomChanged;
             Closed += OnMainWindowClosed;
             _navigationHistory = new Stack<UserControl>();
             LoadingScreen loadingScreen = new LoadingScreen();
@@ -90,6 +96,7 @@ namespace TLMG.Client
 
         private void OnMainWindowClosed(object sender, EventArgs eventArguments)
         {
+            ServerConnection.LobbyRoomChanged -= OnAuthorizedRoomChanged;
             ServerConnection.ConnectionLost -= OnServerConnectionLost;
             ServerConnection.RoomInvitationReceived -= OnRoomInvitationReceived;
             ServerConnection.AcceptInvitationResultReceived -= OnAcceptInvitationResultReceived;
@@ -138,14 +145,56 @@ namespace TLMG.Client
             object sender,
             ServerEventArgs<OperationEnterLobbyResult> serverEventArguments)
         {
-            if (serverEventArguments.Payload.IsSuccess && ServerConnection.CurrentRoom != null)
+            bool hasEnteredRoom = serverEventArguments.Payload.IsSuccess && ServerConnection.CurrentRoom != null;
+
+            if (hasEnteredRoom)
             {
-                ClearHistory();
-                ShowScreen(new LobbyScreen(), false);
+                if (!ServerConnection.CurrentRoom.InGame)
+                {
+                    ClearHistory();
+                    ShowScreen(new LobbyScreen(), false);
+                }
             }
             else if (!serverEventArguments.Payload.IsSuccess)
             {
                 ShowServerError(serverEventArguments.Payload.ErrorKey);
+            }
+        }
+
+        private void OnAuthorizedRoomChanged(object sender, ServerEventArgs<LobbyRoom> eventArguments)
+        {
+            LobbyRoom room = eventArguments.Payload;
+            bool hasMatch = room != null && room.MatchId.HasValue;
+            bool isAuthorized = hasMatch && room.InGame;
+
+            if (isAuthorized && _enteredMatchIds.Add(room.MatchId.Value))
+            {
+                NavigateToAuthorizedMatch();
+            }
+        }
+
+        // BL-046: punto único de integración; GameplayScreen debe estar incluida y compilada en el proyecto.
+        private void NavigateToAuthorizedMatch()
+        {
+            try
+            {
+                Type gameplayType = typeof(MainWindow).Assembly.GetType("TLMG.Client.Views.GameplayScreen");
+
+                if (gameplayType == null)
+                {
+                    ShowServerError("Lobby_GameplayUnavailableError");
+                }
+                else
+                {
+                    UserControl gameplayScreen = (UserControl)Activator.CreateInstance(gameplayType);
+                    ClearHistory();
+                    ShowScreen(gameplayScreen, false);
+                }
+            }
+            catch (Exception exception)
+            {
+                _log.Error("No se pudo abrir la pantalla de partida autorizada.", exception);
+                ShowServerError("Common_UnexpectedError");
             }
         }
 

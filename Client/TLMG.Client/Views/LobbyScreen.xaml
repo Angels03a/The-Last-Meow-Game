@@ -81,7 +81,7 @@
                            Margin="0,0,0,16" 
                            Foreground="{StaticResource Brush_Gold}"/>
                 <TextBlock x:Name="lblCountdownTimer" 
-                           Text="3" 
+                           Text="{DynamicResource Lobby_CountdownWaitingLabel}"
                            FontSize="120" 
                            FontWeight="Black" 
                            Foreground="{StaticResource Brush_White}" 
@@ -218,6 +218,13 @@
                                    Style="{StaticResource SubtitleTextStyle}" />
                     </StackPanel>
 
+                    <Button x:Name="btnToggleReady"
+                            Grid.Column="1"
+                            Content="{DynamicResource Lobby_MarkReadyButton}"
+                            Style="{StaticResource ActionDangerOutlineButtonStyle}"
+                            MinWidth="160" Height="48" IsEnabled="False"
+                            Click="BtnToggleReady_Click" />
+
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
                         <TextBlock Text="{DynamicResource Lobby_CardsPerPlayer}" 
                                    Style="{StaticResource StatCardLabelStyle}" 
@@ -250,6 +257,9 @@
                                                    Style="{StaticResource FriendAvatarEmojiStyle}"
                                                    FontFamily="Segoe UI Emoji" />
                                     </Border>
+                                    <TextBlock x:Name="lblPlayerReadiness"
+                                               Text="{DynamicResource Lobby_StatusNotReady}"
+                                               HorizontalAlignment="Center" Margin="0,0,0,8" />
                                     <TextBlock Text="{Binding Nickname}"
                                                Style="{StaticResource FriendNameTextStyle}"
                                                HorizontalAlignment="Center" />
@@ -263,6 +273,10 @@
                                 </StackPanel>
                             </Border>
                             <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsReady}" Value="True">
+                                    <Setter TargetName="lblPlayerReadiness" Property="Text"
+                                            Value="{DynamicResource Lobby_StatusReady}" />
+                                </DataTrigger>
                                 <DataTrigger Binding="{Binding IsLocalPlayer}" Value="True">
                                     <Setter TargetName="brdLocalPlayerBadge" Property="Visibility" Value="Visible" />
                                     <Setter TargetName="brdLobbyPlayerCard" Property="BorderBrush" Value="{StaticResource Brush_Accent}" />

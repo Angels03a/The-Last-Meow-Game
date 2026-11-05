@@ -352,4 +352,11 @@
     <sys:String x:Key="Moderation_BlockSuccessTitle">JUGADOR BLOQUEADO</sys:String>
     <sys:String x:Key="Moderation_BlockSuccessMessageFormat">{0} ha sido bloqueado. Puedes desbloquearlo en cualquier momento desde tu lista de amigos.</sys:String>
     <sys:String x:Key="Moderation_ReturnToGameButton">Regresar a la Partida</sys:String>
+    <sys:String x:Key="Lobby_NotInRoomError">No estás en esta sala.</sys:String>
+    <sys:String x:Key="Lobby_MatchAlreadyStartedError">La partida ya comenzó.</sys:String>
+    <sys:String x:Key="Lobby_MarkReadyButton">Marcar Listo</sys:String>
+    <sys:String x:Key="Lobby_MarkNotReadyButton">Marcar No Listo</sys:String>
+    <sys:String x:Key="Lobby_CountdownSecondsFormat">{0}</sys:String>
+    <sys:String x:Key="Lobby_CountdownWaitingLabel">Esperando al servidor…</sys:String>
+    <sys:String x:Key="Lobby_GameplayUnavailableError">La pantalla de partida todavía no está disponible.</sys:String>
 </ResourceDictionary>
