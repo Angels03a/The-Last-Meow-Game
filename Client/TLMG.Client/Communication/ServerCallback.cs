@@ -93,5 +93,15 @@ namespace TLMG.Client.Communication
             _serverConnection.RunOnInterface(
                 () => _serverConnection.NotifyLobbyRoomChanged(lobbyRoom));
         }
+
+        public void ChangePlayerReadinessResult(OperationChangePlayerReadinessResult result)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void RequestMatchStartResult(OperationRequestMatchStartResult result)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
   <xs:complexType name="PlayerAccountRegistration">
     <xs:sequence>
       <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
@@ -57,6 +58,20 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="LeaderboardPlayer" nillable="true" type="tns:LeaderboardPlayer" />
+  <xs:complexType name="OperationChangePlayerReadinessRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="IsReady" type="xs:boolean" />
+      <xs:element minOccurs="0" name="RoomId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationChangePlayerReadinessRequest" nillable="true" type="tns:OperationChangePlayerReadinessRequest" />
+  <xs:complexType name="OperationRequestMatchStartRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CountdownId" type="xs:long" />
+      <xs:element minOccurs="0" name="RoomId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationRequestMatchStartRequest" nillable="true" type="tns:OperationRequestMatchStartRequest" />
   <xs:complexType name="OperationCreateRoomResult">
     <xs:sequence>
       <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
@@ -67,8 +82,16 @@
   <xs:element name="OperationCreateRoomResult" nillable="true" type="tns:OperationCreateRoomResult" />
   <xs:complexType name="LobbyRoom">
     <xs:sequence>
+      <xs:element minOccurs="0" name="CardsPerPlayerCount" type="xs:int" />
+      <xs:element minOccurs="0" name="CountdownEndsAtUtc" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="CountdownId" type="xs:long" />
+      <xs:element minOccurs="0" name="InGame" type="xs:boolean" />
+      <xs:element minOccurs="0" name="MatchId" nillable="true" type="ser:guid" />
+      <xs:element minOccurs="0" name="MatchStartedAtUtc" nillable="true" type="xs:dateTime" />
       <xs:element minOccurs="0" name="Players" nillable="true" type="tns:ArrayOfLobbyPlayer" />
       <xs:element minOccurs="0" name="RoomId" type="xs:int" />
+      <xs:element minOccurs="0" name="ServerTimeUtc" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="Version" type="xs:long" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="LobbyRoom" nillable="true" type="tns:LobbyRoom" />
@@ -80,6 +103,7 @@
   <xs:element name="ArrayOfLobbyPlayer" nillable="true" type="tns:ArrayOfLobbyPlayer" />
   <xs:complexType name="LobbyPlayer">
     <xs:sequence>
+      <xs:element minOccurs="0" name="IsReady" type="xs:boolean" />
       <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="UserId" type="xs:int" />
     </xs:sequence>
@@ -100,6 +124,23 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="OperationLeaveLobbyResult" nillable="true" type="tns:OperationLeaveLobbyResult" />
+  <xs:complexType name="OperationChangePlayerReadinessResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Room" nillable="true" type="tns:LobbyRoom" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationChangePlayerReadinessResult" nillable="true" type="tns:OperationChangePlayerReadinessResult" />
+  <xs:complexType name="OperationRequestMatchStartResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+      <xs:element minOccurs="0" name="RetryAfterSeconds" type="xs:int" />
+      <xs:element minOccurs="0" name="Room" nillable="true" type="tns:LobbyRoom" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationRequestMatchStartResult" nillable="true" type="tns:OperationRequestMatchStartResult" />
   <xs:complexType name="OperationSubscribeToFriendsResult">
     <xs:sequence>
       <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
@@ -144,4 +185,37 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="RoomInvitation" nillable="true" type="tns:RoomInvitation" />
+  <xs:complexType name="OperationSendChatMessageRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ClientMessageId" type="ser:guid" />
+      <xs:element minOccurs="0" name="RoomId" type="xs:int" />
+      <xs:element minOccurs="0" name="Text" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationSendChatMessageRequest" nillable="true" type="tns:OperationSendChatMessageRequest" />
+  <xs:complexType name="OperationSubscribeToChatResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsSuccess" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationSubscribeToChatResult" nillable="true" type="tns:OperationSubscribeToChatResult" />
+  <xs:complexType name="OperationSendChatMessageResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ClientMessageId" type="ser:guid" />
+      <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationSendChatMessageResult" nillable="true" type="tns:OperationSendChatMessageResult" />
+  <xs:complexType name="ChatMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ClientMessageId" type="ser:guid" />
+      <xs:element minOccurs="0" name="RoomId" type="xs:int" />
+      <xs:element minOccurs="0" name="SenderNickname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SenderUserId" type="xs:int" />
+      <xs:element minOccurs="0" name="SentAtUtc" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="Text" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ChatMessage" nillable="true" type="tns:ChatMessage" />
 </xs:schema>
