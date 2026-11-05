@@ -98,3 +98,53 @@ BEGIN CATCH
     THROW;
 END CATCH
 GO
+
+/* Agregar otro amigo  osea Id 23 en mi caso puse jugadorTest3@gmail.com y los otro los tenía como id 21,22,23
+USE TLMG_DB;
+GO
+
+SET NOCOUNT ON;
+SET XACT_ABORT ON;
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+DECLARE @id_new_user INT = 23;
+DECLARE @others TABLE (id_other INT);
+INSERT INTO @others (id_other) VALUES (1), (2);
+
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    IF NOT EXISTS (SELECT 1 FROM [User] WHERE id_user = @id_new_user)
+       OR EXISTS (SELECT 1 FROM @others o
+                  WHERE NOT EXISTS (SELECT 1 FROM [User] u WHERE u.id_user = o.id_other))
+    BEGIN
+        THROW 50104, 'Alguno de los usuarios no existe en User. No se hizo ningun cambio.', 1;
+    END
+
+    UPDATE f
+    SET f.state = 'FRIEND_ACCEPTED'
+    FROM Friendship f WITH (UPDLOCK, HOLDLOCK)
+    JOIN @others o
+      ON (f.id_user_sender = @id_new_user AND f.id_user_receiver = o.id_other)
+      OR (f.id_user_sender = o.id_other AND f.id_user_receiver = @id_new_user);
+
+    INSERT INTO Friendship (id_user_sender, id_user_receiver, state, request_date)
+    SELECT o.id_other, @id_new_user, 'FRIEND_ACCEPTED', GETUTCDATE()
+    FROM @others o
+    WHERE NOT EXISTS (
+        SELECT 1 FROM Friendship f
+        WHERE (f.id_user_sender = @id_new_user AND f.id_user_receiver = o.id_other)
+           OR (f.id_user_sender = o.id_other AND f.id_user_receiver = @id_new_user));
+
+    COMMIT TRANSACTION;
+
+    SELECT id_friendship, id_user_sender, id_user_receiver, state, request_date
+    FROM Friendship
+    WHERE id_user_sender = @id_new_user OR id_user_receiver = @id_new_user;
+END TRY
+BEGIN CATCH
+    IF XACT_STATE() <> 0 ROLLBACK TRANSACTION;
+    THROW;
+END CATCH
+GO
+\*
