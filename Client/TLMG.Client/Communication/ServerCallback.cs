@@ -10,7 +10,7 @@ namespace TLMG.Client.Communication
     /// el interbloqueo cuando la interfaz llama al servidor mientras espera un callback.
     /// </summary>
     [CallbackBehavior(UseSynchronizationContext = false)]
-    public sealed class ServerCallback : IFriendsManagerCallback, ILobbyManagerCallback
+    public sealed class ServerCallback : IFriendsManagerCallback, ILobbyManagerCallback, IChatManagerCallback
     {
         private readonly ServerConnectionManager _serverConnection;
 
@@ -19,6 +19,30 @@ namespace TLMG.Client.Communication
         internal ServerCallback(ServerConnectionManager serverConnection)
         {
             _serverConnection = serverConnection;
+        }
+
+        /// <summary>Entrega el aviso de chat mediante el dispatcher de la interfaz.</summary>
+        /// <param name="chatResult">Aviso recibido del servidor.</param>
+        public void SubscribeToChatResult(OperationSubscribeToChatResult chatResult)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyChatSubscriptionResult(this, chatResult));
+        }
+
+        /// <summary>Entrega el aviso de chat mediante el dispatcher de la interfaz.</summary>
+        /// <param name="chatResult">Aviso recibido del servidor.</param>
+        public void SendChatMessageResult(OperationSendChatMessageResult chatResult)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyChatSendResult(this, chatResult));
+        }
+
+        /// <summary>Entrega el aviso de chat mediante el dispatcher de la interfaz.</summary>
+        /// <param name="chatResult">Aviso recibido del servidor.</param>
+        public void OnChatMessageReceived(ChatMessage chatResult)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyChatMessageReceived(this, chatResult));
         }
 
         /// <summary>Entrega el resultado de suscribirse a los amigos.</summary>

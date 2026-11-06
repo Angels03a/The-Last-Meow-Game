@@ -359,4 +359,10 @@
     <sys:String x:Key="Lobby_CountdownSecondsFormat">{0}</sys:String>
     <sys:String x:Key="Lobby_CountdownWaitingLabel">Waiting for the server…</sys:String>
     <sys:String x:Key="Lobby_GameplayUnavailableError">The gameplay screen is not available yet.</sys:String>
+    <sys:String x:Key="Lobby_ChatEmptyError">Enter a message.</sys:String>
+    <sys:String x:Key="Lobby_ChatTooLongError">The message exceeds 160 characters.</sys:String>
+    <sys:String x:Key="Lobby_ChatCharactersError">The message contains unsupported characters.</sys:String>
+    <sys:String x:Key="Lobby_ChatRateLimitError">Wait one second before sending another message.</sys:String>
+    <sys:String x:Key="Lobby_ChatNotSubscribedError">You are not connected to chat.</sys:String>
+    <sys:String x:Key="Lobby_GuestCannotChatError">Sign in to use chat.</sys:String>
 </ResourceDictionary>

@@ -105,6 +105,7 @@ namespace TLMG.Client.Communication
             {
                 CurrentRoom = lobbyRoom;
                 Countdown.ApplyRoom(lobbyRoom);
+                OpenChatForCurrentRoom();
                 LobbyRoomChanged?.Invoke(this, new ServerEventArgs<LobbyRoom>(lobbyRoom));
             }
         }

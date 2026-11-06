@@ -47,6 +47,7 @@ namespace TLMG.Client.Views
             _isCountdownActive = false;
 
             InitializeTimers();
+            txtChatInput.MaxLength = ChatInputHelper.MaximumMessageCharacters;
         }
 
         private static ServerConnectionManager ServerConnection => ((App)Application.Current).ServerConnection;
@@ -85,6 +86,11 @@ namespace TLMG.Client.Views
             ServerConnection.MatchStartResultReceived += OnMatchStartResultReceived;
             ServerConnection.Countdown.Changed -= OnCountdownChanged;
             ServerConnection.Countdown.Changed += OnCountdownChanged;
+            ServerConnection.ChatMessageReceived -= OnChatMessageReceived;
+            ServerConnection.ChatMessageReceived += OnChatMessageReceived;
+            ServerConnection.ChatAvailabilityChanged -= OnChatAvailabilityChanged;
+            ServerConnection.ChatAvailabilityChanged += OnChatAvailabilityChanged;
+            ShowChatAvailability();
             ShowOrCreateRoom();
         }
 
@@ -95,6 +101,9 @@ namespace TLMG.Client.Views
             ServerConnection.ReadinessResultReceived -= OnReadinessResultReceived;
             ServerConnection.MatchStartResultReceived -= OnMatchStartResultReceived;
             ServerConnection.Countdown.Changed -= OnCountdownChanged;
+            ServerConnection.ChatMessageReceived -= OnChatMessageReceived;
+            ServerConnection.ChatAvailabilityChanged -= OnChatAvailabilityChanged;
+            pnlChatMessages.Children.Clear();
             _toastTimer?.Stop();
         }
 
@@ -242,6 +251,7 @@ namespace TLMG.Client.Views
 
             if (isEnterPressed)
             {
+                e.Handled = true;
                 AppendOutgoingChatMessage();
             }
         }
@@ -254,27 +264,80 @@ namespace TLMG.Client.Views
         private void AppendOutgoingChatMessage()
         {
             string messageText = txtChatInput.Text.Trim();
-            bool isMessageValid = !string.IsNullOrWhiteSpace(messageText);
-
-            if (isMessageValid)
+            if (string.IsNullOrEmpty(messageText))
             {
-                var newMessageBlock = new TextBlock();
-                newMessageBlock.Margin = new Thickness(0, 0, 0, 8);
+                ShowLobbyError("Lobby_ChatEmptyError");
+            }
+            else if (ChatInputHelper.CanEnterText(messageText))
+            {
+                if (ServerConnection.SendChatMessage(messageText))
+                {
+                    txtChatInput.Clear();
+                }
+            }
+        }
 
-                var usernameRun = new Run("WhiskerKnight: ");
-                usernameRun.Foreground = (System.Windows.Media.Brush)FindResource("Brush_Gold");
-                usernameRun.FontWeight = FontWeights.Bold;
+        private void OnChatMessageReceived(object sender, ServerEventArgs<ChatMessage> eventArguments)
+        {
+            ChatMessage chatMessage = eventArguments.Payload;
+            TextBlock messageBlock = new TextBlock
+            {
+                Margin = new Thickness(0, 0, 0, 8),
+                TextWrapping = TextWrapping.Wrap
+            };
+            Run senderRun = new Run(chatMessage.SenderNickname);
+            senderRun.FontWeight = FontWeights.Bold;
+            string senderBrush = "Brush_TextPrimary";
+            if (chatMessage.SenderUserId == ServerConnection.PlayerUserId)
+            {
+                senderBrush = "Brush_Gold";
+            }
+            senderRun.SetResourceReference(TextElement.ForegroundProperty, senderBrush);
+            messageBlock.Inlines.Add(senderRun);
+            messageBlock.Inlines.Add(new LineBreak());
+            Run messageRun = new Run(chatMessage.Text);
+            messageRun.SetResourceReference(TextElement.ForegroundProperty, "Brush_TextPrimary");
+            messageBlock.Inlines.Add(messageRun);
+            pnlChatMessages.Children.Add(messageBlock);
+            scrChat.ScrollToEnd();
+        }
 
-                var messageRun = new Run(messageText);
-                messageRun.Foreground = (System.Windows.Media.Brush)FindResource("Brush_TextPrimary");
+        private void OnChatAvailabilityChanged(object sender, EventArgs eventArguments)
+        {
+            ShowChatAvailability();
+        }
 
-                newMessageBlock.Inlines.Add(usernameRun);
-                newMessageBlock.Inlines.Add(messageRun);
+        private void ShowChatAvailability()
+        {
+            txtChatInput.IsEnabled = ServerConnection.IsChatSubscribed;
+            btnSendChat.IsEnabled = ServerConnection.IsChatSubscribed;
+            lblGuestChatNotice.Visibility = Visibility.Collapsed;
+            if (!ServerConnection.HasRegisteredSession)
+            {
+                lblGuestChatNotice.Visibility = Visibility.Visible;
+            }
+        }
 
-                pnlChatMessages.Children.Add(newMessageBlock);
+        private bool CanInsertChatText(string insertedText)
+        {
+            string proposedText = txtChatInput.Text.Remove(txtChatInput.SelectionStart, txtChatInput.SelectionLength);
+            proposedText = proposedText.Insert(txtChatInput.SelectionStart, insertedText);
+            bool canInsert = ChatInputHelper.CanEnterText(proposedText);
+            return canInsert;
+        }
 
-                txtChatInput.Text = string.Empty;
-                scrChat.ScrollToEnd();
+        private void OnChatPreviewTextInput(object sender, TextCompositionEventArgs eventArguments)
+        {
+            eventArguments.Handled = !CanInsertChatText(eventArguments.Text);
+        }
+
+        private void OnChatPasting(object sender, DataObjectPastingEventArgs eventArguments)
+        {
+            string pastedText = eventArguments.DataObject.GetData(DataFormats.UnicodeText) as string;
+            bool canPaste = pastedText != null && CanInsertChatText(pastedText);
+            if (!canPaste)
+            {
+                eventArguments.CancelCommand();
             }
         }
 

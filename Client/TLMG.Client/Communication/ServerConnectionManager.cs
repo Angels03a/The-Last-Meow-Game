@@ -425,6 +425,7 @@ namespace TLMG.Client.Communication
 
         private void ClearCurrentRoom()
         {
+            CloseChatChannel();
             Countdown.ResetTimerForMatchStart();
             CurrentRoom = null;
             IsRoomCreationPending = false;
@@ -568,7 +569,9 @@ namespace TLMG.Client.Communication
             bool isFriendsChannel = ReferenceEquals(channel, _friendsChannel);
             bool isCurrentChannel = isFriendsChannel || ReferenceEquals(channel, _lobbyChannel);
 
-            if (isCurrentChannel)
+            bool isChatChannel = _chatClient != null && ReferenceEquals(channel, _chatClient.InnerChannel);
+
+            if (isCurrentChannel || isChatChannel)
             {
                 CommunicationState channelState = ((ICommunicationObject)channel).State;
                 _log.WarnFormat(

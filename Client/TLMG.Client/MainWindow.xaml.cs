@@ -39,6 +39,7 @@ namespace TLMG.Client
             ServerConnection.AcceptInvitationResultReceived += OnAcceptInvitationResultReceived;
             ServerConnection.EnterLobbyResultReceived += OnEnterLobbyResultReceived;
             ServerConnection.LobbyRoomChanged += OnAuthorizedRoomChanged;
+            ServerConnection.ChatErrorReceived += OnChatErrorReceived;
             Closed += OnMainWindowClosed;
             _navigationHistory = new Stack<UserControl>();
             LoadingScreen loadingScreen = new LoadingScreen();
@@ -96,6 +97,7 @@ namespace TLMG.Client
 
         private void OnMainWindowClosed(object sender, EventArgs eventArguments)
         {
+            ServerConnection.ChatErrorReceived -= OnChatErrorReceived;
             ServerConnection.LobbyRoomChanged -= OnAuthorizedRoomChanged;
             ServerConnection.ConnectionLost -= OnServerConnectionLost;
             ServerConnection.RoomInvitationReceived -= OnRoomInvitationReceived;
@@ -196,6 +198,11 @@ namespace TLMG.Client
                 _log.Error("No se pudo abrir la pantalla de partida autorizada.", exception);
                 ShowServerError("Common_UnexpectedError");
             }
+        }
+
+        private void OnChatErrorReceived(object sender, ServerEventArgs<string> eventArguments)
+        {
+            ShowServerError(eventArguments.Payload);
         }
 
         private void ShowServerError(string errorKey)
