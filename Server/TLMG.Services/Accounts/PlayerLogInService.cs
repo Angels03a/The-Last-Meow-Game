@@ -19,8 +19,6 @@ namespace TLMG.Services.Accounts
         private const string EmailFormatErrorKey = "Login_EmailFormatError";
         private const string InvalidCredentialsErrorKey = "Login_InvalidCredentialsError";
         private const string DatabaseErrorKey = "Login_DataModelError";
-
-        // Id que viaja en el resultado cuando el inicio de sesión falla.
         private const int NoUserId = 0;
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerLogInService));
@@ -50,7 +48,7 @@ namespace TLMG.Services.Accounts
         /// nickname del jugador; y los avisos para la sala y los amigos de la sesión anterior de la misma cuenta, si
         /// la había.
         /// </returns>
-        public SessionOutcome<OperationLogInResult> LogIn(OperationLogInRequest operationLogInRequest)
+        public ResultWithNotification<OperationLogInResult> LogIn(OperationLogInRequest operationLogInRequest)
         {
             string sessionToken = null;
             int userId = NoUserId;
@@ -83,11 +81,11 @@ namespace TLMG.Services.Accounts
                 Nickname = nickname
             };
 
-            SessionOutcome<OperationLogInResult> sessionOutcome = new SessionOutcome<OperationLogInResult>(
+            ResultWithNotification<OperationLogInResult> loginResult = new ResultWithNotification<OperationLogInResult>(
                 operationLogInResult,
                 SessionNotificationHelper.CreateSessionEndNotifications(replacedSession));
 
-            return sessionOutcome;
+            return loginResult;
         }
 
         private static string ValidateLogInRequest(OperationLogInRequest operationLogInRequest)
@@ -150,10 +148,9 @@ namespace TLMG.Services.Accounts
         {
             string errorKey = DatabaseErrorKey;
 
-            // El acceso se guarda en UTC: es una marca del servidor y no depende de la zona horaria de ninguna PC.
-            bool wasUpdated = _playerRepository.UpdateLastLogInTime(userId, DateTime.UtcNow);
+            bool wasLastLogInTimeUpdated = _playerRepository.UpdateLastLogInTime(userId, DateTime.UtcNow);
 
-            if (wasUpdated)
+            if (wasLastLogInTimeUpdated)
             {
                 errorKey = null;
                 _log.InfoFormat("El jugador {0} inició sesión.", userId);

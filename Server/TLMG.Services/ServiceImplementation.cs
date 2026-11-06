@@ -63,17 +63,9 @@ namespace TLMG.Services
             {
                 notificationOfResult();
             }
-            catch (CommunicationObjectAbortedException abortedException)
-            {
-                _log.Warn("El cliente cerró el canal antes de recibir la notificación.", abortedException);
-            }
-            catch (CommunicationObjectFaultedException faultedException)
-            {
-                _log.Warn("El canal del cliente está en falla.", faultedException);
-            }
             catch (CommunicationException communicationException)
             {
-                _log.Warn("Error de comunicación al notificar al cliente; verifique la conexión.",
+                _log.Warn("Error de comunicación al notificar al cliente; verifique la conexión por parte del cliente.",
                     communicationException);
             }
             catch (TimeoutException timeoutException)
@@ -82,7 +74,8 @@ namespace TLMG.Services
             }
             catch (ObjectDisposedException disposedException)
             {
-                _log.Warn("El canal del cliente ya fue liberado.", disposedException);
+                _log.Warn("El canal del cliente fue liberado antes de llegar la respuesta del servidor. " +
+                    "Se destruye la respuesta que iba a enviarse.", disposedException);
             }
         }
     }

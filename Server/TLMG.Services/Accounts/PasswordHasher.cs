@@ -25,7 +25,9 @@ namespace TLMG.Services.Accounts
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(PasswordHasher));
 
-        /// <inheritdoc />
+
+        // FIXME: No puede arrojar excepciones; debe devolver un resultado con IsSuccess
+        // y ErrorKey para el caso de contraseña nula.
         public string HashPassword(string password)
         {
             if (password == null)
@@ -44,7 +46,6 @@ namespace TLMG.Services.Accounts
             return storedHash;
         }
 
-        /// <inheritdoc />
         public bool VerifyPassword(string password, string storedHash)
         {
             bool isValid = false;

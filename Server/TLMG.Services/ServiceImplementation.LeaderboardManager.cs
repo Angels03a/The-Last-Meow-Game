@@ -9,8 +9,6 @@ namespace TLMG.Services
 {
     public partial class ServiceImplementation : ILeaderboardManager
     {
-        // El repositorio se crea aquí y no se comparte con el otro archivo parcial: el orden en que se inicializan
-        // los campos estáticos entre archivos parciales no está definido.
         private static readonly LeaderboardService _leaderboardService =
             new LeaderboardService(new PlayerRepository());
 

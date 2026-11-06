@@ -16,52 +16,52 @@ namespace TLMG.Client.Communication
         public LobbyCountdown Countdown { get; } = new LobbyCountdown();
 
         /// <summary>Pide el estado deseado sin modificar la foto ni distinguir jugadores por tipo.</summary>
-        /// <param name="isReady">Estado Listo deseado.</param>
+        /// <param name="isReadyToStartMatch">Estado Listo deseado.</param>
         /// <returns>true si se envió la petición por el canal actual.</returns>
-        public bool ChangePlayerReadiness(bool isReady)
+        public bool ChangePlayerReadiness(bool isReadyToStartMatch)
         {
-            bool wasSent = false;
+            bool wasChangePlayerReadinessSent = false;
             bool hasLobbyChannel = CurrentRoom != null && _lobbyClient != null;
 
             if (hasLobbyChannel)
             {
-                OperationChangePlayerReadinessRequest request = new OperationChangePlayerReadinessRequest
+                OperationChangePlayerReadinessRequest changePlayerReadinessRequest = new OperationChangePlayerReadinessRequest
                 {
                     RoomId = CurrentRoom.RoomId,
-                    IsReady = isReady
+                    IsReady = isReadyToStartMatch
                 };
-                wasSent = TrySend(
-                    () => _lobbyClient.ChangePlayerReadiness(_sessionToken, request),
+                wasChangePlayerReadinessSent = TrySend(
+                    () => _lobbyClient.ChangePlayerReadiness(_sessionToken, changePlayerReadinessRequest),
                     "cambiar el estado Listo");
             }
 
-            return wasSent;
+            return wasChangePlayerReadinessSent;
         }
 
         /// <summary>Publica el resultado y canaliza su foto por el mismo filtro autoritativo de versiones.</summary>
-        /// <param name="result">Resultado del servidor.</param>
-        internal void NotifyReadinessResultReceived(OperationChangePlayerReadinessResult result)
+        /// <param name="changePlayerReadinessResult">Resultado del servidor.</param>
+        internal void NotifyReadinessResultReceived(OperationChangePlayerReadinessResult changePlayerReadinessResult)
         {
-            if (result != null)
+            if (changePlayerReadinessResult != null)
             {
-                NotifyLobbyRoomChanged(result.Room);
+                NotifyLobbyRoomChanged(changePlayerReadinessResult.Room);
                 ReadinessResultReceived?.Invoke(
                     this,
-                    new ServerEventArgs<OperationChangePlayerReadinessResult>(result));
+                    new ServerEventArgs<OperationChangePlayerReadinessResult>(changePlayerReadinessResult));
             }
         }
 
         /// <summary>Publica la foto y programa el único reintento permitido por generación.</summary>
-        /// <param name="result">Resultado del servidor; puede contener un plazo aún no vencido.</param>
-        internal void NotifyMatchStartResultReceived(OperationRequestMatchStartResult result)
+        /// <param name="requestMatchStartResult">Resultado del servidor; puede contener un plazo aún no vencido.</param>
+        internal void NotifyMatchStartResultReceived(OperationRequestMatchStartResult requestMatchStartResult)
         {
-            if (result != null)
+            if (requestMatchStartResult != null)
             {
-                NotifyLobbyRoomChanged(result.Room);
-                Countdown.ApplyStartResult(result);
+                NotifyLobbyRoomChanged(requestMatchStartResult.Room);
+                Countdown.ApplyMatchStartResult(requestMatchStartResult);
                 MatchStartResultReceived?.Invoke(
                     this,
-                    new ServerEventArgs<OperationRequestMatchStartResult>(result));
+                    new ServerEventArgs<OperationRequestMatchStartResult>(requestMatchStartResult));
             }
         }
 
@@ -75,37 +75,37 @@ namespace TLMG.Client.Communication
 
                 if (isCurrentCountdown && !CurrentRoom.InGame)
                 {
-                    OperationRequestMatchStartRequest request = new OperationRequestMatchStartRequest
+                    OperationRequestMatchStartRequest requestMatchStartResult = new OperationRequestMatchStartRequest
                     {
                         RoomId = CurrentRoom.RoomId,
                         CountdownId = eventArguments.Payload
                     };
                     TrySend(
-                        () => _lobbyClient.RequestMatchStart(_sessionToken, request),
+                        () => _lobbyClient.RequestMatchStart(_sessionToken, requestMatchStartResult),
                         "solicitar el inicio autorizado de partida");
                 }
             }
         }
 
-        private bool IsNewerRoomSnapshot(LobbyRoom room)
+        private bool IsNewerRoomSnapshot(LobbyRoom lobbyRoom)
         {
-            bool isNewer = room != null;
+            bool isNewer = lobbyRoom != null;
 
-            if (IsSameRoom(CurrentRoom, room))
+            if (IsSameRoom(CurrentRoom, lobbyRoom))
             {
-                isNewer = room.Version > CurrentRoom.Version;
+                isNewer = lobbyRoom.Version > CurrentRoom.Version;
             }
 
             return isNewer;
         }
 
-        private void ApplyRoomSnapshot(LobbyRoom room)
+        private void ApplyRoomSnapshot(LobbyRoom lobbyRoom)
         {
-            if (IsNewerRoomSnapshot(room))
+            if (IsNewerRoomSnapshot(lobbyRoom))
             {
-                CurrentRoom = room;
-                Countdown.ApplyRoom(room);
-                LobbyRoomChanged?.Invoke(this, new ServerEventArgs<LobbyRoom>(room));
+                CurrentRoom = lobbyRoom;
+                Countdown.ApplyRoom(lobbyRoom);
+                LobbyRoomChanged?.Invoke(this, new ServerEventArgs<LobbyRoom>(lobbyRoom));
             }
         }
     }

@@ -20,7 +20,6 @@ namespace TLMG.Client.Communication
     /// </summary>
     internal sealed partial class ServerConnectionManager
     {
-        // Id del jugador mientras no hay una sesión registrada; coincide con el que envía el servidor en un fallo.
         private const int NoUserId = 0;
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(ServerConnectionManager));
@@ -117,7 +116,7 @@ namespace TLMG.Client.Communication
         /// </returns>
         public bool StartRegisteredSession(OperationLogInResult operationLogInResult)
         {
-            bool wasStarted = false;
+            bool wasRegisterSessionStarted = false;
             Disconnect();
 
             if (IsRegisteredSessionResult(operationLogInResult))
@@ -125,9 +124,9 @@ namespace TLMG.Client.Communication
                 _sessionToken = operationLogInResult.SessionToken;
                 PlayerUserId = operationLogInResult.UserId;
                 PlayerNickname = operationLogInResult.Nickname;
-                wasStarted = TryOpenFriendsChannel();
+                wasRegisterSessionStarted = TryOpenFriendsChannel();
 
-                if (!wasStarted)
+                if (!wasRegisterSessionStarted)
                 {
                     Disconnect();
                 }
@@ -137,7 +136,7 @@ namespace TLMG.Client.Communication
                 _log.Warn("Se ignoró un resultado de inicio de sesión que no trae una sesión registrada.");
             }
 
-            return wasStarted;
+            return wasRegisterSessionStarted;
         }
 
         /// <summary>
@@ -165,14 +164,15 @@ namespace TLMG.Client.Communication
         /// <returns>true si se envió; false si no hay sesión registrada o falló el envío.</returns>
         public bool RequestFriendList()
         {
-            bool wasSent = false;
+            bool wasRequestFriendListSent = false;
 
             if (HasRegisteredSession)
             {
-                wasSent = TrySend(() => _friendsClient.SubscribeToFriends(_sessionToken), "pedir la lista de amigos");
+                wasRequestFriendListSent = TrySend(() => _friendsClient.SubscribeToFriends(_sessionToken), 
+                    "pedir la lista de amigos");
             }
 
-            return wasSent;
+            return wasRequestFriendListSent;
         }
 
         /// <summary>Invita a un amigo en línea a la sala; el resultado llega por InviteFriendResultReceived.</summary>
@@ -180,16 +180,16 @@ namespace TLMG.Client.Communication
         /// <returns>true si se envió; false si no hay sesión registrada o falló el envío.</returns>
         public bool InviteFriendToRoom(int friendUserId)
         {
-            bool wasSent = false;
+            bool wasInviteFriendToRoomSent = false;
 
             if (HasRegisteredSession)
             {
-                wasSent = TrySend(
+                wasInviteFriendToRoomSent = TrySend(
                     () => _friendsClient.InviteFriendToRoom(_sessionToken, friendUserId),
                     "invitar a un amigo a la sala");
             }
 
-            return wasSent;
+            return wasInviteFriendToRoomSent;
         }
 
         /// <summary>
@@ -200,31 +200,32 @@ namespace TLMG.Client.Communication
         /// <returns>true si se envió; false si no hay sesión registrada o falló el envío.</returns>
         public bool AcceptRoomInvitation(int invitationId)
         {
-            bool wasSent = false;
+            bool wasAcceptRoomInvitationSent = false;
 
             if (HasRegisteredSession)
             {
-                wasSent = TrySend(
+                wasAcceptRoomInvitationSent = TrySend(
                     () => _friendsClient.AcceptRoomInvitation(_sessionToken, invitationId),
                     "aceptar una invitación a la sala");
             }
 
-            return wasSent;
+            return wasAcceptRoomInvitationSent;
         }
 
         /// <summary>Crea una sala y deja al jugador dentro; el resultado llega por CreateRoomResultReceived.</summary>
         /// <returns>true si se envió; false si no hay sesión registrada o falló el canal o el envío.</returns>
         public bool CreateRoom()
         {
-            bool wasSent = false;
+            bool wasCreateRoomSent = false;
 
             if (OpenLobbyChannel())
             {
-                wasSent = TrySend(() => _lobbyClient.CreateRoom(_sessionToken), "crear una sala");
-                IsRoomCreationPending = wasSent;
+                wasCreateRoomSent = TrySend(() => _lobbyClient.CreateRoom(_sessionToken), 
+                    "crear una sala");
+                IsRoomCreationPending = wasCreateRoomSent;
             }
 
-            return wasSent;
+            return wasCreateRoomSent;
         }
 
         /// <summary>
@@ -235,19 +236,20 @@ namespace TLMG.Client.Communication
         /// <returns>true si se envió; false si no hay sesión registrada o falló el canal o el envío.</returns>
         public bool EnterLobby(int roomId)
         {
-            bool wasSent = false;
+            bool wasRequestEnterLobbySent = false;
 
             if (OpenLobbyChannel())
             {
-                wasSent = TrySend(() => _lobbyClient.EnterLobby(_sessionToken, roomId), "entrar a una sala");
+                wasRequestEnterLobbySent = TrySend(() => _lobbyClient.EnterLobby(_sessionToken, roomId), 
+                    "entrar a una sala");
 
-                if (wasSent)
+                if (wasRequestEnterLobbySent)
                 {
                     _enteringRoomId = roomId;
                 }
             }
 
-            return wasSent;
+            return wasRequestEnterLobbySent;
         }
 
         /// <summary>
@@ -257,15 +259,16 @@ namespace TLMG.Client.Communication
         /// <returns>true si se envió; false si no hay sesión registrada o falló el canal o el envío.</returns>
         public bool LeaveLobby()
         {
-            bool wasSent = false;
+            bool wasRequestLeaveLobbySent = false;
             ClearCurrentRoom();
 
             if (OpenLobbyChannel())
             {
-                wasSent = TrySend(() => _lobbyClient.LeaveLobby(_sessionToken), "salir de una sala");
+                wasRequestLeaveLobbySent = TrySend(() => _lobbyClient.LeaveLobby(_sessionToken), 
+                    "salir de una sala");
             }
 
-            return wasSent;
+            return wasRequestLeaveLobbySent;
         }
 
         /// <summary>Ejecuta una acción en el hilo de la interfaz, sin esperar a que termine.</summary>
@@ -422,7 +425,7 @@ namespace TLMG.Client.Communication
 
         private void ClearCurrentRoom()
         {
-            Countdown.Reset();
+            Countdown.ResetTimerForMatchStart();
             CurrentRoom = null;
             IsRoomCreationPending = false;
             _enteringRoomId = null;
@@ -453,7 +456,7 @@ namespace TLMG.Client.Communication
 
         private bool TryOpenFriendsChannel()
         {
-            bool wasOpened = false;
+            bool wasFriendsChannelOpened = false;
 
             try
             {
@@ -462,7 +465,7 @@ namespace TLMG.Client.Communication
                 WatchChannel(_friendsChannel);
                 _friendsClient.Open();
                 _friendsClient.SubscribeToFriends(_sessionToken);
-                wasOpened = true;
+                wasFriendsChannelOpened = true;
             }
             catch (CommunicationException ex)
             {
@@ -472,38 +475,30 @@ namespace TLMG.Client.Communication
             {
                 _log.Error("Se agotó el tiempo al abrir el canal de amigos.", ex);
             }
-            catch (Exception ex)
-            {
-                // Último bloque de la cascada: por ejemplo, un endpoint ausente en App.config. Se registra y se
-                // convierte en un resultado controlado para que el inicio de sesión no termine en un cierre.
-                _log.Error("Fallo inesperado al abrir el canal de amigos.", ex);
-            }
 
-            return wasOpened;
+            return wasFriendsChannelOpened;
         }
 
-        // Abre el canal de lobby si todavía no está abierto; lo usan las operaciones de sala. Devuelve false si no
-        // hay sesión registrada o el servidor no respondió, caso en el que además se dispara ConnectionLost.
         private bool OpenLobbyChannel()
         {
-            bool isOpen = _lobbyClient != null;
+            bool isLobbyChannelOpen = _lobbyClient != null;
 
-            if (!isOpen && HasRegisteredSession)
+            if (!isLobbyChannelOpen && HasRegisteredSession)
             {
-                isOpen = TryOpenLobbyChannel();
+                isLobbyChannelOpen = TryOpenLobbyChannel();
 
-                if (!isOpen)
+                if (!isLobbyChannelOpen)
                 {
                     DisconnectAndNotifyConnectionLost();
                 }
             }
 
-            return isOpen;
+            return isLobbyChannelOpen;
         }
 
         private bool TryOpenLobbyChannel()
         {
-            bool wasOpened = false;
+            bool wasLobbyChannelOpened = false;
 
             try
             {
@@ -511,7 +506,7 @@ namespace TLMG.Client.Communication
                 _lobbyChannel = _lobbyClient.InnerChannel;
                 WatchChannel(_lobbyChannel);
                 _lobbyClient.Open();
-                wasOpened = true;
+                wasLobbyChannelOpened = true;
             }
             catch (CommunicationException ex)
             {
@@ -521,12 +516,8 @@ namespace TLMG.Client.Communication
             {
                 _log.Error("Se agotó el tiempo al abrir el canal de lobby.", ex);
             }
-            catch (Exception ex)
-            {
-                _log.Error("Fallo inesperado al abrir el canal de lobby.", ex);
-            }
 
-            return wasOpened;
+            return wasLobbyChannelOpened;
         }
 
         private bool TrySend(Action sendOperation, string operationDescription)
@@ -567,13 +558,11 @@ namespace TLMG.Client.Communication
             }
         }
 
-        // Closed y Faulted llegan en un hilo de WCF: el estado solo se toca en el hilo de la interfaz.
         private void OnServerChannelEnded(object sender, EventArgs eventArguments)
         {
             RunOnInterface(() => DisconnectIfCurrentChannelEnded(sender));
         }
 
-        // Registra el detalle técnico y no lo relanza: el jugador solo recibe ConnectionLost (hallazgo para §10.2).
         private void DisconnectIfCurrentChannelEnded(object channel)
         {
             bool isFriendsChannel = ReferenceEquals(channel, _friendsChannel);

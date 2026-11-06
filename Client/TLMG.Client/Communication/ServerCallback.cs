@@ -95,11 +95,11 @@ namespace TLMG.Client.Communication
         }
 
         /// <summary>Entrega el resultado de ChangePlayerReadiness por el dispatcher de la interfaz.</summary>
-        /// <param name="result">Resultado recibido del servidor.</param>
-        public void ChangePlayerReadinessResult(OperationChangePlayerReadinessResult result)
+        /// <param name="changePlayerReadinessResult">Resultado recibido del servidor.</param>
+        public void ChangePlayerReadinessResult(OperationChangePlayerReadinessResult changePlayerReadinessResult)
         {
             _serverConnection.RunOnInterface(
-                () => _serverConnection.NotifyReadinessResultReceived(result));
+                () => _serverConnection.NotifyReadinessResultReceived(changePlayerReadinessResult));
         }
 
         /// <summary>Entrega el resultado de RequestMatchStart por el dispatcher de la interfaz.</summary>

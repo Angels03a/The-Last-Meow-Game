@@ -15,9 +15,10 @@ namespace TLMG.Client.Communication
         private readonly Stopwatch _elapsed = new Stopwatch();
         private TimeSpan _remainingAtReceipt;
         private int _roomId;
-        private bool _hasRequestedStart;
+        private bool _hasRequestedMatchStart;
         private bool _hasRetriedStart;
         private bool _isRetryScheduled;
+        private int _defaultSeconds = 0;
 
         /// <summary>Crea la temporización en el dispatcher de la interfaz.</summary>
         public LobbyCountdown()
@@ -45,31 +46,31 @@ namespace TLMG.Client.Communication
         public int SecondsRemaining { get; private set; }
 
         /// <summary>Aplica una foto ya validada por versión; otra generación reinicia la cuenta.</summary>
-        /// <param name="room">Foto vigente, o null al salir.</param>
-        public void ApplyRoom(LobbyRoom room)
+        /// <param name="lobbyRoom">Foto vigente, o null al salir.</param>
+        public void ApplyRoom(LobbyRoom lobbyRoom)
         {
-            bool hasRoomCountdown = room != null && room.CountdownEndsAtUtc.HasValue;
-            bool hasActiveCountdown = hasRoomCountdown && !room.InGame;
+            bool hasRoomCountdown = lobbyRoom != null && lobbyRoom.CountdownEndsAtUtc.HasValue;
+            bool hasActiveCountdown = hasRoomCountdown && !lobbyRoom.InGame;
 
             if (!hasActiveCountdown)
             {
-                Reset();
+                ResetTimerForMatchStart();
             }
             else
             {
-                bool isSameGeneration = _roomId == room.RoomId && CountdownId == room.CountdownId;
+                bool isSameGeneration = _roomId == lobbyRoom.RoomId && CountdownId == lobbyRoom.CountdownId;
 
                 if (!isSameGeneration)
                 {
-                    Reset();
-                    _roomId = room.RoomId;
-                    CountdownId = room.CountdownId;
+                    ResetTimerForMatchStart();
+                    _roomId = lobbyRoom.RoomId;
+                    CountdownId = lobbyRoom.CountdownId;
                 }
 
                 IsVisible = true;
-                if (!_hasRequestedStart)
+                if (!_hasRequestedMatchStart)
                 {
-                    StartInterval(room.CountdownEndsAtUtc.Value - room.ServerTimeUtc);
+                    StartInterval(lobbyRoom.CountdownEndsAtUtc.Value - lobbyRoom.ServerTimeUtc);
                 }
 
                 Changed?.Invoke(this, EventArgs.Empty);
@@ -77,21 +78,20 @@ namespace TLMG.Client.Communication
         }
 
         /// <summary>Programa como máximo un reintento de la misma generación con el intervalo del contrato.</summary>
-        /// <param name="result">Respuesta autoritativa a la petición pendiente.</param>
-        public void ApplyStartResult(OperationRequestMatchStartResult result)
+        /// <param name="matchStartRequestResult">Respuesta autoritativa a la petición pendiente.</param>
+        public void ApplyMatchStartResult(OperationRequestMatchStartResult matchStartRequestResult)
         {
-            bool canRetry = CanRetryStart(result);
+            bool canRetryMatchStart = CanRetryMatchStart(matchStartRequestResult);
 
-            if (canRetry)
+            if (canRetryMatchStart)
             {
                 _hasRetriedStart = true;
                 _isRetryScheduled = true;
-                StartInterval(TimeSpan.FromSeconds(result.RetryAfterSeconds));
+                StartInterval(TimeSpan.FromSeconds(matchStartRequestResult.RetryAfterSeconds));
             }
         }
 
-        /// <summary>Detiene la temporización al salir o perder conexión.</summary>
-        public void Reset()
+        public void ResetTimerForMatchStart()
         {
             _timer.Stop();
             _elapsed.Reset();
@@ -99,25 +99,25 @@ namespace TLMG.Client.Communication
             SecondsRemaining = 0;
             _roomId = 0;
             CountdownId = 0;
-            _hasRequestedStart = false;
+            _hasRequestedMatchStart = false;
             _hasRetriedStart = false;
             _isRetryScheduled = false;
             Changed?.Invoke(this, EventArgs.Empty);
         }
 
-        private bool CanRetryStart(OperationRequestMatchStartResult result)
+        private bool CanRetryMatchStart(OperationRequestMatchStartResult matchStartRequestResult)
         {
             bool canRetry = false;
 
-            if (result != null)
+            if (matchStartRequestResult != null)
             {
-                bool hasSuccessfulRoom = result.IsSuccess && result.Room != null;
+                bool hasSuccessfullRoom = matchStartRequestResult.IsSuccess && matchStartRequestResult.Room != null;
 
-                if (hasSuccessfulRoom)
+                if (hasSuccessfullRoom)
                 {
-                    bool isCurrentResponse = IsCurrentCountdownResponse(result.Room);
-                    bool hasRetryInterval = result.RetryAfterSeconds > 0;
-                    bool hasRetryAvailable = _hasRequestedStart && !_hasRetriedStart;
+                    bool isCurrentResponse = IsCurrentCountdownResponse(matchStartRequestResult.Room);
+                    bool hasRetryInterval = matchStartRequestResult.RetryAfterSeconds > _defaultSeconds;
+                    bool hasRetryAvailable = _hasRequestedMatchStart && !_hasRetriedStart;
                     canRetry = isCurrentResponse && hasRetryInterval && hasRetryAvailable;
                 }
             }
@@ -125,10 +125,10 @@ namespace TLMG.Client.Communication
             return canRetry;
         }
 
-        private bool IsCurrentCountdownResponse(LobbyRoom room)
+        private bool IsCurrentCountdownResponse(LobbyRoom lobbyRoom)
         {
-            bool isCurrentGeneration = room.RoomId == _roomId && room.CountdownId == CountdownId;
-            bool isActiveResponse = !room.InGame && room.CountdownEndsAtUtc.HasValue;
+            bool isCurrentGeneration = lobbyRoom.RoomId == _roomId && lobbyRoom.CountdownId == CountdownId;
+            bool isActiveResponse = !lobbyRoom.InGame && lobbyRoom.CountdownEndsAtUtc.HasValue;
             bool isCurrentResponse = isCurrentGeneration && isActiveResponse && IsVisible;
 
             return isCurrentResponse;
@@ -153,14 +153,14 @@ namespace TLMG.Client.Communication
             UpdateSecondsRemaining();
             Changed?.Invoke(this, EventArgs.Empty);
 
-            if (SecondsRemaining == 0)
+            if (SecondsRemaining == _defaultSeconds)
             {
                 _timer.Stop();
-                bool shouldRequestStart = !_hasRequestedStart || _isRetryScheduled;
+                bool shouldRequestStart = !_hasRequestedMatchStart || _isRetryScheduled;
 
                 if (shouldRequestStart)
                 {
-                    _hasRequestedStart = true;
+                    _hasRequestedMatchStart = true;
                     _isRetryScheduled = false;
                     StartRequested?.Invoke(this, new ServerEventArgs<long>(CountdownId));
                 }

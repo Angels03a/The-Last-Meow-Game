@@ -26,7 +26,7 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0" Style="{StaticResource ModerationTargetAvatarBorderStyle}">
-                                <TextBlock Text="🐱" 
+                                <TextBlock Text="🐱"
                                            Style="{StaticResource ModerationTargetAvatarEmojiStyle}" />
                             </Border>
                             <StackPanel Grid.Column="1" Style="{StaticResource ModerationTargetInfoPanelStyle}">
@@ -131,11 +131,11 @@
 
         <Border x:Name="brdSuccessCard" Style="{StaticResource ModerationSuccessCardBorderStyle}">
             <StackPanel>
-                <TextBlock Text="✅" 
+                <TextBlock Text="✅"
                            Style="{StaticResource ModerationSuccessEmojiStyle}" />
-                <TextBlock x:Name="lblSuccessTitle" 
+                <TextBlock x:Name="lblSuccessTitle"
                            Style="{StaticResource ModerationSuccessTitleTextStyle}" />
-                <TextBlock x:Name="lblSuccessMessage" 
+                <TextBlock x:Name="lblSuccessMessage"
                            Style="{StaticResource ModerationSuccessMessageTextStyle}" />
                 <Button x:Name="btnReturnToGame"
                         Content="{DynamicResource Moderation_ReturnToGameButton}"

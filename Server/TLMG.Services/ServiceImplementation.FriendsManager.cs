@@ -11,7 +11,6 @@ namespace TLMG.Services
 {
     public partial class ServiceImplementation : IFriendsManager
     {
-        // Se asignan en el constructor estático de ServiceImplementation.cs porque dependen del registro de sesiones.
         private static readonly IFriendshipRepository _friendshipRepository;
         private static readonly FriendsService _friendsService;
 
@@ -25,11 +24,11 @@ namespace TLMG.Services
             IFriendsManagerCallback callback = OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
             ObserveFriendsChannel();
 
-            SessionOutcome<OperationSubscribeToFriendsResult> sessionOutcome =
+            ResultWithNotification<OperationSubscribeToFriendsResult> subscribeToFriendsResultWithNotification =
                 _friendsService.SubscribeToFriends(sessionToken, _friendsChannelId, callback);
 
-            SafeNotify(() => callback.SubscribeToFriendsResult(sessionOutcome.Result));
-            SafeNotifyAll(sessionOutcome.Notifications);
+            SafeNotify(() => callback.SubscribeToFriendsResult(subscribeToFriendsResultWithNotification.OperationResult));
+            SafeNotifyAll(subscribeToFriendsResultWithNotification.Notifications);
         }
 
         /// <summary>Delega la invitación a la sala al servicio de amigos y responde por callback.</summary>
@@ -39,11 +38,11 @@ namespace TLMG.Services
         {
             IFriendsManagerCallback callback = OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
 
-            SessionOutcome<OperationInviteFriendToRoomResult> sessionOutcome =
+            ResultWithNotification<OperationInviteFriendToRoomResult> inviteFriendToRoomResultWithNotification =
                 _friendsService.InviteFriendToRoom(sessionToken, friendUserId);
 
-            SafeNotify(() => callback.InviteFriendToRoomResult(sessionOutcome.Result));
-            SafeNotifyAll(sessionOutcome.Notifications);
+            SafeNotify(() => callback.InviteFriendToRoomResult(inviteFriendToRoomResultWithNotification.OperationResult));
+            SafeNotifyAll(inviteFriendToRoomResultWithNotification.Notifications);
         }
 
         /// <summary>Delega la aceptación de la invitación al servicio de amigos y responde por callback.</summary>
@@ -53,15 +52,13 @@ namespace TLMG.Services
         {
             IFriendsManagerCallback callback = OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
 
-            SessionOutcome<OperationAcceptRoomInvitationResult> sessionOutcome =
+            ResultWithNotification<OperationAcceptRoomInvitationResult> acceptRoomInvitationResultWithNotification =
                 _friendsService.AcceptRoomInvitation(sessionToken, invitationId);
 
-            SafeNotify(() => callback.AcceptRoomInvitationResult(sessionOutcome.Result));
-            SafeNotifyAll(sessionOutcome.Notifications);
+            SafeNotify(() => callback.AcceptRoomInvitationResult(acceptRoomInvitationResultWithNotification.OperationResult));
+            SafeNotifyAll(acceptRoomInvitationResultWithNotification.Notifications);
         }
 
-        // No se desuscriben porque el canal (quien publica los eventos) y esta instancia (quien los atiende) viven
-        // lo mismo: ambos terminan con la sesión (PerSession).
         private void ObserveFriendsChannel()
         {
             if (!_isFriendsChannelObserved)

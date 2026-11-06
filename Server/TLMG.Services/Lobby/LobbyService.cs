@@ -20,7 +20,6 @@ namespace TLMG.Services.Lobby
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(LobbyService));
 
-        // NotAuthorized cubre "la sala no existe" y "no tienes autorización": misma clave, sin filtrar información.
         private static readonly Dictionary<LobbyChangeStatus, string> _errorKeysByStatus =
             new Dictionary<LobbyChangeStatus, string>
             {
@@ -46,7 +45,7 @@ namespace TLMG.Services.Lobby
         /// <param name="channelId">Identificador del canal de lobby desde el que llama el jugador.</param>
         /// <param name="lobbyCallback">Callback del canal de lobby del jugador.</param>
         /// <returns>El resultado con la sala o la clave de error; no hay avisos para otros jugadores.</returns>
-        public LobbyOutcome<OperationCreateRoomResult> CreateRoom(
+        public LobbyOperationResultWithNotification<OperationCreateRoomResult> CreateRoom(
             string sessionToken,
             string channelId,
             ILobbyManagerCallback lobbyCallback)
@@ -70,10 +69,10 @@ namespace TLMG.Services.Lobby
                 LogRejectedOperation("crear una sala", lobbyMembershipChange, lobbyMembershipChange.RoomId);
             }
 
-            LobbyOutcome<OperationCreateRoomResult> lobbyOutcome =
-                new LobbyOutcome<OperationCreateRoomResult>(operationCreateRoomResult);
+            LobbyOperationResultWithNotification<OperationCreateRoomResult> createRoomResult =
+                new LobbyOperationResultWithNotification<OperationCreateRoomResult>(operationCreateRoomResult);
 
-            return lobbyOutcome;
+            return createRoomResult;
         }
 
         /// <summary>Mete al jugador de la sesión en una sala si tiene autorización de entrada y hay cupo.</summary>
@@ -82,7 +81,7 @@ namespace TLMG.Services.Lobby
         /// <param name="channelId">Identificador del canal de lobby desde el que llama el jugador.</param>
         /// <param name="lobbyCallback">Callback del canal de lobby del jugador.</param>
         /// <returns>El resultado con la sala o la clave de error, y los avisos para los demás de la sala.</returns>
-        public LobbyOutcome<OperationEnterLobbyResult> EnterLobby(
+        public LobbyOperationResultWithNotification<OperationEnterLobbyResult> EnterLobby(
             string sessionToken,
             int roomId,
             string channelId,
@@ -91,7 +90,7 @@ namespace TLMG.Services.Lobby
             LobbyMembershipChange lobbyMembershipChange =
                 _sessionRegistry.EnterRoom(sessionToken, roomId, channelId, lobbyCallback);
             OperationEnterLobbyResult operationEnterLobbyResult = new OperationEnterLobbyResult();
-            IReadOnlyList<LobbyNotification> lobbyNotifications = LobbyNotification.None;
+            IReadOnlyList<LobbyChangeNotification> lobbyNotifications = LobbyChangeNotification.None;
 
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
@@ -106,25 +105,26 @@ namespace TLMG.Services.Lobby
                 LogRejectedOperation("entrar a una sala", lobbyMembershipChange, roomId);
             }
 
-            LobbyOutcome<OperationEnterLobbyResult> lobbyOutcome =
-                new LobbyOutcome<OperationEnterLobbyResult>(operationEnterLobbyResult, lobbyNotifications);
+            LobbyOperationResultWithNotification<OperationEnterLobbyResult> enterLobbyResult =
+                new LobbyOperationResultWithNotification<OperationEnterLobbyResult>(operationEnterLobbyResult, 
+                lobbyNotifications);
 
-            return lobbyOutcome;
+            return enterLobbyResult;
         }
 
         /// <summary>Saca al jugador de la sesión de su sala; salir sin estar en una sala también es éxito.</summary>
         /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
         /// <returns>El resultado y los avisos para los jugadores que se quedan en la sala.</returns>
-        public LobbyOutcome<OperationLeaveLobbyResult> LeaveLobby(string sessionToken)
+        public LobbyOperationResultWithNotification<OperationLeaveLobbyResult> LeaveLobby(string sessionToken)
         {
             LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.LeaveRoom(sessionToken);
             OperationLeaveLobbyResult operationLeaveLobbyResult = new OperationLeaveLobbyResult();
-            IReadOnlyList<LobbyNotification> lobbyNotifications = LobbyNotification.None;
+            IReadOnlyList<LobbyChangeNotification> lobbyChangeNotifications = LobbyChangeNotification.None;
 
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
                 operationLeaveLobbyResult.IsSuccess = true;
-                lobbyNotifications = CreateNotifications(lobbyMembershipChange);
+                lobbyChangeNotifications = CreateNotifications(lobbyMembershipChange);
                 _log.InfoFormat(
                     "El jugador {0} salió de la sala {1}.",
                     lobbyMembershipChange.UserId,
@@ -140,30 +140,31 @@ namespace TLMG.Services.Lobby
                 LogRejectedOperation("salir de una sala", lobbyMembershipChange, lobbyMembershipChange.RoomId);
             }
 
-            LobbyOutcome<OperationLeaveLobbyResult> lobbyOutcome =
-                new LobbyOutcome<OperationLeaveLobbyResult>(operationLeaveLobbyResult, lobbyNotifications);
+            LobbyOperationResultWithNotification<OperationLeaveLobbyResult> leaveLobbyResult =
+                new LobbyOperationResultWithNotification<OperationLeaveLobbyResult>(operationLeaveLobbyResult, 
+                lobbyChangeNotifications);
 
-            return lobbyOutcome;
+            return leaveLobbyResult;
         }
 
         /// <summary>Saca de su sala al jugador cuyo canal de lobby se cerró o falló.</summary>
         /// <param name="channelId">Identificador del canal de lobby que terminó.</param>
         /// <returns>Los avisos para quienes se quedan en la sala; vacía si el canal no estaba en una sala.</returns>
-        public IReadOnlyList<LobbyNotification> LeaveLobbyByChannel(string channelId)
+        public IReadOnlyList<LobbyChangeNotification> LeaveLobbyByChannel(string channelId)
         {
             LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.LeaveRoomByChannel(channelId);
-            IReadOnlyList<LobbyNotification> lobbyNotifications = LobbyNotification.None;
+            IReadOnlyList<LobbyChangeNotification> lobbyChangeNotifications = LobbyChangeNotification.None;
 
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
-                lobbyNotifications = CreateNotifications(lobbyMembershipChange);
+                lobbyChangeNotifications = CreateNotifications(lobbyMembershipChange);
                 _log.InfoFormat(
                     "El jugador {0} salió de la sala {1} porque su canal de lobby terminó.",
                     lobbyMembershipChange.UserId,
                     lobbyMembershipChange.RoomId);
             }
 
-            return lobbyNotifications;
+            return lobbyChangeNotifications;
         }
 
         private static string ResolveErrorKey(LobbyChangeStatus lobbyChangeStatus)
@@ -178,9 +179,7 @@ namespace TLMG.Services.Lobby
             return errorKey;
         }
 
-        private static void LogRejectedOperation(
-            string operationDescription,
-            LobbyMembershipChange lobbyMembershipChange,
+        private static void LogRejectedOperation(string operationDescription,LobbyMembershipChange lobbyMembershipChange,
             int requestedRoomId)
         {
             _log.WarnFormat(
@@ -191,9 +190,9 @@ namespace TLMG.Services.Lobby
                 lobbyMembershipChange.Status);
         }
 
-        private static IReadOnlyList<LobbyNotification> CreateNotifications(LobbyMembershipChange lobbyMembershipChange)
+        private static IReadOnlyList<LobbyChangeNotification> CreateNotifications(LobbyMembershipChange lobbyMembershipChange)
         {
-            List<LobbyNotification> lobbyNotifications = new List<LobbyNotification>();
+            List<LobbyChangeNotification> lobbyChangeNotifications = new List<LobbyChangeNotification>();
 
             if (lobbyMembershipChange.Room != null)
             {
@@ -201,13 +200,13 @@ namespace TLMG.Services.Lobby
 
                 foreach (ILobbyManagerCallback recipientCallback in lobbyMembershipChange.RecipientCallbacks)
                 {
-                    lobbyNotifications.Add(new LobbyNotification(recipientCallback, lobbyRoom));
+                    lobbyChangeNotifications.Add(new LobbyChangeNotification(recipientCallback, lobbyRoom));
                 }
             }
 
-            IReadOnlyList<LobbyNotification> readOnlyNotifications = lobbyNotifications.AsReadOnly();
+            IReadOnlyList<LobbyChangeNotification> readOnlyLobbyChangeNotifications = lobbyChangeNotifications.AsReadOnly();
 
-            return readOnlyNotifications;
+            return readOnlyLobbyChangeNotifications;
         }
     }
 }

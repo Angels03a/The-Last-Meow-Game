@@ -274,7 +274,7 @@
     <sys:String x:Key="Lobby_CardsPerPlayer">CARTAS POR JUGADOR:</sys:String>
     <sys:String x:Key="Lobby_ChatSystemPrefix">Sistema:</sys:String>
     <sys:String x:Key="Lobby_SystemJoinedMessage">CatNapper9000 se unió a la sala.</sys:String>
-    <sys:String x:Key="Lobby_MockChatPlayer">¡Listo para jugar! </sys:String>
+    <sys:String x:Key="Lobby_MockChatPlayer">¡Listo para jugar!</sys:String>
     <sys:String x:Key="Lobby_StartGameMessage">Iniciando partida...</sys:String>
     <sys:String x:Key="Lobby_ErrorTitle">Error</sys:String>
     <sys:String x:Key="Lobby_AlreadyInRoomError">Ya estás en una sala.</sys:String>

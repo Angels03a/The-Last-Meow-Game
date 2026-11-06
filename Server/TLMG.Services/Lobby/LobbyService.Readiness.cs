@@ -7,30 +7,29 @@ namespace TLMG.Services.Lobby
     public partial class LobbyService
     {
         private const int LobbyStartCheckRetrySeconds = 1;
+        private const int ZeroCount = 0;
 
         /// <summary>Cambia el estado Listo y prepara el resultado y los avisos fuera del candado.</summary>
         /// <param name="sessionToken">Token de la sesión del jugador.</param>
         /// <param name="channelId">Canal de lobby que hace la petición.</param>
-        /// <param name="request">Sala y estado deseado; null se rechaza.</param>
+        /// <param name="lobbyRequest">Sala y estado deseado; null se rechaza.</param>
         /// <returns>Resultado de la petición y avisos de estado.</returns>
-        public LobbyOutcome<OperationChangePlayerReadinessResult> ChangePlayerReadiness(
-            string sessionToken,
-            string channelId,
-            OperationChangePlayerReadinessRequest request)
+        public LobbyOperationResultWithNotification<OperationChangePlayerReadinessResult> ChangePlayerReadiness(
+            string sessionToken,string channelId,OperationChangePlayerReadinessRequest lobbyRequest)
         {
             LobbyMembershipChange lobbyMembershipChange;
             int requestedRoomId = LobbyMembershipChange.NoRoomId;
 
-            if (request == null)
+            if (lobbyRequest == null)
             {
                 lobbyMembershipChange = LobbyMembershipChange.CreateRejected(
                     LobbyChangeStatus.InvalidSession, LobbyMembershipChange.NoUserId);
             }
             else
             {
-                requestedRoomId = request.RoomId;
+                requestedRoomId = lobbyRequest.RoomId;
                 lobbyMembershipChange = _sessionRegistry.ChangePlayerReadiness(
-                    sessionToken, channelId, requestedRoomId, request.IsReady);
+                    sessionToken, channelId, requestedRoomId, lobbyRequest.IsReady);
             }
 
             OperationChangePlayerReadinessResult operationChangePlayerReadinessResult =
@@ -66,12 +65,12 @@ namespace TLMG.Services.Lobby
                     requestedRoomId);
             }
 
-            LobbyOutcome<OperationChangePlayerReadinessResult> lobbyOutcome =
-                new LobbyOutcome<OperationChangePlayerReadinessResult>(
+            LobbyOperationResultWithNotification<OperationChangePlayerReadinessResult> changePlayerReadinessResult =
+                new LobbyOperationResultWithNotification<OperationChangePlayerReadinessResult>(
                     operationChangePlayerReadinessResult,
                     CreateNotifications(lobbyMembershipChange));
 
-            return lobbyOutcome;
+            return changePlayerReadinessResult;
         }
 
         /// <summary>
@@ -79,26 +78,24 @@ namespace TLMG.Services.Lobby
         /// </summary>
         /// <param name="sessionToken">Token de la sesión del jugador.</param>
         /// <param name="channelId">Canal de lobby que hace la petición.</param>
-        /// <param name="request">Sala y generación de cuenta observada; null se rechaza.</param>
+        /// <param name="matchStartRequest">Sala y generación de cuenta observada; null se rechaza.</param>
         /// <returns>Estado actual, reintento si hay cuenta y avisos si se autorizó la partida.</returns>
-        public LobbyOutcome<OperationRequestMatchStartResult> RequestMatchStart(
-            string sessionToken,
-            string channelId,
-            OperationRequestMatchStartRequest request)
+        public LobbyOperationResultWithNotification<OperationRequestMatchStartResult> RequestMatchStart(
+            string sessionToken, string channelId,OperationMatchStartRequest matchStartRequest)
         {
             LobbyMembershipChange lobbyMembershipChange;
             int requestedRoomId = LobbyMembershipChange.NoRoomId;
 
-            if (request == null)
+            if (matchStartRequest == null)
             {
                 lobbyMembershipChange = LobbyMembershipChange.CreateRejected(
                     LobbyChangeStatus.InvalidSession, LobbyMembershipChange.NoUserId);
             }
             else
             {
-                requestedRoomId = request.RoomId;
-                lobbyMembershipChange = _sessionRegistry.RequestMatchStart(
-                    sessionToken, channelId, requestedRoomId, request.CountdownId);
+                requestedRoomId = matchStartRequest.RoomId;
+                lobbyMembershipChange = _sessionRegistry.RequestMatchStart(sessionToken, channelId, 
+                    requestedRoomId, matchStartRequest.CountdownId);
             }
 
             OperationRequestMatchStartResult operationRequestMatchStartResult =
@@ -139,7 +136,7 @@ namespace TLMG.Services.Lobby
                     requestedRoomId);
             }
 
-            if (lobbyMembershipChange.RecipientCallbacks.Count > 0)
+            if (lobbyMembershipChange.RecipientCallbacks.Count > ZeroCount)
             {
                 _log.InfoFormat(
                     "El jugador {0} autorizó el inicio de la partida {1} en la sala {2}.",
@@ -148,12 +145,12 @@ namespace TLMG.Services.Lobby
                     lobbyMembershipChange.RoomId);
             }
 
-            LobbyOutcome<OperationRequestMatchStartResult> lobbyOutcome =
-                new LobbyOutcome<OperationRequestMatchStartResult>(
+            LobbyOperationResultWithNotification<OperationRequestMatchStartResult> requestMatchStartResult =
+                new LobbyOperationResultWithNotification<OperationRequestMatchStartResult>(
                     operationRequestMatchStartResult,
                     CreateNotifications(lobbyMembershipChange));
 
-            return lobbyOutcome;
+            return requestMatchStartResult;
         }
     }
 }

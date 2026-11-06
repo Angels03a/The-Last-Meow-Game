@@ -63,10 +63,7 @@ namespace TLMG.Services.Sessions
         /// Applied con la sala y los demás jugadores, InvalidSession, AlreadyInRoom, NotAuthorized o RoomFull;
         /// NotAuthorized cubre sala inexistente, falta de autorización o partida ya iniciada. Nunca es null.
         /// </returns>
-        LobbyMembershipChange EnterRoom(
-            string sessionToken,
-            int roomId,
-            string channelId,
+        LobbyMembershipChange EnterRoom(string sessionToken, int roomId, string channelId, 
             ILobbyManagerCallback lobbyCallback);
 
         /// <summary>Saca al jugador de su sala; la elimina si queda vacía.</summary>
@@ -88,11 +85,8 @@ namespace TLMG.Services.Sessions
         /// <param name="friendsCallback">Callback del canal de amigos del jugador.</param>
         /// <param name="friendUserIds">Ids de los amigos aceptados del jugador, ya consultados en la base.</param>
         /// <returns>Applied con cuáles de esos amigos están en línea, o InvalidSession; nunca es null.</returns>
-        FriendsSubscription SubscribeFriendsChannel(
-            string sessionToken,
-            string channelId,
-            IFriendsManagerCallback friendsCallback,
-            IReadOnlyList<int> friendUserIds);
+        FriendsSubscription SubscribeFriendsChannel(string sessionToken, string channelId, 
+            IFriendsManagerCallback friendsCallback, IReadOnlyList<int> friendUserIds);
 
         /// <summary>
         /// Crea la invitación del jugador de la sesión a su sala para un amigo en línea que no está en una sala. La

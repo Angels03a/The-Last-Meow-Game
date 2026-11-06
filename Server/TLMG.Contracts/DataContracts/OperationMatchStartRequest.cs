@@ -4,7 +4,7 @@ namespace TLMG.Contracts.DataContracts
 {
     /// <summary>Petición para validar el vencimiento de una cuenta del servidor.</summary>
     [DataContract]
-    public class OperationRequestMatchStartRequest
+    public class OperationMatchStartRequest
     {
         /// <summary>Sala a la que pertenece la petición.</summary>
         [DataMember]

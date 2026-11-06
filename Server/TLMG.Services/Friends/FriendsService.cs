@@ -21,14 +21,10 @@ namespace TLMG.Services.Friends
         private const string NotInRoomErrorKey = "Friends_NotInRoomError";
         private const string CannotInviteErrorKey = "Friends_CannotInviteError";
         private const string InvitationNotValidErrorKey = "Friends_InvitationNotValidError";
-
-        // Id que se registra en el log cuando el token no corresponde a ninguna sesión.
         private const int NoUserId = 0;
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(FriendsService));
 
-        // CannotInvite cubre "no es tu amigo", "no está en línea" y "ya está en una sala": misma clave, sin filtrar
-        // información. InvitationNotValid cubre "no existe", "no es tuya" y "la sala ya no existe".
         private static readonly Dictionary<FriendsChangeStatus, string> _errorKeysByStatus =
             new Dictionary<FriendsChangeStatus, string>
             {
@@ -59,39 +55,37 @@ namespace TLMG.Services.Friends
         /// <param name="channelId">Identificador del canal de amigos desde el que llama el jugador.</param>
         /// <param name="friendsCallback">Callback del canal de amigos del jugador.</param>
         /// <returns>El resultado con los amigos o la clave de error.</returns>
-        public SessionOutcome<OperationSubscribeToFriendsResult> SubscribeToFriends(
-            string sessionToken,
-            string channelId,
-            IFriendsManagerCallback friendsCallback)
+        public ResultWithNotification<OperationSubscribeToFriendsResult> SubscribeToFriends(string sessionToken,
+            string channelId,IFriendsManagerCallback friendsCallback)
         {
-            SessionOutcome<OperationSubscribeToFriendsResult> sessionOutcome;
+            ResultWithNotification<OperationSubscribeToFriendsResult> subscribeToFriendsResult;
             PlayerSession playerSession;
 
             if (!_sessionRegistry.TryFindSessionByToken(sessionToken, out playerSession))
             {
                 LogRejectedOperation("suscribirse a los amigos", NoUserId, "sesión no válida");
-                sessionOutcome = new SessionOutcome<OperationSubscribeToFriendsResult>(
+                subscribeToFriendsResult = new ResultWithNotification<OperationSubscribeToFriendsResult>(
                     new OperationSubscribeToFriendsResult { ErrorKey = CommonErrorKeyHelper.InvalidSessionErrorKey });
             }
             else
             {
-                sessionOutcome = SubscribeFriendsChannel(playerSession, sessionToken, channelId, friendsCallback);
+                subscribeToFriendsResult = SubscribeFriendsChannel(playerSession, sessionToken, channelId, 
+                    friendsCallback);
             }
 
-            return sessionOutcome;
+            return subscribeToFriendsResult;
         }
 
         /// <summary>Invita a un amigo en línea a la sala del jugador de la sesión.</summary>
         /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
         /// <param name="friendUserId">Id de la cuenta del amigo al que se invita.</param>
         /// <returns>El resultado para quien invita y el aviso de invitación para el invitado.</returns>
-        public SessionOutcome<OperationInviteFriendToRoomResult> InviteFriendToRoom(
-            string sessionToken,
+        public ResultWithNotification<OperationInviteFriendToRoomResult> InviteFriendToRoom(string sessionToken,
             int friendUserId)
         {
             OperationInviteFriendToRoomResult operationInviteFriendToRoomResult =
                 new OperationInviteFriendToRoomResult();
-            IReadOnlyList<Action> notifications = new List<Action>().AsReadOnly();
+            IReadOnlyList<Action> createInvitationNotifications = new List<Action>().AsReadOnly();
             PlayerSession playerSession;
 
             if (!_sessionRegistry.TryFindSessionByToken(sessionToken, out playerSession))
@@ -109,7 +103,7 @@ namespace TLMG.Services.Friends
                         _sessionRegistry.CreateRoomInvitation(sessionToken, friendUserId);
                     operationInviteFriendToRoomResult =
                         CreateInviteResult(playerSession, friendUserId, roomInvitationCreation);
-                    notifications = CreateInvitationNotifications(roomInvitationCreation);
+                    createInvitationNotifications = CreateInvitationNotifications(roomInvitationCreation);
                 }
                 else
                 {
@@ -117,10 +111,11 @@ namespace TLMG.Services.Friends
                 }
             }
 
-            SessionOutcome<OperationInviteFriendToRoomResult> sessionOutcome =
-                new SessionOutcome<OperationInviteFriendToRoomResult>(operationInviteFriendToRoomResult, notifications);
+            ResultWithNotification<OperationInviteFriendToRoomResult> inviteFriendToRoomResult =
+                new ResultWithNotification<OperationInviteFriendToRoomResult>(operationInviteFriendToRoomResult, 
+                createInvitationNotifications);
 
-            return sessionOutcome;
+            return inviteFriendToRoomResult;
         }
 
         /// <summary>
@@ -129,7 +124,7 @@ namespace TLMG.Services.Friends
         /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
         /// <param name="invitationId">Id de la invitación recibida.</param>
         /// <returns>El resultado con el id de la sala o la clave de error.</returns>
-        public SessionOutcome<OperationAcceptRoomInvitationResult> AcceptRoomInvitation(
+        public ResultWithNotification<OperationAcceptRoomInvitationResult> AcceptRoomInvitation(
             string sessionToken,
             int invitationId)
         {
@@ -156,10 +151,10 @@ namespace TLMG.Services.Friends
                     roomInvitationAcceptance.Status.ToString());
             }
 
-            SessionOutcome<OperationAcceptRoomInvitationResult> sessionOutcome =
-                new SessionOutcome<OperationAcceptRoomInvitationResult>(operationAcceptRoomInvitationResult);
+            ResultWithNotification<OperationAcceptRoomInvitationResult> acceptRoomInvitationResult =
+                new ResultWithNotification<OperationAcceptRoomInvitationResult>(operationAcceptRoomInvitationResult);
 
-            return sessionOutcome;
+            return acceptRoomInvitationResult;
         }
 
         /// <summary>
@@ -172,12 +167,13 @@ namespace TLMG.Services.Friends
         {
             SessionEnd sessionEnd;
             _sessionRegistry.TryEndSessionByFriendsChannel(channelId, out sessionEnd);
-            IReadOnlyList<Action> notifications = SessionNotificationHelper.CreateSessionEndNotifications(sessionEnd);
+            IReadOnlyList<Action> createSessionEndNotifications = SessionNotificationHelper.
+                CreateSessionEndNotifications(sessionEnd);
 
-            return notifications;
+            return createSessionEndNotifications;
         }
 
-        private SessionOutcome<OperationSubscribeToFriendsResult> SubscribeFriendsChannel(
+        private ResultWithNotification<OperationSubscribeToFriendsResult> SubscribeFriendsChannel(
             PlayerSession playerSession,
             string sessionToken,
             string channelId,
@@ -185,7 +181,7 @@ namespace TLMG.Services.Friends
         {
             OperationSubscribeToFriendsResult operationSubscribeToFriendsResult =
                 new OperationSubscribeToFriendsResult();
-            IReadOnlyList<Action> notifications = new List<Action>().AsReadOnly();
+            IReadOnlyList<Action> subscribeToFriendsNotifications = new List<Action>().AsReadOnly();
             FriendListLookup friendListLookup = _friendshipRepository.FindAcceptedFriends(playerSession.UserId);
 
             if (!friendListLookup.WasSuccessful)
@@ -206,7 +202,7 @@ namespace TLMG.Services.Friends
                     operationSubscribeToFriendsResult.IsSuccess = true;
                     operationSubscribeToFriendsResult.Friends =
                         ConvertToFriends(friendListLookup.Friends, friendsSubscription.OnlineFriendUserIds);
-                    notifications = SessionNotificationHelper.CreatePresenceNotifications(
+                    subscribeToFriendsNotifications = SessionNotificationHelper.CreatePresenceNotifications(
                         friendsSubscription.PresenceRecipientCallbacks,
                         friendsSubscription.UserId,
                         friendsSubscription.Nickname,
@@ -223,13 +219,13 @@ namespace TLMG.Services.Friends
                 }
             }
 
-            SessionOutcome<OperationSubscribeToFriendsResult> sessionOutcome =
-                new SessionOutcome<OperationSubscribeToFriendsResult>(operationSubscribeToFriendsResult, notifications);
+            ResultWithNotification<OperationSubscribeToFriendsResult> subscribeToFriendsResult =
+                new ResultWithNotification<OperationSubscribeToFriendsResult>(operationSubscribeToFriendsResult, 
+                subscribeToFriendsNotifications);
 
-            return sessionOutcome;
+            return subscribeToFriendsResult;
         }
 
-        // Devuelve la clave de error si la amistad no permite invitar, o null si se puede seguir con el registro.
         private string FindInvitationErrorKey(PlayerSession inviterSession, int friendUserId)
         {
             string errorKey = null;
@@ -250,10 +246,8 @@ namespace TLMG.Services.Friends
             return errorKey;
         }
 
-        private OperationInviteFriendToRoomResult CreateInviteResult(
-            PlayerSession inviterSession,
-            int friendUserId,
-            RoomInvitationCreation roomInvitationCreation)
+        private OperationInviteFriendToRoomResult CreateInviteResult(PlayerSession inviterSession,
+            int friendUserId, RoomInvitationCreation roomInvitationCreation)
         {
             OperationInviteFriendToRoomResult operationInviteFriendToRoomResult =
                 new OperationInviteFriendToRoomResult();
@@ -281,21 +275,21 @@ namespace TLMG.Services.Friends
         private static IReadOnlyList<Action> CreateInvitationNotifications(
             RoomInvitationCreation roomInvitationCreation)
         {
-            List<Action> notifications = new List<Action>();
+            List<Action> roomInvitationNotifications = new List<Action>();
 
             if (roomInvitationCreation.Status == FriendsChangeStatus.Applied && roomInvitationCreation.IsNewInvitation)
             {
-                IFriendsManagerCallback inviteeCallback = roomInvitationCreation.InviteeCallback;
+                IFriendsManagerCallback inviteCallback = roomInvitationCreation.InviteeCallback;
                 RoomInvitation roomInvitation = new RoomInvitation
                 {
                     InvitationId = roomInvitationCreation.InvitationId,
                     InviterNickname = roomInvitationCreation.InviterNickname
                 };
 
-                notifications.Add(() => inviteeCallback.OnRoomInvitationReceived(roomInvitation));
+                roomInvitationNotifications.Add(() => inviteCallback.OnRoomInvitationReceived(roomInvitation));
             }
 
-            IReadOnlyList<Action> invitationNotifications = notifications.AsReadOnly();
+            IReadOnlyList<Action> invitationNotifications = roomInvitationNotifications.AsReadOnly();
 
             return invitationNotifications;
         }

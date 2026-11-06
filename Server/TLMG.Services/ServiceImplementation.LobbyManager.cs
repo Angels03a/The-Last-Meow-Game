@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ServiceModel;
-
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
 using TLMG.Services.Lobby;
-using TLMG.Services.Helpers;
 
 namespace TLMG.Services
 {
     public partial class ServiceImplementation : ILobbyManager
     {
-        // Se asigna en el constructor estático de ServiceImplementation.cs porque depende del registro de sesiones.
         private static readonly LobbyService _lobbyService;
 
         private bool _isLobbyChannelObserved;
@@ -24,11 +21,11 @@ namespace TLMG.Services
             ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
             ObserveLobbyChannel();
 
-            LobbyOutcome<OperationCreateRoomResult> lobbyOutcome =
+            LobbyOperationResultWithNotification<OperationCreateRoomResult> createRoomResult =
                 _lobbyService.CreateRoom(sessionToken, _lobbyChannelId, callback);
 
-            SafeNotify(() => callback.CreateRoomResult(lobbyOutcome.Result));
-            NotifyLobbyMembers(lobbyOutcome.Notifications);
+            SafeNotify(() => callback.CreateRoomResult(createRoomResult.OperationResult));
+            NotifyLobbyMembers(createRoomResult.Notifications);
         }
 
         /// <summary>Delega la entrada a la sala al servicio de salas y responde por callback.</summary>
@@ -39,11 +36,11 @@ namespace TLMG.Services
             ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
             ObserveLobbyChannel();
 
-            LobbyOutcome<OperationEnterLobbyResult> lobbyOutcome =
+            LobbyOperationResultWithNotification<OperationEnterLobbyResult> enterLobbyResult =
                 _lobbyService.EnterLobby(sessionToken, roomId, _lobbyChannelId, callback);
 
-            SafeNotify(() => callback.EnterLobbyResult(lobbyOutcome.Result));
-            NotifyLobbyMembers(lobbyOutcome.Notifications);
+            SafeNotify(() => callback.EnterLobbyResult(enterLobbyResult.OperationResult));
+            NotifyLobbyMembers(enterLobbyResult.Notifications);
         }
 
         /// <summary>Delega la salida de la sala al servicio de salas y responde por callback.</summary>
@@ -53,117 +50,47 @@ namespace TLMG.Services
             ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
             ObserveLobbyChannel();
 
-            LobbyOutcome<OperationLeaveLobbyResult> lobbyOutcome = _lobbyService.LeaveLobby(sessionToken);
+            LobbyOperationResultWithNotification<OperationLeaveLobbyResult> leaveLobbyResult =
+                _lobbyService.LeaveLobby(sessionToken);
 
-            SafeNotify(() => callback.LeaveLobbyResult(lobbyOutcome.Result));
-            NotifyLobbyMembers(lobbyOutcome.Notifications);
+            SafeNotify(() => callback.LeaveLobbyResult(leaveLobbyResult.OperationResult));
+            NotifyLobbyMembers(leaveLobbyResult.Notifications);
         }
 
         /// <summary>
-        /// Atiende la petición de cambiar el estado Listo con red de seguridad en el punto de entrada.
+        /// Atiende la petición de cambiar el estado Listo delegando al servicio de salas.
         /// </summary>
         /// <param name="sessionToken">Token de la sesión del jugador.</param>
-        /// <param name="request">Datos de la petición.</param>
-        public void ChangePlayerReadiness(string sessionToken, OperationChangePlayerReadinessRequest request)
+        /// <param name="changePlayerReadinessRequest">Datos de la petición.</param>
+        public void ChangePlayerReadiness(string sessionToken, OperationChangePlayerReadinessRequest changePlayerReadinessRequest)
         {
-            ILobbyManagerCallback callback = null;
-            LobbyOutcome<OperationChangePlayerReadinessResult> outcome;
+            ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
+            ObserveLobbyChannel();
 
-            try
-            {
-                callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
-                ObserveLobbyChannel();
-                outcome = _lobbyService.ChangePlayerReadiness(sessionToken, _lobbyChannelId, request);
-            }
-            catch (Exception exception)
-            {
-                _log.Error("Error inesperado al cambiar el estado Listo.", exception);
-                outcome = new LobbyOutcome<OperationChangePlayerReadinessResult>(
-                    new OperationChangePlayerReadinessResult
-                    {
-                        ErrorKey = CommonErrorKeyHelper.UnexpectedErrorKey
-                    });
-            }
+            LobbyOperationResultWithNotification<OperationChangePlayerReadinessResult> changePlayerReadinessResult =
+                _lobbyService.ChangePlayerReadiness(sessionToken, _lobbyChannelId, changePlayerReadinessRequest);
 
-            if (callback != null)
-            {
-                try
-                {
-                    SafeNotify(() => callback.ChangePlayerReadinessResult(outcome.Result));
-                }
-                catch (Exception exception)
-                {
-                    _log.Error("Error inesperado al entregar el resultado de cambiar el estado Listo.", exception);
-                }
-            }
-
-            foreach (LobbyNotification notification in outcome.Notifications)
-            {
-                try
-                {
-                    SafeNotify(() => notification.Callback.OnLobbyRoomChanged(notification.Room));
-                }
-                catch (Exception exception)
-                {
-                    _log.Error("Error inesperado al entregar un aviso de estado de sala.", exception);
-                }
-            }
+            SafeNotify(() => callback.ChangePlayerReadinessResult(changePlayerReadinessResult.OperationResult));
+            NotifyLobbyMembers(changePlayerReadinessResult.Notifications);
         }
 
         /// <summary>
-        /// Atiende la petición de solicitar el inicio de la partida con red de seguridad en el punto de entrada.
+        /// Atiende la petición de solicitar el inicio de la partida delegando al servicio de salas.
         /// </summary>
         /// <param name="sessionToken">Token de la sesión del jugador.</param>
-        /// <param name="request">Datos de la petición.</param>
-        public void RequestMatchStart(string sessionToken, OperationRequestMatchStartRequest request)
+        /// <param name="matchStartRequest">Datos de la petición.</param>
+        public void RequestMatchStart(string sessionToken, OperationMatchStartRequest matchStartRequest)
         {
-            ILobbyManagerCallback callback = null;
-            LobbyOutcome<OperationRequestMatchStartResult> outcome;
+            ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
+            ObserveLobbyChannel();
 
-            try
-            {
-                callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
-                ObserveLobbyChannel();
-                outcome = _lobbyService.RequestMatchStart(sessionToken, _lobbyChannelId, request);
-            }
-            catch (Exception exception)
-            {
-                _log.Error("Error inesperado al solicitar el inicio de la partida.", exception);
-                outcome = new LobbyOutcome<OperationRequestMatchStartResult>(
-                    new OperationRequestMatchStartResult
-                    {
-                        ErrorKey = CommonErrorKeyHelper.UnexpectedErrorKey
-                    });
-            }
+            LobbyOperationResultWithNotification<OperationRequestMatchStartResult> requestMatchStartResult =
+                _lobbyService.RequestMatchStart(sessionToken, _lobbyChannelId, matchStartRequest);
 
-            if (callback != null)
-            {
-                try
-                {
-                    SafeNotify(() => callback.RequestMatchStartResult(outcome.Result));
-                }
-                catch (Exception exception)
-                {
-                    _log.Error("Error inesperado al entregar el resultado de solicitar el inicio de la partida.",
-                        exception);
-                }
-            }
-
-            foreach (LobbyNotification notification in outcome.Notifications)
-            {
-                try
-                {
-                    SafeNotify(() => notification.Callback.OnLobbyRoomChanged(notification.Room));
-                }
-                catch (Exception exception)
-                {
-                    _log.Error("Error inesperado al entregar un aviso de estado de sala.", exception);
-                }
-            }
+            SafeNotify(() => callback.RequestMatchStartResult(requestMatchStartResult.OperationResult));
+            NotifyLobbyMembers(requestMatchStartResult.Notifications);
         }
 
-        // No se desuscriben porque el canal (quien publica los eventos) y esta instancia (quien los atiende) viven
-        // lo mismo: ambos terminan con la sesión (PerSession).
         private void ObserveLobbyChannel()
         {
             if (!_isLobbyChannelObserved)
@@ -191,11 +118,11 @@ namespace TLMG.Services
             NotifyLobbyMembers(_lobbyService.LeaveLobbyByChannel(_lobbyChannelId));
         }
 
-        private void NotifyLobbyMembers(IReadOnlyList<LobbyNotification> lobbyNotifications)
+        private void NotifyLobbyMembers(IReadOnlyList<LobbyChangeNotification> lobbyNotifications)
         {
-            foreach (LobbyNotification lobbyNotification in lobbyNotifications)
+            foreach (LobbyChangeNotification lobbyNotification in lobbyNotifications)
             {
-                SafeNotify(() => lobbyNotification.Callback.OnLobbyRoomChanged(lobbyNotification.Room));
+                SafeNotify(() => lobbyNotification.Callback.OnLobbyRoomChanged(lobbyNotification.LobbyRoom));
             }
         }
     }

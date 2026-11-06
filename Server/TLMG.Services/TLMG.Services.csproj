@@ -79,8 +79,8 @@
     <Compile Include="Helpers\PlayerAccountRegistrationValidationHelper.cs" />
     <Compile Include="Helpers\SessionNotificationHelper.cs" />
     <Compile Include="Helpers\SessionTokenHelper.cs" />
-    <Compile Include="Lobby\LobbyNotification.cs" />
-    <Compile Include="Lobby\LobbyOutcome.cs" />
+    <Compile Include="Lobby\LobbyChangeNotification.cs" />
+    <Compile Include="Lobby\LobbyOperationResultWithNotification.cs" />
     <Compile Include="Lobby\LobbyService.cs" />
     <Compile Include="Accounts\IPasswordHasher.cs" />
     <Compile Include="Accounts\PasswordHasher.cs" />
@@ -101,7 +101,7 @@
     <Compile Include="Sessions\RoomInvitationCreation.cs" />
     <Compile Include="Sessions\RoomInvitationRecord.cs" />
     <Compile Include="Sessions\SessionEnd.cs" />
-    <Compile Include="Sessions\SessionOutcome.cs" />
+    <Compile Include="Sessions\ResultWithNotification.cs" />
     <Compile Include="Sessions\SessionRegistry.cs" />
     <Compile Include="Sessions\SessionRegistry.Friends.cs" />
     <Compile Include="Sessions\SessionRegistry.Lobbies.cs" />

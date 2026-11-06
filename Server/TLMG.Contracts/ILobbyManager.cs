@@ -36,6 +36,6 @@ namespace TLMG.Contracts
         /// <param name="sessionToken">Token de la sesión del jugador.</param>
         /// <param name="request">Datos de la petición; null se rechaza sin revelar la sala.</param>
         [OperationContract(IsOneWay = true)]
-        void RequestMatchStart(string sessionToken, OperationRequestMatchStartRequest request);
+        void RequestMatchStart(string sessionToken, OperationMatchStartRequest request);
     }
 }

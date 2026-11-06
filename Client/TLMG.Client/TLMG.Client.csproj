@@ -71,6 +71,7 @@
     </Compile>
     <Compile Include="Models\FriendEntry.cs" />
     <Compile Include="Models\LobbyPlayerEntry.cs" />
+    <Compile Include="Models\ModerationMode.cs" />
     <Compile Include="Models\PlayerRankEntry.cs" />
     <Compile Include="Views\CreateAccountScreen.xaml.cs">
       <DependentUpon>CreateAccountScreen.xaml</DependentUpon>
@@ -105,6 +106,9 @@
     </Compile>
     <Compile Include="Views\MatchClosedScreen.xaml.cs">
       <DependentUpon>MatchClosedScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ModerationScreen.xaml.cs">
+      <DependentUpon>ModerationScreen.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\NewPasswordScreen.xaml.cs">
       <DependentUpon>NewPasswordScreen.xaml</DependentUpon>
@@ -192,6 +196,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MatchClosedScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ModerationScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

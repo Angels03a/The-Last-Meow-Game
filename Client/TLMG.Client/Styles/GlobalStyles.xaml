@@ -1644,7 +1644,7 @@
     <Style x:Key="LobbyCardReadyStyle" TargetType="Border" BasedOn="{StaticResource LobbyCardBaseStyle}">
         <Setter Property="BorderBrush" Value="#10B981" />
     </Style>
-    
+
     <Style x:Key="LobbyCardEmptyStyle" TargetType="Border" BasedOn="{StaticResource LobbyCardBaseStyle}">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="2" />

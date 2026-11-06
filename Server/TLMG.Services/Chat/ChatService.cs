@@ -29,10 +29,8 @@ namespace TLMG.Services.Chat
         /// <param name="channelId">Canal de chat.</param>
         /// <param name="callback">Callback de este canal.</param>
         /// <returns>Éxito o clave de rechazo, sin datos de otras salas.</returns>
-        public SessionOutcome<OperationSubscribeToChatResult> SubscribeToChat(
-            string sessionToken,
-            string channelId,
-            IChatManagerCallback callback)
+        public ResultWithNotification<OperationSubscribeToChatResult> SubscribeToChat(string sessionToken,
+            string channelId, IChatManagerCallback callback)
         {
             string errorKey = _sessionRegistry.SubscribeToChat(sessionToken, channelId, callback);
             OperationSubscribeToChatResult operationSubscribeToChatResult = new OperationSubscribeToChatResult
@@ -41,10 +39,11 @@ namespace TLMG.Services.Chat
                 ErrorKey = errorKey
             };
             LogChatRejection(errorKey);
-            SessionOutcome<OperationSubscribeToChatResult> sessionOutcome =
-                new SessionOutcome<OperationSubscribeToChatResult>(operationSubscribeToChatResult);
 
-            return sessionOutcome;
+            ResultWithNotification<OperationSubscribeToChatResult> subscribeToChatResult =
+                new ResultWithNotification<OperationSubscribeToChatResult>(operationSubscribeToChatResult);
+
+            return subscribeToChatResult;
         }
 
         /// <summary>
@@ -52,35 +51,34 @@ namespace TLMG.Services.Chat
         /// </summary>
         /// <param name="sessionToken">Token vigente.</param>
         /// <param name="channelId">Canal suscrito que envía.</param>
-        /// <param name="request">Sala, correlación y texto; puede ser null.</param>
+        /// <param name="sendChatMessageRequest">Sala, correlación y texto; puede ser null.</param>
         /// <returns>Resultado null y entregas si se aceptó; rechazo sin entregas en otro caso.</returns>
-        public SessionOutcome<OperationSendChatMessageResult> SendChatMessage(
-            string sessionToken,
-            string channelId,
-            OperationSendChatMessageRequest request)
+        public ResultWithNotification<OperationSendChatMessageResult> SendChatMessage(string sessionToken, 
+            string channelId, OperationSendChatMessageRequest sendChatMessageRequest)
         {
             string text = null;
             int roomId = LobbyMembershipChange.NoRoomId;
             Guid clientMessageId = Guid.Empty;
 
-            if (request != null)
+            if (sendChatMessageRequest != null)
             {
-                text = request.Text;
-                roomId = request.RoomId;
-                clientMessageId = request.ClientMessageId;
+                text = sendChatMessageRequest.Text;
+                roomId = sendChatMessageRequest.RoomId;
+                clientMessageId = sendChatMessageRequest.ClientMessageId;
             }
 
             string normalizedText;
             string validationErrorKey = ChatValidationHelper.ValidateText(text, out normalizedText);
             ChatDelivery chatDelivery;
             string errorKey = _sessionRegistry.AcceptChatMessage(
-                sessionToken, channelId, roomId, clientMessageId, normalizedText, validationErrorKey, out chatDelivery);
-            SessionOutcome<OperationSendChatMessageResult> sessionOutcome;
+                sessionToken, channelId, roomId, clientMessageId, normalizedText, validationErrorKey, 
+                out chatDelivery);
+            ResultWithNotification<OperationSendChatMessageResult> sendChatMessageResult;
 
             if (errorKey != null)
             {
                 LogChatRejection(errorKey);
-                sessionOutcome = new SessionOutcome<OperationSendChatMessageResult>(
+                sendChatMessageResult = new ResultWithNotification<OperationSendChatMessageResult>(
                     new OperationSendChatMessageResult
                     {
                         ClientMessageId = clientMessageId,
@@ -89,11 +87,11 @@ namespace TLMG.Services.Chat
             }
             else
             {
-                sessionOutcome = new SessionOutcome<OperationSendChatMessageResult>(
+                sendChatMessageResult = new ResultWithNotification<OperationSendChatMessageResult>(
                     null, CreateChatNotifications(chatDelivery));
             }
 
-            return sessionOutcome;
+            return sendChatMessageResult;
         }
 
         /// <summary>Registra solo la clave del rechazo, nunca token ni texto.</summary>
