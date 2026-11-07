@@ -1,4 +1,4 @@
-﻿namespace TLMG.DataAccess.Repositories
+﻿namespace TLMG.Domain.Repositories
 {
     /// <summary>
     /// Resultado de buscar las credenciales de una cuenta.

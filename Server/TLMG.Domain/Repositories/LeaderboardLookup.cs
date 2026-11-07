@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TLMG.DataAccess.Repositories
+namespace TLMG.Domain.Repositories
 {
     /// <summary>
     /// Resultado de consultar la tabla de posiciones: los jugadores o un fallo de datos.

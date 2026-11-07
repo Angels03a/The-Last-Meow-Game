@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TLMG.DataAccess.Repositories
+namespace TLMG.Domain.Repositories
 {
     /// <summary>
     /// Resultado de consultar la lista de amigos aceptados: los amigos o un fallo de datos.

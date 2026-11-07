@@ -1,4 +1,4 @@
-﻿namespace TLMG.DataAccess.Repositories
+﻿namespace TLMG.Domain.Repositories
 {
     /// <summary>
     /// Resultado de comprobar si dos jugadores son amigos; separa "no son amigos" de un fallo de datos.

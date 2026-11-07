@@ -1,4 +1,4 @@
-﻿namespace TLMG.DataAccess.Repositories
+﻿namespace TLMG.Domain.Repositories
 {
     /// <summary>
     /// Datos mínimos de un amigo aceptado; no expone la entidad de Entity Framework.

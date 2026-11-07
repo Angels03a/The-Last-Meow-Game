@@ -1,4 +1,4 @@
-﻿namespace TLMG.DataAccess.Repositories
+﻿namespace TLMG.Domain.Repositories
 {
     /// <summary>
     /// Datos mínimos de un jugador para la tabla de posiciones; no expone la entidad de Entity Framework.

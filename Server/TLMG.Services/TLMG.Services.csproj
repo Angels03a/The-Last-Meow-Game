@@ -62,8 +62,6 @@
     <Compile Include="Sessions\ChatDelivery.cs" />
     <Compile Include="Sessions\ChatChannel.cs" />
     <Compile Include="ServiceImplementation.ChatManager.cs" />
-    <Compile Include="Helpers\LobbyErrorKeyHelper.cs" />
-    <Compile Include="Helpers\ChatValidationHelper.cs" />
     <Compile Include="Chat\ChatService.cs" />
     <Compile Include="Sessions\LobbyStartSnapshot.cs" />
     <Compile Include="Sessions\SessionRegistry.Readiness.cs" />
@@ -74,9 +72,7 @@
     <Compile Include="ServiceImplementation.LobbyManager.cs" />
     <Compile Include="ServiceImplementation.UsersManager.cs" />
     <Compile Include="Friends\FriendsService.cs" />
-    <Compile Include="Helpers\CommonErrorKeyHelper.cs" />
     <Compile Include="Helpers\LobbyRoomHelper.cs" />
-    <Compile Include="Helpers\PlayerAccountRegistrationValidationHelper.cs" />
     <Compile Include="Helpers\SessionNotificationHelper.cs" />
     <Compile Include="Helpers\SessionTokenHelper.cs" />
     <Compile Include="Lobby\LobbyChangeNotification.cs" />
