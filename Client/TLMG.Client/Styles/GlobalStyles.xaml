@@ -2994,4 +2994,355 @@
         <Setter Property="Height" Value="46" />
         <Setter Property="FontSize" Value="14" />
     </Style>
+
+    <!-- Pantalla del Gatito Fugitivo (FugitiveKittenScreen). Medidas y colores del prototipo de Figma. -->
+    <SolidColorBrush x:Key="Brush_FugitiveKittenStage" Color="#050507" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenDoorWall" Color="#15151F" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenDoorFlap" Color="#22223A" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenDoorTrim" Color="#3A3A5A" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenBoxFront" Color="#5B4330" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenBoxEdge" Color="#7A5A3E" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenBoxFlap" Color="#6E5239" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenBoxInside" Color="#2A1E14" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenBoxTape" Color="#7A5F45" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenPuff" Color="#D6D3E6" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenRewardPillBackground" Color="#248B5CF6" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenRewardPillBorder" Color="#598B5CF6" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenExtraLifeCardBackground" Color="#1A10B981" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenExtraLifeCardBorder" Color="#6610B981" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenCaughtPanelBorder" Color="#7310B981" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenShieldFill" Color="#2E10B981" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenInnerEar" Color="#E58F8F" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenNose" Color="#A8505A" />
+
+    <!-- TODO: Reemplazar los colores provisionales del gatito por el sprite final. (BL-120). -->
+    <SolidColorBrush x:Key="Brush_FugitiveKittenOrangeBody" Color="#F2A65A" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenOrangeStripe" Color="#C97A35" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenOrangeCream" Color="#FBE3C4" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenWhiteBody" Color="#F4F1EC" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenWhiteStripe" Color="#BDB6AA" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenWhiteCream" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenGrayBody" Color="#8E8EA3" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenGrayStripe" Color="#5F5F75" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenGrayCream" Color="#D2D2DE" />
+
+    <!-- Color activo del gatito; FugitiveKittenScreen lo reemplaza en sus recursos según el color elegido. -->
+    <SolidColorBrush x:Key="Brush_FugitiveKittenBody" Color="#F2A65A" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenStripe" Color="#C97A35" />
+    <SolidColorBrush x:Key="Brush_FugitiveKittenCream" Color="#FBE3C4" />
+
+    <!-- TODO: Usar Cinzel en lugar de Georgia y Outfit en lugar de la fuente por defecto. (BL-121). -->
+    <Style x:Key="FugitiveKittenHeaderTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenCountdownTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Georgia" />
+        <Setter Property="FontSize" Value="60" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="LineHeight" Value="60" />
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_Gold}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,6,0,0" />
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenCatchHintTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,8,0,0" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenRewardPillStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_FugitiveKittenRewardPillBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_FugitiveKittenRewardPillBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="Padding" Value="18,6" />
+        <Setter Property="Margin" Value="0,12,0,0" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenRewardTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_AccentLight}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="8,0,0,0" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenGetReadyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Georgia" />
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_AccentLight}" />
+        <Setter Property="Width" Value="1280" />
+        <Setter Property="TextAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenHidingPillStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="999" />
+        <Setter Property="Padding" Value="14,5" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenHidingTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenFloorLineStyle" TargetType="Line">
+        <Setter Property="X1" Value="60" />
+        <Setter Property="X2" Value="1220" />
+        <Setter Property="Stroke" Value="{StaticResource Brush_FugitiveKittenDoorTrim}" />
+        <Setter Property="StrokeThickness" Value="2" />
+        <Setter Property="StrokeDashArray" Value="1 5" />
+        <Setter Property="StrokeDashCap" Value="Round" />
+        <Setter Property="StrokeStartLineCap" Value="Round" />
+        <Setter Property="StrokeEndLineCap" Value="Round" />
+        <Setter Property="Opacity" Value="0.7" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenResultPanelStyle" TargetType="Border">
+        <Setter Property="Width" Value="580" />
+        <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="32,24,32,20" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenResultTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Georgia" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenResultMessageTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Margin" Value="0,10,0,0" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenExtraLifeCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource Brush_FugitiveKittenExtraLifeCardBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Brush_FugitiveKittenExtraLifeCardBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="22,14" />
+        <Setter Property="Margin" Value="0,16,0,0" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenStartingMatchTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,18,0,0" />
+    </Style>
+
+    <!-- Gatera de 112×120; el origen es la esquina superior izquierda del muro. -->
+    <ControlTemplate x:Key="FugitiveKittenDoorTemplate" TargetType="ContentControl">
+        <Canvas Width="112" Height="120">
+            <Path Data="M0,120 V14 Q0,0 14,0 H98 Q112,0 112,14 V120 Z"
+                  Fill="{StaticResource Brush_FugitiveKittenDoorWall}"
+                  Stroke="{StaticResource Brush_Border}" StrokeThickness="1.5" />
+            <Rectangle Canvas.Left="22" Canvas.Top="38" Width="68" Height="82" RadiusX="10" RadiusY="10"
+                       Fill="{StaticResource Brush_FugitiveKittenStage}"
+                       Stroke="{StaticResource Brush_FugitiveKittenDoorTrim}" StrokeThickness="1.5" />
+            <Rectangle Canvas.Left="27" Canvas.Top="46" Width="58" Height="70" RadiusX="6" RadiusY="6"
+                       Fill="{StaticResource Brush_FugitiveKittenDoorFlap}" Opacity="0.75" />
+            <Rectangle Canvas.Left="18" Canvas.Top="35" Width="76" Height="6" RadiusX="3" RadiusY="3"
+                       Fill="{StaticResource Brush_FugitiveKittenDoorTrim}" />
+        </Canvas>
+    </ControlTemplate>
+
+    <!-- Brillo de la gatera a k = 1; la pantalla le da Opacity = k. Los halos excluyen el muro. -->
+    <ControlTemplate x:Key="FugitiveKittenDoorGlowTemplate" TargetType="ContentControl">
+        <Canvas Width="112" Height="120">
+            <Path Fill="{StaticResource Brush_Gold}" Opacity="0.07">
+                <Path.Data>
+                    <CombinedGeometry GeometryCombineMode="Exclude"
+                                      Geometry2="M0,120 V14 Q0,0 14,0 H98 Q112,0 112,14 V120 Z">
+                        <CombinedGeometry.Geometry1>
+                            <RectangleGeometry Rect="-22,-22,156,142" RadiusX="24" RadiusY="24" />
+                        </CombinedGeometry.Geometry1>
+                    </CombinedGeometry>
+                </Path.Data>
+            </Path>
+            <Path Fill="{StaticResource Brush_Gold}" Opacity="0.12">
+                <Path.Data>
+                    <CombinedGeometry GeometryCombineMode="Exclude"
+                                      Geometry2="M0,120 V14 Q0,0 14,0 H98 Q112,0 112,14 V120 Z">
+                        <CombinedGeometry.Geometry1>
+                            <RectangleGeometry Rect="-10,-10,132,130" RadiusX="18" RadiusY="18" />
+                        </CombinedGeometry.Geometry1>
+                    </CombinedGeometry>
+                </Path.Data>
+            </Path>
+            <Path Data="M0,120 V14 Q0,0 14,0 H98 Q112,0 112,14 V120 Z"
+                  Stroke="{StaticResource Brush_Gold}" StrokeThickness="1.5" />
+            <Rectangle Canvas.Left="22" Canvas.Top="38" Width="68" Height="82" RadiusX="10" RadiusY="10"
+                       Stroke="{StaticResource Brush_Gold}" StrokeThickness="2.5" />
+            <Rectangle Canvas.Left="27" Canvas.Top="46" Width="58" Height="70" RadiusX="6" RadiusY="6"
+                       Fill="{StaticResource Brush_Gold}" Opacity="0.45" />
+            <Rectangle Canvas.Left="18" Canvas.Top="35" Width="76" Height="6" RadiusX="3" RadiusY="3"
+                       Fill="{StaticResource Brush_Gold}" />
+        </Canvas>
+    </ControlTemplate>
+
+    <!-- Placa de la gatera cerrada cuando el gatito escapa; mismo origen que la gatera. -->
+    <ControlTemplate x:Key="FugitiveKittenDoorShutterTemplate" TargetType="ContentControl">
+        <Canvas Width="112" Height="120">
+            <Rectangle Canvas.Left="22" Canvas.Top="38" Width="68" Height="82" RadiusX="10" RadiusY="10"
+                       Fill="{StaticResource Brush_Border}"
+                       Stroke="{StaticResource Brush_TextFaint}" StrokeThickness="1.5" />
+            <Rectangle Canvas.Left="30" Canvas.Top="76" Width="52" Height="6" RadiusX="3" RadiusY="3"
+                       Fill="{StaticResource Brush_TextFaint}" />
+            <Ellipse Canvas.Left="49" Canvas.Top="72" Width="14" Height="14"
+                     Fill="{StaticResource Brush_BackgroundPanel}"
+                     Stroke="{StaticResource Brush_TextMuted}" StrokeThickness="1.5" />
+        </Canvas>
+    </ControlTemplate>
+
+    <!-- Caja de 136×84; el origen es la esquina superior izquierda del frente (las solapas suben 18 px). -->
+    <ControlTemplate x:Key="FugitiveKittenBoxTemplate" TargetType="ContentControl">
+        <Canvas Width="136" Height="84">
+            <Polygon Points="0,0 22,-18 58,-14 40,0" Fill="{StaticResource Brush_FugitiveKittenBoxFlap}" />
+            <Polygon Points="136,0 114,-18 78,-14 96,0" Fill="{StaticResource Brush_FugitiveKittenBoxFlap}" />
+            <Rectangle Width="136" Height="84" RadiusX="4" RadiusY="4"
+                       Fill="{StaticResource Brush_FugitiveKittenBoxFront}"
+                       Stroke="{StaticResource Brush_FugitiveKittenBoxEdge}" StrokeThickness="1.5" />
+            <Rectangle Canvas.Left="2" Canvas.Top="2" Width="132" Height="8"
+                       Fill="{StaticResource Brush_FugitiveKittenBoxInside}" />
+            <Rectangle Canvas.Left="59" Canvas.Top="10" Width="18" Height="74"
+                       Fill="{StaticResource Brush_FugitiveKittenBoxTape}" Opacity="0.8" />
+        </Canvas>
+    </ControlTemplate>
+
+    <!-- Brillo de la caja a k = 1; los halos excluyen el frente y las solapas. -->
+    <ControlTemplate x:Key="FugitiveKittenBoxGlowTemplate" TargetType="ContentControl">
+        <Canvas Width="136" Height="84">
+            <Path Fill="{StaticResource Brush_Gold}" Opacity="0.07">
+                <Path.Data>
+                    <CombinedGeometry GeometryCombineMode="Exclude"
+                                      Geometry2="M0,0 L22,-18 L58,-14 L78,-14 L114,-18 L136,0 V84 H0 Z">
+                        <CombinedGeometry.Geometry1>
+                            <RectangleGeometry Rect="-24,-34,184,118" RadiusX="24" RadiusY="24" />
+                        </CombinedGeometry.Geometry1>
+                    </CombinedGeometry>
+                </Path.Data>
+            </Path>
+            <Path Fill="{StaticResource Brush_Gold}" Opacity="0.12">
+                <Path.Data>
+                    <CombinedGeometry GeometryCombineMode="Exclude"
+                                      Geometry2="M0,0 L22,-18 L58,-14 L78,-14 L114,-18 L136,0 V84 H0 Z">
+                        <CombinedGeometry.Geometry1>
+                            <RectangleGeometry Rect="-10,-20,156,104" RadiusX="16" RadiusY="16" />
+                        </CombinedGeometry.Geometry1>
+                    </CombinedGeometry>
+                </Path.Data>
+            </Path>
+            <Rectangle Width="136" Height="84" RadiusX="4" RadiusY="4"
+                       Stroke="{StaticResource Brush_Gold}" StrokeThickness="2.5" />
+        </Canvas>
+    </ControlTemplate>
+
+    <!-- Partes del gatito que no cambian entre poses: brillo, rayas y cabeza (96×64, mirando a la derecha). -->
+    <ControlTemplate x:Key="FugitiveKittenHeadTemplate" TargetType="ContentControl">
+        <Canvas Width="96" Height="64">
+            <Path Data="M38,23 Q40,28 37,32 M46,22 Q48,27 45,31 M54,23 Q56,28 53,31"
+                  Stroke="{DynamicResource Brush_FugitiveKittenStripe}" StrokeThickness="2.2"
+                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+            <Polygon Points="66,20 68,6 75,15" Fill="{DynamicResource Brush_FugitiveKittenBody}" />
+            <Polygon Points="77,14 84,4 86,18" Fill="{DynamicResource Brush_FugitiveKittenBody}" />
+            <Polygon Points="68.5,17 69.5,10 73,15" Fill="{StaticResource Brush_FugitiveKittenInnerEar}" />
+            <Polygon Points="79,14 83,8 84,16" Fill="{StaticResource Brush_FugitiveKittenInnerEar}" />
+            <Ellipse Canvas.Left="64" Canvas.Top="14" Width="24" Height="24"
+                     Fill="{DynamicResource Brush_FugitiveKittenBody}" />
+            <Ellipse Canvas.Left="80" Canvas.Top="25.5" Width="12" Height="9"
+                     Fill="{DynamicResource Brush_FugitiveKittenCream}" />
+            <Ellipse Canvas.Left="89.2" Canvas.Top="26.2" Width="3.6" Height="3.6"
+                     Fill="{StaticResource Brush_FugitiveKittenNose}" />
+            <Ellipse Canvas.Left="78" Canvas.Top="20.4" Width="4" Height="5.2"
+                     Fill="{StaticResource Brush_BackgroundPanel}" />
+            <Ellipse Canvas.Left="79.9" Canvas.Top="21.5" Width="1.4" Height="1.4"
+                     Fill="{StaticResource Brush_White}" />
+        </Canvas>
+    </ControlTemplate>
+
+    <Style x:Key="FugitiveKittenBackLegStyle" TargetType="Line">
+        <Setter Property="Stroke" Value="{DynamicResource Brush_FugitiveKittenStripe}" />
+        <Setter Property="StrokeThickness" Value="6" />
+        <Setter Property="StrokeStartLineCap" Value="Round" />
+        <Setter Property="StrokeEndLineCap" Value="Round" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenFrontLegStyle" TargetType="Line" BasedOn="{StaticResource FugitiveKittenBackLegStyle}">
+        <Setter Property="Stroke" Value="{DynamicResource Brush_FugitiveKittenBody}" />
+    </Style>
+
+    <Style x:Key="FugitiveKittenTailStyle" TargetType="Path">
+        <Setter Property="Stroke" Value="{DynamicResource Brush_FugitiveKittenBody}" />
+        <Setter Property="StrokeThickness" Value="6" />
+        <Setter Property="StrokeStartLineCap" Value="Round" />
+        <Setter Property="StrokeEndLineCap" Value="Round" />
+    </Style>
+
+    <!-- Brillo cálido alrededor del gatito, común a las dos poses. -->
+    <ControlTemplate x:Key="FugitiveKittenAuraTemplate" TargetType="ContentControl">
+        <Canvas Width="96" Height="64">
+            <Ellipse Canvas.Left="-14" Canvas.Top="-6" Width="124" Height="80"
+                     Fill="{StaticResource Brush_Gold}" Opacity="0.07" />
+            <Ellipse Canvas.Left="2" Canvas.Top="6" Width="92" Height="56"
+                     Fill="{StaticResource Brush_Gold}" Opacity="0.1" />
+        </Canvas>
+    </ControlTemplate>
+
+    <!-- Pose "Estirada" del gatito en carrera. -->
+    <ControlTemplate x:Key="FugitiveKittenReachPoseTemplate" TargetType="ContentControl">
+        <Canvas Width="96" Height="64">
+            <ContentControl Template="{StaticResource FugitiveKittenAuraTemplate}" Focusable="False" />
+            <Line X1="34" Y1="42" X2="16" Y2="52" Style="{StaticResource FugitiveKittenBackLegStyle}" />
+            <Line X1="62" Y1="40" X2="80" Y2="50" Style="{StaticResource FugitiveKittenBackLegStyle}" />
+            <Path Data="M22,30 Q8,26 4,12" Style="{StaticResource FugitiveKittenTailStyle}" />
+            <Ellipse Canvas.Left="19" Canvas.Top="22" Width="54" Height="24"
+                     Fill="{DynamicResource Brush_FugitiveKittenBody}" />
+            <Ellipse Canvas.Left="30" Canvas.Top="35" Width="36" Height="10"
+                     Fill="{DynamicResource Brush_FugitiveKittenCream}" Opacity="0.85" />
+            <Line X1="30" Y1="40" X2="10" Y2="46" Style="{StaticResource FugitiveKittenFrontLegStyle}" />
+            <Line X1="64" Y1="38" X2="86" Y2="44" Style="{StaticResource FugitiveKittenFrontLegStyle}" />
+            <ContentControl Template="{StaticResource FugitiveKittenHeadTemplate}" Focusable="False" />
+        </Canvas>
+    </ControlTemplate>
+
+    <!-- Pose "Recogida" del gatito en carrera; todo el cuerpo sube 2 px. -->
+    <ControlTemplate x:Key="FugitiveKittenGatherPoseTemplate" TargetType="ContentControl">
+        <Canvas Width="96" Height="64">
+            <ContentControl Template="{StaticResource FugitiveKittenAuraTemplate}" Focusable="False" />
+            <Canvas Canvas.Top="-2">
+                <Line X1="34" Y1="42" X2="46" Y2="56" Style="{StaticResource FugitiveKittenBackLegStyle}" />
+                <Line X1="60" Y1="41" X2="52" Y2="56" Style="{StaticResource FugitiveKittenBackLegStyle}" />
+                <Path Data="M22,30 Q6,34 2,22" Style="{StaticResource FugitiveKittenTailStyle}" />
+                <Ellipse Canvas.Left="22" Canvas.Top="20" Width="48" Height="28"
+                         Fill="{DynamicResource Brush_FugitiveKittenBody}" />
+                <Ellipse Canvas.Left="33" Canvas.Top="35" Width="30" Height="10"
+                         Fill="{DynamicResource Brush_FugitiveKittenCream}" Opacity="0.85" />
+                <Line X1="30" Y1="41" X2="40" Y2="55" Style="{StaticResource FugitiveKittenFrontLegStyle}" />
+                <Line X1="64" Y1="40" X2="58" Y2="56" Style="{StaticResource FugitiveKittenFrontLegStyle}" />
+                <ContentControl Template="{StaticResource FugitiveKittenHeadTemplate}" Focusable="False" />
+            </Canvas>
+        </Canvas>
+    </ControlTemplate>
 </ResourceDictionary>
