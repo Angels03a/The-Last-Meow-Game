@@ -5,6 +5,7 @@ namespace TLMG.Client.Communication
     {
         /// <summary>Límite de caracteres por mensaje.</summary>
         public const int MaximumMessageCharacters = 160;
+        public const int zeroCaracterCount = 0;
         private const string AllowedCharacters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÁÉÍÓÚáéíóúÑñ0123456789 ,?¿";
 
@@ -13,19 +14,19 @@ namespace TLMG.Client.Communication
         /// <returns>Indica si puede introducirse el texto, incluso vacío durante la edición.</returns>
         public static bool CanEnterText(string messageText)
         {
-            bool isAllowed = messageText != null && messageText.Length <= MaximumMessageCharacters;
-            if (isAllowed)
+            bool isTextAllowed = messageText != null && messageText.Length <= MaximumMessageCharacters;
+            if (isTextAllowed)
             {
                 foreach (char character in messageText)
                 {
-                    if (AllowedCharacters.IndexOf(character) < 0)
+                    if (AllowedCharacters.IndexOf(character) < zeroCaracterCount)
                     {
-                        isAllowed = false;
+                        isTextAllowed = false;
                         break;
                     }
                 }
             }
-            return isAllowed;
+            return isTextAllowed;
         }
     }
 }
