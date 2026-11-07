@@ -78,7 +78,7 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Pendiente
 
-### BL-014 · Diseño de la pantalla del Gatito Fugitivo
+### BL-014 · Diseño de la pantalla del Gatito Fugitivo// LUIS ANGEL
 - Creado: 2026-10-20 10:30
 - Por qué: solo diseño por ahora, en otro chat; sin implementación.
 - Depende de: nada
@@ -300,24 +300,12 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Pendiente
 
-### BL-056 · Registrar en la Bitácora D-57 y la enmienda a D-40
-- Creado: 2026-10-25 19:32
-- Por qué: la Bitácora vive fuera del repositorio. Falta registrar D-57 (criterio de accesibilidad) y la enmienda a D-40: la referencia de servicio de Visual Studio usa el mismo generador que svcutil.exe. Queda abierta hasta que el encargado lo haga.
-- Depende de: el encargado
-- Estado: Pendiente
-
 ### BL-058 · Cerrar las sesiones abandonadas del SessionRegistry
 - Creado: 2026-10-29 12:55
 - Por qué: `SessionRegistry.EndSession` aún no tiene quién lo llame y el registro no vence sesiones. Si el cliente cierra la ventana o pierde la conexión, su sesión y su token quedan en memoria hasta reiniciar el servidor. El vencimiento debe medirse por hora límite en UTC al recibir el latido, sin temporizadores (Estándar §10.4, D-54).
 - Depende de: ADR-04 y D-54; del paso que agregue el latido
 - Estado: Pendiente
 - Nota (2026-10-29 22:53): avance. La sesión termina cuando el canal de amigos se cierra o falla (d6d6326; ServiceImplementation.FriendsManager.cs:121, FriendsService.EndSessionByFriendsChannel), así que cerrar la ventana o perder la conexión ya libera sesión, sala y presencia. Siguen sin vencerse una sesión cuyo canal de amigos nunca se abrió (login exitoso con SubscribeToFriends fallido o cliente caído antes de abrirlo) y una conexión TCP medio abierta, que solo detecta el receiveTimeout de WCF [S: el servidor no lo define, rige el valor por defecto]. Falta el latido de ADR-04.
-
-### BL-059 · Registrar en la Bitácora las decisiones D-58 a D-61
-- Creado: 2026-10-29 13:08
-- Por qué: el Estándar (§3.14, §4.3, §5.3, §10.3, §11.1, §15.1, §16.2, §19.1, §20.2) y el SAD (ADR-08, C-02, C-06, §4.2, §4.3, §7.3) ya citan D-58 a D-61 y ADR-08, pero la Bitácora (fuera del repositorio, BL-056) aún no las contiene: D-58 (SessionRegistry con lock único, sessionToken, el último inicio de sesión gana), D-59 (scripts de demostración en database/seed/), D-60 (ServerConnectionManager) y D-61 (xUnit.net). Relacionada con BL-009 y BL-056.
-- Depende de: decisión del encargado sobre la redacción
-- Estado: Pendiente
 
 ### BL-060 · Retirar o reemplazar el script de demostración de amistades
 - Creado: 2026-10-29 13:05
@@ -349,12 +337,6 @@ Formato de entrada:
 - Depende de: BL-058
 - Estado: Pendiente
 
-### BL-068 · Registrar en el Estándar y la Bitácora el estado de salas en SessionRegistry
-- Creado: 2026-10-29 15:07
-- Por qué: la autorización de lock de D-58 ahora cubre también las salas, las pertenencias, los callbacks y las autorizaciones de entrada; el límite de 6 jugadores por sala vive en `SessionRegistry` (Reglas §1.1.1). Falta reflejarlo en §11.1 y en la Bitácora (fuera del repositorio). Complementa BL-059.
-- Depende de: decisión del encargado
-- Estado: Pendiente
-
 ### BL-069 · Rechazar, cancelar y vencer invitaciones a sala
 - Creado: 2026-10-29 15:42
 - Por qué: hoy una invitación solo se acepta; solo desaparece al aceptarla, al eliminarse su sala o al terminar la sesión de quien invita o de quien recibe. Faltan rechazarla (invitado), cancelarla (quien invita) y vencerla por hora límite en UTC al recibir el latido, sin temporizadores (Estándar §10.4, D-54). Una invitación repetida al mismo jugador para la misma sala no vuelve a avisar, así que si el primer aviso se perdió el invitado no la ve.
@@ -378,12 +360,6 @@ Formato de entrada:
 - Creado: 2026-10-29 15:42
 - Por qué: una autorización emitida al aceptar una invitación se conserva si el invitado nunca llama EnterLobby, o si la sala estaba llena. Solo se retira al entrar, al eliminarse la sala o al terminar la sesión del invitado. Definir su vencimiento junto con BL-066.
 - Depende de: BL-066
-- Estado: Pendiente
-
-### BL-074 · Registrar en la Bitácora el canal de amigos como presencia
-- Creado: 2026-10-29 15:42
-- Por qué: "en línea" significa tener un canal de amigos vivo, no tener sesión, y cerrar ese canal termina la sesión del jugador (ADR-08, D-58). Falta registrarlo en la Bitácora (fuera del repositorio) y reflejarlo en §6.2 del Estándar.
-- Depende de: decisión del encargado
 - Estado: Pendiente
 
 ### BL-077 · Mostrar en pantalla el fallo de la suscripción a los amigos
@@ -547,7 +523,43 @@ Formato de entrada:
 - Creado: 2026-11-04 16:40
 - Por qué: el servidor valida longitud y caracteres del chat, pero no filtra palabras ofensivas; el diccionario de validación lo exige para chat y nickname, en español e inglés.
 - Depende de: definir la fuente de la lista de palabras y dónde se valida (servidor)
+
+### BL-108 · Dividir ServerConnectionManager por canal (amigos, lobby y chat)
+- Creado: 2026-11-06 12:15
+- Por qué: la clase concentra amigos, lobby, Listo, cuenta regresiva y chat en tres archivos parciales. Cada canal debe tener su propio administrador de conexión. Cambia D-60 (un solo ServerConnectionManager en App), que debe registrarse en la Bitácora.
+- Depende de: BL-078, BL-080; decisión de D-60
 - Estado: Pendiente
+
+### BL-109 · Centralizar IsSuccess y ErrorKey de los resultados
+- Creado: 2026-11-06 12:15
+- Por qué: cada ServiceImplementation verifica nulos y Common_UnexpectedError por su cuenta. Opción elegida para ahora: ayudante en el servidor que arma los resultados, sin cambiar el contrato. Opción diferida: clase base de contrato, que exige regenerar el proxy una sola vez.
+- Depende de: BL-017; decisión del encargado
+- Estado: Pendiente
+
+### BL-110 · Depurar los diccionarios y alinear el Excel
+- Creado: 2026-11-06 12:15
+- Por qué: hay claves repetidas por prefijo (Gameplay_, RoundResult_, GameOver_, MatchClosed_, Moderation_) y claves sin uso (Lobby_MockChatPlayer, Lobby_ChatSystemPrefix, Lobby_SystemJoinedMessage, Lobby_SystemReadyMessage). El Excel no tiene las 13 claves nuevas del Listo y del chat.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-111 · Sesión de servidor para invitados (crear sala y jugar sin chat)
+- Creado: 2026-11-06 12:15
+- Por qué: el servidor rechaza la creación de sala de un invitado y no le da sesión. Las Reglas permiten invitados sin chat. El chat ya los excluye en el cliente; falta que el servidor lo valide.
+- Depende de: BL-089; ADR-08
+- Estado: Pendiente
+
+### BL-112 · Lista de caracteres del chat duplicada en cliente y servidor
+- Creado: 2026-11-06 12:15
+- Por qué: ChatInputHelper (cliente) y ChatValidationHelper (servidor) llevan la misma lista, que no puede compartirse entre soluciones. Si una cambia, la otra debe cambiar. Cubrir ambas con pruebas.
+- Depende de: BL-039
+- Estado: Pendiente
+
+### BL-113 · Regenerar el proxy cuando cambie un contrato
+- Creado: 2026-11-06 12:15
+- Por qué: el proxy conserva OperationRequestMatchStartRequest y el servidor usa OperationMatchStartRequest (7b8ae86). Regenerar una sola vez junto con el siguiente cambio de contrato y repetir el paso fijo de BL-057 (tiempos 10/15/5 s, sin identidad).
+- Depende de: BL-109
+- Estado: Pendiente
+
 
 ## Finalizados
 
@@ -747,3 +759,29 @@ Formato de entrada:
 - Por qué: hoy el chat es solo en memoria y sin historial; falta conservar los mensajes durante 24 horas.
 - Depende de: persistencia del chat
 - Estado: Pendiente
+
+
+### BL-056 · Registrar en la Bitácora D-57 y la enmienda a D-40
+- Creado: 2026-10-25 19:32
+- Por qué: la Bitácora vive fuera del repositorio. Falta registrar D-57 (criterio de accesibilidad) y la enmienda a D-40: la referencia de servicio de Visual Studio usa el mismo generador que svcutil.exe. Queda abierta hasta que el encargado lo haga.
+- Depende de: el encargado
+- Estado: Descartada/Decisión del equipo bajo la documentación 
+
+
+### BL-059 · Registrar en la Bitácora las decisiones D-58 a D-61
+- Creado: 2026-10-29 13:08
+- Por qué: el Estándar (§3.14, §4.3, §5.3, §10.3, §11.1, §15.1, §16.2, §19.1, §20.2) y el SAD (ADR-08, C-02, C-06, §4.2, §4.3, §7.3) ya citan D-58 a D-61 y ADR-08, pero la Bitácora (fuera del repositorio, BL-056) aún no las contiene: D-58 (SessionRegistry con lock único, sessionToken, el último inicio de sesión gana), D-59 (scripts de demostración en database/seed/), D-60 (ServerConnectionManager) y D-61 (xUnit.net). Relacionada con BL-009 y BL-056.
+- Depende de: decisión del encargado sobre la redacción
+- Estado: Descartada/Decisión del equipo bajo la documentación 
+
+### BL-068 · Registrar en el Estándar y la Bitácora el estado de salas en SessionRegistry
+- Creado: 2026-10-29 15:07
+- Por qué: la autorización de lock de D-58 ahora cubre también las salas, las pertenencias, los callbacks y las autorizaciones de entrada; el límite de 6 jugadores por sala vive en `SessionRegistry` (Reglas §1.1.1). Falta reflejarlo en §11.1 y en la Bitácora (fuera del repositorio). Complementa BL-059.
+- Depende de: decisión del encargado
+- Estado: Descartada/Decisión del equipo bajo la documentación 
+
+### BL-074 · Registrar en la Bitácora el canal de amigos como presencia
+- Creado: 2026-10-29 15:42
+- Por qué: "en línea" significa tener un canal de amigos vivo, no tener sesión, y cerrar ese canal termina la sesión del jugador (ADR-08, D-58). Falta registrarlo en la Bitácora (fuera del repositorio) y reflejarlo en §6.2 del Estándar.
+- Depende de: decisión del encargado
+- Estado: Descartada/Decisión del equipo bajo la documentación 
