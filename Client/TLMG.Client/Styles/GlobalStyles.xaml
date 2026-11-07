@@ -3200,12 +3200,18 @@
             </Path>
             <Path Data="M0,120 V14 Q0,0 14,0 H98 Q112,0 112,14 V120 Z"
                   Stroke="{StaticResource Brush_Gold}" StrokeThickness="1.5" />
-            <Rectangle Canvas.Left="22" Canvas.Top="38" Width="68" Height="82" RadiusX="10" RadiusY="10"
-                       Stroke="{StaticResource Brush_Gold}" StrokeThickness="2.5" />
             <Rectangle Canvas.Left="27" Canvas.Top="46" Width="58" Height="70" RadiusX="6" RadiusY="6"
                        Fill="{StaticResource Brush_Gold}" Opacity="0.45" />
             <Rectangle Canvas.Left="18" Canvas.Top="35" Width="76" Height="6" RadiusX="3" RadiusY="3"
                        Fill="{StaticResource Brush_Gold}" />
+        </Canvas>
+    </ControlTemplate>
+
+    <!-- Borde ámbar sólido del hueco mientras la gatera brilla; va fuera de la capa con Opacity = k. -->
+    <ControlTemplate x:Key="FugitiveKittenDoorHoleGlowTemplate" TargetType="ContentControl">
+        <Canvas Width="112" Height="120">
+            <Rectangle Canvas.Left="22" Canvas.Top="38" Width="68" Height="82" RadiusX="10" RadiusY="10"
+                       Stroke="{StaticResource Brush_Gold}" StrokeThickness="2.5" />
         </Canvas>
     </ControlTemplate>
 

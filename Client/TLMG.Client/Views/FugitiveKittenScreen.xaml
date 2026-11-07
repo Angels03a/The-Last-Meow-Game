@@ -48,12 +48,20 @@
                                 <ContentControl Template="{StaticResource FugitiveKittenDoorGlowTemplate}"
                                                 Focusable="False" IsTabStop="False" />
                             </Canvas>
+                            <Canvas x:Name="pnlDoorTopLeftHoleGlow">
+                                <ContentControl Template="{StaticResource FugitiveKittenDoorHoleGlowTemplate}"
+                                                Focusable="False" IsTabStop="False" />
+                            </Canvas>
                         </Canvas>
                         <Canvas Canvas.Left="1094" Canvas.Top="270">
                             <ContentControl Template="{StaticResource FugitiveKittenDoorTemplate}"
                                             Focusable="False" IsTabStop="False" />
                             <Canvas x:Name="pnlDoorTopRightGlow">
                                 <ContentControl Template="{StaticResource FugitiveKittenDoorGlowTemplate}"
+                                                Focusable="False" IsTabStop="False" />
+                            </Canvas>
+                            <Canvas x:Name="pnlDoorTopRightHoleGlow">
+                                <ContentControl Template="{StaticResource FugitiveKittenDoorHoleGlowTemplate}"
                                                 Focusable="False" IsTabStop="False" />
                             </Canvas>
                         </Canvas>
@@ -64,12 +72,20 @@
                                 <ContentControl Template="{StaticResource FugitiveKittenDoorGlowTemplate}"
                                                 Focusable="False" IsTabStop="False" />
                             </Canvas>
+                            <Canvas x:Name="pnlDoorBottomLeftHoleGlow">
+                                <ContentControl Template="{StaticResource FugitiveKittenDoorHoleGlowTemplate}"
+                                                Focusable="False" IsTabStop="False" />
+                            </Canvas>
                         </Canvas>
                         <Canvas Canvas.Left="1094" Canvas.Top="480">
                             <ContentControl Template="{StaticResource FugitiveKittenDoorTemplate}"
                                             Focusable="False" IsTabStop="False" />
                             <Canvas x:Name="pnlDoorBottomRightGlow">
                                 <ContentControl Template="{StaticResource FugitiveKittenDoorGlowTemplate}"
+                                                Focusable="False" IsTabStop="False" />
+                            </Canvas>
+                            <Canvas x:Name="pnlDoorBottomRightHoleGlow">
+                                <ContentControl Template="{StaticResource FugitiveKittenDoorHoleGlowTemplate}"
                                                 Focusable="False" IsTabStop="False" />
                             </Canvas>
                         </Canvas>

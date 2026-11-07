@@ -217,6 +217,10 @@ namespace TLMG.Client.Views
             pnlDoorBottomRightGlow.Opacity = NoGlowLevel;
             pnlBoxTopGlow.Opacity = NoGlowLevel;
             pnlBoxBottomGlow.Opacity = NoGlowLevel;
+            pnlDoorTopLeftHoleGlow.Visibility = Visibility.Collapsed;
+            pnlDoorTopRightHoleGlow.Visibility = Visibility.Collapsed;
+            pnlDoorBottomLeftHoleGlow.Visibility = Visibility.Collapsed;
+            pnlDoorBottomRightHoleGlow.Visibility = Visibility.Collapsed;
             rectCaughtOverlay.Visibility = Visibility.Collapsed;
             pnlClosedDoor.Visibility = Visibility.Collapsed;
             pnlCatchPuff.Visibility = Visibility.Collapsed;
@@ -234,7 +238,7 @@ namespace TLMG.Client.Views
         private void ShowIntroFrame()
         {
             lblGetReady.Visibility = Visibility.Visible;
-            AnimateDoorGlow(pnlDoorTopLeftGlow, IntroFrameGlowLevel);
+            AnimateDoorGlow(pnlDoorTopLeftGlow, pnlDoorTopLeftHoleGlow, IntroFrameGlowLevel);
             ShowCountdown(IntroFrameElapsedMilliseconds);
         }
 
@@ -247,7 +251,7 @@ namespace TLMG.Client.Views
         private void ShowHiddenFrame()
         {
             grdHidingMessage.Visibility = Visibility.Visible;
-            AnimateDoorGlow(pnlDoorBottomLeftGlow, HiddenFrameGlowLevel);
+            AnimateDoorGlow(pnlDoorBottomLeftGlow, pnlDoorBottomLeftHoleGlow, HiddenFrameGlowLevel);
             ShowCountdown(HiddenFrameElapsedMilliseconds);
         }
 
@@ -325,8 +329,9 @@ namespace TLMG.Client.Views
             brdResultPanel.Opacity = VisibleOpacity;
         }
 
-        private void AnimateDoorGlow(UIElement doorGlow, double glowLevel)
+        private void AnimateDoorGlow(UIElement doorGlow, UIElement doorHoleGlow, double glowLevel)
         {
+            doorHoleGlow.Visibility = Visibility.Visible;
             TimeSpan glowRiseTime = TimeSpan.FromMilliseconds(DoorGlowLeadMilliseconds * glowLevel);
             DoubleAnimation glowAnimation = new DoubleAnimation(NoGlowLevel, glowLevel, glowRiseTime);
 
