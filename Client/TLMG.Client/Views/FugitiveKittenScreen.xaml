@@ -98,26 +98,32 @@
                     <Canvas x:Name="pnlClosedDoor" Canvas.Left="74" Canvas.Top="480">
                         <ContentControl Template="{StaticResource FugitiveKittenDoorTemplate}"
                                         Focusable="False" IsTabStop="False" />
-                        <ContentControl Template="{StaticResource FugitiveKittenDoorShutterTemplate}"
-                                        Focusable="False" IsTabStop="False" />
+                        <!-- La placa baja desde el borde superior del hueco (y = 38 de 120). -->
+                        <Canvas x:Name="pnlDoorShutter" Width="112" Height="120" RenderTransformOrigin="0.5,0.3167">
+                            <ContentControl Template="{StaticResource FugitiveKittenDoorShutterTemplate}"
+                                            Focusable="False" IsTabStop="False" />
+                        </Canvas>
                     </Canvas>
 
                     <!-- Gatito que desaparece y nube "puf" (Lo atrapó otro); los anima E4. -->
                     <Canvas x:Name="pnlCatchPuff" Canvas.Left="498" Canvas.Top="570">
-                        <Canvas Canvas.Left="-48" Canvas.Top="-30">
+                        <Canvas x:Name="pnlVanishingKitten" Canvas.Left="-48" Canvas.Top="-30" Width="96" Height="64"
+                                RenderTransformOrigin="0.5,0.5">
                             <ContentControl Template="{StaticResource FugitiveKittenReachPoseTemplate}"
                                             Focusable="False" IsTabStop="False" />
                         </Canvas>
-                        <Ellipse Canvas.Left="-18" Canvas.Top="-18" Width="36" Height="36"
-                                 Fill="{StaticResource Brush_FugitiveKittenPuff}" />
-                        <Ellipse Canvas.Left="-35" Canvas.Top="-7" Width="26" Height="26"
-                                 Fill="{StaticResource Brush_FugitiveKittenPuff}" />
-                        <Ellipse Canvas.Left="8" Canvas.Top="-10" Width="28" Height="28"
-                                 Fill="{StaticResource Brush_FugitiveKittenPuff}" />
-                        <Ellipse Canvas.Left="-22" Canvas.Top="-28" Width="24" Height="24"
-                                 Fill="{StaticResource Brush_FugitiveKittenPuff}" />
-                        <Ellipse Canvas.Left="3" Canvas.Top="-25" Width="22" Height="22"
-                                 Fill="{StaticResource Brush_FugitiveKittenPuff}" />
+                        <Canvas x:Name="pnlCatchPuffClouds">
+                            <Ellipse Canvas.Left="-18" Canvas.Top="-18" Width="36" Height="36"
+                                     Style="{StaticResource FugitiveKittenPuffCloudStyle}" />
+                            <Ellipse Canvas.Left="-35" Canvas.Top="-7" Width="26" Height="26"
+                                     Style="{StaticResource FugitiveKittenPuffCloudStyle}" />
+                            <Ellipse Canvas.Left="8" Canvas.Top="-10" Width="28" Height="28"
+                                     Style="{StaticResource FugitiveKittenPuffCloudStyle}" />
+                            <Ellipse Canvas.Left="-22" Canvas.Top="-28" Width="24" Height="24"
+                                     Style="{StaticResource FugitiveKittenPuffCloudStyle}" />
+                            <Ellipse Canvas.Left="3" Canvas.Top="-25" Width="22" Height="22"
+                                     Style="{StaticResource FugitiveKittenPuffCloudStyle}" />
+                        </Canvas>
                     </Canvas>
 
                     <TextBlock x:Name="lblGetReady" Canvas.Top="468"

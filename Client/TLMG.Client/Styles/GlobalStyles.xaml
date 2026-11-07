@@ -3027,9 +3027,9 @@
     <SolidColorBrush x:Key="Brush_FugitiveKittenGrayCream" Color="#D2D2DE" />
 
     <!-- Color activo del gatito; FugitiveKittenScreen lo reemplaza en sus recursos según el color elegido. -->
-    <SolidColorBrush x:Key="Brush_FugitiveKittenBody" Color="#F2A65A" />
-    <SolidColorBrush x:Key="Brush_FugitiveKittenStripe" Color="#C97A35" />
-    <SolidColorBrush x:Key="Brush_FugitiveKittenCream" Color="#FBE3C4" />
+    <StaticResource x:Key="Brush_FugitiveKittenBody" ResourceKey="Brush_FugitiveKittenOrangeBody" />
+    <StaticResource x:Key="Brush_FugitiveKittenStripe" ResourceKey="Brush_FugitiveKittenOrangeStripe" />
+    <StaticResource x:Key="Brush_FugitiveKittenCream" ResourceKey="Brush_FugitiveKittenOrangeCream" />
 
     <!-- TODO: Usar Cinzel en lugar de Georgia y Outfit en lugar de la fuente por defecto. (BL-121). -->
     <Style x:Key="FugitiveKittenHeaderTitleTextStyle" TargetType="TextBlock">
@@ -3108,6 +3108,13 @@
         <Setter Property="StrokeStartLineCap" Value="Round" />
         <Setter Property="StrokeEndLineCap" Value="Round" />
         <Setter Property="Opacity" Value="0.7" />
+    </Style>
+
+    <!-- Nube del "puf"; empieza invisible y la pantalla la anima al entrar a "Lo atrapó otro". -->
+    <Style x:Key="FugitiveKittenPuffCloudStyle" TargetType="Ellipse">
+        <Setter Property="Fill" Value="{StaticResource Brush_FugitiveKittenPuff}" />
+        <Setter Property="Opacity" Value="0" />
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
     </Style>
 
     <Style x:Key="FugitiveKittenResultPanelStyle" TargetType="Border">

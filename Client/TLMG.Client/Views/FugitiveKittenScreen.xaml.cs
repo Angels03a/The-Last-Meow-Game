@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
 namespace TLMG.Client.Views
@@ -25,6 +26,28 @@ namespace TLMG.Client.Views
         private const int CaughtFrameElapsedMilliseconds = 1350;
         private const int CaughtByOtherFrameElapsedMilliseconds = 5350;
         private const int EscapedFrameElapsedMilliseconds = 15000;
+
+        private const int DoorGlowLeadMilliseconds = 300;
+        private const int CounterBeatMilliseconds = 1000;
+        private const int CounterBeatPeakMilliseconds = 250;
+        private const int CounterBeatSettleMilliseconds = 600;
+        private const int KittenVanishMilliseconds = 250;
+        private const int CatchPuffMilliseconds = 600;
+        private const int CatchPuffPeakMilliseconds = 180;
+        private const int CatchPuffStaggerMilliseconds = 40;
+        private const int DoorShutMilliseconds = 450;
+        private const int ResultFadeInMilliseconds = 350;
+        private const int CaughtByOtherPanelDelayMilliseconds = 350;
+
+        private const double NormalScale = 1.0;
+        private const double CounterBeatPeakScale = 1.18;
+        private const double VanishedKittenScale = 0.4;
+        private const double PuffStartScale = 0.2;
+        private const double PuffEndScale = 1.8;
+        private const double PuffPeakOpacity = 0.8;
+        private const double HiddenOpacity = 0.0;
+        private const double VisibleOpacity = 1.0;
+        private const double ClosedShutterScale = 0.0;
 
         private const double IntroFrameGlowLevel = 0.5;
         private const double HiddenFrameGlowLevel = 1.0 / 3.0;
@@ -184,6 +207,7 @@ namespace TLMG.Client.Views
 
         private void ResetScene()
         {
+            StopOpacityAnimations();
             pnlStage.Opacity = FullStageOpacity;
             pnlKitten.Visibility = Visibility.Collapsed;
             pnlDoorBottomLeft.Visibility = Visibility.Visible;
@@ -210,7 +234,7 @@ namespace TLMG.Client.Views
         private void ShowIntroFrame()
         {
             lblGetReady.Visibility = Visibility.Visible;
-            pnlDoorTopLeftGlow.Opacity = IntroFrameGlowLevel;
+            AnimateDoorGlow(pnlDoorTopLeftGlow, IntroFrameGlowLevel);
             ShowCountdown(IntroFrameElapsedMilliseconds);
         }
 
@@ -223,13 +247,13 @@ namespace TLMG.Client.Views
         private void ShowHiddenFrame()
         {
             grdHidingMessage.Visibility = Visibility.Visible;
-            pnlDoorBottomLeftGlow.Opacity = HiddenFrameGlowLevel;
+            AnimateDoorGlow(pnlDoorBottomLeftGlow, HiddenFrameGlowLevel);
             ShowCountdown(HiddenFrameElapsedMilliseconds);
         }
 
         private void ShowCaughtFrame()
         {
-            ShowResultPanel(pnlCaughtResult);
+            ShowResultPanel(pnlCaughtResult, TimeSpan.Zero);
             rectCaughtOverlay.Visibility = Visibility.Visible;
             brdResultPanel.BorderBrush = (Brush)FindResource(CaughtPanelBorderBrushKey);
             ShowCountdown(CaughtFrameElapsedMilliseconds);
@@ -237,26 +261,40 @@ namespace TLMG.Client.Views
 
         private void ShowCaughtByOtherFrame()
         {
-            ShowResultPanel(pnlCaughtByOtherResult);
+            ShowResultPanel(pnlCaughtByOtherResult, TimeSpan.FromMilliseconds(CaughtByOtherPanelDelayMilliseconds));
+            AnimateKittenVanish();
+            AnimateCatchPuff();
             ShowCountdown(CaughtByOtherFrameElapsedMilliseconds);
         }
 
         private void ShowEscapedFrame()
         {
-            ShowResultPanel(pnlEscapedResult);
+            ShowResultPanel(pnlEscapedResult, TimeSpan.Zero);
             pnlDoorBottomLeft.Visibility = Visibility.Collapsed;
             pnlClosedDoor.Visibility = Visibility.Visible;
+            AnimateDoorShut();
             ShowCountdown(EscapedFrameElapsedMilliseconds);
         }
 
         // TODO: Pasar a la partida 2.8 s después de mostrar el resultado. (BL-118).
-        private void ShowResultPanel(StackPanel resultContent)
+        private void ShowResultPanel(StackPanel resultContent, TimeSpan fadeInDelay)
         {
             pnlStage.Opacity = DimmedStageOpacity;
             lblCatchHint.Visibility = Visibility.Collapsed;
             brdRewardPill.Visibility = Visibility.Collapsed;
             brdResultPanel.Visibility = Visibility.Visible;
             resultContent.Visibility = Visibility.Visible;
+
+            DoubleAnimation fadeInAnimation = new DoubleAnimation(
+                HiddenOpacity,
+                VisibleOpacity,
+                TimeSpan.FromMilliseconds(ResultFadeInMilliseconds))
+            {
+                BeginTime = fadeInDelay
+            };
+
+            brdResultPanel.Opacity = HiddenOpacity;
+            brdResultPanel.BeginAnimation(OpacityProperty, fadeInAnimation);
         }
 
         private void ShowCountdown(int elapsedMilliseconds)
@@ -270,6 +308,123 @@ namespace TLMG.Client.Views
 
             lblCountdown.Text = remainingSeconds.ToString(CultureInfo.CurrentCulture);
             lblCountdown.Foreground = (Brush)FindResource(countdownBrushKey);
+
+            bool isResultShown = brdResultPanel.Visibility == Visibility.Visible;
+
+            if (remainingSeconds <= UrgentCountdownSeconds && !isResultShown)
+            {
+                AnimateCountdownBeat();
+            }
+        }
+
+        private void StopOpacityAnimations()
+        {
+            pnlDoorTopLeftGlow.BeginAnimation(OpacityProperty, null);
+            pnlDoorBottomLeftGlow.BeginAnimation(OpacityProperty, null);
+            brdResultPanel.BeginAnimation(OpacityProperty, null);
+            brdResultPanel.Opacity = VisibleOpacity;
+        }
+
+        private void AnimateDoorGlow(UIElement doorGlow, double glowLevel)
+        {
+            TimeSpan glowRiseTime = TimeSpan.FromMilliseconds(DoorGlowLeadMilliseconds * glowLevel);
+            DoubleAnimation glowAnimation = new DoubleAnimation(NoGlowLevel, glowLevel, glowRiseTime);
+
+            doorGlow.BeginAnimation(OpacityProperty, glowAnimation);
+        }
+
+        private void AnimateCountdownBeat()
+        {
+            DoubleAnimationUsingKeyFrames beatAnimation = new DoubleAnimationUsingKeyFrames
+            {
+                Duration = TimeSpan.FromMilliseconds(CounterBeatMilliseconds)
+            };
+            beatAnimation.KeyFrames.Add(new EasingDoubleKeyFrame(
+                CounterBeatPeakScale,
+                KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(CounterBeatPeakMilliseconds)),
+                new QuadraticEase { EasingMode = EasingMode.EaseOut }));
+            beatAnimation.KeyFrames.Add(new EasingDoubleKeyFrame(
+                NormalScale,
+                KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(CounterBeatSettleMilliseconds)),
+                new QuadraticEase { EasingMode = EasingMode.EaseOut }));
+
+            ScaleTransform beatTransform = new ScaleTransform();
+            lblCountdown.RenderTransform = beatTransform;
+            beatTransform.BeginAnimation(ScaleTransform.ScaleXProperty, beatAnimation);
+            beatTransform.BeginAnimation(ScaleTransform.ScaleYProperty, beatAnimation);
+        }
+
+        private void AnimateKittenVanish()
+        {
+            TimeSpan vanishTime = TimeSpan.FromMilliseconds(KittenVanishMilliseconds);
+            QuadraticEase vanishEase = new QuadraticEase { EasingMode = EasingMode.EaseIn };
+            DoubleAnimation shrinkAnimation = new DoubleAnimation(NormalScale, VanishedKittenScale, vanishTime)
+            {
+                EasingFunction = vanishEase
+            };
+            DoubleAnimation fadeOutAnimation = new DoubleAnimation(VisibleOpacity, HiddenOpacity, vanishTime)
+            {
+                EasingFunction = vanishEase
+            };
+
+            ScaleTransform vanishTransform = new ScaleTransform();
+            pnlVanishingKitten.RenderTransform = vanishTransform;
+            pnlCatchPuff.Visibility = Visibility.Visible;
+            vanishTransform.BeginAnimation(ScaleTransform.ScaleXProperty, shrinkAnimation);
+            vanishTransform.BeginAnimation(ScaleTransform.ScaleYProperty, shrinkAnimation);
+            pnlVanishingKitten.BeginAnimation(OpacityProperty, fadeOutAnimation);
+        }
+
+        private void AnimateCatchPuff()
+        {
+            int cloudIndex = 0;
+
+            foreach (UIElement puffCloud in pnlCatchPuffClouds.Children)
+            {
+                TimeSpan cloudDelay = TimeSpan.FromMilliseconds(cloudIndex * CatchPuffStaggerMilliseconds);
+                AnimatePuffCloud(puffCloud, cloudDelay);
+                cloudIndex++;
+            }
+        }
+
+        private void AnimatePuffCloud(UIElement puffCloud, TimeSpan cloudDelay)
+        {
+            TimeSpan puffTime = TimeSpan.FromMilliseconds(CatchPuffMilliseconds);
+            DoubleAnimation growAnimation = new DoubleAnimation(PuffStartScale, PuffEndScale, puffTime)
+            {
+                BeginTime = cloudDelay,
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+            DoubleAnimationUsingKeyFrames opacityAnimation = new DoubleAnimationUsingKeyFrames
+            {
+                BeginTime = cloudDelay,
+                Duration = puffTime
+            };
+            opacityAnimation.KeyFrames.Add(new LinearDoubleKeyFrame(
+                PuffPeakOpacity,
+                KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(CatchPuffPeakMilliseconds))));
+            opacityAnimation.KeyFrames.Add(new LinearDoubleKeyFrame(HiddenOpacity, KeyTime.FromTimeSpan(puffTime)));
+
+            ScaleTransform puffTransform = new ScaleTransform(PuffStartScale, PuffStartScale);
+            puffCloud.RenderTransform = puffTransform;
+            puffTransform.BeginAnimation(ScaleTransform.ScaleXProperty, growAnimation);
+            puffTransform.BeginAnimation(ScaleTransform.ScaleYProperty, growAnimation);
+            puffCloud.BeginAnimation(OpacityProperty, opacityAnimation);
+        }
+
+        private void AnimateDoorShut()
+        {
+            DoubleAnimation shutAnimation = new DoubleAnimation(
+                ClosedShutterScale,
+                NormalScale,
+                TimeSpan.FromMilliseconds(DoorShutMilliseconds))
+            {
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            ScaleTransform shutTransform = new ScaleTransform(NormalScale, ClosedShutterScale);
+            pnlDoorShutter.RenderTransform = shutTransform;
+            shutTransform.BeginAnimation(ScaleTransform.ScaleYProperty, shutAnimation);
         }
 
         private void OnFugitiveKittenScreenLoaded(object sender, RoutedEventArgs e)
