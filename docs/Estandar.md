@@ -1225,7 +1225,8 @@ public partial class ServiceImplementation : IUsersManager
    Para conservar esa pureza se cumple lo siguiente:
 
 * TLMG.Domain no usa los DTO de TLMG.Contracts.DataContracts, porque llevan atributos de WCF, ni las entidades de Entity Framework. La conversión entre estos tipos y los del dominio la hace TLMG.Services.  
-* El dominio no invoca callbacks, repositorios ni registro de eventos. Devuelve un resultado y quien lo llamó (Services) decide qué notificar y qué guardar.
+* El dominio no invoca callbacks, repositorios ni registro de eventos. Devuelve un resultado y quien lo llamó (Services) decide qué notificar y qué guardar.  
+* El dominio define las interfaces de los repositorios (ej. IPlayerRepository), pero desconoce cómo se implementan (Arquitectura Hexagonal). 
 
 Correcto (el dominio solo calcula; el servicio notifica y guarda)
 
@@ -1288,8 +1289,9 @@ En cada proyecto, el namespace raíz es el nombre del proyecto y cada carpeta ag
 
 | Proyecto | Carpetas | Namespaces |
 | :---- | :---- | :---- |
+| TLMG.Domain | raíz (Entidades), Validators (Validaciones y Helpers de dominio), Repositories (Interfaces de repositorios), Engine (Motor de reglas)  | TLMG.Domain, TLMG.Domain.Validators, TLMG.Domain.Repositories, TLMG.Domain.Engine  |
 | TLMG.Contracts | raíz (interfaces WCF), DataContracts (DTO) | TLMG.Contracts, TLMG.Contracts.DataContracts |
-| TLMG.Services | raíz (ServiceImplementation parcial), Accounts, Friends, Helpers, Leaderboard, Lobby, Sessions  | TLMG.Services, TLMG.Services.Accounts, TLMG.Services.Friends, TLMG.Services.Helpers, TLMG.Services.Lobby, TLMG.Services.Sessions  TLMG.Services.Leaderboard. |
+| TLMG.Services | raíz (ServiceImplementation parcial), Accounts, Friends, Leaderboard, Lobby, Sessions, Factories  | TLMG.Services, TLMG.Services.Accounts, TLMG.Services.Friends, TLMG.Services.Lobby, TLMG.Services.Sessions  TLMG.Services.Leaderboard. TLMG.Services.Factories |
 | TLMG.DataAccess | DatabaseModel (EF), Repositories | TLMG.DataAccess.DatabaseModel, TLMG.DataAccess.Repositories |
 | TLMG.Server | raíz (arranque y configuración) | TLMG.Server |
 
@@ -2325,24 +2327,19 @@ public void ValidateNickname(string nickname)
 }
 ```
 
-Los bloques catch deberán capturar el tipo de excepción más específico disponible. No deberá usarse Exception o SystemException como captura general ni como única captura. Se permite capturar Exception únicamente como el último bloque de una cascada de excepciones o en los límites del sistema (como manejadores globales o puntos de entrada de servicios); en estos casos, la excepción deberá registrarse con \_log.Error (incluyendo la excepción como segundo parámetro; \_log.Fatal solo en los casos de la sección 10.3) y relanzarse con throw; o bien convertirse en un resultado controlado. En un punto de entrada de servicio, un único catch (Exception) que registra con \_log.Error y responde con una ErrorKey es válido.
+Los bloques catch deberán capturar el tipo de excepción más específico disponible o, para embolsar las excepciones en una categoría, se pondrá su excepción padre. No deberá usarse Exception o SystemException como captura general ni como única captura. 
 
-Ejemplo correcto (catch específico y cascada con Exception al final)
+Ejemplo correcto (sin catch específico, solo el padre)
 
 ```c#
 try
 {
-    _emailSender.Send(playerEmail, verificationCode);
+    notificationOfResult();
 }
-catch (SmtpException ex)
+catch (CommunicationException communicationException)
 {
-    _log.Error(string.Format("Error de envío al jugador {0}.", playerId), ex);
-    throw;
-}
-catch (Exception ex)
-{
-    _log.Error(string.Format("Fallo inesperado al enviar el código al jugador {0}.", playerId), ex);
-    throw;
+    _log.Warn("Error de comunicación al notificar al cliente; verifique la conexión por parte del cliente.",
+        communicationException);
 }
 ```
 
@@ -4392,6 +4389,7 @@ Este Estándar recoge lo que está decidido (decisiones D-xx de las bitácoras y
 | D-60  | Capa de comunicación del cliente (ServerConnectionManager): conserva el token y levanta eventos hacia las pantallas  | S4.1, S6.2  |
 | D-61  | Marco de pruebas: xUnit.net  | S15.1, S19.1  |
 | D-62 | Los avisos de los callbacks WCF llevan el prefijo "On"; los resultados de operación se nombran con el resultado | S3.7, S3.10  |
+| D-63 | El chat acepta mensajes de 1 a 160 caracteres, medidos tras recortar espacios y normalizar. Se elimina el mínimo de 2 (RC-M-02) por quedar cubierto por la regla de campo obligatorio (RC-G-01). Afecta al diccionario de validación y a las pruebas del chat.  |  |
 | ADR-01 | Servidor autoritativo y Zero-Trust | S6.1, S6.2, S16.1, S16.3, S20.1 |
 | ADR-02 | Aislamiento del motor de reglas | S4.2, S6.1, S6.2 |
 | ADR-03 | WCF dúplex con callbacks | S6.2, S11.1 |
