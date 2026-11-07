@@ -5,8 +5,9 @@ Control de pendientes, `FIXME`, `TODO` y actividades. Reglas fijas:
 1. Toda entrada lleva **fecha y hora** de creación (`AAAA-MM-DD HH:MM`).
 2. Toda entrada lleva una **justificación breve** del porqué.
 3. Si depende de algo, se indica en **Depende de**.
-4. Al terminar se marca: `Finalizado el AAAA-MM-DD · commit <hash>`. Sin commit no se cierra.
-5. Todo `FIXME` o `TODO` del código tiene su entrada aquí.
+4. Al terminar se marca: `Finalizado el AAAA-MM-DD · commit <hash>`. Sin commit no se cierra. 
+4. Para Descartada. - Estado: Pendiente | En curso | Finalizado el AAAA-MM-DD · commit <hash> | Descartada el AAAA-MM-DD · motivo 
+6. Todo `FIXME` o `TODO` del código tiene su entrada aquí.
 
 Formato de entrada:
 
@@ -208,6 +209,7 @@ Formato de entrada:
 - Por qué: Estándar §4.2 y gov/CLAUDE.md §13; no existe. Base para llegar al mínimo de pruebas sin infraestructura.
 - Depende de: Reglas de The Last Meow en docs/ (BL-026); BL-039
 - Estado: Pendiente
+- Nota (2026-11-06 13:30): decisión del encargado: Domain amplio (entidades, Validators, Repositories, Engine; Estándar §4.3), sin "Managers" (§3.14). Etapa 1: constantes, entidades y validadores. Etapa 2: interfaces de repositorio (DataAccess referencia a Domain; revisar cómo Services obtiene los repositorios, D-51). Etapa 3: motor de reglas.
 
 ### BL-041 · Migrar las pantallas a MVVM con CommunityToolkit.Mvvm (D-39, D-50)
 - Creado: 2026-10-25 00:49
@@ -220,6 +222,7 @@ Formato de entrada:
 - Por qué: Estándar §18.1 deja sin decidir cómo solicita navegación un ViewModel sin referenciar la vista. Hay 27 usos de Application.Current.MainWindow en 11 pantallas y MessageBox en las vistas, que §4.1 prohíbe al ViewModel. La decisión puede tomarse fuera del equipo; mientras tanto no se actúa.
 - Depende de: decisión (alternativas por presentar)
 - Estado: Pendiente
+- Nota (2026-11-06 13:30): decisión del encargado: servicio por interfaz, ViewModel lo recibe por constructor. Nombres INavigationManager e IDialogManager (§3.14 reserva Service para la lógica del servidor); los diálogos reciben ErrorKey, no texto. Cierra §18.1.
 
 ### BL-043 · Limpieza de estilo del diagnóstico (no incluida en BL-027)
 - Creado: 2026-10-25 00:49
@@ -519,21 +522,36 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Pendiente
 
+### BL-105 · Llevar la modalidad colaborativa al servidor
+- Creado: 2026-11-03 23:24
+- Por qué: DefaultCardsPerPlayerCount queda fija en 4 hasta que la modalidad llegue al servidor; entonces deberá reflejar la selección colaborativa de 4, 6 u 8 cartas.
+- Depende de: cambio de modalidad colaborativa del lobby
+- Estado: Pendiente
+
+
+### BL-106 · Conservar el chat 24 horas (RF-51)
+- Creado: 2026-11-03 23:53
+- Por qué: hoy el chat es solo en memoria y sin historial; falta conservar los mensajes durante 24 horas.
+- Depende de: persistencia del chat
+- Estado: Pendiente
+
 ### BL-107 · Filtrar palabras ofensivas en el chat y el nickname (RC-M-01, RC-N-01)
 - Creado: 2026-11-04 16:40
 - Por qué: el servidor valida longitud y caracteres del chat, pero no filtra palabras ofensivas; el diccionario de validación lo exige para chat y nickname, en español e inglés.
 - Depende de: definir la fuente de la lista de palabras y dónde se valida (servidor)
+- Estado: Pendiente
 
 ### BL-108 · Dividir ServerConnectionManager por canal (amigos, lobby y chat)
 - Creado: 2026-11-06 12:15
 - Por qué: la clase concentra amigos, lobby, Listo, cuenta regresiva y chat en tres archivos parciales. Cada canal debe tener su propio administrador de conexión. Cambia D-60 (un solo ServerConnectionManager en App), que debe registrarse en la Bitácora.
 - Depende de: BL-078, BL-080; decisión de D-60
 - Estado: Pendiente
+- Nota (2026-11-06 13:30): antes de dividir, definir dónde viven el token, la sala actual, la lista de amigos y el cierre de sesión (ADR-08, BL-078).
 
-### BL-109 · Centralizar IsSuccess y ErrorKey de los resultados
+### BL-109 · Clase base OperationResult para IsSuccess y ErrorKey
 - Creado: 2026-11-06 12:15
-- Por qué: cada ServiceImplementation verifica nulos y Common_UnexpectedError por su cuenta. Opción elegida para ahora: ayudante en el servidor que arma los resultados, sin cambiar el contrato. Opción diferida: clase base de contrato, que exige regenerar el proxy una sola vez.
-- Depende de: BL-017; decisión del encargado
+- Por qué: cada operación de ServiceImplementation verifica nulos y arma Common_UnexpectedError por su cuenta, y cada …Result repite IsSuccess y ErrorKey. Decisión del encargado (2026-11-06): clase base OperationResult en TLMG.Contracts.DataContracts, de la que heredan los …Result (Estándar §17.1). Las firmas de operaciones y callbacks se declaran con el tipo derivado, nunca con el base. Exige regenerar el proxy una sola vez y repetir el paso fijo de BL-057 (apertura 10 s, envío 15 s, cierre 5 s; sin <identity>). El cliente reutiliza ErrorMessageHelper.
+- Depende de: BL-017 (inventario previo de los …Result)
 - Estado: Pendiente
 
 ### BL-110 · Depurar los diccionarios y alinear el Excel
@@ -556,8 +574,20 @@ Formato de entrada:
 
 ### BL-113 · Regenerar el proxy cuando cambie un contrato
 - Creado: 2026-11-06 12:15
-- Por qué: el proxy conserva OperationRequestMatchStartRequest y el servidor usa OperationMatchStartRequest (7b8ae86). Regenerar una sola vez junto con el siguiente cambio de contrato y repetir el paso fijo de BL-057 (tiempos 10/15/5 s, sin identidad).
+- Se hace dentro de BL-109, que es el cambio de contrato; incluye corregir el nombre desfasado OperationRequestMatchStartRequest.
 - Depende de: BL-109
+- Estado: Pendiente
+
+### BL-114 · Actualizar la Bitácora con D-58 a D-66
+- Creado: 2026-11-06 13:30
+- Por qué: el Estándar cita D-58 a D-63 y el SAD cita ADR-08; la Bitácora no los contiene. A registrar además: navegación por interfaz (INavigationManager e IDialogManager), Domain amplio, OperationResult y la enmienda a D-60. Numeración tentativa D-64 a D-66; confirmar contra la Bitácora.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-115 · Unificar dónde viven los validadores del servidor
+- Creado: 2026-11-06 13:30
+- Por qué: Estándar §4.3 los ubica en TLMG.Domain.Validators y §16.1 en TLMG.Services.Helpers (carpeta que §4.3 no lista). Decidir y corregir el que sobre. Recomendado: Domain.Validators.
+- Depende de: BL-040
 - Estado: Pendiente
 
 
@@ -746,42 +776,27 @@ Formato de entrada:
 - Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente que muestra el nickname real; los puntos, el rango y la racha quedan ocultos hasta BL-103.
 - Nota (2026-11-03 15:41): cierre. Verificado en eb765d6: el menú muestra el nickname real (lblPlayerNickname) y ya no enseña datos ajenos: el panel de victorias, puntos y puesto y las tarjetas de última victoria, racha y siguiente rango quedan ocultos (Collapsed; los textos de prueba siguen en el XAML oculto), y se quitaron las constantes de racha y siguiente rango. Mostrar esos valores reales queda en BL-103.
 
-
-### BL-105 · Llevar la modalidad colaborativa al servidor
-- Creado: 2026-11-03 23:24
-- Por qué: DefaultCardsPerPlayerCount queda fija en 4 hasta que la modalidad llegue al servidor; entonces deberá reflejar la selección colaborativa de 4, 6 u 8 cartas.
-- Depende de: cambio de modalidad colaborativa del lobby
-- Estado: Pendiente
-
-
-### BL-106 · Conservar el chat 24 horas (RF-51)
-- Creado: 2026-11-03 23:53
-- Por qué: hoy el chat es solo en memoria y sin historial; falta conservar los mensajes durante 24 horas.
-- Depende de: persistencia del chat
-- Estado: Pendiente
-
-
 ### BL-056 · Registrar en la Bitácora D-57 y la enmienda a D-40
 - Creado: 2026-10-25 19:32
 - Por qué: la Bitácora vive fuera del repositorio. Falta registrar D-57 (criterio de accesibilidad) y la enmienda a D-40: la referencia de servicio de Visual Studio usa el mismo generador que svcutil.exe. Queda abierta hasta que el encargado lo haga.
 - Depende de: el encargado
-- Estado: Descartada/Decisión del equipo bajo la documentación 
+- Estado: Descartada el 2026-11-06 · el registro de decisiones se hace en BL-114
 
 
 ### BL-059 · Registrar en la Bitácora las decisiones D-58 a D-61
 - Creado: 2026-10-29 13:08
 - Por qué: el Estándar (§3.14, §4.3, §5.3, §10.3, §11.1, §15.1, §16.2, §19.1, §20.2) y el SAD (ADR-08, C-02, C-06, §4.2, §4.3, §7.3) ya citan D-58 a D-61 y ADR-08, pero la Bitácora (fuera del repositorio, BL-056) aún no las contiene: D-58 (SessionRegistry con lock único, sessionToken, el último inicio de sesión gana), D-59 (scripts de demostración en database/seed/), D-60 (ServerConnectionManager) y D-61 (xUnit.net). Relacionada con BL-009 y BL-056.
 - Depende de: decisión del encargado sobre la redacción
-- Estado: Descartada/Decisión del equipo bajo la documentación 
+- Estado: Descartada el 2026-11-06 · el registro de decisiones se hace en BL-114
 
 ### BL-068 · Registrar en el Estándar y la Bitácora el estado de salas en SessionRegistry
 - Creado: 2026-10-29 15:07
 - Por qué: la autorización de lock de D-58 ahora cubre también las salas, las pertenencias, los callbacks y las autorizaciones de entrada; el límite de 6 jugadores por sala vive en `SessionRegistry` (Reglas §1.1.1). Falta reflejarlo en §11.1 y en la Bitácora (fuera del repositorio). Complementa BL-059.
 - Depende de: decisión del encargado
-- Estado: Descartada/Decisión del equipo bajo la documentación 
+- Estado: Descartada el 2026-11-06 · el registro de decisiones se hace en BL-114
 
 ### BL-074 · Registrar en la Bitácora el canal de amigos como presencia
 - Creado: 2026-10-29 15:42
 - Por qué: "en línea" significa tener un canal de amigos vivo, no tener sesión, y cerrar ese canal termina la sesión del jugador (ADR-08, D-58). Falta registrarlo en la Bitácora (fuera del repositorio) y reflejarlo en §6.2 del Estándar.
 - Depende de: decisión del encargado
-- Estado: Descartada/Decisión del equipo bajo la documentación 
+- Estado: Descartada el 2026-11-06 · el registro de decisiones se hace en BL-114
