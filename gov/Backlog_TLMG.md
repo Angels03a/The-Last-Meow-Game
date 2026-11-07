@@ -79,13 +79,6 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Pendiente
 
-### BL-014 · Diseño de la pantalla del Gatito Fugitivo// LUIS ANGEL
-- Creado: 2026-10-20 10:30
-- Por qué: solo diseño por ahora, en otro chat; sin implementación.
-- Depende de: nada
-- Estado: Pendiente
-- Nota (2026-11-07 04:28): avance de la interfaz: se construye FugitiveKittenScreen como cáscara visual fiel al prototipo de Figma (6 estados fijos, sin servidor, contrato ni ViewModel). Los huecos funcionales quedan en BL-041 y BL-116 a BL-122. La entrada sigue abierta hasta que exista el commit.
-
 ### BL-015 · Revisar el puntaje de la clasificación que no se muestra
 - Creado: 2026-10-20 10:30
 - Por qué: puede ser que `total_points` no tenga datos o un fallo previo; verificar.
@@ -847,3 +840,10 @@ Formato de entrada:
 - Por qué: "en línea" significa tener un canal de amigos vivo, no tener sesión, y cerrar ese canal termina la sesión del jugador (ADR-08, D-58). Falta registrarlo en la Bitácora (fuera del repositorio) y reflejarlo en §6.2 del Estándar.
 - Depende de: decisión del encargado
 - Estado: Descartada el 2026-11-06 · el registro de decisiones se hace en BL-114
+
+### BL-014 · Diseño de la pantalla del Gatito Fugitivo// LUIS ANGEL
+- Creado: 2026-10-20 10:30
+- Por qué: solo diseño por ahora, en otro chat; sin implementación.
+- Depende de: nada
+- Estado: Finalizado el 2026-11-06 · commit 898d5b5
+- Nota (2026-11-06 23:25): se cerró el diseño y la interfaz de FugitiveKittenScreen. La funcionalidad (contrato, ViewModel, ruta, navegación) sigue en BL-041 y BL-116 a BL-122.
