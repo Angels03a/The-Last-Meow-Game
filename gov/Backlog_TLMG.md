@@ -84,6 +84,7 @@ Formato de entrada:
 - Por qué: solo diseño por ahora, en otro chat; sin implementación.
 - Depende de: nada
 - Estado: Pendiente
+- Nota (2026-11-07 04:28): avance de la interfaz: se construye FugitiveKittenScreen como cáscara visual fiel al prototipo de Figma (6 estados fijos, sin servidor, contrato ni ViewModel). Los huecos funcionales quedan en BL-041 y BL-116 a BL-122. La entrada sigue abierta hasta que exista el commit.
 
 ### BL-015 · Revisar el puntaje de la clasificación que no se muestra
 - Creado: 2026-10-20 10:30
@@ -203,6 +204,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-25): el marco de pruebas sigue sin decidirse (Estándar §15.1 y §19.1). Se recomendó xUnit.net, sin decisión del equipo; consultar al profesor o la rúbrica. No se ha creado ningún proyecto de pruebas.
 - Nota (2026-10-29 22:53): el marco ya está decidido: xUnit.net (D-61, Estándar §15.1). Sigue sin existir ningún proyecto de pruebas.
+- Nota (2026-11-07 04:28): incluir las pruebas del catálogo de rutas del Gatito Fugitivo: cada ruta suma la ventana, el escape no es negativo, cada túnel sale por otra gatera y cada escondite sale por la misma caja. Depende también de BL-116.
 
 ### BL-040 · Crear TLMG.Domain (motor de reglas puro)
 - Creado: 2026-10-25 00:49
@@ -210,12 +212,14 @@ Formato de entrada:
 - Depende de: Reglas de The Last Meow en docs/ (BL-026); BL-039
 - Estado: Pendiente
 - Nota (2026-11-06 13:30): decisión del encargado: Domain amplio (entidades, Validators, Repositories, Engine; Estándar §4.3), sin "Managers" (§3.14). Etapa 1: constantes, entidades y validadores. Etapa 2: interfaces de repositorio (DataAccess referencia a Domain; revisar cómo Services obtiene los repositorios, D-51). Etapa 3: motor de reglas.
+- Nota (2026-11-07 04:28): el dominio alojará las constantes de tiempo del Gatito Fugitivo (arranque, medio carril, oculto y tolerancia de 150 ms) y el catálogo de rutas, con el escape calculado como la ventana menos los demás tramos (etapa 1 de la decisión del 2026-11-06).
 
 ### BL-041 · Migrar las pantallas a MVVM con CommunityToolkit.Mvvm (D-39, D-50)
 - Creado: 2026-10-25 00:49
 - Por qué: hoy no hay ViewModels, comandos ni DataContext y las 13 pantallas atan Click (Estándar §7.1, §6.2). Una pantalla por commit, empezando por CreateAccountScreen.
 - Depende de: aprobación de D-50; BL-042; BL-036
 - Estado: Pendiente
+- Nota (2026-11-07 04:28): FugitiveKittenScreen nace sin ViewModel; su estado visible vive en el code-behind. Al migrarla, crear FugitiveKittenViewModel con CatchKittenCommand, ejecutable solo mientras el tramo es visible, y un modelo de presentación propio.
 
 ### BL-042 · Mecanismo de navegación y diálogos desde el ViewModel (§18.1)
 - Creado: 2026-10-25 00:49
@@ -588,6 +592,48 @@ Formato de entrada:
 - Creado: 2026-11-06 13:30
 - Por qué: Estándar §4.3 los ubica en TLMG.Domain.Validators y §16.1 en TLMG.Services.Helpers (carpeta que §4.3 no lista). Decidir y corregir el que sobre. Recomendado: Domain.Validators.
 - Depende de: BL-040
+- Estado: Pendiente
+
+### BL-116 · Contrato IMatchManager del Gatito Fugitivo y sus DTO
+- Creado: 2026-11-07 04:28
+- Por qué: no existe ningún contrato de partida. Faltan la operación de un solo sentido TryCatchFugitiveKitten(sessionToken), los callbacks OnFugitiveKittenStarted y OnFugitiveKittenResolved, los DTO sin sufijo Data (D-56): FugitiveKittenRoute, KittenSegment y el resultado (nombre por decidir), su archivo ServiceImplementation.MatchManager.cs, el endpoint en el host y la regeneración del proxy.
+- Depende de: BL-040; BL-109 (los resultados heredan de OperationResult; regenerar el proxy una sola vez); BL-113
+- Estado: Pendiente
+
+### BL-117 · Envío del intento de atrape y recepción del resultado del Gatito Fugitivo
+- Creado: 2026-11-07 04:28
+- Por qué: el clic sobre el gatito no hace nada. Falta enviar el intento solo cuando el gatito está visible, recibir la ruta, el color y el resultado por callback con Dispatcher.BeginInvoke, y mostrar "lo atrapaste" o "lo atrapó otro" comparando el ganador que decide el servidor (QAS-04) con el jugador local, con el nickname real en lugar del de muestra.
+- Depende de: BL-116, BL-041; BL-108 (canal por separado en ServerConnectionManager)
+- Estado: Pendiente
+
+### BL-118 · Navegación al iniciar la partida según la modalidad
+- Creado: 2026-11-07 04:28
+- Por qué: con 8 cartas se debe abrir FugitiveKittenScreen y con 4 y 6, LoadingScreen; tras el resultado, pasar a la partida a los 2.8 s. Hoy MainWindow.NavigateToAuthorizedMatch abre GameplayScreen directamente.
+- Depende de: BL-046, BL-117
+- Estado: Pendiente
+
+### BL-119 · Reproducción de la ruta de 15 s del gatito en la pantalla
+- Creado: 2026-11-07 04:28
+- Por qué: la pantalla solo muestra los 6 estados fijos. Falta recorrer los tramos con DispatcherTimer (movimiento, cambio de pose cada 100 ms, volteo según la dirección, brillo 300 ms antes de cada salida, contador en vivo y cierre a los 15 s). La ruta de muestra local se retira cuando llegue la del servidor.
+- Depende de: aprobación del encargado; BL-117 para la ruta real
+- Estado: Pendiente
+
+### BL-120 · Sprites finales y colores del gatito
+- Creado: 2026-11-07 04:28
+- Por qué: el gatito se dibuja con formas de XAML; los colores blanco (#F4F1EC/#BDB6AA/#FFFFFF) y gris (#8E8EA3/#5F5F75/#D2D2DE) son provisionales y no vienen del Figma. Reemplazarlos por los sprites finales en img/ (Estándar §4.4).
+- Depende de: entrega de arte
+- Estado: Pendiente
+
+### BL-121 · Fuentes Cinzel y Outfit del prototipo
+- Creado: 2026-11-07 04:28
+- Por qué: hoy se usa Georgia Bold en lugar de Cinzel (sin peso Black) y la fuente por defecto en lugar de Outfit; WPF no tiene espaciado entre letras en TextBlock. Agregar las fuentes es una dependencia nueva (licencia y archivos) y se decide aparte.
+- Depende de: decisión del encargado (§19.1)
+- Estado: Pendiente
+
+### BL-122 · Retirar los accesos temporales de FugitiveKittenScreen
+- Creado: 2026-11-07 04:28
+- Por qué: la tecla F8 en MainMenuScreen, las teclas 1 a 6 (estados), C (colores) y Esc (GoBack) dentro de la pantalla, los estados congelados y el nickname de muestra existen solo para revisar la interfaz y no deben llegar a la entrega.
+- Depende de: BL-118, BL-119
 - Estado: Pendiente
 
 
