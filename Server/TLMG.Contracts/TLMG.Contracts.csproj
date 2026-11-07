@@ -39,6 +39,8 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataContracts\OperationResult.cs" />
+    <Compile Include="DataContracts\SystemFault.cs" />
     <Compile Include="IChatManagerCallback.cs" />
     <Compile Include="IChatManager.cs" />
     <Compile Include="DataContracts\OperationSubscribeToChatResult.cs" />
@@ -72,7 +74,6 @@
     <Compile Include="ILobbyManager.cs" />
     <Compile Include="ILobbyManagerCallback.cs" />
     <Compile Include="IUsersManager.cs" />
-    <Compile Include="IUsersManagerCallback.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

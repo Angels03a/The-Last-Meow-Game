@@ -57,7 +57,7 @@ namespace TLMG.Services.Lobby
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
                 operationCreateRoomResult.IsSuccess = true;
-                operationCreateRoomResult.Room = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
+                operationCreateRoomResult.LobbyRoom = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
                 _log.InfoFormat(
                     "El jugador {0} creó la sala {1}.",
                     lobbyMembershipChange.UserId,

@@ -1,6 +1,4 @@
-﻿using System.ServiceModel;
-
-using TLMG.Contracts;
+﻿using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
 using TLMG.DataAccess.Repositories;
 using TLMG.Services.Accounts;
@@ -19,30 +17,28 @@ namespace TLMG.Services
 
         private static readonly PlayerLogInService _playerLogInService;
 
-        /// <summary>Delega el registro al servicio de registro y responde por callback.</summary>
-        /// <param name="registrationPlayerAccount">Datos capturados por el jugador.</param>
-        public void RegisterPlayerAccount(PlayerAccountRegistration registrationPlayerAccount)
+        /// <summary>
+        /// Delegates the registration to the registration service and returns the result directly.
+        /// </summary>
+        /// <param name="registrationPlayerAccount">Data captured by the player.</param>
+        /// <returns>The result of the registration operation.</returns>
+        public OperationRegisterPlayerAccountResult RegisterPlayerAccount(PlayerAccountRegistration registrationPlayerAccount)
         {
-            IUsersManagerCallback callback =
-                OperationContext.Current.GetCallbackChannel<IUsersManagerCallback>();
-
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult =
-                _playerAccountRegistrationService.RegisterPlayerAccount(registrationPlayerAccount);
-
-            SafeNotify(() => callback.RegisterPlayerAccountResult(operationRegisterPlayerAccountResult));
+            return _playerAccountRegistrationService.RegisterPlayerAccount(registrationPlayerAccount);
         }
 
-        /// <summary>Delega el inicio de sesión al servicio de inicio de sesión y responde por callback.</summary>
-        /// <param name="operationLogInRequest">Credenciales capturadas por el jugador.</param>
-        public void LogIn(OperationLogInRequest operationLogInRequest)
+        /// <summary>
+        /// Delegates the login to the login service, notifies other players, and returns the result directly.
+        /// </summary>
+        /// <param name="operationLogInRequest">Credentials captured by the player.</param>
+        /// <returns>The result of the login operation.</returns>
+        public OperationLogInResult LogIn(OperationLogInRequest operationLogInRequest)
         {
-            IUsersManagerCallback callback =
-                OperationContext.Current.GetCallbackChannel<IUsersManagerCallback>();
+            ResultWithNotification<OperationLogInResult> loginResult = _playerLogInService.LogIn(operationLogInRequest);
 
-            ResultWithNotification<OperationLogInResult> sessionOutcome = _playerLogInService.LogIn(operationLogInRequest);
+            SafeNotifyAll(loginResult.Notifications);
 
-            SafeNotify(() => callback.LogInResult(sessionOutcome.OperationResult));
-            SafeNotifyAll(sessionOutcome.Notifications);
+            return loginResult.OperationResult;
         }
     }
 }
