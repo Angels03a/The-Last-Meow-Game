@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Input;
 
 namespace TLMG.Client.Views
 {
@@ -15,6 +16,9 @@ namespace TLMG.Client.Views
         public MainMenuScreen()
         {
             InitializeComponent();
+            Focusable = true;
+            Loaded += OnMainMenuScreenLoaded;
+            KeyDown += OnMainMenuScreenKeyDown;
         }
 
         /// <inheritdoc />
@@ -51,6 +55,21 @@ namespace TLMG.Client.Views
         private void BtnOptions_Click(object sender, RoutedEventArgs e)
         {
             ((MainWindow)Application.Current.MainWindow).ShowScreen(new OptionsScreen());
+        }
+
+        private void OnMainMenuScreenLoaded(object sender, RoutedEventArgs e)
+        {
+            Focus();
+        }
+
+        // TODO: Retirar el acceso temporal con F8 a FugitiveKittenScreen. (BL-122).
+        // TODO: Abrir FugitiveKittenScreen al iniciar una partida de 8 cartas, no desde el menú. (BL-118).
+        private void OnMainMenuScreenKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F8)
+            {
+                ((MainWindow)Application.Current.MainWindow).ShowScreen(new FugitiveKittenScreen());
+            }
         }
 
         private void BtnLogOut_Click(object sender, RoutedEventArgs e)
