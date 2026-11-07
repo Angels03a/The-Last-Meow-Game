@@ -1,0 +1,220 @@
+<local:LocalizableScreen x:Class="TLMG.Client.Views.FugitiveKittenScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:TLMG.Client.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="720"
+             d:DesignWidth="1280"
+             Focusable="True">
+    <local:LocalizableScreen.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/TLMG.Client;component/Styles/GlobalStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </local:LocalizableScreen.Resources>
+
+    <Grid Background="{StaticResource Brush_FugitiveKittenStage}">
+        <Viewbox Stretch="Uniform">
+            <Canvas Width="1280" Height="720" ClipToBounds="True">
+
+                <Canvas x:Name="pnlStars" />
+
+                <!-- Escenario de 1280×662 del prototipo, centrado en los 720 de alto (Top = 29). -->
+                <Canvas Canvas.Top="29" Width="1280" Height="662">
+
+                    <Canvas x:Name="pnlStage">
+                        <Line Y1="390" Y2="390" Style="{StaticResource FugitiveKittenFloorLineStyle}" />
+                        <Line Y1="600" Y2="600" Style="{StaticResource FugitiveKittenFloorLineStyle}" />
+
+                        <!-- El gatito va detrás de gateras y cajas: así entra y sale de ellas. -->
+                        <Canvas x:Name="pnlKitten" Canvas.Left="337" Canvas.Top="330" Width="96" Height="64">
+                            <Canvas Visibility="Collapsed">
+                                <ContentControl Template="{StaticResource FugitiveKittenReachPoseTemplate}"
+                                                Focusable="False" IsTabStop="False" />
+                            </Canvas>
+                            <Canvas>
+                                <ContentControl Template="{StaticResource FugitiveKittenGatherPoseTemplate}"
+                                                Focusable="False" IsTabStop="False" />
+                            </Canvas>
+                        </Canvas>
+
+                        <Canvas Canvas.Left="74" Canvas.Top="270">
+                            <ContentControl Template="{StaticResource FugitiveKittenDoorTemplate}"
+                                            Focusable="False" IsTabStop="False" />
+                            <Canvas x:Name="pnlDoorTopLeftGlow">
+                                <ContentControl Template="{StaticResource FugitiveKittenDoorGlowTemplate}"
+                                                Focusable="False" IsTabStop="False" />
+                            </Canvas>
+                        </Canvas>
+                        <Canvas Canvas.Left="1094" Canvas.Top="270">
+                            <ContentControl Template="{StaticResource FugitiveKittenDoorTemplate}"
+                                            Focusable="False" IsTabStop="False" />
+                            <Canvas x:Name="pnlDoorTopRightGlow">
+                                <ContentControl Template="{StaticResource FugitiveKittenDoorGlowTemplate}"
+                                                Focusable="False" IsTabStop="False" />
+                            </Canvas>
+                        </Canvas>
+                        <Canvas x:Name="pnlDoorBottomLeft" Canvas.Left="74" Canvas.Top="480">
+                            <ContentControl Template="{StaticResource FugitiveKittenDoorTemplate}"
+                                            Focusable="False" IsTabStop="False" />
+                            <Canvas x:Name="pnlDoorBottomLeftGlow">
+                                <ContentControl Template="{StaticResource FugitiveKittenDoorGlowTemplate}"
+                                                Focusable="False" IsTabStop="False" />
+                            </Canvas>
+                        </Canvas>
+                        <Canvas Canvas.Left="1094" Canvas.Top="480">
+                            <ContentControl Template="{StaticResource FugitiveKittenDoorTemplate}"
+                                            Focusable="False" IsTabStop="False" />
+                            <Canvas x:Name="pnlDoorBottomRightGlow">
+                                <ContentControl Template="{StaticResource FugitiveKittenDoorGlowTemplate}"
+                                                Focusable="False" IsTabStop="False" />
+                            </Canvas>
+                        </Canvas>
+                        <Canvas Canvas.Left="572" Canvas.Top="306">
+                            <ContentControl Template="{StaticResource FugitiveKittenBoxTemplate}"
+                                            Focusable="False" IsTabStop="False" />
+                            <Canvas x:Name="pnlBoxTopGlow">
+                                <ContentControl Template="{StaticResource FugitiveKittenBoxGlowTemplate}"
+                                                Focusable="False" IsTabStop="False" />
+                            </Canvas>
+                        </Canvas>
+                        <Canvas Canvas.Left="572" Canvas.Top="516">
+                            <ContentControl Template="{StaticResource FugitiveKittenBoxTemplate}"
+                                            Focusable="False" IsTabStop="False" />
+                            <Canvas x:Name="pnlBoxBottomGlow">
+                                <ContentControl Template="{StaticResource FugitiveKittenBoxGlowTemplate}"
+                                                Focusable="False" IsTabStop="False" />
+                            </Canvas>
+                        </Canvas>
+                    </Canvas>
+
+                    <Rectangle x:Name="rectCaughtOverlay" Canvas.Top="-29" Width="1280" Height="720"
+                               Fill="{StaticResource Brush_Online}" Opacity="0.07" />
+
+                    <!-- Gatera P3 cerrada, con opacidad completa sobre la escena atenuada (Escapó). -->
+                    <Canvas x:Name="pnlClosedDoor" Canvas.Left="74" Canvas.Top="480">
+                        <ContentControl Template="{StaticResource FugitiveKittenDoorTemplate}"
+                                        Focusable="False" IsTabStop="False" />
+                        <ContentControl Template="{StaticResource FugitiveKittenDoorShutterTemplate}"
+                                        Focusable="False" IsTabStop="False" />
+                    </Canvas>
+
+                    <!-- Gatito que desaparece y nube "puf" (Lo atrapó otro); los anima E4. -->
+                    <Canvas x:Name="pnlCatchPuff" Canvas.Left="498" Canvas.Top="570">
+                        <Canvas Canvas.Left="-48" Canvas.Top="-30">
+                            <ContentControl Template="{StaticResource FugitiveKittenReachPoseTemplate}"
+                                            Focusable="False" IsTabStop="False" />
+                        </Canvas>
+                        <Ellipse Canvas.Left="-18" Canvas.Top="-18" Width="36" Height="36"
+                                 Fill="{StaticResource Brush_FugitiveKittenPuff}" />
+                        <Ellipse Canvas.Left="-35" Canvas.Top="-7" Width="26" Height="26"
+                                 Fill="{StaticResource Brush_FugitiveKittenPuff}" />
+                        <Ellipse Canvas.Left="8" Canvas.Top="-10" Width="28" Height="28"
+                                 Fill="{StaticResource Brush_FugitiveKittenPuff}" />
+                        <Ellipse Canvas.Left="-22" Canvas.Top="-28" Width="24" Height="24"
+                                 Fill="{StaticResource Brush_FugitiveKittenPuff}" />
+                        <Ellipse Canvas.Left="3" Canvas.Top="-25" Width="22" Height="22"
+                                 Fill="{StaticResource Brush_FugitiveKittenPuff}" />
+                    </Canvas>
+
+                    <TextBlock x:Name="lblGetReady" Canvas.Top="468"
+                               Text="{DynamicResource FugitiveKitten_GetReadyMessage}"
+                               Style="{StaticResource FugitiveKittenGetReadyTextStyle}" />
+
+                    <!-- Contenedor de 400 px centrado en el escondite activo (P2: x = 1150, floor − 160). -->
+                    <Grid x:Name="grdHidingMessage" Canvas.Left="950" Canvas.Top="230" Width="400">
+                        <Border Style="{StaticResource FugitiveKittenHidingPillStyle}">
+                            <TextBlock Text="{DynamicResource FugitiveKitten_HiddenMessage}"
+                                       Style="{StaticResource FugitiveKittenHidingTextStyle}" />
+                        </Border>
+                    </Grid>
+
+                    <StackPanel Canvas.Top="22" Width="1280">
+                        <TextBlock Text="{DynamicResource FugitiveKitten_Title}"
+                                   Style="{StaticResource FugitiveKittenHeaderTitleTextStyle}" />
+                        <TextBlock x:Name="lblCountdown" Style="{StaticResource FugitiveKittenCountdownTextStyle}" />
+                        <TextBlock x:Name="lblCatchHint" Text="{DynamicResource FugitiveKitten_CatchHint}"
+                                   Style="{StaticResource FugitiveKittenCatchHintTextStyle}" />
+                        <Border x:Name="brdRewardPill" Style="{StaticResource FugitiveKittenRewardPillStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <Canvas Width="14" Height="14" VerticalAlignment="Center">
+                                    <Ellipse Canvas.Left="3.4" Canvas.Top="6.5" Width="7.2" Height="6"
+                                             Fill="{StaticResource Brush_AccentLight}" />
+                                    <Ellipse Canvas.Left="1.1" Canvas.Top="4.1" Width="3" Height="3"
+                                             Fill="{StaticResource Brush_AccentLight}" />
+                                    <Ellipse Canvas.Left="3.9" Canvas.Top="1.5" Width="3" Height="3"
+                                             Fill="{StaticResource Brush_AccentLight}" />
+                                    <Ellipse Canvas.Left="7.1" Canvas.Top="1.5" Width="3" Height="3"
+                                             Fill="{StaticResource Brush_AccentLight}" />
+                                    <Ellipse Canvas.Left="9.9" Canvas.Top="4.1" Width="3" Height="3"
+                                             Fill="{StaticResource Brush_AccentLight}" />
+                                </Canvas>
+                                <TextBlock Text="{DynamicResource FugitiveKitten_RewardLabel}"
+                                           Style="{StaticResource FugitiveKittenRewardTextStyle}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <Border x:Name="brdResultPanel" Canvas.Left="350" Canvas.Top="120"
+                            Style="{StaticResource FugitiveKittenResultPanelStyle}">
+                        <StackPanel>
+                            <StackPanel x:Name="pnlCaughtResult">
+                                <Viewbox Width="115" Height="77" Margin="0,0,0,6">
+                                    <ContentControl Template="{StaticResource FugitiveKittenGatherPoseTemplate}"
+                                                    Focusable="False" IsTabStop="False" />
+                                </Viewbox>
+                                <TextBlock Text="{DynamicResource FugitiveKitten_CaughtTitle}" FontSize="30"
+                                           Foreground="{StaticResource Brush_Online}"
+                                           Style="{StaticResource FugitiveKittenResultTitleTextStyle}" />
+                                <Border Style="{StaticResource FugitiveKittenExtraLifeCardStyle}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Canvas Width="34" Height="38" VerticalAlignment="Center">
+                                            <Path Data="M17,2 L31,7 V18 C31,27 24.5,33 17,36 C9.5,33 3,27 3,18 V7 Z"
+                                                  Fill="{StaticResource Brush_FugitiveKittenShieldFill}"
+                                                  Stroke="{StaticResource Brush_Online}" StrokeThickness="2" />
+                                            <Path Data="M17,12 V26 M10,19 H24" Stroke="{StaticResource Brush_Online}"
+                                                  StrokeThickness="3" StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round" />
+                                        </Canvas>
+                                        <StackPanel Margin="14,0,0,0" MaxWidth="400" VerticalAlignment="Center">
+                                            <TextBlock Text="{DynamicResource FugitiveKitten_ExtraLifeTitle}"
+                                                       FontSize="18" FontWeight="Bold" Margin="0,0,0,4"
+                                                       Foreground="{StaticResource Brush_Online}" />
+                                            <TextBlock Text="{DynamicResource FugitiveKitten_ExtraLifeMessage}"
+                                                       FontSize="13" TextWrapping="Wrap" LineHeight="19.5"
+                                                       Foreground="{StaticResource Brush_TextMuted}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <StackPanel x:Name="pnlCaughtByOtherResult">
+                                <TextBlock x:Name="lblCaughtByOther" FontSize="26"
+                                           Foreground="{StaticResource Brush_TextPrimary}"
+                                           Style="{StaticResource FugitiveKittenResultTitleTextStyle}" />
+                                <TextBlock x:Name="lblOtherExtraLife" Foreground="{StaticResource Brush_TextMuted}"
+                                           Style="{StaticResource FugitiveKittenResultMessageTextStyle}" />
+                            </StackPanel>
+
+                            <StackPanel x:Name="pnlEscapedResult">
+                                <TextBlock Text="{DynamicResource FugitiveKitten_EscapedTitle}" FontSize="28"
+                                           Foreground="{StaticResource Brush_TextMuted}"
+                                           Style="{StaticResource FugitiveKittenResultTitleTextStyle}" />
+                                <TextBlock Text="{DynamicResource FugitiveKitten_EscapedMessage}"
+                                           Foreground="{StaticResource Brush_TextFaint}"
+                                           Style="{StaticResource FugitiveKittenResultMessageTextStyle}" />
+                            </StackPanel>
+
+                            <TextBlock Text="{DynamicResource FugitiveKitten_StartingMatchMessage}"
+                                       Style="{StaticResource FugitiveKittenStartingMatchTextStyle}" />
+                        </StackPanel>
+                    </Border>
+
+                </Canvas>
+            </Canvas>
+        </Viewbox>
+    </Grid>
+</local:LocalizableScreen>
