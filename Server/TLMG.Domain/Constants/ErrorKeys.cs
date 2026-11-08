@@ -10,6 +10,7 @@
             public const string InvalidSession = "Common_InvalidSessionError";
             public const string Unexpected = "Common_UnexpectedError";
             public const string RoomFull = "Common_RoomFullError";
+            public const string OutOfMemory = "Common_OutOfMemoryError";
         }
 
         public static class Lobby
@@ -25,10 +26,28 @@
 
         public static class CreateAccount
         {
+            public const string IncompleteFields = "CreateAccount_IncompleteFieldsError";
             public const string NicknameFormat = "CreateAccount_NicknameFormatError";
             public const string EmailFormat = "CreateAccount_EmailFormatError";
             public const string PasswordPolicy = "CreateAccount_PasswordPolicyError";
             public const string Terms = "CreateAccount_TermsError";
+            public const string DataModel = "CreateAccount_DataModelError";
+            public const string EmailTaken = "CreateAccount_EmailTakenError";
+            public const string NicknameTaken = "CreateAccount_NicknameTakenError";
+        }
+
+        public static class Login
+        {
+            public const string IncompleteFields = "Login_IncompleteFieldsError";
+            public const string EmailFormat = "Login_EmailFormatError";
+            public const string InvalidCredentials = "Login_InvalidCredentialsError";
+            public const string DataModel = "Login_DataModelError";
+        }
+
+        public static class Friends
+        {
+            public const string CannotInvite = "Friends_CannotInviteError";
+            public const string InvitationNotValid = "Friends_InvitationNotValidError";
         }
     }
 }

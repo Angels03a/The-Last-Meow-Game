@@ -111,6 +111,10 @@
       <Project>{e2bedb67-55e3-425a-b2d8-022be354c169}</Project>
       <Name>TLMG.DataAccess</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TLMG.Domain\TLMG.Domain.csproj">
+      <Project>{0c8a1235-0809-453f-aa8f-c19e731e30b4}</Project>
+      <Name>TLMG.Domain</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

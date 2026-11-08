@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-
 using log4net;
-
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Constants;
 using TLMG.Services.Helpers;
 using TLMG.Services.Sessions;
 
@@ -15,23 +14,20 @@ namespace TLMG.Services.Lobby
     /// </summary>
     public partial class LobbyService
     {
-        private const string AlreadyInRoomErrorKey = "Lobby_AlreadyInRoomError";
-        private const string CannotJoinRoomErrorKey = "Lobby_CannotJoinRoomError";
-
         private static readonly ILog _log = LogManager.GetLogger(typeof(LobbyService));
 
         private static readonly Dictionary<LobbyChangeStatus, string> _errorKeysByStatus =
             new Dictionary<LobbyChangeStatus, string>
             {
-                { LobbyChangeStatus.InvalidSession, CommonErrorKeyHelper.InvalidSessionErrorKey },
-                { LobbyChangeStatus.AlreadyInRoom, AlreadyInRoomErrorKey },
-                { LobbyChangeStatus.NotAuthorized, CannotJoinRoomErrorKey },
-                { LobbyChangeStatus.RoomFull, CommonErrorKeyHelper.RoomFullErrorKey },
-                { LobbyChangeStatus.NotInRoom, LobbyErrorKeyHelper.NotInRoomErrorKey },
-                { LobbyChangeStatus.MatchAlreadyStarted, LobbyErrorKeyHelper.MatchAlreadyStartedErrorKey }
+                { LobbyChangeStatus.InvalidSession, ErrorKeys.Common.InvalidSession },
+                { LobbyChangeStatus.AlreadyInRoom, ErrorKeys.Lobby.NotInRoom }, 
+                { LobbyChangeStatus.NotAuthorized, ErrorKeys.Lobby.NotInRoom },
+                { LobbyChangeStatus.RoomFull, ErrorKeys.Common.RoomFull },
+                { LobbyChangeStatus.NotInRoom, ErrorKeys.Lobby.NotInRoom },
+                { LobbyChangeStatus.MatchAlreadyStarted, ErrorKeys.Lobby.MatchAlreadyStarted }
             };
 
-        private readonly ISessionRegistry _sessionRegistry;
+        private ISessionRegistry _sessionRegistry;
 
         /// <summary>Crea el servicio de salas con el registro compartido de sesiones.</summary>
         /// <param name="sessionRegistry">Registro de sesiones y salas.</param>
@@ -106,7 +102,7 @@ namespace TLMG.Services.Lobby
             }
 
             LobbyOperationResultWithNotification<OperationEnterLobbyResult> enterLobbyResult =
-                new LobbyOperationResultWithNotification<OperationEnterLobbyResult>(operationEnterLobbyResult, 
+                new LobbyOperationResultWithNotification<OperationEnterLobbyResult>(operationEnterLobbyResult,
                 lobbyNotifications);
 
             return enterLobbyResult;
@@ -141,7 +137,7 @@ namespace TLMG.Services.Lobby
             }
 
             LobbyOperationResultWithNotification<OperationLeaveLobbyResult> leaveLobbyResult =
-                new LobbyOperationResultWithNotification<OperationLeaveLobbyResult>(operationLeaveLobbyResult, 
+                new LobbyOperationResultWithNotification<OperationLeaveLobbyResult>(operationLeaveLobbyResult,
                 lobbyChangeNotifications);
 
             return leaveLobbyResult;
@@ -173,14 +169,14 @@ namespace TLMG.Services.Lobby
 
             if (!_errorKeysByStatus.TryGetValue(lobbyChangeStatus, out errorKey))
             {
-                errorKey = CommonErrorKeyHelper.UnexpectedErrorKey;
+                errorKey = ErrorKeys.Common.Unexpected;
             }
 
             return errorKey;
         }
 
-        private static void LogRejectedOperation(string operationDescription,LobbyMembershipChange lobbyMembershipChange,
-            int requestedRoomId)
+        private static void LogRejectedOperation(string operationDescription, LobbyMembershipChange 
+            lobbyMembershipChange, int requestedRoomId)
         {
             _log.WarnFormat(
                 "Se rechazó {0} del jugador {1} para la sala {2}: {3}.",
@@ -190,7 +186,8 @@ namespace TLMG.Services.Lobby
                 lobbyMembershipChange.Status);
         }
 
-        private static IReadOnlyList<LobbyChangeNotification> CreateNotifications(LobbyMembershipChange lobbyMembershipChange)
+        private static IReadOnlyList<LobbyChangeNotification> CreateNotifications(LobbyMembershipChange 
+            lobbyMembershipChange)
         {
             List<LobbyChangeNotification> lobbyChangeNotifications = new List<LobbyChangeNotification>();
 
@@ -204,7 +201,8 @@ namespace TLMG.Services.Lobby
                 }
             }
 
-            IReadOnlyList<LobbyChangeNotification> readOnlyLobbyChangeNotifications = lobbyChangeNotifications.AsReadOnly();
+            IReadOnlyList<LobbyChangeNotification> readOnlyLobbyChangeNotifications = 
+                lobbyChangeNotifications.AsReadOnly();
 
             return readOnlyLobbyChangeNotifications;
         }

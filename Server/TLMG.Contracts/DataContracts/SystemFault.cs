@@ -11,6 +11,6 @@ namespace TLMG.Contracts.DataContracts
     public class SystemFault
     {
         [DataMember]
-        public string ErrorKey { get; set; }
+        public string SystemErrorMessage { get; set; }
     }
 }

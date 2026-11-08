@@ -1,47 +1,36 @@
 ﻿using System.Security.Cryptography;
-
 using log4net;
-
 using TLMG.Contracts.DataContracts;
-using TLMG.DataAccess.Repositories;
-using TLMG.Services.Helpers;
+using TLMG.Domain.Constants;
+using TLMG.Domain.Entities;
+using TLMG.Domain.Repositories;
+using TLMG.Domain.Validators;
 
 namespace TLMG.Services.Accounts
 {
     /// <summary>
-    /// Lógica del registro de cuentas; no conoce WCF ni Entity Framework.
+    /// Lógica del registro de cuentas; orquesta validadores del dominio y persistencia.
     /// </summary>
     public class PlayerAccountRegistrationService
     {
-        private const string InvalidRequestErrorKey = "CreateAccount_IncompleteFieldsError";
-        private const string DatabaseErrorKey = "CreateAccount_DataModelError";
-        private const string EmailTakenErrorKey = "CreateAccount_EmailTakenError";
-        private const string NicknameTakenErrorKey = "CreateAccount_NicknameTakenError";
-
         private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerAccountRegistrationService));
 
         private readonly IPlayerRepository _playerRepository;
         private readonly IPasswordHasher _passwordHasher;
 
-        /// <summary>Crea el servicio de registro con sus dependencias.</summary>
-        /// <param name="playerRepository">Repositorio de cuentas.</param>
-        /// <param name="passwordHasher">Calculador del hash de contraseñas.</param>
         public PlayerAccountRegistrationService(IPlayerRepository playerRepository, IPasswordHasher passwordHasher)
         {
             _playerRepository = playerRepository;
             _passwordHasher = passwordHasher;
         }
 
-        /// <summary>Valida los datos y crea la cuenta.</summary>
-        /// <param name="playerAccountRegistration">Datos recibidos del cliente.</param>
-        /// <returns>Resultado con IsSuccess y, si falla, la clave de error.</returns>
-        public OperationRegisterPlayerAccountResult RegisterPlayerAccount(
-            PlayerAccountRegistration playerAccountRegistration)
+        public OperationRegisterPlayerAccountResult RegisterPlayerAccount(PlayerAccountRegistration 
+            playerAccountRegistration)
         {
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult =
+            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult = 
                 new OperationRegisterPlayerAccountResult();
-
-            string validationErrorKey = ValidateRegisterPlayerAccountRequest(playerAccountRegistration);
+            string validationErrorKey = ValidateRegisterPlayerAccountRequest(playerAccountRegistration, 
+                out PlayerRegistration playerRegistration);
 
             if (validationErrorKey != null)
             {
@@ -49,59 +38,50 @@ namespace TLMG.Services.Accounts
             }
             else
             {
-                operationRegisterPlayerAccountResult = CreateAccount(playerAccountRegistration);
+                operationRegisterPlayerAccountResult = CreateAccount(playerRegistration);
             }
 
             return operationRegisterPlayerAccountResult;
         }
 
-        private static string ValidateRegisterPlayerAccountRequest(PlayerAccountRegistration playerAccountRegistration)
+        private static string ValidateRegisterPlayerAccountRequest(PlayerAccountRegistration playerAccountRegistration, 
+            out PlayerRegistration playerRegistration)
         {
-            string errorKey;
+            string errorKey = null;
+            playerRegistration = null;
 
             if (playerAccountRegistration == null)
             {
-                errorKey = InvalidRequestErrorKey;
+                errorKey = ErrorKeys.CreateAccount.IncompleteFields;
             }
             else
             {
-                errorKey = PlayerAccountRegistrationValidationHelper.ValidateAccountPlayerRegistration(
-                    playerAccountRegistration);
+                playerRegistration = new PlayerRegistration
+                {
+                    Nickname = playerAccountRegistration.Nickname,
+                    Email = playerAccountRegistration.Email,
+                    Password = playerAccountRegistration.Password,
+                    HasAcceptedTerms = playerAccountRegistration.HasAcceptedTerms
+                };
+
+                errorKey = PlayerAccountRegistrationValidator.ValidateAccountPlayerRegistration(playerRegistration);
             }
 
             return errorKey;
         }
 
-        private static string ResolveExistenceErrorKey(
-            PlayerExistenceLookupStatus playerExistenceLookupStatus,
-            string takenErrorKey)
+        private OperationRegisterPlayerAccountResult CreateAccount(PlayerRegistration playerRegistration)
         {
-            string errorKey = null;
-
-            if (playerExistenceLookupStatus == PlayerExistenceLookupStatus.Exists)
-            {
-                errorKey = takenErrorKey;
-            }
-            else if (playerExistenceLookupStatus == PlayerExistenceLookupStatus.DataFailure)
-            {
-                errorKey = DatabaseErrorKey;
-            }
-
-            return errorKey;
-        }
-
-        private OperationRegisterPlayerAccountResult CreateAccount(PlayerAccountRegistration playerAccountRegistration)
-        {
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult =
+            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult = 
                 new OperationRegisterPlayerAccountResult();
 
-            string nickname = playerAccountRegistration.Nickname;
-            string email = playerAccountRegistration.Email.ToLowerInvariant();
+            string nickname = playerRegistration.Nickname;
+            string email = playerRegistration.Email.ToLowerInvariant();
             string errorKey = FindDuplicateAccountErrorKey(email, nickname);
 
             if (errorKey == null)
             {
-                errorKey = SavePlayer(nickname, email, playerAccountRegistration.Password);
+                errorKey = SavePlayer(nickname, email, playerRegistration.Password);
             }
 
             if (errorKey == null)
@@ -120,13 +100,30 @@ namespace TLMG.Services.Accounts
         {
             string errorKey = ResolveExistenceErrorKey(
                 _playerRepository.FindEmailExistenceStatus(email),
-                EmailTakenErrorKey);
+                ErrorKeys.CreateAccount.EmailTaken);
 
             if (errorKey == null)
             {
                 errorKey = ResolveExistenceErrorKey(
                     _playerRepository.FindNicknameExistenceStatus(nickname),
-                    NicknameTakenErrorKey);
+                    ErrorKeys.CreateAccount.NicknameTaken);
+            }
+
+            return errorKey;
+        }
+
+        private static string ResolveExistenceErrorKey(PlayerExistenceLookupStatus playerExistenceLookupStatus, 
+            string takenErrorKey)
+        {
+            string errorKey = null;
+
+            if (playerExistenceLookupStatus == PlayerExistenceLookupStatus.Exists)
+            {
+                errorKey = takenErrorKey;
+            }
+            else if (playerExistenceLookupStatus == PlayerExistenceLookupStatus.DataFailure)
+            {
+                errorKey = ErrorKeys.CreateAccount.DataModel;
             }
 
             return errorKey;
@@ -143,15 +140,18 @@ namespace TLMG.Services.Accounts
             }
             catch (CryptographicException cryptographicException)
             {
-                _log.Error(
-                    string.Format("Falló el hash de la contraseña de {0}.", nickname),
-                    cryptographicException);
-                errorKey = CommonErrorKeyHelper.UnexpectedErrorKey;
+                _log.Error(string.Format("Falló el hash de la contraseña de {0}.", nickname), cryptographicException);
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
+
+            if (errorKey == null && string.IsNullOrEmpty(passwordHash))
+            {
+                errorKey = ErrorKeys.CreateAccount.IncompleteFields;
             }
 
             if (errorKey == null && !_playerRepository.CreatePlayer(nickname, email, passwordHash))
             {
-                errorKey = DatabaseErrorKey;
+                errorKey = ErrorKeys.CreateAccount.DataModel;
             }
 
             return errorKey;

@@ -1,44 +1,66 @@
-﻿using TLMG.Contracts;
+﻿using System;
+using System.ServiceModel;
+using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
-using TLMG.DataAccess.Repositories;
-using TLMG.Services.Accounts;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services
 {
     public partial class ServiceImplementation : IUsersManager
     {
-        private static readonly IPlayerRepository _playerRepository = new PlayerRepository();
-
-        private static readonly IPasswordHasher _passwordHasher = new PasswordHasher();
-
-        private static readonly PlayerAccountRegistrationService _playerAccountRegistrationService =
-            new PlayerAccountRegistrationService(_playerRepository, _passwordHasher);
-
-        private static readonly PlayerLogInService _playerLogInService;
-
-        /// <summary>
-        /// Delegates the registration to the registration service and returns the result directly.
-        /// </summary>
-        /// <param name="registrationPlayerAccount">Data captured by the player.</param>
-        /// <returns>The result of the registration operation.</returns>
-        public OperationRegisterPlayerAccountResult RegisterPlayerAccount(PlayerAccountRegistration registrationPlayerAccount)
+        public OperationRegisterPlayerAccountResult RegisterPlayerAccount(PlayerAccountRegistration 
+            registrationPlayerAccount)
         {
-            return _playerAccountRegistrationService.RegisterPlayerAccount(registrationPlayerAccount);
+            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult;
+
+            try
+            {
+                operationRegisterPlayerAccountResult = 
+                    _playerAccountRegistrationService.RegisterPlayerAccount(registrationPlayerAccount);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante el registro de cuenta de jugador.", outOfMemoryException);
+
+                SystemFault fault = new SystemFault
+                {
+                    SystemErrorMessage = "El servidor se ha quedado sin memoria."
+                };
+
+                throw new FaultException<SystemFault>(fault, 
+                    new FaultReason("Memoria insuficiente en el servidor."));
+            }
+
+            return operationRegisterPlayerAccountResult;
         }
 
-        /// <summary>
-        /// Delegates the login to the login service, notifies other players, and returns the result directly.
-        /// </summary>
-        /// <param name="operationLogInRequest">Credentials captured by the player.</param>
-        /// <returns>The result of the login operation.</returns>
         public OperationLogInResult LogIn(OperationLogInRequest operationLogInRequest)
         {
-            ResultWithNotification<OperationLogInResult> loginResult = _playerLogInService.LogIn(operationLogInRequest);
+            OperationLogInResult result;
 
-            SafeNotifyAll(loginResult.Notifications);
+            try
+            {
+                ResultWithNotification<OperationLogInResult> loginResult = 
+                    _playerLogInService.LogIn(operationLogInRequest);
 
-            return loginResult.OperationResult;
+                SafeNotifyAll(loginResult.Notifications);
+
+                result = loginResult.OperationResult;
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante el inicio de sesión.", outOfMemoryException);
+
+                SystemFault fault = new SystemFault
+                {
+                    SystemErrorMessage = "El servidor se ha quedado sin memoria."
+                };
+
+                throw new FaultException<SystemFault>(fault, 
+                    new FaultReason("Memoria insuficiente en el servidor."));
+            }
+
+            return result;
         }
     }
 }

@@ -11,7 +11,8 @@ namespace TLMG.Services.Lobby
     public sealed class LobbyChangeNotification
     {
         /// <summary>Lista vacía de avisos, para las operaciones que no avisan a nadie.</summary>
-        public static readonly IReadOnlyList<LobbyChangeNotification> None = new List<LobbyChangeNotification>().AsReadOnly();
+        public static readonly IReadOnlyList<LobbyChangeNotification> None = 
+            new List<LobbyChangeNotification>().AsReadOnly();
 
         /// <summary>Crea un aviso de cambio de sala.</summary>
         /// <param name="callback">Callback del canal de lobby del jugador que recibe el aviso.</param>

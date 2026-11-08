@@ -45,6 +45,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bootstrapper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -64,6 +65,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TLMG.Domain\TLMG.Domain.csproj">
+      <Project>{0c8a1235-0809-453f-aa8f-c19e731e30b4}</Project>
+      <Name>TLMG.Domain</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TLMG.Services\TLMG.Services.csproj">
       <Project>{f33c04b5-8f2c-456b-bf3c-4c1907763913}</Project>
       <Name>TLMG.Services</Name>

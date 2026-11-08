@@ -8,7 +8,7 @@ namespace TLMG.Domain.Repositories
     public class FriendListLookup
     {
         /// <summary>Indica si la consulta se resolvió; false si falló por un problema de datos.</summary>
-        public bool WasSuccessful { get; set; }
+        public bool WasFriendListLookupSuccessful { get; set; }
 
         /// <summary>Amigos aceptados ordenados por nickname; vacía si no tiene o si la consulta falló.</summary>
         public List<AcceptedFriend> Friends { get; set; }

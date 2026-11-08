@@ -30,6 +30,8 @@ namespace TLMG.Server
 
             try
             {
+                Bootstrapper.Initialize();
+
                 host = new ServiceHost(typeof(ServiceImplementation));
                 host.Open();
 

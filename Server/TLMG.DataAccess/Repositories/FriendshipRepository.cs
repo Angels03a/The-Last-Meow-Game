@@ -2,10 +2,9 @@
 using System.Data.Entity.Core;
 using System.Data.SqlClient;
 using System.Linq;
-
 using log4net;
-
 using TLMG.DataAccess.DatabaseModel;
+using TLMG.Domain.Repositories;
 
 namespace TLMG.DataAccess.Repositories
 {
@@ -18,7 +17,6 @@ namespace TLMG.DataAccess.Repositories
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(FriendshipRepository));
 
-        /// <inheritdoc />
         public FriendListLookup FindAcceptedFriends(int userId)
         {
             FriendListLookup friendListLookup;
@@ -39,38 +37,38 @@ namespace TLMG.DataAccess.Repositories
 
                     IQueryable<int> friendIds = sentFriendIds.Union(receivedFriendIds);
 
-                    var friendsQuery = from user in context.User.AsNoTracking()
-                                       where friendIds.Contains(user.id_user)
-                                       orderby user.nickname
-                                       select new AcceptedFriend
-                                       {
-                                           UserId = user.id_user,
-                                           Nickname = user.nickname
-                                       };
+                    IQueryable<AcceptedFriend> friendsQuery = from user in context.User.AsNoTracking()
+                                                              where friendIds.Contains(user.id_user)
+                                                              orderby user.nickname
+                                                              select new AcceptedFriend
+                                                              {
+                                                                  UserId = user.id_user,
+                                                                  Nickname = user.nickname
+                                                              };
 
                     friendListLookup = new FriendListLookup
                     {
-                        WasSuccessful = true,
+                        WasFriendListLookupSuccessful = true,
                         Friends = friendsQuery.ToList()
                     };
                 }
             }
-            catch (SqlException ex)
+            catch (SqlException sqlException)
             {
-                _log.Error(string.Format("Error de SQL Server al consultar los amigos del jugador {0}.", userId), ex);
+                _log.Error(string.Format("Error de conexiónal consultar los amigos del jugador {0}.", userId), 
+                    sqlException);
                 friendListLookup = CreateFailedFriendListLookup();
             }
-            catch (EntityException ex)
+            catch (EntityException entityException)
             {
                 _log.Error(string.Format(
-                    "La base de datos falló al consultar los amigos del jugador {0}.", userId), ex);
+                    "La base de datos falló al consultar los amigos del jugador {0}.", userId), entityException);
                 friendListLookup = CreateFailedFriendListLookup();
             }
 
             return friendListLookup;
         }
 
-        /// <inheritdoc />
         public FriendshipLookupStatus FindFriendshipStatus(int userId, int otherUserId)
         {
             FriendshipLookupStatus friendshipLookupStatus;
@@ -79,8 +77,6 @@ namespace TLMG.DataAccess.Repositories
             {
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
                 {
-                    // Un remitente y un receptor dentro del par equivalen a la pareja en cualquier sentido, porque
-                    // CK_Friendship_not_self impide que ambos sean la misma cuenta.
                     bool areAcceptedFriends = context.Friendship.AsNoTracking()
                         .Where(friendship => friendship.state == AcceptedFriendshipState)
                         .Where(friendship => friendship.id_user_sender == userId
@@ -99,20 +95,20 @@ namespace TLMG.DataAccess.Repositories
                     }
                 }
             }
-            catch (SqlException ex)
+            catch (SqlException sqlException)
             {
                 _log.Error(string.Format(
-                    "Error de SQL Server al comprobar la amistad entre los jugadores {0} y {1}.",
+                    "Error de conexión al comprobar la amistad entre los jugadores {0} y {1}.",
                     userId,
-                    otherUserId), ex);
+                    otherUserId), sqlException);
                 friendshipLookupStatus = FriendshipLookupStatus.DataFailure;
             }
-            catch (EntityException ex)
+            catch (EntityException entityException)
             {
                 _log.Error(string.Format(
                     "La base de datos falló al comprobar la amistad entre los jugadores {0} y {1}.",
                     userId,
-                    otherUserId), ex);
+                    otherUserId), entityException);
                 friendshipLookupStatus = FriendshipLookupStatus.DataFailure;
             }
 
@@ -123,7 +119,7 @@ namespace TLMG.DataAccess.Repositories
         {
             FriendListLookup friendListLookup = new FriendListLookup
             {
-                WasSuccessful = false,
+                WasFriendListLookupSuccessful = false,
                 Friends = new List<AcceptedFriend>()
             };
 

@@ -3,11 +3,21 @@
 namespace TLMG.Domain.Constants
 {
     /// <summary>
-    /// Business rules for validations centralized in one place.
-    /// It avoids magic numbers and loose strings in validators.
+    /// Reglas de negocio centralizadas para validaciones.
+    /// Evita números mágicos y cadenas sueltas.
     /// </summary>
     public static class ValidationRules
     {
+        public const int EmptyTextLength = 0;
+        public const int InvalidCharacterIndex = -1;
+        public const int NoUserId = 0;
+
+        public const string ActiveUserState = "USER_ACTIVE";
+        public const string DefaultProfileImage = "/img/default.png";
+        public const int InitialStatisticValue = 0;
+
+        public const string AcceptedFriendshipState = "FRIEND_ACCEPTED";
+
         public const int NicknameMinimumLength = 3;
         public const int NicknameMaximumLength = 12;
 
@@ -16,8 +26,6 @@ namespace TLMG.Domain.Constants
 
         public const int PasswordMinimumLength = 12;
         public const int PasswordMaximumLength = 128;
-        public const int EmptyTextLength = 0;
-        public const int InvalidCharacterIndex = -1;
 
         public static readonly Regex NicknameRegex = 
             new Regex(@"^[a-zA-Z0-9_]+\z", RegexOptions.Compiled);

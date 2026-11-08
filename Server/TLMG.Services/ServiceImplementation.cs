@@ -1,21 +1,16 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.ServiceModel;
-
-using log4net;
-
-using TLMG.DataAccess.Repositories;
 using TLMG.Services.Accounts;
 using TLMG.Services.Chat;
 using TLMG.Services.Friends;
+using TLMG.Services.Leaderboard;
 using TLMG.Services.Lobby;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services
 {
-    /// <summary>
-    /// Implementación de todos los contratos del servidor; cada contrato vive en su propio archivo partial.
-    /// </summary>
     [ServiceBehavior(
         InstanceContextMode = InstanceContextMode.PerSession,
         ConcurrencyMode = ConcurrencyMode.Single)]
@@ -23,28 +18,36 @@ namespace TLMG.Services
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(ServiceImplementation));
 
-        private static readonly ISessionRegistry _sessionRegistry;
+        private static ISessionRegistry _sessionRegistry;
+        private static PlayerAccountRegistrationService _playerAccountRegistrationService;
+        private static PlayerLogInService _playerLogInService;
+        private static ChatService _chatService;
+        private static FriendsService _friendsService;
+        private static LeaderboardService _leaderboardService;
+        private static LobbyService _lobbyService;
 
         /// <summary>
-        /// Construye en un solo lugar y en orden explícito los objetos que dependen del registro de sesiones.
-        /// C# no define el orden de inicialización de los campos estáticos entre archivos parciales, pero todos
-        /// sus inicializadores se ejecutan antes que este cuerpo; por eso aquí se pueden usar los campos con
-        /// inicializador de los demás archivos. Cada contrato nuevo que dependa del registro se asigna aquí.
+        /// Recibe el grafo de objetos ya construido desde el Composition Root.
+        /// WCF se vuelve ciego respecto a la base de datos y la encriptación.
         /// </summary>
-        static ServiceImplementation()
+        public static void ConfigureDependencies(
+            ISessionRegistry sessionRegistry,
+            PlayerAccountRegistrationService registrationService,
+            PlayerLogInService logInService,
+            ChatService chatService,
+            FriendsService friendsService,
+            LeaderboardService leaderboardService,
+            LobbyService lobbyService)
         {
-            _sessionRegistry = new SessionRegistry();
-            _playerLogInService = new PlayerLogInService(_playerRepository, _passwordHasher, _sessionRegistry);
-            _lobbyService = new LobbyService(_sessionRegistry);
-            _chatService = new ChatService(_sessionRegistry);
-            _friendshipRepository = new FriendshipRepository();
-            _friendsService = new FriendsService(_friendshipRepository, _sessionRegistry);
+            _sessionRegistry = sessionRegistry;
+            _playerAccountRegistrationService = registrationService;
+            _playerLogInService = logInService;
+            _chatService = chatService;
+            _friendsService = friendsService;
+            _leaderboardService = leaderboardService;
+            _lobbyService = lobbyService;
         }
 
-        /// <summary>
-        /// Entrega varias notificaciones, una por una, sin que un cliente caído impida avisar a los demás.
-        /// </summary>
-        /// <param name="notifications">Invocaciones de callbacks que ya no dependen de ningún candado.</param>
         private void SafeNotifyAll(IReadOnlyList<Action> notifications)
         {
             foreach (Action notification in notifications)
@@ -53,10 +56,6 @@ namespace TLMG.Services
             }
         }
 
-        /// <summary>
-        /// Envía una notificación al cliente sin que un cliente caído afecte al servidor.
-        /// </summary>
-        /// <param name="notificationOfResult">Invocación del callback.</param>
         private void SafeNotify(Action notificationOfResult)
         {
             try
@@ -65,17 +64,19 @@ namespace TLMG.Services
             }
             catch (CommunicationException communicationException)
             {
-                _log.Warn("Error de comunicación al notificar al cliente; verifique la conexión por parte del cliente.",
-                    communicationException);
+                _log.Warn("Error de comunicación al notificar al cliente.", communicationException);
             }
             catch (TimeoutException timeoutException)
             {
                 _log.Warn("El cliente tardó demasiado en recibir la notificación.", timeoutException);
             }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente en el servidor al enviar respuesta.", outOfMemoryException);
+            }
             catch (ObjectDisposedException disposedException)
             {
-                _log.Warn("El canal del cliente fue liberado antes de llegar la respuesta del servidor. " +
-                    "Se destruye la respuesta que iba a enviarse.", disposedException);
+                _log.Warn("El canal del cliente fue liberado antes de llegar la respuesta.", disposedException);
             }
         }
     }

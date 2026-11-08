@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using log4net;
-
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
-using TLMG.DataAccess.Repositories;
+using TLMG.Domain.Constants;
+using TLMG.Domain.Repositories;
 using TLMG.Services.Helpers;
 using TLMG.Services.Sessions;
 
@@ -18,25 +17,20 @@ namespace TLMG.Services.Friends
     /// </summary>
     public class FriendsService
     {
-        private const string NotInRoomErrorKey = "Friends_NotInRoomError";
-        private const string CannotInviteErrorKey = "Friends_CannotInviteError";
-        private const string InvitationNotValidErrorKey = "Friends_InvitationNotValidError";
-        private const int NoUserId = 0;
-
         private static readonly ILog _log = LogManager.GetLogger(typeof(FriendsService));
 
         private static readonly Dictionary<FriendsChangeStatus, string> _errorKeysByStatus =
             new Dictionary<FriendsChangeStatus, string>
             {
-                { FriendsChangeStatus.InvalidSession, CommonErrorKeyHelper.InvalidSessionErrorKey },
-                { FriendsChangeStatus.NotInRoom, NotInRoomErrorKey },
-                { FriendsChangeStatus.RoomFull, CommonErrorKeyHelper.RoomFullErrorKey },
-                { FriendsChangeStatus.CannotInvite, CannotInviteErrorKey },
-                { FriendsChangeStatus.InvitationNotValid, InvitationNotValidErrorKey }
+                { FriendsChangeStatus.InvalidSession, ErrorKeys.Common.InvalidSession },
+                { FriendsChangeStatus.NotInRoom, ErrorKeys.Lobby.NotInRoom },
+                { FriendsChangeStatus.RoomFull, ErrorKeys.Common.RoomFull },
+                { FriendsChangeStatus.CannotInvite, ErrorKeys.Friends.CannotInvite },
+                { FriendsChangeStatus.InvitationNotValid, ErrorKeys.Friends.InvitationNotValid }
             };
 
-        private readonly IFriendshipRepository _friendshipRepository;
-        private readonly ISessionRegistry _sessionRegistry;
+        private IFriendshipRepository _friendshipRepository;
+        private ISessionRegistry _sessionRegistry;
 
         /// <summary>Crea el servicio de amigos con su repositorio y el registro compartido de sesiones.</summary>
         /// <param name="friendshipRepository">Repositorio de amistades.</param>
@@ -63,9 +57,9 @@ namespace TLMG.Services.Friends
 
             if (!_sessionRegistry.TryFindSessionByToken(sessionToken, out playerSession))
             {
-                LogRejectedOperation("suscribirse a los amigos", NoUserId, "sesión no válida");
+                LogRejectedOperation("suscribirse a los amigos", ValidationRules.NoUserId, "sesión no válida");
                 subscribeToFriendsResult = new ResultWithNotification<OperationSubscribeToFriendsResult>(
-                    new OperationSubscribeToFriendsResult { ErrorKey = CommonErrorKeyHelper.InvalidSessionErrorKey });
+                    new OperationSubscribeToFriendsResult { ErrorKey = ErrorKeys.Common.InvalidSession });
             }
             else
             {
@@ -80,18 +74,17 @@ namespace TLMG.Services.Friends
         /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
         /// <param name="friendUserId">Id de la cuenta del amigo al que se invita.</param>
         /// <returns>El resultado para quien invita y el aviso de invitación para el invitado.</returns>
-        public ResultWithNotification<OperationInviteFriendToRoomResult> InviteFriendToRoom(string sessionToken,
+        public ResultWithNotification<OperationInviteFriendToRoomResult> InviteFriendToRoom(string sessionToken, 
             int friendUserId)
         {
-            OperationInviteFriendToRoomResult operationInviteFriendToRoomResult =
-                new OperationInviteFriendToRoomResult();
+            OperationInviteFriendToRoomResult operationInviteFriendToRoomResult = new OperationInviteFriendToRoomResult();
             IReadOnlyList<Action> createInvitationNotifications = new List<Action>().AsReadOnly();
             PlayerSession playerSession;
 
             if (!_sessionRegistry.TryFindSessionByToken(sessionToken, out playerSession))
             {
-                operationInviteFriendToRoomResult.ErrorKey = CommonErrorKeyHelper.InvalidSessionErrorKey;
-                LogRejectedOperation("invitar a un amigo", NoUserId, "sesión no válida");
+                operationInviteFriendToRoomResult.ErrorKey = ErrorKeys.Common.InvalidSession;
+                LogRejectedOperation("invitar a un amigo", ValidationRules.NoUserId, "sesión no válida");
             }
             else
             {
@@ -99,11 +92,12 @@ namespace TLMG.Services.Friends
 
                 if (errorKey == null)
                 {
-                    RoomInvitationCreation roomInvitationCreation =
+                    RoomInvitationCreation roomInvitationCreation = 
                         _sessionRegistry.CreateRoomInvitation(sessionToken, friendUserId);
-                    operationInviteFriendToRoomResult =
+                    operationInviteFriendToRoomResult = 
                         CreateInviteResult(playerSession, friendUserId, roomInvitationCreation);
-                    createInvitationNotifications = CreateInvitationNotifications(roomInvitationCreation);
+                    createInvitationNotifications = 
+                        CreateInvitationNotifications(roomInvitationCreation);
                 }
                 else
                 {
@@ -124,14 +118,13 @@ namespace TLMG.Services.Friends
         /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
         /// <param name="invitationId">Id de la invitación recibida.</param>
         /// <returns>El resultado con el id de la sala o la clave de error.</returns>
-        public ResultWithNotification<OperationAcceptRoomInvitationResult> AcceptRoomInvitation(
-            string sessionToken,
+        public ResultWithNotification<OperationAcceptRoomInvitationResult> AcceptRoomInvitation(string sessionToken, 
             int invitationId)
         {
-            RoomInvitationAcceptance roomInvitationAcceptance =
+            RoomInvitationAcceptance roomInvitationAcceptance = 
                 _sessionRegistry.AcceptRoomInvitation(sessionToken, invitationId);
-            OperationAcceptRoomInvitationResult operationAcceptRoomInvitationResult =
-                new OperationAcceptRoomInvitationResult();
+            OperationAcceptRoomInvitationResult operationAcceptRoomInvitationResult 
+                = new OperationAcceptRoomInvitationResult();
 
             if (roomInvitationAcceptance.Status == FriendsChangeStatus.Applied)
             {
@@ -167,8 +160,8 @@ namespace TLMG.Services.Friends
         {
             SessionEnd sessionEnd;
             _sessionRegistry.TryEndSessionByFriendsChannel(channelId, out sessionEnd);
-            IReadOnlyList<Action> createSessionEndNotifications = SessionNotificationHelper.
-                CreateSessionEndNotifications(sessionEnd);
+            IReadOnlyList<Action> createSessionEndNotifications = 
+                SessionNotificationHelper.CreateSessionEndNotifications(sessionEnd);
 
             return createSessionEndNotifications;
         }
@@ -179,34 +172,28 @@ namespace TLMG.Services.Friends
             string channelId,
             IFriendsManagerCallback friendsCallback)
         {
-            OperationSubscribeToFriendsResult operationSubscribeToFriendsResult =
-                new OperationSubscribeToFriendsResult();
+            OperationSubscribeToFriendsResult operationSubscribeToFriendsResult = new OperationSubscribeToFriendsResult();
             IReadOnlyList<Action> subscribeToFriendsNotifications = new List<Action>().AsReadOnly();
             FriendListLookup friendListLookup = _friendshipRepository.FindAcceptedFriends(playerSession.UserId);
 
-            if (!friendListLookup.WasSuccessful)
+            if (!friendListLookup.WasFriendListLookupSuccessful)
             {
-                operationSubscribeToFriendsResult.ErrorKey = CommonErrorKeyHelper.UnexpectedErrorKey;
+                operationSubscribeToFriendsResult.ErrorKey = ErrorKeys.Common.Unexpected;
                 LogRejectedOperation("suscribirse a los amigos", playerSession.UserId, "fallo de datos");
             }
             else
             {
                 FriendsSubscription friendsSubscription = _sessionRegistry.SubscribeFriendsChannel(
-                    sessionToken,
-                    channelId,
-                    friendsCallback,
-                    ExtractUserIds(friendListLookup.Friends));
+                    sessionToken, channelId, friendsCallback, ExtractUserIds(friendListLookup.Friends));
 
                 if (friendsSubscription.Status == FriendsChangeStatus.Applied)
                 {
                     operationSubscribeToFriendsResult.IsSuccess = true;
-                    operationSubscribeToFriendsResult.Friends =
-                        ConvertToFriends(friendListLookup.Friends, friendsSubscription.OnlineFriendUserIds);
+                    operationSubscribeToFriendsResult.Friends = ConvertToFriends(friendListLookup.Friends, 
+                        friendsSubscription.OnlineFriendUserIds);
                     subscribeToFriendsNotifications = SessionNotificationHelper.CreatePresenceNotifications(
-                        friendsSubscription.PresenceRecipientCallbacks,
-                        friendsSubscription.UserId,
-                        friendsSubscription.Nickname,
-                        true);
+                        friendsSubscription.PresenceRecipientCallbacks, friendsSubscription.UserId,
+                        friendsSubscription.Nickname,true);
                     _log.InfoFormat("El jugador {0} se suscribió a sus amigos.", friendsSubscription.UserId);
                 }
                 else
@@ -229,27 +216,27 @@ namespace TLMG.Services.Friends
         private string FindInvitationErrorKey(PlayerSession inviterSession, int friendUserId)
         {
             string errorKey = null;
-            FriendshipLookupStatus friendshipLookupStatus =
-                _friendshipRepository.FindFriendshipStatus(inviterSession.UserId, friendUserId);
+            FriendshipLookupStatus friendshipLookupStatus = _friendshipRepository.FindFriendshipStatus(
+                inviterSession.UserId, friendUserId);
 
             if (friendshipLookupStatus == FriendshipLookupStatus.DataFailure)
             {
-                errorKey = CommonErrorKeyHelper.UnexpectedErrorKey;
+                errorKey = ErrorKeys.Common.Unexpected;
                 LogRejectedOperation("invitar a un amigo", inviterSession.UserId, "fallo de datos");
             }
             else if (friendshipLookupStatus == FriendshipLookupStatus.NotAccepted)
             {
-                errorKey = CannotInviteErrorKey;
+                errorKey = ErrorKeys.Friends.CannotInvite;
                 LogRejectedOperation("invitar a un amigo", inviterSession.UserId, "no son amigos aceptados");
             }
 
             return errorKey;
         }
 
-        private OperationInviteFriendToRoomResult CreateInviteResult(PlayerSession inviterSession,
-            int friendUserId, RoomInvitationCreation roomInvitationCreation)
+        private OperationInviteFriendToRoomResult CreateInviteResult(PlayerSession inviterSession, int friendUserId,
+            RoomInvitationCreation roomInvitationCreation)
         {
-            OperationInviteFriendToRoomResult operationInviteFriendToRoomResult =
+            OperationInviteFriendToRoomResult operationInviteFriendToRoomResult = 
                 new OperationInviteFriendToRoomResult();
 
             if (roomInvitationCreation.Status == FriendsChangeStatus.Applied)
@@ -263,17 +250,15 @@ namespace TLMG.Services.Friends
             else
             {
                 operationInviteFriendToRoomResult.ErrorKey = ResolveErrorKey(roomInvitationCreation.Status);
-                LogRejectedOperation(
-                    "invitar a un amigo",
-                    inviterSession.UserId,
+                LogRejectedOperation("invitar a un amigo", inviterSession.UserId, 
                     roomInvitationCreation.Status.ToString());
             }
 
             return operationInviteFriendToRoomResult;
         }
 
-        private static IReadOnlyList<Action> CreateInvitationNotifications(
-            RoomInvitationCreation roomInvitationCreation)
+        private static IReadOnlyList<Action> CreateInvitationNotifications(RoomInvitationCreation 
+            roomInvitationCreation)
         {
             List<Action> roomInvitationNotifications = new List<Action>();
 
@@ -300,7 +285,7 @@ namespace TLMG.Services.Friends
 
             if (!_errorKeysByStatus.TryGetValue(friendsChangeStatus, out errorKey))
             {
-                errorKey = CommonErrorKeyHelper.UnexpectedErrorKey;
+                errorKey = ErrorKeys.Common.Unexpected;
             }
 
             return errorKey;
