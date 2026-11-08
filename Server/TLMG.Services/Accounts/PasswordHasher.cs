@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Text;
-
 using log4net;
 
 namespace TLMG.Services.Accounts
@@ -25,23 +24,20 @@ namespace TLMG.Services.Accounts
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(PasswordHasher));
 
-
-        // FIXME: No puede arrojar excepciones; debe devolver un resultado con IsSuccess
-        // y ErrorKey para el caso de contraseña nula.
         public string HashPassword(string password)
         {
-            if (password == null)
-            {
-                throw new ArgumentNullException(nameof(password));
-            }
+            string storedHash = null;
 
-            byte[] salt = GenerateSalt();
-            byte[] hash = ComputeHash(password, salt);
-            string storedHash = string.Join(
-                FormatSeparator,
-                FormatVersion,
-                Convert.ToBase64String(salt),
-                Convert.ToBase64String(hash));
+            if (!string.IsNullOrEmpty(password))
+            {
+                byte[] salt = GenerateSalt();
+                byte[] hash = ComputeHash(password, salt);
+                storedHash = string.Join(
+                    FormatSeparator,
+                    FormatVersion,
+                    Convert.ToBase64String(salt),
+                    Convert.ToBase64String(hash));
+            }
 
             return storedHash;
         }
@@ -120,9 +116,9 @@ namespace TLMG.Services.Accounts
                 hash = Convert.FromBase64String(parts[HashPartIndex]);
                 isDecoded = salt.Length == SaltSizeBytes && hash.Length == HashSizeBytes;
             }
-            catch (FormatException ex)
+            catch (FormatException formatException)
             {
-                _log.Warn("Un hash guardado tiene la sal o el hash con formato Base64 inválido.", ex);
+                _log.Warn("Un hash guardado tiene la sal o el hash con formato Base64 inválido.", formatException);
             }
 
             return isDecoded;

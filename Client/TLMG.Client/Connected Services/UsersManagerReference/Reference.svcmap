@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ReferenceGroup xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="18fa3e42-c8c7-4723-b0aa-2cc066f31e80" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+<ReferenceGroup xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="d6d789af-be84-4732-b751-05dd81adf40b" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
   <ClientOptions>
     <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
     <EnableDataBinding>true</EnableDataBinding>
     <ExcludedTypes />
     <ImportXmlTypes>false</ImportXmlTypes>
@@ -12,7 +13,7 @@
     <GenerateSerializableTypes>true</GenerateSerializableTypes>
     <Serializer>Auto</Serializer>
     <UseSerializerForFaults>true</UseSerializerForFaults>
-    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferenceAllAssemblies>false</ReferenceAllAssemblies>
     <ReferencedAssemblies />
     <ReferencedDataContractTypes />
     <ServiceContractMappings />
@@ -21,10 +22,10 @@
     <MetadataSource Address="net.tcp://localhost:8081/mex" Protocol="mex" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="64b31937-3c52-4e57-8a79-9eaf61c87219" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
-    <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="583667ee-e824-4723-98a2-be3688394cbd" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
-    <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="4aefdea7-4f0f-4f0b-b522-251b171e2833" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
-    <MetadataFile FileName="TLMG.Contracts.DataContracts.xsd" MetadataType="Schema" ID="dbce1cca-6644-4041-91dc-2ea69a88c1ee" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
+    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="2cc80a57-a314-426f-81c9-afa6151517c7" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
+    <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="51c7c0de-4aea-4a00-a987-7ec9b7977be1" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
+    <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="db9a711f-7004-4095-82f4-aaeccd78c11e" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
+    <MetadataFile FileName="TLMG.Contracts.DataContracts.xsd" MetadataType="Schema" ID="a1b6ba1a-a8a7-440b-a1ce-e5c8eb970d04" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

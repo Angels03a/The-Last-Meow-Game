@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TLMG.DataAccess.Repositories
+namespace TLMG.Domain.Repositories
 {
     /// <summary>
     /// Acceso a la persistencia de las cuentas de jugador.

@@ -1,4 +1,4 @@
-﻿namespace TLMG.DataAccess.Repositories
+﻿namespace TLMG.Domain.Repositories
 {
     /// <summary>
     /// Acceso a la persistencia de las amistades entre cuentas; considera ambos sentidos de Friendship.

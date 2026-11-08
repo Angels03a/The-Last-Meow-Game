@@ -18,7 +18,8 @@ namespace TLMG.Services.Lobby
         /// <summary>Crea el resultado de una operación que además avisa a otros jugadores.</summary>
         /// <param name="operationResult">Resultado para quien pidió la operación.</param>
         /// <param name="notifications">Avisos para los demás jugadores; no debe modificarse después.</param>
-        public LobbyOperationResultWithNotification(TypeOfResult operationResult, IReadOnlyList<LobbyChangeNotification> notifications)
+        public LobbyOperationResultWithNotification(TypeOfResult operationResult, 
+            IReadOnlyList<LobbyChangeNotification> notifications)
         {
             OperationResult = operationResult;
             Notifications = notifications;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using TLMG.Contracts.DataContracts;
-using TLMG.DataAccess.Repositories;
+using TLMG.Domain.Repositories;
 
 namespace TLMG.Services.Leaderboard
 {
@@ -13,7 +13,7 @@ namespace TLMG.Services.Leaderboard
         private const int MaximumLeaderboardPlayerCount = 100;
         private const string DatabaseErrorKey = "Leaderboard_ConnectionErrorMessage";
 
-        private readonly IPlayerRepository _playerRepository;
+        private IPlayerRepository _playerRepository;
 
         /// <summary>Crea el servicio de la tabla de posiciones con su repositorio.</summary>
         /// <param name="playerRepository">Repositorio de cuentas.</param>
@@ -26,10 +26,12 @@ namespace TLMG.Services.Leaderboard
         /// <returns>Resultado con los jugadores o, si falla, la clave de error.</returns>
         public OperationGetLeaderboardResult GetLeaderboard()
         {
-            OperationGetLeaderboardResult operationGetLeaderboardResult = new OperationGetLeaderboardResult();
-            LeaderboardLookup leaderboardLookup = _playerRepository.FindTopRankedPlayers(MaximumLeaderboardPlayerCount);
+            OperationGetLeaderboardResult operationGetLeaderboardResult = 
+                new OperationGetLeaderboardResult();
+            LeaderboardLookup leaderboardLookup = 
+                _playerRepository.FindTopRankedPlayers(MaximumLeaderboardPlayerCount);
 
-            if (leaderboardLookup.WasSuccessful)
+            if (leaderboardLookup.WasLeaderboardLookupSuccessful)
             {
                 operationGetLeaderboardResult.IsSuccess = true;
                 operationGetLeaderboardResult.Players = ConvertToLeaderboardPlayers(leaderboardLookup.Players);

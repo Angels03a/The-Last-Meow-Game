@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-
 using TLMG.Contracts;
+using TLMG.Domain.Constants;
 using TLMG.Services.Helpers;
 
 namespace TLMG.Services.Sessions
@@ -29,11 +29,11 @@ namespace TLMG.Services.Sessions
                 {
                     if (!_roomIdsByUserId.ContainsKey(playerSession.UserId))
                     {
-                        errorKey = LobbyErrorKeyHelper.NotInRoomErrorKey;
+                        errorKey = ErrorKeys.Lobby.NotInRoom;
                     }
                     else if (callback == null)
                     {
-                        errorKey = CommonErrorKeyHelper.InvalidSessionErrorKey;
+                        errorKey = ErrorKeys.Common.InvalidSession;
                     }
                     else
                     {
@@ -82,7 +82,7 @@ namespace TLMG.Services.Sessions
                 {
                     if (_lastChatSentAtUtcByUserId.ContainsKey(playerSession.UserId))
                     {
-                        errorKey = ChatValidationHelper.RateLimitErrorKey;
+                        errorKey = ErrorKeys.Lobby.ChatRateLimit;
                     }
                     else
                     {
@@ -117,19 +117,12 @@ namespace TLMG.Services.Sessions
             }
         }
 
-        /// <summary>
-        /// Valida la sesión registrada y que el canal no pertenezca a otro jugador bajo _sessionsLock.
-        /// </summary>
-        /// <param name="sessionToken">Token recibido.</param>
-        /// <param name="channelId">Canal que hace la petición.</param>
-        /// <param name="playerSession">Identidad vigente, o null si no existe.</param>
-        /// <returns>null si la identidad es válida; error genérico en otro caso.</returns>
         private string ValidateChatIdentityInLock(
             string sessionToken,
             string channelId,
             out PlayerSession playerSession)
         {
-            string errorKey = CommonErrorKeyHelper.InvalidSessionErrorKey;
+            string errorKey = ErrorKeys.Common.InvalidSession;
             playerSession = null;
             int channelUserId;
 
@@ -153,12 +146,6 @@ namespace TLMG.Services.Sessions
             return errorKey;
         }
 
-        /// <summary>Valida el canal vigente antes de revelar pertenencia a una sala; requiere _sessionsLock.</summary>
-        /// <param name="userId">Jugador registrado.</param>
-        /// <param name="sessionToken">Token vigente.</param>
-        /// <param name="channelId">Canal que intenta enviar.</param>
-        /// <param name="roomId">Sala solicitada.</param>
-        /// <returns>null si puede enviar; clave genérica de sesión, de suscripción o de pertenencia si no.</returns>
         private string ValidateChatMembershipInLock(int userId, string sessionToken, string channelId, int roomId)
         {
             string errorKey = null;
@@ -167,23 +154,20 @@ namespace TLMG.Services.Sessions
 
             if (!_chatChannelsByUserId.TryGetValue(userId, out chatChannel))
             {
-                errorKey = ChatValidationHelper.NotSubscribedErrorKey;
+                errorKey = ErrorKeys.Lobby.ChatNotSubscribed;
             }
             else if (chatChannel.SessionToken != sessionToken || chatChannel.ChannelId != channelId)
             {
-                errorKey = CommonErrorKeyHelper.InvalidSessionErrorKey;
+                errorKey = ErrorKeys.Common.InvalidSession;
             }
             else if (!_roomIdsByUserId.TryGetValue(userId, out currentRoomId) || currentRoomId != roomId)
             {
-                errorKey = LobbyErrorKeyHelper.NotInRoomErrorKey;
+                errorKey = ErrorKeys.Lobby.NotInRoom;
             }
 
             return errorKey;
         }
 
-        /// <summary>Copia solo los callbacks suscritos de los miembros de la sala bajo _sessionsLock.</summary>
-        /// <param name="roomId">Sala existente del emisor validado.</param>
-        /// <returns>Copia de solo lectura; incluye el callback del emisor.</returns>
         private IReadOnlyList<IChatManagerCallback> CopyChatRecipientsInLock(int roomId)
         {
             List<IChatManagerCallback> recipients = new List<IChatManagerCallback>();
@@ -203,10 +187,6 @@ namespace TLMG.Services.Sessions
             return readOnlyRecipients;
         }
 
-        /// <summary>
-        /// Retira la suscripción al salir o terminar sesión; conserva el intervalo bajo _sessionsLock.
-        /// </summary>
-        /// <param name="userId">Jugador cuya suscripción termina.</param>
         private void RemoveChatChannelOfUserInLock(int userId)
         {
             ChatChannel chatChannel;
@@ -218,10 +198,6 @@ namespace TLMG.Services.Sessions
             }
         }
 
-        /// <summary>
-        /// Purga intervalos cumplidos al atender operaciones; conserva fechas futuras si retrocede UTC.
-        /// </summary>
-        /// <param name="nowUtc">Reloj del servidor leído dentro de _sessionsLock.</param>
         private void PurgeExpiredChatSendTimesInLock(DateTime nowUtc)
         {
             List<int> expiredUserIds = new List<int>();

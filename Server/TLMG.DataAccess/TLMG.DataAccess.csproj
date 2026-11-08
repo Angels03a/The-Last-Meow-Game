@@ -97,18 +97,8 @@
       <DependentUpon>TLMGModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\AcceptedFriend.cs" />
-    <Compile Include="Repositories\CredentialsLookupStatus.cs" />
-    <Compile Include="Repositories\FriendListLookup.cs" />
-    <Compile Include="Repositories\FriendshipLookupStatus.cs" />
     <Compile Include="Repositories\FriendshipRepository.cs" />
-    <Compile Include="Repositories\IFriendshipRepository.cs" />
-    <Compile Include="Repositories\IPlayerRepository.cs" />
-    <Compile Include="Repositories\LeaderboardLookup.cs" />
-    <Compile Include="Repositories\PlayerCredentials.cs" />
     <Compile Include="Repositories\PlayerRepository.cs" />
-    <Compile Include="Repositories\RankedPlayer.cs" />
-	<Compile Include="Repositories\PlayerExistenceLookupStatus.cs" />
   </ItemGroup>
   <ItemGroup>
     <EntityDeploy Include="DatabaseModel\TLMGModel.edmx">
@@ -139,6 +129,12 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TLMG.Domain\TLMG.Domain.csproj">
+      <Project>{0c8a1235-0809-453f-aa8f-c19e731e30b4}</Project>
+      <Name>TLMG.Domain</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

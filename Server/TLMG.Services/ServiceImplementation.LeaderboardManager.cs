@@ -1,26 +1,30 @@
-﻿using System.ServiceModel;
-
+﻿using System;
+using System.ServiceModel;
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
-using TLMG.DataAccess.Repositories;
-using TLMG.Services.Leaderboard;
+using TLMG.Domain.Constants;
 
 namespace TLMG.Services
 {
     public partial class ServiceImplementation : ILeaderboardManager
     {
-        private static readonly LeaderboardService _leaderboardService =
-            new LeaderboardService(new PlayerRepository());
-
-        /// <summary>Delega la consulta al servicio de la tabla de posiciones y responde por callback.</summary>
         public void GetLeaderboard()
         {
-            ILeaderboardManagerCallback callback =
-                OperationContext.Current.GetCallbackChannel<ILeaderboardManagerCallback>();
+            try
+            {
+                ILeaderboardManagerCallback callback =
+                    OperationContext.Current.GetCallbackChannel<ILeaderboardManagerCallback>();
 
-            OperationGetLeaderboardResult operationGetLeaderboardResult = _leaderboardService.GetLeaderboard();
+                OperationGetLeaderboardResult operationGetLeaderboardResult = _leaderboardService.GetLeaderboard();
 
-            SafeNotify(() => callback.GetLeaderboardResult(operationGetLeaderboardResult));
+                SafeNotify(() => callback.GetLeaderboardResult(operationGetLeaderboardResult));
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante GetLeaderboard.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
         }
     }
 }

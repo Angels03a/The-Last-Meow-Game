@@ -1,62 +1,82 @@
 ﻿using System;
 using System.ServiceModel;
-
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
-using TLMG.DataAccess.Repositories;
-using TLMG.Services.Friends;
+using TLMG.Domain.Constants;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services
 {
     public partial class ServiceImplementation : IFriendsManager
     {
-        private static readonly IFriendshipRepository _friendshipRepository;
-        private static readonly FriendsService _friendsService;
-
         private bool _isFriendsChannelObserved;
         private string _friendsChannelId;
 
-        /// <summary>Delega la suscripción al servicio de amigos y responde por callback.</summary>
-        /// <param name="sessionToken">Token de la sesión del jugador.</param>
         public void SubscribeToFriends(string sessionToken)
         {
-            IFriendsManagerCallback callback = OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
-            ObserveFriendsChannel();
+            try
+            {
+                IFriendsManagerCallback callback = 
+                    OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
+                ObserveFriendsChannel();
 
-            ResultWithNotification<OperationSubscribeToFriendsResult> subscribeToFriendsResultWithNotification =
-                _friendsService.SubscribeToFriends(sessionToken, _friendsChannelId, callback);
+                ResultWithNotification<OperationSubscribeToFriendsResult> subscribeToFriendsResultWithNotification =
+                    _friendsService.SubscribeToFriends(sessionToken, _friendsChannelId, callback);
 
-            SafeNotify(() => callback.SubscribeToFriendsResult(subscribeToFriendsResultWithNotification.OperationResult));
-            SafeNotifyAll(subscribeToFriendsResultWithNotification.Notifications);
+                SafeNotify(() => 
+                callback.SubscribeToFriendsResult(subscribeToFriendsResultWithNotification.OperationResult));
+                SafeNotifyAll(subscribeToFriendsResultWithNotification.Notifications);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante SubscribeToFriends.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
         }
 
-        /// <summary>Delega la invitación a la sala al servicio de amigos y responde por callback.</summary>
-        /// <param name="sessionToken">Token de la sesión del jugador que invita.</param>
-        /// <param name="friendUserId">Identificador de la cuenta del amigo al que se invita.</param>
         public void InviteFriendToRoom(string sessionToken, int friendUserId)
         {
-            IFriendsManagerCallback callback = OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
+            try
+            {
+                IFriendsManagerCallback callback = 
+                    OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
 
-            ResultWithNotification<OperationInviteFriendToRoomResult> inviteFriendToRoomResultWithNotification =
-                _friendsService.InviteFriendToRoom(sessionToken, friendUserId);
+                ResultWithNotification<OperationInviteFriendToRoomResult> inviteFriendToRoomResultWithNotification =
+                    _friendsService.InviteFriendToRoom(sessionToken, friendUserId);
 
-            SafeNotify(() => callback.InviteFriendToRoomResult(inviteFriendToRoomResultWithNotification.OperationResult));
-            SafeNotifyAll(inviteFriendToRoomResultWithNotification.Notifications);
+                SafeNotify(() => 
+                callback.InviteFriendToRoomResult(inviteFriendToRoomResultWithNotification.OperationResult));
+                SafeNotifyAll(inviteFriendToRoomResultWithNotification.Notifications);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante InviteFriendToRoom.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
         }
 
-        /// <summary>Delega la aceptación de la invitación al servicio de amigos y responde por callback.</summary>
-        /// <param name="sessionToken">Token de la sesión del jugador que acepta.</param>
-        /// <param name="invitationId">Identificador de la invitación recibida.</param>
         public void AcceptRoomInvitation(string sessionToken, int invitationId)
         {
-            IFriendsManagerCallback callback = OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
+            try
+            {
+                IFriendsManagerCallback callback = 
+                    OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
 
-            ResultWithNotification<OperationAcceptRoomInvitationResult> acceptRoomInvitationResultWithNotification =
-                _friendsService.AcceptRoomInvitation(sessionToken, invitationId);
+                ResultWithNotification<OperationAcceptRoomInvitationResult> acceptRoomInvitationResultWithNotification =
+                    _friendsService.AcceptRoomInvitation(sessionToken, invitationId);
 
-            SafeNotify(() => callback.AcceptRoomInvitationResult(acceptRoomInvitationResultWithNotification.OperationResult));
-            SafeNotifyAll(acceptRoomInvitationResultWithNotification.Notifications);
+                SafeNotify(() => 
+                callback.AcceptRoomInvitationResult(acceptRoomInvitationResultWithNotification.OperationResult));
+                SafeNotifyAll(acceptRoomInvitationResultWithNotification.Notifications);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante AcceptRoomInvitation.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
         }
 
         private void ObserveFriendsChannel()

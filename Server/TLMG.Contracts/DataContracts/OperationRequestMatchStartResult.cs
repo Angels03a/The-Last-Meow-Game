@@ -4,16 +4,8 @@ namespace TLMG.Contracts.DataContracts
 {
     /// <summary>Resultado de solicitar el inicio autorizado de una partida.</summary>
     [DataContract]
-    public class OperationRequestMatchStartResult
+    public class OperationRequestMatchStartResult : OperationResult
     {
-        /// <summary>Indica que se atendió la petición; el inicio se confirma únicamente con Room.InGame.</summary>
-        [DataMember]
-        public bool IsSuccess { get; set; }
-
-        /// <summary>Clave de error para traducir en el cliente; null si se atendió la petición.</summary>
-        [DataMember]
-        public string ErrorKey { get; set; }
-
         /// <summary>Estado actual autorizado de la sala; null si se rechazó la petición.</summary>
         [DataMember]
         public LobbyRoom Room { get; set; }

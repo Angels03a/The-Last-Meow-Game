@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-
 using log4net;
-
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
-using TLMG.Services.Helpers;
+using TLMG.Domain.Validators;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Chat
@@ -15,7 +13,7 @@ namespace TLMG.Services.Chat
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(ChatService));
 
-        private readonly ISessionRegistry _sessionRegistry;
+        private ISessionRegistry _sessionRegistry;
 
         /// <summary>Crea el servicio con el registro compartido.</summary>
         /// <param name="sessionRegistry">Registro de sesiones, salas y canales.</param>
@@ -53,7 +51,7 @@ namespace TLMG.Services.Chat
         /// <param name="channelId">Canal suscrito que envía.</param>
         /// <param name="sendChatMessageRequest">Sala, correlación y texto; puede ser null.</param>
         /// <returns>Resultado null y entregas si se aceptó; rechazo sin entregas en otro caso.</returns>
-        public ResultWithNotification<OperationSendChatMessageResult> SendChatMessage(string sessionToken, 
+        public ResultWithNotification<OperationSendChatMessageResult> SendChatMessage(string sessionToken,
             string channelId, OperationSendChatMessageRequest sendChatMessageRequest)
         {
             string text = null;
@@ -68,10 +66,10 @@ namespace TLMG.Services.Chat
             }
 
             string normalizedText;
-            string validationErrorKey = ChatValidationHelper.ValidateText(text, out normalizedText);
+            string validationErrorKey = ChatValidator.ValidateText(text, out normalizedText);
             ChatDelivery chatDelivery;
             string errorKey = _sessionRegistry.AcceptChatMessage(
-                sessionToken, channelId, roomId, clientMessageId, normalizedText, validationErrorKey, 
+                sessionToken, channelId, roomId, clientMessageId, normalizedText, validationErrorKey,
                 out chatDelivery);
             ResultWithNotification<OperationSendChatMessageResult> sendChatMessageResult;
 

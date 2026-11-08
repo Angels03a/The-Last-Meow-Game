@@ -1,4 +1,4 @@
-﻿namespace TLMG.DataAccess.Repositories
+﻿namespace TLMG.Domain.Repositories
 {
     /// <summary>
     /// Datos mínimos de una cuenta para validar un inicio de sesión; no expone la entidad de Entity Framework.

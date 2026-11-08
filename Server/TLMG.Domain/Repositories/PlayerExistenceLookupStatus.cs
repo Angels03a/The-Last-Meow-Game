@@ -1,4 +1,4 @@
-﻿namespace TLMG.DataAccess.Repositories
+﻿namespace TLMG.Domain.Repositories
 {
     /// <summary>
     /// Resultado de comprobar si ya existe una cuenta; separa "no existe" de un fallo de datos.

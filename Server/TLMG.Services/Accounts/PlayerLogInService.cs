@@ -1,9 +1,10 @@
 ﻿using System;
-
 using log4net;
-
 using TLMG.Contracts.DataContracts;
-using TLMG.DataAccess.Repositories;
+using TLMG.Domain.Constants;
+using TLMG.Domain.Entities;
+using TLMG.Domain.Repositories;
+using TLMG.Domain.Validators;
 using TLMG.Services.Helpers;
 using TLMG.Services.Sessions;
 
@@ -14,23 +15,12 @@ namespace TLMG.Services.Accounts
     /// </summary>
     public class PlayerLogInService
     {
-        private const string ActiveUserState = "USER_ACTIVE";
-        private const string IncompleteFieldsErrorKey = "Login_IncompleteFieldsError";
-        private const string EmailFormatErrorKey = "Login_EmailFormatError";
-        private const string InvalidCredentialsErrorKey = "Login_InvalidCredentialsError";
-        private const string DatabaseErrorKey = "Login_DataModelError";
-        private const int NoUserId = 0;
-
         private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerLogInService));
 
-        private readonly IPlayerRepository _playerRepository;
-        private readonly IPasswordHasher _passwordHasher;
-        private readonly ISessionRegistry _sessionRegistry;
+        private IPlayerRepository _playerRepository;
+        private IPasswordHasher _passwordHasher;
+        private ISessionRegistry _sessionRegistry;
 
-        /// <summary>Crea el servicio de inicio de sesión con sus dependencias.</summary>
-        /// <param name="playerRepository">Repositorio de cuentas.</param>
-        /// <param name="passwordHasher">Verificador de contraseñas.</param>
-        /// <param name="sessionRegistry">Registro de las sesiones iniciadas.</param>
         public PlayerLogInService(
             IPlayerRepository playerRepository,
             IPasswordHasher passwordHasher,
@@ -41,25 +31,19 @@ namespace TLMG.Services.Accounts
             _sessionRegistry = sessionRegistry;
         }
 
-        /// <summary>Valida las credenciales, registra el acceso del jugador y abre su sesión.</summary>
-        /// <param name="operationLogInRequest">Credenciales recibidas del cliente.</param>
-        /// <returns>
-        /// El resultado con IsSuccess y, según el caso, la clave de error o el token de sesión con el id y el
-        /// nickname del jugador; y los avisos para la sala y los amigos de la sesión anterior de la misma cuenta, si
-        /// la había.
-        /// </returns>
         public ResultWithNotification<OperationLogInResult> LogIn(OperationLogInRequest operationLogInRequest)
         {
             string sessionToken = null;
-            int userId = NoUserId;
+            int userId = ValidationRules.NoUserId;
             string nickname = null;
             SessionEnd replacedSession = null;
-            string errorKey = ValidateLogInRequest(operationLogInRequest);
+
+            string errorKey = ValidateLogInRequest(operationLogInRequest, out PlayerLogin playerLogin);
 
             if (errorKey == null)
             {
                 PlayerCredentials playerCredentials;
-                errorKey = AuthenticatePlayer(operationLogInRequest, out playerCredentials);
+                errorKey = AuthenticatePlayer(playerLogin, out playerCredentials);
 
                 if (errorKey == null)
                 {
@@ -81,46 +65,55 @@ namespace TLMG.Services.Accounts
                 Nickname = nickname
             };
 
-            ResultWithNotification<OperationLogInResult> loginResult = new ResultWithNotification<OperationLogInResult>(
-                operationLogInResult,
+            ResultWithNotification<OperationLogInResult> loginResult = 
+                new ResultWithNotification<OperationLogInResult>(operationLogInResult,
                 SessionNotificationHelper.CreateSessionEndNotifications(replacedSession));
 
             return loginResult;
         }
 
-        private static string ValidateLogInRequest(OperationLogInRequest operationLogInRequest)
+        private static string ValidateLogInRequest(OperationLogInRequest operationLogInRequest, 
+            out PlayerLogin playerLogin)
         {
             string errorKey = null;
+            playerLogin = null;
 
             if (operationLogInRequest == null
                 || string.IsNullOrWhiteSpace(operationLogInRequest.Email)
                 || string.IsNullOrWhiteSpace(operationLogInRequest.Password))
             {
-                errorKey = IncompleteFieldsErrorKey;
+                errorKey = ErrorKeys.Login.IncompleteFields;
             }
-            else if (PlayerAccountRegistrationValidationHelper.ValidateEmail(operationLogInRequest.Email) != null)
+            else
             {
-                errorKey = EmailFormatErrorKey;
+                playerLogin = new PlayerLogin
+                {
+                    Email = operationLogInRequest.Email,
+                    Password = operationLogInRequest.Password
+                };
+
+                if (PlayerAccountRegistrationValidator.ValidateEmail(playerLogin.Email) != null)
+                {
+                    errorKey = ErrorKeys.Login.EmailFormat;
+                }
             }
 
             return errorKey;
         }
 
-        private string AuthenticatePlayer(
-            OperationLogInRequest operationLogInRequest,
-            out PlayerCredentials playerCredentials)
+        private string AuthenticatePlayer(PlayerLogin playerLogin, out PlayerCredentials playerCredentials)
         {
-            string errorKey = InvalidCredentialsErrorKey;
-            string email = operationLogInRequest.Email.ToLowerInvariant();
+            string errorKey = ErrorKeys.Login.InvalidCredentials;
+            string email = playerLogin.Email.ToLowerInvariant();
             playerCredentials = _playerRepository.FindCredentialsByEmail(email);
 
             if (playerCredentials.Status == CredentialsLookupStatus.DataFailure)
             {
-                errorKey = DatabaseErrorKey;
+                errorKey = ErrorKeys.Login.DataModel;
             }
             else if (playerCredentials.Status == CredentialsLookupStatus.Found)
             {
-                errorKey = VerifyKnownPlayer(playerCredentials, operationLogInRequest.Password);
+                errorKey = VerifyKnownPlayer(playerCredentials, playerLogin.Password);
             }
 
             return errorKey;
@@ -128,9 +121,9 @@ namespace TLMG.Services.Accounts
 
         private string VerifyKnownPlayer(PlayerCredentials playerCredentials, string password)
         {
-            string errorKey = InvalidCredentialsErrorKey;
+            string errorKey = ErrorKeys.Login.InvalidCredentials;
             bool isPasswordValid = _passwordHasher.VerifyPassword(password, playerCredentials.PasswordHash);
-            bool isAccountActive = playerCredentials.State == ActiveUserState;
+            bool isAccountActive = playerCredentials.State == ValidationRules.ActiveUserState;
 
             if (isPasswordValid && isAccountActive)
             {
@@ -146,8 +139,7 @@ namespace TLMG.Services.Accounts
 
         private string RegisterLogInTime(int userId)
         {
-            string errorKey = DatabaseErrorKey;
-
+            string errorKey = ErrorKeys.Login.DataModel;
             bool wasLastLogInTimeUpdated = _playerRepository.UpdateLastLogInTime(userId, DateTime.UtcNow);
 
             if (wasLastLogInTimeUpdated)

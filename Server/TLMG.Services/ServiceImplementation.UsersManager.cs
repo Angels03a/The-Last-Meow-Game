@@ -1,48 +1,66 @@
-﻿using System.ServiceModel;
-
+﻿using System;
+using System.ServiceModel;
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
-using TLMG.DataAccess.Repositories;
-using TLMG.Services.Accounts;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services
 {
     public partial class ServiceImplementation : IUsersManager
     {
-        private static readonly IPlayerRepository _playerRepository = new PlayerRepository();
-
-        private static readonly IPasswordHasher _passwordHasher = new PasswordHasher();
-
-        private static readonly PlayerAccountRegistrationService _playerAccountRegistrationService =
-            new PlayerAccountRegistrationService(_playerRepository, _passwordHasher);
-
-        private static readonly PlayerLogInService _playerLogInService;
-
-        /// <summary>Delega el registro al servicio de registro y responde por callback.</summary>
-        /// <param name="registrationPlayerAccount">Datos capturados por el jugador.</param>
-        public void RegisterPlayerAccount(PlayerAccountRegistration registrationPlayerAccount)
+        public OperationRegisterPlayerAccountResult RegisterPlayerAccount(PlayerAccountRegistration 
+            registrationPlayerAccount)
         {
-            IUsersManagerCallback callback =
-                OperationContext.Current.GetCallbackChannel<IUsersManagerCallback>();
+            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult;
 
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult =
-                _playerAccountRegistrationService.RegisterPlayerAccount(registrationPlayerAccount);
+            try
+            {
+                operationRegisterPlayerAccountResult = 
+                    _playerAccountRegistrationService.RegisterPlayerAccount(registrationPlayerAccount);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante el registro de cuenta de jugador.", outOfMemoryException);
 
-            SafeNotify(() => callback.RegisterPlayerAccountResult(operationRegisterPlayerAccountResult));
+                SystemFault fault = new SystemFault
+                {
+                    SystemErrorMessage = "El servidor se ha quedado sin memoria."
+                };
+
+                throw new FaultException<SystemFault>(fault, 
+                    new FaultReason("Memoria insuficiente en el servidor."));
+            }
+
+            return operationRegisterPlayerAccountResult;
         }
 
-        /// <summary>Delega el inicio de sesión al servicio de inicio de sesión y responde por callback.</summary>
-        /// <param name="operationLogInRequest">Credenciales capturadas por el jugador.</param>
-        public void LogIn(OperationLogInRequest operationLogInRequest)
+        public OperationLogInResult LogIn(OperationLogInRequest operationLogInRequest)
         {
-            IUsersManagerCallback callback =
-                OperationContext.Current.GetCallbackChannel<IUsersManagerCallback>();
+            OperationLogInResult result;
 
-            ResultWithNotification<OperationLogInResult> sessionOutcome = _playerLogInService.LogIn(operationLogInRequest);
+            try
+            {
+                ResultWithNotification<OperationLogInResult> loginResult = 
+                    _playerLogInService.LogIn(operationLogInRequest);
 
-            SafeNotify(() => callback.LogInResult(sessionOutcome.OperationResult));
-            SafeNotifyAll(sessionOutcome.Notifications);
+                SafeNotifyAll(loginResult.Notifications);
+
+                result = loginResult.OperationResult;
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante el inicio de sesión.", outOfMemoryException);
+
+                SystemFault fault = new SystemFault
+                {
+                    SystemErrorMessage = "El servidor se ha quedado sin memoria."
+                };
+
+                throw new FaultException<SystemFault>(fault, 
+                    new FaultReason("Memoria insuficiente en el servidor."));
+            }
+
+            return result;
         }
     }
 }

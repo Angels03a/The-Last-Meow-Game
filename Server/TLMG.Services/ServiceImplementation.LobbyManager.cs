@@ -3,92 +3,120 @@ using System.Collections.Generic;
 using System.ServiceModel;
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Constants;
 using TLMG.Services.Lobby;
 
 namespace TLMG.Services
 {
     public partial class ServiceImplementation : ILobbyManager
     {
-        private static readonly LobbyService _lobbyService;
-
         private bool _isLobbyChannelObserved;
         private string _lobbyChannelId;
 
-        /// <summary>Delega la creación de la sala al servicio de salas y responde por callback.</summary>
-        /// <param name="sessionToken">Token de la sesión del jugador.</param>
         public void CreateRoom(string sessionToken)
         {
-            ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
-            ObserveLobbyChannel();
+            try
+            {
+                ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
+                ObserveLobbyChannel();
 
-            LobbyOperationResultWithNotification<OperationCreateRoomResult> createRoomResult =
-                _lobbyService.CreateRoom(sessionToken, _lobbyChannelId, callback);
+                LobbyOperationResultWithNotification<OperationCreateRoomResult> createRoomResult =
+                    _lobbyService.CreateRoom(sessionToken, _lobbyChannelId, callback);
 
-            SafeNotify(() => callback.CreateRoomResult(createRoomResult.OperationResult));
-            NotifyLobbyMembers(createRoomResult.Notifications);
+                SafeNotify(() => callback.CreateRoomResult(createRoomResult.OperationResult));
+                NotifyLobbyMembers(createRoomResult.Notifications);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante CreateRoom.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
         }
 
-        /// <summary>Delega la entrada a la sala al servicio de salas y responde por callback.</summary>
-        /// <param name="sessionToken">Token de la sesión del jugador.</param>
-        /// <param name="roomId">Identificador de la sala a la que quiere entrar.</param>
         public void EnterLobby(string sessionToken, int roomId)
         {
-            ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
-            ObserveLobbyChannel();
+            try
+            {
+                ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
+                ObserveLobbyChannel();
 
-            LobbyOperationResultWithNotification<OperationEnterLobbyResult> enterLobbyResult =
-                _lobbyService.EnterLobby(sessionToken, roomId, _lobbyChannelId, callback);
+                LobbyOperationResultWithNotification<OperationEnterLobbyResult> enterLobbyResult =
+                    _lobbyService.EnterLobby(sessionToken, roomId, _lobbyChannelId, callback);
 
-            SafeNotify(() => callback.EnterLobbyResult(enterLobbyResult.OperationResult));
-            NotifyLobbyMembers(enterLobbyResult.Notifications);
+                SafeNotify(() => callback.EnterLobbyResult(enterLobbyResult.OperationResult));
+                NotifyLobbyMembers(enterLobbyResult.Notifications);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante EnterLobby.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
         }
 
-        /// <summary>Delega la salida de la sala al servicio de salas y responde por callback.</summary>
-        /// <param name="sessionToken">Token de la sesión del jugador.</param>
         public void LeaveLobby(string sessionToken)
         {
-            ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
-            ObserveLobbyChannel();
+            try
+            {
+                ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
+                ObserveLobbyChannel();
 
-            LobbyOperationResultWithNotification<OperationLeaveLobbyResult> leaveLobbyResult =
-                _lobbyService.LeaveLobby(sessionToken);
+                LobbyOperationResultWithNotification<OperationLeaveLobbyResult> leaveLobbyResult =
+                    _lobbyService.LeaveLobby(sessionToken);
 
-            SafeNotify(() => callback.LeaveLobbyResult(leaveLobbyResult.OperationResult));
-            NotifyLobbyMembers(leaveLobbyResult.Notifications);
+                SafeNotify(() => callback.LeaveLobbyResult(leaveLobbyResult.OperationResult));
+                NotifyLobbyMembers(leaveLobbyResult.Notifications);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante LeaveLobby.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
         }
 
-        /// <summary>
-        /// Atiende la petición de cambiar el estado Listo delegando al servicio de salas.
-        /// </summary>
-        /// <param name="sessionToken">Token de la sesión del jugador.</param>
-        /// <param name="changePlayerReadinessRequest">Datos de la petición.</param>
-        public void ChangePlayerReadiness(string sessionToken, OperationChangePlayerReadinessRequest changePlayerReadinessRequest)
+        public void ChangePlayerReadiness(string sessionToken, OperationChangePlayerReadinessRequest 
+            changePlayerReadinessRequest)
         {
-            ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
-            ObserveLobbyChannel();
+            try
+            {
+                ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
+                ObserveLobbyChannel();
 
-            LobbyOperationResultWithNotification<OperationChangePlayerReadinessResult> changePlayerReadinessResult =
-                _lobbyService.ChangePlayerReadiness(sessionToken, _lobbyChannelId, changePlayerReadinessRequest);
+                LobbyOperationResultWithNotification<OperationChangePlayerReadinessResult> changePlayerReadinessResult =
+                    _lobbyService.ChangePlayerReadiness(sessionToken, _lobbyChannelId, changePlayerReadinessRequest);
 
-            SafeNotify(() => callback.ChangePlayerReadinessResult(changePlayerReadinessResult.OperationResult));
-            NotifyLobbyMembers(changePlayerReadinessResult.Notifications);
+                SafeNotify(() => callback.ChangePlayerReadinessResult(changePlayerReadinessResult.OperationResult));
+                NotifyLobbyMembers(changePlayerReadinessResult.Notifications);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante ChangePlayerReadiness.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
         }
 
-        /// <summary>
-        /// Atiende la petición de solicitar el inicio de la partida delegando al servicio de salas.
-        /// </summary>
-        /// <param name="sessionToken">Token de la sesión del jugador.</param>
-        /// <param name="matchStartRequest">Datos de la petición.</param>
         public void RequestMatchStart(string sessionToken, OperationMatchStartRequest matchStartRequest)
         {
-            ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
-            ObserveLobbyChannel();
+            try
+            {
+                ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
+                ObserveLobbyChannel();
 
-            LobbyOperationResultWithNotification<OperationRequestMatchStartResult> requestMatchStartResult =
-                _lobbyService.RequestMatchStart(sessionToken, _lobbyChannelId, matchStartRequest);
+                LobbyOperationResultWithNotification<OperationRequestMatchStartResult> requestMatchStartResult =
+                    _lobbyService.RequestMatchStart(sessionToken, _lobbyChannelId, matchStartRequest);
 
-            SafeNotify(() => callback.RequestMatchStartResult(requestMatchStartResult.OperationResult));
-            NotifyLobbyMembers(requestMatchStartResult.Notifications);
+                SafeNotify(() => callback.RequestMatchStartResult(requestMatchStartResult.OperationResult));
+                NotifyLobbyMembers(requestMatchStartResult.Notifications);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante RequestMatchStart.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
         }
 
         private void ObserveLobbyChannel()

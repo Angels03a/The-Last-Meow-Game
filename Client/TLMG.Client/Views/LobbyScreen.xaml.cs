@@ -19,8 +19,6 @@ namespace TLMG.Client.Views
     public partial class LobbyScreen : LocalizableScreen
     {
         private const int ToastDurationMilliseconds = 3000;
-
-        // Máximo de jugadores por sala (Reglas de The Last Meow, §1.1.1); solo se muestra, el servidor lo aplica.
         private const int MaximumPlayersPerRoom = 6;
         private const int EmptyPlayerCount = 0;
         private const string RoomInformationFormatKey = "Lobby_RoomInformationFormat";
@@ -52,7 +50,6 @@ namespace TLMG.Client.Views
 
         private static ServerConnectionManager ServerConnection => ((App)Application.Current).ServerConnection;
 
-        /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
             LobbyRoom currentRoom = ServerConnection.CurrentRoom;
@@ -72,8 +69,6 @@ namespace TLMG.Client.Views
             ShowCountdown();
         }
 
-        // Loaded se repite cuando la pantalla vuelve del historial (por ejemplo, desde FriendsScreen): por eso la
-        // suscripción va aquí y no en el constructor, y la sala se pide solo si el jugador todavía no tiene una.
         private void OnScreenLoaded(object sender, RoutedEventArgs e)
         {
             ServerConnection.CreateRoomResultReceived -= OnCreateRoomResultReceived;
