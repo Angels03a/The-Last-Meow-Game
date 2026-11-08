@@ -338,7 +338,7 @@ namespace TLMG.Client.Communication
         {
             if (IsRoomCreationPending && operationCreateRoomResult.IsSuccess)
             {
-                ApplyRoomSnapshot(operationCreateRoomResult.Room);
+                ApplyRoomSnapshot(operationCreateRoomResult.LobbyRoom);
             }
 
             IsRoomCreationPending = false;

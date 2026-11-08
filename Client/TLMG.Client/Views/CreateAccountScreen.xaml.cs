@@ -1,21 +1,16 @@
 using System;
 using System.ServiceModel;
 using System.Windows;
-
 using log4net;
-
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
     /// Pantalla de registro de cuentas. Solo captura datos, invoca al servidor autoritativo
-    /// y reacciona al resultado recibido por callback.
+    /// y reacciona al resultado.
     /// </summary>
-    [CallbackBehavior(UseSynchronizationContext = false)]
-
-
-    public partial class CreateAccountScreen : LocalizableScreen, IUsersManagerCallback
+    public partial class CreateAccountScreen : LocalizableScreen
     {
         private const bool IsErrorMessage = true;
 
@@ -43,23 +38,6 @@ namespace TLMG.Client.Views
             InitializeComponent();
             Unloaded += OnScreenUnloaded;
         }
-
-        /// <summary>
-        /// Recibe del servidor el resultado del registro y lo traslada al hilo de la interfaz.
-        /// </summary>
-        /// <param name="operationRegisterPlayerAccountResult">Resultado con éxito o clave de error.</param>
-        public void RegisterPlayerAccountResult(
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult)
-        {
-            Dispatcher.BeginInvoke(new Action(() => FinishRegistrationAttempt(operationRegisterPlayerAccountResult)));
-        }
-
-        /// <inheritdoc />
-        public void LogInResult(OperationLogInResult operationLogInResult)
-        {
-            // TODO: Mover los callbacks a la capa Comunicación. (BL-036).
-        }
-
 
         private void PwdPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
@@ -117,23 +95,40 @@ namespace TLMG.Client.Views
 
             try
             {
-                _accountRegistrationClient = new UsersManagerClient(new InstanceContext(this));
+                _accountRegistrationClient = new UsersManagerClient();
 
-                _accountRegistrationClient.RegisterPlayerAccount(playerAccountRegistration);
+                OperationRegisterPlayerAccountResult registrationResult =
+                    _accountRegistrationClient.RegisterPlayerAccount(playerAccountRegistration);
+
+                FinishRegistrationAttempt(registrationResult);
             }
-            catch (EndpointNotFoundException ex)
+            catch (FaultException<SystemFault> systemFault)
             {
-                _log.Error("No se encontró el endpoint del servidor al registrar la cuenta.", ex);
+                _log.Fatal("Error de infraestructura reportado por el servidor.", systemFault);
+
+                string errorMessage = FindMessage(systemFault.Detail.SystemErrorMessage)
+                                   ?? FindMessage(UnknownErrorKey);
+                ShowStatusMessage(lblFormMessage, errorMessage, IsErrorMessage);
+
+                CloseRegistrationClient();
+                btnCreateAccount.IsEnabled = true;
+            }
+            catch (EndpointNotFoundException endpointNotFoundException)
+            {
+                _log.Error("No se encontró el endpoint del servidor al registrar la cuenta.", 
+                    endpointNotFoundException);
                 ShowConnectionError();
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException timeoutException)
             {
-                _log.Error("El servidor tardó demasiado en recibir la solicitud de registro.", ex);
+                _log.Error("El servidor tardó demasiado en recibir la solicitud de registro.", 
+                    timeoutException);
                 ShowConnectionError();
             }
-            catch (CommunicationException ex)
+            catch (CommunicationException communicationException)
             {
-                _log.Error("Error de comunicación al enviar la solicitud de registro.", ex);
+                _log.Error("Error de comunicación al enviar la solicitud de registro.", 
+                    communicationException);
                 ShowConnectionError();
             }
         }

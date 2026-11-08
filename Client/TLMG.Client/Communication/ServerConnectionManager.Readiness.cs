@@ -75,7 +75,7 @@ namespace TLMG.Client.Communication
 
                 if (isCurrentCountdown && !CurrentRoom.InGame)
                 {
-                    OperationRequestMatchStartRequest requestMatchStartResult = new OperationRequestMatchStartRequest
+                    OperationMatchStartRequest requestMatchStartResult = new OperationMatchStartRequest
                     {
                         RoomId = CurrentRoom.RoomId,
                         CountdownId = eventArguments.Payload

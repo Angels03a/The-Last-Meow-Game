@@ -8,24 +8,24 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="RegisterPlayerAccountResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="RegisterPlayerAccountResult" nillable="true" type="q2:OperationRegisterPlayerAccountResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="LogIn">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationLogInRequest" nillable="true" type="q2:OperationLogInRequest" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationLogInRequest" nillable="true" type="q3:OperationLogInRequest" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="RegisterPlayerAccountResult">
+  <xs:element name="LogInResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationRegisterPlayerAccountResult" nillable="true" type="q3:OperationRegisterPlayerAccountResult" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="LogInResult">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationLogInResult" nillable="true" type="q4:OperationLogInResult" />
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="LogInResult" nillable="true" type="q4:OperationLogInResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -75,7 +75,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
-        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="request" nillable="true" type="q7:OperationRequestMatchStartRequest" />
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="request" nillable="true" type="q7:OperationMatchStartRequest" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

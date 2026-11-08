@@ -168,21 +168,27 @@
   <wsdl:types>
     <xsd:schema targetNamespace="http://tempuri.org/Imports">
       <xsd:import namespace="http://tempuri.org/" />
-      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
       <xsd:import namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" />
+      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="IUsersManager_RegisterPlayerAccount_InputMessage">
     <wsdl:part name="parameters" element="tns:RegisterPlayerAccount" />
   </wsdl:message>
+  <wsdl:message name="IUsersManager_RegisterPlayerAccount_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterPlayerAccountResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_RegisterPlayerAccount_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q1="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q1:SystemFault" />
+  </wsdl:message>
   <wsdl:message name="IUsersManager_LogIn_InputMessage">
     <wsdl:part name="parameters" element="tns:LogIn" />
   </wsdl:message>
-  <wsdl:message name="IUsersManager_RegisterPlayerAccountResult_OutputCallbackMessage">
-    <wsdl:part name="parameters" element="tns:RegisterPlayerAccountResult" />
+  <wsdl:message name="IUsersManager_LogIn_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LogInResponse" />
   </wsdl:message>
-  <wsdl:message name="IUsersManager_LogInResult_OutputCallbackMessage">
-    <wsdl:part name="parameters" element="tns:LogInResult" />
+  <wsdl:message name="IUsersManager_LogIn_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q2="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q2:SystemFault" />
   </wsdl:message>
   <wsdl:message name="ILeaderboardManager_GetLeaderboard_InputMessage">
     <wsdl:part name="parameters" element="tns:GetLeaderboard" />
@@ -265,15 +271,13 @@
   <wsdl:portType name="IUsersManager">
     <wsdl:operation name="RegisterPlayerAccount">
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/RegisterPlayerAccount" message="tns:IUsersManager_RegisterPlayerAccount_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/RegisterPlayerAccountResponse" message="tns:IUsersManager_RegisterPlayerAccount_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/RegisterPlayerAccountSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_RegisterPlayerAccount_SystemFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation name="LogIn">
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/LogIn" message="tns:IUsersManager_LogIn_InputMessage" />
-    </wsdl:operation>
-    <wsdl:operation name="RegisterPlayerAccountResult">
-      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/RegisterPlayerAccountResult" message="tns:IUsersManager_RegisterPlayerAccountResult_OutputCallbackMessage" />
-    </wsdl:operation>
-    <wsdl:operation name="LogInResult">
-      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/LogInResult" message="tns:IUsersManager_LogInResult_OutputCallbackMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/LogInResponse" message="tns:IUsersManager_LogIn_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/LogInSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_LogIn_SystemFaultFault_FaultMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="ILeaderboardManager">
@@ -371,24 +375,24 @@
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="LogIn">
       <soap12:operation soapAction="http://tempuri.org/IUsersManager/LogIn" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
-    </wsdl:operation>
-    <wsdl:operation name="RegisterPlayerAccountResult">
-      <soap12:operation soapAction="http://tempuri.org/IUsersManager/RegisterPlayerAccountResult" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="LogInResult">
-      <soap12:operation soapAction="http://tempuri.org/IUsersManager/LogInResult" style="document" />
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="NetTcpBinding_ILeaderboardManager" type="tns:ILeaderboardManager">
@@ -573,7 +577,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/AccountRegistrationService</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
+          <Upn>STELLARLOQ\armas</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
@@ -582,7 +586,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/LeaderboardManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
+          <Upn>STELLARLOQ\armas</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
@@ -591,7 +595,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/LobbyManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
+          <Upn>STELLARLOQ\armas</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
@@ -600,7 +604,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/FriendsManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
+          <Upn>STELLARLOQ\armas</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
@@ -609,7 +613,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/ChatManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
+          <Upn>STELLARLOQ\armas</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>

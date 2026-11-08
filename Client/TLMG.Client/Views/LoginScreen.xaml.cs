@@ -2,21 +2,18 @@ using System;
 using System.ServiceModel;
 using System.Windows;
 using System.Windows.Threading;
-
 using log4net;
-
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
     /// Representa la pantalla de inicio de sesión de usuarios y acceso de invitados.
-    /// Envía las credenciales al servidor autoritativo y reacciona al resultado recibido por callback.
+    /// Envía las credenciales al servidor autoritativo y reacciona al resultado.
     /// </summary>
-    [CallbackBehavior(UseSynchronizationContext = false)]
-    public partial class LoginScreen : LocalizableScreen, IUsersManagerCallback
+    public partial class LoginScreen : LocalizableScreen
     {
-        private const int ScreenTransitionDelayMilliseconds = 1000;
+        private const int ScreenTransitionDelayMilliseconds = 800;
         private const string SuccessMessageKey = "Login_SuccessMessage";
         private const string ConnectionErrorKey = "Login_NetworkError";
         private const string UnknownErrorKey = "Login_DataModelError";
@@ -39,22 +36,6 @@ namespace TLMG.Client.Views
                 Interval = TimeSpan.FromMilliseconds(ScreenTransitionDelayMilliseconds)
             };
             _redirectTimer.Tick += OnRedirectTimerTick;
-        }
-
-        /// <summary>
-        /// Recibe del servidor el resultado del inicio de sesión y lo traslada al hilo de la interfaz.
-        /// </summary>
-        /// <param name="operationLogInResult">Resultado con éxito o clave de error.</param>
-        public void LogInResult(OperationLogInResult operationLogInResult)
-        {
-            Dispatcher.BeginInvoke(new Action(() => FinishLogInAttempt(operationLogInResult)));
-        }
-
-        /// <inheritdoc />
-        public void RegisterPlayerAccountResult(
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult)
-        {
-            // TODO: Mover los callbacks a la capa Comunicación. (BL-036).
         }
 
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
@@ -122,23 +103,39 @@ namespace TLMG.Client.Views
 
             try
             {
-                _logInClient = new UsersManagerClient(new InstanceContext(this));
+                _logInClient = new UsersManagerClient();
 
-                _logInClient.LogIn(operationLogInRequest);
+                OperationLogInResult logInResult = _logInClient.LogIn(operationLogInRequest);
+
+                FinishLogInAttempt(logInResult);
             }
-            catch (EndpointNotFoundException ex)
+            catch (FaultException<SystemFault> systemFault)
             {
-                _log.Error("No se encontró el endpoint del servidor al iniciar sesión.", ex);
+                _log.Fatal("Error de infraestructura reportado por el servidor.", systemFault);
+
+                string errorMessage = TryFindResource(systemFault.Detail.SystemErrorMessage) as string
+                                   ?? TryFindResource(UnknownErrorKey) as string;
+                ShowStatusMessage(lblFormMessage, errorMessage, true);
+
+                CloseLogInClient();
+                btnLogIn.IsEnabled = true;
+            }
+            catch (EndpointNotFoundException endpointNotFoundException)
+            {
+                _log.Error("No se encontró el endpoint del servidor al iniciar sesión.", 
+                    endpointNotFoundException);
                 ShowConnectionError();
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException timeoutException)
             {
-                _log.Error("El servidor tardó demasiado en recibir la solicitud de inicio de sesión.", ex);
+                _log.Error("El servidor tardó demasiado en recibir la solicitud de inicio de sesión.", 
+                    timeoutException);
                 ShowConnectionError();
             }
-            catch (CommunicationException ex)
+            catch (CommunicationException communicationException)
             {
-                _log.Error("Error de comunicación al enviar la solicitud de inicio de sesión.", ex);
+                _log.Error("Error de comunicación al enviar la solicitud de inicio de sesión.",
+                    communicationException);
                 ShowConnectionError();
             }
         }
@@ -194,9 +191,10 @@ namespace TLMG.Client.Views
                         _logInClient.Close();
                     }
                 }
-                catch (CommunicationException ex)
+                catch (CommunicationException communicationException)
                 {
-                    _log.Warn("No se pudo cerrar limpiamente el canal de inicio de sesión.", ex);
+                    _log.Warn("No se pudo cerrar limpiamente el canal de inicio de sesión.", 
+                        communicationException);
                     _logInClient.Abort();
                 }
 
