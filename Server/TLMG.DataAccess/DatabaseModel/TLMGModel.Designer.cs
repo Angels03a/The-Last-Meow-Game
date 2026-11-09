@@ -1,4 +1,4 @@
-﻿// La generación de código T4 está habilitada para el modelo 'C:\Users\armas\OneDrive\Documentos\5to Semestre\Tecnologías\Repo_TLMG\TLMG\DatabaseModel\TLMGModel.edmx'. 
+﻿// La generación de código T4 está habilitada para el modelo 'C:\Users\luisi\source\repos\The-Last-Meow-Game\Server\TLMG.DataAccess\DatabaseModel\TLMGModel.edmx'. 
 // Para habilitar la generación de código heredada, cambie el valor de la propiedad del diseñador 'Estrategia de generación de código'
 // por 'ObjectContext heredado'. Esta propiedad está disponible en la ventana Propiedades cuando se abre
 // el modelo en el diseñador.

@@ -17,7 +17,6 @@ namespace TLMG.DataAccess.DatabaseModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Game_Player()
         {
-            this.Message = new HashSet<Message>();
             this.Report = new HashSet<Report>();
             this.Report1 = new HashSet<Report>();
             this.Kicked_Out_Voting = new HashSet<Kicked_Out_Voting>();
@@ -31,12 +30,12 @@ namespace TLMG.DataAccess.DatabaseModel
         public int points_earned { get; set; }
         public Nullable<int> final_position { get; set; }
         public string outcome { get; set; }
+        public System.DateTime joined_at { get; set; }
+        public Nullable<System.DateTime> left_at { get; set; }
     
         public virtual Game Game { get; set; }
         public virtual Guest_Session Guest_Session { get; set; }
         public virtual Player Player { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Message> Message { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Report> Report { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

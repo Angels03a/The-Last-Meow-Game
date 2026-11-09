@@ -18,6 +18,7 @@ namespace TLMG.DataAccess.DatabaseModel
         public Game()
         {
             this.Game_Player = new HashSet<Game_Player>();
+            this.Message = new HashSet<Message>();
         }
     
         public int id_game { get; set; }
@@ -29,5 +30,7 @@ namespace TLMG.DataAccess.DatabaseModel
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Game_Player> Game_Player { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Message> Message { get; set; }
     }
 }

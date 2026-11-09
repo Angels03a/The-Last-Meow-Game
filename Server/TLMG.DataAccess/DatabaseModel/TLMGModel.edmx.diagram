@@ -4,20 +4,20 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3a393fbc9c1f4bbb86e2ed549b5c409f" Name="Diagram1" ZoomLevel="163">
-        <EntityTypeShape EntityType="TLMG_DBModel.Ban_Record" Width="1.5" PointX="3" PointY="6.875" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.Block_List" Width="1.5" PointX="3" PointY="9.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.Friendship" Width="1.5" PointX="3" PointY="12.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.Game" Width="1.5" PointX="3" PointY="19.25" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.Game_Player" Width="1.5" PointX="5.25" PointY="15" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.Guest_Session" Width="1.5" PointX="3" PointY="22.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.Kicked_Out_Voting" Width="1.5" PointX="7.5" PointY="15.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.Message" Width="1.5" PointX="7.5" PointY="18.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.Pending_Registration" Width="2.5" PointX="3.75" PointY="3.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.Player" Width="1.5" PointX="3" PointY="15.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.Report" Width="1.5" PointX="7.5" PointY="21.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.User" Width="1.5" PointX="0.75" PointY="10.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="TLMG_DBModel.Verification_Code" Width="1.5" PointX="6" PointY="11" IsExpanded="true" />
+      <Diagram DiagramId="3a393fbc9c1f4bbb86e2ed549b5c409f" Name="Diagram1" ZoomLevel="101">
+        <EntityTypeShape EntityType="TLMG_DBModel.Ban_Record" Width="1.5" PointX="14.625" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Block_List" Width="1.5" PointX="9.5" PointY="4.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Friendship" Width="1.5" PointX="15.5" PointY="12.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Game" Width="1.5" PointX="15.75" PointY="20.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Game_Player" Width="1.5" PointX="8.75" PointY="23.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Guest_Session" Width="1.5" PointX="15.5" PointY="23.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Kicked_Out_Voting" Width="1.5" PointX="8.875" PointY="29.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Message" Width="1.5" PointX="20" PointY="17.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Pending_Registration" Width="2.5" PointX="23" PointY="10.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Player" Width="1.5" PointX="6" PointY="16.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Report" Width="1.5" PointX="22.375" PointY="26.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.User" Width="1.5" PointX="9.375" PointY="10" IsExpanded="true" />
+        <EntityTypeShape EntityType="TLMG_DBModel.Verification_Code" Width="1.5" PointX="18.5" PointY="10.375" IsExpanded="true" />
         <AssociationConnector Association="TLMG_DBModel.FK_BanRecord_User" ManuallyRouted="false" />
         <AssociationConnector Association="TLMG_DBModel.FK_BlockList_Blocked" ManuallyRouted="false" />
         <AssociationConnector Association="TLMG_DBModel.FK_BlockList_Blocker" ManuallyRouted="false" />
@@ -26,7 +26,6 @@
         <AssociationConnector Association="TLMG_DBModel.FK_GamePlayer_Game" ManuallyRouted="false" />
         <AssociationConnector Association="TLMG_DBModel.FK_GamePlayer_Guest" ManuallyRouted="false" />
         <AssociationConnector Association="TLMG_DBModel.FK_GamePlayer_Player" ManuallyRouted="false" />
-        <AssociationConnector Association="TLMG_DBModel.FK_Message_GamePlayer" ManuallyRouted="false" />
         <AssociationConnector Association="TLMG_DBModel.FK_Report_Reported" ManuallyRouted="false" />
         <AssociationConnector Association="TLMG_DBModel.FK_Report_Reporter" ManuallyRouted="false" />
         <AssociationConnector Association="TLMG_DBModel.FK_Vote_Receiver" ManuallyRouted="false" />
@@ -34,6 +33,9 @@
         <AssociationConnector Association="TLMG_DBModel.FK_VerificationCode_Pending" ManuallyRouted="false" />
         <AssociationConnector Association="TLMG_DBModel.FK_Player_User" ManuallyRouted="false" />
         <AssociationConnector Association="TLMG_DBModel.FK_VerificationCode_User" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="TLMG_DBModel.vw_Leaderboard" Width="1.5" PointX="5.875" PointY="0.5" />
+        <AssociationConnector Association="TLMG_DBModel.FK_Message_Game" />
+        <AssociationConnector Association="TLMG_DBModel.FK_Message_User" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="TLMG_DBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="TLMG_DBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Ban_Record">
           <Key>
             <PropertyRef Name="id_ban" />
@@ -12,8 +12,10 @@
           <Property Name="id_ban" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_user" Type="int" Nullable="false" />
           <Property Name="type" Type="varchar" MaxLength="30" Nullable="false" />
-          <Property Name="ban_start_date" Type="datetime" Nullable="false" />
-          <Property Name="ban_ending_date" Type="datetime" />
+          <Property Name="reason" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="suspension_number" Type="int" Nullable="false" />
+          <Property Name="ban_start_date" Type="datetime2" Precision="3" Nullable="false" />
+          <Property Name="ban_ending_date" Type="datetime2" Precision="3" />
         </EntityType>
         <EntityType Name="Block_List">
           <Key>
@@ -22,7 +24,7 @@
           <Property Name="id_block" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_user_blocker" Type="int" Nullable="false" />
           <Property Name="id_user_blocked" Type="int" Nullable="false" />
-          <Property Name="block_date" Type="datetime" Nullable="false" />
+          <Property Name="block_date" Type="datetime2" Precision="3" Nullable="false" />
         </EntityType>
         <EntityType Name="Friendship">
           <Key>
@@ -32,7 +34,9 @@
           <Property Name="id_user_sender" Type="int" Nullable="false" />
           <Property Name="id_user_receiver" Type="int" Nullable="false" />
           <Property Name="state" Type="varchar" MaxLength="30" Nullable="false" />
-          <Property Name="request_date" Type="datetime" Nullable="false" />
+          <Property Name="request_date" Type="datetime2" Precision="3" Nullable="false" />
+          <Property Name="pair_low" Type="int" StoreGeneratedPattern="Computed" Nullable="false" />
+          <Property Name="pair_high" Type="int" StoreGeneratedPattern="Computed" Nullable="false" />
         </EntityType>
         <EntityType Name="Game">
           <Key>
@@ -40,10 +44,10 @@
           </Key>
           <Property Name="id_game" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="state" Type="varchar" MaxLength="30" Nullable="false" />
-          <Property Name="mode" Type="varchar" MaxLength="30" Nullable="false" />
-          <Property Name="lobby_open_date" Type="datetime" Nullable="false" />
-          <Property Name="game_start_date" Type="datetime" />
-          <Property Name="game_ending_date" Type="datetime" />
+          <Property Name="mode" Type="varchar" MaxLength="30" />
+          <Property Name="lobby_open_date" Type="datetime2" Precision="3" Nullable="false" />
+          <Property Name="game_start_date" Type="datetime2" Precision="3" />
+          <Property Name="game_ending_date" Type="datetime2" Precision="3" />
         </EntityType>
         <EntityType Name="Game_Player">
           <Key>
@@ -56,6 +60,8 @@
           <Property Name="points_earned" Type="int" Nullable="false" />
           <Property Name="final_position" Type="int" />
           <Property Name="outcome" Type="varchar" MaxLength="30" />
+          <Property Name="joined_at" Type="datetime2" Precision="3" Nullable="false" />
+          <Property Name="left_at" Type="datetime2" Precision="3" />
         </EntityType>
         <EntityType Name="Guest_Session">
           <Key>
@@ -65,8 +71,8 @@
           <Property Name="guest_number" Type="int" Nullable="false" />
           <Property Name="display_name" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="session_token" Type="varchar" MaxLength="64" Nullable="false" />
-          <Property Name="created_at" Type="datetime" Nullable="false" />
-          <Property Name="ended_at" Type="datetime" />
+          <Property Name="created_at" Type="datetime2" Precision="3" Nullable="false" />
+          <Property Name="ended_at" Type="datetime2" Precision="3" />
         </EntityType>
         <EntityType Name="Kicked_Out_Voting">
           <Key>
@@ -75,28 +81,30 @@
           <Property Name="id_vote" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_game_player_sender" Type="int" Nullable="false" />
           <Property Name="id_game_player_receiver" Type="int" Nullable="false" />
-          <Property Name="vote_date" Type="datetime" Nullable="false" />
+          <Property Name="vote_date" Type="datetime2" Precision="3" Nullable="false" />
         </EntityType>
         <EntityType Name="Message">
           <Key>
             <PropertyRef Name="id_message" />
           </Key>
           <Property Name="id_message" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="id_game_player" Type="int" Nullable="false" />
+          <Property Name="id_user" Type="int" Nullable="false" />
           <Property Name="scope" Type="varchar" MaxLength="10" Nullable="false" />
-          <Property Name="text_message" Type="varchar" MaxLength="160" Nullable="false" />
-          <Property Name="message_date" Type="datetime" Nullable="false" />
+          <Property Name="id_game" Type="int" />
+          <Property Name="room_number" Type="int" />
+          <Property Name="text_message" Type="nvarchar" MaxLength="160" Nullable="false" />
+          <Property Name="sent_at" Type="datetime2" Precision="3" Nullable="false" />
         </EntityType>
         <EntityType Name="Pending_Registration">
           <Key>
             <PropertyRef Name="id_pending" />
           </Key>
           <Property Name="id_pending" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="email" Type="varchar" MaxLength="100" Nullable="false" />
-          <Property Name="nickname" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="email" Type="varchar" MaxLength="254" Nullable="false" />
+          <Property Name="nickname" Type="varchar" MaxLength="12" Nullable="false" />
           <Property Name="password_hash" Type="varchar" MaxLength="255" Nullable="false" />
-          <Property Name="created_at" Type="datetime" Nullable="false" />
-          <Property Name="expires_at" Type="datetime" Nullable="false" />
+          <Property Name="created_at" Type="datetime2" Precision="3" Nullable="false" />
+          <Property Name="expires_at" Type="datetime2" Precision="3" Nullable="false" />
         </EntityType>
         <EntityType Name="Player">
           <Key>
@@ -117,19 +125,19 @@
           <Property Name="id_game_player_reported" Type="int" Nullable="false" />
           <Property Name="reason" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="comment" Type="varchar" MaxLength="300" />
-          <Property Name="report_date" Type="datetime" Nullable="false" />
+          <Property Name="report_date" Type="datetime2" Precision="3" Nullable="false" />
         </EntityType>
         <EntityType Name="User">
           <Key>
             <PropertyRef Name="id_user" />
           </Key>
           <Property Name="id_user" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="email" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="email" Type="varchar" MaxLength="254" Nullable="false" />
           <Property Name="password_hash" Type="varchar" MaxLength="255" Nullable="false" />
-          <Property Name="nickname" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="nickname" Type="varchar" MaxLength="12" Nullable="false" />
           <Property Name="state" Type="varchar" MaxLength="30" Nullable="false" />
           <Property Name="profile_image" Type="varchar" MaxLength="255" />
-          <Property Name="last_time" Type="datetime" />
+          <Property Name="last_time" Type="datetime2" Precision="3" />
         </EntityType>
         <EntityType Name="Verification_Code">
           <Key>
@@ -141,9 +149,26 @@
           <Property Name="code_hash" Type="varchar" MaxLength="255" Nullable="false" />
           <Property Name="type" Type="varchar" MaxLength="30" Nullable="false" />
           <Property Name="state" Type="varchar" MaxLength="30" Nullable="false" />
-          <Property Name="generation_date" Type="datetime" Nullable="false" />
-          <Property Name="expiration_date" Type="datetime" Nullable="false" />
+          <Property Name="generation_date" Type="datetime2" Precision="3" Nullable="false" />
+          <Property Name="expiration_date" Type="datetime2" Precision="3" Nullable="false" />
           <Property Name="attempts_failed" Type="int" Nullable="false" />
+        </EntityType>
+        <!--Errores durante la generación:
+advertencia 6002: La tabla o vista 'TLMG_DB.dbo.vw_Leaderboard' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+        <EntityType Name="vw_Leaderboard">
+          <Key>
+            <PropertyRef Name="id_user" />
+            <PropertyRef Name="nickname" />
+            <PropertyRef Name="total_points" />
+            <PropertyRef Name="total_wins" />
+            <PropertyRef Name="total_games_played" />
+          </Key>
+          <Property Name="ranking_position" Type="bigint" />
+          <Property Name="id_user" Type="int" Nullable="false" />
+          <Property Name="nickname" Type="varchar" MaxLength="12" Nullable="false" />
+          <Property Name="total_points" Type="int" Nullable="false" />
+          <Property Name="total_wins" Type="int" Nullable="false" />
+          <Property Name="total_games_played" Type="int" Nullable="false" />
         </EntityType>
         <Association Name="FK_BanRecord_User">
           <End Role="User" Type="Self.User" Multiplicity="1" />
@@ -241,15 +266,27 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_Message_GamePlayer">
-          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="1" />
+        <Association Name="FK_Message_Game">
+          <End Role="Game" Type="Self.Game" Multiplicity="0..1" />
           <End Role="Message" Type="Self.Message" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="Game_Player">
-              <PropertyRef Name="id_game_player" />
+            <Principal Role="Game">
+              <PropertyRef Name="id_game" />
             </Principal>
             <Dependent Role="Message">
-              <PropertyRef Name="id_game_player" />
+              <PropertyRef Name="id_game" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Message_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Message" Type="Self.Message" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Message">
+              <PropertyRef Name="id_user" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -351,6 +388,16 @@
           <EntitySet Name="Report" EntityType="Self.Report" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Verification_Code" EntityType="Self.Verification_Code" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="vw_Leaderboard" EntityType="Self.vw_Leaderboard" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [vw_Leaderboard].[ranking_position] AS [ranking_position], 
+    [vw_Leaderboard].[id_user] AS [id_user], 
+    [vw_Leaderboard].[nickname] AS [nickname], 
+    [vw_Leaderboard].[total_points] AS [total_points], 
+    [vw_Leaderboard].[total_wins] AS [total_wins], 
+    [vw_Leaderboard].[total_games_played] AS [total_games_played]
+    FROM [dbo].[vw_Leaderboard] AS [vw_Leaderboard]</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="FK_BanRecord_User" Association="Self.FK_BanRecord_User">
             <End Role="User" EntitySet="User" />
             <End Role="Ban_Record" EntitySet="Ban_Record" />
@@ -383,8 +430,12 @@
             <End Role="Player" EntitySet="Player" />
             <End Role="Game_Player" EntitySet="Game_Player" />
           </AssociationSet>
-          <AssociationSet Name="FK_Message_GamePlayer" Association="Self.FK_Message_GamePlayer">
-            <End Role="Game_Player" EntitySet="Game_Player" />
+          <AssociationSet Name="FK_Message_Game" Association="Self.FK_Message_Game">
+            <End Role="Game" EntitySet="Game" />
+            <End Role="Message" EntitySet="Message" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Message_User" Association="Self.FK_Message_User">
+            <End Role="User" EntitySet="User" />
             <End Role="Message" EntitySet="Message" />
           </AssociationSet>
           <AssociationSet Name="FK_Player_User" Association="Self.FK_Player_User">
@@ -416,8 +467,7 @@
             <End Role="Kicked_Out_Voting" EntitySet="Kicked_Out_Voting" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="TLMG_DBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -431,6 +481,8 @@
           <Property Name="ban_start_date" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="ban_ending_date" Type="DateTime" Precision="3" />
           <NavigationProperty Name="User" Relationship="Self.FK_BanRecord_User" FromRole="Ban_Record" ToRole="User" />
+          <Property Name="reason" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="suspension_number" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="Block_List">
           <Key>
@@ -454,6 +506,8 @@
           <Property Name="request_date" Type="DateTime" Nullable="false" Precision="3" />
           <NavigationProperty Name="User" Relationship="Self.FK_Friendship_Receiver" FromRole="Friendship" ToRole="User" />
           <NavigationProperty Name="User1" Relationship="Self.FK_Friendship_Sender" FromRole="Friendship" ToRole="User" />
+          <Property Name="pair_low" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Computed" />
+          <Property Name="pair_high" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Computed" />
         </EntityType>
         <EntityType Name="Game">
           <Key>
@@ -461,11 +515,12 @@
           </Key>
           <Property Name="id_game" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="state" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="mode" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="mode" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="lobby_open_date" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="game_start_date" Type="DateTime" Precision="3" />
           <Property Name="game_ending_date" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Game_Player" Relationship="Self.FK_GamePlayer_Game" FromRole="Game" ToRole="Game_Player" />
+          <NavigationProperty Name="Message" Relationship="TLMG_DBModel.FK_Message_Game" FromRole="Game" ToRole="Message" />
         </EntityType>
         <EntityType Name="Game_Player">
           <Key>
@@ -481,11 +536,12 @@
           <NavigationProperty Name="Game" Relationship="Self.FK_GamePlayer_Game" FromRole="Game_Player" ToRole="Game" />
           <NavigationProperty Name="Guest_Session" Relationship="Self.FK_GamePlayer_Guest" FromRole="Game_Player" ToRole="Guest_Session" />
           <NavigationProperty Name="Player" Relationship="Self.FK_GamePlayer_Player" FromRole="Game_Player" ToRole="Player" />
-          <NavigationProperty Name="Message" Relationship="Self.FK_Message_GamePlayer" FromRole="Game_Player" ToRole="Message" />
           <NavigationProperty Name="Report" Relationship="Self.FK_Report_Reported" FromRole="Game_Player" ToRole="Report" />
           <NavigationProperty Name="Report1" Relationship="Self.FK_Report_Reporter" FromRole="Game_Player" ToRole="Report" />
           <NavigationProperty Name="Kicked_Out_Voting" Relationship="Self.FK_Vote_Receiver" FromRole="Game_Player" ToRole="Kicked_Out_Voting" />
           <NavigationProperty Name="Kicked_Out_Voting1" Relationship="Self.FK_Vote_Sender" FromRole="Game_Player" ToRole="Kicked_Out_Voting" />
+          <Property Name="joined_at" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="left_at" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="Guest_Session">
           <Key>
@@ -515,19 +571,22 @@
             <PropertyRef Name="id_message" />
           </Key>
           <Property Name="id_message" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_game_player" Type="Int32" Nullable="false" />
           <Property Name="scope" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="text_message" Type="String" MaxLength="160" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="message_date" Type="DateTime" Nullable="false" Precision="3" />
-          <NavigationProperty Name="Game_Player" Relationship="Self.FK_Message_GamePlayer" FromRole="Message" ToRole="Game_Player" />
+          <Property Name="text_message" Type="String" MaxLength="160" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="id_user" Type="Int32" Nullable="false" />
+          <Property Name="id_game" Type="Int32" />
+          <Property Name="room_number" Type="Int32" />
+          <Property Name="sent_at" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Game" Relationship="TLMG_DBModel.FK_Message_Game" FromRole="Message" ToRole="Game" />
+          <NavigationProperty Name="User" Relationship="TLMG_DBModel.FK_Message_User" FromRole="Message" ToRole="User" />
         </EntityType>
         <EntityType Name="Pending_Registration">
           <Key>
             <PropertyRef Name="id_pending" />
           </Key>
           <Property Name="id_pending" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="email" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="nickname" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="email" Type="String" MaxLength="254" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="nickname" Type="String" MaxLength="12" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="password_hash" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="created_at" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="expires_at" Type="DateTime" Nullable="false" Precision="3" />
@@ -563,9 +622,9 @@
             <PropertyRef Name="id_user" />
           </Key>
           <Property Name="id_user" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="email" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="email" Type="String" MaxLength="254" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="password_hash" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
-          <Property Name="nickname" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="nickname" Type="String" MaxLength="12" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="state" Type="String" MaxLength="30" FixedLength="false" Unicode="false" Nullable="false" />
           <Property Name="profile_image" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
           <Property Name="last_time" Type="DateTime" Precision="3" />
@@ -576,6 +635,7 @@
           <NavigationProperty Name="Friendship1" Relationship="Self.FK_Friendship_Sender" FromRole="User" ToRole="Friendship" />
           <NavigationProperty Name="Player" Relationship="Self.FK_Player_User" FromRole="User" ToRole="Player" />
           <NavigationProperty Name="Verification_Code" Relationship="Self.FK_VerificationCode_User" FromRole="User" ToRole="Verification_Code" />
+          <NavigationProperty Name="Message" Relationship="TLMG_DBModel.FK_Message_User" FromRole="User" ToRole="Message" />
         </EntityType>
         <EntityType Name="Verification_Code">
           <Key>
@@ -686,18 +746,6 @@
             </Principal>
             <Dependent Role="Game_Player">
               <PropertyRef Name="id_player" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Message_GamePlayer">
-          <End Role="Game_Player" Type="Self.Game_Player" Multiplicity="1" />
-          <End Role="Message" Type="Self.Message" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Game_Player">
-              <PropertyRef Name="id_game_player" />
-            </Principal>
-            <Dependent Role="Message">
-              <PropertyRef Name="id_game_player" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -831,10 +879,6 @@
             <End Role="Player" EntitySet="Player" />
             <End Role="Game_Player" EntitySet="Game_Player" />
           </AssociationSet>
-          <AssociationSet Name="FK_Message_GamePlayer" Association="Self.FK_Message_GamePlayer">
-            <End Role="Game_Player" EntitySet="Game_Player" />
-            <End Role="Message" EntitySet="Message" />
-          </AssociationSet>
           <AssociationSet Name="FK_Report_Reported" Association="Self.FK_Report_Reported">
             <End Role="Game_Player" EntitySet="Game_Player" />
             <End Role="Report" EntitySet="Report" />
@@ -863,7 +907,55 @@
             <End Role="User" EntitySet="User" />
             <End Role="Verification_Code" EntitySet="Verification_Code" />
           </AssociationSet>
+          <EntitySet Name="vw_Leaderboard" EntityType="TLMG_DBModel.vw_Leaderboard" />
+          <AssociationSet Name="FK_Message_Game" Association="TLMG_DBModel.FK_Message_Game">
+            <End Role="Game" EntitySet="Game" />
+            <End Role="Message" EntitySet="Message" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Message_User" Association="TLMG_DBModel.FK_Message_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Message" EntitySet="Message" />
+          </AssociationSet>
         </EntityContainer>
+        <EntityType Name="vw_Leaderboard">
+          <Key>
+            <PropertyRef Name="id_user" />
+            <PropertyRef Name="nickname" />
+            <PropertyRef Name="total_points" />
+            <PropertyRef Name="total_wins" />
+            <PropertyRef Name="total_games_played" />
+          </Key>
+          <Property Name="ranking_position" Type="Int64" />
+          <Property Name="id_user" Type="Int32" Nullable="false" />
+          <Property Name="nickname" Type="String" Nullable="false" MaxLength="12" FixedLength="false" Unicode="false" />
+          <Property Name="total_points" Type="Int32" Nullable="false" />
+          <Property Name="total_wins" Type="Int32" Nullable="false" />
+          <Property Name="total_games_played" Type="Int32" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_Message_Game">
+          <End Type="TLMG_DBModel.Game" Role="Game" Multiplicity="0..1" />
+          <End Type="TLMG_DBModel.Message" Role="Message" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Game">
+              <PropertyRef Name="id_game" />
+            </Principal>
+            <Dependent Role="Message">
+              <PropertyRef Name="id_game" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Message_User">
+          <End Type="TLMG_DBModel.User" Role="User" Multiplicity="1" />
+          <End Type="TLMG_DBModel.Message" Role="Message" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="id_user" />
+            </Principal>
+            <Dependent Role="Message">
+              <PropertyRef Name="id_user" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -873,6 +965,8 @@
           <EntitySetMapping Name="Ban_Record">
             <EntityTypeMapping TypeName="TLMG_DBModel.Ban_Record">
               <MappingFragment StoreEntitySet="Ban_Record">
+                <ScalarProperty Name="suspension_number" ColumnName="suspension_number" />
+                <ScalarProperty Name="reason" ColumnName="reason" />
                 <ScalarProperty Name="id_ban" ColumnName="id_ban" />
                 <ScalarProperty Name="id_user" ColumnName="id_user" />
                 <ScalarProperty Name="type" ColumnName="type" />
@@ -894,6 +988,8 @@
           <EntitySetMapping Name="Friendship">
             <EntityTypeMapping TypeName="TLMG_DBModel.Friendship">
               <MappingFragment StoreEntitySet="Friendship">
+                <ScalarProperty Name="pair_high" ColumnName="pair_high" />
+                <ScalarProperty Name="pair_low" ColumnName="pair_low" />
                 <ScalarProperty Name="id_friendship" ColumnName="id_friendship" />
                 <ScalarProperty Name="id_user_sender" ColumnName="id_user_sender" />
                 <ScalarProperty Name="id_user_receiver" ColumnName="id_user_receiver" />
@@ -917,6 +1013,8 @@
           <EntitySetMapping Name="Game_Player">
             <EntityTypeMapping TypeName="TLMG_DBModel.Game_Player">
               <MappingFragment StoreEntitySet="Game_Player">
+                <ScalarProperty Name="left_at" ColumnName="left_at" />
+                <ScalarProperty Name="joined_at" ColumnName="joined_at" />
                 <ScalarProperty Name="id_game_player" ColumnName="id_game_player" />
                 <ScalarProperty Name="id_game" ColumnName="id_game" />
                 <ScalarProperty Name="id_player" ColumnName="id_player" />
@@ -952,11 +1050,13 @@
           <EntitySetMapping Name="Message">
             <EntityTypeMapping TypeName="TLMG_DBModel.Message">
               <MappingFragment StoreEntitySet="Message">
+                <ScalarProperty Name="sent_at" ColumnName="sent_at" />
+                <ScalarProperty Name="room_number" ColumnName="room_number" />
+                <ScalarProperty Name="id_game" ColumnName="id_game" />
+                <ScalarProperty Name="id_user" ColumnName="id_user" />
                 <ScalarProperty Name="id_message" ColumnName="id_message" />
-                <ScalarProperty Name="id_game_player" ColumnName="id_game_player" />
                 <ScalarProperty Name="scope" ColumnName="scope" />
                 <ScalarProperty Name="text_message" ColumnName="text_message" />
-                <ScalarProperty Name="message_date" ColumnName="message_date" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1020,6 +1120,18 @@
                 <ScalarProperty Name="generation_date" ColumnName="generation_date" />
                 <ScalarProperty Name="expiration_date" ColumnName="expiration_date" />
                 <ScalarProperty Name="attempts_failed" ColumnName="attempts_failed" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="vw_Leaderboard">
+            <EntityTypeMapping TypeName="TLMG_DBModel.vw_Leaderboard">
+              <MappingFragment StoreEntitySet="vw_Leaderboard">
+                <ScalarProperty Name="total_games_played" ColumnName="total_games_played" />
+                <ScalarProperty Name="total_wins" ColumnName="total_wins" />
+                <ScalarProperty Name="total_points" ColumnName="total_points" />
+                <ScalarProperty Name="nickname" ColumnName="nickname" />
+                <ScalarProperty Name="id_user" ColumnName="id_user" />
+                <ScalarProperty Name="ranking_position" ColumnName="ranking_position" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
