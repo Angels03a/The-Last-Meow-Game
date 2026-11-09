@@ -19,6 +19,8 @@ namespace TLMG.DataAccess.DatabaseModel
         public int id_user_receiver { get; set; }
         public string state { get; set; }
         public System.DateTime request_date { get; set; }
+        public int pair_low { get; set; }
+        public int pair_high { get; set; }
     
         public virtual User User { get; set; }
         public virtual User User1 { get; set; }

@@ -19,6 +19,8 @@ namespace TLMG.DataAccess.DatabaseModel
         public string type { get; set; }
         public System.DateTime ban_start_date { get; set; }
         public Nullable<System.DateTime> ban_ending_date { get; set; }
+        public string reason { get; set; }
+        public int suspension_number { get; set; }
     
         public virtual User User { get; set; }
     }
