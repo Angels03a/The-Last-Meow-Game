@@ -1,17 +1,22 @@
 using System;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Threading;
+using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
     /// Representa la pantalla de recuperación de contraseña olvidada mediante envío de código de verificación.
+    /// Delega la validación al ViewModel y gestiona la navegación.
     /// </summary>
     public partial class ForgotPasswordScreen : LocalizableScreen
     {
-        private const int ScreenTransitionDelayMilliseconds = 1000;
+        private const int ScreenTransitionDelayMilliseconds = 500;
+        private const string CodeSentMessageKey = "ForgotPassword_CodeSentMessage";
 
-        private DispatcherTimer _redirectTimer;
+        private readonly ForgotPasswordViewModel _viewModel;
+        private readonly DispatcherTimer _redirectTimer;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="ForgotPasswordScreen"/> y sus temporizadores.
@@ -19,6 +24,14 @@ namespace TLMG.Client.Views
         public ForgotPasswordScreen()
         {
             InitializeComponent();
+
+            _viewModel = new ForgotPasswordViewModel();
+            DataContext = _viewModel;
+
+            _viewModel.CodeSentRequested += OnCodeSentRequested;
+            _viewModel.ValidationFailed += OnValidationFailed;
+            _viewModel.BackRequested += OnBackRequested;
+
             Unloaded += OnScreenUnloaded;
 
             _redirectTimer = new DispatcherTimer
@@ -28,70 +41,51 @@ namespace TLMG.Client.Views
             _redirectTimer.Tick += OnRedirectTimerTick;
         }
 
-        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
-        {
-            _redirectTimer?.Stop();
-        }
-
         private void TxtEmail_LostFocus(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtEmail.Text))
-            {
-                lblEmailError.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                ValidateAndDisplayEmailError(txtEmail.Text);
-            }
-        }
+            _viewModel.ValidateEmailOnly();
 
-        private string ValidateEmail(string inputEmailAddress)
-        {
-            string errorResourceKey = ValidationHelper.GetEmailValidationErrorKey(inputEmailAddress, "ForgotPassword");
-            string errorMessage = errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
-            return errorMessage;
-        }
-
-        private bool ValidateAndDisplayEmailError(string inputEmailAddress)
-        {
-            string emailValidationResult = ValidateEmail(inputEmailAddress);
-            bool isEmailValid = emailValidationResult == null;
-
+            bool isEmailValid = _viewModel.EmailErrorKey == null;
             if (isEmailValid)
             {
                 lblEmailError.Visibility = Visibility.Collapsed;
             }
-            else
-            {
-                ShowStatusMessage(lblEmailError, emailValidationResult, true);
-            }
-
-            return isEmailValid;
         }
 
-        private void BtnSendCode_Click(object sender, RoutedEventArgs e)
+        private void OnCodeSentRequested(object sender, EventArgs e)
         {
-            string inputEmailAddress = txtEmail.Text;
             lblEmailError.Visibility = Visibility.Collapsed;
+            lblFormMessage.Visibility = Visibility.Collapsed;
 
-            if (string.IsNullOrWhiteSpace(inputEmailAddress))
+            _viewModel.IsBusy = true;
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            // TODO: Llamada futura al servidor
+            ShowStatusMessage(lblFormMessage, ErrorMessageHelper.FindErrorMessage(this, CodeSentMessageKey), false);
+            _redirectTimer.Start();
+
+            UnlockUI();
+        }
+
+        private void OnValidationFailed(object sender, EventArgs e)
+        {
+            bool hasEmailError = _viewModel.EmailErrorKey != null;
+            if (hasEmailError)
             {
-                ShowStatusMessage(
-                    lblFormMessage,
-                    TryFindResource("ForgotPassword_EmailRequiredError") as string,
-                    true);
+                ShowStatusMessage(lblEmailError, ErrorMessageHelper.FindErrorMessage(this, _viewModel.EmailErrorKey), true);
             }
-            else
+
+            bool hasFormError = _viewModel.FormErrorKey != null;
+            if (hasFormError)
             {
-                if (ValidateAndDisplayEmailError(inputEmailAddress))
-                {
-                    ShowStatusMessage(
-                        lblFormMessage,
-                        TryFindResource("ForgotPassword_CodeSentMessage") as string,
-                        false);
-                    _redirectTimer.Start();
-                }
+                ShowStatusMessage(lblFormMessage, ErrorMessageHelper.FindErrorMessage(this, _viewModel.FormErrorKey), true);
             }
+        }
+
+        private void OnBackRequested(object sender, EventArgs e)
+        {
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new LoginScreen());
         }
 
         private void OnRedirectTimerTick(object sender, EventArgs e)
@@ -117,10 +111,24 @@ namespace TLMG.Client.Views
             applicationMainWindow.ShowScreen(new ForgotPasswordScreen());
         }
 
-        private void BtnBackToLogin_Click(object sender, RoutedEventArgs e)
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(new LoginScreen());
+            _viewModel.CodeSentRequested -= OnCodeSentRequested;
+            _viewModel.ValidationFailed -= OnValidationFailed;
+            _viewModel.BackRequested -= OnBackRequested;
+
+            _redirectTimer?.Stop();
+        }
+
+        private void UnlockUI()
+        {
+            Dispatcher.BeginInvoke(new Action(ReleaseUIAfterWCF), DispatcherPriority.ApplicationIdle);
+        }
+
+        private void ReleaseUIAfterWCF()
+        {
+            _viewModel.IsBusy = false;
+            Mouse.OverrideCursor = null;
         }
     }
 }

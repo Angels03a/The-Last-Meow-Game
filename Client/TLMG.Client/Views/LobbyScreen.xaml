@@ -20,21 +20,21 @@
         <Grid x:Name="grdKickModal" Visibility="Collapsed" Background="#D8000000" Panel.ZIndex="100">
             <Border Style="{StaticResource ModalBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="🗳️" 
-                               FontSize="48" 
-                               HorizontalAlignment="Center" 
-                               Margin="0,0,0,16" 
-                               FontFamily="Segoe UI Emoji" 
+                    <TextBlock Text="🗳️"
+                               FontSize="48"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,16"
+                               FontFamily="Segoe UI Emoji"
                                Foreground="{StaticResource Brush_TextPrimary}"/>
-                    <TextBlock Text="{DynamicResource Lobby_KickModalTitle}" 
-                               Style="{StaticResource TitleMediumTextStyle}" 
-                               HorizontalAlignment="Center" 
+                    <TextBlock Text="{DynamicResource Lobby_KickModalTitle}"
+                               Style="{StaticResource TitleMediumTextStyle}"
+                               HorizontalAlignment="Center"
                                Margin="0,0,0,16"/>
-                    <TextBlock Text="{DynamicResource Lobby_KickModalDescription}" 
-                               Style="{StaticResource SubtitleTextStyle}" 
-                               HorizontalAlignment="Center" 
-                               Margin="0,0,0,32" 
-                               TextWrapping="Wrap" 
+                    <TextBlock Text="{DynamicResource Lobby_KickModalDescription}"
+                               Style="{StaticResource SubtitleTextStyle}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,32"
+                               TextWrapping="Wrap"
                                TextAlignment="Center"/>
 
                     <Grid>
@@ -43,16 +43,16 @@
                             <ColumnDefinition Width="16" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <Button x:Name="btnCancelKick" 
-                                Grid.Column="0" 
-                                Content="{DynamicResource Lobby_CancelKickButton}" 
-                                Style="{StaticResource OutlineButtonStyle}" 
+                        <Button x:Name="btnCancelKick"
+                                Grid.Column="0"
+                                Content="{DynamicResource Lobby_CancelKickButton}"
+                                Style="{StaticResource OutlineButtonStyle}"
                                 Click="BtnCancelKick_Click" />
-                        <Button x:Name="btnConfirmKick" 
-                                Grid.Column="2" 
-                                Content="{DynamicResource Lobby_ConfirmKickButton}" 
-                                Style="{StaticResource ActionDangerButtonStyle}" 
-                                Height="42" 
+                        <Button x:Name="btnConfirmKick"
+                                Grid.Column="2"
+                                Content="{DynamicResource Lobby_ConfirmKickButton}"
+                                Style="{StaticResource ActionDangerButtonStyle}"
+                                Height="42"
                                 Click="BtnConfirmKick_Click" />
                     </Grid>
                 </StackPanel>
@@ -61,63 +61,59 @@
 
         <Border x:Name="brdToast" Visibility="Collapsed" Style="{StaticResource ToastBorderStyle}" Panel.ZIndex="101">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="📄" 
-                           Margin="0,0,12,0" 
-                           VerticalAlignment="Center" 
-                           FontFamily="Segoe UI Emoji" 
+                <TextBlock Text="📄"
+                           Margin="0,0,12,0"
+                           VerticalAlignment="Center"
+                           FontFamily="Segoe UI Emoji"
                            Foreground="{StaticResource Brush_TextPrimary}"/>
-                <TextBlock Text="{DynamicResource Lobby_KickToastMessage}" 
-                           Style="{StaticResource StatusTextOnlineStyle}" 
-                           Foreground="{StaticResource Brush_White}" 
+                <TextBlock Text="{DynamicResource Lobby_KickToastMessage}"
+                           Style="{StaticResource StatusTextOnlineStyle}"
+                           Foreground="{StaticResource Brush_White}"
                            VerticalAlignment="Center" />
             </StackPanel>
         </Border>
 
         <Grid x:Name="grdCountdown" Visibility="Collapsed" Background="#E60D0D12" Panel.ZIndex="90">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="{DynamicResource Lobby_CountdownTitle}" 
-                           Style="{StaticResource TitleMediumTextStyle}" 
-                           HorizontalAlignment="Center" 
-                           Margin="0,0,0,16" 
+                <TextBlock Text="{DynamicResource Lobby_CountdownTitle}"
+                           Style="{StaticResource TitleMediumTextStyle}"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,16"
                            Foreground="{StaticResource Brush_Gold}"/>
-                <TextBlock x:Name="lblCountdownTimer" 
+                <TextBlock x:Name="lblCountdownTimer"
                            Text="{DynamicResource Lobby_CountdownWaitingLabel}"
-                           FontSize="120" 
-                           FontWeight="Black" 
-                           Foreground="{StaticResource Brush_White}" 
-                           HorizontalAlignment="Center" 
+                           FontSize="120"
+                           FontWeight="Black"
+                           Foreground="{StaticResource Brush_White}"
+                           HorizontalAlignment="Center"
                            Margin="0,0,0,48"/>
-                <Button x:Name="btnCancelCountdown" 
-                        Content="{DynamicResource Lobby_CancelCountdown}" 
-                        Style="{StaticResource ActionDangerOutlineButtonStyle}" 
-                        Width="200" 
-                        Height="48" 
-                        FontSize="16" 
-                        Click="BtnCancelCountdown_Click" />
+                <Button Content="{DynamicResource Lobby_CancelCountdown}"
+                        Style="{StaticResource ActionDangerOutlineButtonStyle}"
+                        Width="200"
+                        Height="48"
+                        FontSize="16"
+                        Command="{Binding CancelCountdownCommand}" />
             </StackPanel>
         </Grid>
 
-        <Popup x:Name="popPlayerOptions" 
-               StaysOpen="False" 
-               Placement="MousePoint" 
+        <Popup x:Name="popPlayerOptions"
+               StaysOpen="False"
+               Placement="MousePoint"
                AllowsTransparency="True">
             <Border Style="{StaticResource ContextMenuBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="NYANPROWLER" 
+                    <TextBlock Text="NYANPROWLER"
                                Style="{StaticResource ContextMenuHeaderStyle}" />
-                    <Button x:Name="btnMenuKick" 
-                            Content="{DynamicResource Lobby_ConfirmKickButton}" 
-                            Style="{StaticResource ContextMenuItemStyle}" 
+                    <Button x:Name="btnMenuKick"
+                            Content="{DynamicResource Lobby_ConfirmKickButton}"
+                            Style="{StaticResource ContextMenuItemStyle}"
                             Click="BtnMenuKick_Click" />
-                    <Button x:Name="btnMenuReport" 
-                            Content="{DynamicResource Lobby_MenuReport}" 
+                    <Button Content="{DynamicResource Lobby_MenuReport}"
                             Style="{StaticResource ContextMenuItemStyle}" />
-                    <Button x:Name="btnMenuBlock" 
-                            Content="{DynamicResource Lobby_MenuBlock}" 
+                    <Button Content="{DynamicResource Lobby_MenuBlock}"
                             Style="{StaticResource ContextMenuDangerItemStyle}" />
-                    <Button x:Name="btnMenuCancel" 
-                            Content="{DynamicResource Lobby_CancelKickButton}" 
-                            Style="{StaticResource ContextMenuItemStyle}" 
+                    <Button Content="{DynamicResource Lobby_CancelKickButton}"
+                            Style="{StaticResource ContextMenuItemStyle}"
                             Click="BtnMenuCancel_Click" />
                 </StackPanel>
             </Border>
@@ -145,14 +141,13 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0" Style="{StaticResource FriendAvatarBorderStyle}">
-                                <TextBlock Text="🐱" 
-                                           Style="{StaticResource FriendAvatarEmojiStyle}" 
+                                <TextBlock Text="🐱"
+                                           Style="{StaticResource FriendAvatarEmojiStyle}"
                                            FontFamily="Segoe UI Emoji" />
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
-                                <TextBlock Text="{Binding Nickname}"
-                                           Style="{StaticResource FriendNameTextStyle}" />
-                                <TextBlock Text="{DynamicResource Lobby_RoomCreator}" 
+                                <TextBlock Style="{StaticResource FriendNameTextStyle}" />
+                                <TextBlock Text="{DynamicResource Lobby_RoomCreator}"
                                            Style="{StaticResource StatusTextOfflineStyle}" />
                             </StackPanel>
                         </Grid>
@@ -164,36 +159,34 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" HorizontalAlignment="Center">
                                 <TextBlock Text=""
-                                           Style="{StaticResource ProfileStatValueStyle}" 
+                                           Style="{StaticResource ProfileStatValueStyle}"
                                            Foreground="{StaticResource Brush_Gold}"/>
-                                <TextBlock Text="{DynamicResource Common_Wins}" 
-                                           Style="{StaticResource StatCardLabelStyle}" 
+                                <TextBlock Text="{DynamicResource Common_Wins}"
+                                           Style="{StaticResource StatCardLabelStyle}"
                                            HorizontalAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center">
                                 <TextBlock Text=""
-                                           Style="{StaticResource ProfileStatValueStyle}" 
+                                           Style="{StaticResource ProfileStatValueStyle}"
                                            Foreground="{StaticResource Brush_LilacLight}"/>
-                                <TextBlock Text="{DynamicResource Common_Rank}" 
-                                           Style="{StaticResource StatCardLabelStyle}" 
+                                <TextBlock Text="{DynamicResource Common_Rank}"
+                                           Style="{StaticResource StatCardLabelStyle}"
                                            HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Grid>
 
-                        <Button x:Name="btnInviteFriends" 
-                                Content="{DynamicResource Lobby_InviteFriends}" 
-                                Style="{StaticResource ActionGhostSmallButtonStyle}" 
-                                Margin="0,0,0,16" 
-                                Click="BtnInviteFriends_Click" />
+                        <Button Content="{DynamicResource Lobby_InviteFriends}"
+                                Style="{StaticResource ActionGhostSmallButtonStyle}"
+                                Margin="0,0,0,16"
+                                Command="{Binding InviteFriendsCommand}" />
                     </StackPanel>
 
-                    <Button Grid.Row="2" 
-                            x:Name="btnLeaveLobby"
+                    <Button Grid.Row="2"
                             Content="{DynamicResource Lobby_LeaveLobby}"
                             Style="{StaticResource ActionDangerButtonStyle}"
                             Height="48"
                             Margin="24,24,24,32"
-                            Click="BtnLeaveLobby_Click" />
+                            Command="{Binding LeaveLobbyCommand}" />
                 </Grid>
             </Border>
 
@@ -211,27 +204,25 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource Lobby_MainTitle}" 
-                                   Style="{StaticResource TitleMediumTextStyle}" 
+                        <TextBlock Text="{DynamicResource Lobby_MainTitle}"
+                                   Style="{StaticResource TitleMediumTextStyle}"
                                    Margin="0,0,0,4"/>
                         <TextBlock x:Name="lblRoomInformation"
                                    Style="{StaticResource SubtitleTextStyle}" />
                     </StackPanel>
 
-                    <Button x:Name="btnToggleReady"
-                            Grid.Column="1"
-                            Content="{DynamicResource Lobby_MarkReadyButton}"
-                            Style="{StaticResource ActionDangerOutlineButtonStyle}"
-                            MinWidth="160" Height="48" IsEnabled="False"
-                            Click="BtnToggleReady_Click" />
+                    <Button Grid.Column="1"
+                            Style="{StaticResource LobbyToggleReadyButtonStyle}"
+                            MinWidth="160" Height="48"
+                            Command="{Binding ToggleReadyCommand}" />
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
-                        <TextBlock Text="{DynamicResource Lobby_CardsPerPlayer}" 
-                                   Style="{StaticResource StatCardLabelStyle}" 
-                                   VerticalAlignment="Center" 
+                        <TextBlock Text="{DynamicResource Lobby_CardsPerPlayer}"
+                                   Style="{StaticResource StatCardLabelStyle}"
+                                   VerticalAlignment="Center"
                                    Margin="0,0,16,0" />
-                        <ComboBox x:Name="cmbGameMode" 
-                                  Width="280" 
+                        <ComboBox x:Name="cmbGameMode"
+                                  Width="280"
                                   Style="{StaticResource DarkComboBoxStyle}">
                             <ComboBoxItem Content="{DynamicResource Lobby_GameMode4Cards}" IsSelected="True" />
                             <ComboBoxItem Content="{DynamicResource Lobby_GameMode6Cards}" />
@@ -242,7 +233,7 @@
 
                 <Border Grid.Row="0" BorderBrush="{StaticResource Brush_Border}" BorderThickness="0,0,0,1" Margin="40,32,40,0" VerticalAlignment="Bottom" />
 
-                <ItemsControl x:Name="lstLobbyPlayers" Grid.Row="1" Margin="80,48,80,48">
+                <ItemsControl Grid.Row="1" Margin="80,48,80,48" ItemsSource="{Binding Players}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <UniformGrid Rows="2" Columns="3" />
@@ -295,57 +286,69 @@
                     </Grid.RowDefinitions>
 
                     <ScrollViewer x:Name="scrChat" Grid.Row="0" VerticalScrollBarVisibility="Auto" Margin="0,0,0,16">
-                        <StackPanel x:Name="pnlChatMessages" />
+                        <ItemsControl ItemsSource="{Binding ChatMessages}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding SenderNickname}"
+                                                   Style="{StaticResource LobbyChatSenderTextStyle}" />
+                                        <TextBlock Text="{Binding Text}"
+                                                   Style="{StaticResource LobbyChatMessageTextStyle}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </ScrollViewer>
 
                     <Grid Grid.Row="1">
-
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="16" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock x:Name="lblGuestChatNotice" Grid.ColumnSpan="3"
+                        <TextBlock Grid.ColumnSpan="3"
                                    Text="{DynamicResource Lobby_GuestCannotChatError}"
-                                   VerticalAlignment="Top" Margin="0,-20,0,0"
-                                   Foreground="{StaticResource Brush_TextPrimary}" Visibility="Collapsed" />
-                        <TextBox x:Name="txtChatInput" 
-                                 Grid.Column="0" 
-                                 Style="{StaticResource FieldStyle}" 
-                                 Height="42" 
-                                 Tag="{DynamicResource Lobby_ChatPlaceholder}" 
+                                   Style="{StaticResource LobbyGuestChatNoticeTextStyle}" />
+                        <TextBox x:Name="txtChatInput"
+                                 Grid.Column="0"
+                                 Style="{StaticResource FieldStyle}"
+                                 Height="42"
+                                 Tag="{DynamicResource Lobby_ChatPlaceholder}"
+                                 Text="{Binding ChatInput, UpdateSourceTrigger=PropertyChanged}"
+                                 IsEnabled="{Binding IsChatEnabled}"
                                  PreviewTextInput="OnChatPreviewTextInput"
                                  DataObject.Pasting="OnChatPasting"
-                                 AcceptsReturn="False" AcceptsTab="False"
-                                 KeyDown="TxtChatInput_KeyDown" />
-                        <Button x:Name="btnSendChat" 
-                                Grid.Column="2" 
-                                Content="{DynamicResource Lobby_SendChatButton}" 
-                                Style="{StaticResource ActionPrimarySmallButtonStyle}" 
-                                Width="80" 
-                                Height="42" 
-                                Margin="0" 
-                                Click="BtnSendChat_Click" />
+                                 AcceptsReturn="False" AcceptsTab="False">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding SendChatCommand}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <Button Grid.Column="2"
+                                Content="{DynamicResource Lobby_SendChatButton}"
+                                Style="{StaticResource ActionPrimarySmallButtonStyle}"
+                                Width="80"
+                                Height="42"
+                                Margin="0"
+                                Command="{Binding SendChatCommand}" />
                     </Grid>
                 </Grid>
             </Grid>
 
             <Border Grid.Column="2" Style="{StaticResource SidePanelRightBorderStyle}" Visibility="Collapsed">
                 <StackPanel VerticalAlignment="Center" Margin="24,0">
-                    <TextBlock Text="{DynamicResource Lobby_PlayersReadyTitle}" 
-                               Style="{StaticResource StatCardLabelStyle}" 
-                               HorizontalAlignment="Center" 
+                    <TextBlock Text="{DynamicResource Lobby_PlayersReadyTitle}"
+                               Style="{StaticResource StatCardLabelStyle}"
+                               HorizontalAlignment="Center"
                                Margin="0,0,0,16" />
-                    <TextBlock x:Name="lblReadyFraction" 
-                               Text=""
-                               FontSize="48" 
-                               FontWeight="Black" 
-                               Foreground="{StaticResource Brush_Gold}" 
-                               HorizontalAlignment="Center" 
+                    <TextBlock Text=""
+                               FontSize="48"
+                               FontWeight="Black"
+                               Foreground="{StaticResource Brush_Gold}"
+                               HorizontalAlignment="Center"
                                Margin="0,0,0,24" />
-                    <TextBlock Text="{DynamicResource Lobby_ReadyHint}" 
-                               Style="{StaticResource StatusTextOfflineStyle}" 
-                               TextAlignment="Center" 
+                    <TextBlock Text="{DynamicResource Lobby_ReadyHint}"
+                               Style="{StaticResource StatusTextOfflineStyle}"
+                               TextAlignment="Center"
                                TextWrapping="Wrap" />
                 </StackPanel>
             </Border>

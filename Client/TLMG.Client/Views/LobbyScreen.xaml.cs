@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Threading;
-
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
 using TLMG.Client.UsersManagerReference;
+using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
@@ -19,18 +19,25 @@ namespace TLMG.Client.Views
     public partial class LobbyScreen : LocalizableScreen
     {
         private const int ToastDurationMilliseconds = 3000;
-        private const int MaximumPlayersPerRoom = 6;
-        private const int EmptyPlayerCount = 0;
+        private const int NoSecondsRemaining = 0;
+        private const double CountdownLargeFontSize = 120;
+        private const double CountdownSmallFontSize = 32;
+        private const bool SaveInHistory = false;
+
         private const string RoomInformationFormatKey = "Lobby_RoomInformationFormat";
         private const string GuestCannotCreateRoomErrorKey = "Lobby_GuestCannotCreateRoomError";
         private const string ErrorTitleKey = "Lobby_ErrorTitle";
+        private const string LeaveConfirmMessageKey = "Lobby_LeaveConfirmMessage";
+        private const string LeaveConfirmTitleKey = "Lobby_LeaveConfirmTitle";
+        private const string CountdownSecondsFormatKey = "Lobby_CountdownSecondsFormat";
+        private const string CountdownWaitingLabelKey = "Lobby_CountdownWaitingLabel";
+        private const string MenuKickVotedKey = "Lobby_MenuKickVoted";
 
+        private readonly LobbyViewModel _viewModel;
+        private readonly DispatcherTimer _toastTimer;
 
-        private bool _isLocalPlayerReady;
         private bool _hasVotedToKick;
         private bool _isCountdownActive;
-
-        private DispatcherTimer _toastTimer;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="LobbyScreen"/>.
@@ -38,31 +45,47 @@ namespace TLMG.Client.Views
         public LobbyScreen()
         {
             InitializeComponent();
-            Loaded += OnScreenLoaded;
-            Unloaded += OnScreenUnloaded;
+
+            _viewModel = new LobbyViewModel();
+            _viewModel.LeaveRequested += OnLeaveRequested;
+            _viewModel.InviteFriendsRequested += OnInviteFriendsRequested;
+            _viewModel.ReadinessChangeRequested += OnReadinessChangeRequested;
+            _viewModel.CancelCountdownRequested += OnCancelCountdownRequested;
+            _viewModel.ChatSendRequested += OnChatSendRequested;
+            _viewModel.ErrorRequested += OnErrorRequested;
+            _viewModel.ChatMessages.CollectionChanged += OnChatMessagesChanged;
+            DataContext = _viewModel;
 
             _hasVotedToKick = false;
             _isCountdownActive = false;
 
-            InitializeTimers();
+            _toastTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(ToastDurationMilliseconds)
+            };
+            _toastTimer.Tick += OnToastTimerTick;
+
             txtChatInput.MaxLength = ChatInputHelper.MaximumMessageCharacters;
+
+            Loaded += OnScreenLoaded;
+            Unloaded += OnScreenUnloaded;
         }
 
         private static ServerConnectionManager ServerConnection => ((App)Application.Current).ServerConnection;
 
+        /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
-            LobbyRoom currentRoom = ServerConnection.CurrentRoom;
             string roomInformation = string.Empty;
 
-            if (currentRoom != null)
+            if (_viewModel.HasRoom)
             {
                 string roomInformationFormat = TryFindResource(RoomInformationFormatKey) as string ?? string.Empty;
                 roomInformation = string.Format(
                     roomInformationFormat,
-                    currentRoom.RoomId,
-                    CountPlayers(currentRoom),
-                    MaximumPlayersPerRoom);
+                    _viewModel.RoomId,
+                    _viewModel.PlayerCount,
+                    _viewModel.MaximumPlayers);
             }
 
             lblRoomInformation.Text = roomInformation;
@@ -98,37 +121,62 @@ namespace TLMG.Client.Views
             ServerConnection.Countdown.Changed -= OnCountdownChanged;
             ServerConnection.ChatMessageReceived -= OnChatMessageReceived;
             ServerConnection.ChatAvailabilityChanged -= OnChatAvailabilityChanged;
-            pnlChatMessages.Children.Clear();
-            _toastTimer?.Stop();
+            _viewModel.ClearChatMessages();
+            _toastTimer.Stop();
         }
 
-        private void InitializeTimers()
-        {
-            _toastTimer = new DispatcherTimer();
-            _toastTimer.Interval = TimeSpan.FromMilliseconds(ToastDurationMilliseconds);
-            _toastTimer.Tick += ToastTimer_Tick;
-        }
-
-        private void BtnLeaveLobby_Click(object sender, RoutedEventArgs e)
+        private void OnLeaveRequested(object sender, EventArgs e)
         {
             MessageBoxResult confirmationResult = MessageBox.Show(
-                TryFindResource("Lobby_LeaveConfirmMessage") as string,
-                TryFindResource("Lobby_LeaveConfirmTitle") as string,
+                TryFindResource(LeaveConfirmMessageKey) as string,
+                TryFindResource(LeaveConfirmTitleKey) as string,
                 MessageBoxButton.YesNo);
 
-            if (confirmationResult == MessageBoxResult.Yes)
+            bool hasConfirmedLeave = confirmationResult == MessageBoxResult.Yes;
+
+            if (hasConfirmedLeave)
             {
                 ServerConnection.LeaveLobby();
-                var applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+                MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
                 applicationMainWindow.ClearHistory();
-                applicationMainWindow.ShowScreen(new MainMenuScreen(), false);
+                applicationMainWindow.ShowScreen(new MainMenuScreen(), SaveInHistory);
             }
         }
 
-        private void BtnInviteFriends_Click(object sender, RoutedEventArgs e)
+        private void OnInviteFriendsRequested(object sender, EventArgs e)
         {
-            var applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new FriendsScreen());
+        }
+
+        private void OnReadinessChangeRequested(object sender, EventArgs e)
+        {
+            ServerConnection.ChangePlayerReadiness(!_viewModel.IsLocalPlayerReady);
+        }
+
+        private void OnCancelCountdownRequested(object sender, EventArgs e)
+        {
+            ServerConnection.ChangePlayerReadiness(false);
+        }
+
+        private void OnChatSendRequested(object sender, EventArgs e)
+        {
+            bool wasMessageSent = ServerConnection.SendChatMessage(_viewModel.PendingChatText);
+
+            if (wasMessageSent)
+            {
+                _viewModel.ClearChatInput();
+            }
+        }
+
+        private void OnErrorRequested(object sender, EventArgs e)
+        {
+            ShowLobbyError(_viewModel.LastErrorKey);
+        }
+
+        private void OnChatMessagesChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            scrChat.ScrollToEnd();
         }
 
         private void BrdPlayer_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -163,7 +211,7 @@ namespace TLMG.Client.Views
             grdMainCenter.IsEnabled = true;
 
             _hasVotedToKick = true;
-            btnMenuKick.Content = TryFindResource("Lobby_MenuKickVoted") as string;
+            btnMenuKick.Content = TryFindResource(MenuKickVotedKey) as string;
             btnMenuKick.IsEnabled = false;
 
             ShowToastNotification();
@@ -175,23 +223,13 @@ namespace TLMG.Client.Views
             _toastTimer.Start();
         }
 
-        private void ToastTimer_Tick(object sender, EventArgs e)
+        private void OnToastTimerTick(object sender, EventArgs e)
         {
             _toastTimer.Stop();
             brdToast.Visibility = Visibility.Collapsed;
         }
 
-        private void BtnToggleReady_Click(object sender, RoutedEventArgs eventArguments)
-        {
-            ServerConnection.ChangePlayerReadiness(!_isLocalPlayerReady);
-        }
-
-        private void BtnCancelCountdown_Click(object sender, RoutedEventArgs eventArguments)
-        {
-            ServerConnection.ChangePlayerReadiness(false);
-        }
-
-        private void OnCountdownChanged(object sender, EventArgs eventArguments)
+        private void OnCountdownChanged(object sender, EventArgs e)
         {
             ShowCountdown();
         }
@@ -207,16 +245,17 @@ namespace TLMG.Client.Views
                 grdCountdown.Visibility = Visibility.Visible;
             }
 
-            string countdownFormat = TryFindResource("Lobby_CountdownSecondsFormat") as string ?? string.Empty;
-            if (countdown.SecondsRemaining > 0)
+            string countdownFormat = TryFindResource(CountdownSecondsFormatKey) as string ?? string.Empty;
+
+            if (countdown.SecondsRemaining > NoSecondsRemaining)
             {
-                lblCountdownTimer.FontSize = 120;
+                lblCountdownTimer.FontSize = CountdownLargeFontSize;
                 lblCountdownTimer.Text = string.Format(countdownFormat, countdown.SecondsRemaining);
             }
             else
             {
-                lblCountdownTimer.FontSize = 32;
-                lblCountdownTimer.Text = TryFindResource("Lobby_CountdownWaitingLabel") as string ?? string.Empty;
+                lblCountdownTimer.FontSize = CountdownSmallFontSize;
+                lblCountdownTimer.Text = TryFindResource(CountdownWaitingLabelKey) as string ?? string.Empty;
             }
         }
 
@@ -240,77 +279,28 @@ namespace TLMG.Client.Views
             }
         }
 
-        private void TxtChatInput_KeyDown(object sender, KeyEventArgs e)
-        {
-            bool isEnterPressed = e.Key == Key.Enter;
-
-            if (isEnterPressed)
-            {
-                e.Handled = true;
-                AppendOutgoingChatMessage();
-            }
-        }
-
-        private void BtnSendChat_Click(object sender, RoutedEventArgs e)
-        {
-            AppendOutgoingChatMessage();
-        }
-
-        private void AppendOutgoingChatMessage()
-        {
-            string messageText = txtChatInput.Text.Trim();
-            if (string.IsNullOrEmpty(messageText))
-            {
-                ShowLobbyError("Lobby_ChatEmptyError");
-            }
-            else if (ChatInputHelper.CanEnterText(messageText))
-            {
-                if (ServerConnection.SendChatMessage(messageText))
-                {
-                    txtChatInput.Clear();
-                }
-            }
-        }
-
         private void OnChatMessageReceived(object sender, ServerEventArgs<ChatMessage> eventArguments)
         {
             ChatMessage chatMessage = eventArguments.Payload;
-            TextBlock messageBlock = new TextBlock
+
+            ChatMessageEntry chatMessageEntry = new ChatMessageEntry
             {
-                Margin = new Thickness(0, 0, 0, 8),
-                TextWrapping = TextWrapping.Wrap
+                SenderNickname = chatMessage.SenderNickname,
+                Text = chatMessage.Text,
+                IsLocalSender = chatMessage.SenderUserId == ServerConnection.PlayerUserId
             };
-            Run senderRun = new Run(chatMessage.SenderNickname);
-            senderRun.FontWeight = FontWeights.Bold;
-            string senderBrush = "Brush_TextPrimary";
-            if (chatMessage.SenderUserId == ServerConnection.PlayerUserId)
-            {
-                senderBrush = "Brush_Gold";
-            }
-            senderRun.SetResourceReference(TextElement.ForegroundProperty, senderBrush);
-            messageBlock.Inlines.Add(senderRun);
-            messageBlock.Inlines.Add(new LineBreak());
-            Run messageRun = new Run(chatMessage.Text);
-            messageRun.SetResourceReference(TextElement.ForegroundProperty, "Brush_TextPrimary");
-            messageBlock.Inlines.Add(messageRun);
-            pnlChatMessages.Children.Add(messageBlock);
-            scrChat.ScrollToEnd();
+
+            _viewModel.AddChatMessage(chatMessageEntry);
         }
 
-        private void OnChatAvailabilityChanged(object sender, EventArgs eventArguments)
+        private void OnChatAvailabilityChanged(object sender, EventArgs e)
         {
             ShowChatAvailability();
         }
 
         private void ShowChatAvailability()
         {
-            txtChatInput.IsEnabled = ServerConnection.IsChatSubscribed;
-            btnSendChat.IsEnabled = ServerConnection.IsChatSubscribed;
-            lblGuestChatNotice.Visibility = Visibility.Collapsed;
-            if (!ServerConnection.HasRegisteredSession)
-            {
-                lblGuestChatNotice.Visibility = Visibility.Visible;
-            }
+            _viewModel.ApplyChatAvailability(ServerConnection.IsChatSubscribed, ServerConnection.HasRegisteredSession);
         }
 
         private bool CanInsertChatText(string insertedText)
@@ -318,6 +308,7 @@ namespace TLMG.Client.Views
             string proposedText = txtChatInput.Text.Remove(txtChatInput.SelectionStart, txtChatInput.SelectionLength);
             proposedText = proposedText.Insert(txtChatInput.SelectionStart, insertedText);
             bool canInsert = ChatInputHelper.CanEnterText(proposedText);
+
             return canInsert;
         }
 
@@ -330,6 +321,7 @@ namespace TLMG.Client.Views
         {
             string pastedText = eventArguments.DataObject.GetData(DataFormats.UnicodeText) as string;
             bool canPaste = pastedText != null && CanInsertChatText(pastedText);
+
             if (!canPaste)
             {
                 eventArguments.CancelCommand();
@@ -347,7 +339,6 @@ namespace TLMG.Client.Views
             }
             else if (needsRoom)
             {
-                // Si el envío falla, el manager dispara ConnectionLost y MainWindow regresa al inicio de sesión.
                 ServerConnection.CreateRoom();
             }
         }
@@ -371,15 +362,30 @@ namespace TLMG.Client.Views
             ShowCurrentRoom();
         }
 
-        // Muestra solo los jugadores que trajo el servidor; sin sala, la lista queda vacía.
         private void ShowCurrentRoom()
         {
             LobbyRoom currentRoom = ServerConnection.CurrentRoom;
+
+            if (currentRoom != null)
+            {
+                List<LobbyPlayerEntry> playerEntries = BuildPlayerEntries(currentRoom);
+                _viewModel.ShowRoom(currentRoom.RoomId, !currentRoom.InGame, playerEntries);
+            }
+            else
+            {
+                _viewModel.ClearRoom();
+            }
+
+            UpdateDynamicLabels();
+        }
+
+        private List<LobbyPlayerEntry> BuildPlayerEntries(LobbyRoom lobbyRoom)
+        {
             List<LobbyPlayerEntry> playerEntries = new List<LobbyPlayerEntry>();
 
-            if (currentRoom != null && currentRoom.Players != null)
+            if (lobbyRoom.Players != null)
             {
-                foreach (LobbyPlayer roomPlayer in currentRoom.Players)
+                foreach (LobbyPlayer roomPlayer in lobbyRoom.Players)
                 {
                     playerEntries.Add(new LobbyPlayerEntry
                     {
@@ -390,48 +396,7 @@ namespace TLMG.Client.Views
                 }
             }
 
-            lstLobbyPlayers.ItemsSource = playerEntries;
-            ShowReadinessButton(playerEntries, currentRoom);
-            UpdateDynamicLabels();
-        }
-
-        private void ShowReadinessButton(List<LobbyPlayerEntry> playerEntries, LobbyRoom room)
-        {
-            bool hasLocalPlayer = false;
-            _isLocalPlayerReady = false;
-
-            foreach (LobbyPlayerEntry playerEntry in playerEntries)
-            {
-                if (playerEntry.IsLocalPlayer)
-                {
-                    hasLocalPlayer = true;
-                    _isLocalPlayerReady = playerEntry.IsReady;
-                    break;
-                }
-            }
-
-            string buttonKey = "Lobby_MarkReadyButton";
-
-            if (_isLocalPlayerReady)
-            {
-                buttonKey = "Lobby_MarkNotReadyButton";
-            }
-
-            bool isWaitingRoom = room != null && !room.InGame;
-            btnToggleReady.IsEnabled = hasLocalPlayer && isWaitingRoom;
-            btnToggleReady.SetResourceReference(ContentControl.ContentProperty, buttonKey);
-        }
-
-        private static int CountPlayers(LobbyRoom lobbyRoom)
-        {
-            int playersCount = EmptyPlayerCount;
-
-            if (lobbyRoom.Players != null)
-            {
-                playersCount = lobbyRoom.Players.Length;
-            }
-
-            return playersCount;
+            return playerEntries;
         }
 
         private void ShowLobbyError(string errorKey)

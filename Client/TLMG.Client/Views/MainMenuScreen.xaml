@@ -41,7 +41,7 @@
                         <TextBlock Text="🐱" 
                                    Style="{StaticResource SidebarProfileAvatarStyle}" />
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock x:Name="lblPlayerNickname"
+                            <TextBlock Text="{Binding PlayerNickname}"
                                        Style="{StaticResource SidebarProfileUsernameStyle}" />
                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                 <Ellipse Style="{StaticResource StatusIndicatorDotStyle}" />
@@ -59,24 +59,16 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="142" 
-                                       Style="{StaticResource SidebarStatValueGoldStyle}" />
-                            <TextBlock Text="{DynamicResource MainMenu_WinsLabel}"
-                                       Style="{StaticResource SidebarStatLabelStyle}" />
+                            <TextBlock Text="142" Style="{StaticResource SidebarStatValueGoldStyle}" />
+                            <TextBlock Text="{DynamicResource MainMenu_WinsLabel}" Style="{StaticResource SidebarStatLabelStyle}" />
                         </StackPanel>
-
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="1,840" 
-                                       Style="{StaticResource SidebarStatValueAccentStyle}" />
-                            <TextBlock Text="{DynamicResource MainMenu_ScoreLabel}" 
-                                       Style="{StaticResource SidebarStatLabelStyle}" />
+                            <TextBlock Text="1,840" Style="{StaticResource SidebarStatValueAccentStyle}" />
+                            <TextBlock Text="{DynamicResource MainMenu_ScoreLabel}" Style="{StaticResource SidebarStatLabelStyle}" />
                         </StackPanel>
-
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="#38" 
-                                       Style="{StaticResource SidebarStatValuePrimaryStyle}" />
-                            <TextBlock Text="{DynamicResource MainMenu_RankLabel}" 
-                                       Style="{StaticResource SidebarStatLabelStyle}" />
+                            <TextBlock Text="#38" Style="{StaticResource SidebarStatValuePrimaryStyle}" />
+                            <TextBlock Text="{DynamicResource MainMenu_RankLabel}" Style="{StaticResource SidebarStatLabelStyle}" />
                         </StackPanel>
                     </Grid>
 
@@ -85,70 +77,50 @@
 
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,0,0,16">
-                        <Button Style="{StaticResource MenuButtonStyle}" 
-                                Click="BtnLobby_Click">
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding NavigateToLobbyCommand}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="⚔️" 
-                                           Style="{StaticResource MenuButtonIconStyle}" />
-                                <TextBlock Text="{DynamicResource MainMenu_NavNewGame}" 
-                                           Style="{StaticResource MenuButtonTextStyle}" />
+                                <TextBlock Text="⚔️" Style="{StaticResource MenuButtonIconStyle}" />
+                                <TextBlock Text="{DynamicResource MainMenu_NavNewGame}" Style="{StaticResource MenuButtonTextStyle}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource MenuButtonStyle}" Click="BtnHowToPlay_Click">
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding NavigateToHowToPlayCommand}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="📖" 
-                                           Style="{StaticResource MenuButtonIconStyle}" />
-                                <TextBlock Text="{DynamicResource MainMenu_NavHowToPlay}" 
-                                           Style="{StaticResource MenuButtonTextStyle}" />
+                                <TextBlock Text="📖" Style="{StaticResource MenuButtonIconStyle}" />
+                                <TextBlock Text="{DynamicResource MainMenu_NavHowToPlay}" Style="{StaticResource MenuButtonTextStyle}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource MenuButtonStyle}" Click="BtnLeaderboard_Click">
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding NavigateToLeaderboardCommand}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🏆" 
-                                           Style="{StaticResource MenuButtonIconStyle}" />
-                                <TextBlock Text="{DynamicResource MainMenu_NavLeaderboard}" 
-                                           Style="{StaticResource MenuButtonTextStyle}" />
+                                <TextBlock Text="🏆" Style="{StaticResource MenuButtonIconStyle}" />
+                                <TextBlock Text="{DynamicResource MainMenu_NavLeaderboard}" Style="{StaticResource MenuButtonTextStyle}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource MenuButtonStyle}" Click="BtnFriends_Click">
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding NavigateToFriendsCommand}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="👥" 
-                                           Style="{StaticResource MenuButtonIconStyle}" />
-                                <TextBlock Text="{DynamicResource MainMenu_NavFriends}" 
-                                           Style="{StaticResource MenuButtonTextStyle}" />
+                                <TextBlock Text="👥" Style="{StaticResource MenuButtonIconStyle}" />
+                                <TextBlock Text="{DynamicResource MainMenu_NavFriends}" Style="{StaticResource MenuButtonTextStyle}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource MenuButtonStyle}" 
-                                Click="BtnProfile_Click">
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding NavigateToProfileCommand}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🐱" 
-                                           Style="{StaticResource MenuButtonIconStyle}" />
-                                <TextBlock Text="{DynamicResource MainMenu_NavProfile}" 
-                                           Style="{StaticResource MenuButtonTextStyle}" />
+                                <TextBlock Text="🐱" Style="{StaticResource MenuButtonIconStyle}" />
+                                <TextBlock Text="{DynamicResource MainMenu_NavProfile}" Style="{StaticResource MenuButtonTextStyle}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource MenuButtonStyle}" Click="BtnOptions_Click">
+                        <Button Style="{StaticResource MenuButtonStyle}" Command="{Binding NavigateToOptionsCommand}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="⚙️" 
-                                           Style="{StaticResource MenuButtonIconStyle}" />
-                                <TextBlock Text="{DynamicResource MainMenu_NavOptions}" 
-                                           Style="{StaticResource MenuButtonTextStyle}" />
+                                <TextBlock Text="⚙️" Style="{StaticResource MenuButtonIconStyle}" />
+                                <TextBlock Text="{DynamicResource MainMenu_NavOptions}" Style="{StaticResource MenuButtonTextStyle}" />
                             </StackPanel>
                         </Button>
-                        <Button Style="{StaticResource MenuButtonDangerStyle}" 
-                                Click="BtnLogOut_Click" 
-                                Margin="16,16,16,4">
+                        <Button Style="{StaticResource MenuButtonDangerStyle}" Command="{Binding LogOutCommand}" Margin="16,16,16,4">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🚪" 
-                                           Style="{StaticResource MenuButtonIconStyle}" />
-                                <TextBlock Text="{DynamicResource MainMenu_NavLogout}" 
-                                           Style="{StaticResource MenuButtonTextStyle}" />
+                                <TextBlock Text="🚪" Style="{StaticResource MenuButtonIconStyle}" />
+                                <TextBlock Text="{DynamicResource MainMenu_NavLogout}" Style="{StaticResource MenuButtonTextStyle}" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
                 </ScrollViewer>
-
-                <TextBlock Grid.Row="2" Style="{StaticResource SidebarFooterMessageStyle}" />
             </Grid>
         </Border>
 
@@ -161,57 +133,38 @@
             <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,48">
                     <StackPanel Style="{StaticResource MainMenuAvatarContainerStyle}">
-                        <TextBlock Text="🐱" 
-                                   Style="{StaticResource MainMenuAvatarEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_GreekCatLabel}" 
-                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🐱" Style="{StaticResource MainMenuAvatarEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_GreekCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource MainMenuAvatarContainerStyle}">
-                        <TextBlock Text="🧟" 
-                                   Style="{StaticResource MainMenuAvatarEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_ZombieCatLabel}" 
-                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🧟" Style="{StaticResource MainMenuAvatarEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_ZombieCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource MainMenuAvatarContainerStyle}">
-                        <TextBlock Text="🚀" 
-                                   Style="{StaticResource MainMenuAvatarEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_AstronautCatLabel}" 
-                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🚀" Style="{StaticResource MainMenuAvatarEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_AstronautCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource MainMenuAvatarContainerStyle}">
-                        <TextBlock Text="💀" 
-                                   Style="{StaticResource MainMenuAvatarEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_SkullCatLabel}" 
-                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="💀" Style="{StaticResource MainMenuAvatarEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_SkullCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource MainMenuAvatarContainerStyle}">
-                        <TextBlock Text="🐈‍" 
-                                   Style="{StaticResource MainMenuAvatarEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_EgyptianCatLabel}" 
-                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🐈‍" Style="{StaticResource MainMenuAvatarEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_EgyptianCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource MainMenuAvatarContainerStyle}">
-                        <TextBlock Text="🧛‍♀" 
-                                   Style="{StaticResource MainMenuAvatarEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_VampyrCatLabel}" 
-                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🧛‍♀" Style="{StaticResource MainMenuAvatarEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_VampyrCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                 </StackPanel>
 
-                <TextBlock Text="{DynamicResource MainMenu_Title}" 
-                           Style="{StaticResource TitleLargeTextStyle}" 
-                           HorizontalAlignment="Center" 
-                           Margin="0,0,0,16" />
-                <TextBlock Text="{DynamicResource MainMenu_Slogan}" 
-                           Style="{StaticResource MainMenuSloganTextStyle}" />
+                <TextBlock Text="{DynamicResource MainMenu_Title}" Style="{StaticResource TitleLargeTextStyle}" HorizontalAlignment="Center" Margin="0,0,0,16" />
+                <TextBlock Text="{DynamicResource MainMenu_Slogan}" Style="{StaticResource MainMenuSloganTextStyle}" />
 
-                <Button Style="{StaticResource MainMenuPlayButtonStyle}" 
-                        Click="BtnLobby_Click">
+                <Button Style="{StaticResource MainMenuPlayButtonStyle}" Command="{Binding NavigateToLobbyCommand}">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock Text="⚔️" 
-                                   Style="{StaticResource MainMenuPlayButtonIconStyle}" />
-                        <TextBlock Text="{DynamicResource MainMenu_PlayButton}" 
-                                   Style="{StaticResource MainMenuPlayButtonTextStyle}" />
+                        <TextBlock Text="⚔️" Style="{StaticResource MainMenuPlayButtonIconStyle}" />
+                        <TextBlock Text="{DynamicResource MainMenu_PlayButton}" Style="{StaticResource MainMenuPlayButtonTextStyle}" />
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -222,42 +175,30 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-
                 <Border Grid.Column="0" Style="{StaticResource StatCardStyle}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="🏆" 
-                                   Style="{StaticResource StatCardIconStyle}" />
+                        <TextBlock Text="🏆" Style="{StaticResource StatCardIconStyle}" />
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource MainMenu_LastWinLabel}" 
-                                       Style="{StaticResource StatCardLabelStyle}" />
-                            <TextBlock Text="{DynamicResource MainMenu_LastWinSubtitle}" 
-                                       Style="{StaticResource StatCardValueStyle}" />
+                            <TextBlock Text="{DynamicResource MainMenu_LastWinLabel}" Style="{StaticResource StatCardLabelStyle}" />
+                            <TextBlock Text="{DynamicResource MainMenu_LastWinSubtitle}" Style="{StaticResource StatCardValueStyle}" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
-
                 <Border Grid.Column="1" Style="{StaticResource StatCardStyle}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="🔥" 
-                                   Style="{StaticResource StatCardIconStyle}" />
+                        <TextBlock Text="🔥" Style="{StaticResource StatCardIconStyle}" />
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource MainMenu_WinStreakLabel}" 
-                                       Style="{StaticResource StatCardLabelStyle}" />
-                            <TextBlock x:Name="lblWinStreakValue" 
-                                       Style="{StaticResource StatCardValueStyle}" />
+                            <TextBlock Text="{DynamicResource MainMenu_WinStreakLabel}" Style="{StaticResource StatCardLabelStyle}" />
+                            <TextBlock x:Name="lblWinStreakValue" Style="{StaticResource StatCardValueStyle}" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
-
                 <Border Grid.Column="2" Style="{StaticResource StatCardStyle}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="⭐" 
-                                   Style="{StaticResource StatCardIconStyle}" />
+                        <TextBlock Text="⭐" Style="{StaticResource StatCardIconStyle}" />
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource MainMenu_NextRankLabel}" 
-                                       Style="{StaticResource StatCardLabelStyle}" />
-                            <TextBlock x:Name="lblNextRankValue" 
-                                       Style="{StaticResource StatCardValueStyle}" />
+                            <TextBlock Text="{DynamicResource MainMenu_NextRankLabel}" Style="{StaticResource StatCardLabelStyle}" />
+                            <TextBlock x:Name="lblNextRankValue" Style="{StaticResource StatCardValueStyle}" />
                         </StackPanel>
                     </StackPanel>
                 </Border>

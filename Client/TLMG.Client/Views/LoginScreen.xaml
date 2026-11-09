@@ -12,8 +12,10 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/TLMG.Client;component/Styles/GlobalStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
     </local:LocalizableScreen.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -26,35 +28,27 @@
             <StackPanel Style="{StaticResource HeroContentPanelStyle}">
                 <StackPanel Style="{StaticResource HeroEmojiRowStyle}">
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🐱" 
-                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="🐱" Style="{StaticResource HeroEmojiStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🧟" 
-                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="🧟" Style="{StaticResource HeroEmojiStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🚀" 
-                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="🚀" Style="{StaticResource HeroEmojiStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="💀" 
-                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="💀" Style="{StaticResource HeroEmojiStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🐈‍" 
-                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="🐈‍" Style="{StaticResource HeroEmojiStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🧛‍♀" 
-                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="🧛‍♀" Style="{StaticResource HeroEmojiStyle}" />
                     </StackPanel>
                 </StackPanel>
 
-                <TextBlock Text="{DynamicResource Login_Title}" 
-                           Style="{StaticResource HeroTitleTextStyle}" />
-                <TextBlock Text="{DynamicResource Login_Subtitle}" 
-                           Style="{StaticResource HeroSubtitleTextStyle}" />
+                <TextBlock Text="{DynamicResource Login_Title}" Style="{StaticResource HeroTitleTextStyle}" />
+                <TextBlock Text="{DynamicResource Login_Subtitle}" Style="{StaticResource HeroSubtitleTextStyle}" />
             </StackPanel>
         </Grid>
 
@@ -65,21 +59,19 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="btnTabLogIn"
-                            Grid.Column="0"
+                    <Button Grid.Column="0"
                             Content="{DynamicResource Login_TabLogIn}"
                             Style="{StaticResource TabButtonActiveStyle}" />
-                    <Button x:Name="btnTabCreateAccount"
-                            Grid.Column="1"
+                    <Button Grid.Column="1"
                             Content="{DynamicResource Login_TabCreateAccount}"
                             Style="{StaticResource TabButtonInactiveStyle}"
-                            Click="BtnTabCreateAccount_Click" />
+                            Command="{Binding CreateAccountCommand}" />
                 </Grid>
 
                 <TextBlock Text="{DynamicResource Login_EmailLabel}"
                            Style="{StaticResource FieldLabelTextStyle}"
                            Margin="0,0,0,6" />
-                <TextBox x:Name="txtEmail"
+                <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource FieldStyle}" />
                 <TextBlock x:Name="lblEmailError"
                            Style="{StaticResource ErrorTextStyle}" />
@@ -88,35 +80,30 @@
                            Style="{StaticResource FieldLabelTextStyle}" />
                 <Grid>
                     <PasswordBox x:Name="pwdPassword"
-                                 Style="{StaticResource FieldStyle}" />
-                    <TextBox x:Name="txtPasswordVisible"
+                                 Style="{StaticResource FieldStyle}"
+                                 PasswordChanged="PwdPassword_PasswordChanged" />
+                    <!-- Se muestra solo cuando IsPasswordVisible es True -->
+                    <TextBox Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FieldStyle}"
-                             Visibility="Collapsed" />
-                    <Button x:Name="btnShowPassword"
-                            Content="●"
+                             Visibility="{Binding IsPasswordVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <Button Content="●"
                             Style="{StaticResource PasswordToggleButtonStyle}"
                             ToolTip="{DynamicResource Login_ShowPasswordHint}"
-                            Click="BtnShowPassword_Click" />
+                            Command="{Binding TogglePasswordVisibilityCommand}" />
                 </Grid>
-                <TextBlock x:Name="lblPasswordError"
-                           Style="{StaticResource ErrorTextStyle}" />
 
-                <Button x:Name="btnForgotPassword"
-                        Style="{StaticResource RightAlignedLinkButtonStyle}"
-                        Click="BtnForgotPassword_Click">
-                    <TextBlock Text="{DynamicResource Login_ForgotPassword}" 
-                               TextDecorations="Underline" />
+                <Button Style="{StaticResource RightAlignedLinkButtonStyle}"
+                        Command="{Binding ForgotPasswordCommand}">
+                    <TextBlock Text="{DynamicResource Login_ForgotPassword}" TextDecorations="Underline" />
                 </Button>
 
-                <Button x:Name="btnLogIn"
-                        Content="{DynamicResource Login_LogInButton}"
+                <Button Content="{DynamicResource Login_LogInButton}"
                         Style="{StaticResource AuthenticationPrimaryButtonStyle}"
-                        Click="BtnLogIn_Click" />
+                        Command="{Binding LogInCommand}" />
 
-                <Button x:Name="btnPlayAsGuest"
-                        Content="{DynamicResource Login_PlayAsGuestButton}"
+                <Button Content="{DynamicResource Login_PlayAsGuestButton}"
                         Style="{StaticResource AuthenticationSecondaryButtonStyle}"
-                        Click="BtnPlayAsGuest_Click" />
+                        Command="{Binding PlayAsGuestCommand}" />
 
                 <TextBlock x:Name="lblFormMessage"
                            Style="{StaticResource FormMessageTextStyle}" />

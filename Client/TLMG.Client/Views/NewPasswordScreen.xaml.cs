@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
@@ -11,11 +12,16 @@ namespace TLMG.Client.Views
     /// </summary>
     public partial class NewPasswordScreen : LocalizableScreen
     {
-        private const int WeakPasswordThresholdScore = 2;
-        private const int FairPasswordScore = 3;
-        private const int SuccessRedirectDelayMilliseconds = 2000;
+        private const bool IsErrorMessage = true;
+        private const int FirstIndex = 0;
+        private const int SuccessRedirectDelayMilliseconds = 500;
 
-        private DispatcherTimer _redirectTimer;
+        private const string SuccessMessageKey = "NewPassword_SuccessMessage";
+        private const string EmptyBarBrushKey = "Brush_Border";
+
+        private readonly NewPasswordViewModel _viewModel;
+        private readonly Border[] _strengthBars;
+        private readonly DispatcherTimer _redirectTimer;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="NewPasswordScreen"/> y sus temporizadores.
@@ -23,21 +29,28 @@ namespace TLMG.Client.Views
         public NewPasswordScreen()
         {
             InitializeComponent();
-            Unloaded += OnScreenUnloaded;
+
+            _strengthBars = new Border[]
+            {
+                brdStrength1, brdStrength2, brdStrength3, brdStrength4, brdStrength5
+            };
+
+            _viewModel = new NewPasswordViewModel();
+            _viewModel.PasswordAccepted += OnPasswordAccepted;
+            _viewModel.BackRequested += OnBackRequested;
+            _viewModel.ValidationFailed += OnValidationFailed;
+            _viewModel.PasswordStrengthChanged += OnPasswordStrengthChanged;
+            DataContext = _viewModel;
 
             _redirectTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromMilliseconds(SuccessRedirectDelayMilliseconds)
             };
             _redirectTimer.Tick += OnRedirectTimerTick;
+
+            Unloaded += OnScreenUnloaded;
         }
 
-        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
-        {
-            _redirectTimer?.Stop();
-        }
-
-        /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
             UpdatePasswordStrengthDisplay();
@@ -45,98 +58,51 @@ namespace TLMG.Client.Views
 
         private void PwdNewPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
+            if (sender is PasswordBox passwordBox)
+            {
+                _viewModel.NewPassword = passwordBox.Password;
+            }
+        }
+
+        private void PwdConfirmPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (sender is PasswordBox passwordBox)
+            {
+                _viewModel.ConfirmPassword = passwordBox.Password;
+            }
+        }
+
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        {
+            _redirectTimer.Stop();
+        }
+
+        private void OnPasswordStrengthChanged(object sender, EventArgs e)
+        {
             UpdatePasswordStrengthDisplay();
         }
 
-        private void UpdatePasswordStrengthDisplay()
+        private void OnValidationFailed(object sender, EventArgs e)
         {
-            string currentPasswordText = pwdNewPassword.Password;
-            int passwordStrengthScore = CalculatePasswordStrength(currentPasswordText);
-            Border[] strengthBarsArray = new[]
-            {
-                brdStrength1, brdStrength2, brdStrength3, brdStrength4, brdStrength5
-            };
+            HideErrorMessages();
 
-            if (string.IsNullOrEmpty(currentPasswordText))
-            {
-                foreach (Border strengthBorderElement in strengthBarsArray)
-                {
-                    strengthBorderElement.Background = (Brush)FindResource("Brush_Border");
-                }
-                lblStrengthLabel.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                string indicatorBrushKey;
-                if (passwordStrengthScore <= WeakPasswordThresholdScore)
-                {
-                    indicatorBrushKey = "Brush_StrengthWeak";
-                }
-                else if (passwordStrengthScore == FairPasswordScore)
-                {
-                    indicatorBrushKey = "Brush_StrengthFair";
-                }
-                else
-                {
-                    indicatorBrushKey = "Brush_StrengthStrong";
-                }
-
-                Brush indicatorBrush = (Brush)FindResource(indicatorBrushKey);
-
-                string[] strengthLabelResourceKeys =
-                {
-                    "",
-                    "NewPassword_StrengthVeryWeak",
-                    "NewPassword_StrengthWeak",
-                    "NewPassword_StrengthFair",
-                    "NewPassword_StrengthGood",
-                    "NewPassword_StrengthStrong"
-                };
-
-                for (int collectionIndex = 0; collectionIndex < strengthBarsArray.Length; collectionIndex++)
-                {
-                    strengthBarsArray[collectionIndex].Background = collectionIndex < passwordStrengthScore
-                        ? indicatorBrush
-                        : (Brush)FindResource("Brush_Border");
-                }
-
-                lblStrengthLabel.Text =
-                    TryFindResource(strengthLabelResourceKeys[passwordStrengthScore]) as string
-                    ?? strengthLabelResourceKeys[passwordStrengthScore];
-                lblStrengthLabel.Foreground = indicatorBrush;
-                lblStrengthLabel.Visibility = Visibility.Visible;
-            }
+            ShowErrorKey(lblPasswordError, _viewModel.PasswordErrorKey);
+            ShowErrorKey(lblMismatchError, _viewModel.ConfirmPasswordErrorKey);
+            ShowErrorKey(lblFormMessage, _viewModel.FormErrorKey);
         }
 
-        private int CalculatePasswordStrength(string inputPasswordText)
+        private void OnPasswordAccepted(object sender, EventArgs e)
         {
-            return ValidationHelper.CalculatePasswordStrength(inputPasswordText);
+            HideErrorMessages();
+
+            ShowStatusMessage(lblFormMessage, FindMessage(SuccessMessageKey), !IsErrorMessage);
+            _redirectTimer.Start();
         }
 
-        private void BtnSetPassword_Click(object sender, RoutedEventArgs e)
+        private void OnBackRequested(object sender, EventArgs e)
         {
-            string inputNewPassword = pwdNewPassword.Password;
-            string inputConfirmPassword = pwdConfirmPassword.Password;
-
-            if (string.IsNullOrWhiteSpace(inputNewPassword) || string.IsNullOrWhiteSpace(inputConfirmPassword))
-            {
-                ShowStatusMessage(lblFormMessage, TryFindResource("NewPassword_IncompleteFieldsError") as string, true);
-            }
-            else if (CalculatePasswordStrength(inputNewPassword) < ValidationHelper.RequiredPasswordStrengthScore)
-            {
-                ShowStatusMessage(lblPasswordError, TryFindResource("NewPassword_PolicyError") as string, true);
-            }
-            else if (inputNewPassword != inputConfirmPassword)
-            {
-                ShowStatusMessage(lblMismatchError, TryFindResource("NewPassword_MismatchError") as string, true);
-            }
-            else
-            {
-                lblFormMessage.Text = TryFindResource("NewPassword_SuccessMessage") as string;
-                lblFormMessage.Foreground = (Brush)FindResource("Brush_Accent");
-                lblFormMessage.Visibility = Visibility.Visible;
-                _redirectTimer.Start();
-            }
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new ForgotPasswordScreen());
         }
 
         private void OnRedirectTimerTick(object sender, EventArgs e)
@@ -147,10 +113,64 @@ namespace TLMG.Client.Views
             applicationMainWindow.ShowScreen(new LoginScreen());
         }
 
-        private void BtnBackToForgotPassword_Click(object sender, RoutedEventArgs e)
+        private void UpdatePasswordStrengthDisplay()
         {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(new ForgotPasswordScreen());
+            string brushKey = _viewModel.StrengthBrushKey;
+            bool hasStrength = brushKey != null;
+
+            Brush emptyBarBrush = (Brush)FindResource(EmptyBarBrushKey);
+            Brush indicatorBrush = emptyBarBrush;
+
+            if (hasStrength)
+            {
+                indicatorBrush = (Brush)FindResource(brushKey);
+            }
+
+            for (int barIndex = FirstIndex; barIndex < _strengthBars.Length; barIndex++)
+            {
+                if (barIndex < _viewModel.PasswordStrengthScore)
+                {
+                    _strengthBars[barIndex].Background = indicatorBrush;
+                }
+                else
+                {
+                    _strengthBars[barIndex].Background = emptyBarBrush;
+                }
+            }
+
+            if (hasStrength)
+            {
+                lblStrengthLabel.Text = FindMessage(_viewModel.StrengthLabelKey);
+                lblStrengthLabel.Foreground = indicatorBrush;
+                lblStrengthLabel.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                lblStrengthLabel.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void ShowErrorKey(TextBlock errorLabel, string errorKey)
+        {
+            if (errorKey != null)
+            {
+                string localizedMessage = ErrorMessageHelper.FindErrorMessage(this, errorKey);
+                ShowStatusMessage(errorLabel, localizedMessage, IsErrorMessage);
+            }
+        }
+
+        private void HideErrorMessages()
+        {
+            lblFormMessage.Visibility = Visibility.Hidden;
+            lblPasswordError.Visibility = Visibility.Hidden;
+            lblMismatchError.Visibility = Visibility.Hidden;
+        }
+
+        private string FindMessage(string resourceKey)
+        {
+            string localizedMessage = TryFindResource(resourceKey) as string ?? resourceKey;
+
+            return localizedMessage;
         }
     }
 }

@@ -28,26 +28,50 @@
                            Style="{StaticResource CenteredSubtitleTextStyle}" />
 
                 <StackPanel Style="{StaticResource VerificationDigitsContainerStyle}">
-                    <TextBox x:Name="txtDigit1" 
-                             Style="{StaticResource VerificationDigitStyle}" />
-                    <TextBox x:Name="txtDigit2" 
-                             Style="{StaticResource VerificationDigitStyle}" />
-                    <TextBox x:Name="txtDigit3" 
-                             Style="{StaticResource VerificationDigitStyle}" />
-                    <TextBox x:Name="txtDigit4" 
-                             Style="{StaticResource VerificationDigitStyle}" />
-                    <TextBox x:Name="txtDigit5" 
-                             Style="{StaticResource VerificationDigitStyle}" />
-                    <TextBox x:Name="txtDigit6" 
-                             Style="{StaticResource VerificationDigitStyle}" />
+                    <TextBox x:Name="txtDigit1"
+                             Style="{StaticResource VerificationDigitStyle}"
+                             Text="{Binding Digit1, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding AreDigitsEnabled}"
+                             TextChanged="DigitBox_TextChanged"
+                             PreviewKeyDown="DigitBox_PreviewKeyDown" />
+                    <TextBox x:Name="txtDigit2"
+                             Style="{StaticResource VerificationDigitStyle}"
+                             Text="{Binding Digit2, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding AreDigitsEnabled}"
+                             TextChanged="DigitBox_TextChanged"
+                             PreviewKeyDown="DigitBox_PreviewKeyDown" />
+                    <TextBox x:Name="txtDigit3"
+                             Style="{StaticResource VerificationDigitStyle}"
+                             Text="{Binding Digit3, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding AreDigitsEnabled}"
+                             TextChanged="DigitBox_TextChanged"
+                             PreviewKeyDown="DigitBox_PreviewKeyDown" />
+                    <TextBox x:Name="txtDigit4"
+                             Style="{StaticResource VerificationDigitStyle}"
+                             Text="{Binding Digit4, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding AreDigitsEnabled}"
+                             TextChanged="DigitBox_TextChanged"
+                             PreviewKeyDown="DigitBox_PreviewKeyDown" />
+                    <TextBox x:Name="txtDigit5"
+                             Style="{StaticResource VerificationDigitStyle}"
+                             Text="{Binding Digit5, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding AreDigitsEnabled}"
+                             TextChanged="DigitBox_TextChanged"
+                             PreviewKeyDown="DigitBox_PreviewKeyDown" />
+                    <TextBox x:Name="txtDigit6"
+                             Style="{StaticResource VerificationDigitStyle}"
+                             Text="{Binding Digit6, UpdateSourceTrigger=PropertyChanged}"
+                             IsEnabled="{Binding AreDigitsEnabled}"
+                             TextChanged="DigitBox_TextChanged"
+                             PreviewKeyDown="DigitBox_PreviewKeyDown" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource AttemptDotsContainerStyle}">
-                    <Ellipse x:Name="ellAttempt1" 
+                    <Ellipse x:Name="ellAttempt1"
                              Style="{StaticResource AttemptDotStyle}" />
-                    <Ellipse x:Name="ellAttempt2" 
+                    <Ellipse x:Name="ellAttempt2"
                              Style="{StaticResource AttemptDotStyle}" />
-                    <Ellipse x:Name="ellAttempt3" 
+                    <Ellipse x:Name="ellAttempt3"
                              Style="{StaticResource AttemptDotStyle}" />
                 </StackPanel>
 
@@ -55,29 +79,23 @@
                     <TextBlock Text="{DynamicResource Verification_ExpiresIn}"
                                Style="{StaticResource FieldLabelTextStyle}"
                                Margin="0,0,6,0" />
-                    <TextBlock x:Name="lblExpiration"
-                               FontSize="13"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource Brush_Accent}" />
+                    <TextBlock Text="{Binding ExpirationText}"
+                               Style="{StaticResource VerificationExpirationTextStyle}" />
                 </StackPanel>
 
                 <Button x:Name="btnResendCode"
                         Content="{DynamicResource Verification_ResendCodeButton}"
                         Style="{StaticResource VerificationResendButtonStyle}"
-                        IsEnabled="False"
-                        Click="BtnResendCode_Click" />
+                        Command="{Binding ResendCodeCommand}" />
 
-                <Button x:Name="btnVerifyCode"
-                        Content="{DynamicResource Verification_VerifyCodeButton}"
+                <Button Content="{DynamicResource Verification_VerifyCodeButton}"
                         Style="{StaticResource VerificationPrimaryButtonStyle}"
-                        IsEnabled="False"
-                        Click="BtnVerifyCode_Click" />
+                        Command="{Binding VerifyCodeCommand}" />
 
                 <Border Style="{StaticResource VerificationBackContainerStyle}">
-                    <Button x:Name="btnBack"
-                            Content="{DynamicResource Verification_BackButton}"
+                    <Button Content="{DynamicResource Verification_BackButton}"
                             Style="{StaticResource CenteredLinkButtonStyle}"
-                            Click="BtnBack_Click" />
+                            Command="{Binding BackCommand}" />
                 </Border>
 
                 <TextBlock x:Name="lblVerificationError"
@@ -87,5 +105,5 @@
                            Style="{StaticResource FormMessageTextStyle}" />
             </StackPanel>
         </Border>
-        </Grid>
+    </Grid>
 </local:LocalizableScreen>

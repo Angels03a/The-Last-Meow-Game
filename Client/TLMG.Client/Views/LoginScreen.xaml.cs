@@ -1,26 +1,27 @@
 using System;
+using System.Windows.Input;
 using System.ServiceModel;
 using System.Windows;
 using System.Windows.Threading;
 using log4net;
 using TLMG.Client.UsersManagerReference;
+using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Representa la pantalla de inicio de sesión de usuarios y acceso de invitados.
-    /// Envía las credenciales al servidor autoritativo y reacciona al resultado.
+    /// Representa la vista de la pantalla de inicio de sesión.
+    /// Delega la lógica al ViewModel y gestiona la llamada a WCF.
     /// </summary>
     public partial class LoginScreen : LocalizableScreen
     {
-        private const int ScreenTransitionDelayMilliseconds = 800;
+        private const int ScreenTransitionDelayMilliseconds = 500;
         private const string SuccessMessageKey = "Login_SuccessMessage";
-        private const string ConnectionErrorKey = "Login_NetworkError";
-        private const string UnknownErrorKey = "Login_DataModelError";
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(LoginScreen));
 
-        private DispatcherTimer _redirectTimer;
+        private readonly LoginViewModel _viewModel;
+        private readonly DispatcherTimer _redirectTimer;
         private UsersManagerClient _logInClient;
 
         /// <summary>
@@ -29,6 +30,16 @@ namespace TLMG.Client.Views
         public LoginScreen()
         {
             InitializeComponent();
+
+            _viewModel = new LoginViewModel();
+            DataContext = _viewModel;
+
+            _viewModel.LogInRequested += OnLogInRequested;
+            _viewModel.ValidationFailed += OnValidationFailed;
+            _viewModel.GuestPlayRequested += OnGuestPlayRequested;
+            _viewModel.ForgotPasswordRequested += OnForgotPasswordRequested;
+            _viewModel.CreateAccountRequested += OnCreateAccountRequested;
+
             Unloaded += OnScreenUnloaded;
 
             _redirectTimer = new DispatcherTimer
@@ -38,112 +49,83 @@ namespace TLMG.Client.Views
             _redirectTimer.Tick += OnRedirectTimerTick;
         }
 
-        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        private void PwdPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            _redirectTimer?.Stop();
-            CloseLogInClient();
-        }
-
-        private void BtnLogIn_Click(object sender, RoutedEventArgs e)
-        {
-            string inputEmailAddress = txtEmail.Text;
-            string inputPasswordText = pwdPassword.Visibility == Visibility.Visible
-                ? pwdPassword.Password
-                : txtPasswordVisible.Text;
-
-            lblEmailError.Visibility = Visibility.Hidden;
-
-            if (AreCredentialsValidFormat(inputEmailAddress, inputPasswordText))
+            bool isTypingHiddenPassword = !_viewModel.IsPasswordVisible;
+            if (isTypingHiddenPassword)
             {
-                SendLogInRequest(inputEmailAddress, inputPasswordText);
+                _viewModel.Password = pwdPassword.Password;
             }
         }
 
-        private void OnRedirectTimerTick(object sender, EventArgs e)
+        private void OnLogInRequested(object sender, EventArgs e)
         {
-            _redirectTimer.Stop();
+            lblFormMessage.Visibility = Visibility.Collapsed;
+            lblEmailError.Visibility = Visibility.Collapsed;
 
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(new MainMenuScreen());
+            _viewModel.IsBusy = true;
+            Mouse.OverrideCursor = Cursors.Wait;
 
-            _log.Info("Se inició sesión correctamente.");
+            Dispatcher.BeginInvoke(new Action(SendLogInRequest), DispatcherPriority.Render);
         }
 
-        private bool AreCredentialsValidFormat(string email, string password)
+        private void OnValidationFailed(object sender, EventArgs e)
         {
-            bool areCredentialsValid = true;
-
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            bool hasEmailError = _viewModel.EmailErrorKey != null;
+            if (hasEmailError)
             {
-                ShowStatusMessage(lblFormMessage, TryFindResource("Login_IncompleteFieldsError") as string, true);
-                areCredentialsValid = false;
-            }
-            else
-            {
-                string emailValidationResult = ValidateEmail(email);
-                if (emailValidationResult != null)
-                {
-                    ShowStatusMessage(lblEmailError, emailValidationResult, true);
-                    areCredentialsValid = false;
-                }
+                ShowStatusMessage(lblEmailError, ErrorMessageHelper.FindErrorMessage(this, _viewModel.EmailErrorKey), true);
             }
 
-            return areCredentialsValid;
+            bool hasFormError = _viewModel.FormErrorKey != null;
+            if (hasFormError)
+            {
+                ShowStatusMessage(lblFormMessage, ErrorMessageHelper.FindErrorMessage(this, _viewModel.FormErrorKey), true);
+            }
         }
 
-        private void SendLogInRequest(string email, string password)
+        private void SendLogInRequest()
         {
             OperationLogInRequest operationLogInRequest = new OperationLogInRequest
             {
-                Email = email,
-                Password = password
+                Email = _viewModel.Email,
+                Password = _viewModel.Password
             };
-
-            btnLogIn.IsEnabled = false;
 
             try
             {
                 _logInClient = new UsersManagerClient();
-
                 OperationLogInResult logInResult = _logInClient.LogIn(operationLogInRequest);
-
                 FinishLogInAttempt(logInResult);
             }
             catch (FaultException<SystemFault> systemFault)
             {
                 _log.Fatal("Error de infraestructura reportado por el servidor.", systemFault);
-
-                string errorMessage = TryFindResource(systemFault.Detail.SystemErrorMessage) as string
-                                   ?? TryFindResource(UnknownErrorKey) as string;
-                ShowStatusMessage(lblFormMessage, errorMessage, true);
-
+                _viewModel.ApplyServerError(systemFault.Detail.SystemErrorMessage);
                 CloseLogInClient();
-                btnLogIn.IsEnabled = true;
+                UnlockUI();
             }
             catch (EndpointNotFoundException endpointNotFoundException)
             {
-                _log.Error("No se encontró el endpoint del servidor al iniciar sesión.", 
-                    endpointNotFoundException);
-                ShowConnectionError();
+                _log.Error("No se encontró el endpoint del servidor al iniciar sesión.", endpointNotFoundException);
+                ReportConnectionFailure();
             }
             catch (TimeoutException timeoutException)
             {
-                _log.Error("El servidor tardó demasiado en recibir la solicitud de inicio de sesión.", 
-                    timeoutException);
-                ShowConnectionError();
+                _log.Error("El servidor tardó demasiado en recibir la solicitud de inicio de sesión.", timeoutException);
+                ReportConnectionFailure();
             }
             catch (CommunicationException communicationException)
             {
-                _log.Error("Error de comunicación al enviar la solicitud de inicio de sesión.",
-                    communicationException);
-                ShowConnectionError();
+                _log.Error("Error de comunicación al enviar la solicitud de inicio de sesión.", communicationException);
+                ReportConnectionFailure();
             }
         }
 
         private void FinishLogInAttempt(OperationLogInResult operationLogInResult)
         {
             CloseLogInClient();
-            btnLogIn.IsEnabled = true;
+            UnlockUI();
 
             if (operationLogInResult.IsSuccess)
             {
@@ -151,29 +133,30 @@ namespace TLMG.Client.Views
             }
             else
             {
-                string resourceKey = operationLogInResult.ErrorKey ?? UnknownErrorKey;
-                ShowStatusMessage(lblFormMessage, TryFindResource(resourceKey) as string, true);
+                _viewModel.ApplyServerError(operationLogInResult.ErrorKey);
             }
         }
 
         private void StartSessionAndRedirect(OperationLogInResult operationLogInResult)
         {
-            if (((App)Application.Current).ServerConnection.StartRegisteredSession(operationLogInResult))
+            bool wasSessionStarted = ((App)Application.Current).ServerConnection.StartRegisteredSession(operationLogInResult);
+
+            if (wasSessionStarted)
             {
                 ShowStatusMessage(lblFormMessage, TryFindResource(SuccessMessageKey) as string, false);
                 _redirectTimer.Start();
             }
             else
             {
-                ShowStatusMessage(lblFormMessage, TryFindResource(ConnectionErrorKey) as string, true);
+                _viewModel.ReportConnectionFailure();
             }
         }
 
-        private void ShowConnectionError()
+        private void ReportConnectionFailure()
         {
             CloseLogInClient();
-            btnLogIn.IsEnabled = true;
-            ShowStatusMessage(lblFormMessage, TryFindResource(ConnectionErrorKey) as string, true);
+            UnlockUI();
+            _viewModel.ReportConnectionFailure();
         }
 
         private void CloseLogInClient()
@@ -193,8 +176,7 @@ namespace TLMG.Client.Views
                 }
                 catch (CommunicationException communicationException)
                 {
-                    _log.Warn("No se pudo cerrar limpiamente el canal de inicio de sesión.", 
-                        communicationException);
+                    _log.Warn("No se pudo cerrar limpiamente el canal de inicio de sesión.", communicationException);
                     _logInClient.Abort();
                 }
 
@@ -202,43 +184,54 @@ namespace TLMG.Client.Views
             }
         }
 
-        private string ValidateEmail(string emailAddress)
+        private void OnRedirectTimerTick(object sender, EventArgs e)
         {
-            string errorResourceKey = ValidationHelper.GetEmailValidationErrorKey(emailAddress, "Login");
-            string errorMessage = errorResourceKey != null ? TryFindResource(errorResourceKey) as string : null;
-            return errorMessage;
+            _redirectTimer.Stop();
+            _log.Info("Se inició sesión correctamente.");
+
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new MainMenuScreen());
         }
 
-        private void BtnShowPassword_Click(object sender, RoutedEventArgs e)
-        {
-            if (txtPasswordVisible.Visibility == Visibility.Collapsed)
-            {
-                txtPasswordVisible.Text = pwdPassword.Password;
-                txtPasswordVisible.Visibility = Visibility.Visible;
-                pwdPassword.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                pwdPassword.Password = txtPasswordVisible.Text;
-                pwdPassword.Visibility = Visibility.Visible;
-                txtPasswordVisible.Visibility = Visibility.Collapsed;
-            }
-        }
-
-        private void BtnPlayAsGuest_Click(object sender, RoutedEventArgs e)
+        private void OnGuestPlayRequested(object sender, EventArgs e)
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new MainMenuScreen());
         }
 
-        private void BtnForgotPassword_Click(object sender, RoutedEventArgs e)
+        private void OnForgotPasswordRequested(object sender, EventArgs e)
         {
-            ((MainWindow)Application.Current.MainWindow).ShowScreen(new ForgotPasswordScreen());
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new ForgotPasswordScreen());
         }
 
-        private void BtnTabCreateAccount_Click(object sender, RoutedEventArgs e)
+        private void OnCreateAccountRequested(object sender, EventArgs e)
         {
-            ((MainWindow)Application.Current.MainWindow).ShowScreen(new CreateAccountScreen());
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new CreateAccountScreen());
+        }
+
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        {
+            _viewModel.LogInRequested -= OnLogInRequested;
+            _viewModel.ValidationFailed -= OnValidationFailed;
+            _viewModel.GuestPlayRequested -= OnGuestPlayRequested;
+            _viewModel.ForgotPasswordRequested -= OnForgotPasswordRequested;
+            _viewModel.CreateAccountRequested -= OnCreateAccountRequested;
+
+            _redirectTimer?.Stop();
+            CloseLogInClient();
+        }
+
+        private void UnlockUI()
+        {
+            Dispatcher.BeginInvoke(new Action(ReleaseUIAfterWCF), DispatcherPriority.ApplicationIdle);
+        }
+
+        private void ReleaseUIAfterWCF()
+        {
+            _viewModel.IsBusy = false;
+            Mouse.OverrideCursor = null;
         }
     }
 }

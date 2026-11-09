@@ -25,38 +25,26 @@
             <Ellipse Style="{StaticResource HeroBackgroundGlowStyle}" />
 
             <StackPanel Style="{StaticResource HeroContentPanelStyle}">
-                <TextBlock Text="🚀" 
-                           Style="{StaticResource HeroMainEmojiStyle}" />
-
-                <TextBlock Text="{DynamicResource CreateAccount_HeaderTitle}" 
-                           Style="{StaticResource HeroTitleTextStyle}" />
-                <TextBlock Text="{DynamicResource CreateAccount_HeaderSubtitle}" 
-                           Style="{StaticResource HeroSubtitleSpacedTextStyle}" />
+                <TextBlock Text="🚀" Style="{StaticResource HeroMainEmojiStyle}" />
+                <TextBlock Text="{DynamicResource CreateAccount_HeaderTitle}" Style="{StaticResource HeroTitleTextStyle}" />
+                <TextBlock Text="{DynamicResource CreateAccount_HeaderSubtitle}" Style="{StaticResource HeroSubtitleSpacedTextStyle}" />
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🐈‍" 
-                                   Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_EgyptianCatLabel}" 
-                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🐈‍" Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_EgyptianCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🧟" 
-                                   Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_ZombieCatLabel}" 
-                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🧟" Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_ZombieCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="💀" 
-                                   Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_SkullCatLabel}" 
-                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="💀" Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_SkullCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🚀" 
-                                   Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_AstronautCatLabel}" 
-                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🚀" Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_AstronautCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
@@ -64,73 +52,79 @@
 
         <Border Grid.Column="1" Style="{StaticResource SidePanelBorderStyle}">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Style="{StaticResource SidePanelContentStyle}" Width="321">
+                <StackPanel Style="{StaticResource SidePanelContentStyle}" Margin="20,0">
 
-                    <Button x:Name="btnBack"
-                            Content="{DynamicResource CreateAccount_BackToLogin}"
+                    <Button Content="{DynamicResource CreateAccount_BackToLogin}"
                             Style="{StaticResource TopLeftLinkButtonStyle}"
-                            Click="BtnBack_Click" />
+                            Command="{Binding BackCommand}" 
+                            Margin="0,20,0,0" />
+                    
 
                     <TextBlock Text="{DynamicResource CreateAccount_Title}"
                                Style="{StaticResource FormTitleTextStyle}" />
 
                     <TextBlock Text="{DynamicResource CreateAccount_NicknameLabel}"
                                Style="{StaticResource FieldLabelTextStyle}" />
-                    <TextBox x:Name="txtNickname"
+                    <TextBox Text="{Binding Nickname, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FieldStyle}" />
                     <TextBlock Text="{DynamicResource CreateAccount_NicknameHint}" 
                                Style="{StaticResource FieldHintTextStyle}" />
                     <TextBlock x:Name="lblNicknameError"
-                               Style="{StaticResource ErrorTextStyle}" />
+                               Style="{StaticResource ErrorTextStyle}" 
+                               TextWrapping="Wrap" />
 
                     <TextBlock Text="{DynamicResource CreateAccount_EmailLabel}"
                                Style="{StaticResource FieldLabelTextStyle}" />
-                    <TextBox x:Name="txtEmail"
+                    <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FieldStyle}" />
                     <TextBlock x:Name="lblEmailError"
-                               Style="{StaticResource ErrorTextStyle}" />
+                               Style="{StaticResource ErrorTextStyle}" 
+                               TextWrapping="Wrap" />
 
                     <TextBlock Text="{DynamicResource CreateAccount_PasswordLabel}"
                                Style="{StaticResource FieldLabelTextStyle}" />
                     <PasswordBox x:Name="pwdPassword"
                                  Style="{StaticResource FieldStyle}"
+                                 Margin="0,0,0,10"
                                  PasswordChanged="PwdPassword_PasswordChanged" />
                     <TextBlock x:Name="lblPasswordError"
-                               Style="{StaticResource ErrorTextStyle}" />
+                               Style="{StaticResource ErrorTextStyle}" 
+                               TextWrapping="Wrap" />
 
                     <Border Style="{StaticResource SpacedHintPanelStyle}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource CreateAccount_HintLength}" 
-                                       Style="{StaticResource StatusTextStyle}" />
-                            <TextBlock Text="{DynamicResource CreateAccount_HintUppercase}" 
-                                       Style="{StaticResource StatusTextStyle}" />
-                            <TextBlock Text="{DynamicResource CreateAccount_HintLowercase}" 
-                                       Style="{StaticResource StatusTextStyle}" />
-                            <TextBlock Text="{DynamicResource CreateAccount_HintNumber}" 
-                                       Style="{StaticResource StatusTextStyle}" />
-                            <TextBlock Text="{DynamicResource CreateAccount_HintSymbol}" 
-                                       Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintLength}" Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintUppercase}" Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintLowercase}" Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintNumber}" Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintSymbol}" Style="{StaticResource StatusTextStyle}" />
                         </StackPanel>
                     </Border>
+
                     <TextBlock Text="{DynamicResource CreateAccount_ConfirmPasswordLabel}"
                                Style="{StaticResource FieldLabelTextStyle}" Height="15" />
                     <PasswordBox x:Name="pwdConfirmPassword"
-                                 Style="{StaticResource FieldStyle}" />
+                                 Style="{StaticResource FieldStyle}"
+                                 PasswordChanged="PwdConfirmPassword_PasswordChanged" />
                     <TextBlock x:Name="lblConfirmPasswordError"
-                               Style="{StaticResource ErrorTextStyle}" />
-                    <CheckBox x:Name="chkTerms" Style="{StaticResource TermsCheckBoxStyle}" Width="327">
+                               Style="{StaticResource ErrorTextStyle}" 
+                               TextWrapping="Wrap" />
+
+                    <CheckBox IsChecked="{Binding HasAcceptedTerms, UpdateSourceTrigger=PropertyChanged}" 
+                              Style="{StaticResource TermsCheckBoxStyle}">
                         <TextBlock Text="{DynamicResource CreateAccount_TermsLabel}"
                                    Style="{StaticResource TermsTextStyle}"
-                                   Width="317" />
+                                   TextWrapping="Wrap" />
                     </CheckBox>
 
-                    <Button x:Name="btnCreateAccount"
-                            Content="{DynamicResource CreateAccount_CreateAccountButton}"
+                    <Button Content="{DynamicResource CreateAccount_CreateAccountButton}"
                             Style="{StaticResource AuthenticationPrimaryButtonStyle}"
-                            Click="BtnCreateAccount_Click" />
+                            Command="{Binding CreateAccountCommand}" />
 
                     <TextBlock x:Name="lblFormMessage"
-                               Style="{StaticResource FormMessageTextStyle}" />
+                               Style="{StaticResource FormMessageTextStyle}"
+                               TextWrapping="Wrap" 
+                               TextAlignment="Center" />
                 </StackPanel>
             </ScrollViewer>
         </Border>

@@ -1,33 +1,28 @@
 using System;
 using System.ServiceModel;
 using System.Windows;
+using System.Windows.Input;
+using System.Windows.Threading;
 using log4net;
 using TLMG.Client.UsersManagerReference;
+using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Pantalla de registro de cuentas. Solo captura datos, invoca al servidor autoritativo
-    /// y reacciona al resultado.
+    /// Pantalla de registro de cuentas.
+    /// Delega la lógica de captura al ViewModel y gestiona la llamada a WCF.
     /// </summary>
     public partial class CreateAccountScreen : LocalizableScreen
     {
         private const bool IsErrorMessage = true;
-
-        private const string MismatchErrorKey = "CreateAccount_MismatchError";
-        private const string NicknameErrorKey = "CreateAccount_NicknameFormatError";
-        private const string NicknameTakenErrorKey = "CreateAccount_NicknameTakenError";
-        private const string EmailErrorKey = "CreateAccount_EmailFormatError";
-        private const string EmailTakenErrorKey = "CreateAccount_EmailTakenError";
-        private const string PasswordErrorKey = "CreateAccount_PasswordPolicyError";
-        private const string UnknownErrorKey = "CreateAccount_DataModelError";
-        private const string ConnectionErrorKey = "CreateAccount_NetworkError";
-
         private const string SuccessMessageKey = "CreateAccount_SuccessMessage";
         private const string ConfirmAbandonMessageKey = "CreateAccount_ConfirmAbandonMessage";
         private const string ConfirmAbandonTitleKey = "CreateAccount_ConfirmAbandonTitle";
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(CreateAccountScreen));
+
+        private readonly CreateAccountViewModel _viewModel;
         private UsersManagerClient _accountRegistrationClient;
 
         /// <summary>
@@ -36,35 +31,77 @@ namespace TLMG.Client.Views
         public CreateAccountScreen()
         {
             InitializeComponent();
+
+            _viewModel = new CreateAccountViewModel();
+            DataContext = _viewModel;
+
+            _viewModel.RegistrationRequested += OnRegistrationRequested;
+            _viewModel.ValidationFailed += OnValidationFailed;
+            _viewModel.BackRequested += OnBackRequested;
+
             Unloaded += OnScreenUnloaded;
         }
 
         private void PwdPassword_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            lblPasswordError.Visibility = Visibility.Hidden;
+            _viewModel.Password = pwdPassword.Password;
+            lblPasswordError.Visibility = Visibility.Collapsed;
         }
 
-        private void BtnCreateAccount_Click(object sender, RoutedEventArgs e)
+        private void PwdConfirmPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            _viewModel.ConfirmPassword = pwdConfirmPassword.Password;
+            lblConfirmPasswordError.Visibility = Visibility.Collapsed;
+        }
+
+        private void OnRegistrationRequested(object sender, EventArgs e)
         {
             ClearErrorMessages();
 
-            bool doPasswordsMatch = pwdPassword.Password == pwdConfirmPassword.Password;
+            _viewModel.IsBusy = true;
+            Mouse.OverrideCursor = Cursors.Wait;
 
-            if (doPasswordsMatch)
+            Dispatcher.BeginInvoke(new Action(SendRegistrationRequest), DispatcherPriority.Render);
+        }
+
+        private void OnValidationFailed(object sender, EventArgs e)
+        {
+            bool hasNicknameError = _viewModel.NicknameErrorKey != null;
+            if (hasNicknameError)
             {
-                SendRegistrationRequest();
+                ShowStatusMessage(lblNicknameError, ErrorMessageHelper.FindErrorMessage(this, _viewModel.NicknameErrorKey), IsErrorMessage);
             }
-            else
+
+            bool hasEmailError = _viewModel.EmailErrorKey != null;
+            if (hasEmailError)
             {
-                ShowStatusMessage(lblConfirmPasswordError, FindMessage(MismatchErrorKey), IsErrorMessage);
+                ShowStatusMessage(lblEmailError, ErrorMessageHelper.FindErrorMessage(this, _viewModel.EmailErrorKey), IsErrorMessage);
+            }
+
+            bool hasPasswordError = _viewModel.PasswordErrorKey != null;
+            if (hasPasswordError)
+            {
+                ShowStatusMessage(lblPasswordError, ErrorMessageHelper.FindErrorMessage(this, _viewModel.PasswordErrorKey), IsErrorMessage);
+            }
+
+            bool hasConfirmPasswordError = _viewModel.ConfirmPasswordErrorKey != null;
+            if (hasConfirmPasswordError)
+            {
+                ShowStatusMessage(lblConfirmPasswordError, ErrorMessageHelper.FindErrorMessage(this, _viewModel.ConfirmPasswordErrorKey), IsErrorMessage);
+            }
+
+            bool hasFormError = _viewModel.FormErrorKey != null;
+            if (hasFormError)
+            {
+                ShowStatusMessage(lblFormMessage, ErrorMessageHelper.FindErrorMessage(this, _viewModel.FormErrorKey), IsErrorMessage);
             }
         }
 
-        private void BtnBack_Click(object sender, RoutedEventArgs e)
+        private void OnBackRequested(object sender, EventArgs e)
         {
             MessageBoxResult confirmationResult = MessageBox.Show(
-                FindMessage(ConfirmAbandonMessageKey),
-                FindMessage(ConfirmAbandonTitleKey),
+                ErrorMessageHelper.FindErrorMessage(this, ConfirmAbandonMessageKey),
+                ErrorMessageHelper.FindErrorMessage(this, ConfirmAbandonTitleKey),
                 MessageBoxButton.YesNo);
 
             bool hasConfirmedAbandon = confirmationResult == MessageBoxResult.Yes;
@@ -72,26 +109,20 @@ namespace TLMG.Client.Views
             if (hasConfirmedAbandon)
             {
                 CloseRegistrationClient();
-                ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
+                MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+                applicationMainWindow.ShowScreen(new LoginScreen());
             }
-        }
-
-        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
-        {
-            CloseRegistrationClient();
         }
 
         private void SendRegistrationRequest()
         {
             PlayerAccountRegistration playerAccountRegistration = new PlayerAccountRegistration
             {
-                Nickname = txtNickname.Text,
-                Email = txtEmail.Text,
-                Password = pwdPassword.Password,
-                HasAcceptedTerms = chkTerms.IsChecked == true
+                Nickname = _viewModel.Nickname,
+                Email = _viewModel.Email,
+                Password = _viewModel.Password,
+                HasAcceptedTerms = _viewModel.HasAcceptedTerms
             };
-
-            btnCreateAccount.IsEnabled = false;
 
             try
             {
@@ -105,38 +136,31 @@ namespace TLMG.Client.Views
             catch (FaultException<SystemFault> systemFault)
             {
                 _log.Fatal("Error de infraestructura reportado por el servidor.", systemFault);
-
-                string errorMessage = FindMessage(systemFault.Detail.SystemErrorMessage)
-                                   ?? FindMessage(UnknownErrorKey);
-                ShowStatusMessage(lblFormMessage, errorMessage, IsErrorMessage);
-
+                _viewModel.ApplyServerError(systemFault.Detail.SystemErrorMessage);
                 CloseRegistrationClient();
-                btnCreateAccount.IsEnabled = true;
+                UnlockUI();
             }
             catch (EndpointNotFoundException endpointNotFoundException)
             {
-                _log.Error("No se encontró el endpoint del servidor al registrar la cuenta.", 
-                    endpointNotFoundException);
-                ShowConnectionError();
+                _log.Error("No se encontró el endpoint del servidor al registrar la cuenta.", endpointNotFoundException);
+                ReportConnectionFailure();
             }
             catch (TimeoutException timeoutException)
             {
-                _log.Error("El servidor tardó demasiado en recibir la solicitud de registro.", 
-                    timeoutException);
-                ShowConnectionError();
+                _log.Error("El servidor tardó demasiado en recibir la solicitud de registro.", timeoutException);
+                ReportConnectionFailure();
             }
             catch (CommunicationException communicationException)
             {
-                _log.Error("Error de comunicación al enviar la solicitud de registro.", 
-                    communicationException);
-                ShowConnectionError();
+                _log.Error("Error de comunicación al enviar la solicitud de registro.", communicationException);
+                ReportConnectionFailure();
             }
         }
 
         private void FinishRegistrationAttempt(OperationRegisterPlayerAccountResult registrationResult)
         {
             CloseRegistrationClient();
-            btnCreateAccount.IsEnabled = true;
+            UnlockUI();
 
             if (registrationResult.IsSuccess)
             {
@@ -144,48 +168,24 @@ namespace TLMG.Client.Views
             }
             else
             {
-                ShowRegistrationError(registrationResult.ErrorKey);
+                _viewModel.ApplyServerError(registrationResult.ErrorKey);
             }
         }
 
-        private void ShowConnectionError()
+        private void ReportConnectionFailure()
         {
             CloseRegistrationClient();
-            btnCreateAccount.IsEnabled = true;
-            ShowStatusMessage(lblFormMessage, FindMessage(ConnectionErrorKey), IsErrorMessage);
-        }
-
-        private void ShowRegistrationError(string errorKey)
-        {
-            string resourceKey = errorKey ?? UnknownErrorKey;
-            string localizedMessage = FindMessage(resourceKey);
-
-            switch (resourceKey)
-            {
-                case NicknameErrorKey:
-                case NicknameTakenErrorKey:
-                    ShowStatusMessage(lblNicknameError, localizedMessage, IsErrorMessage);
-                    break;
-                case EmailErrorKey:
-                case EmailTakenErrorKey:
-                    ShowStatusMessage(lblEmailError, localizedMessage, IsErrorMessage);
-                    break;
-                case PasswordErrorKey:
-                    ShowStatusMessage(lblPasswordError, localizedMessage, IsErrorMessage);
-                    break;
-                default:
-                    ShowStatusMessage(lblFormMessage, localizedMessage, IsErrorMessage);
-                    break;
-            }
+            UnlockUI();
+            _viewModel.ReportConnectionFailure();
         }
 
         private void ClearErrorMessages()
         {
-            lblFormMessage.Visibility = Visibility.Hidden;
-            lblNicknameError.Visibility = Visibility.Hidden;
-            lblEmailError.Visibility = Visibility.Hidden;
-            lblPasswordError.Visibility = Visibility.Hidden;
-            lblConfirmPasswordError.Visibility = Visibility.Hidden;
+            lblFormMessage.Visibility = Visibility.Collapsed;
+            lblNicknameError.Visibility = Visibility.Collapsed;
+            lblEmailError.Visibility = Visibility.Collapsed;
+            lblPasswordError.Visibility = Visibility.Collapsed;
+            lblConfirmPasswordError.Visibility = Visibility.Collapsed;
         }
 
         private void CloseRegistrationClient()
@@ -218,22 +218,41 @@ namespace TLMG.Client.Views
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new VerificationScreen(
                 onVerifiedCallbackAction: ReturnToLogInAfterVerification,
-                onBackCallbackAction: () => applicationMainWindow.ShowScreen(new CreateAccountScreen())
+                onBackCallbackAction: ReturnToCreateAccountAfterVerification
             ));
         }
 
         private void ReturnToLogInAfterVerification()
         {
-            MessageBox.Show(FindMessage(SuccessMessageKey));
+            MessageBox.Show(ErrorMessageHelper.FindErrorMessage(this, SuccessMessageKey));
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new LoginScreen());
         }
 
-        private string FindMessage(string resourceKey)
+        private void ReturnToCreateAccountAfterVerification()
         {
-            string localizedMessage = TryFindResource(resourceKey) as string;
+            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
+            applicationMainWindow.ShowScreen(new CreateAccountScreen());
+        }
 
-            return localizedMessage;
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        {
+            _viewModel.RegistrationRequested -= OnRegistrationRequested;
+            _viewModel.ValidationFailed -= OnValidationFailed;
+            _viewModel.BackRequested -= OnBackRequested;
+
+            CloseRegistrationClient();
+        }
+
+        private void UnlockUI()
+        {
+            Dispatcher.BeginInvoke(new Action(ReleaseUIAfterWCF), DispatcherPriority.ApplicationIdle);
+        }
+
+        private void ReleaseUIAfterWCF()
+        {
+            _viewModel.IsBusy = false;
+            Mouse.OverrideCursor = null;
         }
     }
 }

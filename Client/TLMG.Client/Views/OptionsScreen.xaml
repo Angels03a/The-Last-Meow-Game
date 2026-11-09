@@ -37,13 +37,12 @@
                         x:Name="btnBack"
                         Content="{DynamicResource Options_BackButton}"
                         Style="{StaticResource SidebarBackButtonStyle}"
-                        Click="BtnBack_Click" />
+                        Command="{Binding BackCommand}" />
             </Grid>
         </Border>
 
         <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
             <StackPanel Style="{StaticResource OptionsContentPanelStyle}">
-
                 <TextBlock Text="{DynamicResource Options_SectionTitle}"
                            Style="{StaticResource OptionsMainTitleStyle}" />
 
@@ -77,15 +76,9 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0"
-                                       Text="🎵"
-                                       Style="{StaticResource OptionIconStyle}" />
-                            <TextBlock Grid.Column="1"
-                                       Text="{DynamicResource Options_MusicLabel}"
-                                       Style="{StaticResource OptionLabelStyle}" />
-                            <CheckBox Grid.Column="2"
-                                      Style="{StaticResource ToggleSwitchStyle}"
-                                      IsChecked="True" />
+                            <TextBlock Grid.Column="0" Text="🎵" Style="{StaticResource OptionIconStyle}" />
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Options_MusicLabel}" Style="{StaticResource OptionLabelStyle}" />
+                            <CheckBox Grid.Column="2" Style="{StaticResource ToggleSwitchStyle}" IsChecked="True" />
                         </Grid>
 
                         <Grid Margin="0,16,0,32">
@@ -95,21 +88,14 @@
                                 <ColumnDefinition Width="32" />
                                 <ColumnDefinition Width="48" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0"
-                                       Text="🔈"
-                                       Style="{StaticResource OptionSmallIconStyle}" />
+                            <TextBlock Grid.Column="0" Text="🔈" Style="{StaticResource OptionSmallIconStyle}" />
                             <Slider Grid.Column="1"
                                     x:Name="sldMusic"
                                     Style="{StaticResource CustomSliderStyle}"
                                     Maximum="100"
                                     ValueChanged="SldMusic_ValueChanged" />
-                            <TextBlock Grid.Column="2"
-                                       Text="🔊"
-                                       Style="{StaticResource OptionSmallIconStyle}"
-                                       HorizontalAlignment="Right" Margin="0,0,8,0" />
-                            <TextBlock Grid.Column="3"
-                                       x:Name="lblMusicVol"
-                                       Style="{StaticResource OptionValueTextStyle}" />
+                            <TextBlock Grid.Column="2" Text="🔊" Style="{StaticResource OptionSmallIconStyle}" HorizontalAlignment="Right" Margin="0,0,8,0" />
+                            <TextBlock Grid.Column="3" x:Name="lblMusicVol" Style="{StaticResource OptionValueTextStyle}" />
                         </Grid>
 
                         <Grid>
@@ -118,14 +104,9 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0"
-                                       Text="🔊" Style="{StaticResource OptionIconStyle}" />
-                            <TextBlock Grid.Column="1"
-                                       Text="{DynamicResource Options_SoundEffectsLabel}"
-                                       Style="{StaticResource OptionLabelStyle}" />
-                            <CheckBox Grid.Column="2"
-                                      Style="{StaticResource ToggleSwitchStyle}"
-                                      IsChecked="True" />
+                            <TextBlock Grid.Column="0" Text="🔊" Style="{StaticResource OptionIconStyle}" />
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Options_SoundEffectsLabel}" Style="{StaticResource OptionLabelStyle}" />
+                            <CheckBox Grid.Column="2" Style="{StaticResource ToggleSwitchStyle}" IsChecked="True" />
                         </Grid>
 
                         <Grid Margin="0,16,0,8">
@@ -135,22 +116,14 @@
                                 <ColumnDefinition Width="32" />
                                 <ColumnDefinition Width="48" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0"
-                                       Text="🔈"
-                                       Style="{StaticResource OptionSmallIconStyle}" />
+                            <TextBlock Grid.Column="0" Text="🔈" Style="{StaticResource OptionSmallIconStyle}" />
                             <Slider Grid.Column="1"
                                     x:Name="sldSoundEffects"
                                     Style="{StaticResource CustomSliderStyle}"
                                     Maximum="100"
                                     ValueChanged="SldSoundEffects_ValueChanged" />
-                            <TextBlock Grid.Column="2"
-                                       Text="🔊"
-                                       Style="{StaticResource OptionSmallIconStyle}"
-                                       HorizontalAlignment="Right"
-                                       Margin="0,0,8,0" />
-                            <TextBlock Grid.Column="3"
-                                       x:Name="lblSoundEffectsVolume"
-                                       Style="{StaticResource OptionValueTextStyle}" />
+                            <TextBlock Grid.Column="2" Text="🔊" Style="{StaticResource OptionSmallIconStyle}" HorizontalAlignment="Right" Margin="0,0,8,0" />
+                            <TextBlock Grid.Column="3" x:Name="lblSoundEffectsVolume" Style="{StaticResource OptionValueTextStyle}" />
                         </Grid>
                     </StackPanel>
                 </Border>
