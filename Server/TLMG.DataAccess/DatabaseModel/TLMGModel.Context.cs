@@ -38,5 +38,6 @@ namespace TLMG.DataAccess.DatabaseModel
         public virtual DbSet<Report> Report { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<Verification_Code> Verification_Code { get; set; }
+        public virtual DbSet<vw_Leaderboard> vw_Leaderboard { get; set; }
     }
 }

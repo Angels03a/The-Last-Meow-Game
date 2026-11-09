@@ -24,6 +24,7 @@ namespace TLMG.DataAccess.DatabaseModel
             this.Friendship1 = new HashSet<Friendship>();
             this.Player = new HashSet<Player>();
             this.Verification_Code = new HashSet<Verification_Code>();
+            this.Message = new HashSet<Message>();
         }
     
         public int id_user { get; set; }
@@ -48,5 +49,7 @@ namespace TLMG.DataAccess.DatabaseModel
         public virtual ICollection<Player> Player { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Verification_Code> Verification_Code { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Message> Message { get; set; }
     }
 }

@@ -15,11 +15,14 @@ namespace TLMG.DataAccess.DatabaseModel
     public partial class Message
     {
         public int id_message { get; set; }
-        public int id_game_player { get; set; }
         public string scope { get; set; }
         public string text_message { get; set; }
-        public System.DateTime message_date { get; set; }
+        public int id_user { get; set; }
+        public Nullable<int> id_game { get; set; }
+        public Nullable<int> room_number { get; set; }
+        public System.DateTime sent_at { get; set; }
     
-        public virtual Game_Player Game_Player { get; set; }
+        public virtual Game Game { get; set; }
+        public virtual User User { get; set; }
     }
 }
