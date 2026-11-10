@@ -76,9 +76,20 @@
     <Compile Include="Models\LobbyPlayerEntry.cs" />
     <Compile Include="Models\ModerationMode.cs" />
     <Compile Include="Models\PlayerRankEntry.cs" />
+    <Compile Include="Navigation\INavigationHost.cs" />
+    <Compile Include="Navigation\INavigationService.cs" />
+    <Compile Include="Navigation\IScreenFactory.cs" />
+    <Compile Include="Navigation\ModerationNavigationParameter.cs" />
+    <Compile Include="Navigation\NavigationService.cs" />
+    <Compile Include="Navigation\ScreenEntry.cs" />
+    <Compile Include="Navigation\ScreenFactory.cs" />
+    <Compile Include="Navigation\ScreenId.cs" />
+    <Compile Include="Navigation\ShellViewModel.cs" />
+    <Compile Include="Navigation\VerificationFlow.cs" />
+    <Compile Include="Navigation\VerificationNavigationParameter.cs" />
     <Compile Include="ViewModels\CreateAccountViewModel.cs" />
     <Compile Include="ViewModels\ForgotPasswordViewModel.cs" />
-    <Compile Include="ViewModels\FrindsViewModel.cs" />
+    <Compile Include="ViewModels\FriendsViewModel.cs" />
     <Compile Include="ViewModels\GameplayViewModel.cs" />
     <Compile Include="ViewModels\LeaderboardViewModel.cs" />
     <Compile Include="ViewModels\LobbyViewModel.cs" />
@@ -88,6 +99,7 @@
     <Compile Include="ViewModels\OptionsViewModel.cs" />
     <Compile Include="ViewModels\ProfileViewModel.cs" />
     <Compile Include="ViewModels\RelayCommand.cs" />
+    <Compile Include="ViewModels\StatusMessage.cs" />
     <Compile Include="ViewModels\VerificationViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Views\ChangePasswordScreen.xaml.cs">
@@ -101,9 +113,6 @@
     </Compile>
     <Compile Include="Views\FriendsScreen.xaml.cs">
       <DependentUpon>FriendsScreen.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\FugitiveKitten.xaml.cs">
-      <DependentUpon>FugitiveKitten.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\GameOverScreen.xaml.cs">
       <DependentUpon>GameOverScreen.xaml</DependentUpon>
@@ -196,10 +205,6 @@
     <Page Include="Views\FriendsScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\FugitiveKitten.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\GameOverScreen.xaml">
       <SubType>Designer</SubType>
