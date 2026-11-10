@@ -1,10 +1,13 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
+using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
     /// Representa la pantalla de configuración de audio e idioma de la aplicación.
+    /// Delega la navegación al ViewModel y mantiene la lógica visual directa.
     /// </summary>
     public partial class OptionsScreen : LocalizableScreen
     {
@@ -15,17 +18,26 @@ namespace TLMG.Client.Views
         private const string ActiveLanguageButtonStyleKey = "LanguageButtonActiveStyle";
         private const string InactiveLanguageButtonStyleKey = "LanguageButtonInactiveStyle";
 
+        private readonly OptionsViewModel _viewModel;
+
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="OptionsScreen"/> con la configuración por defecto.
         /// </summary>
         public OptionsScreen()
         {
             InitializeComponent();
+
+            _viewModel = new OptionsViewModel();
+            DataContext = _viewModel;
+
+            _viewModel.BackRequested += NavigateToMainMenu;
+
+            Unloaded += HandleScreenUnloaded;
+
             InitializeDefaultSettings();
             InitializeLanguageButtons();
         }
 
-        /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
             UpdateVolumeLabel(lblMusicVol, sldMusic.Value);
@@ -86,10 +98,15 @@ namespace TLMG.Client.Views
             InitializeDefaultSettings();
         }
 
-        private void BtnBack_Click(object sender, RoutedEventArgs e)
+        private void NavigateToMainMenu(object sender, EventArgs e)
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new MainMenuScreen());
+        }
+
+        private void HandleScreenUnloaded(object sender, RoutedEventArgs e)
+        {
+            _viewModel.BackRequested -= NavigateToMainMenu;
         }
     }
 }

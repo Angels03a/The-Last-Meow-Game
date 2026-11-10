@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
 using TLMG.Client.UsersManagerReference;
+using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
     /// Pantalla de amigos: muestra la lista real que conserva el ServerConnectionManager, con su presencia, e invita
-    /// a un amigo en línea a la sala del jugador. Las solicitudes y los bloqueos aún no tienen servidor.
+    /// a un amigo en línea a la sala del jugador.
     /// </summary>
     public partial class FriendsScreen : LocalizableScreen
     {
@@ -19,18 +20,20 @@ namespace TLMG.Client.Views
         private const int TabIndexBlocked = 2;
         private const string CountPending = "2";
         private const string CountBlocked = "1";
+
         private const string ActiveTabButtonStyleKey = "TabNavActiveButtonStyle";
         private const string InactiveTabButtonStyleKey = "TabNavInactiveButtonStyle";
         private const string ActiveBadgeStyleKey = "BadgeActiveStyle";
         private const string InactiveBadgeStyleKey = "BadgeInactiveStyle";
         private const string ActiveBadgeTextStyleKey = "BadgeTextActiveStyle";
         private const string InactiveBadgeTextStyleKey = "BadgeTextInactiveStyle";
+
         private const string EmptyFriendsMessageKey = "Friends_EmptyFriends";
         private const string GuestWithoutFriendsMessageKey = "Friends_GuestWithoutFriendsMessage";
         private const string InvitationSentMessageKey = "Friends_InvitationSentMessage";
         private const bool IsErrorMessage = true;
-        private const int EmptyFriendCount = 0;
 
+        private readonly FriendsViewModel _viewModel;
         private int _currentTabIndex;
         private TabViews[] _tabViews;
 
@@ -40,8 +43,14 @@ namespace TLMG.Client.Views
         public FriendsScreen()
         {
             InitializeComponent();
+
+            _viewModel = new FriendsViewModel();
+            DataContext = _viewModel;
+            _viewModel.BackRequested += OnBackRequested;
+
             Loaded += OnScreenLoaded;
             Unloaded += OnScreenUnloaded;
+
             _currentTabIndex = TabIndexFriends;
             InitializeTabViews();
             InitializeBadges();
@@ -54,9 +63,9 @@ namespace TLMG.Client.Views
         {
             _tabViews = new[]
             {
-                new TabViews(pnlFriendsContent, btnTabFriends, brdBadgeFriends, lblBadgeFriends),
-                new TabViews(pnlPendingContent, btnTabPending, brdBadgePending, lblBadgePending),
-                new TabViews(pnlBlockedContent, btnTabBlocked, brdBadgeBlocked, lblBadgeBlocked)
+                new TabViews(pnlFriendsContent, btnTabFriends, brdBadgeFriends),
+                new TabViews(pnlPendingContent, btnTabPending, brdBadgePending),
+                new TabViews(pnlBlockedContent, btnTabBlocked, brdBadgeBlocked)
             };
         }
 
@@ -66,7 +75,7 @@ namespace TLMG.Client.Views
             lblBadgeBlocked.Text = CountBlocked;
         }
 
-        private void BtnBack_Click(object sender, RoutedEventArgs e)
+        private void OnBackRequested(object sender, EventArgs e)
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.GoBack();
@@ -97,14 +106,12 @@ namespace TLMG.Client.Views
                 bool isTargetTab = tabIndex == targetTabIndex;
                 TabViews currentTabViews = _tabViews[tabIndex];
 
-                currentTabViews.Content.Visibility =
+                currentTabViews.Content.Visibility = 
                     isTargetTab ? Visibility.Visible : Visibility.Collapsed;
-                currentTabViews.TabButton.Style =
+                currentTabViews.TabButton.Style = 
                     (Style)FindResource(isTargetTab ? ActiveTabButtonStyleKey : InactiveTabButtonStyleKey);
-                currentTabViews.BadgeBorder.Style =
-                    (Style)FindResource(isTargetTab ? ActiveBadgeStyleKey : InactiveBadgeStyleKey);
-                currentTabViews.BadgeLabel.Style =
-                    (Style)FindResource(isTargetTab ? ActiveBadgeTextStyleKey : InactiveBadgeTextStyleKey);
+                currentTabViews.BadgeBorder.Style 
+                    = (Style)FindResource(isTargetTab ? ActiveBadgeStyleKey : InactiveBadgeStyleKey);
             }
 
             _currentTabIndex = targetTabIndex;
@@ -114,15 +121,20 @@ namespace TLMG.Client.Views
         {
             ServerConnection.FriendListReceived -= OnFriendListReceived;
             ServerConnection.FriendListReceived += OnFriendListReceived;
+
             ServerConnection.FriendPresenceChanged -= OnFriendPresenceChanged;
             ServerConnection.FriendPresenceChanged += OnFriendPresenceChanged;
+
             ServerConnection.InviteFriendResultReceived -= OnInviteFriendResultReceived;
             ServerConnection.InviteFriendResultReceived += OnInviteFriendResultReceived;
+
             ShowOrRequestFriendList();
         }
 
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
+            _viewModel.BackRequested -= OnBackRequested;
+
             ServerConnection.FriendListReceived -= OnFriendListReceived;
             ServerConnection.FriendPresenceChanged -= OnFriendPresenceChanged;
             ServerConnection.InviteFriendResultReceived -= OnInviteFriendResultReceived;
@@ -130,26 +142,23 @@ namespace TLMG.Client.Views
 
         private void ShowOrRequestFriendList()
         {
-            ShowFriendList();
+            UpdateViewModelFriends();
 
-            if (!ServerConnection.HasRegisteredSession)
-            {
-                lblEmptyFriends.SetResourceReference(TextBlock.TextProperty, GuestWithoutFriendsMessageKey);
-                lblEmptyFriends.Visibility = Visibility.Visible;
-            }
-            else if (ServerConnection.FriendList == null)
+            bool isGuest = !ServerConnection.HasRegisteredSession;
+            bool missingList = ServerConnection.FriendList == null;
+
+            if (!isGuest && missingList)
             {
                 ServerConnection.RequestFriendList();
             }
         }
 
-        private void OnFriendListReceived(
-            object sender,
-            ServerEventArgs<OperationSubscribeToFriendsResult> serverEventArguments)
+        private void OnFriendListReceived(object sender, ServerEventArgs<OperationSubscribeToFriendsResult> 
+            serverEventArguments)
         {
             if (serverEventArguments.Payload.IsSuccess)
             {
-                ShowFriendList();
+                UpdateViewModelFriends();
             }
             else
             {
@@ -162,12 +171,11 @@ namespace TLMG.Client.Views
 
         private void OnFriendPresenceChanged(object sender, ServerEventArgs<Friend> serverEventArguments)
         {
-            ShowFriendList();
+            UpdateViewModelFriends();
         }
 
-        private void OnInviteFriendResultReceived(
-            object sender,
-            ServerEventArgs<OperationInviteFriendToRoomResult> serverEventArguments)
+        private void OnInviteFriendResultReceived(object sender, ServerEventArgs<OperationInviteFriendToRoomResult> 
+            serverEventArguments)
         {
             if (serverEventArguments.Payload.IsSuccess)
             {
@@ -188,11 +196,10 @@ namespace TLMG.Client.Views
         private void BtnInviteFriend_Click(object sender, RoutedEventArgs e)
         {
             FriendEntry invitedFriend = (FriendEntry)((Button)sender).DataContext;
-
             ServerConnection.InviteFriendToRoom(invitedFriend.UserId);
         }
 
-        private void ShowFriendList()
+        private void UpdateViewModelFriends()
         {
             List<FriendEntry> friendEntries = new List<FriendEntry>();
             bool hasRoom = ServerConnection.CurrentRoom != null;
@@ -211,11 +218,13 @@ namespace TLMG.Client.Views
                 }
             }
 
-            lstFriends.ItemsSource = friendEntries;
-            lblBadgeFriends.Text = friendEntries.Count.ToString();
-            lblEmptyFriends.SetResourceReference(TextBlock.TextProperty, EmptyFriendsMessageKey);
-            bool hasNoFriends = friendEntries.Count == EmptyFriendCount;
-            lblEmptyFriends.Visibility = hasNoFriends ? Visibility.Visible : Visibility.Collapsed;
+            bool isGuest = !ServerConnection.HasRegisteredSession;
+
+            _viewModel.UpdateFriendList(
+                friendEntries,
+                isGuest,
+                GuestWithoutFriendsMessageKey,
+                EmptyFriendsMessageKey);
         }
 
         /// <summary>
@@ -223,40 +232,16 @@ namespace TLMG.Client.Views
         /// </summary>
         private sealed class TabViews
         {
-            /// <summary>
-            /// Inicializa una nueva instancia de la clase <see cref="TabViews"/>.
-            /// </summary>
-            /// <param name="content">Elemento de interfaz que contiene la vista de la pestaña.</param>
-            /// <param name="tabButton">Botón del encabezado de la pestaña.</param>
-            /// <param name="badgeBorder">Borde contenedor del indicador numérico.</param>
-            /// <param name="badgeLabel">Etiqueta de texto con el contador numérico.</param>
-            public TabViews(UIElement content, Button tabButton, Border badgeBorder, TextBlock badgeLabel)
+            public TabViews(UIElement content, Button tabButton, Border badgeBorder)
             {
                 Content = content;
                 TabButton = tabButton;
                 BadgeBorder = badgeBorder;
-                BadgeLabel = badgeLabel;
             }
 
-            /// <summary>
-            /// Obtiene el elemento de contenido asociado a la pestaña.
-            /// </summary>
             public UIElement Content { get; }
-
-            /// <summary>
-            /// Obtiene el botón de navegación de la pestaña.
-            /// </summary>
             public Button TabButton { get; }
-
-            /// <summary>
-            /// Obtiene el borde contenedor del indicador numérico de la pestaña.
-            /// </summary>
             public Border BadgeBorder { get; }
-
-            /// <summary>
-            /// Obtiene la etiqueta de texto del contador numérico de la pestaña.
-            /// </summary>
-            public TextBlock BadgeLabel { get; }
         }
     }
 }
