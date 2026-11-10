@@ -1105,6 +1105,7 @@ Los nombres de las clases deberán reflejar de forma explícita su responsabilid
 | Manager | Recurso global de la aplicación (LanguageManager) o contrato de servicio WCF (IUsersManager); nunca persistencia | LanguageManager, IUsersManager |
 | Repository | Acceso a persistencia | PlayerRepository |
 | Service | Lógica del negocio del Servidor | PlayerAccountRegistrationService |
+| Connection | Interfaz de un área de la conexión del cliente con el servidor (cuentas, amigos, lobby, chat); la implementa ServerConnectionManager (D-70)  | IAccountsConnection  |
 | Exception | Excepciones personalizadas | PlayerNotFoundException |
 | Attribute | Atributos personalizados | GameTagAttribute |
 | EventArgs | Clases con datos de eventos | ScoreEventArgs |
@@ -1113,10 +1114,35 @@ Los nombres de las clases deberán reflejar de forma explícita su responsabilid
 | Request | DTO con los datos de entrada de una operación del contrato (S17.1; D-56)  | OperationRegisterPlayerAccountRequest  |
 | Result | DTO con el resultado de una operación del contrato (S17.1) | OperationRegisterPlayerAccountResult |
 | Registry | Estado compartido en memoria entre las sesiones del servidor; su acceso se protege conforme a S11.1  | SessionRegistry |
+| Factory | Crea objetos de otra capa para que quien los usa no conozca su construcción | ScreenFactory |
 
 Manager nunca se usa para persistencia; para eso Repository.
 
 Service se usa para la lógica de negocio del servidor. No accede directamente a la base de datos, tarea de Repository, ni implementa contratos WCF, tarea de ServiceImplementation.
+
+Connection se usa en el cliente para la interfaz de un área de la conexión con el servidor. La implementa ServerConnectionManager, que conserva la sesión y los canales (D-60), y cada ViewModel recibe únicamente la interfaz de su área (D-70). No define contratos WCF, que son Manager, ni lógica de negocio, que es Service y solo existe en el servidor.
+
+Ejemplo correcto
+
+```c#
+public interface IAccountsConnection
+{
+}
+
+public partial class ServerConnectionManager : IAccountsConnection
+{
+}
+
+```
+
+Ejemplo incorrecto (Service se reserva para la lógica del servidor)
+
+```c#
+public interface ILoginService
+{
+}
+
+```
 
 Un sufijo asociado a un tipo base o interfaz del framework (como Exception, Attribute, EventArgs o EventHandler) deberá utilizarse únicamente en tipos que efectivamente extiendan esa clase base o implementen esa interfaz.
 
@@ -1278,7 +1304,7 @@ En cada proyecto, el namespace raíz es el nombre del proyecto y cada carpeta ag
 | raíz | App, MainWindow, LanguageManager, ValidationHelper | TLMG.Client |
 | Views | Screen y su clase base | TLMG.Client.Views |
 | ViewModels | ViewModel de cada pantalla MVVM | TLMG.Client.ViewModels |
-| Communication | Implementación de los callbacks y apoyo al proxy | TLMG.Client.Communication |
+| Communication | ServerConnectionManager (sesión, canales, login y registro), las interfaces por área (…Connection), la implementación de los callbacks y el apoyo al proxy  | TLMG.Client.Communication |
 | Languages | Diccionarios Strings.\<cultura\>.xaml | XAML (sin namespace de código) |
 | Styles | Estilos globales XAML | XAML (sin namespace de código) |
 | Images | Imágenes (ver S4.4) | Sin namespace (recurso) |
@@ -4390,6 +4416,12 @@ Este Estándar recoge lo que está decidido (decisiones D-xx de las bitácoras y
 | D-61  | Marco de pruebas: xUnit.net  | S15.1, S19.1  |
 | D-62 | Los avisos de los callbacks WCF llevan el prefijo "On"; los resultados de operación se nombran con el resultado | S3.7, S3.10  |
 | D-63 | El chat acepta mensajes de 1 a 160 caracteres, medidos tras recortar espacios y normalizar. Se elimina el mínimo de 2 (RC-M-02) por quedar cubierto por la regla de campo obligatorio (RC-G-01). Afecta al diccionario de validación y a las pruebas del chat.  |  |
+| D-64  | Navegación y diálogos por interfaz (`INavigationManager`, `IDialogManager`); los diálogos reciben `ErrorKey`  | §18.1  |
+| D-65  | Domain amplio (entidades, validadores, repositorios, motor de reglas), sin “Managers”  | §3.14, §4.3  |
+| D-66  | Clase base `OperationResult` para `IsSuccess` y `ErrorKey` en los `…Result`  | §17.1  |
+| D-67  | Chat por cuenta, 24 h como máximo y solo como evidencia, con purga por lotes  | §5.1, §10.4  |
+| D-68  | `Game_Player` conserva su fila al salir (`joined_at`, `left_at`)  | §5.1  |
+| D-69  | Script v4.0, procedimientos por Function Import y rol de mínimo privilegio  | §5.1, §5.2, §5.3  |
 | ADR-01 | Servidor autoritativo y Zero-Trust | S6.1, S6.2, S16.1, S16.3, S20.1 |
 | ADR-02 | Aislamiento del motor de reglas | S4.2, S6.1, S6.2 |
 | ADR-03 | WCF dúplex con callbacks | S6.2, S11.1 |
