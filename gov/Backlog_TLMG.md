@@ -276,6 +276,7 @@ Formato de entrada:
 - Depende de: BL-016 y BL-030
 - Estado: Pendiente
 - Nota (2026-10-25): observación: el login tarda unos 5 s con unas 20 cuentas; el tamaño de la tabla no lo explica. Hipótesis sin medir: arranque en frío de EF en la primera consulta. Pendiente: comparar el primer y el segundo inicio de sesión en la misma ejecución del servidor, y medir el ranking.
+- Nota (2026-11-10 11:20): medido a mano. Primer inicio de sesión tras arrancar el servidor: ~5 s; segundo, sin reiniciar: ~1 s. Se confirma el arranque en frío de EF6 como causa principal. La tabla User no es el cuello de botella.
 
 ### BL-052 · Estados USER_SUSPENDED y USER_BANNED en el login
 - Creado: 2026-10-25 19:32
@@ -628,6 +629,12 @@ Formato de entrada:
 - Creado: 2026-11-07 04:28
 - Por qué: la tecla F8 en MainMenuScreen, las teclas 1 a 6 (estados), C (colores) y Esc (GoBack) dentro de la pantalla, los estados congelados y el nickname de muestra existen solo para revisar la interfaz y no deben llegar a la entrega.
 - Depende de: BL-118, BL-119
+- Estado: Pendiente
+
+### BL-125 · Calentar Entity Framework al iniciar el servidor
+- Creado: 2026-11-10 11:22
+- Por qué: la primera consulta tras arrancar el servidor tarda ~5 s (BL-051) y el primer jugador en entrar lo paga. Hacer una consulta mínima de lectura al arrancar, en el host, antes de abrir los canales, mueve ese costo al arranque. Sin hilos ni temporizadores (Estándar §11.1).
+- Depende de: BL-051
 - Estado: Pendiente
 
 ## Finalizados
