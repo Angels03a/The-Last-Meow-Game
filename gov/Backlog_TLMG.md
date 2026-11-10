@@ -630,7 +630,6 @@ Formato de entrada:
 - Depende de: BL-118, BL-119
 - Estado: Pendiente
 
-
 ## Finalizados
 
 ### BL-001 · Hash de contraseña: SHA-256 + sal (decidido), implementar
@@ -847,3 +846,16 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Finalizado el 2026-11-06 · commit 898d5b5
 - Nota (2026-11-06 23:25): se cerró el diseño y la interfaz de FugitiveKittenScreen. La funcionalidad (contrato, ViewModel, ruta, navegación) sigue en BL-041 y BL-116 a BL-122.
+
+### BL-123 · TLMG.DataAccess no compilaba: vw_Leaderboard fuera del csproj
+- Creado: 2026-11-10 10:50
+- Por qué: TLMGModel.Context.cs declara DbSet<vw_Leaderboard> y la clase vw_Leaderboard.cs (generada con el modelo de la BD v4.0) no estaba incluida en el .csproj de estilo clásico; el servidor no compilaba.
+- Depende de: nada
+- Estado: Finalizado el 2026-11-10 · commit 4392af6
+
+### BL-124 · App.config del cliente perdió los tiempos de D-46 y recuperó <identity> tras regenerar el proxy
+- Creado: 2026-11-10 11:00
+- Por qué: al regenerar la referencia de servicio (BL-109, BL-113) los 5 bindings quedaron con los valores por defecto de WCF y los 5 endpoints volvieron a llevar <identity> con una cuenta de Windows. Es la regresión que BL-057 y BL-113 ya preveían. Con el login síncrono, sin sendTimeout la interfaz puede quedar congelada hasta un minuto.
+- Depende de: nada
+- Estado: Finalizado el 2026-11-10 · commit 35e3c13
+- Nota (2026-11-10 11:15): verificado a mano. Con el servidor apagado el error aparece en ~2 s; con el servidor encendido el primer login tarda ~4 s (dato para BL-051).
