@@ -1,10 +1,11 @@
 ﻿using System;
-using TLMG.Client.UsersManagerReference;
+using TLMG.Client.Navigation;
+using TLMG.Client.Services;
 
 namespace TLMG.Client.ViewModels
 {
     /// <summary>
-    /// Gestiona el estado, validación y comandos de la pantalla de inicio de sesión.
+    /// ViewModel de la pantalla de inicio de sesión.
     /// </summary>
     public class LoginViewModel : ViewModelBase
     {
@@ -12,19 +13,39 @@ namespace TLMG.Client.ViewModels
         private const string IncompleteFieldsErrorKey = "Login_IncompleteFieldsError";
         private const string ConnectionErrorKey = "Login_NetworkError";
         private const string UnknownErrorKey = "Login_DataModelError";
+        private const string SuccessMessageKey = "Login_SuccessMessage";
+        private const int LoginAttemptDelayMilliseconds = 50;
+        private const int RedirectDelayMilliseconds = 500;
+
+        private readonly ILoginService _loginService;
+        private readonly INavigationService _navigationService;
+        private readonly ILocalizationService _localizationService;
+        private readonly ITimerFactory _timerFactory;
 
         private string _email;
         private string _password;
         private bool _isPasswordVisible;
         private bool _isBusy;
-        private string _emailErrorKey;
-        private string _formErrorKey;
+        private ITimer _loginAttemptTimer;
+        private ITimer _redirectTimer;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="LoginViewModel"/>.
         /// </summary>
-        public LoginViewModel()
+        public LoginViewModel(
+            ILoginService loginService,
+            INavigationService navigationService,
+            ILocalizationService localizationService,
+            ITimerFactory timerFactory)
         {
+            _loginService = loginService;
+            _navigationService = navigationService;
+            _localizationService = localizationService;
+            _timerFactory = timerFactory;
+
+            EmailError = new StatusMessage(timerFactory);
+            FormMessage = new StatusMessage(timerFactory);
+
             LogInCommand = new RelayCommand(ExecuteLogIn, CanExecuteLogIn);
             TogglePasswordVisibilityCommand = new RelayCommand(ExecuteTogglePasswordVisibility);
             PlayAsGuestCommand = new RelayCommand(ExecutePlayAsGuest, CanExecutePlayAsGuest);
@@ -33,29 +54,14 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
-        /// Se produce cuando las credenciales son válidas localmente y se debe enviar la petición WCF.
+        /// Mensaje de error asociado al campo de correo electrónico.
         /// </summary>
-        public event EventHandler LogInRequested;
+        public StatusMessage EmailError { get; }
 
         /// <summary>
-        /// Se produce cuando el usuario solicita jugar como invitado.
+        /// Mensaje general del formulario (éxito o error).
         /// </summary>
-        public event EventHandler GuestPlayRequested;
-
-        /// <summary>
-        /// Se produce cuando el usuario solicita recuperar su contraseña.
-        /// </summary>
-        public event EventHandler ForgotPasswordRequested;
-
-        /// <summary>
-        /// Se produce cuando el usuario solicita crear una cuenta nueva.
-        /// </summary>
-        public event EventHandler CreateAccountRequested;
-
-        /// <summary>
-        /// Se produce cuando falla la validación local o WCF reporta un error y la vista debe actualizar la interfaz.
-        /// </summary>
-        public event EventHandler ValidationFailed;
+        public StatusMessage FormMessage { get; }
 
         /// <summary>
         /// Comando para intentar el inicio de sesión.
@@ -68,7 +74,7 @@ namespace TLMG.Client.ViewModels
         public RelayCommand TogglePasswordVisibilityCommand { get; }
 
         /// <summary>
-        /// Comando para acceder sin cuenta.
+        /// Comando para acceder como invitado.
         /// </summary>
         public RelayCommand PlayAsGuestCommand { get; }
 
@@ -92,7 +98,7 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
-        /// Contraseña copiada desde la vista (ya sea del PasswordBox o del TextBox visible).
+        /// Contraseña capturada.
         /// </summary>
         public string Password
         {
@@ -106,77 +112,71 @@ namespace TLMG.Client.ViewModels
         public bool IsPasswordVisible
         {
             get { return _isPasswordVisible; }
-            set { SetProperty(ref _isPasswordVisible, value); }
+            set
+            {
+                bool wasChanged = SetProperty(ref _isPasswordVisible, value);
+                if (wasChanged)
+                {
+                    OnPropertyChanged(nameof(IsPasswordHidden));
+                }
+            }
         }
 
         /// <summary>
-        /// Indica si hay una operación asíncrona (WCF) en curso; deshabilita la interacción si es true.
+        /// Indica si la contraseña se muestra enmascarada (inverso de <see cref="IsPasswordVisible"/>).
+        /// </summary>
+        public bool IsPasswordHidden
+        {
+            get { return !_isPasswordVisible; }
+        }
+
+        /// <summary>
+        /// Indica si hay una operación en curso.
         /// </summary>
         public bool IsBusy
         {
             get { return _isBusy; }
             set
             {
-                if (SetProperty(ref _isBusy, value))
+                bool wasChanged = SetProperty(ref _isBusy, value);
+                if (wasChanged)
                 {
-                    LogInCommand.NotifyCanExecuteChanged();
-                    PlayAsGuestCommand.NotifyCanExecuteChanged();
-                    ForgotPasswordCommand.NotifyCanExecuteChanged();
-                    CreateAccountCommand.NotifyCanExecuteChanged();
+                    NotifyCommandsCanExecuteChanged();
                 }
             }
         }
 
         /// <summary>
-        /// Clave de error específica del correo; null si no hay error.
+        /// Libera los recursos utilizados por el ViewModel.
         /// </summary>
-        public string EmailErrorKey
+        protected override void OnDisposed()
         {
-            get { return _emailErrorKey; }
-            private set { SetProperty(ref _emailErrorKey, value); }
+            StopLoginAttemptTimer();
+            StopRedirectTimer();
+
+            EmailError.Dispose();
+            FormMessage.Dispose();
+
+            base.OnDisposed();
         }
 
-        /// <summary>
-        /// Clave de error general del formulario; null si no hay error.
-        /// </summary>
-        public string FormErrorKey
+        private void NotifyCommandsCanExecuteChanged()
         {
-            get { return _formErrorKey; }
-            private set { SetProperty(ref _formErrorKey, value); }
-        }
-
-        /// <summary>
-        /// Traduce un OperationLogInResult o SystemFault en claves de error para la vista.
-        /// </summary>
-        public void ApplyServerError(string errorKey)
-        {
-            ClearErrors();
-            FormErrorKey = errorKey ?? UnknownErrorKey;
-            ValidationFailed?.Invoke(this, EventArgs.Empty);
-        }
-
-        /// <summary>
-        /// Registra un fallo de red como error general.
-        /// </summary>
-        public void ReportConnectionFailure()
-        {
-            ClearErrors();
-            FormErrorKey = ConnectionErrorKey;
-            ValidationFailed?.Invoke(this, EventArgs.Empty);
+            LogInCommand.NotifyCanExecuteChanged();
+            PlayAsGuestCommand.NotifyCanExecuteChanged();
+            ForgotPasswordCommand.NotifyCanExecuteChanged();
+            CreateAccountCommand.NotifyCanExecuteChanged();
         }
 
         private void ExecuteLogIn()
         {
-            ClearErrors();
+            ClearMessages();
             bool isFormValid = ValidateForm();
 
             if (isFormValid)
             {
-                LogInRequested?.Invoke(this, EventArgs.Empty);
-            }
-            else
-            {
-                ValidationFailed?.Invoke(this, EventArgs.Empty);
+                IsBusy = true;
+                StartLoginAttemptTimer();
             }
         }
 
@@ -186,6 +186,98 @@ namespace TLMG.Client.ViewModels
             return canLogIn;
         }
 
+        private void StartLoginAttemptTimer()
+        {
+            StopLoginAttemptTimer();
+            _loginAttemptTimer = _timerFactory.Create(
+                TimeSpan.FromMilliseconds(LoginAttemptDelayMilliseconds));
+            _loginAttemptTimer.Tick += OnLoginAttemptTimerTick;
+            _loginAttemptTimer.Start();
+        }
+
+        private void StopLoginAttemptTimer()
+        {
+            if (_loginAttemptTimer != null)
+            {
+                _loginAttemptTimer.Stop();
+                _loginAttemptTimer.Tick -= OnLoginAttemptTimerTick;
+                _loginAttemptTimer = null;
+            }
+        }
+
+        private void OnLoginAttemptTimerTick(object sender, EventArgs eventArgs)
+        {
+            StopLoginAttemptTimer();
+
+            (bool IsSuccess, bool IsConnectionFailure, string ErrorKey) result =
+                _loginService.AttemptLogIn(Email, Password);
+
+            ApplyLoginResult(result);
+            IsBusy = false;
+        }
+
+        private void ApplyLoginResult(
+            (bool IsSuccess, bool IsConnectionFailure, string ErrorKey) result)
+        {
+            if (result.IsSuccess)
+            {
+                ShowSuccessAndRedirect();
+            }
+            else if (result.IsConnectionFailure)
+            {
+                ShowConnectionFailure();
+            }
+            else
+            {
+                ShowServerError(result.ErrorKey);
+            }
+        }
+
+        private void ShowSuccessAndRedirect()
+        {
+            string successText = _localizationService.GetString(SuccessMessageKey);
+            FormMessage.ShowSuccess(successText);
+            StartRedirectTimer();
+        }
+
+        private void ShowConnectionFailure()
+        {
+            string errorText = _localizationService.GetErrorMessage(ConnectionErrorKey);
+            FormMessage.ShowError(errorText);
+        }
+
+        private void ShowServerError(string errorKey)
+        {
+            string effectiveKey = errorKey ?? UnknownErrorKey;
+            string errorText = _localizationService.GetErrorMessage(effectiveKey);
+            FormMessage.ShowError(errorText);
+        }
+
+        private void StartRedirectTimer()
+        {
+            StopRedirectTimer();
+            _redirectTimer = _timerFactory.Create(
+                TimeSpan.FromMilliseconds(RedirectDelayMilliseconds));
+            _redirectTimer.Tick += OnRedirectTimerTick;
+            _redirectTimer.Start();
+        }
+
+        private void StopRedirectTimer()
+        {
+            if (_redirectTimer != null)
+            {
+                _redirectTimer.Stop();
+                _redirectTimer.Tick -= OnRedirectTimerTick;
+                _redirectTimer = null;
+            }
+        }
+
+        private void OnRedirectTimerTick(object sender, EventArgs eventArgs)
+        {
+            StopRedirectTimer();
+            _navigationService.NavigateTo(ScreenId.MainMenu);
+        }
+
         private void ExecuteTogglePasswordVisibility()
         {
             IsPasswordVisible = !IsPasswordVisible;
@@ -193,7 +285,7 @@ namespace TLMG.Client.ViewModels
 
         private void ExecutePlayAsGuest()
         {
-            GuestPlayRequested?.Invoke(this, EventArgs.Empty);
+            _navigationService.NavigateTo(ScreenId.MainMenu);
         }
 
         private bool CanExecutePlayAsGuest()
@@ -204,7 +296,7 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteForgotPassword()
         {
-            ForgotPasswordRequested?.Invoke(this, EventArgs.Empty);
+            _navigationService.NavigateTo(ScreenId.ForgotPassword);
         }
 
         private bool CanExecuteForgotPassword()
@@ -215,7 +307,7 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteCreateAccount()
         {
-            CreateAccountRequested?.Invoke(this, EventArgs.Empty);
+            _navigationService.NavigateTo(ScreenId.CreateAccount);
         }
 
         private bool CanExecuteCreateAccount()
@@ -226,33 +318,46 @@ namespace TLMG.Client.ViewModels
 
         private bool ValidateForm()
         {
-            bool hasEmail = !string.IsNullOrWhiteSpace(Email);
-            bool hasPassword = !string.IsNullOrWhiteSpace(Password);
-            bool areRequiredFieldsFilled = hasEmail && hasPassword;
-
-            if (areRequiredFieldsFilled)
-            {
-                EmailErrorKey = ValidationHelper.GetEmailValidationErrorKey(Email, ScreenResourcePrefix);
-            }
-            else
-            {
-                FormErrorKey = IncompleteFieldsErrorKey;
-            }
-
-            bool isFormValid = !HasErrors();
+            bool areRequiredFieldsFilled = ValidateRequiredFields();
+            bool isEmailValid = ValidateEmailField();
+            bool isFormValid = areRequiredFieldsFilled && isEmailValid;
             return isFormValid;
         }
 
-        private bool HasErrors()
+        private bool ValidateRequiredFields()
         {
-            bool hasErrors = EmailErrorKey != null || FormErrorKey != null;
-            return hasErrors;
+            bool hasEmail = !string.IsNullOrWhiteSpace(Email);
+            bool hasPassword = !string.IsNullOrWhiteSpace(Password);
+            bool areFilled = hasEmail && hasPassword;
+
+            if (!areFilled)
+            {
+                string errorText = _localizationService.GetErrorMessage(IncompleteFieldsErrorKey);
+                FormMessage.ShowError(errorText);
+            }
+
+            return areFilled;
         }
 
-        private void ClearErrors()
+        private bool ValidateEmailField()
         {
-            EmailErrorKey = null;
-            FormErrorKey = null;
+            string emailErrorKey = ValidationHelper.GetEmailValidationErrorKey(
+                Email, ScreenResourcePrefix);
+            bool isValid = emailErrorKey == null;
+
+            if (!isValid)
+            {
+                string errorText = _localizationService.GetErrorMessage(emailErrorKey);
+                EmailError.ShowError(errorText);
+            }
+
+            return isValid;
+        }
+
+        private void ClearMessages()
+        {
+            EmailError.Hide();
+            FormMessage.Hide();
         }
     }
 }

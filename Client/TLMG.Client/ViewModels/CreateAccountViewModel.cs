@@ -1,4 +1,6 @@
-﻿using System;
+﻿using TLMG.Client.Navigation;
+using TLMG.Client.Services;
+using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
@@ -23,100 +25,90 @@ namespace TLMG.Client.ViewModels
         private const string ConnectionErrorKey = "CreateAccount_NetworkError";
         private const string UnknownErrorKey = "CreateAccount_DataModelError";
 
+        private const string ConfirmAbandonMessageKey = "CreateAccount_ConfirmAbandonMessage";
+        private const string ConfirmAbandonTitleKey = "CreateAccount_ConfirmAbandonTitle";
+
+        private readonly INavigationService _navigation;
+        private readonly IDialogService _dialogs;
+        private readonly ILocalizationService _localizer;
+        private readonly ITimerFactory _timers;
+        private readonly IAccountRegistrationService _registrationService;
+
         private string _nickname;
         private string _email;
         private string _password;
         private string _confirmPassword;
         private bool _hasAcceptedTerms;
         private bool _isBusy;
-        private string _nicknameErrorKey;
-        private string _emailErrorKey;
-        private string _passwordErrorKey;
-        private string _confirmPasswordErrorKey;
-        private string _formErrorKey;
+
+        private string _nicknameErrorMessage;
+        private bool _hasNicknameError;
+
+        private string _emailErrorMessage;
+        private bool _hasEmailError;
+
+        private string _passwordErrorMessage;
+        private bool _hasPasswordError;
+
+        private string _confirmPasswordErrorMessage;
+        private bool _hasConfirmPasswordError;
+
+        private string _formErrorMessage;
+        private bool _hasFormError;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="CreateAccountViewModel"/>.
         /// </summary>
-        public CreateAccountViewModel()
+        public CreateAccountViewModel(
+            INavigationService navigation,
+            IDialogService dialogs,
+            ILocalizationService localizer,
+            ITimerFactory timers,
+            IAccountRegistrationService registrationService)
         {
+            _navigation = navigation;
+            _dialogs = dialogs;
+            _localizer = localizer;
+            _timers = timers;
+            _registrationService = registrationService;
+
             CreateAccountCommand = new RelayCommand(ExecuteCreateAccount, CanExecuteCreateAccount);
             BackCommand = new RelayCommand(ExecuteBack, CanExecuteBack);
         }
 
-        /// <summary>
-        /// Se produce cuando el formulario es válido y la vista debe enviar el registro al servidor.
-        /// </summary>
-        public event EventHandler RegistrationRequested;
-
-        /// <summary>
-        /// Se produce cuando el jugador solicita volver al inicio de sesión.
-        /// </summary>
-        public event EventHandler BackRequested;
-
-        /// <summary>
-        /// Se produce cuando hay claves de error que la vista debe mostrar.
-        /// </summary>
-        public event EventHandler ValidationFailed;
-
-        /// <summary>
-        /// Comando que valida el formulario y solicita el registro.
-        /// </summary>
         public RelayCommand CreateAccountCommand { get; }
-
-        /// <summary>
-        /// Comando que solicita volver al inicio de sesión.
-        /// </summary>
         public RelayCommand BackCommand { get; }
 
-        /// <summary>
-        /// Nickname capturado.
-        /// </summary>
         public string Nickname
         {
             get { return _nickname; }
             set { SetProperty(ref _nickname, value); }
         }
 
-        /// <summary>
-        /// Correo electrónico capturado.
-        /// </summary>
         public string Email
         {
             get { return _email; }
             set { SetProperty(ref _email, value); }
         }
 
-        /// <summary>
-        /// Contraseña copiada desde el PasswordBox de la vista.
-        /// </summary>
         public string Password
         {
             get { return _password; }
             set { SetProperty(ref _password, value); }
         }
 
-        /// <summary>
-        /// Confirmación de contraseña copiada desde el PasswordBox de la vista.
-        /// </summary>
         public string ConfirmPassword
         {
             get { return _confirmPassword; }
             set { SetProperty(ref _confirmPassword, value); }
         }
 
-        /// <summary>
-        /// Indica si el jugador aceptó los términos y la política de privacidad.
-        /// </summary>
         public bool HasAcceptedTerms
         {
             get { return _hasAcceptedTerms; }
             set { SetProperty(ref _hasAcceptedTerms, value); }
         }
 
-        /// <summary>
-        /// Indica si hay una solicitud en curso; mientras es verdadera el botón de registro se deshabilita.
-        /// </summary>
         public bool IsBusy
         {
             get { return _isBusy; }
@@ -130,108 +122,96 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>
-        /// Clave de error del nickname; null si no hay error.
-        /// </summary>
-        public string NicknameErrorKey
+        public string NicknameErrorMessage
         {
-            get { return _nicknameErrorKey; }
-            private set { SetProperty(ref _nicknameErrorKey, value); }
+            get { return _nicknameErrorMessage; }
+            private set { SetProperty(ref _nicknameErrorMessage, value); }
         }
 
-        /// <summary>
-        /// Clave de error del correo; null si no hay error.
-        /// </summary>
-        public string EmailErrorKey
+        public bool HasNicknameError
         {
-            get { return _emailErrorKey; }
-            private set { SetProperty(ref _emailErrorKey, value); }
+            get { return _hasNicknameError; }
+            private set { SetProperty(ref _hasNicknameError, value); }
         }
 
-        /// <summary>
-        /// Clave de error de la contraseña; null si no hay error.
-        /// </summary>
-        public string PasswordErrorKey
+        public string EmailErrorMessage
         {
-            get { return _passwordErrorKey; }
-            private set { SetProperty(ref _passwordErrorKey, value); }
+            get { return _emailErrorMessage; }
+            private set { SetProperty(ref _emailErrorMessage, value); }
         }
 
-        /// <summary>
-        /// Clave de error de la confirmación de contraseña; null si no hay error.
-        /// </summary>
-        public string ConfirmPasswordErrorKey
+        public bool HasEmailError
         {
-            get { return _confirmPasswordErrorKey; }
-            private set { SetProperty(ref _confirmPasswordErrorKey, value); }
+            get { return _hasEmailError; }
+            private set { SetProperty(ref _hasEmailError, value); }
         }
 
-        /// <summary>
-        /// Clave de error general del formulario; null si no hay error.
-        /// </summary>
-        public string FormErrorKey
+        public string PasswordErrorMessage
         {
-            get { return _formErrorKey; }
-            private set { SetProperty(ref _formErrorKey, value); }
+            get { return _passwordErrorMessage; }
+            private set { SetProperty(ref _passwordErrorMessage, value); }
         }
 
-        /// <summary>
-        /// Asigna al campo correspondiente la clave de error que devolvió el servidor.
-        /// </summary>
-        /// <param name="errorKey">Clave de error del servidor; puede ser null.</param>
-        public void ApplyServerError(string errorKey)
+        public bool HasPasswordError
         {
-            ClearErrors();
-
-            string resolvedErrorKey = errorKey ?? UnknownErrorKey;
-
-            switch (resolvedErrorKey)
-            {
-                case NicknameFormatErrorKey:
-                case NicknameOffensiveErrorKey:
-                case NicknameTakenErrorKey:
-                    NicknameErrorKey = resolvedErrorKey;
-                    break;
-                case EmailCharactersErrorKey:
-                case EmailFormatErrorKey:
-                case EmailDomainErrorKey:
-                case EmailTakenErrorKey:
-                    EmailErrorKey = resolvedErrorKey;
-                    break;
-                case PasswordPolicyErrorKey:
-                    PasswordErrorKey = resolvedErrorKey;
-                    break;
-                default:
-                    FormErrorKey = resolvedErrorKey;
-                    break;
-            }
-
-            ValidationFailed?.Invoke(this, EventArgs.Empty);
+            get { return _hasPasswordError; }
+            private set { SetProperty(ref _hasPasswordError, value); }
         }
 
-        /// <summary>
-        /// Registra un fallo de conexión como error general del formulario.
-        /// </summary>
-        public void ReportConnectionFailure()
+        public string ConfirmPasswordErrorMessage
         {
-            ClearErrors();
-            FormErrorKey = ConnectionErrorKey;
-            ValidationFailed?.Invoke(this, EventArgs.Empty);
+            get { return _confirmPasswordErrorMessage; }
+            private set { SetProperty(ref _confirmPasswordErrorMessage, value); }
+        }
+
+        public bool HasConfirmPasswordError
+        {
+            get { return _hasConfirmPasswordError; }
+            private set { SetProperty(ref _hasConfirmPasswordError, value); }
+        }
+
+        public string FormErrorMessage
+        {
+            get { return _formErrorMessage; }
+            private set { SetProperty(ref _formErrorMessage, value); }
+        }
+
+        public bool HasFormError
+        {
+            get { return _hasFormError; }
+            private set { SetProperty(ref _hasFormError, value); }
         }
 
         private void ExecuteCreateAccount()
         {
             ClearErrors();
-
             bool isFormValid = ValidateForm();
 
             if (isFormValid)
             {
-                RegistrationRequested?.Invoke(this, EventArgs.Empty);
-            }
-            else
-            {
-                ValidationFailed?.Invoke(this, EventArgs.Empty);
+                IsBusy = true;
+
+                PlayerAccountRegistration playerAccountRegistration = new PlayerAccountRegistration();
+                playerAccountRegistration.Nickname = Nickname;
+                playerAccountRegistration.Email = Email;
+                playerAccountRegistration.Password = Password;
+                playerAccountRegistration.HasAcceptedTerms = HasAcceptedTerms;
+
+                OperationRegisterPlayerAccountResult registrationResult =
+                    _registrationService.RegisterPlayerAccount(playerAccountRegistration);
+
+                if (registrationResult.IsSuccess)
+                {
+                    VerificationNavigationParameter parameter = 
+                        new VerificationNavigationParameter(VerificationFlow.AccountRegistration);
+                    _navigation.NavigateTo(ScreenId.Verification, parameter);
+                }
+                else
+                {
+                    ApplyServerError(registrationResult.ErrorKey);
+                }
+
+                IsBusy = false;
             }
         }
 
@@ -243,7 +223,12 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteBack()
         {
-            BackRequested?.Invoke(this, EventArgs.Empty);
+            bool hasConfirmedAbandon = _dialogs.Confirm(ConfirmAbandonMessageKey, ConfirmAbandonTitleKey);
+
+            if (hasConfirmedAbandon)
+            {
+                _navigation.GoBack();
+            }
         }
 
         private bool CanExecuteBack()
@@ -259,19 +244,22 @@ namespace TLMG.Client.ViewModels
             bool hasPassword = !string.IsNullOrEmpty(Password);
             bool hasConfirmation = !string.IsNullOrEmpty(ConfirmPassword);
             bool areRequiredFieldsFilled = hasNickname && hasEmail && hasPassword && hasConfirmation;
+            string formErrorKey = null;
 
             if (areRequiredFieldsFilled)
             {
-                NicknameErrorKey = ValidationHelper.GetNicknameValidationErrorKey(Nickname);
-                EmailErrorKey = ValidationHelper.GetEmailValidationErrorKey(Email, ScreenResourcePrefix);
-                PasswordErrorKey = GetPasswordErrorKey();
-                ConfirmPasswordErrorKey = GetConfirmPasswordErrorKey();
-                FormErrorKey = GetTermsErrorKey();
+                UpdateNicknameError(ValidationHelper.GetNicknameValidationErrorKey(Nickname));
+                UpdateEmailError(ValidationHelper.GetEmailValidationErrorKey(Email, ScreenResourcePrefix));
+                UpdatePasswordError(GetPasswordErrorKey());
+                UpdateConfirmPasswordError(GetConfirmPasswordErrorKey());
+                formErrorKey = GetTermsErrorKey();
             }
             else
             {
-                FormErrorKey = IncompleteFieldsErrorKey;
+                formErrorKey = IncompleteFieldsErrorKey;
             }
+
+            UpdateFormError(formErrorKey);
 
             bool isFormValid = !HasErrors();
             return isFormValid;
@@ -318,20 +306,82 @@ namespace TLMG.Client.ViewModels
 
         private bool HasErrors()
         {
-            bool hasFieldErrors = NicknameErrorKey != null || EmailErrorKey != null || PasswordErrorKey != null;
-            bool hasOtherErrors = ConfirmPasswordErrorKey != null || FormErrorKey != null;
+            bool hasFieldErrors = HasNicknameError || HasEmailError || HasPasswordError;
+            bool hasOtherErrors = HasConfirmPasswordError || HasFormError;
             bool hasErrors = hasFieldErrors || hasOtherErrors;
 
             return hasErrors;
         }
 
+        private void ApplyServerError(string errorKey)
+        {
+            ClearErrors();
+            string resolvedErrorKey = errorKey ?? UnknownErrorKey;
+
+            switch (resolvedErrorKey)
+            {
+                case NicknameFormatErrorKey:
+                case NicknameOffensiveErrorKey:
+                case NicknameTakenErrorKey:
+                    UpdateNicknameError(resolvedErrorKey);
+                    break;
+                case EmailCharactersErrorKey:
+                case EmailFormatErrorKey:
+                case EmailDomainErrorKey:
+                case EmailTakenErrorKey:
+                    UpdateEmailError(resolvedErrorKey);
+                    break;
+                case PasswordPolicyErrorKey:
+                    UpdatePasswordError(resolvedErrorKey);
+                    break;
+                default:
+                    UpdateFormError(resolvedErrorKey);
+                    break;
+            }
+        }
+
         private void ClearErrors()
         {
-            NicknameErrorKey = null;
-            EmailErrorKey = null;
-            PasswordErrorKey = null;
-            ConfirmPasswordErrorKey = null;
-            FormErrorKey = null;
+            UpdateNicknameError(null);
+            UpdateEmailError(null);
+            UpdatePasswordError(null);
+            UpdateConfirmPasswordError(null);
+            UpdateFormError(null);
+        }
+
+        private void UpdateNicknameError(string errorKey)
+        {
+            bool hasError = errorKey != null;
+            HasNicknameError = hasError;
+            NicknameErrorMessage = hasError ? _localizer.GetErrorMessage(errorKey) : string.Empty;
+        }
+
+        private void UpdateEmailError(string errorKey)
+        {
+            bool hasError = errorKey != null;
+            HasEmailError = hasError;
+            EmailErrorMessage = hasError ? _localizer.GetErrorMessage(errorKey) : string.Empty;
+        }
+
+        private void UpdatePasswordError(string errorKey)
+        {
+            bool hasError = errorKey != null;
+            HasPasswordError = hasError;
+            PasswordErrorMessage = hasError ? _localizer.GetErrorMessage(errorKey) : string.Empty;
+        }
+
+        private void UpdateConfirmPasswordError(string errorKey)
+        {
+            bool hasError = errorKey != null;
+            HasConfirmPasswordError = hasError;
+            ConfirmPasswordErrorMessage = hasError ? _localizer.GetErrorMessage(errorKey) : string.Empty;
+        }
+
+        private void UpdateFormError(string errorKey)
+        {
+            bool hasError = errorKey != null;
+            HasFormError = hasError;
+            FormErrorMessage = hasError ? _localizer.GetErrorMessage(errorKey) : string.Empty;
         }
     }
 }

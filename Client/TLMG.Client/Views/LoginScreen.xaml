@@ -4,9 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:TLMG.Client.Views"
+             xmlns:behaviors="clr-namespace:TLMG.Client.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="720"
-             d:DesignWidth="1280">
+             d:DesignWidth="1280"
+             behaviors:BusyCursorBehavior.IsBusy="{Binding IsBusy}">
     <local:LocalizableScreen.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -47,8 +49,10 @@
                     </StackPanel>
                 </StackPanel>
 
-                <TextBlock Text="{DynamicResource Login_Title}" Style="{StaticResource HeroTitleTextStyle}" />
-                <TextBlock Text="{DynamicResource Login_Subtitle}" Style="{StaticResource HeroSubtitleTextStyle}" />
+                <TextBlock Text="{DynamicResource Login_Title}"
+                           Style="{StaticResource HeroTitleTextStyle}" />
+                <TextBlock Text="{DynamicResource Login_Subtitle}"
+                           Style="{StaticResource HeroSubtitleTextStyle}" />
             </StackPanel>
         </Grid>
 
@@ -73,19 +77,22 @@
                            Margin="0,0,0,6" />
                 <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource FieldStyle}" />
-                <TextBlock x:Name="lblEmailError"
-                           Style="{StaticResource ErrorTextStyle}" />
+                <TextBlock DataContext="{Binding EmailError}"
+                           Text="{Binding Text}"
+                           Style="{StaticResource StatusMessageTextStyle}" />
 
                 <TextBlock Text="{DynamicResource Login_PasswordLabel}"
                            Style="{StaticResource FieldLabelTextStyle}" />
                 <Grid>
-                    <PasswordBox x:Name="pwdPassword"
-                                 Style="{StaticResource FieldStyle}"
-                                 PasswordChanged="PwdPassword_PasswordChanged" />
-                    <!-- Se muestra solo cuando IsPasswordVisible es True -->
+                    <PasswordBox Style="{StaticResource FieldStyle}"
+                                 Visibility="{Binding IsPasswordHidden,
+                                     Converter={StaticResource BooleanToVisibilityConverter}}"
+                                 behaviors:PasswordBoxBehavior.BindPassword="True"
+                                 behaviors:PasswordBoxBehavior.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBox Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FieldStyle}"
-                             Visibility="{Binding IsPasswordVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                             Visibility="{Binding IsPasswordVisible,
+                                 Converter={StaticResource BooleanToVisibilityConverter}}" />
                     <Button Content="●"
                             Style="{StaticResource PasswordToggleButtonStyle}"
                             ToolTip="{DynamicResource Login_ShowPasswordHint}"
@@ -94,7 +101,8 @@
 
                 <Button Style="{StaticResource RightAlignedLinkButtonStyle}"
                         Command="{Binding ForgotPasswordCommand}">
-                    <TextBlock Text="{DynamicResource Login_ForgotPassword}" TextDecorations="Underline" />
+                    <TextBlock Text="{DynamicResource Login_ForgotPassword}"
+                               TextDecorations="Underline" />
                 </Button>
 
                 <Button Content="{DynamicResource Login_LogInButton}"
@@ -105,8 +113,9 @@
                         Style="{StaticResource AuthenticationSecondaryButtonStyle}"
                         Command="{Binding PlayAsGuestCommand}" />
 
-                <TextBlock x:Name="lblFormMessage"
-                           Style="{StaticResource FormMessageTextStyle}" />
+                <TextBlock DataContext="{Binding FormMessage}"
+                           Text="{Binding Text}"
+                           Style="{StaticResource StatusMessageTextStyle}" />
             </StackPanel>
         </Border>
     </Grid>

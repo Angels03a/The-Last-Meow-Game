@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:TLMG.Client.Views"
+             xmlns:behaviors="clr-namespace:TLMG.Client.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="720"
              d:DesignWidth="1280">
@@ -12,6 +13,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/TLMG.Client;component/Styles/GlobalStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVis" />
         </ResourceDictionary>
     </local:LocalizableScreen.Resources>
 
@@ -25,26 +27,37 @@
             <Ellipse Style="{StaticResource HeroBackgroundGlowStyle}" />
 
             <StackPanel Style="{StaticResource HeroContentPanelStyle}">
-                <TextBlock Text="🚀" Style="{StaticResource HeroMainEmojiStyle}" />
-                <TextBlock Text="{DynamicResource CreateAccount_HeaderTitle}" Style="{StaticResource HeroTitleTextStyle}" />
-                <TextBlock Text="{DynamicResource CreateAccount_HeaderSubtitle}" Style="{StaticResource HeroSubtitleSpacedTextStyle}" />
+                <TextBlock Text="🚀" 
+                           Style="{StaticResource HeroMainEmojiStyle}" />
+                <TextBlock Text="{DynamicResource CreateAccount_HeaderTitle}" 
+                           Style="{StaticResource HeroTitleTextStyle}" />
+                <TextBlock Text="{DynamicResource CreateAccount_HeaderSubtitle}" 
+                           Style="{StaticResource HeroSubtitleSpacedTextStyle}" />
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🐈‍" Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_EgyptianCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🐈‍" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_EgyptianCatLabel}" 
+                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🧟" Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_ZombieCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🧟" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_ZombieCatLabel}" 
+                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="💀" Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_SkullCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="💀" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_SkullCatLabel}" 
+                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
-                        <TextBlock Text="🚀" Style="{StaticResource HeroEmojiStyle}" />
-                        <TextBlock Text="{DynamicResource Common_AstronautCatLabel}" Style="{StaticResource MainMenuAvatarLabelStyle}" />
+                        <TextBlock Text="🚀" 
+                                   Style="{StaticResource HeroEmojiStyle}" />
+                        <TextBlock Text="{DynamicResource Common_AstronautCatLabel}" 
+                                   Style="{StaticResource MainMenuAvatarLabelStyle}" />
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
@@ -58,7 +71,6 @@
                             Style="{StaticResource TopLeftLinkButtonStyle}"
                             Command="{Binding BackCommand}" 
                             Margin="0,20,0,0" />
-                    
 
                     <TextBlock Text="{DynamicResource CreateAccount_Title}"
                                Style="{StaticResource FormTitleTextStyle}" />
@@ -69,7 +81,8 @@
                              Style="{StaticResource FieldStyle}" />
                     <TextBlock Text="{DynamicResource CreateAccount_NicknameHint}" 
                                Style="{StaticResource FieldHintTextStyle}" />
-                    <TextBlock x:Name="lblNicknameError"
+                    <TextBlock Text="{Binding NicknameErrorMessage}"
+                               Visibility="{Binding HasNicknameError, Converter={StaticResource BoolToVis}}"
                                Style="{StaticResource ErrorTextStyle}" 
                                TextWrapping="Wrap" />
 
@@ -77,36 +90,45 @@
                                Style="{StaticResource FieldLabelTextStyle}" />
                     <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FieldStyle}" />
-                    <TextBlock x:Name="lblEmailError"
+                    <TextBlock Text="{Binding EmailErrorMessage}"
+                               Visibility="{Binding HasEmailError, Converter={StaticResource BoolToVis}}"
                                Style="{StaticResource ErrorTextStyle}" 
                                TextWrapping="Wrap" />
 
                     <TextBlock Text="{DynamicResource CreateAccount_PasswordLabel}"
                                Style="{StaticResource FieldLabelTextStyle}" />
-                    <PasswordBox x:Name="pwdPassword"
-                                 Style="{StaticResource FieldStyle}"
+                    <PasswordBox Style="{StaticResource FieldStyle}"
                                  Margin="0,0,0,10"
-                                 PasswordChanged="PwdPassword_PasswordChanged" />
-                    <TextBlock x:Name="lblPasswordError"
+                                 behaviors:PasswordBoxBehavior.BindPassword="True"
+                                 behaviors:PasswordBoxBehavior.BoundPassword="{Binding Password}" />
+                    <TextBlock Text="{Binding PasswordErrorMessage}"
+                               Visibility="{Binding HasPasswordError, Converter={StaticResource BoolToVis}}"
                                Style="{StaticResource ErrorTextStyle}" 
                                TextWrapping="Wrap" />
 
                     <Border Style="{StaticResource SpacedHintPanelStyle}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource CreateAccount_HintLength}" Style="{StaticResource StatusTextStyle}" />
-                            <TextBlock Text="{DynamicResource CreateAccount_HintUppercase}" Style="{StaticResource StatusTextStyle}" />
-                            <TextBlock Text="{DynamicResource CreateAccount_HintLowercase}" Style="{StaticResource StatusTextStyle}" />
-                            <TextBlock Text="{DynamicResource CreateAccount_HintNumber}" Style="{StaticResource StatusTextStyle}" />
-                            <TextBlock Text="{DynamicResource CreateAccount_HintSymbol}" Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintLength}" 
+                                       Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintUppercase}" 
+                                       Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintLowercase}" 
+                                       Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintNumber}" 
+                                       Style="{StaticResource StatusTextStyle}" />
+                            <TextBlock Text="{DynamicResource CreateAccount_HintSymbol}" 
+                                       Style="{StaticResource StatusTextStyle}" />
                         </StackPanel>
                     </Border>
 
                     <TextBlock Text="{DynamicResource CreateAccount_ConfirmPasswordLabel}"
-                               Style="{StaticResource FieldLabelTextStyle}" Height="15" />
-                    <PasswordBox x:Name="pwdConfirmPassword"
-                                 Style="{StaticResource FieldStyle}"
-                                 PasswordChanged="PwdConfirmPassword_PasswordChanged" />
-                    <TextBlock x:Name="lblConfirmPasswordError"
+                               Style="{StaticResource FieldLabelTextStyle}" 
+                               Height="15" />
+                    <PasswordBox Style="{StaticResource FieldStyle}"
+                                 behaviors:PasswordBoxBehavior.BindPassword="True"
+                                 behaviors:PasswordBoxBehavior.BoundPassword="{Binding ConfirmPassword}" />
+                    <TextBlock Text="{Binding ConfirmPasswordErrorMessage}"
+                               Visibility="{Binding HasConfirmPasswordError, Converter={StaticResource BoolToVis}}"
                                Style="{StaticResource ErrorTextStyle}" 
                                TextWrapping="Wrap" />
 
@@ -121,7 +143,8 @@
                             Style="{StaticResource AuthenticationPrimaryButtonStyle}"
                             Command="{Binding CreateAccountCommand}" />
 
-                    <TextBlock x:Name="lblFormMessage"
+                    <TextBlock Text="{Binding FormErrorMessage}"
+                               Visibility="{Binding HasFormError, Converter={StaticResource BoolToVis}}"
                                Style="{StaticResource FormMessageTextStyle}"
                                TextWrapping="Wrap" 
                                TextAlignment="Center" />
