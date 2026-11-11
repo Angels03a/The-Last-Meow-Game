@@ -378,4 +378,5 @@
     <sys:String x:Key="Lobby_ChatRateLimitError">Wait one second before sending another message.</sys:String>
     <sys:String x:Key="Lobby_ChatNotSubscribedError">You are not connected to chat.</sys:String>
     <sys:String x:Key="Lobby_GuestCannotChatError">Sign in to use chat.</sys:String>
+    <sys:String x:Key="Common_OutOfMemoryError">The operation could not be completed. Try again later.</sys:String>
 </ResourceDictionary>

@@ -378,4 +378,5 @@
     <sys:String x:Key="Lobby_ChatRateLimitError">Espera un segundo antes de enviar otro mensaje.</sys:String>
     <sys:String x:Key="Lobby_ChatNotSubscribedError">No estás conectado al chat.</sys:String>
     <sys:String x:Key="Lobby_GuestCannotChatError">El chat requiere iniciar sesión.</sys:String>
+    <sys:String x:Key="Common_OutOfMemoryError">No se pudo completar la operación. Inténtalo más tarde.</sys:String>
 </ResourceDictionary>

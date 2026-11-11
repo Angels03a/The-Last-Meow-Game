@@ -2,6 +2,7 @@
 using System.ServiceModel;
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Constants;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services
@@ -24,7 +25,7 @@ namespace TLMG.Services
 
                 SystemFault fault = new SystemFault
                 {
-                    SystemErrorMessage = "El servidor se ha quedado sin memoria."
+                    SystemErrorMessage = ErrorKeys.Common.OutOfMemory
                 };
 
                 throw new FaultException<SystemFault>(fault, 
@@ -53,7 +54,7 @@ namespace TLMG.Services
 
                 SystemFault fault = new SystemFault
                 {
-                    SystemErrorMessage = "El servidor se ha quedado sin memoria."
+                    SystemErrorMessage = ErrorKeys.Common.OutOfMemory
                 };
 
                 throw new FaultException<SystemFault>(fault, 
