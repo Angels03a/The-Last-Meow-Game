@@ -30,12 +30,6 @@ Formato de entrada:
 - Estado: En curso (parcial): proyecto movido y renombrado a TLMG.Services en el commit 30d5588, integrado en d317003. Falta migrar a PackageReference.
 - Nota (2026-10-29 22:53): TLMG.DataAccess, TLMG.Server y TLMG.Client ya usan PackageReference. Solo TLMG.Services conserva packages.config (EntityFramework 6.5.2 y log4net 3.5.0, con targetFramework="net472" aunque el proyecto es v4.8) y HintPath en TLMG.Services.csproj:39, 42 y 45. Si BL-037 saca EF de TLMG.Services, solo quedaría log4net por migrar.
 
-### BL-006 · Script de BD v3.2 con procedimientos del 2FA
-- Creado: 2026-10-20 10:30
-- Por qué: operaciones atómicas de códigos y registros pendientes (`CreatePendingRegistration`, `CreateVerificationCode`, `ValidateVerificationCode`) y resolver el trigger `INSTEAD OF` con EF6.
-- Depende de: ADR-05 enmendado (hecho)
-- Estado: Pendiente
-
 ### BL-007 · Implementar el 2FA por correo (pasos 3 a 7 del plan)
 - Creado: 2026-10-20 10:30
 - Por qué: CU-01. Se construye con la bandera `VerificationEnabled` apagada por ahora.
@@ -78,6 +72,7 @@ Formato de entrada:
 - Por qué: el curso pide usuario de mínimo privilegio y no entrar como administrador; revisar la cadena de conexión.
 - Depende de: nada
 - Estado: Pendiente
+- Nota (2026-11-11 12:32): el script v4.0 ya define role_tlmg_app con sus permisos (c16351b, BL-063). Falta comprobar en ejecución, con la cuenta de la aplicación y no con Integrated Security, que el servidor puede leer Friendship y User y ejecutar los procedimientos.
 
 ### BL-015 · Revisar el puntaje de la clasificación que no se muestra
 - Creado: 2026-10-20 10:30
@@ -101,14 +96,6 @@ Formato de entrada:
 - Nota (2026-10-25): `Login_DataModelError` ya tiene texto neutro (445d216); `CreateAccount_DataModelError` sigue con texto técnico. Pendiente: actualizar a mano la fila de `Login_DataModelError` en TLMG_Diccionario_v3.xlsx.
 - Nota (2026-10-25): `Leaderboard_DataModelErrorMessage` ya no se referencia en ningún `.cs` ni `.xaml` (git grep: solo aparece en Strings.es-MX.xaml:199 y Strings.en-US.xaml:199, sus definiciones). Es candidata a retirarse de ambos diccionarios y de TLMG_Diccionario_v3.xlsx.
 
-### BL-020 · Cierre del canal en `CreateAccountScreen.CloseRegistrationClient`: excepciones y bloqueo de la UI
-- Creado: 2026-10-20 12:32
-- Por qué: `Close()` bloquea el hilo de la interfaz hasta el `CloseTimeout` y el método no captura `TimeoutException` ni `CommunicationException` (Estándar §10.2: capturar el tipo más específico). Si el servidor cae con el canal abierto, el cierre puede lanzar una excepción sin controlar.
-- Hallazgo (2026-10-20 16:20, análisis de solo lectura): el canal se abre de forma implícita en la primera llamada (`CreateAccountScreen.xaml.cs`, línea 111) y todo ocurre síncrono en el hilo de la interfaz. Ninguno de los dos `App.config` define tiempos límite, así que rigen los valores por defecto de WCF (1 min de apertura, envío y cierre). Con el servidor apagado la ventana se bloquea de unos segundos (conexión rechazada) hasta 1 minuto (puerto que no responde). El mensaje de error se oculta a los 4 s. No lo introdujo la fase 2. Observado en pruebas (2026-10-20 22:06): con el servidor encendido, el clic en "Crear Cuenta" deja la ventana aparentemente congelada unos 4 s antes de pasar a la verificación; con el servidor apagado, el error aparece en unos 5 a 6 s; el texto de error queda en el borde inferior de la ventana y es fácil no verlo.
-- Depende de: decisión sobre timeouts del binding en `App.config` (mínimo y sin hilos); fase 2, cambio 3 (lo hace más visible)
-- Estado: En curso (mitigación parcial: timeouts del binding en commit 95279e7, integrado en 9e4365d; cierre del canal en Unloaded en 84e35b8, integrado en 8e260fc). Falta capturar `TimeoutException` y `CommunicationException` en `CloseRegistrationClient` y decidir sobre el bloqueo de la interfaz.
-- Nota (2026-10-29 22:53): CloseRegistrationClient ya captura CommunicationException (CreateAccountScreen.xaml.cs:209-213) pero no TimeoutException. El mismo hueco está en LoginScreen.CloseLogInClient (:182) y LeaderboardScreen.CloseLeaderboardClient (:172); ServerConnectionManager.CloseClientSafely sí captura las dos. Con closeTimeout de 5 s (App.config:9) el bloqueo máximo es de 5 s. Se resuelve junto con BL-078.
-
 ### BL-021 · Probar el cliente contra un servidor en otra PC
 - Creado: 2026-10-20 16:25
 - Por qué: hasta hoy cliente y servidor corren en la misma PC (`localhost:8081`). El servidor real será otra máquina: hay que verificar dirección configurable en `App.config`, regla de firewall entrante del puerto, autenticación de Windows entre dos equipos (el `netTcpBinding` por defecto usa seguridad de transporte con credenciales de Windows; verificar el modo real del binding) y latencia de la negociación de seguridad.
@@ -124,12 +111,6 @@ Formato de entrada:
 - Depende de: BL-021
 - Estado: Pendiente
 
-### BL-024 · Verificar si hay tiempo límite de espera del resultado por callback en el registro
-- Creado: 2026-10-20 16:50
-- Por qué: la operación de registro es `IsOneWay` y el resultado llega por callback; el `sendTimeout` solo acota el envío, no la espera del resultado. Si el servidor se cuelga después de recibir la solicitud, el botón podría quedar deshabilitado sin límite. Verificar en `CreateAccountScreen`; si se confirma, valorar un `DispatcherTimer` en la interfaz (Estándar §11.4).
-- Depende de: BL-020
-- Estado: Pendiente
-
 ### BL-026 · Llevar los documentos de referencia a `docs/` y ajustar las referencias de CLAUDE.md
 - Creado: 2026-10-20 22:15
 - Por qué: `CLAUDE.md` cita `docs/Estandar-Codificacion-CSharp.md`, `docs/Contratos_WCF_TLMG.md`, `docs/Bitacora-de-decisiones.md`, `docs/SAD.md` y `docs/Reglas-de-The-Last-Meow.md`, pero hoy viven como .docx en el Project y no en el repo. Decidir formato (convertir a .md o subir los .docx) y corregir los nombres.
@@ -143,6 +124,7 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Pendiente
 - Nota (2026-10-25): las cuentas de prueba con contraseña en claro ya no sirven para iniciar sesión; los datos de prueba deben crearse registrando cuentas desde la aplicación o con un mecanismo que genere el hash.
+- Nota (2026-11-11 12:32): avance: el script v4.0 ya no trae datos de demostración (database/TLMG_DB_v4.0.sql:15) y su encabezado lista las versiones (v4.0.sql:5-11). Falta: las versiones v1 a v3.1 dicen "(fecha por completar)" (v4.0.sql:6-10); completar sus fechas (Estándar §5.3).
 
 ### BL-032 · .gitignore, ConnectionStrings.config y archivo cifrado de secretos
 - Creado: 2026-10-25 00:49
@@ -205,15 +187,6 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-07 04:28): FugitiveKittenScreen nace sin ViewModel; su estado visible vive en el code-behind. Al migrarla, crear FugitiveKittenViewModel con CatchKittenCommand, ejecutable solo mientras el tramo es visible, y un modelo de presentación propio.
 - Nota (2026-11-10 12:00): avance de infraestructura. Fase 4b (8c4e9be): ViewModelBase hereda de ObservableObject y los comandos son ICommand creados con el RelayCommand del toolkit, sin generadores (§7.1, D-50); el paquete se instaló en 6eb2fec. Fase 5 (cefa0a3): LoginViewModel y CreateAccountViewModel dependen de IAccountsConnection (D-60, D-70). El resto de las pantallas sigue pendiente.
-
-### BL-042 · Mecanismo de navegación y diálogos desde el ViewModel (§18.1)
-- Creado: 2026-10-25 00:49
-- Por qué: Estándar §18.1 deja sin decidir cómo solicita navegación un ViewModel sin referenciar la vista. Hay 27 usos de Application.Current.MainWindow en 11 pantallas y MessageBox en las vistas, que §4.1 prohíbe al ViewModel. La decisión puede tomarse fuera del equipo; mientras tanto no se actúa.
-- Depende de: decisión (alternativas por presentar)
-- Estado: Pendiente
-- Nota (2026-11-06 13:30): decisión del encargado: servicio por interfaz, ViewModel lo recibe por constructor. Nombres INavigationManager e IDialogManager (§3.14 reserva Service para la lógica del servidor); los diálogos reciben ErrorKey, no texto. Cierra §18.1.
-- Nota (2026-11-10 12:02): la Fase 5 (cefa0a3) no tocó INavigationService ni IDialogService: LoginViewModel y CreateAccountViewModel los reciben por constructor con sus nombres actuales. Su renombre a INavigationManager e IDialogManager, decidido el 2026-11-06, queda para la Fase 6.
-- Nota (2026-11-11 08:04): la Fase 6 (5e3b857, b2f08ec, 6d344e7 y db51858) creó INavigationManager e IDialogManager para Login, CreateAccount y Verification. Las pantallas legacy siguen por el puente de MainWindow (BL-141).
 
 ### BL-043 · Limpieza de estilo del diagnóstico (no incluida en BL-027)
 - Creado: 2026-10-25 00:49
@@ -311,22 +284,10 @@ Formato de entrada:
 - Depende de: BL-062
 - Estado: Pendiente
 
-### BL-061 · Definir la regla de unicidad por pareja en Friendship
-- Creado: 2026-10-29 13:05
-- Por qué: `UQ_Friendship_pair` es dirigido (sender, receiver) y no hay restricción de orden entre ids: la base permite A→B y B→A como dos filas. Por ahora se acepta y todas las consultas del repositorio consideran ambos sentidos. Falta decidir si se impone una fila por pareja (CHECK de orden entre ids, índice único sobre la pareja ordenada o regla en el servicio) y el cambio de esquema que eso implique (Estándar §5.3).
-- Depende de: decisión del encargado
-- Estado: Pendiente
-
 ### BL-062 · Implementar las solicitudes de amistad reales
 - Creado: 2026-10-29 13:05
 - Por qué: solicitar, aceptar, rechazar y cancelar amistades quedó fuera del paso 4; hoy solo se precargan con el script de demostración. `FriendshipRepository` solo consulta aceptadas. Incluye los estados FRIEND_PENDING y FRIEND_REJECTED, el contrato y la pantalla de amigos.
 - Depende de: BL-061
-- Estado: Pendiente
-
-### BL-063 · Definir en el repositorio los permisos de la cuenta de mínimo privilegio
-- Creado: 2026-10-29 13:05
-- Por qué: `database/TLMG_DB_v3.1.sql` no tiene GRANT, DENY, CREATE USER ni CREATE LOGIN, y ningún documento del repositorio detalla qué permisos tiene la cuenta de la aplicación (D-53, Estándar §5.2). No se puede comprobar que pueda leer `Friendship` y `User` sin ejecutar la aplicación contra la base. Verificación local del 29-oct-2026: el servidor de desarrollo se conecta con Integrated Security=True (cuenta de Windows), por lo que no se pudo comprobar el mínimo privilegio con la cuenta de la aplicación.
-- Depende de: BL-013
 - Estado: Pendiente
 
 ### BL-066 · Vencimiento de autorizaciones de entrada y de sesiones sin canal de lobby
@@ -546,12 +507,6 @@ Formato de entrada:
 - Nota (2026-11-06 13:30): antes de dividir, definir dónde viven el token, la sala actual, la lista de amigos y el cierre de sesión (ADR-08, BL-078).
 - Nota (2026-11-10 12:08): la Fase 5 (cefa0a3) agregó ServerConnectionManager.Accounts.cs como un cuarto archivo parcial de la misma clase (A4, D-60). Cuentas usa UsersManagerClient por solicitud y no un canal de sesión, así que no cambia esta división por canal; las interfaces por área (D-70) la facilitan.
 
-### BL-109 · Clase base OperationResult para IsSuccess y ErrorKey
-- Creado: 2026-11-06 12:15
-- Por qué: cada operación de ServiceImplementation verifica nulos y arma Common_UnexpectedError por su cuenta, y cada …Result repite IsSuccess y ErrorKey. Decisión del encargado (2026-11-06): clase base OperationResult en TLMG.Contracts.DataContracts, de la que heredan los …Result (Estándar §17.1). Las firmas de operaciones y callbacks se declaran con el tipo derivado, nunca con el base. Exige regenerar el proxy una sola vez y repetir el paso fijo de BL-057 (apertura 10 s, envío 15 s, cierre 5 s; sin <identity>). El cliente reutiliza ErrorMessageHelper.
-- Depende de: BL-017 (inventario previo de los …Result)
-- Estado: Pendiente
-
 ### BL-110 · Depurar los diccionarios y alinear el Excel
 - Creado: 2026-11-06 12:15
 - Por qué: hay claves repetidas por prefijo (Gameplay_, RoundResult_, GameOver_, MatchClosed_, Moderation_) y claves sin uso (Lobby_MockChatPlayer, Lobby_ChatSystemPrefix, Lobby_SystemJoinedMessage, Lobby_SystemReadyMessage). El Excel no tiene las 13 claves nuevas del Listo y del chat.
@@ -570,12 +525,6 @@ Formato de entrada:
 - Creado: 2026-11-06 12:15
 - Por qué: ChatInputHelper (cliente) y ChatValidationHelper (servidor) llevan la misma lista, que no puede compartirse entre soluciones. Si una cambia, la otra debe cambiar. Cubrir ambas con pruebas.
 - Depende de: BL-039
-- Estado: Pendiente
-
-### BL-113 · Regenerar el proxy cuando cambie un contrato
-- Creado: 2026-11-06 12:15
-- Se hace dentro de BL-109, que es el cambio de contrato; incluye corregir el nombre desfasado OperationRequestMatchStartRequest.
-- Depende de: BL-109
 - Estado: Pendiente
 
 ### BL-114 · Actualizar la Bitácora con D-58 a D-66
@@ -1033,3 +982,59 @@ Formato de entrada:
 - Por qué: MainMenuScreen, OptionsScreen, ProfileScreen, FriendsScreen, LeaderboardScreen y ForgotPasswordScreen quitaban en Unloaded los eventos de su ViewModel y no los volvían a poner en Loaded. Una instancia que GoBack repone del historial, o que LanguageManager.RefreshActiveWindows descarga y recarga al cambiar el idioma, quedaba con los botones muertos. El ViewModel nace y muere con su pantalla, así que esa desuscripción no protegía nada; se conservó la de ServerConnection, los temporizadores y el cierre del cliente del ranking.
 - Depende de: BL-138
 - Estado: Finalizado el 2026-11-11 · commit 82c1041
+
+### BL-006 · Script de BD v3.2 con procedimientos del 2FA
+- Creado: 2026-10-20 10:30
+- Por qué: operaciones atómicas de códigos y registros pendientes (`CreatePendingRegistration`, `CreateVerificationCode`, `ValidateVerificationCode`) y resolver el trigger `INSTEAD OF` con EF6.
+- Depende de: ADR-05 enmendado (hecho)
+- Estado: Finalizado el 2026-11-11 · commit c16351b
+- Nota (2026-11-11 12:32): cierre: los procedimientos CreatePendingRegistration, CreateVerificationCode y ValidateVerificationCode están en la v4.0 del script (database/TLMG_DB_v4.0.sql:382, 452 y 501), no en una v3.2. El trigger INSTEAD OF se eliminó (v4.0.sql:15), no se manejó.
+
+### BL-020 · Cierre del canal en `CreateAccountScreen.CloseRegistrationClient`: excepciones y bloqueo de la UI
+- Creado: 2026-10-20 12:32
+- Por qué: `Close()` bloquea el hilo de la interfaz hasta el `CloseTimeout` y el método no captura `TimeoutException` ni `CommunicationException` (Estándar §10.2: capturar el tipo más específico). Si el servidor cae con el canal abierto, el cierre puede lanzar una excepción sin controlar.
+- Hallazgo (2026-10-20 16:20, análisis de solo lectura): el canal se abre de forma implícita en la primera llamada (`CreateAccountScreen.xaml.cs`, línea 111) y todo ocurre síncrono en el hilo de la interfaz. Ninguno de los dos `App.config` define tiempos límite, así que rigen los valores por defecto de WCF (1 min de apertura, envío y cierre). Con el servidor apagado la ventana se bloquea de unos segundos (conexión rechazada) hasta 1 minuto (puerto que no responde). El mensaje de error se oculta a los 4 s. No lo introdujo la fase 2. Observado en pruebas (2026-10-20 22:06): con el servidor encendido, el clic en "Crear Cuenta" deja la ventana aparentemente congelada unos 4 s antes de pasar a la verificación; con el servidor apagado, el error aparece en unos 5 a 6 s; el texto de error queda en el borde inferior de la ventana y es fácil no verlo.
+- Depende de: decisión sobre timeouts del binding en `App.config` (mínimo y sin hilos); fase 2, cambio 3 (lo hace más visible)
+- Estado: Descartada el 2026-11-11 · ya no aplica: CloseRegistrationClient y CloseLogInClient se retiraron en 384ef1a y ServerConnectionManager.Accounts.cs:111 captura TimeoutException; lo que queda lo cubren BL-095 (TimeoutException en Leaderboard), BL-078 (cierre unificado de canales) y BL-079 (bloqueo al abrir un canal) · commit 384ef1a
+- Nota (2026-10-29 22:53): CloseRegistrationClient ya captura CommunicationException (CreateAccountScreen.xaml.cs:209-213) pero no TimeoutException. El mismo hueco está en LoginScreen.CloseLogInClient (:182) y LeaderboardScreen.CloseLeaderboardClient (:172); ServerConnectionManager.CloseClientSafely sí captura las dos. Con closeTimeout de 5 s (App.config:9) el bloqueo máximo es de 5 s. Se resuelve junto con BL-078.
+- Nota (2026-11-11 12:32): estado anterior: En curso (mitigación parcial: timeouts del binding en commit 95279e7, integrado en 9e4365d; cierre del canal en Unloaded en 84e35b8, integrado en 8e260fc). Falta capturar `TimeoutException` y `CommunicationException` en `CloseRegistrationClient` y decidir sobre el bloqueo de la interfaz.
+
+### BL-024 · Verificar si hay tiempo límite de espera del resultado por callback en el registro
+- Creado: 2026-10-20 16:50
+- Por qué: la operación de registro es `IsOneWay` y el resultado llega por callback; el `sendTimeout` solo acota el envío, no la espera del resultado. Si el servidor se cuelga después de recibir la solicitud, el botón podría quedar deshabilitado sin límite. Verificar en `CreateAccountScreen`; si se confirma, valorar un `DispatcherTimer` en la interfaz (Estándar §11.4).
+- Depende de: BL-020
+- Estado: Descartada el 2026-11-11 · obsoleta tras d056740: IUsersManager es Request-Reply y el registro ya no usa callback; el bloqueo de la interfaz queda en BL-079
+
+### BL-042 · Mecanismo de navegación y diálogos desde el ViewModel (§18.1)
+- Creado: 2026-10-25 00:49
+- Por qué: Estándar §18.1 deja sin decidir cómo solicita navegación un ViewModel sin referenciar la vista. Hay 27 usos de Application.Current.MainWindow en 11 pantallas y MessageBox en las vistas, que §4.1 prohíbe al ViewModel. La decisión puede tomarse fuera del equipo; mientras tanto no se actúa.
+- Depende de: decisión (alternativas por presentar)
+- Estado: Finalizado el 2026-11-11 · commits 5e3b857 y b2f08ec
+- Nota (2026-11-06 13:30): decisión del encargado: servicio por interfaz, ViewModel lo recibe por constructor. Nombres INavigationManager e IDialogManager (§3.14 reserva Service para la lógica del servidor); los diálogos reciben ErrorKey, no texto. Cierra §18.1.
+- Nota (2026-11-10 12:02): la Fase 5 (cefa0a3) no tocó INavigationService ni IDialogService: LoginViewModel y CreateAccountViewModel los reciben por constructor con sus nombres actuales. Su renombre a INavigationManager e IDialogManager, decidido el 2026-11-06, queda para la Fase 6.
+- Nota (2026-11-11 08:04): la Fase 6 (5e3b857, b2f08ec, 6d344e7 y db51858) creó INavigationManager e IDialogManager para Login, CreateAccount y Verification. Las pantallas legacy siguen por el puente de MainWindow (BL-141).
+- Nota (2026-11-11 12:32): cierre: IDialogManager y DialogManager nacieron en 5e3b857 e INavigationManager es el renombre de b2f08ec (nació como INavigationService en 384ef1a). Quedan 24 usos de Application.Current.MainWindow (git grep), que cubren BL-141, BL-142 y BL-143.
+
+### BL-061 · Definir la regla de unicidad por pareja en Friendship
+- Creado: 2026-10-29 13:05
+- Por qué: `UQ_Friendship_pair` es dirigido (sender, receiver) y no hay restricción de orden entre ids: la base permite A→B y B→A como dos filas. Por ahora se acepta y todas las consultas del repositorio consideran ambos sentidos. Falta decidir si se impone una fila por pareja (CHECK de orden entre ids, índice único sobre la pareja ordenada o regla en el servicio) y el cambio de esquema que eso implique (Estándar §5.3).
+- Depende de: decisión del encargado
+- Estado: Finalizado el 2026-11-11 · commit c16351b
+
+### BL-063 · Definir en el repositorio los permisos de la cuenta de mínimo privilegio
+- Creado: 2026-10-29 13:05
+- Por qué: `database/TLMG_DB_v3.1.sql` no tiene GRANT, DENY, CREATE USER ni CREATE LOGIN, y ningún documento del repositorio detalla qué permisos tiene la cuenta de la aplicación (D-53, Estándar §5.2). No se puede comprobar que pueda leer `Friendship` y `User` sin ejecutar la aplicación contra la base. Verificación local del 29-oct-2026: el servidor de desarrollo se conecta con Integrated Security=True (cuenta de Windows), por lo que no se pudo comprobar el mínimo privilegio con la cuenta de la aplicación.
+- Depende de: BL-013
+- Estado: Finalizado el 2026-11-11 · commit c16351b
+
+### BL-109 · Clase base OperationResult para IsSuccess y ErrorKey
+- Creado: 2026-11-06 12:15
+- Por qué: cada operación de ServiceImplementation verifica nulos y arma Common_UnexpectedError por su cuenta, y cada …Result repite IsSuccess y ErrorKey. Decisión del encargado (2026-11-06): clase base OperationResult en TLMG.Contracts.DataContracts, de la que heredan los …Result (Estándar §17.1). Las firmas de operaciones y callbacks se declaran con el tipo derivado, nunca con el base. Exige regenerar el proxy una sola vez y repetir el paso fijo de BL-057 (apertura 10 s, envío 15 s, cierre 5 s; sin <identity>). El cliente reutiliza ErrorMessageHelper.
+- Depende de: BL-017 (inventario previo de los …Result)
+- Estado: Finalizado el 2026-11-11 · commits d056740 y f82c786
+
+### BL-113 · Regenerar el proxy cuando cambie un contrato
+- Creado: 2026-11-06 12:15
+- Se hace dentro de BL-109, que es el cambio de contrato; incluye corregir el nombre desfasado OperationRequestMatchStartRequest.
+- Depende de: BL-109
+- Estado: Finalizado el 2026-11-11 · commits 7b8ae86 y f82c786
