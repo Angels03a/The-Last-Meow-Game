@@ -214,6 +214,7 @@ Formato de entrada:
 - Depende de: aprobación de D-50; BL-042; BL-036
 - Estado: Pendiente
 - Nota (2026-11-07 04:28): FugitiveKittenScreen nace sin ViewModel; su estado visible vive en el code-behind. Al migrarla, crear FugitiveKittenViewModel con CatchKittenCommand, ejecutable solo mientras el tramo es visible, y un modelo de presentación propio.
+- Nota (2026-11-10 12:00): avance de infraestructura. Fase 4b (8c4e9be): ViewModelBase hereda de ObservableObject y los comandos son ICommand creados con el RelayCommand del toolkit, sin generadores (§7.1, D-50); el paquete se instaló en 6eb2fec. Fase 5 (cefa0a3): LoginViewModel y CreateAccountViewModel dependen de IAccountsConnection (D-60, D-70). El resto de las pantallas sigue pendiente.
 
 ### BL-042 · Mecanismo de navegación y diálogos desde el ViewModel (§18.1)
 - Creado: 2026-10-25 00:49
@@ -221,6 +222,7 @@ Formato de entrada:
 - Depende de: decisión (alternativas por presentar)
 - Estado: Pendiente
 - Nota (2026-11-06 13:30): decisión del encargado: servicio por interfaz, ViewModel lo recibe por constructor. Nombres INavigationManager e IDialogManager (§3.14 reserva Service para la lógica del servidor); los diálogos reciben ErrorKey, no texto. Cierra §18.1.
+- Nota (2026-11-10 12:02): la Fase 5 (cefa0a3) no tocó INavigationService ni IDialogService: LoginViewModel y CreateAccountViewModel los reciben por constructor con sus nombres actuales. Su renombre a INavigationManager e IDialogManager, decidido el 2026-11-06, queda para la Fase 6.
 
 ### BL-043 · Limpieza de estilo del diagnóstico (no incluida en BL-027)
 - Creado: 2026-10-25 00:49
@@ -309,6 +311,7 @@ Formato de entrada:
 - Depende de: ADR-04 y D-54; del paso que agregue el latido
 - Estado: Pendiente
 - Nota (2026-10-29 22:53): avance. La sesión termina cuando el canal de amigos se cierra o falla (d6d6326; ServiceImplementation.FriendsManager.cs:121, FriendsService.EndSessionByFriendsChannel), así que cerrar la ventana o perder la conexión ya libera sesión, sala y presencia. Siguen sin vencerse una sesión cuyo canal de amigos nunca se abrió (login exitoso con SubscribeToFriends fallido o cliente caído antes de abrirlo) y una conexión TCP medio abierta, que solo detecta el receiveTimeout de WCF [S: el servidor no lo define, rige el valor por defecto]. Falta el latido de ADR-04.
+- Nota (2026-11-10 12:04): el caso «login exitoso con SubscribeToFriends fallido» ya listado arriba tiene ahora un punto concreto en el cliente: ServerConnectionManager.LogIn (cefa0a3) llama a StartRegisteredSession y, si el canal de amigos falla justo después de un login correcto, muestra Login_NetworkError y descarta el token, pero el servidor ya emitió la sesión y puede dejarla viva hasta que se venza. Se registra aquí por ser equivalente y no como entrada nueva. Depende de la Fase 8.
 
 ### BL-060 · Retirar o reemplazar el script de demostración de amistades
 - Creado: 2026-10-29 13:05
@@ -389,6 +392,7 @@ Formato de entrada:
 - Por qué: ServerConnectionManager es una clase de instancia que vive en App ((App)Application.Current).ServerConnection), con API y eventos públicos y sin estado estático. Para probar un ViewModel o una pantalla (D-61, D-51, ADR-02) hay que sustituirlo por una versión simulada, lo que exige una interfaz. Se extrae con un cambio mecánico solo cuando haya un primer consumidor que la necesite (D-31); la acción de crear los clientes WCF seguirá dentro del manager o de una fábrica que se decida entonces.
 - Depende de: BL-039; BL-041
 - Estado: Pendiente
+- Nota (2026-11-10 12:06): la Fase 5 (cefa0a3) aplicó D-70 y creó IAccountsConnection, una interfaz por área con sufijo Connection que implementa ServerConnectionManager (D-60); Friends, Lobby y Chat se extraerán cuando una pantalla los necesite (D-31). Una sola IServerConnectionManager, como pide el título, probablemente ya no aplica tal cual: queda por confirmar con el encargado si esta entrada se descarta o se limita a las áreas pendientes.
 
 ### BL-081 · Hallazgos de estilo del Estándar para la capa de comunicación
 - Creado: 2026-10-29 16:36
@@ -547,6 +551,7 @@ Formato de entrada:
 - Depende de: BL-078, BL-080; decisión de D-60
 - Estado: Pendiente
 - Nota (2026-11-06 13:30): antes de dividir, definir dónde viven el token, la sala actual, la lista de amigos y el cierre de sesión (ADR-08, BL-078).
+- Nota (2026-11-10 12:08): la Fase 5 (cefa0a3) agregó ServerConnectionManager.Accounts.cs como un cuarto archivo parcial de la misma clase (A4, D-60). Cuentas usa UsersManagerClient por solicitud y no un canal de sesión, así que no cambia esta división por canal; las interfaces por área (D-70) la facilitan.
 
 ### BL-109 · Clase base OperationResult para IsSuccess y ErrorKey
 - Creado: 2026-11-06 12:15
@@ -636,6 +641,48 @@ Formato de entrada:
 - Creado: 2026-11-10 11:22
 - Por qué: la primera consulta tras arrancar el servidor tarda ~5 s (BL-051) y el primer jugador en entrar lo paga. Hacer una consulta mínima de lectura al arrancar, en el host, antes de abrir los canales, mueve ese costo al arranque. Sin hilos ni temporizadores (Estándar §11.1).
 - Depende de: BL-051
+- Estado: Pendiente
+
+### BL-131 · SetDigit de VerificationViewModel notifica el cambio con un nombre de propiedad equivocado
+- Creado: 2026-11-10 11:40
+- Por qué: SetDigit llama a SetProperty sin el nombre de la propiedad y [CallerMemberName] lo completa con «SetDigit»; el evento PropertyChanged no sale como Digit1 a Digit6 y la vista no se entera de los cambios hechos desde el ViewModel (por ejemplo, ClearDigits). Ya ocurría con la base anterior; no lo introdujo la Fase 4b. Hay que pasar el nombre de la propiedad a SetDigit y de ahí a SetProperty.
+- Depende de: Fase 7
+- Estado: Pendiente
+
+### BL-132 · ProfileViewModel: línea de 124 columnas y miembros públicos sin <summary>
+- Creado: 2026-11-10 11:42
+- Por qué: una línea de ProfileViewModel.cs mide 124 columnas (Estándar §9.2, máximo 120) y varios miembros públicos, por ejemplo IsEditingAvatar, no tienen <summary> (§12).
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-133 · Probar a mano los botones y el CanExecute de los 12 ViewModels, y el login y el registro
+- Creado: 2026-11-10 11:44
+- Por qué: la Fase 4b cambió al RelayCommand del toolkit, que no reevalúa CanExecute por sí solo (el propio sí lo hacía con CommandManager), y la Fase 5 movió el login y el registro a IAccountsConnection. Ninguna de las dos se compiló ni se probó. Probar que cada botón se habilita o deshabilita cuando cambia el estado que lee su CanExecute. Login y registro: caso correcto, contraseña incorrecta, servidor apagado, correo repetido y cambio de idioma en caliente.
+- Depende de: Fase 6
+- Estado: Pendiente
+
+### BL-134 · Unificar ErrorMessageHelper.FindErrorMessage con LanguageManager.FindText
+- Creado: 2026-11-10 11:46
+- Por qué: los dos buscan la clave en el diccionario del idioma activo y caen en Common_UnexpectedError si falta; ErrorMessageHelper exige un FrameworkElement y LanguageManager.FindText (Fase 5, cefa0a3) usa Application.Current. Hay que dejar una sola implementación (D-31). Relacionada con BL-017.
+- Depende de: Fase 6
+- Estado: Pendiente
+
+### BL-135 · UsersManager del servidor manda texto en español en SystemErrorMessage
+- Creado: 2026-11-10 11:48
+- Por qué: ServiceImplementation.UsersManager.cs arma el SystemFault de RegisterPlayerAccount y LogIn con «El servidor se ha quedado sin memoria.», mientras que Lobby y Friends mandan ErrorKeys.Common.OutOfMemory. Debe mandar una clave que el cliente traduzca (gov/CLAUDE.md §6). El cliente hoy solo registra ese texto en el log y muestra un mensaje genérico.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-136 · Agregar Common_OutOfMemoryError a los diccionarios es-MX y en-US
+- Creado: 2026-11-10 11:50
+- Por qué: ErrorKeys.Common.OutOfMemory vale Common_OutOfMemoryError y esa clave no existe en Strings.es-MX.xaml ni en Strings.en-US.xaml. Lobby y Friends pueden mandarla; hoy el cliente mostraría el mensaje de Common_UnexpectedError. Las claves deben quedar con paridad exacta en ambos diccionarios.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-137 · Actualizar el resumen de ServerConnectionManager
+- Creado: 2026-11-10 11:52
+- Por qué: el <summary> de la clase dice que es la única pieza que conoce los canales de amigos y de lobby, pero también atiende el chat (ServerConnectionManager.Chat.cs) y las cuentas (ServerConnectionManager.Accounts.cs, Fase 5), que usa UsersManagerClient.
+- Depende de: nada
 - Estado: Pendiente
 
 ## Finalizados
@@ -867,3 +914,35 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Finalizado el 2026-11-10 · commit 35e3c13
 - Nota (2026-11-10 11:15): verificado a mano. Con el servidor apagado el error aparece en ~2 s; con el servidor encendido el primer login tarda ~4 s (dato para BL-051).
+
+### BL-126 · Fase 3: higiene del csproj del cliente
+- Creado: 2026-11-10 11:30
+- Por qué: tras el merge 3787004 el csproj de estilo clásico conservaba las entradas obsoletas de FugitiveKitten, no registraba los archivos de Navigation ni StatusMessage y apuntaba a FrindsViewModel; ModerationModel.cs era copia exacta de ModerationMode.cs. Se quitaron, se registraron, se borró la copia y se renombró a FriendsViewModel.
+- Depende de: nada
+- Estado: Finalizado el 2026-11-10 · commit f1081a9
+
+### BL-127 · Fase 3b: WaitCursorBehavior y PasswordBindingBehavior
+- Creado: 2026-11-10 11:32
+- Por qué: LoginScreen.xaml y CreateAccountScreen.xaml usan el espacio de nombres TLMG.Client.Behaviors, que nunca existió en el repositorio. Se crearon el cursor de espera ligado a IsBusy y la propiedad adjunta que enlaza la contraseña del PasswordBox.
+- Depende de: nada
+- Estado: Finalizado el 2026-11-10 · commit a597cef
+- Nota (2026-11-10 12:10): 384ef1a hacía referencia a Behaviors, que nunca existió en el repositorio; la Fase 3b lo resolvió.
+
+### BL-128 · Instalar CommunityToolkit.Mvvm 8.4.2 en el cliente (D-50)
+- Creado: 2026-11-10 11:34
+- Por qué: es el paquete que el Estándar §7.1 fija para ObservableObject y RelayCommand, sin sus generadores de código.
+- Depende de: D-50
+- Estado: Finalizado el 2026-11-10 · commit 6eb2fec
+
+### BL-129 · Fase 4b: ViewModelBase sobre ObservableObject y comandos del toolkit
+- Creado: 2026-11-10 11:36
+- Por qué: Estándar §7.1 y D-50. ViewModelBase hereda de ObservableObject, se retiró el RelayCommand propio y los comandos se exponen como ICommand creados con el RelayCommand del toolkit; donde el CanExecute lee estado, el ViewModel llama a NotifyCanExecuteChanged.
+- Depende de: BL-128
+- Estado: Finalizado el 2026-11-10 · commit 8c4e9be
+
+### BL-130 · Fase 5: cuentas dentro de ServerConnectionManager con IAccountsConnection
+- Creado: 2026-11-10 11:38
+- Por qué: LoginViewModel, CreateAccountViewModel y StatusMessage dependían de ILoginService, IAccountRegistrationService, ITimer, ITimerFactory e ILocalizationService, que nunca existieron en el repositorio. Ahora dependen de IAccountsConnection (D-70), que implementa ServerConnectionManager en el parcial Accounts (D-60); la ErrorKey viaja al cliente, que la traduce con LanguageManager.FindText, y los temporizadores son DispatcherTimer.
+- Depende de: BL-129; D-60, D-70
+- Estado: Finalizado el 2026-11-10 · commit cefa0a3
+- Nota (2026-11-10 12:12): 384ef1a hacía referencia a Services, que nunca existió en el repositorio; la Fase 5 lo resolvió para el login, el registro y StatusMessage. ScreenFactory, IDialogService y los demás tipos de Services quedan para la Fase 6.
