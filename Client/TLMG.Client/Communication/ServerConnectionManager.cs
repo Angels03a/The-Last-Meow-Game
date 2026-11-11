@@ -10,13 +10,14 @@ using TLMG.Client.UsersManagerReference;
 namespace TLMG.Client.Communication
 {
     /// <summary>
-    /// Única pieza del cliente que conoce los canales de amigos y de lobby: guarda el sessionToken del jugador
+    /// Administra los canales de amigos, lobby y chat, y las cuentas con UsersManagerClient por solicitud.
+    /// Guarda el sessionToken del jugador
     /// registrado, mantiene vivo su canal de amigos (estar en línea) y convierte los callbacks del servidor en
     /// eventos .NET que se disparan en el hilo de la interfaz. Los eventos llevan los DTO tal como llegan, con su
     /// ErrorKey y sin textos: la traducción ocurre en pantalla. Es una clase de instancia: App crea una sola y las
     /// pantallas la alcanzan con ((App)Application.Current).ServerConnection; como vive más que ellas, deben
     /// desuscribirse en OnScreenUnloaded (§14.2). Se usa solo desde el hilo de la interfaz y no crea hilos, tareas ni
-    /// temporizadores (D-60, ADR-08).
+    /// temporizadores propios; delega la cuenta regresiva a LobbyCountdown (D-60, ADR-08).
     /// </summary>
     internal sealed partial class ServerConnectionManager
     {
