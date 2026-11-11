@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 using CommunityToolkit.Mvvm.Input;
 
+using TLMG.Client.Communication;
 using TLMG.Client.Navigation;
-using TLMG.Client.Services;
+using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
@@ -15,16 +17,13 @@ namespace TLMG.Client.ViewModels
     {
         private const string ScreenResourcePrefix = "Login";
         private const string IncompleteFieldsErrorKey = "Login_IncompleteFieldsError";
-        private const string ConnectionErrorKey = "Login_NetworkError";
         private const string UnknownErrorKey = "Login_DataModelError";
         private const string SuccessMessageKey = "Login_SuccessMessage";
         private const int LoginAttemptDelayMilliseconds = 50;
         private const int RedirectDelayMilliseconds = 500;
 
-        private readonly ILoginService _loginService;
+        private readonly IAccountsConnection _accountsConnection;
         private readonly INavigationService _navigationService;
-        private readonly ILocalizationService _localizationService;
-        private readonly ITimerFactory _timerFactory;
         private readonly RelayCommand _logInCommand;
         private readonly RelayCommand _playAsGuestCommand;
         private readonly RelayCommand _forgotPasswordCommand;
@@ -34,25 +33,21 @@ namespace TLMG.Client.ViewModels
         private string _password;
         private bool _isPasswordVisible;
         private bool _isBusy;
-        private ITimer _loginAttemptTimer;
-        private ITimer _redirectTimer;
+        private DispatcherTimer _loginAttemptTimer;
+        private DispatcherTimer _redirectTimer;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="LoginViewModel"/>.
         /// </summary>
         public LoginViewModel(
-            ILoginService loginService,
-            INavigationService navigationService,
-            ILocalizationService localizationService,
-            ITimerFactory timerFactory)
+            IAccountsConnection accountsConnection,
+            INavigationService navigationService)
         {
-            _loginService = loginService;
+            _accountsConnection = accountsConnection;
             _navigationService = navigationService;
-            _localizationService = localizationService;
-            _timerFactory = timerFactory;
 
-            EmailError = new StatusMessage(timerFactory);
-            FormMessage = new StatusMessage(timerFactory);
+            EmailError = new StatusMessage();
+            FormMessage = new StatusMessage();
 
             _logInCommand = new RelayCommand(ExecuteLogIn, CanExecuteLogIn);
             TogglePasswordVisibilityCommand = new RelayCommand(ExecuteTogglePasswordVisibility);
@@ -187,8 +182,10 @@ namespace TLMG.Client.ViewModels
         private void StartLoginAttemptTimer()
         {
             StopLoginAttemptTimer();
-            _loginAttemptTimer = _timerFactory.Create(
-                TimeSpan.FromMilliseconds(LoginAttemptDelayMilliseconds));
+            _loginAttemptTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(LoginAttemptDelayMilliseconds)
+            };
             _loginAttemptTimer.Tick += OnLoginAttemptTimerTick;
             _loginAttemptTimer.Start();
         }
@@ -207,55 +204,45 @@ namespace TLMG.Client.ViewModels
         {
             StopLoginAttemptTimer();
 
-            (bool IsSuccess, bool IsConnectionFailure, string ErrorKey) result =
-                _loginService.AttemptLogIn(Email, Password);
+            OperationLogInResult logInResult = _accountsConnection.LogIn(Email, Password);
 
-            ApplyLoginResult(result);
+            ApplyLoginResult(logInResult);
             IsBusy = false;
         }
 
-        private void ApplyLoginResult(
-            (bool IsSuccess, bool IsConnectionFailure, string ErrorKey) result)
+        private void ApplyLoginResult(OperationLogInResult logInResult)
         {
-            if (result.IsSuccess)
+            if (logInResult.IsSuccess)
             {
                 ShowSuccessAndRedirect();
             }
-            else if (result.IsConnectionFailure)
-            {
-                ShowConnectionFailure();
-            }
             else
             {
-                ShowServerError(result.ErrorKey);
+                ShowServerError(logInResult.ErrorKey);
             }
         }
 
         private void ShowSuccessAndRedirect()
         {
-            string successText = _localizationService.GetString(SuccessMessageKey);
+            string successText = LanguageManager.FindText(SuccessMessageKey);
             FormMessage.ShowSuccess(successText);
             StartRedirectTimer();
-        }
-
-        private void ShowConnectionFailure()
-        {
-            string errorText = _localizationService.GetErrorMessage(ConnectionErrorKey);
-            FormMessage.ShowError(errorText);
         }
 
         private void ShowServerError(string errorKey)
         {
             string effectiveKey = errorKey ?? UnknownErrorKey;
-            string errorText = _localizationService.GetErrorMessage(effectiveKey);
+            string errorText = LanguageManager.FindText(effectiveKey);
             FormMessage.ShowError(errorText);
         }
 
         private void StartRedirectTimer()
         {
             StopRedirectTimer();
-            _redirectTimer = _timerFactory.Create(
-                TimeSpan.FromMilliseconds(RedirectDelayMilliseconds));
+            _redirectTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(RedirectDelayMilliseconds)
+            };
             _redirectTimer.Tick += OnRedirectTimerTick;
             _redirectTimer.Start();
         }
@@ -330,7 +317,7 @@ namespace TLMG.Client.ViewModels
 
             if (!areFilled)
             {
-                string errorText = _localizationService.GetErrorMessage(IncompleteFieldsErrorKey);
+                string errorText = LanguageManager.FindText(IncompleteFieldsErrorKey);
                 FormMessage.ShowError(errorText);
             }
 
@@ -345,7 +332,7 @@ namespace TLMG.Client.ViewModels
 
             if (!isValid)
             {
-                string errorText = _localizationService.GetErrorMessage(emailErrorKey);
+                string errorText = LanguageManager.FindText(emailErrorKey);
                 EmailError.ShowError(errorText);
             }
 

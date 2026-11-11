@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using TLMG.Client.Communication;
 using TLMG.Client.Services;
 using TLMG.Client.ViewModels;
 using TLMG.Client.Views;
@@ -14,6 +15,7 @@ namespace TLMG.Client.Navigation
         private readonly IDialogService _dialogs;
         private readonly ILocalizationService _localizer;
         private readonly ITimerFactory _timers;
+        private readonly IAccountsConnection _accountsConnection;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="ScreenFactory"/>.
@@ -22,16 +24,19 @@ namespace TLMG.Client.Navigation
         /// <param name="dialogs">Servicio de diálogos.</param>
         /// <param name="localizer">Servicio de localización.</param>
         /// <param name="timers">Fábrica de temporizadores.</param>
+        /// <param name="accountsConnection">Área de cuentas de la conexión con el servidor.</param>
         public ScreenFactory(
             INavigationService navigation,
             IDialogService dialogs,
             ILocalizationService localizer,
-            ITimerFactory timers)
+            ITimerFactory timers,
+            IAccountsConnection accountsConnection)
         {
             _navigation = navigation;
             _dialogs = dialogs;
             _localizer = localizer;
             _timers = timers;
+            _accountsConnection = accountsConnection;
         }
 
         public ScreenEntry Create(ScreenId screenId, object parameter)
@@ -73,18 +78,14 @@ namespace TLMG.Client.Navigation
                         new CreateAccountViewModel(
                             _navigation,
                             _dialogs,
-                            _localizer,
-                            _timers,
-                            new AccountRegistrationService()));
+                            _accountsConnection));
                     break;
                 case ScreenId.Login:
                     screenEntry = Build(
                         new LoginScreen(),
                         new LoginViewModel(
-                            new LoginService(),
-                            _navigation,
-                            _localizer,
-                            _timers));
+                            _accountsConnection,
+                            _navigation));
                     break;
                 default:
                     screenEntry = CreateLegacyScreen(screenId);

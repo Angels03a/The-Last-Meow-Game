@@ -2,8 +2,8 @@
 
 using CommunityToolkit.Mvvm.Input;
 
+using TLMG.Client.Communication;
 using TLMG.Client.Navigation;
-using TLMG.Client.Services;
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
@@ -34,9 +34,7 @@ namespace TLMG.Client.ViewModels
 
         private readonly INavigationService _navigation;
         private readonly IDialogService _dialogs;
-        private readonly ILocalizationService _localizer;
-        private readonly ITimerFactory _timers;
-        private readonly IAccountRegistrationService _registrationService;
+        private readonly IAccountsConnection _accountsConnection;
         private readonly RelayCommand _createAccountCommand;
         private readonly RelayCommand _backCommand;
 
@@ -68,15 +66,11 @@ namespace TLMG.Client.ViewModels
         public CreateAccountViewModel(
             INavigationService navigation,
             IDialogService dialogs,
-            ILocalizationService localizer,
-            ITimerFactory timers,
-            IAccountRegistrationService registrationService)
+            IAccountsConnection accountsConnection)
         {
             _navigation = navigation;
             _dialogs = dialogs;
-            _localizer = localizer;
-            _timers = timers;
-            _registrationService = registrationService;
+            _accountsConnection = accountsConnection;
 
             _createAccountCommand = new RelayCommand(ExecuteCreateAccount, CanExecuteCreateAccount);
             _backCommand = new RelayCommand(ExecuteBack, CanExecuteBack);
@@ -207,7 +201,7 @@ namespace TLMG.Client.ViewModels
                 playerAccountRegistration.HasAcceptedTerms = HasAcceptedTerms;
 
                 OperationRegisterPlayerAccountResult registrationResult =
-                    _registrationService.RegisterPlayerAccount(playerAccountRegistration);
+                    _accountsConnection.RegisterPlayerAccount(playerAccountRegistration);
 
                 if (registrationResult.IsSuccess)
                 {
@@ -362,35 +356,35 @@ namespace TLMG.Client.ViewModels
         {
             bool hasError = errorKey != null;
             HasNicknameError = hasError;
-            NicknameErrorMessage = hasError ? _localizer.GetErrorMessage(errorKey) : string.Empty;
+            NicknameErrorMessage = hasError ? LanguageManager.FindText(errorKey) : string.Empty;
         }
 
         private void UpdateEmailError(string errorKey)
         {
             bool hasError = errorKey != null;
             HasEmailError = hasError;
-            EmailErrorMessage = hasError ? _localizer.GetErrorMessage(errorKey) : string.Empty;
+            EmailErrorMessage = hasError ? LanguageManager.FindText(errorKey) : string.Empty;
         }
 
         private void UpdatePasswordError(string errorKey)
         {
             bool hasError = errorKey != null;
             HasPasswordError = hasError;
-            PasswordErrorMessage = hasError ? _localizer.GetErrorMessage(errorKey) : string.Empty;
+            PasswordErrorMessage = hasError ? LanguageManager.FindText(errorKey) : string.Empty;
         }
 
         private void UpdateConfirmPasswordError(string errorKey)
         {
             bool hasError = errorKey != null;
             HasConfirmPasswordError = hasError;
-            ConfirmPasswordErrorMessage = hasError ? _localizer.GetErrorMessage(errorKey) : string.Empty;
+            ConfirmPasswordErrorMessage = hasError ? LanguageManager.FindText(errorKey) : string.Empty;
         }
 
         private void UpdateFormError(string errorKey)
         {
             bool hasError = errorKey != null;
             HasFormError = hasError;
-            FormErrorMessage = hasError ? _localizer.GetErrorMessage(errorKey) : string.Empty;
+            FormErrorMessage = hasError ? LanguageManager.FindText(errorKey) : string.Empty;
         }
     }
 }

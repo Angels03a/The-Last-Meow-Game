@@ -20,6 +20,7 @@ namespace TLMG.Client
         private const string EnglishCulturePrefix = "en";
         private const int NotFoundIndex = -1;
         private const int FirstIndex = 0;
+        private const string UnexpectedErrorKey = "Common_UnexpectedError";
 
         private static readonly Regex _languageDictionaryRegex = new Regex(
             @"Languages[/\\]Strings\.[a-zA-Z]{2}-[a-zA-Z]{2}\.xaml",
@@ -70,6 +71,29 @@ namespace TLMG.Client
                 RefreshActiveWindows();
                 LanguageChanged?.Invoke(null, EventArgs.Empty);
             }
+        }
+
+        /// <summary>
+        /// Busca el texto de una clave en el idioma activo. Si la clave es null o no existe, devuelve el mensaje
+        /// genérico de error inesperado, para que el jugador nunca vea una clave ni un detalle técnico.
+        /// </summary>
+        /// <param name="resourceKey">Clave del diccionario de idioma o ErrorKey recibida del servidor.</param>
+        /// <returns>El texto en el idioma activo; cadena vacía si no hay aplicación o diccionario cargado.</returns>
+        public static string FindText(string resourceKey)
+        {
+            string text = null;
+
+            if (Application.Current != null)
+            {
+                text = Application.Current.TryFindResource(resourceKey ?? UnexpectedErrorKey) as string;
+
+                if (text == null)
+                {
+                    text = Application.Current.TryFindResource(UnexpectedErrorKey) as string;
+                }
+            }
+
+            return text ?? string.Empty;
         }
 
         private static void ApplyCulture(string cultureCode)

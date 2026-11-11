@@ -1,5 +1,5 @@
 ﻿using System;
-using TLMG.Client.Services;
+using System.Windows.Threading;
 
 namespace TLMG.Client.ViewModels
 {
@@ -8,7 +8,7 @@ namespace TLMG.Client.ViewModels
     /// </summary>
     public class StatusMessage : ViewModelBase
     {
-        private readonly ITimer _hideTimer;
+        private readonly DispatcherTimer _hideTimer;
         private string _text;
         private bool _isError;
         private bool _isVisible;
@@ -16,11 +16,12 @@ namespace TLMG.Client.ViewModels
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="StatusMessage"/>.
         /// </summary>
-        /// <param name="timerFactory">Fábrica de temporizadores.</param>
-        public StatusMessage(ITimerFactory timerFactory)
+        public StatusMessage()
         {
-            _hideTimer = timerFactory.Create(
-                TimeSpan.FromMilliseconds(ValidationHelper.StatusMessageDurationMilliseconds));
+            _hideTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(ValidationHelper.StatusMessageDurationMilliseconds)
+            };
             _hideTimer.Tick += OnHideTimerTick;
         }
 
