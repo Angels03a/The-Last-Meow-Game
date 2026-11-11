@@ -9,6 +9,7 @@ namespace TLMG.Client.Navigation
     public class DialogManager : IDialogManager
     {
         private const string ErrorTitleKey = "Common_ErrorTitle";
+        private const string MessageTitleKey = "MainWindow_Title";
 
         /// <inheritdoc />
         public void ShowError(string errorKey)
@@ -18,6 +19,16 @@ namespace TLMG.Client.Navigation
                 LanguageManager.FindText(ErrorTitleKey),
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
+        }
+
+        /// <inheritdoc />
+        public void ShowMessage(string messageKey)
+        {
+            MessageBox.Show(
+                LanguageManager.FindText(messageKey),
+                LanguageManager.FindText(MessageTitleKey),
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
 
         /// <inheritdoc />

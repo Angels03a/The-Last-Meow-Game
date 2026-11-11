@@ -10,6 +10,10 @@
         /// <param name="errorKey">ErrorKey recibida del servidor o clave de recurso del cliente.</param>
         void ShowError(string errorKey);
 
+        /// <summary>Informa al jugador de algo que salió bien; solo tiene el botón Aceptar.</summary>
+        /// <param name="messageKey">Clave de recurso del mensaje.</param>
+        void ShowMessage(string messageKey);
+
         /// <summary>Pide al jugador que confirme o cancele una acción.</summary>
         /// <param name="messageKey">Clave de recurso del mensaje.</param>
         /// <param name="titleKey">Clave de recurso del título.</param>

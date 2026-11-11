@@ -15,6 +15,8 @@ namespace TLMG.Client.Navigation
     /// </summary>
     public class ScreenFactory : IScreenFactory
     {
+        private const string AccountCreatedMessageKey = "CreateAccount_SuccessMessage";
+
         private static readonly ILog _log = LogManager.GetLogger(typeof(ScreenFactory));
 
         private static readonly Dictionary<ScreenId, Func<FrameworkElement>> _legacyScreens = CreateLegacyScreenMap();
@@ -51,6 +53,9 @@ namespace TLMG.Client.Navigation
                     break;
                 case ScreenId.Login:
                     screenEntry = BuildLoginEntry();
+                    break;
+                case ScreenId.Verification:
+                    screenEntry = BuildVerificationEntry(parameter);
                     break;
                 default:
                     screenEntry = CreateLegacyScreen(screenId);
@@ -99,6 +104,37 @@ namespace TLMG.Client.Navigation
             LoginScreen loginScreen = new LoginScreen(loginViewModel);
 
             return new ScreenEntry(loginScreen, loginViewModel);
+        }
+
+        private ScreenEntry BuildVerificationEntry(object parameter)
+        {
+            VerificationNavigationParameter verificationParameter = parameter as VerificationNavigationParameter;
+            bool isAccountRegistration = verificationParameter != null
+                && verificationParameter.VerificationFlow == VerificationFlow.AccountRegistration;
+            VerificationScreen verificationScreen = null;
+
+            if (isAccountRegistration)
+            {
+                verificationScreen = new VerificationScreen(FinishAccountRegistration, ReturnToCreateAccount);
+            }
+            else
+            {
+                _log.Warn("Se pidió la verificación sin el flujo de registro de cuenta; no se cambió de pantalla.");
+            }
+
+            return new ScreenEntry(verificationScreen, null);
+        }
+
+        private void FinishAccountRegistration()
+        {
+            _dialogs.ShowMessage(AccountCreatedMessageKey);
+            _navigation.NavigateToWithoutHistory(ScreenId.Login);
+            _navigation.ClearHistory();
+        }
+
+        private void ReturnToCreateAccount()
+        {
+            _navigation.NavigateToWithoutHistory(ScreenId.CreateAccount);
         }
 
         private ScreenEntry CreateLegacyScreen(ScreenId screenId)
