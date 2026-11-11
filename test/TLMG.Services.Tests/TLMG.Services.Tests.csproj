@@ -21,7 +21,9 @@
     <ProjectReference Include="..\..\Server\TLMG.Services\TLMG.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LobbyScenario.cs" />
     <Compile Include="PasswordHasherTests.cs" />
+    <Compile Include="SessionRegistryTests.cs" />
     <Compile Include="TestAssembly.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
