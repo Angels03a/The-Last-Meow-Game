@@ -35,6 +35,11 @@ namespace TLMG.Contracts
         [OperationContract(IsOneWay = true)]
         void ChangePlayerReadinessResult(OperationChangePlayerReadinessResult result);
 
+        /// <summary>Entrega el resultado de ChangeCardsPerPlayer al solicitante.</summary>
+        /// <param name="result">Resultado con el estado actual de la sala o la clave de error.</param>
+        [OperationContract(IsOneWay = true)]
+        void ChangeCardsPerPlayerResult(OperationChangeCardsPerPlayerResult result);
+
         /// <summary>Entrega el resultado de RequestMatchStart al solicitante.</summary>
         /// <param name="result">Resultado con el estado actual o la clave de error.</param>
         [OperationContract(IsOneWay = true)]

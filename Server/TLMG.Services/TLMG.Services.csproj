@@ -65,6 +65,7 @@
     <Compile Include="Chat\ChatService.cs" />
     <Compile Include="Sessions\LobbyStartSnapshot.cs" />
     <Compile Include="Sessions\SessionRegistry.Readiness.cs" />
+    <Compile Include="Lobby\LobbyService.CardsPerPlayer.cs" />
     <Compile Include="Lobby\LobbyService.Readiness.cs" />
     <Compile Include="Leaderboard\LeaderboardService.cs" />
     <Compile Include="ServiceImplementation.FriendsManager.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Accounts\PlayerLogInService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceImplementation.cs" />
+    <Compile Include="Sessions\FriendsAddition.cs" />
     <Compile Include="Sessions\FriendsChangeStatus.cs" />
     <Compile Include="Sessions\FriendsChannel.cs" />
     <Compile Include="Sessions\FriendsSubscription.cs" />

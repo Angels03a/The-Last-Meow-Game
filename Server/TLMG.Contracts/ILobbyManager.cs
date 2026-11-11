@@ -32,6 +32,16 @@ namespace TLMG.Contracts
         [OperationContract(IsOneWay = true)]
         void ChangePlayerReadiness(string sessionToken, OperationChangePlayerReadinessRequest request);
 
+        /// <summary>
+        /// Solicita cambiar la cantidad de cartas por jugador de la sala (4, 6 u 8); la respuesta llega por
+        /// ChangeCardsPerPlayerResult. Un cambio real deja a todos en No Listo (Regla No. 11) y se avisa a la sala por
+        /// OnLobbyRoomChanged; pedir el valor que ya tiene la sala responde éxito sin cambios ni reinicio del Listo.
+        /// </summary>
+        /// <param name="sessionToken">Token de la sesión del jugador.</param>
+        /// <param name="request">Datos de la petición; null se rechaza sin revelar la sala.</param>
+        [OperationContract(IsOneWay = true)]
+        void ChangeCardsPerPlayer(string sessionToken, OperationChangeCardsPerPlayerRequest request);
+
         /// <summary>Solicita validar la cuenta y autorizar el inicio con el reloj del servidor.</summary>
         /// <param name="sessionToken">Token de la sesión del jugador.</param>
         /// <param name="request">Datos de la petición; null se rechaza sin revelar la sala.</param>

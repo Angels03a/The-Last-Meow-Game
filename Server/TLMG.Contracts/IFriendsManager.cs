@@ -33,5 +33,34 @@ namespace TLMG.Contracts
         /// <param name="invitationId">Identificador de la invitación recibida.</param>
         [OperationContract(IsOneWay = true)]
         void AcceptRoomInvitation(string sessionToken, int invitationId);
+
+        /// <summary>
+        /// Solicita amistad al jugador registrado con ese nickname; la respuesta llega por SendFriendRequestResult y,
+        /// si el destinatario está en línea, él recibe OnFriendRequestReceived. Una solicitud cruzada se acepta sola y
+        /// una rechazada se puede reactivar sin espera. Sin sesión de registrado (invitado) responde
+        /// Common_InvalidSessionError.
+        /// </summary>
+        /// <param name="sessionToken">Token de la sesión del jugador que solicita.</param>
+        /// <param name="friendNickname">Nickname buscado; de 3 a 12 caracteres y no un correo.</param>
+        [OperationContract(IsOneWay = true)]
+        void SendFriendRequest(string sessionToken, string friendNickname);
+
+        /// <summary>
+        /// Acepta una solicitud de amistad recibida; la respuesta llega por AcceptFriendRequestResult y quien la envió,
+        /// si está en línea, recibe OnFriendAdded. Solo la acepta el destinatario de una solicitud pendiente.
+        /// </summary>
+        /// <param name="sessionToken">Token de la sesión del jugador que acepta.</param>
+        /// <param name="friendRequestId">Identificador de la solicitud (FriendRequest.FriendRequestId).</param>
+        [OperationContract(IsOneWay = true)]
+        void AcceptFriendRequest(string sessionToken, int friendRequestId);
+
+        /// <summary>
+        /// Rechaza una solicitud de amistad recibida; la respuesta llega por DeclineFriendRequestResult. Rechazar no se
+        /// avisa a quien la envió.
+        /// </summary>
+        /// <param name="sessionToken">Token de la sesión del jugador que rechaza.</param>
+        /// <param name="friendRequestId">Identificador de la solicitud (FriendRequest.FriendRequestId).</param>
+        [OperationContract(IsOneWay = true)]
+        void DeclineFriendRequest(string sessionToken, int friendRequestId);
     }
 }

@@ -101,6 +101,22 @@ namespace TLMG.Services.Sessions
         RoomInvitationCreation CreateRoomInvitation(string sessionToken, int friendUserId);
 
         /// <summary>
+        /// Busca el callback del canal de amigos de un jugador por su id, para avisarle fuera del candado.
+        /// </summary>
+        /// <param name="userId">Id de la cuenta del jugador.</param>
+        /// <returns>El callback del canal de amigos, o null si el jugador está desconectado.</returns>
+        IFriendsManagerCallback FindFriendsCallbackOfUser(int userId);
+
+        /// <summary>
+        /// Suma la amistad nueva a la lista de amigos guardada en el canal de cada jugador en línea, para que su
+        /// presencia se avise sin volver a suscribirse. Bajo _sessionsLock; no invoca ningún callback.
+        /// </summary>
+        /// <param name="firstUserId">Id de uno de los dos jugadores.</param>
+        /// <param name="secondUserId">Id del otro jugador.</param>
+        /// <returns>La presencia y el callback de cada jugador; el callback es null si está desconectado.</returns>
+        FriendsAddition AddFriendshipToOnlineChannels(int firstUserId, int secondUserId);
+
+        /// <summary>
         /// Acepta una invitación del jugador de la sesión: la consume y emite la autorización de entrada a su sala.
         /// No mete al jugador en la sala.
         /// </summary>
@@ -121,6 +137,24 @@ namespace TLMG.Services.Sessions
         /// <param name="isReady">Estado Listo deseado del propio jugador; repetirlo no renueva la cuenta.</param>
         /// <returns>Estado actual y destinatarios, o rechazo sin datos de la sala.</returns>
         LobbyMembershipChange ChangePlayerReadiness(string sessionToken, string channelId, int roomId, bool isReady);
+
+        /// <summary>
+        /// Cambia las cartas por jugador de la sala. Valida token y canal; un valor distinto se guarda y deja a todos
+        /// los jugadores en No Listo bajo el mismo _sessionsLock, y el mismo valor no cambia nada.
+        /// </summary>
+        /// <param name="sessionToken">Token de la sesión vigente.</param>
+        /// <param name="channelId">Canal de lobby vinculado al jugador.</param>
+        /// <param name="roomId">Sala indicada por la petición.</param>
+        /// <param name="cardsPerPlayerCount">Cantidad ya validada por el servicio: 4, 6 u 8.</param>
+        /// <returns>
+        /// Estado actual y como destinatarios los demás jugadores, o rechazo sin datos de la sala. Con el mismo valor
+        /// no hay destinatarios.
+        /// </returns>
+        LobbyMembershipChange ChangeCardsPerPlayer(
+            string sessionToken,
+            string channelId,
+            int roomId,
+            int cardsPerPlayerCount);
 
         /// <summary>
         /// Valida la generación y el plazo UTC para iniciar. Valida token y canal antes de copiar el estado.
