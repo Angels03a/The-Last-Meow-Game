@@ -229,7 +229,7 @@ Formato de entrada:
 - Creado: 2026-10-25 16:50
 - Por qué: configuration.svcinfo, configuration91.svcinfo y service.wsdl de Connected Services/UsersManagerReference contienen la identidad de Windows (UPN) que el servidor publica en el WSDL. Es el mecanismo normal de Visual Studio y ya estaba en los proxies anteriores del historial; esos archivos no se editan a mano (Estándar §4.3).
 - Depende de: BL-021 (seguridad entre dos PC, identidad explícita del endpoint)
-- Estado: Pendiente
+- Estado: Pendientez
 
 ### BL-049 · Revisar el nombre del método del callback y el atributo [ServiceContract] en IUsersManagerCallback
 - Creado: 2026-10-25 17:10
@@ -667,6 +667,7 @@ Formato de entrada:
 - Por qué: el Paquete 1 (contratos congelados de amigos y modalidad) congeló el contrato (ILobbyManager.ChangeCardsPerPlayer, OperationChangeCardsPerPlayerRequest y Result, CardsPerPlayerValidator) y dejó un cascarón en LobbyService.ChangeCardsPerPlayer (LobbyService.CardsPerPlayer.cs) que responde Common_UnexpectedError. Falta la lógica: estado por sala en SessionRegistry (hoy DefaultCardsPerPlayerCount fija en 4, SessionRegistry.Readiness.cs:10), valores 4, 6 y 8 (D-04), mismo valor = éxito sin cambios y sin reiniciar Listo, valor distinto = todos a No Listo (Regla No. 11) y aviso a la sala por OnLobbyRoomChanged, con el lock único (Estándar §11.1) y los avisos fuera del lock, sin cambiar las firmas que usan las pruebas. Incluye pruebas del registro y del servicio. Al terminar cierra BL-105.
 - Depende de: Paquete 1; BL-154 para probarla desde el cliente
 - Estado: Pendiente
+- Nota (2026-11-11 20:32): avance en la rama paquete2-modalidad, sin confirmar: ChangeCardsPerPlayer quedó implementado en SessionRegistry.ChangeCardsPerPlayer (SessionRegistry.Readiness.cs) y en LobbyService.ChangeCardsPerPlayer (LobbyService.CardsPerPlayer.cs), con pruebas en TLMG.Services.Tests. Falta compilar, correr las pruebas y probarla con el cliente (BL-154). Sigue pendiente hasta tener el commit; BL-105 se cierra con ella.
 
 ### BL-152 · Servidor: solicitudes de amistad (enviar, aceptar y rechazar)
 - Creado: 2026-11-11 19:30

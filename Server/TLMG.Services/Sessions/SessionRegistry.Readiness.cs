@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 
+using TLMG.Contracts;
+using TLMG.Domain.Constants;
+
 namespace TLMG.Services.Sessions
 {
     public partial class SessionRegistry
     {
         private const int MinimumPlayersToStartCount = 3;
-        // TODO: Llevar la modalidad colaborativa al servidor; mientras tanto se usan cuatro cartas. (BL-105).
-        private const int DefaultCardsPerPlayerCount = 4;
+        private const int DefaultCardsPerPlayerCount = ValidationRules.FourCardsPerPlayerCount;
         private const int LobbyStartCountdownSeconds = 3;
 
         private readonly Dictionary<int, LobbyStartState> _startsByRoomId =
@@ -36,6 +38,36 @@ namespace TLMG.Services.Sessions
                 else
                 {
                     lobbyMembershipChange = ChangePlayerReadinessInLock(playerSession.UserId, roomId, isReady);
+                }
+            }
+
+            return lobbyMembershipChange;
+        }
+
+        /// <inheritdoc />
+        public LobbyMembershipChange ChangeCardsPerPlayer(
+            string sessionToken,
+            string channelId,
+            int roomId,
+            int cardsPerPlayerCount)
+        {
+            LobbyMembershipChange lobbyMembershipChange;
+
+            lock (_sessionsLock)
+            {
+                PlayerSession playerSession;
+                LobbyChangeStatus lobbyChangeStatus = ValidateLobbyCallerInLock(
+                    sessionToken, channelId, roomId, out playerSession);
+
+                if (lobbyChangeStatus != LobbyChangeStatus.Applied)
+                {
+                    lobbyMembershipChange = LobbyMembershipChange.CreateRejected(
+                        lobbyChangeStatus, LobbyMembershipChange.NoUserId);
+                }
+                else
+                {
+                    lobbyMembershipChange =
+                        ChangeCardsPerPlayerInLock(playerSession.UserId, roomId, cardsPerPlayerCount);
                 }
             }
 
@@ -236,6 +268,68 @@ namespace TLMG.Services.Sessions
             return areReady;
         }
 
+        /// <summary>
+        /// Aplica un cambio real de cartas por jugador y deja a todos en No Listo; un valor repetido solo copia el
+        /// estado. Requiere _sessionsLock y no invoca callbacks: solo los copia para avisar después de liberarlo.
+        /// </summary>
+        /// <param name="userId">Jugador ya validado.</param>
+        /// <param name="roomId">Sala actual del jugador.</param>
+        /// <param name="cardsPerPlayerCount">Cantidad ya validada de cartas por jugador.</param>
+        /// <returns>Resultado y destinatarios del cambio, o rechazo si la partida ya comenzó.</returns>
+        private LobbyMembershipChange ChangeCardsPerPlayerInLock(int userId, int roomId, int cardsPerPlayerCount)
+        {
+            LobbyStartState lobbyStartState = _startsByRoomId[roomId];
+            List<LobbyMember> lobbyMembers = _membersByRoomId[roomId];
+            LobbyMembershipChange lobbyMembershipChange;
+
+            if (lobbyStartState.CardsPerPlayerCount == cardsPerPlayerCount)
+            {
+                lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
+                    userId, roomId, CreateRoomSnapshot(roomId, lobbyMembers));
+            }
+            else if (lobbyStartState.MatchId.HasValue)
+            {
+                lobbyMembershipChange =
+                    LobbyMembershipChange.CreateRejected(LobbyChangeStatus.MatchAlreadyStarted, userId);
+            }
+            else
+            {
+                lobbyStartState.CardsPerPlayerCount = cardsPerPlayerCount;
+                lobbyStartState.ReadyUserIds.Clear();
+                RefreshLobbyCountdownInLock(roomId);
+                lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
+                    userId,
+                    roomId,
+                    CreateRoomSnapshot(roomId, lobbyMembers),
+                    CopyCallbacksExceptUser(lobbyMembers, userId));
+            }
+
+            return lobbyMembershipChange;
+        }
+
+        /// <summary>Copia los callbacks de los demás jugadores de la sala; requiere _sessionsLock.</summary>
+        /// <param name="lobbyMembers">Miembros de la sala.</param>
+        /// <param name="excludedUserId">Jugador que causó el cambio y que no necesita el aviso.</param>
+        /// <returns>Callbacks de todos los miembros salvo el excluido.</returns>
+        private static IReadOnlyList<ILobbyManagerCallback> CopyCallbacksExceptUser(
+            List<LobbyMember> lobbyMembers,
+            int excludedUserId)
+        {
+            List<ILobbyManagerCallback> callbacks = new List<ILobbyManagerCallback>();
+
+            foreach (LobbyMember lobbyMember in lobbyMembers)
+            {
+                if (lobbyMember.UserId != excludedUserId)
+                {
+                    callbacks.Add(lobbyMember.Callback);
+                }
+            }
+
+            IReadOnlyList<ILobbyManagerCallback> readOnlyCallbacks = callbacks.AsReadOnly();
+
+            return readOnlyCallbacks;
+        }
+
         /// <summary>Copia estado y callbacks bajo _sessionsLock para notificar después de liberarlo.</summary>
         /// <param name="userId">Jugador que causó el cambio.</param>
         /// <param name="roomId">Sala modificada.</param>
@@ -263,7 +357,7 @@ namespace TLMG.Services.Sessions
                 DateTime.UtcNow,
                 lobbyStartState.MatchId,
                 lobbyStartState.MatchStartedAtUtc,
-                DefaultCardsPerPlayerCount);
+                lobbyStartState.CardsPerPlayerCount);
 
             return lobbyStartSnapshot;
         }
@@ -288,6 +382,9 @@ namespace TLMG.Services.Sessions
 
             /// <summary>Hora UTC de autorización de la partida, o null antes de iniciar.</summary>
             public DateTime? MatchStartedAtUtc { get; set; }
+
+            /// <summary>Cartas por jugador de la sala; una sala nueva empieza con el valor por defecto.</summary>
+            public int CardsPerPlayerCount { get; set; } = DefaultCardsPerPlayerCount;
         }
     }
 }

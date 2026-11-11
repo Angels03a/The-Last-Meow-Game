@@ -123,6 +123,24 @@ namespace TLMG.Services.Sessions
         LobbyMembershipChange ChangePlayerReadiness(string sessionToken, string channelId, int roomId, bool isReady);
 
         /// <summary>
+        /// Cambia las cartas por jugador de la sala. Valida token y canal; un valor distinto se guarda y deja a todos
+        /// los jugadores en No Listo bajo el mismo _sessionsLock, y el mismo valor no cambia nada.
+        /// </summary>
+        /// <param name="sessionToken">Token de la sesión vigente.</param>
+        /// <param name="channelId">Canal de lobby vinculado al jugador.</param>
+        /// <param name="roomId">Sala indicada por la petición.</param>
+        /// <param name="cardsPerPlayerCount">Cantidad ya validada por el servicio: 4, 6 u 8.</param>
+        /// <returns>
+        /// Estado actual y como destinatarios los demás jugadores, o rechazo sin datos de la sala. Con el mismo valor
+        /// no hay destinatarios.
+        /// </returns>
+        LobbyMembershipChange ChangeCardsPerPlayer(
+            string sessionToken,
+            string channelId,
+            int roomId,
+            int cardsPerPlayerCount);
+
+        /// <summary>
         /// Valida la generación y el plazo UTC para iniciar. Valida token y canal antes de copiar el estado.
         /// </summary>
         /// <param name="sessionToken">Token de la sesión vigente.</param>

@@ -26,11 +26,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FailingPasswordHasherStub.cs" />
+    <Compile Include="FailingSessionRegistryStub.cs" />
+    <Compile Include="LobbyCallbackStub.cs" />
+    <Compile Include="LobbyReadinessHelper.cs" />
     <Compile Include="LobbyScenario.cs" />
+    <Compile Include="LobbyServiceCardsPerPlayerTests.cs" />
     <Compile Include="PasswordHasherTests.cs" />
     <Compile Include="PlayerAccountRegistrationServiceTests.cs" />
     <Compile Include="PlayerLogInServiceTests.cs" />
     <Compile Include="PlayerRepositoryStub.cs" />
+    <Compile Include="SessionRegistryCardsPerPlayerTests.cs" />
     <Compile Include="SessionRegistryTests.cs" />
     <Compile Include="TestAssembly.cs" />
   </ItemGroup>
