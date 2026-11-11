@@ -260,7 +260,7 @@ namespace TLMG.Client.ViewModels
         private void OnRedirectTimerTick(object sender, EventArgs eventArgs)
         {
             StopRedirectTimer();
-            _navigationManager.NavigateTo(ScreenId.MainMenu);
+            _navigationManager.NavigateToWithoutHistory(ScreenId.MainMenu);
         }
 
         private void ExecuteTogglePasswordVisibility()
@@ -270,7 +270,7 @@ namespace TLMG.Client.ViewModels
 
         private void ExecutePlayAsGuest()
         {
-            _navigationManager.NavigateTo(ScreenId.MainMenu);
+            _navigationManager.NavigateToWithoutHistory(ScreenId.MainMenu);
         }
 
         private bool CanExecutePlayAsGuest()
