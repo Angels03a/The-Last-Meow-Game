@@ -3,7 +3,7 @@
     /// <summary>
     /// Navegación entre pantallas pedida por los ViewModels, sin conocer las vistas.
     /// </summary>
-    public interface INavigationService
+    public interface INavigationManager
     {
         /// <summary>Muestra la pantalla y guarda la actual en el historial.</summary>
         /// <param name="screenId">Destino.</param>

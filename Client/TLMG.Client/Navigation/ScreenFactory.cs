@@ -19,18 +19,18 @@ namespace TLMG.Client.Navigation
 
         private static readonly Dictionary<ScreenId, Func<FrameworkElement>> _legacyScreens = CreateLegacyScreenMap();
 
-        private readonly INavigationService _navigation;
+        private readonly INavigationManager _navigation;
         private readonly IDialogManager _dialogs;
         private readonly IAccountsConnection _accountsConnection;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="ScreenFactory"/>.
         /// </summary>
-        /// <param name="navigation">Servicio de navegación.</param>
+        /// <param name="navigation">Administrador de navegación.</param>
         /// <param name="dialogs">Administrador de diálogos.</param>
         /// <param name="accountsConnection">Área de cuentas de la conexión con el servidor.</param>
         public ScreenFactory(
-            INavigationService navigation,
+            INavigationManager navigation,
             IDialogManager dialogs,
             IAccountsConnection accountsConnection)
         {

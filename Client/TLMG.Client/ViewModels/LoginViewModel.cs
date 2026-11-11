@@ -23,7 +23,7 @@ namespace TLMG.Client.ViewModels
         private const int RedirectDelayMilliseconds = 500;
 
         private readonly IAccountsConnection _accountsConnection;
-        private readonly INavigationService _navigationService;
+        private readonly INavigationManager _navigationManager;
         private readonly RelayCommand _logInCommand;
         private readonly RelayCommand _playAsGuestCommand;
         private readonly RelayCommand _forgotPasswordCommand;
@@ -41,10 +41,10 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public LoginViewModel(
             IAccountsConnection accountsConnection,
-            INavigationService navigationService)
+            INavigationManager navigationManager)
         {
             _accountsConnection = accountsConnection;
-            _navigationService = navigationService;
+            _navigationManager = navigationManager;
 
             EmailError = new StatusMessage();
             FormMessage = new StatusMessage();
@@ -260,7 +260,7 @@ namespace TLMG.Client.ViewModels
         private void OnRedirectTimerTick(object sender, EventArgs eventArgs)
         {
             StopRedirectTimer();
-            _navigationService.NavigateTo(ScreenId.MainMenu);
+            _navigationManager.NavigateTo(ScreenId.MainMenu);
         }
 
         private void ExecuteTogglePasswordVisibility()
@@ -270,7 +270,7 @@ namespace TLMG.Client.ViewModels
 
         private void ExecutePlayAsGuest()
         {
-            _navigationService.NavigateTo(ScreenId.MainMenu);
+            _navigationManager.NavigateTo(ScreenId.MainMenu);
         }
 
         private bool CanExecutePlayAsGuest()
@@ -281,7 +281,7 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteForgotPassword()
         {
-            _navigationService.NavigateTo(ScreenId.ForgotPassword);
+            _navigationManager.NavigateTo(ScreenId.ForgotPassword);
         }
 
         private bool CanExecuteForgotPassword()
@@ -292,7 +292,7 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteCreateAccount()
         {
-            _navigationService.NavigateTo(ScreenId.CreateAccount);
+            _navigationManager.NavigateTo(ScreenId.CreateAccount);
         }
 
         private bool CanExecuteCreateAccount()

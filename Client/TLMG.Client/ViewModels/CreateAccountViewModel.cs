@@ -32,7 +32,7 @@ namespace TLMG.Client.ViewModels
         private const string ConfirmAbandonMessageKey = "CreateAccount_ConfirmAbandonMessage";
         private const string ConfirmAbandonTitleKey = "CreateAccount_ConfirmAbandonTitle";
 
-        private readonly INavigationService _navigation;
+        private readonly INavigationManager _navigation;
         private readonly IDialogManager _dialogs;
         private readonly IAccountsConnection _accountsConnection;
         private readonly RelayCommand _createAccountCommand;
@@ -64,7 +64,7 @@ namespace TLMG.Client.ViewModels
         /// Inicializa una nueva instancia de la clase <see cref="CreateAccountViewModel"/>.
         /// </summary>
         public CreateAccountViewModel(
-            INavigationService navigation,
+            INavigationManager navigation,
             IDialogManager dialogs,
             IAccountsConnection accountsConnection)
         {

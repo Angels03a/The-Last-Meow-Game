@@ -6,7 +6,7 @@ namespace TLMG.Client.Navigation
     /// <summary>
     /// Administra el historial de pantallas y libera los ViewModels que se descartan.
     /// </summary>
-    public class NavigationService : INavigationService
+    public class NavigationManager : INavigationManager
     {
         private const int EmptyHistoryCount = 0;
 
@@ -15,10 +15,10 @@ namespace TLMG.Client.Navigation
         private ScreenEntry _currentEntry;
 
         /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="NavigationService"/>.
+        /// Inicializa una nueva instancia de la clase <see cref="NavigationManager"/>.
         /// </summary>
         /// <param name="host">Contenedor que muestra la pantalla actual.</param>
-        public NavigationService(INavigationHost host)
+        public NavigationManager(INavigationHost host)
         {
             _host = host;
             _history = new Stack<ScreenEntry>();
