@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
+
 using TLMG.Client.Navigation;
 using TLMG.Client.Services;
 
@@ -21,6 +25,10 @@ namespace TLMG.Client.ViewModels
         private readonly INavigationService _navigationService;
         private readonly ILocalizationService _localizationService;
         private readonly ITimerFactory _timerFactory;
+        private readonly RelayCommand _logInCommand;
+        private readonly RelayCommand _playAsGuestCommand;
+        private readonly RelayCommand _forgotPasswordCommand;
+        private readonly RelayCommand _createAccountCommand;
 
         private string _email;
         private string _password;
@@ -46,11 +54,11 @@ namespace TLMG.Client.ViewModels
             EmailError = new StatusMessage(timerFactory);
             FormMessage = new StatusMessage(timerFactory);
 
-            LogInCommand = new RelayCommand(ExecuteLogIn, CanExecuteLogIn);
+            _logInCommand = new RelayCommand(ExecuteLogIn, CanExecuteLogIn);
             TogglePasswordVisibilityCommand = new RelayCommand(ExecuteTogglePasswordVisibility);
-            PlayAsGuestCommand = new RelayCommand(ExecutePlayAsGuest, CanExecutePlayAsGuest);
-            ForgotPasswordCommand = new RelayCommand(ExecuteForgotPassword, CanExecuteForgotPassword);
-            CreateAccountCommand = new RelayCommand(ExecuteCreateAccount, CanExecuteCreateAccount);
+            _playAsGuestCommand = new RelayCommand(ExecutePlayAsGuest, CanExecutePlayAsGuest);
+            _forgotPasswordCommand = new RelayCommand(ExecuteForgotPassword, CanExecuteForgotPassword);
+            _createAccountCommand = new RelayCommand(ExecuteCreateAccount, CanExecuteCreateAccount);
         }
 
         /// <summary>
@@ -63,30 +71,20 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public StatusMessage FormMessage { get; }
 
-        /// <summary>
-        /// Comando para intentar el inicio de sesión.
-        /// </summary>
-        public RelayCommand LogInCommand { get; }
+        /// <summary>Comando para intentar el inicio de sesión.</summary>
+        public ICommand LogInCommand => _logInCommand;
 
-        /// <summary>
-        /// Comando para alternar entre mostrar u ocultar la contraseña.
-        /// </summary>
-        public RelayCommand TogglePasswordVisibilityCommand { get; }
+        /// <summary>Comando para alternar entre mostrar u ocultar la contraseña.</summary>
+        public ICommand TogglePasswordVisibilityCommand { get; }
 
-        /// <summary>
-        /// Comando para acceder como invitado.
-        /// </summary>
-        public RelayCommand PlayAsGuestCommand { get; }
+        /// <summary>Comando para acceder como invitado.</summary>
+        public ICommand PlayAsGuestCommand => _playAsGuestCommand;
 
-        /// <summary>
-        /// Comando para navegar a la recuperación de contraseña.
-        /// </summary>
-        public RelayCommand ForgotPasswordCommand { get; }
+        /// <summary>Comando para navegar a la recuperación de contraseña.</summary>
+        public ICommand ForgotPasswordCommand => _forgotPasswordCommand;
 
-        /// <summary>
-        /// Comando para navegar a la creación de cuenta.
-        /// </summary>
-        public RelayCommand CreateAccountCommand { get; }
+        /// <summary>Comando para navegar a la creación de cuenta.</summary>
+        public ICommand CreateAccountCommand => _createAccountCommand;
 
         /// <summary>
         /// Correo electrónico capturado.
@@ -162,10 +160,10 @@ namespace TLMG.Client.ViewModels
 
         private void NotifyCommandsCanExecuteChanged()
         {
-            LogInCommand.NotifyCanExecuteChanged();
-            PlayAsGuestCommand.NotifyCanExecuteChanged();
-            ForgotPasswordCommand.NotifyCanExecuteChanged();
-            CreateAccountCommand.NotifyCanExecuteChanged();
+            _logInCommand.NotifyCanExecuteChanged();
+            _playAsGuestCommand.NotifyCanExecuteChanged();
+            _forgotPasswordCommand.NotifyCanExecuteChanged();
+            _createAccountCommand.NotifyCanExecuteChanged();
         }
 
         private void ExecuteLogIn()

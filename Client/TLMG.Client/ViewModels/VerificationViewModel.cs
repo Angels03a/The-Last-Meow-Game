@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
 
 namespace TLMG.Client.ViewModels
 {
@@ -20,6 +23,8 @@ namespace TLMG.Client.ViewModels
         private const string AttemptsExhaustedErrorKey = "Verification_AttemptsExhaustedError";
         private const string IncorrectCodeErrorKey = "Verification_IncorrectCodeError";
 
+        private readonly RelayCommand _verifyCodeCommand;
+        private readonly RelayCommand _resendCodeCommand;
         private string _digit1;
         private string _digit2;
         private string _digit3;
@@ -45,8 +50,8 @@ namespace TLMG.Client.ViewModels
             _failedAttempts = InitialFailedAttempts;
             _areDigitsEnabled = true;
 
-            VerifyCodeCommand = new RelayCommand(ExecuteVerifyCode, CanExecuteVerifyCode);
-            ResendCodeCommand = new RelayCommand(ExecuteResendCode, CanExecuteResendCode);
+            _verifyCodeCommand = new RelayCommand(ExecuteVerifyCode, CanExecuteVerifyCode);
+            _resendCodeCommand = new RelayCommand(ExecuteResendCode, CanExecuteResendCode);
             BackCommand = new RelayCommand(ExecuteBack);
 
             UpdateExpirationText();
@@ -87,20 +92,14 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public event EventHandler CountdownUpdated;
 
-        /// <summary>
-        /// Comando que compara el código capturado con el esperado.
-        /// </summary>
-        public RelayCommand VerifyCodeCommand { get; }
+        /// <summary>Comando que compara el código capturado con el esperado.</summary>
+        public ICommand VerifyCodeCommand => _verifyCodeCommand;
 
-        /// <summary>
-        /// Comando que reinicia el código, los intentos y los plazos.
-        /// </summary>
-        public RelayCommand ResendCodeCommand { get; }
+        /// <summary>Comando que reinicia el código, los intentos y los plazos.</summary>
+        public ICommand ResendCodeCommand => _resendCodeCommand;
 
-        /// <summary>
-        /// Comando que solicita volver a la pantalla anterior.
-        /// </summary>
-        public RelayCommand BackCommand { get; }
+        /// <summary>Comando que solicita volver a la pantalla anterior.</summary>
+        public ICommand BackCommand { get; }
 
         /// <summary>
         /// Primer dígito del código.
@@ -175,7 +174,7 @@ namespace TLMG.Client.ViewModels
             {
                 if (SetProperty(ref _remainingSecondsUntilResend, value))
                 {
-                    ResendCodeCommand.NotifyCanExecuteChanged();
+                    _resendCodeCommand.NotifyCanExecuteChanged();
                 }
             }
         }
@@ -190,7 +189,7 @@ namespace TLMG.Client.ViewModels
             {
                 if (SetProperty(ref _areDigitsEnabled, value))
                 {
-                    VerifyCodeCommand.NotifyCanExecuteChanged();
+                    _verifyCodeCommand.NotifyCanExecuteChanged();
                 }
             }
         }
@@ -365,7 +364,7 @@ namespace TLMG.Client.ViewModels
         {
             if (SetProperty(ref digitField, newValue))
             {
-                VerifyCodeCommand.NotifyCanExecuteChanged();
+                _verifyCodeCommand.NotifyCanExecuteChanged();
             }
         }
 

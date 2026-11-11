@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
 
 namespace TLMG.Client.ViewModels
 {
@@ -38,35 +41,23 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public event EventHandler BackRequested;
 
-        /// <summary>
-        /// Comando para regresar a la pantalla anterior.
-        /// </summary>
-        public RelayCommand BackCommand { get; }
+        /// <summary>Comando para regresar a la pantalla anterior.</summary>
+        public ICommand BackCommand { get; }
 
-        /// <summary>
-        /// Comando para alternar entre el estado de lectura y edición de avatar.
-        /// </summary>
-        public RelayCommand ToggleAvatarEditModeCommand { get; }
+        /// <summary>Comando para alternar entre el estado de lectura y edición de avatar.</summary>
+        public ICommand ToggleAvatarEditModeCommand { get; }
 
-        /// <summary>
-        /// Comando para cambiar el avatar actual por el recibido desde la interfaz.
-        /// </summary>
-        public RelayCommand SelectAvatarCommand { get; }
+        /// <summary>Comando para cambiar el avatar actual por el recibido desde la interfaz.</summary>
+        public ICommand SelectAvatarCommand { get; }
 
-        /// <summary>
-        /// Comando para entrar al modo de edición de nickname.
-        /// </summary>
-        public RelayCommand BeginNicknameEditCommand { get; }
+        /// <summary>Comando para entrar al modo de edición de nickname.</summary>
+        public ICommand BeginNicknameEditCommand { get; }
 
-        /// <summary>
-        /// Comando para validar y guardar el nuevo nickname.
-        /// </summary>
-        public RelayCommand SaveNicknameCommand { get; }
+        /// <summary>Comando para validar y guardar el nuevo nickname.</summary>
+        public ICommand SaveNicknameCommand { get; }
 
-        /// <summary>
-        /// Comando para navegar a la pantalla de cambio de contraseña.
-        /// </summary>
-        public RelayCommand ChangePasswordCommand { get; }
+        /// <summary>Comando para navegar a la pantalla de cambio de contraseña.</summary>
+        public ICommand ChangePasswordCommand { get; }
 
         public bool IsEditingAvatar
         {

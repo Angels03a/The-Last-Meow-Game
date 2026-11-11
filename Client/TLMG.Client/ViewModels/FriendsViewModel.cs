@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
+
 using TLMG.Client.Models;
 
 namespace TLMG.Client.ViewModels
@@ -28,10 +32,8 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public event EventHandler BackRequested;
 
-        /// <summary>
-        /// Comando para regresar a la pantalla principal o anterior.
-        /// </summary>
-        public RelayCommand BackCommand { get; }
+        /// <summary>Comando para regresar a la pantalla principal o anterior.</summary>
+        public ICommand BackCommand { get; }
 
         /// <summary>
         /// Lista observable de amigos para la pestaña principal.

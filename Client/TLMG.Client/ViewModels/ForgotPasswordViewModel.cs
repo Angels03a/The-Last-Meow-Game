@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
 
 namespace TLMG.Client.ViewModels
 {
@@ -10,6 +13,8 @@ namespace TLMG.Client.ViewModels
         private const string ScreenResourcePrefix = "ForgotPassword";
         private const string EmailRequiredErrorKey = "ForgotPassword_EmailRequiredError";
 
+        private readonly RelayCommand _sendCodeCommand;
+        private readonly RelayCommand _backCommand;
         private string _email;
         private bool _isBusy;
         private string _emailErrorKey;
@@ -20,8 +25,8 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public ForgotPasswordViewModel()
         {
-            SendCodeCommand = new RelayCommand(ExecuteSendCode, CanExecuteSendCode);
-            BackCommand = new RelayCommand(ExecuteBack, CanExecuteBack);
+            _sendCodeCommand = new RelayCommand(ExecuteSendCode, CanExecuteSendCode);
+            _backCommand = new RelayCommand(ExecuteBack, CanExecuteBack);
         }
 
         /// <summary>
@@ -39,15 +44,11 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public event EventHandler BackRequested;
 
-        /// <summary>
-        /// Comando que valida el correo y solicita el envío del código de recuperación.
-        /// </summary>
-        public RelayCommand SendCodeCommand { get; }
+        /// <summary>Comando que valida el correo y solicita el envío del código de recuperación.</summary>
+        public ICommand SendCodeCommand => _sendCodeCommand;
 
-        /// <summary>
-        /// Comando que solicita volver al inicio de sesión.
-        /// </summary>
-        public RelayCommand BackCommand { get; }
+        /// <summary>Comando que solicita volver al inicio de sesión.</summary>
+        public ICommand BackCommand => _backCommand;
 
         /// <summary>
         /// Correo electrónico capturado.
@@ -68,8 +69,8 @@ namespace TLMG.Client.ViewModels
             {
                 if (SetProperty(ref _isBusy, value))
                 {
-                    SendCodeCommand.NotifyCanExecuteChanged();
-                    BackCommand.NotifyCanExecuteChanged();
+                    _sendCodeCommand.NotifyCanExecuteChanged();
+                    _backCommand.NotifyCanExecuteChanged();
                 }
             }
         }

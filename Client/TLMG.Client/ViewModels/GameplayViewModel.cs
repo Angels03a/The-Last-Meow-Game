@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
 
 namespace TLMG.Client.ViewModels
 {
@@ -15,6 +18,8 @@ namespace TLMG.Client.ViewModels
 
         private const string PhaseBiddingKey = "Gameplay_PhaseBiddingLabel";
 
+        private readonly RelayCommand _decreaseBidCommand;
+        private readonly RelayCommand _increaseBidCommand;
         private int _bidAmount;
         private int _currentBidAmount;
         private string _selectedPlayerName;
@@ -28,8 +33,8 @@ namespace TLMG.Client.ViewModels
             _currentBidAmount = InitialBidAmount;
             _selectedPlayerName = string.Empty;
 
-            DecreaseBidCommand = new RelayCommand(ExecuteDecreaseBid, CanExecuteDecreaseBid);
-            IncreaseBidCommand = new RelayCommand(ExecuteIncreaseBid, CanExecuteIncreaseBid);
+            _decreaseBidCommand = new RelayCommand(ExecuteDecreaseBid, CanExecuteDecreaseBid);
+            _increaseBidCommand = new RelayCommand(ExecuteIncreaseBid, CanExecuteIncreaseBid);
             ExitCommand = new RelayCommand(ExecuteExit);
             ReportPlayerCommand = new RelayCommand(ExecuteReportPlayer);
             KickPlayerCommand = new RelayCommand(ExecuteKickPlayer);
@@ -74,50 +79,32 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public event EventHandler DemoInactivityRequested;
 
-        /// <summary>
-        /// Comando que reduce la apuesta seleccionada.
-        /// </summary>
-        public RelayCommand DecreaseBidCommand { get; }
+        /// <summary>Comando que reduce la apuesta seleccionada.</summary>
+        public ICommand DecreaseBidCommand => _decreaseBidCommand;
 
-        /// <summary>
-        /// Comando que aumenta la apuesta seleccionada.
-        /// </summary>
-        public RelayCommand IncreaseBidCommand { get; }
+        /// <summary>Comando que aumenta la apuesta seleccionada.</summary>
+        public ICommand IncreaseBidCommand => _increaseBidCommand;
 
-        /// <summary>
-        /// Comando que solicita salir de la partida.
-        /// </summary>
-        public RelayCommand ExitCommand { get; }
+        /// <summary>Comando que solicita salir de la partida.</summary>
+        public ICommand ExitCommand { get; }
 
-        /// <summary>
-        /// Comando del menú contextual para reportar.
-        /// </summary>
-        public RelayCommand ReportPlayerCommand { get; }
+        /// <summary>Comando del menú contextual para reportar.</summary>
+        public ICommand ReportPlayerCommand { get; }
 
-        /// <summary>
-        /// Comando del menú contextual para votar la expulsión.
-        /// </summary>
-        public RelayCommand KickPlayerCommand { get; }
+        /// <summary>Comando del menú contextual para votar la expulsión.</summary>
+        public ICommand KickPlayerCommand { get; }
 
-        /// <summary>
-        /// Comando del menú contextual para bloquear.
-        /// </summary>
-        public RelayCommand BlockPlayerCommand { get; }
+        /// <summary>Comando del menú contextual para bloquear.</summary>
+        public ICommand BlockPlayerCommand { get; }
 
-        /// <summary>
-        /// Comando demo que abre el resultado de ronda.
-        /// </summary>
-        public RelayCommand DemoRevealCardsCommand { get; }
+        /// <summary>Comando demo que abre el resultado de ronda.</summary>
+        public ICommand DemoRevealCardsCommand { get; }
 
-        /// <summary>
-        /// Comando demo que abre el fin de partida.
-        /// </summary>
-        public RelayCommand DemoGameOverCommand { get; }
+        /// <summary>Comando demo que abre el fin de partida.</summary>
+        public ICommand DemoGameOverCommand { get; }
 
-        /// <summary>
-        /// Comando demo que abre la partida cerrada por inactividad.
-        /// </summary>
-        public RelayCommand DemoInactivityCommand { get; }
+        /// <summary>Comando demo que abre la partida cerrada por inactividad.</summary>
+        public ICommand DemoInactivityCommand { get; }
 
         /// <summary>
         /// Número de la ronda en curso.
@@ -145,8 +132,8 @@ namespace TLMG.Client.ViewModels
             {
                 if (SetProperty(ref _bidAmount, value))
                 {
-                    DecreaseBidCommand.NotifyCanExecuteChanged();
-                    IncreaseBidCommand.NotifyCanExecuteChanged();
+                    _decreaseBidCommand.NotifyCanExecuteChanged();
+                    _increaseBidCommand.NotifyCanExecuteChanged();
                 }
             }
         }

@@ -1,4 +1,8 @@
-﻿using TLMG.Client.Navigation;
+﻿using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
+
+using TLMG.Client.Navigation;
 using TLMG.Client.Services;
 using TLMG.Client.UsersManagerReference;
 
@@ -33,6 +37,8 @@ namespace TLMG.Client.ViewModels
         private readonly ILocalizationService _localizer;
         private readonly ITimerFactory _timers;
         private readonly IAccountRegistrationService _registrationService;
+        private readonly RelayCommand _createAccountCommand;
+        private readonly RelayCommand _backCommand;
 
         private string _nickname;
         private string _email;
@@ -72,12 +78,15 @@ namespace TLMG.Client.ViewModels
             _timers = timers;
             _registrationService = registrationService;
 
-            CreateAccountCommand = new RelayCommand(ExecuteCreateAccount, CanExecuteCreateAccount);
-            BackCommand = new RelayCommand(ExecuteBack, CanExecuteBack);
+            _createAccountCommand = new RelayCommand(ExecuteCreateAccount, CanExecuteCreateAccount);
+            _backCommand = new RelayCommand(ExecuteBack, CanExecuteBack);
         }
 
-        public RelayCommand CreateAccountCommand { get; }
-        public RelayCommand BackCommand { get; }
+        /// <summary>Comando que valida el formulario y solicita crear la cuenta.</summary>
+        public ICommand CreateAccountCommand => _createAccountCommand;
+
+        /// <summary>Comando que solicita volver a la pantalla anterior, previa confirmación.</summary>
+        public ICommand BackCommand => _backCommand;
 
         public string Nickname
         {
@@ -116,8 +125,8 @@ namespace TLMG.Client.ViewModels
             {
                 if (SetProperty(ref _isBusy, value))
                 {
-                    CreateAccountCommand.NotifyCanExecuteChanged();
-                    BackCommand.NotifyCanExecuteChanged();
+                    _createAccountCommand.NotifyCanExecuteChanged();
+                    _backCommand.NotifyCanExecuteChanged();
                 }
             }
         }

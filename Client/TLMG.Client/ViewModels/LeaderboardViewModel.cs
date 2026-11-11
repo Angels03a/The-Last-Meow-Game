@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
+
 using TLMG.Client.Models;
 using TLMG.Client.UsersManagerReference;
 
@@ -64,15 +68,11 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public event EventHandler BackRequested;
 
-        /// <summary>
-        /// Comando para consultar nuevamente la tabla de posiciones histórica.
-        /// </summary>
-        public RelayCommand FilterAllTimeCommand { get; }
+        /// <summary>Comando para consultar nuevamente la tabla de posiciones histórica.</summary>
+        public ICommand FilterAllTimeCommand { get; }
 
-        /// <summary>
-        /// Comando para regresar al menú principal.
-        /// </summary>
-        public RelayCommand BackCommand { get; }
+        /// <summary>Comando para regresar al menú principal.</summary>
+        public ICommand BackCommand { get; }
 
         /// <summary>
         /// Colección de jugadores a partir del cuarto lugar.

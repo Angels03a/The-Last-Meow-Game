@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
+
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
 
@@ -17,6 +21,8 @@ namespace TLMG.Client.ViewModels
 
         private readonly ObservableCollection<LobbyPlayerEntry> _players;
         private readonly ObservableCollection<ChatMessageEntry> _chatMessages;
+        private readonly RelayCommand _toggleReadyCommand;
+        private readonly RelayCommand _sendChatCommand;
         private bool _hasRoom;
         private int _roomId;
         private bool _isLocalPlayerReady;
@@ -39,9 +45,9 @@ namespace TLMG.Client.ViewModels
 
             LeaveLobbyCommand = new RelayCommand(ExecuteLeaveLobby);
             InviteFriendsCommand = new RelayCommand(ExecuteInviteFriends);
-            ToggleReadyCommand = new RelayCommand(ExecuteToggleReady, CanExecuteToggleReady);
+            _toggleReadyCommand = new RelayCommand(ExecuteToggleReady, CanExecuteToggleReady);
             CancelCountdownCommand = new RelayCommand(ExecuteCancelCountdown);
-            SendChatCommand = new RelayCommand(ExecuteSendChat, CanExecuteSendChat);
+            _sendChatCommand = new RelayCommand(ExecuteSendChat, CanExecuteSendChat);
         }
 
         /// <summary>
@@ -74,30 +80,20 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public event EventHandler ErrorRequested;
 
-        /// <summary>
-        /// Comando que solicita salir de la sala.
-        /// </summary>
-        public RelayCommand LeaveLobbyCommand { get; }
+        /// <summary>Comando que solicita salir de la sala.</summary>
+        public ICommand LeaveLobbyCommand { get; }
 
-        /// <summary>
-        /// Comando que solicita invitar amigos.
-        /// </summary>
-        public RelayCommand InviteFriendsCommand { get; }
+        /// <summary>Comando que solicita invitar amigos.</summary>
+        public ICommand InviteFriendsCommand { get; }
 
-        /// <summary>
-        /// Comando que solicita cambiar el estado Listo del jugador local.
-        /// </summary>
-        public RelayCommand ToggleReadyCommand { get; }
+        /// <summary>Comando que solicita cambiar el estado Listo del jugador local.</summary>
+        public ICommand ToggleReadyCommand => _toggleReadyCommand;
 
-        /// <summary>
-        /// Comando que solicita cancelar la cuenta regresiva de inicio.
-        /// </summary>
-        public RelayCommand CancelCountdownCommand { get; }
+        /// <summary>Comando que solicita cancelar la cuenta regresiva de inicio.</summary>
+        public ICommand CancelCountdownCommand { get; }
 
-        /// <summary>
-        /// Comando que valida y solicita enviar el mensaje de chat.
-        /// </summary>
-        public RelayCommand SendChatCommand { get; }
+        /// <summary>Comando que valida y solicita enviar el mensaje de chat.</summary>
+        public ICommand SendChatCommand => _sendChatCommand;
 
         /// <summary>
         /// Jugadores de la sala.
@@ -168,7 +164,7 @@ namespace TLMG.Client.ViewModels
             {
                 if (SetProperty(ref _isReadyButtonEnabled, value))
                 {
-                    ToggleReadyCommand.NotifyCanExecuteChanged();
+                    _toggleReadyCommand.NotifyCanExecuteChanged();
                 }
             }
         }
@@ -201,7 +197,7 @@ namespace TLMG.Client.ViewModels
             {
                 if (SetProperty(ref _isChatEnabled, value))
                 {
-                    SendChatCommand.NotifyCanExecuteChanged();
+                    _sendChatCommand.NotifyCanExecuteChanged();
                 }
             }
         }

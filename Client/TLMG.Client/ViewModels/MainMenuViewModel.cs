@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
 
 namespace TLMG.Client.ViewModels
 {
@@ -58,40 +61,26 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public event EventHandler LogOutRequested;
 
-        /// <summary>
-        /// Comando para navegar al Lobby.
-        /// </summary>
-        public RelayCommand NavigateToLobbyCommand { get; }
+        /// <summary>Comando para navegar al Lobby.</summary>
+        public ICommand NavigateToLobbyCommand { get; }
 
-        /// <summary>
-        /// Comando para navegar a la lista de amigos.
-        /// </summary>
-        public RelayCommand NavigateToFriendsCommand { get; }
+        /// <summary>Comando para navegar a la lista de amigos.</summary>
+        public ICommand NavigateToFriendsCommand { get; }
 
-        /// <summary>
-        /// Comando para navegar al perfil.
-        /// </summary>
-        public RelayCommand NavigateToProfileCommand { get; }
+        /// <summary>Comando para navegar al perfil.</summary>
+        public ICommand NavigateToProfileCommand { get; }
 
-        /// <summary>
-        /// Comando para navegar a las instrucciones.
-        /// </summary>
-        public RelayCommand NavigateToHowToPlayCommand { get; }
+        /// <summary>Comando para navegar a las instrucciones.</summary>
+        public ICommand NavigateToHowToPlayCommand { get; }
 
-        /// <summary>
-        /// Comando para navegar al Leaderboard.
-        /// </summary>
-        public RelayCommand NavigateToLeaderboardCommand { get; }
+        /// <summary>Comando para navegar al Leaderboard.</summary>
+        public ICommand NavigateToLeaderboardCommand { get; }
 
-        /// <summary>
-        /// Comando para navegar a las opciones.
-        /// </summary>
-        public RelayCommand NavigateToOptionsCommand { get; }
+        /// <summary>Comando para navegar a las opciones.</summary>
+        public ICommand NavigateToOptionsCommand { get; }
 
-        /// <summary>
-        /// Comando para cerrar sesión.
-        /// </summary>
-        public RelayCommand LogOutCommand { get; }
+        /// <summary>Comando para cerrar sesión.</summary>
+        public ICommand LogOutCommand { get; }
 
         /// <summary>
         /// Nickname del jugador actual.

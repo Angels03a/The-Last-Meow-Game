@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
 
 namespace TLMG.Client.ViewModels
 {
@@ -20,10 +23,8 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public event EventHandler BackRequested;
 
-        /// <summary>
-        /// Comando para regresar al menú principal.
-        /// </summary>
-        public RelayCommand BackCommand { get; }
+        /// <summary>Comando para regresar al menú principal.</summary>
+        public ICommand BackCommand { get; }
 
         private void ExecuteBack()
         {

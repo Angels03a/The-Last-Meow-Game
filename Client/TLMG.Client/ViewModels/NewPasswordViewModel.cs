@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Windows.Input;
+
+using CommunityToolkit.Mvvm.Input;
 
 namespace TLMG.Client.ViewModels
 {
@@ -65,15 +68,11 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public event EventHandler PasswordStrengthChanged;
 
-        /// <summary>
-        /// Comando que valida las contraseñas y solicita guardar la nueva.
-        /// </summary>
-        public RelayCommand SetPasswordCommand { get; }
+        /// <summary>Comando que valida las contraseñas y solicita guardar la nueva.</summary>
+        public ICommand SetPasswordCommand { get; }
 
-        /// <summary>
-        /// Comando que solicita volver a la pantalla de contraseña olvidada.
-        /// </summary>
-        public RelayCommand BackCommand { get; }
+        /// <summary>Comando que solicita volver a la pantalla de contraseña olvidada.</summary>
+        public ICommand BackCommand { get; }
 
         /// <summary>
         /// Nueva contraseña copiada desde el PasswordBox de la vista.
