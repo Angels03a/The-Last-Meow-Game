@@ -1,8 +1,11 @@
 ﻿/* ============================================================================
    The Last Meow Game — TLMG_DB
-   Script de creación v4.0 · Microsoft SQL Server 2022 (nivel de compatibilidad 160)
+   Script de creación v4.1 · Microsoft SQL Server 2022 (nivel de compatibilidad 160)
    ----------------------------------------------------------------------------
    HISTORIAL DE VERSIONES (Estándar §5.3)
+     v4.1 · 2026-11-11 · Permisos de INSERT y UPDATE (por columna) sobre Friendship para las
+                    solicitudes de amistad (BL-062). El script pasa a ser idempotente: sobre
+                    una base v4.0 solo vuelve a aplicar los permisos (sección 5).
      v4.0 · 2026-11-08 · Refactor del esquema y de los permisos (ver abajo).
      v3.1 · (fecha por completar) · Procedimientos sin prefijo sp_.
      v3   · (fecha por completar) · Pending_Registration y 2FA (D-13).
@@ -30,12 +33,11 @@
 
    DECISIONES PENDIENTES MARCADAS EN EL TEXTO COMO «PENDIENTE»
      · Guest_Session se conserva sin cambios hasta decidir el invitado.
-     · Unicidad de Friendship por pareja (BL-061): aplicada la opción de
-       columnas calculadas; confirmar.
      · Permisos directos sobre [User] y Player: temporales (ver §8).
 
-   USO: ejecutar con una cuenta administradora sobre un servidor sin la base.
-   Para recrearla: DROP DATABASE TLMG_DB; y volver a ejecutar este script.
+   USO: ejecutar con una cuenta administradora. Sobre un servidor sin la base la crea; sobre una
+   base que ya tiene el esquema solo vuelve a aplicar los permisos (sección 5), así que se puede
+   ejecutar más de una vez. Para recrearla: DROP DATABASE TLMG_DB; y volver a ejecutar este script.
    ============================================================================ */
 
 SET ANSI_NULLS ON;
@@ -62,7 +64,7 @@ GO
 /* Protección: no se ejecuta sobre una base que ya tiene el esquema. */
 IF OBJECT_ID(N'dbo.[User]', N'U') IS NOT NULL
 BEGIN
-    PRINT N'La base TLMG_DB ya contiene el esquema. No se ejecuta nada más.';
+    PRINT N'La base TLMG_DB ya contiene el esquema. Solo se vuelven a aplicar los permisos.';
     SET NOEXEC ON;
 END
 GO
@@ -164,7 +166,7 @@ CREATE TABLE dbo.Friendship
     CONSTRAINT FK_Friendship_Receiver FOREIGN KEY (id_user_receiver) REFERENCES dbo.[User] (id_user),
     CONSTRAINT CK_Friendship_not_self CHECK (id_user_sender <> id_user_receiver),
     CONSTRAINT CK_Friendship_state CHECK (state IN ('FRIEND_PENDING', 'FRIEND_ACCEPTED', 'FRIEND_REJECTED')),
-    /* PENDIENTE (BL-061): una fila por pareja, sin importar quién la envió. */
+    /* Una fila por pareja, sin importar quién la envió (BL-061). */
     CONSTRAINT UQ_Friendship_pair UNIQUE (pair_low, pair_high)
 );
 GO
@@ -1119,6 +1121,11 @@ BEGIN
 END
 GO
 
+/* Desde aquí el script siempre se ejecuta: los permisos son idempotentes y también actualizan una
+   base v4.0 que ya tenía el esquema (BL-062). */
+SET NOEXEC OFF;
+GO
+
 /* ============================================================================
    5. PERMISOS (mínimo privilegio, D-53, Estándar §5.2)
    Este script NO crea inicios de sesión ni contraseñas. Un administrador crea
@@ -1134,7 +1141,8 @@ GO
    sobre las que el rol no tiene permiso directo.
    ============================================================================ */
 
-CREATE ROLE role_tlmg_app AUTHORIZATION dbo;
+IF DATABASE_PRINCIPAL_ID(N'role_tlmg_app') IS NULL
+    CREATE ROLE role_tlmg_app AUTHORIZATION dbo;
 GO
 
 /* Procedimientos: la vía normal de escritura. */
@@ -1165,6 +1173,9 @@ GRANT SELECT ON dbo.vw_Leaderboard TO role_tlmg_app;
 GRANT INSERT ON dbo.[User]         TO role_tlmg_app;
 GRANT INSERT ON dbo.Player         TO role_tlmg_app;
 GRANT UPDATE (last_time) ON dbo.[User] TO role_tlmg_app;
+/* Solicitudes de amistad (BL-062): alta de la solicitud y cambio de estado o reactivación de la fila. */
+GRANT INSERT ON dbo.Friendship TO role_tlmg_app;
+GRANT UPDATE (state, id_user_sender, id_user_receiver, request_date) ON dbo.Friendship TO role_tlmg_app;
 
 /* Lo demás se niega de forma explícita: el borrado y los cambios de estructura
    no son de la aplicación, y los secretos solo se tocan por procedimientos. */
@@ -1177,7 +1188,7 @@ DENY SELECT, INSERT, UPDATE ON dbo.Ban_Record           TO role_tlmg_app;
 DENY SELECT, INSERT, UPDATE ON dbo.Message              TO role_tlmg_app;
 GO
 
-PRINT N'TLMG_DB v4.0 creada.';
+PRINT N'TLMG_DB v4.1 lista (esquema y permisos al día).';
 GO
 
 SET NOEXEC OFF;

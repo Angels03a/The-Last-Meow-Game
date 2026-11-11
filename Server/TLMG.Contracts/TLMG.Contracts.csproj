@@ -52,11 +52,16 @@
     <Compile Include="DataContracts\OperationMatchStartRequest.cs" />
     <Compile Include="DataContracts\OperationRequestMatchStartResult.cs" />
     <Compile Include="DataContracts\Friend.cs" />
+    <Compile Include="DataContracts\FriendRequest.cs" />
     <Compile Include="DataContracts\LeaderboardPlayer.cs" />
     <Compile Include="DataContracts\LobbyPlayer.cs" />
     <Compile Include="DataContracts\LobbyRoom.cs" />
+    <Compile Include="DataContracts\OperationAcceptFriendRequestResult.cs" />
     <Compile Include="DataContracts\OperationAcceptRoomInvitationResult.cs" />
+    <Compile Include="DataContracts\OperationChangeCardsPerPlayerRequest.cs" />
+    <Compile Include="DataContracts\OperationChangeCardsPerPlayerResult.cs" />
     <Compile Include="DataContracts\OperationCreateRoomResult.cs" />
+    <Compile Include="DataContracts\OperationDeclineFriendRequestResult.cs" />
     <Compile Include="DataContracts\OperationEnterLobbyResult.cs" />
     <Compile Include="DataContracts\OperationGetLeaderboardResult.cs" />
     <Compile Include="DataContracts\OperationInviteFriendToRoomResult.cs" />
@@ -64,6 +69,7 @@
     <Compile Include="DataContracts\OperationLogInRequest.cs" />
     <Compile Include="DataContracts\OperationLogInResult.cs" />
     <Compile Include="DataContracts\OperationRegisterPlayerAccountResult.cs" />
+    <Compile Include="DataContracts\OperationSendFriendRequestResult.cs" />
     <Compile Include="DataContracts\OperationSubscribeToFriendsResult.cs" />
     <Compile Include="DataContracts\PlayerAccountRegistration.cs" />
     <Compile Include="DataContracts\RoomInvitation.cs" />

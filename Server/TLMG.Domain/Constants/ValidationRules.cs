@@ -32,6 +32,10 @@ namespace TLMG.Domain.Constants
         public static readonly Regex EmailRegex = 
             new Regex(@"^[a-zA-Z0-9.]{6,30}@[^@\s]+\.[^@\s]+\z", RegexOptions.Compiled);
 
+        public const int FourCardsPerPlayerCount = 4;
+        public const int SixCardsPerPlayerCount = 6;
+        public const int EightCardsPerPlayerCount = 8;
+
         public const int ChatMaximumMessageLengthCharacters = 160;
         public const string ChatAllowedCharacters = 
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÁÉÍÓÚáéíóúÑñ0123456789 ,?¿";

@@ -35,5 +35,30 @@ namespace TLMG.Contracts
         /// <param name="roomInvitation">La invitación recibida.</param>
         [OperationContract(IsOneWay = true)]
         void OnRoomInvitationReceived(RoomInvitation roomInvitation);
+
+        /// <summary>Entrega el resultado de SendFriendRequest al solicitante.</summary>
+        /// <param name="operationSendFriendRequestResult">Resultado con la solicitud, el amigo o el error.</param>
+        [OperationContract(IsOneWay = true)]
+        void SendFriendRequestResult(OperationSendFriendRequestResult operationSendFriendRequestResult);
+
+        /// <summary>Entrega el resultado de AcceptFriendRequest a quien aceptó.</summary>
+        /// <param name="operationAcceptFriendRequestResult">Resultado con el amigo nuevo o la clave de error.</param>
+        [OperationContract(IsOneWay = true)]
+        void AcceptFriendRequestResult(OperationAcceptFriendRequestResult operationAcceptFriendRequestResult);
+
+        /// <summary>Entrega el resultado de DeclineFriendRequest a quien rechazó.</summary>
+        /// <param name="operationDeclineFriendRequestResult">Resultado con éxito o clave de error.</param>
+        [OperationContract(IsOneWay = true)]
+        void DeclineFriendRequestResult(OperationDeclineFriendRequestResult operationDeclineFriendRequestResult);
+
+        /// <summary>Avisa al destinatario en línea que otro jugador le envió una solicitud de amistad.</summary>
+        /// <param name="friendRequest">La solicitud recibida, con IsIncoming en true.</param>
+        [OperationContract(IsOneWay = true)]
+        void OnFriendRequestReceived(FriendRequest friendRequest);
+
+        /// <summary>Avisa a quien envió la solicitud, si está en línea, que quedó aceptada.</summary>
+        /// <param name="friend">El amigo nuevo con su presencia actual.</param>
+        [OperationContract(IsOneWay = true)]
+        void OnFriendAdded(Friend friend);
     }
 }

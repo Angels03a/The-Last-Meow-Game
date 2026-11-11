@@ -172,6 +172,8 @@ Formato de entrada:
 - Nota (2026-10-29 22:53): el marco ya está decidido: xUnit.net (D-61, Estándar §15.1). Sigue sin existir ningún proyecto de pruebas.
 - Nota (2026-11-07 04:28): incluir las pruebas del catálogo de rutas del Gatito Fugitivo: cada ruta suma la ventana, el escape no es negativo, cada túnel sale por otra gatera y cada escondite sale por la misma caja. Depende también de BL-116.
 
+- Nota (2026-11-11 14:08): se integran los proyectos de pruebas en la solución del servidor y se agregan el SDK y el adaptador de Visual Studio. MSBuild compiló la solución sin errores y VSTest descubrió y ejecutó 178 pruebas correctas. Pendiente de confirmar mediante commit; la meta de 300 pruebas sigue abierta.
+
 ### BL-040 · Crear TLMG.Domain (motor de reglas puro)
 - Creado: 2026-10-25 00:49
 - Por qué: Estándar §4.2 y gov/CLAUDE.md §13; no existe. Base para llegar al mínimo de pruebas sin infraestructura.
@@ -658,6 +660,30 @@ Formato de entrada:
 - Creado: 2026-11-11 08:58
 - Por qué: el log del cliente (log4net) sirve solo para seguir las acciones del jugador; nunca es evidencia contra el servidor, cuyo log es la prueba (BL-147). Se inicia en App.
 - Depende de: BL-147
+- Estado: Pendiente
+
+### BL-151 · Servidor: operación ChangeCardsPerPlayer (modalidad del lobby)
+- Creado: 2026-11-11 19:30
+- Por qué: el Paquete 1 (contratos congelados de amigos y modalidad) congeló el contrato (ILobbyManager.ChangeCardsPerPlayer, OperationChangeCardsPerPlayerRequest y Result, CardsPerPlayerValidator) y dejó un cascarón en LobbyService.ChangeCardsPerPlayer (LobbyService.CardsPerPlayer.cs) que responde Common_UnexpectedError. Falta la lógica: estado por sala en SessionRegistry (hoy DefaultCardsPerPlayerCount fija en 4, SessionRegistry.Readiness.cs:10), valores 4, 6 y 8 (D-04), mismo valor = éxito sin cambios y sin reiniciar Listo, valor distinto = todos a No Listo (Regla No. 11) y aviso a la sala por OnLobbyRoomChanged, con el lock único (Estándar §11.1) y los avisos fuera del lock, sin cambiar las firmas que usan las pruebas. Incluye pruebas del registro y del servicio. Al terminar cierra BL-105.
+- Depende de: Paquete 1; BL-154 para probarla desde el cliente
+- Estado: Pendiente
+
+### BL-152 · Servidor: solicitudes de amistad (enviar, aceptar y rechazar)
+- Creado: 2026-11-11 19:30
+- Por qué: el Paquete 1 congeló el contrato (SendFriendRequest, AcceptFriendRequest, DeclineFriendRequest, sus Result, FriendRequest, OnFriendRequestReceived, OnFriendAdded y PendingFriendRequests en OperationSubscribeToFriendsResult) y dejó cascarones en FriendsService que responden Common_UnexpectedError. Falta: IFriendshipRepository (búsqueda por nickname, fila de la pareja, pendientes, alta y cambio de estado condicionado, con EF y sin concatenar SQL), las reglas de pareja en FriendsService (solicitud cruzada se acepta sola; reactivar tras rechazo sin espera; ErrorKey de ErrorKeys.Friends), los avisos fuera del lock, el refresco de la lista de amigos del canal en SessionRegistry (parte de altas de BL-071) y el rechazo del invitado con Common_InvalidSessionError. Fuera de alcance: cancelar, bloquear, reportar y eliminar amigos. Incluye pruebas con un stub de IFriendshipRepository.
+- Depende de: Paquete 1; BL-153
+- Estado: Pendiente
+
+### BL-153 · Aplicar la v4.1 del script de base de datos y registrarla en la Bitácora
+- Creado: 2026-11-11 19:30
+- Por qué: database/TLMG_DB_v4.1.sql agrega GRANT INSERT y GRANT UPDATE (state, id_user_sender, id_user_receiver, request_date) sobre Friendship para role_tlmg_app (Estándar §5.3) y se puede volver a ejecutar. Hay que ejecutarlo con una cuenta administradora en cada base (desarrollo y entrega), comprobar que SET NOEXEC OFF antes de la sección 5 reaplica los permisos sobre una base v4.0, verificar con la cuenta de la aplicación que inserta y actualiza solo esas columnas (ver la nota de BL-013) y registrar la versión y la decisión en la Bitácora (BL-114).
+- Depende de: Paquete 1
+- Estado: Pendiente
+
+### BL-154 · Regenerar el proxy y adaptar el cliente a amigos y modalidad
+- Creado: 2026-11-11 19:30
+- Por qué: una sola regeneración del proxy (svcutil) con los contratos del Paquete 1 y el paso fijo de BL-057 (apertura 10 s, envío 15 s, cierre 5 s y sin identity en App.config). Después: ServerCallback implementa los callbacks nuevos; ServerConnectionManager gana un parcial para las solicitudes; FriendsScreen y FriendsViewModel muestran añadir por nickname y pendientes con aceptar y rechazar (BL-085, parcial); LobbyScreen muestra el combo de cartas por jugador y lee CardsPerPlayerCount de la sala (BL-082, parcial). Las claves de idioma ya están en el Paquete 1.
+- Depende de: Paquete 1
 - Estado: Pendiente
 
 ## Finalizados

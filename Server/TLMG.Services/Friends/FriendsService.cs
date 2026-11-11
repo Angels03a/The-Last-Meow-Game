@@ -150,6 +150,59 @@ namespace TLMG.Services.Friends
             return acceptRoomInvitationResult;
         }
 
+        /// <summary>Solicita amistad al jugador con ese nickname; todavía no está implementado.</summary>
+        /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
+        /// <param name="friendNickname">Nickname buscado.</param>
+        /// <returns>El resultado con la clave de error inesperado mientras no se implemente.</returns>
+        public ResultWithNotification<OperationSendFriendRequestResult> SendFriendRequest(
+            string sessionToken,
+            string friendNickname)
+        {
+            // TODO: Implementar la solicitud de amistad por nickname. (BL-152).
+            OperationSendFriendRequestResult operationSendFriendRequestResult = new OperationSendFriendRequestResult
+            {
+                ErrorKey = ErrorKeys.Common.Unexpected
+            };
+            ResultWithNotification<OperationSendFriendRequestResult> sendFriendRequestResult =
+                new ResultWithNotification<OperationSendFriendRequestResult>(operationSendFriendRequestResult);
+
+            return sendFriendRequestResult;
+        }
+
+        /// <summary>Acepta una solicitud de amistad recibida; todavía no está implementado.</summary>
+        /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
+        /// <param name="friendRequestId">Identificador de la solicitud recibida.</param>
+        /// <returns>El resultado con la clave de error inesperado mientras no se implemente.</returns>
+        public ResultWithNotification<OperationAcceptFriendRequestResult> AcceptFriendRequest(
+            string sessionToken,
+            int friendRequestId)
+        {
+            // TODO: Implementar la aceptación de una solicitud de amistad. (BL-152).
+            OperationAcceptFriendRequestResult operationAcceptFriendRequestResult =
+                new OperationAcceptFriendRequestResult { ErrorKey = ErrorKeys.Common.Unexpected };
+            ResultWithNotification<OperationAcceptFriendRequestResult> acceptFriendRequestResult =
+                new ResultWithNotification<OperationAcceptFriendRequestResult>(operationAcceptFriendRequestResult);
+
+            return acceptFriendRequestResult;
+        }
+
+        /// <summary>Rechaza una solicitud de amistad recibida; todavía no está implementado.</summary>
+        /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
+        /// <param name="friendRequestId">Identificador de la solicitud recibida.</param>
+        /// <returns>El resultado con la clave de error inesperado mientras no se implemente.</returns>
+        public ResultWithNotification<OperationDeclineFriendRequestResult> DeclineFriendRequest(
+            string sessionToken,
+            int friendRequestId)
+        {
+            // TODO: Implementar el rechazo de una solicitud de amistad. (BL-152).
+            OperationDeclineFriendRequestResult operationDeclineFriendRequestResult =
+                new OperationDeclineFriendRequestResult { ErrorKey = ErrorKeys.Common.Unexpected };
+            ResultWithNotification<OperationDeclineFriendRequestResult> declineFriendRequestResult =
+                new ResultWithNotification<OperationDeclineFriendRequestResult>(operationDeclineFriendRequestResult);
+
+            return declineFriendRequestResult;
+        }
+
         /// <summary>
         /// Termina la sesión del jugador cuyo canal de amigos se cerró o falló: sale de su sala, pierde sus
         /// invitaciones y su callback, y se avisa a su sala y a sus amigos en línea.

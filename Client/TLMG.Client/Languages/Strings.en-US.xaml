@@ -216,7 +216,7 @@
     <sys:String x:Key="Profile_LastPasswordChange">Last password change: {0} days ago</sys:String>
     <sys:String x:Key="Profile_ChangePasswordButton">🔒 Change Password</sys:String>
     <sys:String x:Key="Friends_SidebarTitle">FRIENDS</sys:String>
-    <sys:String x:Key="Friends_SearchPlaceholder">Add friend by nickname or friend code...</sys:String>
+    <sys:String x:Key="Friends_SearchPlaceholder">Add friend by nickname...</sys:String>
     <sys:String x:Key="Friends_AddFriendButton">Add Friend</sys:String>
     <sys:String x:Key="Friends_TabFriends">Friends</sys:String>
     <sys:String x:Key="Friends_TabPending">Pending</sys:String>
@@ -241,6 +241,16 @@
     <sys:String x:Key="Friends_NotInRoomError">You need to be in a room to invite. Open the Game Lobby first.</sys:String>
     <sys:String x:Key="Friends_CannotInviteError">You cannot invite this player right now. They may be offline or already in a room.</sys:String>
     <sys:String x:Key="Friends_InvitationNotValidError">The invitation is no longer valid. The room may no longer exist.</sys:String>
+    <sys:String x:Key="Friends_NicknameFormatError">The nickname must be between 3 and 12 characters long and cannot be an email address.</sys:String>
+    <sys:String x:Key="Friends_UserNotFoundError">No player with that nickname exists.</sys:String>
+    <sys:String x:Key="Friends_CannotRequestSelfError">You cannot send a friend request to yourself.</sys:String>
+    <sys:String x:Key="Friends_AlreadyFriendsError">You are already friends.</sys:String>
+    <sys:String x:Key="Friends_RequestAlreadySentError">You have already sent a request to this player.</sys:String>
+    <sys:String x:Key="Friends_RequestNotValidError">The request is no longer valid.</sys:String>
+    <sys:String x:Key="Friends_RequestSentMessage">Friend request sent.</sys:String>
+    <sys:String x:Key="Friends_RequestDeclinedMessage">Request declined.</sys:String>
+    <sys:String x:Key="Friends_RequestAcceptedFormat">You are now friends with {0}.</sys:String>
+    <sys:String x:Key="Friends_NewRequestFormat">{0} wants to be your friend.</sys:String>
     <sys:String x:Key="Lobby_MainTitle">GAME LOBBY</sys:String>
     <sys:String x:Key="Lobby_RoomInformationFormat">Room #{0} · {1}/{2} players</sys:String>
     <sys:String x:Key="Lobby_LocalPlayerLabel">YOU</sys:String>
@@ -376,6 +386,7 @@
     <sys:String x:Key="Lobby_ChatTooLongError">The message exceeds 160 characters.</sys:String>
     <sys:String x:Key="Lobby_ChatCharactersError">The message contains unsupported characters.</sys:String>
     <sys:String x:Key="Lobby_ChatRateLimitError">Wait one second before sending another message.</sys:String>
+    <sys:String x:Key="Lobby_CardsPerPlayerNotValidError">The number of cards per player is not valid.</sys:String>
     <sys:String x:Key="Lobby_ChatNotSubscribedError">You are not connected to chat.</sys:String>
     <sys:String x:Key="Lobby_GuestCannotChatError">Sign in to use chat.</sys:String>
     <sys:String x:Key="Common_OutOfMemoryError">The operation could not be completed. Try again later.</sys:String>

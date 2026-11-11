@@ -65,6 +65,7 @@
     <Compile Include="Chat\ChatService.cs" />
     <Compile Include="Sessions\LobbyStartSnapshot.cs" />
     <Compile Include="Sessions\SessionRegistry.Readiness.cs" />
+    <Compile Include="Lobby\LobbyService.CardsPerPlayer.cs" />
     <Compile Include="Lobby\LobbyService.Readiness.cs" />
     <Compile Include="Leaderboard\LeaderboardService.cs" />
     <Compile Include="ServiceImplementation.FriendsManager.cs" />

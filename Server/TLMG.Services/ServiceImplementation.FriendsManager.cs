@@ -79,6 +79,72 @@ namespace TLMG.Services
             }
         }
 
+        public void SendFriendRequest(string sessionToken, string friendNickname)
+        {
+            try
+            {
+                IFriendsManagerCallback callback =
+                    OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
+
+                ResultWithNotification<OperationSendFriendRequestResult> sendFriendRequestResultWithNotification =
+                    _friendsService.SendFriendRequest(sessionToken, friendNickname);
+
+                SafeNotify(() =>
+                    callback.SendFriendRequestResult(sendFriendRequestResultWithNotification.OperationResult));
+                SafeNotifyAll(sendFriendRequestResultWithNotification.Notifications);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante SendFriendRequest.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
+        }
+
+        public void AcceptFriendRequest(string sessionToken, int friendRequestId)
+        {
+            try
+            {
+                IFriendsManagerCallback callback =
+                    OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
+
+                ResultWithNotification<OperationAcceptFriendRequestResult> acceptFriendRequestResultWithNotification =
+                    _friendsService.AcceptFriendRequest(sessionToken, friendRequestId);
+
+                SafeNotify(() =>
+                    callback.AcceptFriendRequestResult(acceptFriendRequestResultWithNotification.OperationResult));
+                SafeNotifyAll(acceptFriendRequestResultWithNotification.Notifications);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante AcceptFriendRequest.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
+        }
+
+        public void DeclineFriendRequest(string sessionToken, int friendRequestId)
+        {
+            try
+            {
+                IFriendsManagerCallback callback =
+                    OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
+
+                ResultWithNotification<OperationDeclineFriendRequestResult> declineFriendRequestResultWithNotification =
+                    _friendsService.DeclineFriendRequest(sessionToken, friendRequestId);
+
+                SafeNotify(() =>
+                    callback.DeclineFriendRequestResult(declineFriendRequestResultWithNotification.OperationResult));
+                SafeNotifyAll(declineFriendRequestResultWithNotification.Notifications);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante DeclineFriendRequest.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
+        }
+
         private void ObserveFriendsChannel()
         {
             if (!_isFriendsChannelObserved)

@@ -57,7 +57,9 @@
     <Compile Include="Repositories\PlayerCredentials.cs" />
     <Compile Include="Repositories\PlayerExistenceLookupStatus.cs" />
     <Compile Include="Repositories\RankedPlayer.cs" />
+    <Compile Include="Validators\CardsPerPlayerValidator.cs" />
     <Compile Include="Validators\ChatValidator.cs" />
+    <Compile Include="Validators\FriendNicknameValidator.cs" />
     <Compile Include="Validators\PlayerAccountRegistrationValidator.cs" />
   </ItemGroup>
   <ItemGroup>

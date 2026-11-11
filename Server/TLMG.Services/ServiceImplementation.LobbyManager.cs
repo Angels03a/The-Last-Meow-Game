@@ -119,6 +119,29 @@ namespace TLMG.Services
             }
         }
 
+        public void ChangeCardsPerPlayer(string sessionToken, OperationChangeCardsPerPlayerRequest
+            changeCardsPerPlayerRequest)
+        {
+            try
+            {
+                ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
+                ObserveLobbyChannel();
+
+                LobbyOperationResultWithNotification<OperationChangeCardsPerPlayerResult>
+                    changeCardsPerPlayerResult = _lobbyService.ChangeCardsPerPlayer(
+                        sessionToken, _lobbyChannelId, changeCardsPerPlayerRequest);
+
+                SafeNotify(() => callback.ChangeCardsPerPlayerResult(changeCardsPerPlayerResult.OperationResult));
+                NotifyLobbyMembers(changeCardsPerPlayerResult.Notifications);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente durante ChangeCardsPerPlayer.", outOfMemoryException);
+                SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+                throw new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
+            }
+        }
+
         private void ObserveLobbyChannel()
         {
             if (!_isLobbyChannelObserved)

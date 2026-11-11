@@ -22,6 +22,7 @@
             public const string ChatCharacters = "Lobby_ChatCharactersError";
             public const string ChatRateLimit = "Lobby_ChatRateLimitError";
             public const string ChatNotSubscribed = "Lobby_ChatNotSubscribedError";
+            public const string CardsPerPlayerNotValid = "Lobby_CardsPerPlayerNotValidError";
         }
 
         public static class CreateAccount
@@ -48,6 +49,12 @@
         {
             public const string CannotInvite = "Friends_CannotInviteError";
             public const string InvitationNotValid = "Friends_InvitationNotValidError";
+            public const string NicknameFormat = "Friends_NicknameFormatError";
+            public const string UserNotFound = "Friends_UserNotFoundError";
+            public const string CannotRequestSelf = "Friends_CannotRequestSelfError";
+            public const string AlreadyFriends = "Friends_AlreadyFriendsError";
+            public const string RequestAlreadySent = "Friends_RequestAlreadySentError";
+            public const string RequestNotValid = "Friends_RequestNotValidError";
         }
     }
 }

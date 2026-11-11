@@ -4,4 +4,6 @@
   <Project Path="TLMG.Domain/TLMG.Domain.csproj" Id="0c8a1235-0809-453f-aa8f-c19e731e30b4" />
   <Project Path="TLMG.Server/TLMG.Server.csproj" Id="72db6392-8ed3-43b4-9dd6-de6181aab64d" />
   <Project Path="TLMG.Services/TLMG.Services.csproj" Id="f33c04b5-8f2c-456b-bf3c-4c1907763913" />
+  <Project Path="../test/TLMG.Domain.Tests/TLMG.Domain.Tests.csproj" />
+  <Project Path="../test/TLMG.Services.Tests/TLMG.Services.Tests.csproj" />
 </Solution>

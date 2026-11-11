@@ -12,5 +12,12 @@ namespace TLMG.Contracts.DataContracts
         /// <summary>Amigos aceptados ordenados por nickname, con su presencia; null si la operación falló.</summary>
         [DataMember]
         public List<Friend> Friends { get; set; }
+
+        /// <summary>
+        /// Solicitudes de amistad pendientes, recibidas y enviadas (FriendRequest.IsIncoming); vacía si no hay y null
+        /// si la operación falló.
+        /// </summary>
+        [DataMember]
+        public List<FriendRequest> PendingFriendRequests { get; set; }
     }
 }
