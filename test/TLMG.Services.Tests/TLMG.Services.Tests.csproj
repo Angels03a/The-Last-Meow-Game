@@ -21,8 +21,12 @@
     <ProjectReference Include="..\..\Server\TLMG.Services\TLMG.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FailingPasswordHasherStub.cs" />
     <Compile Include="LobbyScenario.cs" />
     <Compile Include="PasswordHasherTests.cs" />
+    <Compile Include="PlayerAccountRegistrationServiceTests.cs" />
+    <Compile Include="PlayerLogInServiceTests.cs" />
+    <Compile Include="PlayerRepositoryStub.cs" />
     <Compile Include="SessionRegistryTests.cs" />
     <Compile Include="TestAssembly.cs" />
   </ItemGroup>
