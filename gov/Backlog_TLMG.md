@@ -60,7 +60,6 @@ Formato de entrada:
 - Por qué: usa un esquema de colas parecido al que se descartó en ADR-05.
 - Depende de: BL-009
 - Estado: Pendiente
-- 
 
 ### BL-011 · Alinear Drivers priorizados_V2 y Equipo3_Hito1_V2 con ADR-05 enmendado
 - Creado: 2026-10-20 10:30
@@ -138,16 +137,6 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-29 22:53): el Estándar ya vive en docs/Estandar.md (55d7070) y gov/CLAUDE.md §14 ya no cita rutas inventadas (92ca7e4, bcc901f). Faltan la Bitácora, el SAD, las Reglas de The Last Meow y los Contratos WCF.
 
-### BL-027 · Corregir los hallazgos de Estándar del código de registro integrado y retirar lo sin uso
-- Creado: 2026-10-20 22:15
-- Por qué: usings sin agrupar en `CreateAccountScreen` (§9.4); líneas de más de 120 columnas en `PlayerAccountRegistrationService` (§9.2) y espacios al final de línea en varios archivos; `OperationRegisterPlayerAccountResult` sin `<summary>` y con la llave en la misma línea (§12.2, §9.6); `FIXME` duplicado del hash de contraseña (ligar a BL-001); `<WCFMetadata Include="Connected Services\" />` sin uso en `TLMG.Server.csproj` y `TLMG.Contracts.csproj`; DTOs sin sufijo `Data` (D-41); proxy `TLMGService` y carpeta `Communication/` sin uso (solo se borran con autorización del encargado).
-- Depende de: coordinación con Nicole
-- Estado: Pendiente
-- Nota (2026-10-25): posiblemente obsoleta en el punto de los DTO sin sufijo `Data` por D-56; confirmar con el encargado.
-- Nota (2026-10-29 22:53): estado en 53263f1. Hecho: el proxy TLMGService se retiró (a8cdce2, BL-035) y el FIXME del hash desapareció con BL-001. Obsoleto: los DTO sin sufijo Data (D-56, Estándar §17.1). Pendiente: usings sin agrupar en CreateAccountScreen.xaml.cs:1-5; 4 líneas de más de 120 columnas en PlayerAccountRegistrationService.cs (:47, 76, 82, 155); espacios al final de línea en 7 archivos .cs (PlayerAccountRegistrationService.cs 6, ServiceImplementation.cs 5, entre otros); OperationRegisterPlayerAccountResult.cs con la llave del namespace en la línea 3 y propiedades sin <summary>; <WCFMetadata Include="Connected Services\" /> en TLMG.Contracts.csproj:69 y TLMG.Server.csproj:81.
-- Nota (2026-11-02 16:06): 0358fe9 eliminó las líneas de más de 120 columnas de PlayerAccountRegistrationService. Siguen los usings de CreateAccountScreen.xaml.cs:1-5, OperationRegisterPlayerAccountResult.cs y WCFMetadata.
-- Nota (2026-11-02 20:33): avance. 085948b quitó los espacios finales de ServiceImplementation.cs, LobbyScreen, HowToPlayScreen y OptionsScreen; 993fb59 agrupó los usings de CreateAccountScreen; ca112d2 documentó las propiedades de OperationRegisterPlayerAccountResult y PlayerAccountRegistration. Quedan la llave del namespace en la misma línea (OperationRegisterPlayerAccountResult.cs:3) y <WCFMetadata Include="Connected Services\" /> en TLMG.Contracts.csproj:69 y TLMG.Server.csproj:81.
-
 ### BL-031 · Script SQL: datos ficticios y encabezado versionado
 - Creado: 2026-10-25 00:49
 - Por qué: database/TLMG_DB_v3.1.sql:544-559 trae correos que parecen reales y contraseñas de prueba legibles; sustituirlos por datos ficticios. Estándar §5.3: el encabezado debe listar cada versión con su fecha.
@@ -168,6 +157,7 @@ Formato de entrada:
 - Depende de: decisión de mecanismo (transformación o nivel único)
 - Estado: Pendiente
 - Nota (2026-11-03 10:31): avance. ea295c1 agregó el ConsoleAppender al root de Server/TLMG.Server/log4net.config: la consola del servidor ya muestra los mensajes de log. Sigue pendiente el nivel de log por compilación (Trace y Debug fuera de las builds de entrega) en ambos log4net.config.
+- Nota (2026-11-11 08:14): el esquema de dos logs (BL-147) debe definir también el nivel por entorno.
 
 ### BL-034 · Tiempos límite y endurecimiento del binding del servidor (D-46)
 - Creado: 2026-10-25 00:49
@@ -223,6 +213,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-06 13:30): decisión del encargado: servicio por interfaz, ViewModel lo recibe por constructor. Nombres INavigationManager e IDialogManager (§3.14 reserva Service para la lógica del servidor); los diálogos reciben ErrorKey, no texto. Cierra §18.1.
 - Nota (2026-11-10 12:02): la Fase 5 (cefa0a3) no tocó INavigationService ni IDialogService: LoginViewModel y CreateAccountViewModel los reciben por constructor con sus nombres actuales. Su renombre a INavigationManager e IDialogManager, decidido el 2026-11-06, queda para la Fase 6.
+- Nota (2026-11-11 08:04): la Fase 6 (5e3b857, b2f08ec, 6d344e7 y db51858) creó INavigationManager e IDialogManager para Login, CreateAccount y Verification. Las pantallas legacy siguen por el puente de MainWindow (BL-141).
 
 ### BL-043 · Limpieza de estilo del diagnóstico (no incluida en BL-027)
 - Creado: 2026-10-25 00:49
@@ -280,6 +271,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-25): observación: el login tarda unos 5 s con unas 20 cuentas; el tamaño de la tabla no lo explica. Hipótesis sin medir: arranque en frío de EF en la primera consulta. Pendiente: comparar el primer y el segundo inicio de sesión en la misma ejecución del servidor, y medir el ranking.
 - Nota (2026-11-10 11:20): medido a mano. Primer inicio de sesión tras arrancar el servidor: ~5 s; segundo, sin reiniciar: ~1 s. Se confirma el arranque en frío de EF6 como causa principal. La tabla User no es el cuello de botella.
+- Nota (2026-11-11 08:00): medido tras el calentamiento (BL-125): primer inicio de sesión ~3 s (antes ~5 s); con el servidor ya caliente y un cliente nuevo, ~1.8 s; ranking 1.42 s. El calentamiento recortó ~2 s. Queda ~1.2 s sobre el login de cliente nuevo, probablemente de la ruta de login que User.Any() no cubre (lectura completa o primera escritura), y ~0.8 s de arranque frío del cliente (primer canal WCF, seguridad de transporte, JIT). Pendiente: decidir si basta para la demostración o se amplía el calentamiento.
 
 ### BL-052 · Estados USER_SUSPENDED y USER_BANNED en el login
 - Creado: 2026-10-25 19:32
@@ -450,6 +442,7 @@ Formato de entrada:
 - Depende de: decisión del encargado (rol invitado en el lobby, gov/CLAUDE.md §4)
 - Estado: Pendiente
 - Nota (2026-11-03 15:41): cuando el invitado pase por el servidor, su número lo debe asignar el servidor y no el cliente, porque dos clientes podrían elegir el mismo. El formato lo fijan hoy las Reglas §3.0.1 ("Jugador N"); si se prefiere otro, hay que cambiar las Reglas en el mismo paso.
+- Nota (2026-11-11 08:08): prueba del 2026-11-11: el invitado entra al menú sin pasar por el servidor, por eso no aparece en el log del servidor. La BD v4.0 conserva dbo.Guest_Session (database/TLMG_DB_v4.0.sql:210, «sin cambios hasta decidir el invitado», :32) y el modelo EF la mapea, pero ningún servicio la usa (D-15).
 
 ### BL-090 · El ejemplo de LanguageManager del Estándar dice public y el código es internal
 - Creado: 2026-10-29 22:53
@@ -471,6 +464,7 @@ Formato de entrada:
 - Por qué: ShowScreen guarda la pantalla anterior por defecto (MainWindow.xaml.cs, saveInHistory = true), y los botones de regreso de Options, Profile, HowToPlay y Leaderboard crean un MainMenuScreen nuevo (OptionsScreen.xaml.cs:94, ProfileScreen.xaml.cs:36, HowToPlayScreen.xaml.cs:161, LeaderboardScreen.xaml.cs:326) en lugar de usar GoBack. Cerrar Sesión (MainMenuScreen.xaml.cs:62) también apila el menú y el login apila LoginScreen (LoginScreen.xaml.cs:86, 233). Cada ida y vuelta deja pantallas vivas en la pila. Solo FriendsScreen usa GoBack. Decidir una regla de navegación (GoBack o ShowScreen sin historial) junto con BL-042.
 - Depende de: BL-042
 - Estado: Pendiente
+- Nota (2026-11-11 08:06): la Fase 6.3 (6d344e7) unificó la pila en el NavigationManager y la 6.5 (57eafa3) saca el login del historial. El puente legacy sigue empujando duplicados al crear un MainMenuScreen nuevo en cada regreso.
 
 ### BL-093 · Red de seguridad de excepciones en los puntos de entrada y en los cierres de canal del servidor
 - Creado: 2026-11-02 16:06
@@ -532,7 +526,6 @@ Formato de entrada:
 - Depende de: cambio de modalidad colaborativa del lobby
 - Estado: Pendiente
 
-
 ### BL-106 · Conservar el chat 24 horas (RF-51)
 - Creado: 2026-11-03 23:53
 - Por qué: hoy el chat es solo en memoria y sin historial; falta conservar los mensajes durante 24 horas.
@@ -564,12 +557,14 @@ Formato de entrada:
 - Por qué: hay claves repetidas por prefijo (Gameplay_, RoundResult_, GameOver_, MatchClosed_, Moderation_) y claves sin uso (Lobby_MockChatPlayer, Lobby_ChatSystemPrefix, Lobby_SystemJoinedMessage, Lobby_SystemReadyMessage). El Excel no tiene las 13 claves nuevas del Listo y del chat.
 - Depende de: nada
 - Estado: Pendiente
+- Nota (2026-11-11 08:12): falta Common_OutOfMemoryError en el Excel TLMG_Diccionario_v3.xlsx.
 
 ### BL-111 · Sesión de servidor para invitados (crear sala y jugar sin chat)
 - Creado: 2026-11-06 12:15
 - Por qué: el servidor rechaza la creación de sala de un invitado y no le da sesión. Las Reglas permiten invitados sin chat. El chat ya los excluye en el cliente; falta que el servidor lo valide.
 - Depende de: BL-089; ADR-08
 - Estado: Pendiente
+- Nota (2026-11-11 08:10): prueba del 2026-11-11: el invitado entra al menú sin pasar por el servidor, por eso no aparece en el log del servidor. La BD v4.0 conserva dbo.Guest_Session (database/TLMG_DB_v4.0.sql:210, «sin cambios hasta decidir el invitado», :32) y el modelo EF la mapea, pero ningún servicio la usa (D-15).
 
 ### BL-112 · Lista de caracteres del chat duplicada en cliente y servidor
 - Creado: 2026-11-06 12:15
@@ -637,22 +632,10 @@ Formato de entrada:
 - Depende de: BL-118, BL-119
 - Estado: Pendiente
 
-### BL-125 · Calentar Entity Framework al iniciar el servidor
-- Creado: 2026-11-10 11:22
-- Por qué: la primera consulta tras arrancar el servidor tarda ~5 s (BL-051) y el primer jugador en entrar lo paga. Hacer una consulta mínima de lectura al arrancar, en el host, antes de abrir los canales, mueve ese costo al arranque. Sin hilos ni temporizadores (Estándar §11.1).
-- Depende de: BL-051
-- Estado: Pendiente
-
 ### BL-131 · SetDigit de VerificationViewModel notifica el cambio con un nombre de propiedad equivocado
 - Creado: 2026-11-10 11:40
 - Por qué: SetDigit llama a SetProperty sin el nombre de la propiedad y [CallerMemberName] lo completa con «SetDigit»; el evento PropertyChanged no sale como Digit1 a Digit6 y la vista no se entera de los cambios hechos desde el ViewModel (por ejemplo, ClearDigits). Ya ocurría con la base anterior; no lo introdujo la Fase 4b. Hay que pasar el nombre de la propiedad a SetDigit y de ahí a SetProperty.
 - Depende de: Fase 7
-- Estado: Pendiente
-
-### BL-132 · ProfileViewModel: línea de 124 columnas y miembros públicos sin <summary>
-- Creado: 2026-11-10 11:42
-- Por qué: una línea de ProfileViewModel.cs mide 124 columnas (Estándar §9.2, máximo 120) y varios miembros públicos, por ejemplo IsEditingAvatar, no tienen <summary> (§12).
-- Depende de: nada
 - Estado: Pendiente
 
 ### BL-133 · Probar a mano los botones y el CanExecute de los 12 ViewModels, y el login y el registro
@@ -660,6 +643,7 @@ Formato de entrada:
 - Por qué: la Fase 4b cambió al RelayCommand del toolkit, que no reevalúa CanExecute por sí solo (el propio sí lo hacía con CommandManager), y la Fase 5 movió el login y el registro a IAccountsConnection. Ninguna de las dos se compiló ni se probó. Probar que cada botón se habilita o deshabilita cuando cambia el estado que lee su CanExecute. Login y registro: caso correcto, contraseña incorrecta, servidor apagado, correo repetido y cambio de idioma en caliente.
 - Depende de: Fase 6
 - Estado: Pendiente
+- Nota (2026-11-11 08:02): probados a mano el inicio de sesión, el registro completo, el cambio de idioma y el servidor apagado. Faltan los CanExecute de los demás ViewModels.
 
 ### BL-134 · Unificar ErrorMessageHelper.FindErrorMessage con LanguageManager.FindText
 - Creado: 2026-11-10 11:46
@@ -667,22 +651,64 @@ Formato de entrada:
 - Depende de: Fase 6
 - Estado: Pendiente
 
-### BL-135 · UsersManager del servidor manda texto en español en SystemErrorMessage
-- Creado: 2026-11-10 11:48
-- Por qué: ServiceImplementation.UsersManager.cs arma el SystemFault de RegisterPlayerAccount y LogIn con «El servidor se ha quedado sin memoria.», mientras que Lobby y Friends mandan ErrorKeys.Common.OutOfMemory. Debe mandar una clave que el cliente traduzca (gov/CLAUDE.md §6). El cliente hoy solo registra ese texto en el log y muestra un mensaje genérico.
+### BL-141 · Retirar el puente de MainWindow y migrar los 7 BackRequested al manager
+- Creado: 2026-11-11 08:40
+- Por qué: MainWindow.ShowScreen, GoBack y ClearHistory siguen públicos como puente hacia NavigationManager.ShowExistingScreen, porque unas 15 pantallas legacy y el acceso F8 a FugitiveKittenScreen dependen de ellos. Al migrar cada pantalla a B3, su ViewModel debe llamar a INavigationManager; los 7 BackRequested (Verification, NewPassword, ForgotPassword, Friends, Leaderboard, Profile y Options) y los demás eventos de navegación pasan al manager. Al terminar se retiran el puente y ShowExistingScreen.
+- Depende de: BL-041
+- Estado: Pendiente
+
+### BL-142 · Mover los MessageBox de MainWindow a IDialogManager y los 6 eventos del servidor a MainWindowViewModel
+- Creado: 2026-11-11 08:42
+- Por qué: MainWindow todavía muestra con MessageBox la conexión perdida, la invitación a sala y los errores del servidor, y atiende en su code-behind 6 eventos de ServerConnection (§7.1). La invitación necesita un Confirm con argumentos de formato (el nickname), que IDialogManager no tiene; hay que decidir cómo ampliarlo.
 - Depende de: nada
 - Estado: Pendiente
 
-### BL-136 · Agregar Common_OutOfMemoryError a los diccionarios es-MX y en-US
-- Creado: 2026-11-10 11:50
-- Por qué: ErrorKeys.Common.OutOfMemory vale Common_OutOfMemoryError y esa clave no existe en Strings.es-MX.xaml ni en Strings.en-US.xaml. Lobby y Friends pueden mandarla; hoy el cliente mostraría el mensaje de Common_UnexpectedError. Las claves deben quedar con paridad exacta en ambos diccionarios.
+### BL-143 · Destinos sin pantalla en la fábrica de pantallas
+- Creado: 2026-11-11 08:44
+- Por qué: ScreenFactory no tiene caso para Loading, Leaderboard ni Moderation, y Verification solo atiende el registro de cuenta. ForgotPasswordScreen arma su propia VerificationScreen y necesitará un caso para VerificationFlow.PasswordRecovery. Revisar también el "Atrás" de Verification (hoy crea un formulario de registro nuevo aunque la cuenta ya se guardó) cuando exista el 2FA real (BL-007).
+- Depende de: BL-041; BL-007
+- Estado: Pendiente
+
+### BL-144 · NavigationManager sin <summary> y falta la clave Common_InfoTitle
+- Creado: 2026-11-11 08:46
+- Por qué: los miembros públicos de NavigationManager no tienen <summary> ni <inheritdoc /> (Estándar §12). Además IDialogManager.ShowMessage usa MainWindow_Title como título porque no existe una clave informativa; Common_InfoTitle se agrega en ambos diccionarios cuando se pueda editar Strings.*.xaml.
 - Depende de: nada
 - Estado: Pendiente
 
-### BL-137 · Actualizar el resumen de ServerConnectionManager
-- Creado: 2026-11-10 11:52
-- Por qué: el <summary> de la clase dice que es la única pieza que conoce los canales de amigos y de lobby, pero también atiende el chat (ServerConnectionManager.Chat.cs) y las cuentas (ServerConnectionManager.Accounts.cs, Fase 5), que usa UsersManagerClient.
+### BL-145 · Patrón constructor/Unloaded en las pantallas legacy y recarga de la pantalla al cambiar el idioma
+- Creado: 2026-11-11 08:48
+- Por qué: las pantallas legacy crean su ViewModel y suscriben sus eventos en el constructor, y LanguageManager.RefreshActiveWindows hace Window.Content = null y lo restaura, lo que descarga y recarga la pantalla visible. BL-140 evita los botones muertos, pero la recarga sigue ocurriendo en cada cambio de idioma. Se elimina al migrar las pantallas a B3 (el ViewModel llega por constructor) y al quitar la recarga.
+- Depende de: BL-041
+- Estado: Pendiente
+
+### BL-146 · Mover GlobalStyles.xaml a App.xaml
+- Creado: 2026-11-11 08:50
+- Por qué: GlobalStyles.xaml (3 476 líneas) se mezcla en los recursos de cada pantalla, así que se vuelve a analizar al abrir cada una. Mezclarlo una sola vez en App.xaml evita ese costo. Prioridad baja.
 - Depende de: nada
+- Estado: Pendiente
+
+### BL-147 · Dos logs en el servidor: auditoría y operativo
+- Creado: 2026-11-11 08:52
+- Por qué: decisión del encargado (2026-11-11, opción A): un logger nombrado de auditoría y el log operativo, sin librerías nuevas. El servidor es autoritativo: su log es la prueba. Auditoría: solo ids, nunca correos, contraseñas ni tokens; registra las acciones validadas (inicio de sesión, sala, invitación). Operativo: arranque, apagado, errores y «servidor sobrecargado» (registrar OutOfMemoryException y los límites de conexión; sin hilos ni temporizadores). Idea futura: un archivo marcador para detectar un cierre no limpio.
+- Depende de: BL-093; BL-033
+- Estado: Pendiente
+
+### BL-148 · Modo degradado del servidor con la base de datos apagada
+- Creado: 2026-11-11 08:54
+- Por qué: con la BD apagada el servidor sigue arrancando y los invitados entran. Decidir si ese modo degradado es intencional (arranca sin BD) o si el servidor debe negarse a arrancar.
+- Depende de: decisión del encargado
+- Estado: Pendiente
+
+### BL-149 · Datos fijos en ProfileViewModel
+- Creado: 2026-11-11 08:56
+- Por qué: ProfileViewModel conserva datos de prueba: «45 días» (DaysSincePasswordChange) y el nickname «WhiskerKnight». Deben salir del servidor; se ligan a BL-103.
+- Depende de: BL-103
+- Estado: Pendiente
+
+### BL-150 · Log del cliente: solo seguimiento de las acciones del jugador
+- Creado: 2026-11-11 08:58
+- Por qué: el log del cliente (log4net) sirve solo para seguir las acciones del jugador; nunca es evidencia contra el servidor, cuyo log es la prueba (BL-147). Se inicia en App.
+- Depende de: BL-147
 - Estado: Pendiente
 
 ## Finalizados
@@ -876,7 +902,6 @@ Formato de entrada:
 - Depende de: el encargado
 - Estado: Descartada el 2026-11-06 · el registro de decisiones se hace en BL-114
 
-
 ### BL-059 · Registrar en la Bitácora las decisiones D-58 a D-61
 - Creado: 2026-10-29 13:08
 - Por qué: el Estándar (§3.14, §4.3, §5.3, §10.3, §11.1, §15.1, §16.2, §19.1, §20.2) y el SAD (ADR-08, C-02, C-06, §4.2, §4.3, §7.3) ya citan D-58 a D-61 y ADR-08, pero la Bitácora (fuera del repositorio, BL-056) aún no las contiene: D-58 (SessionRegistry con lock único, sessionToken, el último inicio de sesión gana), D-59 (scripts de demostración en database/seed/), D-60 (ServerConnectionManager) y D-61 (xUnit.net). Relacionada con BL-009 y BL-056.
@@ -946,3 +971,65 @@ Formato de entrada:
 - Depende de: BL-129; D-60, D-70
 - Estado: Finalizado el 2026-11-10 · commit cefa0a3
 - Nota (2026-11-10 12:12): 384ef1a hacía referencia a Services, que nunca existió en el repositorio; la Fase 5 lo resolvió para el login, el registro y StatusMessage. ScreenFactory, IDialogService y los demás tipos de Services quedan para la Fase 6.
+
+### BL-125 · Calentar Entity Framework al iniciar el servidor
+- Creado: 2026-11-10 11:22
+- Por qué: la primera consulta tras arrancar el servidor tarda ~5 s (BL-051) y el primer jugador en entrar lo paga. Hacer una consulta mínima de lectura al arrancar, en el host, antes de abrir los canales, mueve ese costo al arranque. Sin hilos ni temporizadores (Estándar §11.1).
+- Depende de: BL-051
+- Estado: Finalizado el 2026-11-11 · commit c46c098
+- Nota (2026-11-11 08:16): calentamiento activo; el arranque del servidor tarda ~4.7 s y el primer inicio de sesión baja de ~5 s a ~3 s (medido, BL-051).
+
+### BL-135 · UsersManager del servidor manda texto en español en SystemErrorMessage
+- Creado: 2026-11-10 11:48
+- Por qué: ServiceImplementation.UsersManager.cs arma el SystemFault de RegisterPlayerAccount y LogIn con «El servidor se ha quedado sin memoria.», mientras que Lobby y Friends mandan ErrorKeys.Common.OutOfMemory. Debe mandar una clave que el cliente traduzca (gov/CLAUDE.md §6). El cliente hoy solo registra ese texto en el log y muestra un mensaje genérico.
+- Depende de: nada
+- Estado: Finalizado el 2026-11-11 · commit 6b11ce4
+
+### BL-136 · Agregar Common_OutOfMemoryError a los diccionarios es-MX y en-US
+- Creado: 2026-11-10 11:50
+- Por qué: ErrorKeys.Common.OutOfMemory vale Common_OutOfMemoryError y esa clave no existe en Strings.es-MX.xaml ni en Strings.en-US.xaml. Lobby y Friends pueden mandarla; hoy el cliente mostraría el mensaje de Common_UnexpectedError. Las claves deben quedar con paridad exacta en ambos diccionarios.
+- Depende de: nada
+- Estado: Finalizado el 2026-11-11 · commit 6b11ce4
+- Nota (2026-11-11 08:18): la fila del Excel queda en BL-110.
+
+### BL-027 · Corregir los hallazgos de Estándar del código de registro integrado y retirar lo sin uso
+- Creado: 2026-10-20 22:15
+- Por qué: usings sin agrupar en `CreateAccountScreen` (§9.4); líneas de más de 120 columnas en `PlayerAccountRegistrationService` (§9.2) y espacios al final de línea en varios archivos; `OperationRegisterPlayerAccountResult` sin `<summary>` y con la llave en la misma línea (§12.2, §9.6); `FIXME` duplicado del hash de contraseña (ligar a BL-001); `<WCFMetadata Include="Connected Services\" />` sin uso en `TLMG.Server.csproj` y `TLMG.Contracts.csproj`; DTOs sin sufijo `Data` (D-41); proxy `TLMGService` y carpeta `Communication/` sin uso (solo se borran con autorización del encargado).
+- Depende de: coordinación con Nicole
+- Estado: Finalizado el 2026-11-11 · commit 71eef62
+- Nota (2026-10-25): posiblemente obsoleta en el punto de los DTO sin sufijo `Data` por D-56; confirmar con el encargado.
+- Nota (2026-10-29 22:53): estado en 53263f1. Hecho: el proxy TLMGService se retiró (a8cdce2, BL-035) y el FIXME del hash desapareció con BL-001. Obsoleto: los DTO sin sufijo Data (D-56, Estándar §17.1). Pendiente: usings sin agrupar en CreateAccountScreen.xaml.cs:1-5; 4 líneas de más de 120 columnas en PlayerAccountRegistrationService.cs (:47, 76, 82, 155); espacios al final de línea en 7 archivos .cs (PlayerAccountRegistrationService.cs 6, ServiceImplementation.cs 5, entre otros); OperationRegisterPlayerAccountResult.cs con la llave del namespace en la línea 3 y propiedades sin <summary>; <WCFMetadata Include="Connected Services\" /> en TLMG.Contracts.csproj:69 y TLMG.Server.csproj:81.
+- Nota (2026-11-02 16:06): 0358fe9 eliminó las líneas de más de 120 columnas de PlayerAccountRegistrationService. Siguen los usings de CreateAccountScreen.xaml.cs:1-5, OperationRegisterPlayerAccountResult.cs y WCFMetadata.
+- Nota (2026-11-02 20:33): avance. 085948b quitó los espacios finales de ServiceImplementation.cs, LobbyScreen, HowToPlayScreen y OptionsScreen; 993fb59 agrupó los usings de CreateAccountScreen; ca112d2 documentó las propiedades de OperationRegisterPlayerAccountResult y PlayerAccountRegistration. Quedan la llave del namespace en la misma línea (OperationRegisterPlayerAccountResult.cs:3) y <WCFMetadata Include="Connected Services\" /> en TLMG.Contracts.csproj:69 y TLMG.Server.csproj:81.
+- Nota (2026-11-11 08:22): cierre. Lo que quedaba según la nota del 2026-11-02 20:33: la llave del namespace en OperationRegisterPlayerAccountResult.cs:3 y <WCFMetadata Include="Connected Services\" /> en TLMG.Contracts.csproj:69 y TLMG.Server.csproj:81.
+
+### BL-132 · ProfileViewModel: línea de 124 columnas y miembros públicos sin <summary>
+- Creado: 2026-11-10 11:42
+- Por qué: una línea de ProfileViewModel.cs mide 124 columnas (Estándar §9.2, máximo 120) y varios miembros públicos, por ejemplo IsEditingAvatar, no tienen <summary> (§12).
+- Depende de: nada
+- Estado: Finalizado el 2026-11-11 · commit db35e91
+- Nota (2026-11-11 08:20): verificado en 3f53ab8: git grep de líneas de 121 o más columnas en ProfileViewModel.cs no devuelve nada.
+
+### BL-137 · Actualizar el resumen de ServerConnectionManager
+- Creado: 2026-11-10 11:52
+- Por qué: el <summary> de la clase dice que es la única pieza que conoce los canales de amigos y de lobby, pero también atiende el chat (ServerConnectionManager.Chat.cs) y las cuentas (ServerConnectionManager.Accounts.cs, Fase 5), que usa UsersManagerClient.
+- Depende de: nada
+- Estado: Finalizado el 2026-11-11 · commit 3f53ab8
+
+### BL-138 · Fase 6.1 a 6.3 y 6.6: navegación, diálogos y composición de la aplicación
+- Creado: 2026-11-11 08:30
+- Por qué: los ViewModels de login y registro dependían de TLMG.Client.Services, que nunca existió en el repositorio (384ef1a). Se crearon IDialogManager y DialogManager (solo ShowError y Confirm, con claves de recurso); ScreenFactory quedó con Login, CreateAccount y un diccionario de pantallas legacy, y registra un aviso en el log si un destino no tiene pantalla; INavigationService, NavigationService y ShellViewModel pasaron a INavigationManager, NavigationManager y MainWindowViewModel (D-64); App.OnStartup compone la navegación y MainWindow muestra la pantalla con un ContentControl; LoginScreen y CreateAccountScreen reciben su ViewModel por constructor (B3). También se agregó StatusMessageTextStyle a GlobalStyles.xaml, que 384ef1a usó en LoginScreen sin definirlo.
+- Depende de: BL-130
+- Estado: Finalizado el 2026-11-11 · commits 5e3b857, b2f08ec y 6d344e7
+
+### BL-139 · Fase 6.4 y 6.5: Verification en la fábrica y login sin historial
+- Creado: 2026-11-11 08:32
+- Por qué: CreateAccountViewModel navegaba a Verification y la fábrica no tenía caso, así que no pasaba nada tras registrarse; además LoginViewModel dejaba el login en el historial. La 6.4 agrega el caso Verification solo para VerificationFlow.AccountRegistration (con otro flujo registra un aviso y no cambia de pantalla) y ShowMessage a IDialogManager para el mensaje de cuenta creada; la 6.5 hace que el login y jugar como invitado vayan al menú con NavigateToWithoutHistory.
+- Depende de: BL-138
+- Estado: Finalizado el 2026-11-11 · commit db51858 y 57eafa3
+
+### BL-140 · Fase 6.7: las pantallas legacy ya no desuscriben los eventos de su propio ViewModel en Unloaded
+- Creado: 2026-11-11 08:34
+- Por qué: MainMenuScreen, OptionsScreen, ProfileScreen, FriendsScreen, LeaderboardScreen y ForgotPasswordScreen quitaban en Unloaded los eventos de su ViewModel y no los volvían a poner en Loaded. Una instancia que GoBack repone del historial, o que LanguageManager.RefreshActiveWindows descarga y recarga al cambiar el idioma, quedaba con los botones muertos. El ViewModel nace y muere con su pantalla, así que esa desuscripción no protegía nada; se conservó la de ServerConnection, los temporizadores y el cierre del cliente del ranking.
+- Depende de: BL-138
+- Estado: Finalizado el 2026-11-11 · commit 82c1041
