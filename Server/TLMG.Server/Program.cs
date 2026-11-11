@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.ServiceModel;
 
 using log4net;
 using log4net.Config;
 
+using TLMG.DataAccess.DatabaseModel;
 using TLMG.Services;
 
 namespace TLMG.Server
@@ -31,6 +33,7 @@ namespace TLMG.Server
             try
             {
                 Bootstrapper.Initialize();
+                WarmUpEntityFramework();
 
                 host = new ServiceHost(typeof(ServiceImplementation));
                 host.Open();
@@ -57,6 +60,21 @@ namespace TLMG.Server
             finally
             {
                 CloseHost(host);
+            }
+        }
+
+        private static void WarmUpEntityFramework()
+        {
+            try
+            {
+                using (TLMG_DBEntities database = new TLMG_DBEntities())
+                {
+                    database.User.Any();
+                }
+            }
+            catch (Exception exception)
+            {
+                _log.Error("No se pudo preparar Entity Framework; el servidor continuará el arranque.", exception);
             }
         }
 
