@@ -1,4 +1,4 @@
-using TLMG.Client.Views;
+using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
@@ -8,11 +8,13 @@ namespace TLMG.Client.Views
     public partial class LoginScreen : LocalizableScreen
     {
         /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="LoginScreen"/>.
+        /// Inicializa una nueva instancia de la clase <see cref="LoginScreen"/> con su ViewModel.
         /// </summary>
-        public LoginScreen()
+        /// <param name="loginViewModel">ViewModel que la fábrica de pantallas crea e inyecta.</param>
+        public LoginScreen(LoginViewModel loginViewModel)
         {
             InitializeComponent();
+            DataContext = loginViewModel;
         }
     }
 }

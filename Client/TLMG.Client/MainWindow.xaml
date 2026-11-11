@@ -10,6 +10,7 @@
         Width="900"
         Background="#0D0D12"
         WindowStartupLocation="CenterScreen">
-    <Grid x:Name="grdMainContainer">
-    </Grid>
+    <ContentControl Content="{Binding CurrentScreen}"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch" />
 </Window>

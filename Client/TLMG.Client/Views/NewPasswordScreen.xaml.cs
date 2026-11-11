@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using TLMG.Client.Navigation;
 using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
@@ -109,8 +110,9 @@ namespace TLMG.Client.Views
         {
             _redirectTimer.Stop();
 
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(new LoginScreen());
+            NavigationManager navigationManager = ((App)Application.Current).Navigation;
+            navigationManager.NavigateToWithoutHistory(ScreenId.Login);
+            navigationManager.ClearHistory();
         }
 
         private void UpdatePasswordStrengthDisplay()

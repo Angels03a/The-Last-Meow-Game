@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
+using TLMG.Client.Navigation;
 using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
@@ -102,7 +103,9 @@ namespace TLMG.Client.Views
         private void OnLogOutRequested(object sender, EventArgs e)
         {
             ((App)Application.Current).ServerConnection.Disconnect();
-            ((MainWindow)Application.Current.MainWindow).ShowScreen(new LoginScreen());
+            NavigationManager navigationManager = ((App)Application.Current).Navigation;
+            navigationManager.NavigateToWithoutHistory(ScreenId.Login);
+            navigationManager.ClearHistory();
         }
     }
 }

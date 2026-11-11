@@ -1,6 +1,8 @@
 using System.Windows;
 
 using TLMG.Client.Communication;
+using TLMG.Client.Navigation;
+using TLMG.Client.ViewModels;
 
 [assembly: log4net.Config.XmlConfigurator(ConfigFile = "log4net.config", Watch = true)]
 
@@ -25,6 +27,32 @@ namespace TLMG.Client
         /// ((App)Application.Current).ServerConnection.
         /// </summary>
         internal ServerConnectionManager ServerConnection { get; }
+
+        /// <summary>
+        /// Obtiene la navegación entre pantallas, única para toda la aplicación. Las pantallas aún no migradas la
+        /// alcanzan con ((App)Application.Current).Navigation.
+        /// </summary>
+        internal NavigationManager Navigation { get; private set; }
+
+        /// <summary>
+        /// Compone la navegación, los diálogos y la fábrica de pantallas, y muestra la ventana principal.
+        /// </summary>
+        /// <param name="startupEventArguments">Datos del inicio de la aplicación.</param>
+        protected override void OnStartup(StartupEventArgs startupEventArguments)
+        {
+            base.OnStartup(startupEventArguments);
+
+            MainWindowViewModel mainWindowViewModel = new MainWindowViewModel();
+            NavigationManager navigationManager = new NavigationManager(mainWindowViewModel);
+            navigationManager.ScreenFactory = new ScreenFactory(
+                navigationManager,
+                new DialogManager(),
+                ServerConnection);
+            Navigation = navigationManager;
+
+            MainWindow shellWindow = new MainWindow(mainWindowViewModel);
+            shellWindow.Show();
+        }
 
         /// <summary>
         /// Cierra los canales con el servidor al salir de la aplicación, lo que termina la sesión del jugador.

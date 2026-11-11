@@ -47,19 +47,10 @@ namespace TLMG.Client.Navigation
             switch (screenId)
             {
                 case ScreenId.CreateAccount:
-                    screenEntry = Build(
-                        new CreateAccountScreen(),
-                        new CreateAccountViewModel(
-                            _navigation,
-                            _dialogs,
-                            _accountsConnection));
+                    screenEntry = BuildCreateAccountEntry();
                     break;
                 case ScreenId.Login:
-                    screenEntry = Build(
-                        new LoginScreen(),
-                        new LoginViewModel(
-                            _accountsConnection,
-                            _navigation));
+                    screenEntry = BuildLoginEntry();
                     break;
                 default:
                     screenEntry = CreateLegacyScreen(screenId);
@@ -91,11 +82,23 @@ namespace TLMG.Client.Navigation
             return legacyScreens;
         }
 
-        private ScreenEntry Build(FrameworkElement view, ViewModelBase viewModel)
+        private ScreenEntry BuildCreateAccountEntry()
         {
-            view.DataContext = viewModel;
+            CreateAccountViewModel createAccountViewModel = new CreateAccountViewModel(
+                _navigation,
+                _dialogs,
+                _accountsConnection);
+            CreateAccountScreen createAccountScreen = new CreateAccountScreen(createAccountViewModel);
 
-            return new ScreenEntry(view, viewModel);
+            return new ScreenEntry(createAccountScreen, createAccountViewModel);
+        }
+
+        private ScreenEntry BuildLoginEntry()
+        {
+            LoginViewModel loginViewModel = new LoginViewModel(_accountsConnection, _navigation);
+            LoginScreen loginScreen = new LoginScreen(loginViewModel);
+
+            return new ScreenEntry(loginScreen, loginViewModel);
         }
 
         private ScreenEntry CreateLegacyScreen(ScreenId screenId)

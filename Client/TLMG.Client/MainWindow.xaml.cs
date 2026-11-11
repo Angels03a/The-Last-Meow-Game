@@ -6,13 +6,15 @@ using System.Windows.Controls;
 using log4net;
 
 using TLMG.Client.Communication;
+using TLMG.Client.Navigation;
 using TLMG.Client.UsersManagerReference;
+using TLMG.Client.ViewModels;
 using TLMG.Client.Views;
 
 namespace TLMG.Client
 {
     /// <summary>
-    /// Ventana principal que contiene las pantallas y administra la navegación entre ellas.
+    /// Ventana principal que muestra la pantalla actual y atiende los avisos globales del servidor.
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -20,20 +22,19 @@ namespace TLMG.Client
         private const string RoomInvitationTitleKey = "Common_RoomInvitationTitle";
         private const string RoomInvitationMessageFormatKey = "Common_RoomInvitationMessageFormat";
         private const string ErrorTitleKey = "Common_ErrorTitle";
-        private const int ZeroHistorySize = 0;
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(MainWindow));
 
         private readonly HashSet<Guid> _enteredMatchIds = new HashSet<Guid>();
-        private readonly Stack<UserControl> _navigationHistory;
-        private UserControl _currentScreen;
 
         /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="MainWindow"/> y prepara la navegación inicial.
+        /// Inicializa una nueva instancia de la clase <see cref="MainWindow"/> y muestra la pantalla de carga.
         /// </summary>
-        public MainWindow()
+        /// <param name="mainWindowViewModel">ViewModel que expone la pantalla que se está mostrando.</param>
+        public MainWindow(MainWindowViewModel mainWindowViewModel)
         {
             InitializeComponent();
+            DataContext = mainWindowViewModel;
             ServerConnection.ConnectionLost += OnServerConnectionLost;
             ServerConnection.RoomInvitationReceived += OnRoomInvitationReceived;
             ServerConnection.AcceptInvitationResultReceived += OnAcceptInvitationResultReceived;
@@ -41,58 +42,43 @@ namespace TLMG.Client
             ServerConnection.LobbyRoomChanged += OnAuthorizedRoomChanged;
             ServerConnection.ChatErrorReceived += OnChatErrorReceived;
             Closed += OnMainWindowClosed;
-            _navigationHistory = new Stack<UserControl>();
             LoadingScreen loadingScreen = new LoadingScreen();
-            loadingScreen.LoadingCompleted += (eventSender, eventArguments) => ShowScreen(new LoginScreen(), false);
+            loadingScreen.LoadingCompleted += OnLoadingCompleted;
             ShowScreen(loadingScreen, false);
         }
 
         private static ServerConnectionManager ServerConnection => ((App)Application.Current).ServerConnection;
 
+        private static NavigationManager Navigation => ((App)Application.Current).Navigation;
+
         /// <summary>
-        /// Muestra una nueva pantalla en el contenedor principal de la ventana, permitiendo
-        /// registrarla en el historial de navegación.
+        /// Muestra una pantalla que aún no tiene ViewModel. Puente temporal hacia NavigationManager, que lleva el
+        /// único historial de pantallas.
         /// </summary>
         /// <param name="newScreen">Instancia del control de usuario que representa la pantalla a mostrar.</param>
         /// <param name="saveInHistory">
-        /// Indica si la pantalla actual debe guardarse en la pila de historial para permitir retroceder.
+        /// Indica si la pantalla actual debe guardarse en el historial para permitir retroceder.
         /// </param>
         public void ShowScreen(UserControl newScreen, bool saveInHistory = true)
         {
-            if (saveInHistory && _currentScreen != null)
-            {
-                _navigationHistory.Push(_currentScreen);
-            }
-
-            _currentScreen = newScreen;
-            grdMainContainer.Children.Clear();
-            grdMainContainer.Children.Add(_currentScreen);
+            Navigation.ShowExistingScreen(newScreen, saveInHistory);
         }
 
         /// <summary>
-        /// Navega a la pantalla anterior registrada en el historial o muestra el menú principal
-        /// si el historial está vacío.
+        /// Regresa a la pantalla anterior del historial o muestra el menú principal si el historial está vacío.
+        /// Puente temporal hacia NavigationManager.
         /// </summary>
         public void GoBack()
         {
-            if (_navigationHistory.Count > ZeroHistorySize)
-            {
-                _currentScreen = _navigationHistory.Pop();
-                grdMainContainer.Children.Clear();
-                grdMainContainer.Children.Add(_currentScreen);
-            }
-            else
-            {
-                ShowScreen(new MainMenuScreen(), false);
-            }
+            Navigation.GoBack();
         }
 
         /// <summary>
-        /// Limpia todo el historial de pantallas navegadas.
+        /// Limpia el historial de pantallas. Puente temporal hacia NavigationManager.
         /// </summary>
         public void ClearHistory()
         {
-            _navigationHistory.Clear();
+            Navigation.ClearHistory();
         }
 
         private void OnMainWindowClosed(object sender, EventArgs eventArguments)
@@ -105,10 +91,17 @@ namespace TLMG.Client
             ServerConnection.EnterLobbyResultReceived -= OnEnterLobbyResultReceived;
         }
 
+        private void OnLoadingCompleted(object sender, EventArgs eventArguments)
+        {
+            LoadingScreen loadingScreen = (LoadingScreen)sender;
+            loadingScreen.LoadingCompleted -= OnLoadingCompleted;
+            Navigation.NavigateToWithoutHistory(ScreenId.Login);
+        }
+
         private void OnServerConnectionLost(object sender, EventArgs eventArguments)
         {
-            ClearHistory();
-            ShowScreen(new LoginScreen(), false);
+            Navigation.NavigateToWithoutHistory(ScreenId.Login);
+            Navigation.ClearHistory();
             MessageBox.Show(TryFindResource(ConnectionLostMessageKey) as string);
         }
 

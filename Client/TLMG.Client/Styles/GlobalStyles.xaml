@@ -470,6 +470,18 @@
         <Setter Property="Visibility" Value="Hidden" />
     </Style>
 
+    <Style x:Key="StatusMessageTextStyle" TargetType="TextBlock" BasedOn="{StaticResource ErrorTextStyle}">
+        <Setter Property="Foreground" Value="{StaticResource Brush_Accent}" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsVisible}" Value="True">
+                <Setter Property="Visibility" Value="Visible" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsError}" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource Brush_Error}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="StatusTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="11" />
         <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />

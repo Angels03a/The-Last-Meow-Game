@@ -2,6 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using TLMG.Client.Navigation;
 using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
@@ -84,8 +85,9 @@ namespace TLMG.Client.Views
 
         private void OnBackRequested(object sender, EventArgs e)
         {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(new LoginScreen());
+            NavigationManager navigationManager = ((App)Application.Current).Navigation;
+            navigationManager.NavigateToWithoutHistory(ScreenId.Login);
+            navigationManager.ClearHistory();
         }
 
         private void OnRedirectTimerTick(object sender, EventArgs e)
