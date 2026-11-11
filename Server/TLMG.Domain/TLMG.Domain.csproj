@@ -53,10 +53,12 @@
     <Compile Include="Repositories\FriendshipLookupStatus.cs" />
     <Compile Include="Repositories\IFriendshipRepository.cs" />
     <Compile Include="Repositories\IPlayerRepository.cs" />
+    <Compile Include="Repositories\IVerificationCodeRepository.cs" />
     <Compile Include="Repositories\LeaderboardLookup.cs" />
     <Compile Include="Repositories\PlayerCredentials.cs" />
     <Compile Include="Repositories\PlayerExistenceLookupStatus.cs" />
     <Compile Include="Repositories\RankedPlayer.cs" />
+    <Compile Include="Repositories\VerificationCodeRecord.cs" />
     <Compile Include="Validators\ChatValidator.cs" />
     <Compile Include="Validators\PlayerAccountRegistrationValidator.cs" />
   </ItemGroup>
