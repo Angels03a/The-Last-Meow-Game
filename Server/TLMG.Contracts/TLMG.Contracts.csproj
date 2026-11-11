@@ -67,6 +67,7 @@
     <Compile Include="DataContracts\OperationSubscribeToFriendsResult.cs" />
     <Compile Include="DataContracts\PlayerAccountRegistration.cs" />
     <Compile Include="DataContracts\RoomInvitation.cs" />
+    <Compile Include="IForgotPasswordManager.cs" />
     <Compile Include="IFriendsManager.cs" />
     <Compile Include="IFriendsManagerCallback.cs" />
     <Compile Include="ILeaderboardManager.cs" />
