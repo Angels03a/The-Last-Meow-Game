@@ -80,6 +80,8 @@
     <Compile Include="Models\LobbyPlayerEntry.cs" />
     <Compile Include="Models\ModerationMode.cs" />
     <Compile Include="Models\PlayerRankEntry.cs" />
+    <Compile Include="Navigation\DialogManager.cs" />
+    <Compile Include="Navigation\IDialogManager.cs" />
     <Compile Include="Navigation\INavigationHost.cs" />
     <Compile Include="Navigation\INavigationService.cs" />
     <Compile Include="Navigation\IScreenFactory.cs" />
