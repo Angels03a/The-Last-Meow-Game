@@ -1,6 +1,7 @@
 ﻿using System.Runtime.Serialization;
 
-namespace TLMG.Contracts.DataContracts {
+namespace TLMG.Contracts.DataContracts
+{
 
     /// <summary>
     /// Resultado genérico de una operación del servidor.
