@@ -8,7 +8,7 @@
              mc:Ignorable="d"
              d:DesignHeight="720"
              d:DesignWidth="1280"
-             behaviors:BusyCursorBehavior.IsBusy="{Binding IsBusy}">
+             behaviors:WaitCursorBehavior.IsBusy="{Binding IsBusy}">
     <local:LocalizableScreen.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -87,8 +87,8 @@
                     <PasswordBox Style="{StaticResource FieldStyle}"
                                  Visibility="{Binding IsPasswordHidden,
                                      Converter={StaticResource BooleanToVisibilityConverter}}"
-                                 behaviors:PasswordBoxBehavior.BindPassword="True"
-                                 behaviors:PasswordBoxBehavior.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                 behaviors:PasswordBindingBehavior.BindPassword="True"
+                                 behaviors:PasswordBindingBehavior.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBox Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FieldStyle}"
                              Visibility="{Binding IsPasswordVisible,

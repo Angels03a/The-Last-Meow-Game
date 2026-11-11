@@ -99,8 +99,8 @@
                                Style="{StaticResource FieldLabelTextStyle}" />
                     <PasswordBox Style="{StaticResource FieldStyle}"
                                  Margin="0,0,0,10"
-                                 behaviors:PasswordBoxBehavior.BindPassword="True"
-                                 behaviors:PasswordBoxBehavior.BoundPassword="{Binding Password}" />
+                                 behaviors:PasswordBindingBehavior.BindPassword="True"
+                                 behaviors:PasswordBindingBehavior.BoundPassword="{Binding Password}" />
                     <TextBlock Text="{Binding PasswordErrorMessage}"
                                Visibility="{Binding HasPasswordError, Converter={StaticResource BoolToVis}}"
                                Style="{StaticResource ErrorTextStyle}" 
@@ -125,8 +125,8 @@
                                Style="{StaticResource FieldLabelTextStyle}" 
                                Height="15" />
                     <PasswordBox Style="{StaticResource FieldStyle}"
-                                 behaviors:PasswordBoxBehavior.BindPassword="True"
-                                 behaviors:PasswordBoxBehavior.BoundPassword="{Binding ConfirmPassword}" />
+                                 behaviors:PasswordBindingBehavior.BindPassword="True"
+                                 behaviors:PasswordBindingBehavior.BoundPassword="{Binding ConfirmPassword}" />
                     <TextBlock Text="{Binding ConfirmPasswordErrorMessage}"
                                Visibility="{Binding HasConfirmPasswordError, Converter={StaticResource BoolToVis}}"
                                Style="{StaticResource ErrorTextStyle}" 

@@ -59,6 +59,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Behaviors\PasswordBindingBehavior.cs" />
+    <Compile Include="Behaviors\WaitCursorBehavior.cs" />
     <Compile Include="Communication\LobbyCountdown.cs" />
     <Compile Include="Communication\ServerConnectionManager.Readiness.cs" />
     <Compile Include="Communication\ServerConnectionManager.Chat.cs" />
