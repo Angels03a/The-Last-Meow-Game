@@ -59,42 +59,49 @@ namespace TLMG.Client.ViewModels
         /// <summary>Comando para navegar a la pantalla de cambio de contraseña.</summary>
         public ICommand ChangePasswordCommand { get; }
 
+        /// <summary>Obtiene si se está editando el avatar.</summary>
         public bool IsEditingAvatar
         {
             get { return _isEditingAvatar; }
             private set { SetProperty(ref _isEditingAvatar, value); }
         }
 
+        /// <summary>Obtiene si se está editando el nickname.</summary>
         public bool IsEditingNickname
         {
             get { return _isEditingNickname; }
             private set { SetProperty(ref _isEditingNickname, value); }
         }
 
+        /// <summary>Obtiene el avatar seleccionado.</summary>
         public string CurrentAvatar
         {
             get { return _currentAvatar; }
             private set { SetProperty(ref _currentAvatar, value); }
         }
 
+        /// <summary>Obtiene el nickname mostrado.</summary>
         public string DisplayNickname
         {
             get { return _displayNickname; }
             private set { SetProperty(ref _displayNickname, value); }
         }
 
+        /// <summary>Obtiene o establece el nickname en edición.</summary>
         public string EditingNickname
         {
             get { return _editingNickname; }
             set { SetProperty(ref _editingNickname, value); }
         }
 
+        /// <summary>Obtiene la clave de error de validación del nickname.</summary>
         public string NicknameErrorKey
         {
             get { return _nicknameErrorKey; }
             private set { SetProperty(ref _nicknameErrorKey, value); }
         }
 
+        /// <summary>Obtiene el texto localizado del último cambio de contraseña.</summary>
         public string LastPasswordChangeLabel
         {
             get { return _lastPasswordChangeLabel; }
@@ -104,6 +111,7 @@ namespace TLMG.Client.ViewModels
         /// <summary>
         /// Actualiza el formato del texto localizado de "Último cambio de contraseña".
         /// </summary>
+        /// <param name="passwordFormat">Formato localizado del último cambio de contraseña.</param>
         public void UpdateLocalizedFormats(string passwordFormat)
         {
             _currentPasswordFormat = passwordFormat ?? DefaultLastPasswordFormat;
@@ -111,8 +119,9 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
-        /// Procesa la selección de un nuevo avatar, validando que el parámetro enviado por el CommandParameter sea texto.
+        /// Procesa la selección de un nuevo avatar y valida que CommandParameter sea texto.
         /// </summary>
+        /// <param name="commandParameterAvatar">Avatar seleccionado en la interfaz.</param>
         public void ProcessAvatarSelection(object commandParameterAvatar)
         {
             if (commandParameterAvatar is string newAvatarText)
