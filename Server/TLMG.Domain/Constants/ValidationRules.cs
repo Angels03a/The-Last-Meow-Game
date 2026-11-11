@@ -16,7 +16,9 @@ namespace TLMG.Domain.Constants
         public const string DefaultProfileImage = "/img/default.png";
         public const int InitialStatisticValue = 0;
 
+        public const string PendingFriendshipState = "FRIEND_PENDING";
         public const string AcceptedFriendshipState = "FRIEND_ACCEPTED";
+        public const string RejectedFriendshipState = "FRIEND_REJECTED";
 
         public const int NicknameMinimumLength = 3;
         public const int NicknameMaximumLength = 12;

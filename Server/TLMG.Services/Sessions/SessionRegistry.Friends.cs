@@ -106,6 +106,87 @@ namespace TLMG.Services.Sessions
             return roomInvitationAcceptance;
         }
 
+        /// <inheritdoc />
+        public IFriendsManagerCallback FindFriendsCallbackOfUser(int userId)
+        {
+            IFriendsManagerCallback friendsCallback = null;
+
+            lock (_sessionsLock)
+            {
+                FriendsChannel friendsChannel;
+
+                if (_friendsChannelsByUserId.TryGetValue(userId, out friendsChannel))
+                {
+                    friendsCallback = friendsChannel.Callback;
+                }
+            }
+
+            return friendsCallback;
+        }
+
+        /// <inheritdoc />
+        public FriendsAddition AddFriendshipToOnlineChannels(int firstUserId, int secondUserId)
+        {
+            FriendsAddition friendsAddition;
+
+            lock (_sessionsLock)
+            {
+                FriendsChannel firstChannel = AddFriendToChannelInLock(firstUserId, secondUserId);
+                FriendsChannel secondChannel = AddFriendToChannelInLock(secondUserId, firstUserId);
+
+                friendsAddition = new FriendsAddition(
+                    firstChannel != null,
+                    FindCallbackOfChannel(firstChannel),
+                    secondChannel != null,
+                    FindCallbackOfChannel(secondChannel));
+            }
+
+            return friendsAddition;
+        }
+
+        /// <summary>
+        /// Reemplaza el canal de amigos del jugador por otro con el amigo nuevo en su lista; requiere _sessionsLock.
+        /// </summary>
+        /// <param name="ownerUserId">Jugador dueño del canal.</param>
+        /// <param name="newFriendUserId">Amigo que se suma a la lista guardada.</param>
+        /// <returns>El canal actualizado, o null si el jugador no tiene canal de amigos.</returns>
+        private FriendsChannel AddFriendToChannelInLock(int ownerUserId, int newFriendUserId)
+        {
+            FriendsChannel updatedChannel = null;
+            FriendsChannel currentChannel;
+
+            if (_friendsChannelsByUserId.TryGetValue(ownerUserId, out currentChannel))
+            {
+                List<int> friendUserIds = new List<int>(currentChannel.FriendUserIds);
+
+                if (!friendUserIds.Contains(newFriendUserId))
+                {
+                    friendUserIds.Add(newFriendUserId);
+                }
+
+                updatedChannel = new FriendsChannel(
+                    currentChannel.UserId,
+                    currentChannel.ChannelId,
+                    currentChannel.Callback,
+                    friendUserIds.AsReadOnly());
+                _friendsChannelsByUserId[ownerUserId] = updatedChannel;
+            }
+
+            return updatedChannel;
+        }
+
+        private static IFriendsManagerCallback FindCallbackOfChannel(FriendsChannel friendsChannel)
+        {
+            IFriendsManagerCallback friendsCallback = null;
+
+            if (friendsChannel != null)
+            {
+                friendsCallback = friendsChannel.Callback;
+            }
+
+            return friendsCallback;
+        }
+
         private FriendsSubscription SubscribeFriendsChannelInLock(
             string sessionToken,
             string channelId,

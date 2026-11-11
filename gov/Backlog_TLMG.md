@@ -674,6 +674,7 @@ Formato de entrada:
 - Por qué: el Paquete 1 congeló el contrato (SendFriendRequest, AcceptFriendRequest, DeclineFriendRequest, sus Result, FriendRequest, OnFriendRequestReceived, OnFriendAdded y PendingFriendRequests en OperationSubscribeToFriendsResult) y dejó cascarones en FriendsService que responden Common_UnexpectedError. Falta: IFriendshipRepository (búsqueda por nickname, fila de la pareja, pendientes, alta y cambio de estado condicionado, con EF y sin concatenar SQL), las reglas de pareja en FriendsService (solicitud cruzada se acepta sola; reactivar tras rechazo sin espera; ErrorKey de ErrorKeys.Friends), los avisos fuera del lock, el refresco de la lista de amigos del canal en SessionRegistry (parte de altas de BL-071) y el rechazo del invitado con Common_InvalidSessionError. Fuera de alcance: cancelar, bloquear, reportar y eliminar amigos. Incluye pruebas con un stub de IFriendshipRepository.
 - Depende de: Paquete 1; BL-153
 - Estado: Pendiente
+- Nota (2026-11-11 21:22): avance en la rama paquete2-amigos, sin confirmar: SendFriendRequest, AcceptFriendRequest y DeclineFriendRequest quedaron implementados en FriendsService con IFriendshipRepository (FriendshipRepository con EF; los cambios de estado son UPDATE parametrizados con las filas afectadas revisadas), FindFriendsCallbackOfUser y AddFriendshipToOnlineChannels en SessionRegistry (esta última cubre la parte de altas de BL-071) y PendingFriendRequests en la suscripción, con pruebas en TLMG.Services.Tests. Falta compilar, correr las pruebas, aplicar la v4.1 (BL-153) y probarlas con el cliente (BL-154). Sigue pendiente hasta tener el commit.
 
 ### BL-153 · Aplicar la v4.1 del script de base de datos y registrarla en la Bitácora
 - Creado: 2026-11-11 19:30
@@ -685,6 +686,24 @@ Formato de entrada:
 - Creado: 2026-11-11 19:30
 - Por qué: una sola regeneración del proxy (svcutil) con los contratos del Paquete 1 y el paso fijo de BL-057 (apertura 10 s, envío 15 s, cierre 5 s y sin identity en App.config). Después: ServerCallback implementa los callbacks nuevos; ServerConnectionManager gana un parcial para las solicitudes; FriendsScreen y FriendsViewModel muestran añadir por nickname y pendientes con aceptar y rechazar (BL-085, parcial); LobbyScreen muestra el combo de cartas por jugador y lee CardsPerPlayerCount de la sala (BL-082, parcial). Las claves de idioma ya están en el Paquete 1.
 - Depende de: Paquete 1
+- Estado: Pendiente
+
+### BL-155 · Amistades: enumeración de nicknames y falta de límite de solicitudes
+- Creado: 2026-11-11 21:22
+- Por qué: Friends_UserNotFoundError revela si un nickname existe, así que cualquier jugador registrado puede recorrer nicknames, y no hay límite de solicitudes: tras un rechazo se puede reenviar sin espera y sin tope por jugador ni por tiempo. Decidir una respuesta que no distinga entre inexistente y rechazada, un tope de solicitudes pendientes y un enfriamiento (este requeriría una columna de fecha de respuesta en Friendship, versión menor del script, Estándar §5.3). Decisión del encargado: queda fuera de BL-152.
+- Depende de: BL-152; decisión del encargado
+- Estado: Pendiente
+
+### BL-156 · Amistades: cancelar solicitud, quitar amigo y bloquear
+- Creado: 2026-11-11 21:22
+- Por qué: BL-152 solo cubre enviar, aceptar y rechazar. Faltan cancelar una solicitud enviada (la tabla no tiene estado de cancelada, sería un DELETE con GRANT DELETE sobre Friendship), quitar un amigo y bloquear o desbloquear (Block_List, BL-085), con sus operaciones de contrato, avisos y pantallas. La fila rechazada se reactiva con UPDATE; un DELETE cambiaría esa regla. Reportar jugadores no está en este alcance.
+- Depende de: BL-152; BL-085; BL-154
+- Estado: Pendiente
+
+### BL-157 · Amistades: el cliente aún no usa las operaciones nuevas
+- Creado: 2026-11-11 21:22
+- Por qué: el servidor ya expone SendFriendRequest, AcceptFriendRequest, DeclineFriendRequest, OnFriendRequestReceived, OnFriendAdded y PendingFriendRequests, pero el proxy del cliente no se ha regenerado y FriendsScreen sigue con los controles de añadir y pendientes ocultos (BL-085). Hasta entonces las operaciones solo se prueban con las pruebas del servidor. Un cliente con proxy viejo no conoce los callbacks nuevos: si recibe OnFriendRequestReceived su canal puede fallar, así que los clientes se actualizan juntos.
+- Depende de: BL-154
 - Estado: Pendiente
 
 ## Finalizados

@@ -85,6 +85,7 @@
     <Compile Include="Accounts\PlayerLogInService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceImplementation.cs" />
+    <Compile Include="Sessions\FriendsAddition.cs" />
     <Compile Include="Sessions\FriendsChangeStatus.cs" />
     <Compile Include="Sessions\FriendsChannel.cs" />
     <Compile Include="Sessions\FriendsSubscription.cs" />

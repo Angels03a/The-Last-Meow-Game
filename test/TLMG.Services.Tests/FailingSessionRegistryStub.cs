@@ -55,6 +55,12 @@ namespace TLMG.Services.Tests
         public RoomInvitationAcceptance AcceptRoomInvitation(string sessionToken, int invitationId) =>
             throw new InvalidOperationException(FailureMessage);
 
+        public IFriendsManagerCallback FindFriendsCallbackOfUser(int userId) =>
+            throw new InvalidOperationException(FailureMessage);
+
+        public FriendsAddition AddFriendshipToOnlineChannels(int firstUserId, int secondUserId) =>
+            throw new InvalidOperationException(FailureMessage);
+
         public LobbyMembershipChange ChangePlayerReadiness(
             string sessionToken,
             string channelId,

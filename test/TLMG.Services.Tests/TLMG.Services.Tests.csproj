@@ -27,6 +27,13 @@
   <ItemGroup>
     <Compile Include="FailingPasswordHasherStub.cs" />
     <Compile Include="FailingSessionRegistryStub.cs" />
+    <Compile Include="FriendsCallbackStub.cs" />
+    <Compile Include="FriendshipRepositoryStub.cs" />
+    <Compile Include="FriendsScenario.cs" />
+    <Compile Include="FriendsServiceAcceptRequestTests.cs" />
+    <Compile Include="FriendsServiceDeclineRequestTests.cs" />
+    <Compile Include="FriendsServiceSendRequestTests.cs" />
+    <Compile Include="FriendsServiceSubscribeTests.cs" />
     <Compile Include="LobbyCallbackStub.cs" />
     <Compile Include="LobbyReadinessHelper.cs" />
     <Compile Include="LobbyScenario.cs" />
@@ -36,6 +43,7 @@
     <Compile Include="PlayerLogInServiceTests.cs" />
     <Compile Include="PlayerRepositoryStub.cs" />
     <Compile Include="SessionRegistryCardsPerPlayerTests.cs" />
+    <Compile Include="SessionRegistryFriendsTests.cs" />
     <Compile Include="SessionRegistryTests.cs" />
     <Compile Include="TestAssembly.cs" />
   </ItemGroup>
