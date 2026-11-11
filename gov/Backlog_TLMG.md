@@ -60,6 +60,7 @@ Formato de entrada:
 - Por qué: usa un esquema de colas parecido al que se descartó en ADR-05.
 - Depende de: BL-009
 - Estado: Pendiente
+- 
 
 ### BL-011 · Alinear Drivers priorizados_V2 y Equipo3_Hito1_V2 con ADR-05 enmendado
 - Creado: 2026-10-20 10:30
