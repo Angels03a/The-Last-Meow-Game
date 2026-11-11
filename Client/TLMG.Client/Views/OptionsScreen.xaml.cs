@@ -32,8 +32,6 @@ namespace TLMG.Client.Views
 
             _viewModel.BackRequested += NavigateToMainMenu;
 
-            Unloaded += HandleScreenUnloaded;
-
             InitializeDefaultSettings();
             InitializeLanguageButtons();
         }
@@ -102,11 +100,6 @@ namespace TLMG.Client.Views
         {
             MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
             applicationMainWindow.ShowScreen(new MainMenuScreen());
-        }
-
-        private void HandleScreenUnloaded(object sender, RoutedEventArgs e)
-        {
-            _viewModel.BackRequested -= NavigateToMainMenu;
         }
     }
 }

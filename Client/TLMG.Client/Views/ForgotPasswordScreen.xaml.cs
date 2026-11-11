@@ -115,10 +115,6 @@ namespace TLMG.Client.Views
 
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
-            _viewModel.CodeSentRequested -= OnCodeSentRequested;
-            _viewModel.ValidationFailed -= OnValidationFailed;
-            _viewModel.BackRequested -= OnBackRequested;
-
             _redirectTimer?.Stop();
         }
 

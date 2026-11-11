@@ -69,9 +69,6 @@ namespace TLMG.Client.Views
 
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
-            _viewModel.RefreshRequested -= OnRefreshRequested;
-            _viewModel.BackRequested -= OnBackRequested;
-
             CloseLeaderboardClient();
         }
 

@@ -34,25 +34,12 @@ namespace TLMG.Client.Views
             _viewModel.LeaderboardRequested += OnLeaderboardRequested;
             _viewModel.OptionsRequested += OnOptionsRequested;
             _viewModel.LogOutRequested += OnLogOutRequested;
-
-            Unloaded += OnScreenUnloaded;
         }
 
         protected override void UpdateDynamicLabels()
         {
             // TODO: Mostrar lo que se decida para el invitado, que no tiene nickname; hoy queda vacío. (BL-089).
             _viewModel.PlayerNickname = ((App)Application.Current).ServerConnection.PlayerNickname ?? string.Empty;
-        }
-
-        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
-        {
-            _viewModel.LobbyRequested -= OnLobbyRequested;
-            _viewModel.FriendsRequested -= OnFriendsRequested;
-            _viewModel.ProfileRequested -= OnProfileRequested;
-            _viewModel.HowToPlayRequested -= OnHowToPlayRequested;
-            _viewModel.LeaderboardRequested -= OnLeaderboardRequested;
-            _viewModel.OptionsRequested -= OnOptionsRequested;
-            _viewModel.LogOutRequested -= OnLogOutRequested;
         }
 
         private void OnLobbyRequested(object sender, EventArgs e)

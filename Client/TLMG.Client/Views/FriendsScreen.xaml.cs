@@ -133,8 +133,6 @@ namespace TLMG.Client.Views
 
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
-            _viewModel.BackRequested -= OnBackRequested;
-
             ServerConnection.FriendListReceived -= OnFriendListReceived;
             ServerConnection.FriendPresenceChanged -= OnFriendPresenceChanged;
             ServerConnection.InviteFriendResultReceived -= OnInviteFriendResultReceived;
