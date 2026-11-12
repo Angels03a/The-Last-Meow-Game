@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
+using TLMG.Client.Navigation;
 using TLMG.Client.UsersManagerReference;
 using TLMG.Client.ViewModels;
 
@@ -145,8 +146,7 @@ namespace TLMG.Client.Views
 
         private void OnInviteFriendsRequested(object sender, EventArgs e)
         {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(new FriendsScreen());
+            ((App)Application.Current).Navigation.NavigateTo(ScreenId.Friends);
         }
 
         private void OnReadinessChangeRequested(object sender, EventArgs e)

@@ -62,8 +62,10 @@
     <Compile Include="Behaviors\PasswordBindingBehavior.cs" />
     <Compile Include="Behaviors\WaitCursorBehavior.cs" />
     <Compile Include="Communication\IAccountsConnection.cs" />
+    <Compile Include="Communication\IFriendsConnection.cs" />
     <Compile Include="Communication\LobbyCountdown.cs" />
     <Compile Include="Communication\ServerConnectionManager.Accounts.cs" />
+    <Compile Include="Communication\ServerConnectionManager.FriendRequests.cs" />
     <Compile Include="Communication\ServerConnectionManager.Readiness.cs" />
     <Compile Include="Communication\ServerConnectionManager.Chat.cs" />
     <Compile Include="Communication\ChatInputHelper.cs" />
@@ -77,6 +79,7 @@
     </Compile>
     <Compile Include="Models\ChatMessageEntry.cs" />
     <Compile Include="Models\FriendEntry.cs" />
+    <Compile Include="Models\FriendRequestEntry.cs" />
     <Compile Include="Models\LobbyPlayerEntry.cs" />
     <Compile Include="Models\ModerationMode.cs" />
     <Compile Include="Models\PlayerRankEntry.cs" />

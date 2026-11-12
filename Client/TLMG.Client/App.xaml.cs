@@ -47,6 +47,7 @@ namespace TLMG.Client
             navigationManager.ScreenFactory = new ScreenFactory(
                 navigationManager,
                 new DialogManager(),
+                ServerConnection,
                 ServerConnection);
             Navigation = navigationManager;
 

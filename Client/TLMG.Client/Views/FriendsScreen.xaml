@@ -49,28 +49,40 @@
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0" Margin="40,32,40,24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="16" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <TextBox x:Name="txtSearch" 
-                         Grid.Column="0" 
-                         Style="{StaticResource SearchFieldStyle}" 
+                <TextBox Grid.Row="0"
+                         Grid.Column="0"
+                         Style="{StaticResource SearchFieldStyle}"
                          Tag="{DynamicResource Friends_SearchPlaceholder}"
-                         Visibility="Collapsed" />
+                         Text="{Binding NewFriendNickname, UpdateSourceTrigger=PropertyChanged}"
+                         Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding AddFriendCommand}" />
+                    </TextBox.InputBindings>
+                </TextBox>
 
-                <Button x:Name="btnAddFriend" 
-                        Grid.Column="2" 
-                        Content="{DynamicResource Friends_AddFriendButton}" 
+                <Button Grid.Row="0"
+                        Grid.Column="2"
+                        Content="{DynamicResource Friends_AddFriendButton}"
                         Style="{StaticResource AddFriendButtonStyle}"
-                        Visibility="Collapsed" />
+                        Command="{Binding AddFriendCommand}"
+                        Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                <TextBlock x:Name="lblFriendsStatusMessage"
+                <TextBlock Grid.Row="1"
                            Grid.Column="0"
-                           Style="{StaticResource FormMessageTextStyle}"
-                           Visibility="Collapsed" />
+                           Grid.ColumnSpan="3"
+                           DataContext="{Binding FriendsMessage}"
+                           Text="{Binding Text}"
+                           Style="{StaticResource StatusMessageTextStyle}" />
             </Grid>
 
             <Border Grid.Row="1" BorderBrush="{StaticResource Brush_Border}" BorderThickness="0,0,0,1" Margin="40,0,40,0">
@@ -88,25 +100,12 @@
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="btnTabPending" Style="{StaticResource TabNavInactiveButtonStyle}" Click="BtnTab_Click" Visibility="Collapsed">
+                    <Button x:Name="btnTabPending" Style="{StaticResource TabNavInactiveButtonStyle}" Click="BtnTab_Click" Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Friends_TabPending}" 
                                        VerticalAlignment="Center" />
                             <Border x:Name="brdBadgePending" Style="{StaticResource BadgeInactiveStyle}">
-                                <TextBlock x:Name="lblBadgePending" 
-                                           Text="2" 
-                                           Style="{StaticResource BadgeTextInactiveStyle}" />
-                            </Border>
-                        </StackPanel>
-                    </Button>
-
-                    <Button x:Name="btnTabBlocked" Style="{StaticResource TabNavInactiveButtonStyle}" Click="BtnTab_Click" Visibility="Collapsed">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Friends_TabBlocked}" 
-                                       VerticalAlignment="Center" />
-                            <Border x:Name="brdBadgeBlocked" Style="{StaticResource BadgeInactiveStyle}">
-                                <TextBlock x:Name="lblBadgeBlocked" 
-                                           Text="1" 
+                                <TextBlock Text="{Binding PendingBadgeCount}"
                                            Style="{StaticResource BadgeTextInactiveStyle}" />
                             </Border>
                         </StackPanel>
@@ -144,11 +143,8 @@
                                                 <Button x:Name="btnInviteFriend"
                                                         Content="{DynamicResource Friends_InviteButton}"
                                                         Style="{StaticResource ActionPrimarySmallButtonStyle}"
-                                                        IsEnabled="{Binding CanBeInvited}"
-                                                        Click="BtnInviteFriend_Click" />
-                                                <Button Content="{DynamicResource Friends_BlockButton}"
-                                                        Style="{StaticResource ActionDangerOutlineButtonStyle}"
-                                                        Visibility="Collapsed" />
+                                                        Command="{Binding DataContext.InviteFriendCommand, RelativeSource={RelativeSource AncestorType=local:FriendsScreen}}"
+                                                        CommandParameter="{Binding}" />
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -165,95 +161,62 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </StackPanel>
 
-                    <TextBlock Text="{DynamicResource {Binding EmptyFriendsMessageKey}}" 
-                               Style="{StaticResource EmptyStateTextStyle}" 
-                               Visibility="{Binding IsEmptyFriendsVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <TextBlock Text="{DynamicResource Friends_EmptyFriends}"
+                                   Style="{StaticResource EmptyStateTextStyle}"
+                                   Visibility="{Binding IsEmptyFriendsVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <TextBlock Text="{DynamicResource Friends_GuestWithoutFriendsMessage}"
+                                   Style="{StaticResource EmptyStateTextStyle}"
+                                   Visibility="{Binding IsGuest, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </StackPanel>
 
                     <StackPanel x:Name="pnlPendingContent" Visibility="Collapsed">
-                        <Border Style="{StaticResource FriendCardBorderStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                        <ItemsControl ItemsSource="{Binding PendingRequests}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource FriendCardBorderStyle}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
 
-                                <Border Grid.Column="0" Style="{StaticResource FriendAvatarBorderStyle}" Margin="0,0,16,0">
-                                    <TextBlock Text="🚀" Style="{StaticResource FriendAvatarEmojiStyle}" />
-                                </Border>
+                                            <Border Grid.Column="0" Style="{StaticResource FriendAvatarBorderStyle}" Margin="0,0,16,0">
+                                                <TextBlock Text="🐱" Style="{StaticResource FriendAvatarEmojiStyle}" />
+                                            </Border>
 
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="AstroKitty" Style="{StaticResource FriendNameTextStyle}" />
-                                    <TextBlock Text="{DynamicResource Friends_PendingIncoming}" Style="{StaticResource StatusTextOfflineStyle}" />
-                                </StackPanel>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Nickname}" Style="{StaticResource FriendNameTextStyle}" />
+                                                <TextBlock x:Name="lblRequestDirection" Text="{DynamicResource Friends_PendingOutgoing}" Style="{StaticResource StatusTextOfflineStyle}" />
+                                            </StackPanel>
 
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_AcceptButton}" Style="{StaticResource ActionSuccessButtonStyle}" />
-                                    <Button Content="{DynamicResource Friends_DeclineButton}" Style="{StaticResource ActionDangerButtonStyle}" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
+                                            <StackPanel x:Name="pnlRequestActions" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
+                                                <Button Content="{DynamicResource Friends_AcceptButton}"
+                                                        Style="{StaticResource ActionSuccessButtonStyle}"
+                                                        Command="{Binding DataContext.AcceptRequestCommand, RelativeSource={RelativeSource AncestorType=local:FriendsScreen}}"
+                                                        CommandParameter="{Binding}" />
+                                                <Button Content="{DynamicResource Friends_DeclineButton}"
+                                                        Style="{StaticResource ActionDangerButtonStyle}"
+                                                        Command="{Binding DataContext.DeclineRequestCommand, RelativeSource={RelativeSource AncestorType=local:FriendsScreen}}"
+                                                        CommandParameter="{Binding}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsIncoming}" Value="True">
+                                            <Setter TargetName="lblRequestDirection" Property="Text" Value="{DynamicResource Friends_PendingIncoming}" />
+                                            <Setter TargetName="pnlRequestActions" Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
 
-                        <Border Style="{StaticResource FriendCardBorderStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Border Grid.Column="0" Style="{StaticResource FriendAvatarBorderStyle}" Margin="0,0,16,0">
-                                    <TextBlock Text="🐱" Style="{StaticResource FriendAvatarEmojiStyle}" />
-                                </Border>
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="SchroBinger" Style="{StaticResource FriendNameTextStyle}" />
-                                    <TextBlock Text="{DynamicResource Friends_PendingOutgoing}" Style="{StaticResource StatusTextOfflineStyle}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_CancelButton}" Style="{StaticResource ActionGhostSmallButtonStyle}" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
+                        <TextBlock Text="{DynamicResource Friends_EmptyPending}"
+                                   Style="{StaticResource EmptyStateTextStyle}"
+                                   Visibility="{Binding IsEmptyPendingVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     </StackPanel>
-
-                    <TextBlock x:Name="lblEmptyPending" 
-                               Text="{DynamicResource Friends_EmptyPending}" 
-                               Style="{StaticResource EmptyStateTextStyle}" 
-                               Visibility="Collapsed" />
-
-                    <StackPanel x:Name="pnlBlockedContent" Visibility="Collapsed">
-                        <Border Style="{StaticResource FriendCardBorderStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <Border Grid.Column="0" Style="{StaticResource FriendAvatarBorderStyle}" Margin="0,0,16,0" Background="{StaticResource Brush_BackgroundDark}">
-                                    <TextBlock Text="🐱" Style="{StaticResource FriendAvatarEmojiStyle}" Opacity="0.5" />
-                                </Border>
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="ToxicTabby" Style="{StaticResource FriendNameTextStyle}" />
-                                    <TextBlock Text="{DynamicResource Friends_BlockedReason}" Style="{StaticResource StatusTextDangerStyle}" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="{DynamicResource Friends_UnblockButton}" Style="{StaticResource ActionGhostSmallButtonStyle}" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-
-                    <TextBlock x:Name="lblEmptyBlocked" 
-                               Text="{DynamicResource Friends_EmptyBlocked}" 
-                               Style="{StaticResource EmptyStateTextStyle}" 
-                               Visibility="Collapsed" />
                 </Grid>
             </ScrollViewer>
         </Grid>

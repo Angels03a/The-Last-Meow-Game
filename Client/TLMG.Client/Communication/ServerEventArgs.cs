@@ -6,7 +6,7 @@ namespace TLMG.Client.Communication
     /// Datos de un evento que el servidor originó: el DTO que llegó por el callback, sin textos traducidos.
     /// </summary>
     /// <typeparam name="TPayload">Tipo del DTO que llegó del servidor.</typeparam>
-    internal sealed class ServerEventArgs<TPayload> : EventArgs
+    public sealed class ServerEventArgs<TPayload> : EventArgs
     {
         /// <summary>Crea los datos de un evento del servidor.</summary>
         /// <param name="payload">DTO que llegó del servidor.</param>

@@ -49,7 +49,7 @@ namespace TLMG.Client.Views
 
         private void OnFriendsRequested(object sender, EventArgs e)
         {
-            ((MainWindow)Application.Current.MainWindow).ShowScreen(new FriendsScreen());
+            ((App)Application.Current).Navigation.NavigateTo(ScreenId.Friends);
         }
 
         private void OnProfileRequested(object sender, EventArgs e)

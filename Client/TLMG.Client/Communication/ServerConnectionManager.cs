@@ -180,6 +180,7 @@ namespace TLMG.Client.Communication
             PlayerUserId = NoUserId;
             PlayerNickname = null;
             FriendList = null;
+            _pendingFriendRequests = null;
             ClearCurrentRoom();
         }
 
@@ -309,6 +310,7 @@ namespace TLMG.Client.Communication
             if (operationSubscribeToFriendsResult.IsSuccess)
             {
                 FriendList = operationSubscribeToFriendsResult.Friends ?? Array.Empty<Friend>();
+                StorePendingFriendRequests(operationSubscribeToFriendsResult.PendingFriendRequests);
             }
 
             FriendListReceived?.Invoke(
@@ -328,41 +330,83 @@ namespace TLMG.Client.Communication
         /// <param name="friendRequest">La solicitud que llegó del servidor.</param>
         internal void NotifyFriendRequestReceived(FriendRequest friendRequest)
         {
-            FriendRequestReceived?.Invoke(this, new ServerEventArgs<FriendRequest>(friendRequest));
+            if (friendRequest != null)
+            {
+                AddPendingFriendRequest(friendRequest);
+                FriendRequestReceived?.Invoke(this, new ServerEventArgs<FriendRequest>(friendRequest));
+            }
         }
 
         /// <summary>Dispara FriendAdded.</summary>
         /// <param name="friend">El nuevo amigo que llegó del servidor.</param>
         internal void NotifyFriendAdded(Friend friend)
         {
-            FriendAdded?.Invoke(this, new ServerEventArgs<Friend>(friend));
+            if (friend != null)
+            {
+                AddFriendToList(friend);
+                FriendAdded?.Invoke(this, new ServerEventArgs<Friend>(friend));
+            }
         }
 
         /// <summary>Dispara SendFriendRequestResultReceived.</summary>
         /// <param name="result">Resultado que llegó del servidor.</param>
         internal void NotifySendFriendRequestResultReceived(OperationSendFriendRequestResult result)
         {
-            SendFriendRequestResultReceived?.Invoke(
-                this,
-                new ServerEventArgs<OperationSendFriendRequestResult>(result));
+            if (result != null)
+            {
+                if (result.IsSuccess && result.SentFriendRequest != null)
+                {
+                    AddPendingFriendRequest(result.SentFriendRequest);
+                }
+
+                if (result.IsSuccess && result.NewFriend != null)
+                {
+                    AddFriendToList(result.NewFriend);
+                }
+
+                SendFriendRequestResultReceived?.Invoke(
+                    this,
+                    new ServerEventArgs<OperationSendFriendRequestResult>(result));
+            }
         }
 
         /// <summary>Dispara AcceptFriendRequestResultReceived.</summary>
         /// <param name="result">Resultado que llegó del servidor.</param>
         internal void NotifyAcceptFriendRequestResultReceived(OperationAcceptFriendRequestResult result)
         {
-            AcceptFriendRequestResultReceived?.Invoke(
-                this,
-                new ServerEventArgs<OperationAcceptFriendRequestResult>(result));
+            if (result != null)
+            {
+                if (result.IsSuccess)
+                {
+                    RemovePendingFriendRequest(result.FriendRequestId);
+                }
+
+                if (result.IsSuccess && result.NewFriend != null)
+                {
+                    AddFriendToList(result.NewFriend);
+                }
+
+                AcceptFriendRequestResultReceived?.Invoke(
+                    this,
+                    new ServerEventArgs<OperationAcceptFriendRequestResult>(result));
+            }
         }
 
         /// <summary>Dispara DeclineFriendRequestResultReceived.</summary>
         /// <param name="result">Resultado que llegó del servidor.</param>
         internal void NotifyDeclineFriendRequestResultReceived(OperationDeclineFriendRequestResult result)
         {
-            DeclineFriendRequestResultReceived?.Invoke(
-                this,
-                new ServerEventArgs<OperationDeclineFriendRequestResult>(result));
+            if (result != null)
+            {
+                if (result.IsSuccess)
+                {
+                    RemovePendingFriendRequest(result.FriendRequestId);
+                }
+
+                DeclineFriendRequestResultReceived?.Invoke(
+                    this,
+                    new ServerEventArgs<OperationDeclineFriendRequestResult>(result));
+            }
         }
 
         /// <summary>Dispara ChangeCardsPerPlayerResultReceived.</summary>
