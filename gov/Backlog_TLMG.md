@@ -6,7 +6,7 @@ Control de pendientes, `FIXME`, `TODO` y actividades. Reglas fijas:
 2. Toda entrada lleva una **justificación breve** del porqué.
 3. Si depende de algo, se indica en **Depende de**.
 4. Al terminar se marca: `Finalizado el AAAA-MM-DD · commit <hash>`. Sin commit no se cierra. 
-4. Para Descartada. - Estado: Pendiente | En curso | Finalizado el AAAA-MM-DD · commit <hash> | Descartada el AAAA-MM-DD · motivo 
+5. Para Descartada. - Estado: Pendiente | En curso | Finalizado el AAAA-MM-DD · commit <hash> | Descartada el AAAA-MM-DD · motivo 
 6. Todo `FIXME` o `TODO` del código tiene su entrada aquí.
 
 Formato de entrada:
@@ -35,6 +35,7 @@ Formato de entrada:
 - Por qué: CU-01. Se construye con la bandera `VerificationEnabled` apagada por ahora.
 - Depende de: BL-006, BL-002, cuenta Gmail emisora
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): relación. La recuperación de contraseña sigue simulada: ForgotPasswordViewModel.cs:137 y NewPasswordViewModel.cs:176 llevan TODO que citan esta entrada, y VerificationViewModel.cs:20 compara con el código fijo «123456». Falta una operación de servidor que envíe el código, lo valide y guarde la nueva contraseña.
 
 ### BL-008 · Crear la cuenta Gmail emisora y el archivo de secretos
 - Creado: 2026-10-20 10:30
@@ -147,15 +148,6 @@ Formato de entrada:
 - Depende de: BL-021
 - Estado: Pendiente
 
-### BL-036 · Mover el callback y el cierre del canal a Communication/
-- Creado: 2026-10-25 00:49
-- Por qué: Estándar §4.1 y §11.1: la Vista no usa el proxy y el cierre del canal corresponde a Comunicación. Hoy CreateAccountScreen implementa el callback, crea el cliente y cierra el canal (CreateAccountScreen.xaml.cs:13-14, 109, 185-208). Incluye capturar TimeoutException (BL-020).
-- Depende de: BL-020, BL-035; decisión de BL-042
-- Estado: Pendiente
-- Nota (2026-10-25): los dos TODO provisionales que citan esta entrada: callback `LogInResult` vacío en CreateAccountScreen.xaml.cs:58 y callback `RegisterPlayerAccountResult` vacío en LoginScreen.xaml.cs:57. Se quitan al mover los callbacks a la capa Comunicación.
-- Nota (2026-10-25): LeaderboardScreen ya implementa `ILeaderboardManagerCallback` con su propio canal (ea27455); es la tercera pantalla con el patrón. TODO vigentes que citan esta entrada (git grep): CreateAccountScreen.xaml.cs:58, LoginScreen.xaml.cs:57 y LeaderboardScreen.xaml.cs:73, los tres con el texto "Mover ... a la capa Comunicación".
-- Nota (2026-10-29 22:53): Communication/ ya existe (928bcaf) y concentra los canales de lobby y amigos (1db83da, 33dc497, e685982). Login, CreateAccount y Leaderboard conservan su propio canal y callback. Los TODO siguen en CreateAccountScreen.xaml.cs:58, LoginScreen.xaml.cs:57 y LeaderboardScreen.xaml.cs:73. Las líneas del "Por qué" cambiaron: el callback está en CreateAccountScreen.xaml.cs:14-16, la creación del cliente en :118 y el cierre en :194-217. BL-035 ya está cerrada.
-
 ### BL-037 · Sacar EF6 y SqlClient de TLMG.Services; DataAccess devuelve un resultado controlado
 - Creado: 2026-10-25 00:49
 - Por qué: Estándar §4.1 y §5.1: las excepciones de EF y SQL se capturan en DataAccess y las capas superiores no conocen esos tipos. PlayerAccountRegistrationService.cs:2-5, 104-128 y TLMG.Services.csproj:38-43 lo incumplen; PlayerRepository.CreatePlayer deja salir DbUpdateException. Conservar la detección de duplicados (ResolveSaveFailureErrorKey, :156) y moverla a DataAccess; no borrarla.
@@ -189,6 +181,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-07 04:28): FugitiveKittenScreen nace sin ViewModel; su estado visible vive en el code-behind. Al migrarla, crear FugitiveKittenViewModel con CatchKittenCommand, ejecutable solo mientras el tramo es visible, y un modelo de presentación propio.
 - Nota (2026-11-10 12:00): avance de infraestructura. Fase 4b (8c4e9be): ViewModelBase hereda de ObservableObject y los comandos son ICommand creados con el RelayCommand del toolkit, sin generadores (§7.1, D-50); el paquete se instaló en 6eb2fec. Fase 5 (cefa0a3): LoginViewModel y CreateAccountViewModel dependen de IAccountsConnection (D-60, D-70). El resto de las pantallas sigue pendiente.
+- Nota (2026-11-11 23:55): avance (b6dec93). En origin/dev-LS_Angel hay 12 pantallas migradas. Once reciben el ViewModel por constructor desde ScreenFactory (B3): Login y CreateAccount (384ef1a), MainMenu (c6a081a), ForgotPassword (7d882b1), Friends (93fa788), Lobby (0fc59c2), Options (f4b2ff6), Profile (e74e10b), NewPassword (da8518b), HowToPlay (09d5647) y Leaderboard (b6dec93). La duodécima, Verification, está en la fábrica (db51858) pero su ViewModel se crea dentro de la vista (VerificationScreen.xaml.cs:61). Gameplay tiene GameplayViewModel creado dentro de la vista (GameplayScreen.xaml.cs:32) y se migra en mvvm-resto. En la rama mvvm-resto, sin integrar: Gameplay, GameOver, RoundResult y Moderation (04a7d13) y MatchClosed (2d4bafb); con ellas serían 17. Fuera de la migración por decisión: FugitiveKitten, Loading y ChangePassword (BL-169) y MainWindow (BL-142).
 
 ### BL-043 · Limpieza de estilo del diagnóstico (no incluida en BL-027)
 - Creado: 2026-10-25 00:49
@@ -200,6 +193,7 @@ Formato de entrada:
 - Nota (2026-10-29 22:53): estado en 53263f1. Pendiente: variable con nombre de tipo (PlayerAccountRegistrationService.cs:83); constantes ...minimum/maximun (PlayerAccountRegistrationValidationHelper.cs:13-18); 4 ternarios multilínea (LocalizableScreen.cs:47-49, LoginScreen.xaml.cs:70-71, NewPasswordScreen.xaml.cs:99-100, VerificationScreen.xaml.cs:198-199); return de expresión (LeaderboardScreen.xaml.cs:301, NewPasswordScreen.xaml.cs:113); manejadores Timer_Tick (VerificationScreen.xaml.cs:126), CountdownTimer_Tick (LobbyScreen.xaml.cs:191), ToastTimer_Tick (:171) y DigitBox_* (VerificationScreen.xaml.cs:68, 85); public const sin documentar (ValidationHelper.cs:12-16); "{0} pts" como respaldo en LeaderboardScreen.xaml.cs:299; llaves de OperationRegisterPlayerAccountResult.cs:3; referencia System.Web en TLMG.Services.csproj:52; FIXME de LobbyScreen.xaml.cs:195 (antes :255). Ya no aplica: LoadLeaderboardData (se reemplazó en ea27455).
 - Nota (2026-11-02 20:33): avance. ca112d2 documentó las public const de ValidationHelper y 391433c renombró LoadingScreen_Loaded a OnScreenLoaded; la variable con nombre de tipo ya no existe desde 0358fe9. Sigue pendiente (git grep sobre 635c66f): constantes ...minimum/maximun (PlayerAccountRegistrationValidationHelper.cs:13-18); 4 ternarios multilínea (LocalizableScreen.cs:47-49, LoginScreen.xaml.cs:70-71, NewPasswordScreen.xaml.cs:99-100, VerificationScreen.xaml.cs:198-199); return de expresión (LeaderboardScreen.xaml.cs:301, NewPasswordScreen.xaml.cs:113); manejadores Timer_Tick (VerificationScreen.xaml.cs:126), DigitBox_* (:68, 85), ToastTimer_Tick y CountdownTimer_Tick (LobbyScreen.xaml.cs:171, 191); <param> y <returns> de los tres métodos públicos de ValidationHelper (:36, 62, 97); "{0} pts" como respaldo (LeaderboardScreen.xaml.cs:299); llaves de OperationRegisterPlayerAccountResult.cs:3; referencia System.Web (TLMG.Services.csproj:52); FIXME de LobbyScreen.xaml.cs:195.
 - Nota (2026-11-07 05:08): GlobalStyles.xaml tiene 77 líneas de más de 120 columnas (§9.2), todas anteriores a la pantalla del Gatito Fugitivo (medidas en caracteres sobre 5e4a8f9): 60, 61, 177, 181, 340, 341, 369, 378, 702, 804, 808, 812, 953, 957, 961, 965, 1027, 1032, 1037, 1066, 1131, 1207, 1215, 1249, 1250, 1285, 1290, 1316, 1322, 1336, 1341, 1391, 1393, 1433, 1434, 1578, 1724, 1728, 1778, 1783, 1786, 1810, 1815, 1821, 1837, 1844, 1846, 1869, 1879, 2077, 2085, 2093, 2101, 2149, 2157, 2230, 2235, 2240, 2257, 2261, 2265, 2435, 2453, 2471, 2489, 2527, 2538, 2542, 2571, 2583, 2817, 2828, 2834, 2845, 2918, 2922 y 2986. Además, FugitiveKittenScreen nace sin ViewModel y con su estado visible en el code-behind; su migración queda en BL-041.
+- Nota (2026-11-11 23:55): avance (b6dec93). En la migración de LeaderboardScreen quedaron corregidos el return de expresión (LeaderboardViewModel.CreateEntry usa variable local y un solo return) y el respaldo «{0} pts» (ahora «{0}» y el texto sale del diccionario, LeaderboardViewModel.cs:29). El return de expresión de NewPasswordScreen también desapareció (da8518b; NewPasswordScreen.xaml.cs:112 devuelve una variable local). La entrada sigue abierta por el resto de su alcance.
 
 ### BL-044 · Reglas de validación solo en el cliente y desalineación con la BD
 - Creado: 2026-10-25 00:49
@@ -212,12 +206,14 @@ Formato de entrada:
 - Por qué: Estándar §4.4 pide Images/ y nombres PascalCase. Hoy hay img/default.jpg y la BD guarda "/img/default.png", que no existe y fuerza el HACK de LeaderboardScreen (LeaderboardScreen.xaml.cs:272-273). Decidir qué guarda la BD y cuándo entra la foto como byte[] (gov/CLAUDE.md §10, FIXME de PlayerRepository.cs:26).
 - Depende de: decisión del equipo
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): avance (b6dec93). El HACK ya tiene comentario en el código: LeaderboardViewModel.cs:327 («Tratar como ruta de la aplicación el profile_image que guarda la BD, que no existe. (BL-045).») sobre ResolveAvatarImagePath. Sigue pendiente la decisión sobre qué guarda la BD y la carpeta Images/.
 
 ### BL-046 · Pantallas pendientes: GameplayScreen y ChangePasswordScreen
 - Creado: 2026-10-25 14:23
 - Por qué: LobbyScreen.xaml.cs:203 debe navegar a GameplayScreen al terminar la cuenta regresiva y ProfileScreen.xaml.cs:77 a ChangePasswordScreen; ninguna de las dos pantallas existe.
 - Depende de: BL-040 y Reglas de The Last Meow (GameplayScreen); BL-042 (navegación)
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): avance. GameplayScreen ya existe (Views/GameplayScreen.xaml.cs) y MainWindow la abre por reflexión en NavigateToAuthorizedMatch (MainWindow.xaml.cs:171-186, comentario BL-046). ChangePasswordScreen existe solo como Page de plantilla, sin lógica ni uso (Views/ChangePasswordScreen.xaml.cs, 28 líneas); ProfileViewModel.cs:190 conserva el TODO que cita esta entrada. Ver BL-169.
 
 ### BL-047 · Estados de usuario como enum
 - Creado: 2026-10-25 14:23
@@ -285,12 +281,7 @@ Formato de entrada:
 - Por qué: `database/seed/TLMG_Seed_FriendshipDemo.sql` (D-59) existe solo para revisar el lobby mientras las solicitudes reales no estén implementadas. No es parte del esquema y no debe llegar a una instalación real. Se elimina, o se sustituye por datos de prueba más completos, cuando exista BL-062.
 - Depende de: BL-062
 - Estado: Pendiente
-
-### BL-062 · Implementar las solicitudes de amistad reales
-- Creado: 2026-10-29 13:05
-- Por qué: solicitar, aceptar, rechazar y cancelar amistades quedó fuera del paso 4; hoy solo se precargan con el script de demostración. `FriendshipRepository` solo consulta aceptadas. Incluye los estados FRIEND_PENDING y FRIEND_REJECTED, el contrato y la pantalla de amigos.
-- Depende de: BL-061
-- Estado: Pendiente
+- Nota (2026-11-11 23:55): BL-062 quedó finalizada (6696c4f, 27cb845, 93fa788) y database/seed/TLMG_Seed_FriendshipDemo.sql sigue en el repositorio. Falta decidir si se elimina o se sustituye por datos de prueba más completos.
 
 ### BL-066 · Vencimiento de autorizaciones de entrada y de sesiones sin canal de lobby
 - Creado: 2026-10-29 15:07
@@ -303,6 +294,7 @@ Formato de entrada:
 - Por qué: hoy una invitación solo se acepta; solo desaparece al aceptarla, al eliminarse su sala o al terminar la sesión de quien invita o de quien recibe. Faltan rechazarla (invitado), cancelarla (quien invita) y vencerla por hora límite en UTC al recibir el latido, sin temporizadores (Estándar §10.4, D-54). Una invitación repetida al mismo jugador para la misma sala no vuelve a avisar, así que si el primer aviso se perdió el invitado no la ve.
 - Depende de: BL-058
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): hallazgo en el cliente (93fa788). FriendsViewModel.ExecuteInviteFriend (:230) no bloquea el segundo clic mientras llega el resultado (CanExecuteInviteFriend, :240, solo mira CanBeInvited), así que un doble clic envía dos InviteFriendToRoom y, como el servidor no vuelve a avisar de una invitación repetida, el segundo no se nota.
 
 ### BL-070 · Entregar los avisos de EndSession cuando exista cerrar sesión
 - Creado: 2026-10-29 15:42
@@ -330,12 +322,6 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-29 22:53): avance (33dc497). Si FriendsScreen está abierta, muestra el fallo traducido; si FriendList es null al abrirla, pide la lista otra vez. Fuera de esa pantalla, el fallo sigue sin mostrarse.
 
-### BL-078 · Unificar el cierre de canales WCF en el cliente
-- Creado: 2026-10-29 16:36
-- Por qué: ServerConnectionManager.CloseClientSafely repite la lógica Faulted→Abort / Close con Abort de respaldo que ya tienen LoginScreen, CreateAccountScreen y LeaderboardScreen. Al migrar esas pantallas a la capa de comunicación (BL-036) debe quedar una sola implementación, en el ServerConnectionManager de instancia que vive en App.
-- Depende de: BL-036
-- Estado: Pendiente
-
 ### BL-079 · El cliente se bloquea hasta 10 s al abrir un canal sin servidor
 - Creado: 2026-10-29 16:36
 - Por qué: Open() es síncrono con el openTimeout de D-46. Si el servidor no responde, la interfaz se congela hasta 10 s en el login, en OpenLobbyChannel y en el envío. Sin Task ni hilos, la salida es una pantalla de espera con DispatcherTimer o abrir el canal antes de mostrarla. El Estándar no lo regula.
@@ -362,6 +348,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Con eso se puede reactivar el nombre del bloque del perfil propio; las victorias y el rango siguen sin dato del servidor (BL-103).
 - Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente; las victorias y el rango del bloque del perfil siguen sin dato del servidor (BL-103).
+- Nota (2026-11-11 23:55): avance (0fc59c2). El combo de cartas por jugador se muestra con sala y se conecta a ChangeCardsPerPlayer; la cuenta regresiva pasó al LobbyViewModel (IsCountdownVisible). En LobbyScreen.xaml el chat no está en Collapsed. Siguen ocultos: bloque del perfil propio (:159, :176), panel de listos (:365), modal de expulsión (:21) y toast (:63); la votación de expulsión es BL-161.
 
 ### BL-083 · El cliente no puede consultar al servidor su sala actual
 - Creado: 2026-10-29 21:38
@@ -380,6 +367,7 @@ Formato de entrada:
 - Por qué: las Piezas 3 y 4 ocultaron (Collapsed) buscar, añadir amigo, las pestañas Pendientes y Bloqueados con sus datos de prueba (AstroKitty, SchroBinger, ToxicTabby, contadores 2 y 1) y el botón Bloquear de la plantilla; no tienen servidor detrás. El puntaje que mostraban las tarjetas de prueba se quitó porque Friend no lo trae.
 - Depende de: BL-062 (solicitudes de amistad); contratos de bloqueo
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): avance (93fa788). FriendsScreen ya no tiene contadores fijos ni datos de prueba: añadir por nickname y pendientes reales (aceptar y rechazar) están activos, y se retiraron del XAML la pestaña Bloqueados y el botón Bloquear. Pendiente: bloqueados y bloquear/desbloquear (BL-156).
 
 ### BL-086 · Mostrar si un amigo ya está en una sala
 - Creado: 2026-10-29 21:52
@@ -406,6 +394,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-03 15:41): cuando el invitado pase por el servidor, su número lo debe asignar el servidor y no el cliente, porque dos clientes podrían elegir el mismo. El formato lo fijan hoy las Reglas §3.0.1 ("Jugador N"); si se prefiere otro, hay que cambiar las Reglas en el mismo paso.
 - Nota (2026-11-11 08:08): prueba del 2026-11-11: el invitado entra al menú sin pasar por el servidor, por eso no aparece en el log del servidor. La BD v4.0 conserva dbo.Guest_Session (database/TLMG_DB_v4.0.sql:210, «sin cambios hasta decidir el invitado», :32) y el modelo EF la mapea, pero ningún servicio la usa (D-15).
+- Nota (2026-11-11 23:55): avance. FriendsScreen (93fa788): el invitado ve un solo mensaje fijo, sin caja de nickname, botón Añadir ni pestaña Pendientes (FriendsViewModel.IsGuest). Siguen abiertos: LobbyViewModel.cs:374 muestra Lobby_GuestCannotCreateRoomError en cada Activate (0fc59c2), el botón Invitar Amigos de LobbyScreen.xaml:199 sigue visible para el invitado y MainMenuViewModel.cs:30 conserva el TODO del nickname vacío.
 
 ### BL-090 · El ejemplo de LanguageManager del Estándar dice public y el código es internal
 - Creado: 2026-10-29 22:53
@@ -421,6 +410,7 @@ Formato de entrada:
 - Nota (2026-11-03 10:31): el servidor ya entrega el nickname y el id del jugador en OperationLogInResult (UserId y Nickname, solo si el inicio de sesión fue aceptado; parte del servidor de G6). Como LeaderboardPlayer no trae id, el cliente puede ubicarse en el ranking por su nickname (único en User); si el jugador no está entre los primeros 100, el puesto y los puntos propios siguen ocultos hasta BL-103.
 - Nota (2026-11-03 12:28): avance de G6: el servidor entrega UserId y Nickname en OperationLogInResult (7f23bda) y el proxy del cliente ya los trae (bcf1ca7). Falta el commit del cliente que resalta la fila propia por nickname; el puesto y los puntos propios siguen ocultos hasta BL-103.
 - Nota (2026-11-03 15:41): sigue abierta: el resaltado de la fila propia por nickname (parche 3 de G6) aún no se aplica. El puesto y los puntos propios dejan esta entrada y pasan a BL-103.
+- Nota (2026-11-11 23:55): estado (b6dec93). El FIXME se conserva en LeaderboardViewModel.cs:45 con el puesto y los puntos fijos. El resaltado de la fila propia por nickname sigue sin existir (PlayerRankEntry no tiene una propiedad de jugador local).
 
 ### BL-092 · El historial de navegación crece sin límite
 - Creado: 2026-10-29 22:53
@@ -428,6 +418,7 @@ Formato de entrada:
 - Depende de: BL-042
 - Estado: Pendiente
 - Nota (2026-11-11 08:06): la Fase 6.3 (6d344e7) unificó la pila en el NavigationManager y la 6.5 (57eafa3) saca el login del historial. El puente legacy sigue empujando duplicados al crear un MainMenuScreen nuevo en cada regreso.
+- Nota (2026-11-11 23:55): avance (b6dec93). Friends (93fa788), Options (f4b2ff6), Profile (e74e10b), HowToPlay (09d5647) y Leaderboard (b6dec93) regresan con INavigationManager.GoBack (git grep: FriendsViewModel.cs:227, OptionsViewModel.cs:136, ProfileViewModel.cs:148, HowToPlayViewModel.cs:86 y :93, LeaderboardViewModel.cs:372). Lobby sale con ClearHistory y NavigateToWithoutHistory al menú (0fc59c2) y Cerrar sesión limpia el historial (c6a081a). Los casos que describe el Por qué ya no apilan en dev-LS_Angel; GameOver, Gameplay, MatchClosed y RoundResult usan NavigateToWithoutHistory (BL-141). Queda decidir si se cierra junto con BL-141.
 
 ### BL-093 · Red de seguridad de excepciones en los puntos de entrada y en los cierres de canal del servidor
 - Creado: 2026-11-02 16:06
@@ -447,8 +438,9 @@ Formato de entrada:
 - Creado: 2026-11-02 16:06
 - Por qué: App.xaml.cs no maneja DispatcherUnhandledException, y CloseRegistrationClient, CloseLogInClient y CloseLeaderboardClient no capturan TimeoutException (CreateAccountScreen.xaml.cs:209, LoginScreen.xaml.cs:197, LeaderboardScreen.xaml.cs:187). Un error en la interfaz cierra la aplicación sin log ni mensaje. Agregar un manejador en App que registre con Error, muestre Common_UnexpectedError y regrese al inicio de sesión, como OnServerConnectionLost.
 - Depende de: BL-017 (clave única de error inesperado)
-- Estado: Pendiente
+- Estado: En curso
 - Nota (2026-11-02 17:23): diferida por decisión del encargado; pendiente conocido.
+- Nota (2026-11-11 23:55): avance (b6dec93). Leaderboard ya captura TimeoutException al abrir el canal (ServerConnectionManager.Leaderboard.cs:37) y al cerrarlo (CloseClientSafely); con Login y CreateAccount (384ef1a) queda resuelta la parte de CloseRegistrationClient, CloseLogInClient y CloseLeaderboardClient. El manejador de DispatcherUnhandledException en App.xaml.cs está hecho en ccad58d (registra con Error, navega al login y muestra Common_UnexpectedError), pero en la rama mvvm-resto y no integrado en dev-LS_Angel; sigue en curso hasta el merge.
 
 ### BL-098 · Dos mecanismos de avisos en el servidor
 - Creado: 2026-11-02 16:06
@@ -476,6 +468,7 @@ Formato de entrada:
 - Por qué: la opción 1 de G6 solo agrega UserId y Nickname a OperationLogInResult; no trae puntos, rango ni racha. Hace falta una operación con sessionToken que devuelva el perfil del jugador en sesión (la identidad sale del token, nunca de un id enviado por el cliente). Mientras no exista, BL-091 y BL-100 siguen mostrando esos valores ocultos.
 - Depende de: G6 (parte del cliente: regenerar el proxy y guardar la identidad en ServerConnectionManager); decisión del encargado sobre el contrato
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): avance. ProfileViewModel migrado a B3 (e74e10b) conserva los datos de muestra: DaysSincePasswordChange = 45 (ProfileViewModel.cs:16), «WhiskerKnight» (:23) y, en ProfileScreen.xaml, 142, 1,840, #38 y 87% (:91-112). Su <summary> cita esta entrada; el FIXME de LeaderboardViewModel cita BL-091, que remite aquí. Sin cambios de fondo hasta que exista la operación de perfil.
 
 ### BL-104 · Campo _hasVotedToKick de LobbyScreen asignado y nunca leído
 - Creado: 2026-11-03 15:41
@@ -488,6 +481,7 @@ Formato de entrada:
 - Por qué: DefaultCardsPerPlayerCount queda fija en 4 hasta que la modalidad llegue al servidor; entonces deberá reflejar la selección colaborativa de 4, 6 u 8 cartas.
 - Depende de: cambio de modalidad colaborativa del lobby
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): avance. La modalidad ya llega al servidor: estado por sala en SessionRegistry.Readiness.cs:297 y :387 (8b5b84f) y el cliente lee CardsPerPlayerCount de la sala y la cambia desde el combo de LobbyScreen (0fc59c2). DefaultCardsPerPlayerCount (:12) queda solo como valor inicial de la sala. Se cierra junto con BL-151.
 
 ### BL-106 · Conservar el chat 24 horas (RF-51)
 - Creado: 2026-11-03 23:53
@@ -582,6 +576,7 @@ Formato de entrada:
 - Por qué: la tecla F8 en MainMenuScreen, las teclas 1 a 6 (estados), C (colores) y Esc (GoBack) dentro de la pantalla, los estados congelados y el nickname de muestra existen solo para revisar la interfaz y no deben llegar a la entrega.
 - Depende de: BL-118, BL-119
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): avance. El acceso F8 salió de MainMenuScreen: ahora es un KeyBinding en MainMenuScreen.xaml hacia MainMenuViewModel.NavigateToFugitiveKittenCommand (MainMenuViewModel.cs:100-101 conserva los TODO de BL-122 y BL-118) y ScreenId.FugitiveKitten está en la fábrica (c6a081a). Siguen pendientes las teclas internas de la pantalla; FugitiveKittenScreen.xaml.cs:452 aún usa MainWindow.
 
 ### BL-131 · SetDigit de VerificationViewModel notifica el cambio con un nombre de propiedad equivocado
 - Creado: 2026-11-10 11:40
@@ -595,18 +590,21 @@ Formato de entrada:
 - Depende de: Fase 6
 - Estado: Pendiente
 - Nota (2026-11-11 08:02): probados a mano el inicio de sesión, el registro completo, el cambio de idioma y el servidor apagado. Faltan los CanExecute de los demás ViewModels.
+- Nota (2026-11-11 23:55): avance, según lo dictado por Martín. El 2026-11-11 probó a mano en dev-LS_Angel, con resultado correcto: Friends, Lobby (incluido el inicio de partida y el chat), MainMenu, ForgotPassword, Options, Profile, NewPassword, HowToPlay y Leaderboard, con 3 clientes en Friends y Lobby. No se registró si se cubrió el CanExecute de cada ViewModel. Pendiente: confirmar los CanExecute de cada ViewModel y probar a mano los ViewModels que no se mencionaron (Verification y los de la rama mvvm-resto).
 
 ### BL-134 · Unificar ErrorMessageHelper.FindErrorMessage con LanguageManager.FindText
 - Creado: 2026-11-10 11:46
 - Por qué: los dos buscan la clave en el diccionario del idioma activo y caen en Common_UnexpectedError si falta; ErrorMessageHelper exige un FrameworkElement y LanguageManager.FindText (Fase 5, cefa0a3) usa Application.Current. Hay que dejar una sola implementación (D-31). Relacionada con BL-017.
 - Depende de: Fase 6
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): relación (b6dec93). LanguageManager.FindText depende de Application.Current (LanguageManager.cs:86-92) y lo llaman 8 ViewModels (Login, CreateAccount, ForgotPassword, Friends, Leaderboard, Lobby, NewPassword y Profile), lo que impide probarlos sin una aplicación WPF. Resolver esto es requisito de BL-164.
 
 ### BL-141 · Retirar el puente de MainWindow y migrar los 7 BackRequested al manager
 - Creado: 2026-11-11 08:40
 - Por qué: MainWindow.ShowScreen, GoBack y ClearHistory siguen públicos como puente hacia NavigationManager.ShowExistingScreen, porque unas 15 pantallas legacy y el acceso F8 a FugitiveKittenScreen dependen de ellos. Al migrar cada pantalla a B3, su ViewModel debe llamar a INavigationManager; los 7 BackRequested (Verification, NewPassword, ForgotPassword, Friends, Leaderboard, Profile y Options) y los demás eventos de navegación pasan al manager. Al terminar se retiran el puente y ShowExistingScreen.
 - Depende de: BL-041
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): avance (b6dec93). Solo queda 1 de los 7 BackRequested (VerificationViewModel.cs:68); Friends, Profile, Options, NewPassword, ForgotPassword y Leaderboard ya usan INavigationManager. Application.Current.MainWindow sigue en 5 archivos (24 usos en la nota de BL-042): FugitiveKittenScreen.xaml.cs:452, GameOverScreen.xaml.cs:37, GameplayScreen.xaml.cs:145, ModerationScreen.xaml.cs:131 y RoundResult.xaml.cs:50. Puentes transitorios ((App)Application.Current).Navigation en 4 archivos: GameOverScreen.xaml.cs:32, GameplayScreen.xaml.cs:78, MatchClosedScreen.xaml.cs:25 y RoundResult.xaml.cs:45. MainWindow.ShowScreen lo usan GameOver, Gameplay, Moderation, RoundResult y MainWindow (:47, :186). La rama mvvm-resto (04a7d13, 2d4bafb) migra Gameplay, GameOver, RoundResult, Moderation y MatchClosed; falta integrarla.
 
 ### BL-142 · Mover los MessageBox de MainWindow a IDialogManager y los 6 eventos del servidor a MainWindowViewModel
 - Creado: 2026-11-11 08:42
@@ -619,6 +617,7 @@ Formato de entrada:
 - Por qué: ScreenFactory no tiene caso para Loading, Leaderboard ni Moderation, y Verification solo atiende el registro de cuenta. ForgotPasswordScreen arma su propia VerificationScreen y necesitará un caso para VerificationFlow.PasswordRecovery. Revisar también el "Atrás" de Verification (hoy crea un formulario de registro nuevo aunque la cuenta ya se guardó) cuando exista el 2FA real (BL-007).
 - Depende de: BL-041; BL-007
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): avance (b6dec93). VerificationFlow.PasswordRecovery tiene caso en ScreenFactory (7d882b1) y Leaderboard tiene el suyo (BuildLeaderboardEntry, b6dec93); FugitiveKitten sigue registrada en el mapa heredado (c6a081a). Siguen sin caso en la fábrica Loading y Moderation (git grep sobre ScreenFactory.cs). Pendiente también revisar el «Atrás» de Verification con el 2FA real (BL-007).
 
 ### BL-144 · NavigationManager sin <summary> y falta la clave Common_InfoTitle
 - Creado: 2026-11-11 08:46
@@ -631,6 +630,7 @@ Formato de entrada:
 - Por qué: las pantallas legacy crean su ViewModel y suscriben sus eventos en el constructor, y LanguageManager.RefreshActiveWindows hace Window.Content = null y lo restaura, lo que descarga y recarga la pantalla visible. BL-140 evita los botones muertos, pero la recarga sigue ocurriendo en cada cambio de idioma. Se elimina al migrar las pantallas a B3 (el ViewModel llega por constructor) y al quitar la recarga.
 - Depende de: BL-041
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): avance (b6dec93). Login, CreateAccount, MainMenu, ForgotPassword, Friends, Lobby, Options, Profile, NewPassword, HowToPlay y Leaderboard reciben el ViewModel por constructor desde ScreenFactory y ya no lo crean en la vista (git grep de «new …ViewModel()» sobre Views solo encuentra VerificationScreen.xaml.cs:61 y GameplayScreen.xaml.cs:32). La recarga al cambiar de idioma persiste: LanguageManager.cs:147-149 pone Content = null y lo restaura.
 
 ### BL-146 · Mover GlobalStyles.xaml a App.xaml
 - Creado: 2026-11-11 08:50
@@ -655,6 +655,7 @@ Formato de entrada:
 - Por qué: ProfileViewModel conserva datos de prueba: «45 días» (DaysSincePasswordChange) y el nickname «WhiskerKnight». Deben salir del servidor; se ligan a BL-103.
 - Depende de: BL-103
 - Estado: Pendiente
+- Nota (2026-11-11 23:55): estado (e74e10b). La migración de ProfileScreen a MVVM no quitó estos datos: DaysSincePasswordChange = 45 sigue en ProfileViewModel.cs:16 y «WhiskerKnight» en :23.
 
 ### BL-150 · Log del cliente: solo seguimiento de las acciones del jugador
 - Creado: 2026-11-11 08:58
@@ -668,6 +669,7 @@ Formato de entrada:
 - Depende de: Paquete 1; BL-154 para probarla desde el cliente
 - Estado: Pendiente
 - Nota (2026-11-11 20:32): avance en la rama paquete2-modalidad, sin confirmar: ChangeCardsPerPlayer quedó implementado en SessionRegistry.ChangeCardsPerPlayer (SessionRegistry.Readiness.cs) y en LobbyService.ChangeCardsPerPlayer (LobbyService.CardsPerPlayer.cs), con pruebas en TLMG.Services.Tests. Falta compilar, correr las pruebas y probarla con el cliente (BL-154). Sigue pendiente hasta tener el commit; BL-105 se cierra con ella.
+- Nota (2026-11-11 23:55): commit encontrado: 8b5b84f (SessionRegistry.ChangeCardsPerPlayer y LobbyService.ChangeCardsPerPlayer), con pruebas LobbyServiceCardsPerPlayerTests y SessionRegistryCardsPerPlayerTests. Sigue pendiente porque no consta que se hayan compilado y corrido las pruebas del servidor; el cliente ya la usa (0fc59c2).
 
 ### BL-152 · Servidor: solicitudes de amistad (enviar, aceptar y rechazar)
 - Creado: 2026-11-11 19:30
@@ -675,16 +677,11 @@ Formato de entrada:
 - Depende de: Paquete 1; BL-153
 - Estado: Pendiente
 - Nota (2026-11-11 21:22): avance en la rama paquete2-amigos, sin confirmar: SendFriendRequest, AcceptFriendRequest y DeclineFriendRequest quedaron implementados en FriendsService con IFriendshipRepository (FriendshipRepository con EF; los cambios de estado son UPDATE parametrizados con las filas afectadas revisadas), FindFriendsCallbackOfUser y AddFriendshipToOnlineChannels en SessionRegistry (esta última cubre la parte de altas de BL-071) y PendingFriendRequests en la suscripción, con pruebas en TLMG.Services.Tests. Falta compilar, correr las pruebas, aplicar la v4.1 (BL-153) y probarlas con el cliente (BL-154). Sigue pendiente hasta tener el commit.
+- Nota (2026-11-11 23:55): commit encontrado: 27cb845 (FriendsService, FriendshipRepository y SessionRegistry), con pruebas FriendsService*Tests y SessionRegistryFriendsTests. Sigue pendiente porque no consta que se hayan corrido las pruebas ni aplicado la v4.1 (BL-153); el cliente ya la usa (93fa788).
 
 ### BL-153 · Aplicar la v4.1 del script de base de datos y registrarla en la Bitácora
 - Creado: 2026-11-11 19:30
 - Por qué: database/TLMG_DB_v4.1.sql agrega GRANT INSERT y GRANT UPDATE (state, id_user_sender, id_user_receiver, request_date) sobre Friendship para role_tlmg_app (Estándar §5.3) y se puede volver a ejecutar. Hay que ejecutarlo con una cuenta administradora en cada base (desarrollo y entrega), comprobar que SET NOEXEC OFF antes de la sección 5 reaplica los permisos sobre una base v4.0, verificar con la cuenta de la aplicación que inserta y actualiza solo esas columnas (ver la nota de BL-013) y registrar la versión y la decisión en la Bitácora (BL-114).
-- Depende de: Paquete 1
-- Estado: Pendiente
-
-### BL-154 · Regenerar el proxy y adaptar el cliente a amigos y modalidad
-- Creado: 2026-11-11 19:30
-- Por qué: una sola regeneración del proxy (svcutil) con los contratos del Paquete 1 y el paso fijo de BL-057 (apertura 10 s, envío 15 s, cierre 5 s y sin identity en App.config). Después: ServerCallback implementa los callbacks nuevos; ServerConnectionManager gana un parcial para las solicitudes; FriendsScreen y FriendsViewModel muestran añadir por nickname y pendientes con aceptar y rechazar (BL-085, parcial); LobbyScreen muestra el combo de cartas por jugador y lee CardsPerPlayerCount de la sala (BL-082, parcial). Las claves de idioma ya están en el Paquete 1.
 - Depende de: Paquete 1
 - Estado: Pendiente
 
@@ -700,10 +697,58 @@ Formato de entrada:
 - Depende de: BL-152; BL-085; BL-154
 - Estado: Pendiente
 
-### BL-157 · Amistades: el cliente aún no usa las operaciones nuevas
-- Creado: 2026-11-11 21:22
-- Por qué: el servidor ya expone SendFriendRequest, AcceptFriendRequest, DeclineFriendRequest, OnFriendRequestReceived, OnFriendAdded y PendingFriendRequests, pero el proxy del cliente no se ha regenerado y FriendsScreen sigue con los controles de añadir y pendientes ocultos (BL-085). Hasta entonces las operaciones solo se prueban con las pruebas del servidor. Un cliente con proxy viejo no conoce los callbacks nuevos: si recibe OnFriendRequestReceived su canal puede fallar, así que los clientes se actualizan juntos.
-- Depende de: BL-154
+### BL-162 · Aviso al remitente cuando rechazan su solicitud de amistad
+- Creado: 2026-11-11 23:55
+- Por qué: DeclineFriendRequest solo responde a quien rechaza (FriendsService.cs:295-296 crea el resultado sin avisos) y el remitente no se entera: su solicitud sigue como «enviada» en el cliente hasta que vuelve a suscribirse a los amigos. Hace falta un callback nuevo en IFriendsManagerCallback (cambio de contrato) y su manejo en FriendsViewModel. Decidirlo junto con BL-155, porque avisar el rechazo también revela información.
+- Depende de: BL-152; BL-155 (decisión del encargado)
+- Estado: Pendiente
+
+### BL-163 · Aviso de solicitud recibida fuera de la pantalla de Amigos
+- Creado: 2026-11-11 23:55
+- Por qué: ServerConnectionManager guarda la solicitud recibida (PendingFriendRequests, 93fa788), pero solo FriendsViewModel muestra el aviso (Friends_NewRequestFormat). Con otra pantalla abierta, el jugador no se entera hasta abrir Amigos. Decidir dónde avisar (insignia en el menú, diálogo por IDialogManager o aviso propio como BL-087), sin MessageBox en las vistas.
+- Depende de: BL-087; BL-142
+- Estado: Pendiente
+
+### BL-164 · Proyecto TLMG.Client.Tests (xUnit, D-61)
+- Creado: 2026-11-11 23:55
+- Por qué: no existe proyecto de pruebas del cliente: test/ solo tiene TLMG.Services.Tests y TLMG.Domain.Tests. Estándar §15.2 pide un proyecto .Tests con el nombre exacto del de producción (test/TLMG.Client.Tests) y xUnit.net (D-61). Cubrir cada ViewModel con flujo normal, 3 alternos y 1 de excepción; ya dependen de interfaces por área (IAccountsConnection, IFriendsConnection, ILobbyConnection, ILeaderboardConnection) y de INavigationManager e IDialogManager. Obstáculos: LanguageManager.FindText usa Application.Current (BL-134) y los DispatcherTimer. Decidido: se crea después de la demo.
+- Depende de: BL-039; BL-080; BL-134
+- Estado: Pendiente
+
+### BL-165 · Reportes y bloqueos reales en Moderation
+- Creado: 2026-11-11 23:55
+- Por qué: el flujo de moderación es de demostración: en la rama mvvm-resto, ModerationViewModel.cs:44 lleva un FIXME sin entrada («todavía no envía reportes ni bloqueos al servidor», 04a7d13) que debe citar esta entrada. Faltan los contratos de reporte y de bloqueo (Block_List) y la navegación desde la sala y la partida. Los FIXME de mvvm-resto sin entrada (GameOverViewModel.cs:26, RoundResultViewModel.cs:26 y ModerationViewModel.cs:44) deben citar su BL antes del merge (Estándar §12.3): Moderation, BL-165; GameOver y RoundResult, BL-166. ForgotPasswordScreen.xaml.cs:64 de esa rama lleva un TODO sin BL; en dev-LS_Angel ese archivo ya no lo tiene (7d882b1, el TODO equivalente está en ForgotPasswordViewModel.cs:137 y cita BL-007), así que al integrar hay que revisar si sigue existiendo y, si no, conservar la versión de dev-LS_Angel.
+- Depende de: BL-156; decisión de contrato (reportar quedó fuera de BL-152)
+- Estado: Pendiente
+
+### BL-166 · Datos de demostración en resultado de ronda, fin de partida, inactividad y partida cerrada
+- Creado: 2026-11-11 23:55
+- Por qué: en la rama mvvm-resto, RoundResultViewModel.cs:26-33 y GameOverViewModel.cs:26-28 llevan un FIXME sin entrada y valores fijos («WhiskerKnight», «NyanProwler»), GameOverScreen.xaml:63 repite un nombre fijo (y :97 en dev-LS_Angel) y MatchClosedViewModel.cs:11 fija 10 minutos de inactividad (04a7d13, 2d4bafb). En dev-LS_Angel, GameplayViewModel.cs:42-44 expone los comandos de demostración DemoRevealCards, DemoGameOver y DemoInactivity. Los datos deben salir del servidor cuando exista el contrato de partida, y los comandos de demostración no deben llegar a la entrega. Los FIXME de mvvm-resto sin entrada (GameOverViewModel.cs:26, RoundResultViewModel.cs:26 y ModerationViewModel.cs:44) deben citar su BL antes del merge (Estándar §12.3): Moderation, BL-165; GameOver y RoundResult, BL-166. ForgotPasswordScreen.xaml.cs:64 de esa rama lleva un TODO sin BL; en dev-LS_Angel ese archivo ya no lo tiene (7d882b1, el TODO equivalente está en ForgotPasswordViewModel.cs:137 y cita BL-007), así que al integrar hay que revisar si sigue existiendo y, si no, conservar la versión de dev-LS_Angel.
+- Depende de: BL-116; BL-117; BL-046
+- Estado: Pendiente
+
+### BL-167 · Retirar Lobby_ErrorTitle y Lobby_GameplayUnavailableError (claves sin uso)
+- Creado: 2026-11-11 23:55
+- Por qué: tras migrar LobbyScreen a MVVM (0fc59c2), los diálogos usan Common_ErrorTitle y Lobby_ErrorTitle ya no se usa fuera de los diccionarios (git grep). Lobby_GameplayUnavailableError todavía la usa MainWindow.xaml.cs:180 en dev-LS_Angel; en mvvm-resto ya no tiene uso, así que solo se puede retirar tras integrar esa rama. Leaderboard_ErrorTitle quedó igual tras b6dec93. Quitarlas de es-MX y en-US con paridad exacta de claves.
+- Depende de: integración de mvvm-resto; BL-110
+- Estado: Pendiente
+
+### BL-168 · Log «jugador 0» en la validación del nickname antes de tener id
+- Creado: 2026-11-11 23:55
+- Por qué: FriendsService.cs:445 y :450 llaman a LogRejectedOperation con ValidationRules.NoUserId (0) cuando el nickname no es válido o la sesión no existe todavía, y el mensaje (FriendsService.cs:851-853) queda «Se rechazó solicitar amistad del jugador 0: …». El 0 confunde al leer el log. Resolver la sesión antes de validar el nickname o registrar sin id; el mensaje sigue en español y sin datos sensibles (gov/CLAUDE.md §6).
+- Depende de: BL-152
+- Estado: Pendiente
+
+### BL-169 · Decisión D-xx para pantallas atómicas sin ViewModel (Loading, ChangePassword)
+- Creado: 2026-11-11 23:55
+- Por qué: la migración a B3 (BL-041) deja fuera LoadingScreen (la crea MainWindow.xaml.cs:47) y ChangePasswordScreen (Page de plantilla de 28 líneas, sin uso; ProfileViewModel.cs:190 la cita en un TODO de BL-046) porque no tienen estado ni comandos propios. Decidir si se les crea un ViewModel o si se excluyen del patrón con una decisión registrada en la Bitácora (BL-114).
+- Depende de: decisión del encargado; BL-114
+- Estado: Pendiente
+
+### BL-170 · Declaración de IA del SAD §1.4
+- Creado: 2026-11-11 23:55
+- Por qué: gov/CLAUDE.md §1 dice que el uso de IA se declara en el SAD (§1.4) y no en el historial de commits. Falta redactarla: qué se pidió a la herramienta en cada paso, qué se aceptó o rechazó y cómo se verificó (compilación en Visual Studio, pruebas manuales y revisión del diff).
+- Depende de: BL-026
 - Estado: Pendiente
 
 ## Finalizados
@@ -1044,6 +1089,7 @@ Formato de entrada:
 - Estado: Descartada el 2026-11-11 · ya no aplica: CloseRegistrationClient y CloseLogInClient se retiraron en 384ef1a y ServerConnectionManager.Accounts.cs:111 captura TimeoutException; lo que queda lo cubren BL-095 (TimeoutException en Leaderboard), BL-078 (cierre unificado de canales) y BL-079 (bloqueo al abrir un canal) · commit 384ef1a
 - Nota (2026-10-29 22:53): CloseRegistrationClient ya captura CommunicationException (CreateAccountScreen.xaml.cs:209-213) pero no TimeoutException. El mismo hueco está en LoginScreen.CloseLogInClient (:182) y LeaderboardScreen.CloseLeaderboardClient (:172); ServerConnectionManager.CloseClientSafely sí captura las dos. Con closeTimeout de 5 s (App.config:9) el bloqueo máximo es de 5 s. Se resuelve junto con BL-078.
 - Nota (2026-11-11 12:32): estado anterior: En curso (mitigación parcial: timeouts del binding en commit 95279e7, integrado en 9e4365d; cierre del canal en Unloaded en 84e35b8, integrado en 8e260fc). Falta capturar `TimeoutException` y `CommunicationException` en `CloseRegistrationClient` y decidir sobre el bloqueo de la interfaz.
+- Nota (2026-11-11 23:55): seguimiento (b6dec93). El hueco que señalaba la nota del 2026-10-29 en LeaderboardScreen.CloseLeaderboardClient quedó cubierto: la consulta y el cierre del canal pasaron a ServerConnectionManager.Leaderboard.cs, que captura TimeoutException al abrir (:37), y CloseClientSafely captura CommunicationException y TimeoutException al cerrar (ServerConnectionManager.cs:733 y :738). La parte pendiente que remitía a BL-095 y BL-078 queda resuelta.
 
 ### BL-024 · Verificar si hay tiempo límite de espera del resultado por callback en el registro
 - Creado: 2026-10-20 16:50
@@ -1084,3 +1130,41 @@ Formato de entrada:
 - Se hace dentro de BL-109, que es el cambio de contrato; incluye corregir el nombre desfasado OperationRequestMatchStartRequest.
 - Depende de: BL-109
 - Estado: Finalizado el 2026-11-11 · commits 7b8ae86 y f82c786
+
+### BL-036 · Mover el callback y el cierre del canal a Communication/
+- Creado: 2026-10-25 00:49
+- Por qué: Estándar §4.1 y §11.1: la Vista no usa el proxy y el cierre del canal corresponde a Comunicación. Hoy CreateAccountScreen implementa el callback, crea el cliente y cierra el canal (CreateAccountScreen.xaml.cs:13-14, 109, 185-208). Incluye capturar TimeoutException (BL-020).
+- Depende de: BL-020, BL-035; decisión de BL-042
+- Estado: Finalizado el 2026-11-11 · commits cefa0a3, 384ef1a y b6dec93
+- Nota (2026-10-25): los dos TODO provisionales que citan esta entrada: callback `LogInResult` vacío en CreateAccountScreen.xaml.cs:58 y callback `RegisterPlayerAccountResult` vacío en LoginScreen.xaml.cs:57. Se quitan al mover los callbacks a la capa Comunicación.
+- Nota (2026-10-25): LeaderboardScreen ya implementa `ILeaderboardManagerCallback` con su propio canal (ea27455); es la tercera pantalla con el patrón. TODO vigentes que citan esta entrada (git grep): CreateAccountScreen.xaml.cs:58, LoginScreen.xaml.cs:57 y LeaderboardScreen.xaml.cs:73, los tres con el texto "Mover ... a la capa Comunicación".
+- Nota (2026-10-29 22:53): Communication/ ya existe (928bcaf) y concentra los canales de lobby y amigos (1db83da, 33dc497, e685982). Login, CreateAccount y Leaderboard conservan su propio canal y callback. Los TODO siguen en CreateAccountScreen.xaml.cs:58, LoginScreen.xaml.cs:57 y LeaderboardScreen.xaml.cs:73. Las líneas del "Por qué" cambiaron: el callback está en CreateAccountScreen.xaml.cs:14-16, la creación del cliente en :118 y el cierre en :194-217. BL-035 ya está cerrada.
+- Nota (2026-11-11 23:55): cierre: Login y CreateAccount pasaron por ServerConnectionManager.Accounts.cs (cefa0a3) y sus CloseRegistrationClient y CloseLogInClient se retiraron (384ef1a); LeaderboardScreen dejó su callback y su canal propios y ahora usa LeaderboardCallback y ServerConnectionManager.Leaderboard.cs (b6dec93). git grep de ManagerCallback, InstanceContext, ManagerClient y UsersManagerReference sobre Views y ViewModels no encuentra nada, y los TODO «Mover ... a la capa Comunicación» ya no existen. El cierre del canal captura TimeoutException (CloseClientSafely, ServerConnectionManager.cs:738). Las vistas de mvvm-resto no reintroducen callbacks.
+
+### BL-062 · Implementar las solicitudes de amistad reales
+- Creado: 2026-10-29 13:05
+- Por qué: solicitar, aceptar, rechazar y cancelar amistades quedó fuera del paso 4; hoy solo se precargan con el script de demostración. `FriendshipRepository` solo consulta aceptadas. Incluye los estados FRIEND_PENDING y FRIEND_REJECTED, el contrato y la pantalla de amigos.
+- Depende de: BL-061
+- Estado: Finalizado el 2026-11-11 · commits 6696c4f, 27cb845 y 93fa788
+- Nota (2026-11-11 23:55): cierre: contrato y script v4.1 en 6696c4f; servidor (IFriendshipRepository, FriendshipRepository y FriendsService con los estados FRIEND_PENDING y FRIEND_REJECTED) en 27cb845; pantalla de amigos en 93fa788. Cancelar una solicitud enviada no se implementó: pasa a BL-156. El detalle del servidor sigue en BL-152 hasta confirmar sus pruebas y la v4.1 (BL-153).
+
+### BL-078 · Unificar el cierre de canales WCF en el cliente
+- Creado: 2026-10-29 16:36
+- Por qué: ServerConnectionManager.CloseClientSafely repite la lógica Faulted→Abort / Close con Abort de respaldo que ya tienen LoginScreen, CreateAccountScreen y LeaderboardScreen. Al migrar esas pantallas a la capa de comunicación (BL-036) debe quedar una sola implementación, en el ServerConnectionManager de instancia que vive en App.
+- Depende de: BL-036
+- Estado: Finalizado el 2026-11-11 · commits 384ef1a y b6dec93
+- Nota (2026-11-11 23:55): cierre: CloseClientSafely (ServerConnectionManager.cs:718) es la única implementación del cierre: cuentas (ServerConnectionManager.Accounts.cs:124), chat (ServerConnectionManager.Chat.cs:113), amigos y lobby (ServerConnectionManager.cs:173-174) y la tabla de posiciones (ServerConnectionManager.Leaderboard.cs). Las copias de LoginScreen y CreateAccountScreen se retiraron en 384ef1a y la de LeaderboardScreen en b6dec93; git grep de Abort() fuera de Communication/ no encuentra nada.
+
+### BL-154 · Regenerar el proxy y adaptar el cliente a amigos y modalidad
+- Creado: 2026-11-11 19:30
+- Por qué: una sola regeneración del proxy (svcutil) con los contratos del Paquete 1 y el paso fijo de BL-057 (apertura 10 s, envío 15 s, cierre 5 s y sin identity en App.config). Después: ServerCallback implementa los callbacks nuevos; ServerConnectionManager gana un parcial para las solicitudes; FriendsScreen y FriendsViewModel muestran añadir por nickname y pendientes con aceptar y rechazar (BL-085, parcial); LobbyScreen muestra el combo de cartas por jugador y lee CardsPerPlayerCount de la sala (BL-082, parcial). Las claves de idioma ya están en el Paquete 1.
+- Depende de: Paquete 1
+- Estado: Finalizado el 2026-11-11 · commits 69f0776, d3fde5b, 93fa788 y 0fc59c2
+- Nota (2026-11-11 23:55): cierre: proxy regenerado en 69f0776 (App.config conserva apertura 10 s, envío 15 s y cierre 5 s, sin <identity>); ServerCallback implementa los callbacks nuevos en d3fde5b; ServerConnectionManager.FriendRequests.cs y FriendsScreen con añadir por nickname y pendientes en 93fa788; combo de cartas por jugador de LobbyScreen en 0fc59c2.
+
+### BL-157 · Amistades: el cliente aún no usa las operaciones nuevas
+- Creado: 2026-11-11 21:22
+- Por qué: el servidor ya expone SendFriendRequest, AcceptFriendRequest, DeclineFriendRequest, OnFriendRequestReceived, OnFriendAdded y PendingFriendRequests, pero el proxy del cliente no se ha regenerado y FriendsScreen sigue con los controles de añadir y pendientes ocultos (BL-085). Hasta entonces las operaciones solo se prueban con las pruebas del servidor. Un cliente con proxy viejo no conoce los callbacks nuevos: si recibe OnFriendRequestReceived su canal puede fallar, así que los clientes se actualizan juntos.
+- Depende de: BL-154
+- Estado: Finalizado el 2026-11-11 · commits 69f0776, d3fde5b y 93fa788
+- Nota (2026-11-11 23:55): cierre: el proxy se regeneró en 69f0776, ServerCallback implementa OnFriendRequestReceived, OnFriendAdded y los resultados en d3fde5b, y FriendsViewModel envía, acepta y rechaza solicitudes y muestra las pendientes en 93fa788.
