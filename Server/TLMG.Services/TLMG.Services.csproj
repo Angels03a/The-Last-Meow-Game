@@ -58,6 +58,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Sessions\ChatReservation.cs" />
+    <Compile Include="Sessions\ChatSubmission.cs" />
+    <Compile Include="Sessions\LobbyCaller.cs" />
     <Compile Include="Sessions\SessionRegistry.Chat.cs" />
     <Compile Include="Sessions\ChatDelivery.cs" />
     <Compile Include="Sessions\ChatChannel.cs" />

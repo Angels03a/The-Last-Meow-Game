@@ -15,25 +15,18 @@ namespace TLMG.Services.Sessions
         private readonly Dictionary<int, LobbyStartState> _startsByRoomId =
             new Dictionary<int, LobbyStartState>();
 
-        /// <inheritdoc />
-        public LobbyMembershipChange ChangePlayerReadiness(
-            string sessionToken,
-            string channelId,
-            int roomId,
-            bool isReady)
+        public LobbyMembershipChange ChangePlayerReadiness(LobbyCaller caller, int roomId, bool isReady)
         {
             LobbyMembershipChange lobbyMembershipChange;
 
             lock (_sessionsLock)
             {
                 PlayerSession playerSession;
-                LobbyChangeStatus lobbyChangeStatus = ValidateLobbyCallerInLock(
-                    sessionToken, channelId, roomId, out playerSession);
+                LobbyChangeStatus lobbyChangeStatus = ValidateLobbyCallerInLock(caller, roomId, out playerSession);
 
                 if (lobbyChangeStatus != LobbyChangeStatus.Applied)
                 {
-                    lobbyMembershipChange = LobbyMembershipChange.CreateRejected(
-                        lobbyChangeStatus, LobbyMembershipChange.NoUserId);
+                    lobbyMembershipChange = CreateRejectedWithoutUser(lobbyChangeStatus);
                 }
                 else
                 {
@@ -44,25 +37,18 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        /// <inheritdoc />
-        public LobbyMembershipChange ChangeCardsPerPlayer(
-            string sessionToken,
-            string channelId,
-            int roomId,
-            int cardsPerPlayerCount)
+        public LobbyMembershipChange ChangeCardsPerPlayer(LobbyCaller caller, int roomId, int cardsPerPlayerCount)
         {
             LobbyMembershipChange lobbyMembershipChange;
 
             lock (_sessionsLock)
             {
                 PlayerSession playerSession;
-                LobbyChangeStatus lobbyChangeStatus = ValidateLobbyCallerInLock(
-                    sessionToken, channelId, roomId, out playerSession);
+                LobbyChangeStatus lobbyChangeStatus = ValidateLobbyCallerInLock(caller, roomId, out playerSession);
 
                 if (lobbyChangeStatus != LobbyChangeStatus.Applied)
                 {
-                    lobbyMembershipChange = LobbyMembershipChange.CreateRejected(
-                        lobbyChangeStatus, LobbyMembershipChange.NoUserId);
+                    lobbyMembershipChange = CreateRejectedWithoutUser(lobbyChangeStatus);
                 }
                 else
                 {
@@ -74,25 +60,18 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        /// <inheritdoc />
-        public LobbyMembershipChange RequestMatchStart(
-            string sessionToken,
-            string channelId,
-            int roomId,
-            long countdownId)
+        public LobbyMembershipChange RequestMatchStart(LobbyCaller caller, int roomId, long countdownId)
         {
             LobbyMembershipChange lobbyMembershipChange;
 
             lock (_sessionsLock)
             {
                 PlayerSession playerSession;
-                LobbyChangeStatus lobbyChangeStatus = ValidateLobbyCallerInLock(
-                    sessionToken, channelId, roomId, out playerSession);
+                LobbyChangeStatus lobbyChangeStatus = ValidateLobbyCallerInLock(caller, roomId, out playerSession);
 
                 if (lobbyChangeStatus != LobbyChangeStatus.Applied)
                 {
-                    lobbyMembershipChange = LobbyMembershipChange.CreateRejected(
-                        lobbyChangeStatus, LobbyMembershipChange.NoUserId);
+                    lobbyMembershipChange = CreateRejectedWithoutUser(lobbyChangeStatus);
                 }
                 else
                 {
@@ -104,16 +83,14 @@ namespace TLMG.Services.Sessions
         }
 
         /// <summary>Valida identidad y canal antes de consultar la sala; requiere _sessionsLock.</summary>
-        /// <param name="sessionToken">Token recibido del cliente.</param>
-        /// <param name="channelId">Canal desde el que llega la petición.</param>
+        /// <param name="caller">Token y canal recibidos del cliente.</param>
         /// <param name="roomId">Sala indicada por el cliente.</param>
         /// <param name="playerSession">Sesión encontrada, o null si el token no existe.</param>
         /// <returns>
         /// Applied si coinciden identidad, canal y sala; de lo contrario, el motivo sin estado de sala.
         /// </returns>
         private LobbyChangeStatus ValidateLobbyCallerInLock(
-            string sessionToken,
-            string channelId,
+            LobbyCaller caller,
             int roomId,
             out PlayerSession playerSession)
         {
@@ -122,11 +99,9 @@ namespace TLMG.Services.Sessions
             int channelUserId;
             int currentRoomId;
 
-            bool hasSessionAndChannel = !string.IsNullOrEmpty(sessionToken) && !string.IsNullOrEmpty(channelId);
-
-            if (hasSessionAndChannel && _sessionsByToken.TryGetValue(sessionToken, out playerSession))
+            if (caller.HasSessionAndChannel && _sessionsByToken.TryGetValue(caller.SessionToken, out playerSession))
             {
-                bool hasChannel = _userIdsByChannelId.TryGetValue(channelId, out channelUserId);
+                bool hasChannel = _userIdsByChannelId.TryGetValue(caller.ChannelId, out channelUserId);
                 bool hasRoom = _roomIdsByUserId.TryGetValue(playerSession.UserId, out currentRoomId);
 
                 if (hasChannel && channelUserId == playerSession.UserId)

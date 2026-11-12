@@ -4,11 +4,8 @@ using TLMG.Contracts;
 
 namespace TLMG.Services.Sessions
 {
-    // Parte del registro que guarda las salas. Todo método que termina en InLock, y los ayudantes que llama,
-    // se invoca únicamente con _sessionsLock tomado y solo toca memoria.
     public partial class SessionRegistry
     {
-        // Máximo de jugadores por sala (Reglas de The Last Meow, §1.1.1).
         private const int MaximumPlayersPerRoom = 6;
         private const int EmptyCount = 0;
 
@@ -20,48 +17,36 @@ namespace TLMG.Services.Sessions
             new Dictionary<int, HashSet<int>>();
         private int _lastRoomId;
 
-        /// <inheritdoc />
-        public LobbyMembershipChange CreateRoom(
-            string sessionToken,
-            string channelId,
-            ILobbyManagerCallback lobbyCallback)
+        public LobbyMembershipChange CreateRoom(LobbyCaller caller, ILobbyManagerCallback lobbyCallback)
         {
-            LobbyMembershipChange lobbyMembershipChange =
-                LobbyMembershipChange.CreateRejected(LobbyChangeStatus.InvalidSession, LobbyMembershipChange.NoUserId);
+            LobbyMembershipChange lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.InvalidSession);
 
-            if (!string.IsNullOrEmpty(sessionToken) && !string.IsNullOrEmpty(channelId))
+            if (caller.HasSessionAndChannel)
             {
                 lock (_sessionsLock)
                 {
-                    lobbyMembershipChange = CreateRoomInLock(sessionToken, channelId, lobbyCallback);
+                    lobbyMembershipChange = CreateRoomInLock(caller, lobbyCallback);
                 }
             }
 
             return lobbyMembershipChange;
         }
 
-        /// <inheritdoc />
-        public LobbyMembershipChange EnterRoom(
-            string sessionToken,
-            int roomId,
-            string channelId,
-            ILobbyManagerCallback lobbyCallback)
+        public LobbyMembershipChange EnterRoom(LobbyCaller caller, int roomId, ILobbyManagerCallback lobbyCallback)
         {
-            LobbyMembershipChange lobbyMembershipChange =
-                LobbyMembershipChange.CreateRejected(LobbyChangeStatus.InvalidSession, LobbyMembershipChange.NoUserId);
+            LobbyMembershipChange lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.InvalidSession);
 
-            if (!string.IsNullOrEmpty(sessionToken) && !string.IsNullOrEmpty(channelId))
+            if (caller.HasSessionAndChannel)
             {
                 lock (_sessionsLock)
                 {
-                    lobbyMembershipChange = EnterRoomInLock(sessionToken, roomId, channelId, lobbyCallback);
+                    lobbyMembershipChange = EnterRoomInLock(caller, roomId, lobbyCallback);
                 }
             }
 
             return lobbyMembershipChange;
         }
 
-        /// <inheritdoc />
         public LobbyMembershipChange LeaveRoom(string sessionToken)
         {
             LobbyMembershipChange lobbyMembershipChange =
@@ -83,7 +68,6 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        /// <inheritdoc />
         public LobbyMembershipChange LeaveRoomByChannel(string channelId)
         {
             LobbyMembershipChange lobbyMembershipChange =
@@ -101,6 +85,14 @@ namespace TLMG.Services.Sessions
                     }
                 }
             }
+
+            return lobbyMembershipChange;
+        }
+
+        private static LobbyMembershipChange CreateRejectedWithoutUser(LobbyChangeStatus lobbyChangeStatus)
+        {
+            LobbyMembershipChange lobbyMembershipChange =
+                LobbyMembershipChange.CreateRejected(lobbyChangeStatus, LobbyMembershipChange.NoUserId);
 
             return lobbyMembershipChange;
         }
@@ -127,21 +119,16 @@ namespace TLMG.Services.Sessions
             return wasIssued;
         }
 
-        private LobbyMembershipChange CreateRoomInLock(
-            string sessionToken,
-            string channelId,
-            ILobbyManagerCallback lobbyCallback)
+        private LobbyMembershipChange CreateRoomInLock(LobbyCaller caller, ILobbyManagerCallback lobbyCallback)
         {
             LobbyMembershipChange lobbyMembershipChange;
             PlayerSession playerSession;
 
-            if (!_sessionsByToken.TryGetValue(sessionToken, out playerSession))
+            if (!_sessionsByToken.TryGetValue(caller.SessionToken, out playerSession))
             {
-                lobbyMembershipChange = LobbyMembershipChange.CreateRejected(
-                    LobbyChangeStatus.InvalidSession,
-                    LobbyMembershipChange.NoUserId);
+                lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.InvalidSession);
             }
-            else if (IsUserOrChannelInRoom(playerSession.UserId, channelId))
+            else if (IsUserOrChannelInRoom(playerSession.UserId, caller.ChannelId))
             {
                 lobbyMembershipChange =
                     LobbyMembershipChange.CreateRejected(LobbyChangeStatus.AlreadyInRoom, playerSession.UserId);
@@ -152,7 +139,7 @@ namespace TLMG.Services.Sessions
                 List<LobbyMember> members = new List<LobbyMember>();
                 _membersByRoomId[_lastRoomId] = members;
                 _startsByRoomId[_lastRoomId] = new LobbyStartState();
-                LobbyMember creator = new LobbyMember(playerSession.UserId, channelId, lobbyCallback);
+                LobbyMember creator = new LobbyMember(playerSession.UserId, caller.ChannelId, lobbyCallback);
                 AddMemberToRoom(_lastRoomId, members, creator);
                 lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
                     playerSession.UserId,
@@ -164,22 +151,19 @@ namespace TLMG.Services.Sessions
         }
 
         private LobbyMembershipChange EnterRoomInLock(
-            string sessionToken,
+            LobbyCaller caller,
             int roomId,
-            string channelId,
             ILobbyManagerCallback lobbyCallback)
         {
             LobbyMembershipChange lobbyMembershipChange;
             PlayerSession playerSession;
             List<LobbyMember> members;
 
-            if (!_sessionsByToken.TryGetValue(sessionToken, out playerSession))
+            if (!_sessionsByToken.TryGetValue(caller.SessionToken, out playerSession))
             {
-                lobbyMembershipChange = LobbyMembershipChange.CreateRejected(
-                    LobbyChangeStatus.InvalidSession,
-                    LobbyMembershipChange.NoUserId);
+                lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.InvalidSession);
             }
-            else if (IsUserOrChannelInRoom(playerSession.UserId, channelId))
+            else if (IsUserOrChannelInRoom(playerSession.UserId, caller.ChannelId))
             {
                 lobbyMembershipChange =
                     LobbyMembershipChange.CreateRejected(LobbyChangeStatus.AlreadyInRoom, playerSession.UserId);
@@ -202,7 +186,7 @@ namespace TLMG.Services.Sessions
             else
             {
                 IReadOnlyList<ILobbyManagerCallback> otherMembersCallbacks = CopyCallbacks(members);
-                LobbyMember newMember = new LobbyMember(playerSession.UserId, channelId, lobbyCallback);
+                LobbyMember newMember = new LobbyMember(playerSession.UserId, caller.ChannelId, lobbyCallback);
                 AddMemberToRoom(roomId, members, newMember);
                 ConsumeRoomEntryAuthorization(playerSession.UserId, roomId);
                 lobbyMembershipChange = LobbyMembershipChange.CreateApplied(

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+
 using TLMG.Contracts;
 using TLMG.Domain.Constants;
-using TLMG.Services.Helpers;
 
 namespace TLMG.Services.Sessions
 {
@@ -14,8 +14,7 @@ namespace TLMG.Services.Sessions
         private readonly Dictionary<string, int> _chatUserIdsByChannelId = new Dictionary<string, int>();
         private readonly Dictionary<int, DateTime> _lastChatSentAtUtcByUserId = new Dictionary<int, DateTime>();
 
-        /// <inheritdoc />
-        public string SubscribeToChat(string sessionToken, string channelId, IChatManagerCallback callback)
+        public string SubscribeToChat(LobbyCaller caller, IChatManagerCallback callback)
         {
             string errorKey;
 
@@ -23,7 +22,7 @@ namespace TLMG.Services.Sessions
             {
                 PurgeExpiredChatSendTimesInLock(DateTime.UtcNow);
                 PlayerSession playerSession;
-                errorKey = ValidateChatIdentityInLock(sessionToken, channelId, out playerSession);
+                errorKey = ValidateChatIdentityInLock(caller, out playerSession);
 
                 if (errorKey == null)
                 {
@@ -39,8 +38,8 @@ namespace TLMG.Services.Sessions
                     {
                         RemoveChatChannelOfUserInLock(playerSession.UserId);
                         _chatChannelsByUserId[playerSession.UserId] =
-                            new ChatChannel(sessionToken, channelId, callback);
-                        _chatUserIdsByChannelId[channelId] = playerSession.UserId;
+                            new ChatChannel(caller.SessionToken, caller.ChannelId, callback);
+                        _chatUserIdsByChannelId[caller.ChannelId] = playerSession.UserId;
                     }
                 }
             }
@@ -48,15 +47,7 @@ namespace TLMG.Services.Sessions
             return errorKey;
         }
 
-        /// <inheritdoc />
-        public string AcceptChatMessage(
-            string sessionToken,
-            string channelId,
-            int roomId,
-            Guid clientMessageId,
-            string normalizedText,
-            string validationErrorKey,
-            out ChatDelivery chatDelivery)
+        public string AcceptChatMessage(LobbyCaller caller, ChatSubmission submission, out ChatDelivery chatDelivery)
         {
             string errorKey;
             chatDelivery = null;
@@ -66,16 +57,16 @@ namespace TLMG.Services.Sessions
                 DateTime sentAtUtc = DateTime.UtcNow;
                 PurgeExpiredChatSendTimesInLock(sentAtUtc);
                 PlayerSession playerSession;
-                errorKey = ValidateChatIdentityInLock(sessionToken, channelId, out playerSession);
+                errorKey = ValidateChatIdentityInLock(caller, out playerSession);
 
                 if (errorKey == null)
                 {
-                    errorKey = ValidateChatMembershipInLock(playerSession.UserId, sessionToken, channelId, roomId);
+                    errorKey = ValidateChatMembershipInLock(caller, playerSession.UserId, submission.RoomId);
                 }
 
                 if (errorKey == null)
                 {
-                    errorKey = validationErrorKey;
+                    errorKey = submission.ValidationErrorKey;
                 }
 
                 if (errorKey == null)
@@ -86,9 +77,9 @@ namespace TLMG.Services.Sessions
                     }
                     else
                     {
-                        IReadOnlyList<IChatManagerCallback> recipients = CopyChatRecipientsInLock(roomId);
-                        chatDelivery = new ChatDelivery(
-                            roomId, clientMessageId, playerSession, normalizedText, sentAtUtc, recipients);
+                        ChatReservation chatReservation =
+                            new ChatReservation(sentAtUtc, CopyChatRecipientsInLock(submission.RoomId));
+                        chatDelivery = new ChatDelivery(submission, playerSession, chatReservation);
                         _lastChatSentAtUtcByUserId[playerSession.UserId] = sentAtUtc;
                     }
                 }
@@ -97,7 +88,6 @@ namespace TLMG.Services.Sessions
             return errorKey;
         }
 
-        /// <inheritdoc />
         public void RemoveChatChannel(string channelId)
         {
             lock (_sessionsLock)
@@ -117,26 +107,21 @@ namespace TLMG.Services.Sessions
             }
         }
 
-        private string ValidateChatIdentityInLock(
-            string sessionToken,
-            string channelId,
-            out PlayerSession playerSession)
+        private string ValidateChatIdentityInLock(LobbyCaller caller, out PlayerSession playerSession)
         {
             string errorKey = ErrorKeys.Common.InvalidSession;
             playerSession = null;
             int channelUserId;
-
-            bool hasSessionAndChannel = !string.IsNullOrEmpty(sessionToken) && !string.IsNullOrEmpty(channelId);
             bool hasRegisteredSession = false;
 
-            if (hasSessionAndChannel && _sessionsByToken.TryGetValue(sessionToken, out playerSession))
+            if (caller.HasSessionAndChannel && _sessionsByToken.TryGetValue(caller.SessionToken, out playerSession))
             {
                 hasRegisteredSession = playerSession.UserId > LobbyMembershipChange.NoUserId;
             }
 
             if (hasRegisteredSession)
             {
-                if (!_chatUserIdsByChannelId.TryGetValue(channelId, out channelUserId)
+                if (!_chatUserIdsByChannelId.TryGetValue(caller.ChannelId, out channelUserId)
                     || channelUserId == playerSession.UserId)
                 {
                     errorKey = null;
@@ -146,7 +131,7 @@ namespace TLMG.Services.Sessions
             return errorKey;
         }
 
-        private string ValidateChatMembershipInLock(int userId, string sessionToken, string channelId, int roomId)
+        private string ValidateChatMembershipInLock(LobbyCaller caller, int userId, int roomId)
         {
             string errorKey = null;
             ChatChannel chatChannel;
@@ -156,7 +141,7 @@ namespace TLMG.Services.Sessions
             {
                 errorKey = ErrorKeys.Lobby.ChatNotSubscribed;
             }
-            else if (chatChannel.SessionToken != sessionToken || chatChannel.ChannelId != channelId)
+            else if (chatChannel.SessionToken != caller.SessionToken || chatChannel.ChannelId != caller.ChannelId)
             {
                 errorKey = ErrorKeys.Common.InvalidSession;
             }

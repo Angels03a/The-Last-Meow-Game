@@ -46,25 +46,22 @@ namespace TLMG.Services.Sessions
         bool TryEndSessionByFriendsChannel(string channelId, out SessionEnd sessionEnd);
 
         /// <summary>Crea una sala nueva y deja dentro al jugador de la sesión.</summary>
-        /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
-        /// <param name="channelId">Identificador del canal de lobby desde el que llama el jugador.</param>
+        /// <param name="caller">Token de sesión y canal de lobby desde el que llama el jugador.</param>
         /// <param name="lobbyCallback">Callback del canal de lobby del jugador.</param>
         /// <returns>Applied con la sala, InvalidSession o AlreadyInRoom; nunca es null.</returns>
-        LobbyMembershipChange CreateRoom(string sessionToken, string channelId, ILobbyManagerCallback lobbyCallback);
+        LobbyMembershipChange CreateRoom(LobbyCaller caller, ILobbyManagerCallback lobbyCallback);
 
         /// <summary>
         /// Mete al jugador en una sala si tiene autorización de entrada y hay cupo; consume la autorización.
         /// </summary>
-        /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
+        /// <param name="caller">Token de sesión y canal de lobby desde el que llama el jugador.</param>
         /// <param name="roomId">Identificador de la sala a la que se quiere entrar.</param>
-        /// <param name="channelId">Identificador del canal de lobby desde el que llama el jugador.</param>
         /// <param name="lobbyCallback">Callback del canal de lobby del jugador.</param>
         /// <returns>
         /// Applied con la sala y los demás jugadores, InvalidSession, AlreadyInRoom, NotAuthorized o RoomFull;
         /// NotAuthorized cubre sala inexistente, falta de autorización o partida ya iniciada. Nunca es null.
         /// </returns>
-        LobbyMembershipChange EnterRoom(string sessionToken, int roomId, string channelId, 
-            ILobbyManagerCallback lobbyCallback);
+        LobbyMembershipChange EnterRoom(LobbyCaller caller, int roomId, ILobbyManagerCallback lobbyCallback);
 
         /// <summary>Saca al jugador de su sala; la elimina si queda vacía.</summary>
         /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
@@ -126,72 +123,47 @@ namespace TLMG.Services.Sessions
         /// Applied con el id de la sala, InvalidSession o InvitationNotValid; InvitationNotValid cubre que la
         /// invitación no exista, no sea del jugador o su sala ya no exista. Nunca es null.
         /// </returns>
+        
         RoomInvitationAcceptance AcceptRoomInvitation(string sessionToken, int invitationId);
-
-        /// <summary>
-        /// Cambia el estado Listo del propio jugador. Valida token y canal antes de copiar el estado.
-        /// </summary>
-        /// <param name="sessionToken">Token de la sesión vigente.</param>
-        /// <param name="channelId">Canal de lobby vinculado al jugador.</param>
+        /// <summary>Cambia el estado Listo del propio jugador. Valida token y canal antes de copiar el estado.</summary>
+        /// <param name="caller">Token de sesión y canal de lobby vinculado al jugador.</param>
         /// <param name="roomId">Sala indicada por la petición.</param>
         /// <param name="isReady">Estado Listo deseado del propio jugador; repetirlo no renueva la cuenta.</param>
         /// <returns>Estado actual y destinatarios, o rechazo sin datos de la sala.</returns>
-        LobbyMembershipChange ChangePlayerReadiness(string sessionToken, string channelId, int roomId, bool isReady);
+        LobbyMembershipChange ChangePlayerReadiness(LobbyCaller caller, int roomId, bool isReady);
 
         /// <summary>
         /// Cambia las cartas por jugador de la sala. Valida token y canal; un valor distinto se guarda y deja a todos
         /// los jugadores en No Listo bajo el mismo _sessionsLock, y el mismo valor no cambia nada.
         /// </summary>
-        /// <param name="sessionToken">Token de la sesión vigente.</param>
-        /// <param name="channelId">Canal de lobby vinculado al jugador.</param>
+        /// <param name="caller">Token de sesión y canal de lobby vinculado al jugador.</param>
         /// <param name="roomId">Sala indicada por la petición.</param>
         /// <param name="cardsPerPlayerCount">Cantidad ya validada por el servicio: 4, 6 u 8.</param>
         /// <returns>
         /// Estado actual y como destinatarios los demás jugadores, o rechazo sin datos de la sala. Con el mismo valor
         /// no hay destinatarios.
         /// </returns>
-        LobbyMembershipChange ChangeCardsPerPlayer(
-            string sessionToken,
-            string channelId,
-            int roomId,
-            int cardsPerPlayerCount);
+        LobbyMembershipChange ChangeCardsPerPlayer(LobbyCaller caller, int roomId, int cardsPerPlayerCount);
 
-        /// <summary>
-        /// Valida la generación y el plazo UTC para iniciar. Valida token y canal antes de copiar el estado.
-        /// </summary>
-        /// <param name="sessionToken">Token de la sesión vigente.</param>
-        /// <param name="channelId">Canal de lobby vinculado al jugador.</param>
+        /// <summary>Valida la generación y el plazo UTC para iniciar. Valida token y canal antes de copiar el estado.</summary>
+        /// <param name="caller">Token de sesión y canal de lobby vinculado al jugador.</param>
         /// <param name="roomId">Sala indicada por la petición.</param>
-        /// <param name="countdownId">
-        /// Generación de cuenta observada; una generación vieja solo devuelve el estado.
-        /// </param>
+        /// <param name="countdownId">Generación de cuenta observada; una generación vieja solo devuelve el estado.</param>
         /// <returns>Estado actual y destinatarios, o rechazo sin datos de la sala.</returns>
-        LobbyMembershipChange RequestMatchStart(string sessionToken, string channelId, int roomId, long countdownId);
+        LobbyMembershipChange RequestMatchStart(LobbyCaller caller, int roomId, long countdownId);
 
         /// <summary>Suscribe el canal a la sala actual; la última suscripción válida de la sesión gana.</summary>
-        /// <param name="sessionToken">Token de cuenta registrada.</param>
-        /// <param name="channelId">Identificador del canal de chat.</param>
+        /// <param name="caller">Token de cuenta registrada y canal de chat.</param>
         /// <param name="callback">Callback del canal de chat.</param>
         /// <returns>null si se suscribió; clave de error si se rechazó.</returns>
-        string SubscribeToChat(string sessionToken, string channelId, IChatManagerCallback callback);
+        string SubscribeToChat(LobbyCaller caller, IChatManagerCallback callback);
 
         /// <summary>Valida identidad, canal y sala y reserva atómicamente el intervalo del envío.</summary>
-        /// <param name="sessionToken">Token vigente.</param>
-        /// <param name="channelId">Canal suscrito del emisor.</param>
-        /// <param name="roomId">Sala solicitada.</param>
-        /// <param name="clientMessageId">Correlación del cliente.</param>
-        /// <param name="normalizedText">Texto validado por ChatValidationHelper; no se guarda en el registro.</param>
-        /// <param name="validationErrorKey">Resultado de validar el texto; null si es válido.</param>
+        /// <param name="caller">Token vigente y canal suscrito del emisor.</param>
+        /// <param name="submission">Sala, correlación y texto ya validado por ChatValidator.</param>
         /// <param name="chatDelivery">Copia efímera de identidad, mensaje y destinatarios; null si se rechaza.</param>
         /// <returns>null si se aceptó; clave de error si se rechazó.</returns>
-        string AcceptChatMessage(
-            string sessionToken,
-            string channelId,
-            int roomId,
-            Guid clientMessageId,
-            string normalizedText,
-            string validationErrorKey,
-            out ChatDelivery chatDelivery);
+        string AcceptChatMessage(LobbyCaller caller, ChatSubmission submission, out ChatDelivery chatDelivery);
 
         /// <summary>Retira solo el canal que aún coincide; no borra el intervalo de envíos del jugador.</summary>
         /// <param name="channelId">Canal que se cerró o falló.</param>

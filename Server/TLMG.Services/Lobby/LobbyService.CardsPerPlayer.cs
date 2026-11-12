@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Constants;
 using TLMG.Domain.Validators;
-using TLMG.Services.Helpers;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Lobby
@@ -13,49 +11,34 @@ namespace TLMG.Services.Lobby
     {
         /// <summary>
         /// Cambia las cartas por jugador de la sala: valida el valor, delega la regla atómica en el registro y arma
-        /// el resultado y los avisos para los demás jugadores, que quien llama envía fuera de cualquier candado. Un
-        /// error inesperado se registra y se convierte en Common_UnexpectedError.
+        /// el resultado y los avisos para los demás jugadores, que quien llama envía fuera de cualquier candado.
         /// </summary>
-        /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
-        /// <param name="channelId">Identificador del canal de lobby desde el que llama el jugador.</param>
+        /// <param name="caller">Token de sesión y canal de lobby del jugador.</param>
         /// <param name="request">Sala y cantidad deseada; null se rechaza sin revelar la sala.</param>
         /// <returns>El resultado con la sala o la clave de error y los avisos para los demás jugadores.</returns>
         public LobbyOperationResultWithNotification<OperationChangeCardsPerPlayerResult> ChangeCardsPerPlayer(
-            string sessionToken,
-            string channelId,
+            LobbyCaller caller,
             OperationChangeCardsPerPlayerRequest request)
         {
             OperationChangeCardsPerPlayerResult operationChangeCardsPerPlayerResult =
                 new OperationChangeCardsPerPlayerResult();
             IReadOnlyList<LobbyChangeNotification> lobbyChangeNotifications = LobbyChangeNotification.None;
 
-            try
-            {
-                string validationErrorKey = ValidateCardsPerPlayerRequest(request);
+            string validationErrorKey = ValidateCardsPerPlayerRequest(request);
 
-                if (validationErrorKey == null)
-                {
-                    LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.ChangeCardsPerPlayer(
-                        sessionToken, channelId, request.RoomId, request.CardsPerPlayerCount);
-                    operationChangeCardsPerPlayerResult = CreateChangeCardsPerPlayerResult(
-                        lobbyMembershipChange, request);
-                    lobbyChangeNotifications = CreateNotifications(lobbyMembershipChange);
-                }
-                else
-                {
-                    operationChangeCardsPerPlayerResult.ErrorKey = validationErrorKey;
-                }
-            }
-            catch (OutOfMemoryException)
+            if (validationErrorKey == null)
             {
-                throw;
+                LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.ChangeCardsPerPlayer(
+                    caller, request.RoomId, request.CardsPerPlayerCount);
+
+                operationChangeCardsPerPlayerResult = CreateChangeCardsPerPlayerResult(
+                    lobbyMembershipChange, request);
+
+                lobbyChangeNotifications = CreateNotifications(lobbyMembershipChange);
             }
-            catch (Exception exception)
+            else
             {
-                _log.Error("Error inesperado al cambiar las cartas por jugador de la sala.", exception);
-                operationChangeCardsPerPlayerResult =
-                    new OperationChangeCardsPerPlayerResult { ErrorKey = ErrorKeys.Common.Unexpected };
-                lobbyChangeNotifications = LobbyChangeNotification.None;
+                operationChangeCardsPerPlayerResult.ErrorKey = validationErrorKey;
             }
 
             LobbyOperationResultWithNotification<OperationChangeCardsPerPlayerResult> changeCardsPerPlayerResult =
@@ -96,30 +79,23 @@ namespace TLMG.Services.Lobby
             OperationChangeCardsPerPlayerRequest request)
         {
             OperationChangeCardsPerPlayerResult operationChangeCardsPerPlayerResult =
-                new OperationChangeCardsPerPlayerResult
-                {
-                    IsSuccess = lobbyMembershipChange.Status == LobbyChangeStatus.Applied
-                };
+                new OperationChangeCardsPerPlayerResult();
+            ApplyOutcome(operationChangeCardsPerPlayerResult, lobbyMembershipChange);
 
             if (operationChangeCardsPerPlayerResult.IsSuccess)
             {
                 _log.InfoFormat(
-                    "El jugador {0} dejó la sala {1} con {2} cartas por jugador.",
+                    "El jugador {0} cambió las cartas por jugador de la sala {1} a {2}.",
                     lobbyMembershipChange.UserId,
                     request.RoomId,
                     request.CardsPerPlayerCount);
             }
             else
             {
-                operationChangeCardsPerPlayerResult.ErrorKey = ResolveErrorKey(lobbyMembershipChange.Status);
                 LogRejectedOperation("cambiar las cartas por jugador", lobbyMembershipChange, request.RoomId);
             }
 
-            if (lobbyMembershipChange.Room != null)
-            {
-                operationChangeCardsPerPlayerResult.Room =
-                    LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
-            }
+            operationChangeCardsPerPlayerResult.Room = ConvertRoomOrNull(lobbyMembershipChange);
 
             return operationChangeCardsPerPlayerResult;
         }

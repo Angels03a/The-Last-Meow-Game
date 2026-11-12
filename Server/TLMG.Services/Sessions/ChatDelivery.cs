@@ -9,26 +9,17 @@ namespace TLMG.Services.Sessions
     public sealed class ChatDelivery
     {
         /// <summary>Crea la copia de los datos recibidos.</summary>
-        /// <param name="roomId">Sala de los destinatarios.</param>
-        /// <param name="clientMessageId">Correlación proporcionada por el emisor.</param>
+        /// <param name="submission">Petición aceptada, con sala, correlación y texto validado.</param>
         /// <param name="sender">Identidad del emisor copiada de la sesión.</param>
-        /// <param name="text">Texto validado.</param>
-        /// <param name="sentAtUtc">Hora UTC reservada al aceptar.</param>
-        /// <param name="recipients">Copia de solo lectura de callbacks; no se modifica después.</param>
-        public ChatDelivery(
-            int roomId,
-            Guid clientMessageId,
-            PlayerSession sender,
-            string text,
-            DateTime sentAtUtc,
-            IReadOnlyList<IChatManagerCallback> recipients)
+        /// <param name="reservation">Hora y destinatarios reservados al aceptar.</param>
+        public ChatDelivery(ChatSubmission submission, PlayerSession sender, ChatReservation reservation)
         {
-            RoomId = roomId;
-            ClientMessageId = clientMessageId;
+            RoomId = submission.RoomId;
+            ClientMessageId = submission.ClientMessageId;
             Sender = sender;
-            Text = text;
-            SentAtUtc = sentAtUtc;
-            Recipients = recipients;
+            Text = submission.Text;
+            SentAtUtc = reservation.SentAtUtc;
+            Recipients = reservation.Recipients;
         }
 
         /// <summary>Sala de los destinatarios.</summary>
