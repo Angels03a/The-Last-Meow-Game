@@ -102,8 +102,7 @@ namespace TLMG.Client.Views
 
         private void OnBackRequested(object sender, EventArgs e)
         {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(new ForgotPasswordScreen());
+            ((App)Application.Current).Navigation.NavigateTo(ScreenId.ForgotPassword);
         }
 
         private void OnRedirectTimerTick(object sender, EventArgs e)

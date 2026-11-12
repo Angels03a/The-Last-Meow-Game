@@ -1,48 +1,46 @@
-﻿using System;
+using System;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 using CommunityToolkit.Mvvm.Input;
+
+using TLMG.Client.Navigation;
 
 namespace TLMG.Client.ViewModels
 {
     /// <summary>
-    /// Gestiona el estado, la validación y los comandos de la pantalla de recuperación de contraseña.
+    /// ViewModel de la pantalla de recuperación de contraseña: valida el correo, avisa que se enviará un código y
+    /// pasa a la verificación con el flujo de recuperación (BL-143).
     /// </summary>
     public class ForgotPasswordViewModel : ViewModelBase
     {
         private const string ScreenResourcePrefix = "ForgotPassword";
         private const string EmailRequiredErrorKey = "ForgotPassword_EmailRequiredError";
+        private const string CodeSentMessageKey = "ForgotPassword_CodeSentMessage";
+        private const int RedirectDelayMilliseconds = 500;
 
+        private readonly INavigationManager _navigationManager;
         private readonly RelayCommand _sendCodeCommand;
         private readonly RelayCommand _backCommand;
+
         private string _email;
         private bool _isBusy;
-        private string _emailErrorKey;
-        private string _formErrorKey;
+        private DispatcherTimer _redirectTimer;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="ForgotPasswordViewModel"/>.
         /// </summary>
-        public ForgotPasswordViewModel()
+        /// <param name="navigationManager">Administrador de navegación.</param>
+        public ForgotPasswordViewModel(INavigationManager navigationManager)
         {
+            _navigationManager = navigationManager;
+
+            EmailError = new StatusMessage();
+            FormMessage = new StatusMessage();
+
             _sendCodeCommand = new RelayCommand(ExecuteSendCode, CanExecuteSendCode);
             _backCommand = new RelayCommand(ExecuteBack, CanExecuteBack);
         }
-
-        /// <summary>
-        /// Se produce cuando las validaciones son exitosas y se solicita el envío del código.
-        /// </summary>
-        public event EventHandler CodeSentRequested;
-
-        /// <summary>
-        /// Se produce cuando hay errores de validación que la vista debe mostrar.
-        /// </summary>
-        public event EventHandler ValidationFailed;
-
-        /// <summary>
-        /// Se produce cuando el usuario solicita regresar a la pantalla de inicio de sesión.
-        /// </summary>
-        public event EventHandler BackRequested;
 
         /// <summary>Comando que valida el correo y solicita el envío del código de recuperación.</summary>
         public ICommand SendCodeCommand => _sendCodeCommand;
@@ -50,22 +48,24 @@ namespace TLMG.Client.ViewModels
         /// <summary>Comando que solicita volver al inicio de sesión.</summary>
         public ICommand BackCommand => _backCommand;
 
-        /// <summary>
-        /// Correo electrónico capturado.
-        /// </summary>
+        /// <summary>Mensaje de error asociado al campo de correo electrónico.</summary>
+        public StatusMessage EmailError { get; }
+
+        /// <summary>Mensaje general del formulario (éxito o error).</summary>
+        public StatusMessage FormMessage { get; }
+
+        /// <summary>Correo electrónico capturado.</summary>
         public string Email
         {
             get { return _email; }
             set { SetProperty(ref _email, value); }
         }
 
-        /// <summary>
-        /// Indica si hay una operación en curso; deshabilita la interacción si es true.
-        /// </summary>
+        /// <summary>Indica si hay una operación en curso; deshabilita la interacción si es true.</summary>
         public bool IsBusy
         {
             get { return _isBusy; }
-            set
+            private set
             {
                 if (SetProperty(ref _isBusy, value))
                 {
@@ -76,62 +76,54 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
-        /// Clave de error específica del correo; null si no hay error.
-        /// </summary>
-        public string EmailErrorKey
-        {
-            get { return _emailErrorKey; }
-            private set { SetProperty(ref _emailErrorKey, value); }
-        }
-
-        /// <summary>
-        /// Clave de error general del formulario; null si no hay error.
-        /// </summary>
-        public string FormErrorKey
-        {
-            get { return _formErrorKey; }
-            private set { SetProperty(ref _formErrorKey, value); }
-        }
-
-        /// <summary>
-        /// Valida el correo de forma aislada (usado para el evento LostFocus de la vista).
+        /// Valida el correo de forma aislada; la vista lo llama al perder el foco la caja de correo. Un correo vacío
+        /// no marca error hasta que se intenta enviar el código.
         /// </summary>
         public void ValidateEmailOnly()
         {
-            EmailErrorKey = null;
+            EmailError.Hide();
 
             if (!string.IsNullOrWhiteSpace(Email))
             {
-                EmailErrorKey = ValidationHelper.GetEmailValidationErrorKey(Email, ScreenResourcePrefix);
+                string emailErrorKey = ValidationHelper.GetEmailValidationErrorKey(Email, ScreenResourcePrefix);
 
-                if (EmailErrorKey != null)
+                if (emailErrorKey != null)
                 {
-                    ValidationFailed?.Invoke(this, EventArgs.Empty);
+                    EmailError.ShowError(LanguageManager.FindText(emailErrorKey));
                 }
             }
+        }
+
+        /// <summary>Detiene el temporizador de redirección y libera los mensajes.</summary>
+        protected override void OnDisposed()
+        {
+            StopRedirectTimer();
+            EmailError.Dispose();
+            FormMessage.Dispose();
+
+            base.OnDisposed();
         }
 
         private void ExecuteSendCode()
         {
-            EmailErrorKey = null;
-            FormErrorKey = null;
+            EmailError.Hide();
+            FormMessage.Hide();
 
             if (string.IsNullOrWhiteSpace(Email))
             {
-                FormErrorKey = EmailRequiredErrorKey;
-                ValidationFailed?.Invoke(this, EventArgs.Empty);
+                FormMessage.ShowError(LanguageManager.FindText(EmailRequiredErrorKey));
             }
             else
             {
-                EmailErrorKey = ValidationHelper.GetEmailValidationErrorKey(Email, ScreenResourcePrefix);
+                string emailErrorKey = ValidationHelper.GetEmailValidationErrorKey(Email, ScreenResourcePrefix);
 
-                if (EmailErrorKey == null)
+                if (emailErrorKey == null)
                 {
-                    CodeSentRequested?.Invoke(this, EventArgs.Empty);
+                    SendRecoveryCode();
                 }
                 else
                 {
-                    ValidationFailed?.Invoke(this, EventArgs.Empty);
+                    EmailError.ShowError(LanguageManager.FindText(emailErrorKey));
                 }
             }
         }
@@ -142,15 +134,54 @@ namespace TLMG.Client.ViewModels
             return canSendCode;
         }
 
+        // TODO: Pedir al servidor el envío real del código de recuperación; hoy solo se simula. (BL-007).
+        private void SendRecoveryCode()
+        {
+            IsBusy = true;
+            FormMessage.ShowSuccess(LanguageManager.FindText(CodeSentMessageKey));
+            StartRedirectTimer();
+        }
+
         private void ExecuteBack()
         {
-            BackRequested?.Invoke(this, EventArgs.Empty);
+            _navigationManager.NavigateToWithoutHistory(ScreenId.Login);
+            _navigationManager.ClearHistory();
         }
 
         private bool CanExecuteBack()
         {
             bool canBack = !IsBusy;
             return canBack;
+        }
+
+        private void StartRedirectTimer()
+        {
+            StopRedirectTimer();
+            _redirectTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(RedirectDelayMilliseconds)
+            };
+            _redirectTimer.Tick += OnRedirectTimerTick;
+            _redirectTimer.Start();
+        }
+
+        private void StopRedirectTimer()
+        {
+            if (_redirectTimer != null)
+            {
+                _redirectTimer.Stop();
+                _redirectTimer.Tick -= OnRedirectTimerTick;
+                _redirectTimer = null;
+            }
+        }
+
+        private void OnRedirectTimerTick(object sender, EventArgs eventArgs)
+        {
+            StopRedirectTimer();
+            IsBusy = false;
+            _navigationManager.NavigateTo(
+                ScreenId.Verification,
+                new VerificationNavigationParameter(VerificationFlow.PasswordRecovery));
         }
     }
 }

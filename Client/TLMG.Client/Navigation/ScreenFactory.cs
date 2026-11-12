@@ -74,6 +74,9 @@ namespace TLMG.Client.Navigation
                 case ScreenId.MainMenu:
                     screenEntry = BuildMainMenuEntry();
                     break;
+                case ScreenId.ForgotPassword:
+                    screenEntry = BuildForgotPasswordEntry();
+                    break;
                 default:
                     screenEntry = CreateLegacyScreen(screenId);
                     break;
@@ -88,7 +91,6 @@ namespace TLMG.Client.Navigation
                 new Dictionary<ScreenId, Func<FrameworkElement>>
                 {
                     { ScreenId.NewPassword, () => new NewPasswordScreen() },
-                    { ScreenId.ForgotPassword, () => new ForgotPasswordScreen() },
                     { ScreenId.Options, () => new OptionsScreen() },
                     { ScreenId.Profile, () => new ProfileScreen() },
                     { ScreenId.HowToPlay, () => new HowToPlayScreen() },
@@ -130,6 +132,14 @@ namespace TLMG.Client.Navigation
             return new ScreenEntry(friendsScreen, friendsViewModel);
         }
 
+        private ScreenEntry BuildForgotPasswordEntry()
+        {
+            ForgotPasswordViewModel forgotPasswordViewModel = new ForgotPasswordViewModel(_navigation);
+            ForgotPasswordScreen forgotPasswordScreen = new ForgotPasswordScreen(forgotPasswordViewModel);
+
+            return new ScreenEntry(forgotPasswordScreen, forgotPasswordViewModel);
+        }
+
         private ScreenEntry BuildMainMenuEntry()
         {
             MainMenuViewModel mainMenuViewModel = new MainMenuViewModel(_accountsConnection, _navigation);
@@ -149,17 +159,25 @@ namespace TLMG.Client.Navigation
         private ScreenEntry BuildVerificationEntry(object parameter)
         {
             VerificationNavigationParameter verificationParameter = parameter as VerificationNavigationParameter;
-            bool isAccountRegistration = verificationParameter != null
-                && verificationParameter.VerificationFlow == VerificationFlow.AccountRegistration;
             VerificationScreen verificationScreen = null;
 
-            if (isAccountRegistration)
+            if (verificationParameter == null)
+            {
+                _log.Warn("Se pidió la verificación sin indicar el flujo; no se cambió de pantalla.");
+            }
+            else if (verificationParameter.VerificationFlow == VerificationFlow.AccountRegistration)
             {
                 verificationScreen = new VerificationScreen(FinishAccountRegistration, ReturnToCreateAccount);
             }
+            else if (verificationParameter.VerificationFlow == VerificationFlow.PasswordRecovery)
+            {
+                verificationScreen = new VerificationScreen(ContinueToNewPassword, ReturnToForgotPassword);
+            }
             else
             {
-                _log.Warn("Se pidió la verificación sin el flujo de registro de cuenta; no se cambió de pantalla.");
+                _log.WarnFormat(
+                    "Se pidió la verificación con el flujo {0}, que no tiene pantalla; no se cambió de pantalla.",
+                    verificationParameter.VerificationFlow);
             }
 
             return new ScreenEntry(verificationScreen, null);
@@ -175,6 +193,16 @@ namespace TLMG.Client.Navigation
         private void ReturnToCreateAccount()
         {
             _navigation.NavigateToWithoutHistory(ScreenId.CreateAccount);
+        }
+
+        private void ContinueToNewPassword()
+        {
+            _navigation.NavigateTo(ScreenId.NewPassword);
+        }
+
+        private void ReturnToForgotPassword()
+        {
+            _navigation.NavigateToWithoutHistory(ScreenId.ForgotPassword);
         }
 
         private ScreenEntry CreateLegacyScreen(ScreenId screenId)
