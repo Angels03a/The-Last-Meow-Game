@@ -12,6 +12,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/TLMG.Client;component/Styles/GlobalStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
     </local:LocalizableScreen.Resources>
 
@@ -73,20 +74,40 @@
             </StackPanel>
         </Border>
 
-        <Grid x:Name="grdCountdown" Visibility="Collapsed" Background="#E60D0D12" Panel.ZIndex="90">
+        <Grid x:Name="grdCountdown"
+              Visibility="{Binding IsCountdownVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+              Background="#E60D0D12"
+              Panel.ZIndex="90">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="{DynamicResource Lobby_CountdownTitle}"
                            Style="{StaticResource TitleMediumTextStyle}"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,16"
                            Foreground="{StaticResource Brush_Gold}"/>
-                <TextBlock x:Name="lblCountdownTimer"
-                           Text="{DynamicResource Lobby_CountdownWaitingLabel}"
+                <TextBlock Text="{Binding CountdownSecondsRemaining}"
                            FontSize="120"
                            FontWeight="Black"
                            Foreground="{StaticResource Brush_White}"
                            HorizontalAlignment="Center"
-                           Margin="0,0,0,48"/>
+                           Margin="0,0,0,48"
+                           Visibility="{Binding HasCountdownSeconds, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <TextBlock Text="{DynamicResource Lobby_CountdownWaitingLabel}"
+                           FontSize="32"
+                           FontWeight="Black"
+                           Foreground="{StaticResource Brush_White}"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,48">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasCountdownSeconds}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
                 <Button Content="{DynamicResource Lobby_CancelCountdown}"
                         Style="{StaticResource ActionDangerOutlineButtonStyle}"
                         Width="200"
@@ -201,30 +222,37 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="{DynamicResource Lobby_MainTitle}"
                                    Style="{StaticResource TitleMediumTextStyle}"
                                    Margin="0,0,0,4"/>
-                        <TextBlock x:Name="lblRoomInformation"
+                        <TextBlock Text="{Binding RoomInformation}"
                                    Style="{StaticResource SubtitleTextStyle}" />
                     </StackPanel>
 
-                    <Button Grid.Column="1"
+                    <Button Grid.Column="2"
                             Style="{StaticResource LobbyToggleReadyButtonStyle}"
                             MinWidth="160" Height="48"
+                            Margin="16,0,0,0"
                             Command="{Binding ToggleReadyCommand}" />
 
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding HasRoom, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <TextBlock Text="{DynamicResource Lobby_CardsPerPlayer}"
                                    Style="{StaticResource StatCardLabelStyle}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,16,0" />
                         <ComboBox x:Name="cmbGameMode"
                                   Width="280"
-                                  Style="{StaticResource DarkComboBoxStyle}">
-                            <ComboBoxItem Content="{DynamicResource Lobby_GameMode4Cards}" IsSelected="True" />
+                                  Style="{StaticResource DarkComboBoxStyle}"
+                                  SelectedIndex="{Binding SelectedCardsPerPlayerIndex}"
+                                  IsEnabled="{Binding IsReadyButtonEnabled}">
+                            <ComboBoxItem Content="{DynamicResource Lobby_GameMode4Cards}" />
                             <ComboBoxItem Content="{DynamicResource Lobby_GameMode6Cards}" />
                             <ComboBoxItem Content="{DynamicResource Lobby_GameMode8Cards}" />
                         </ComboBox>

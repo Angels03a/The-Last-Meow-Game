@@ -44,7 +44,7 @@ namespace TLMG.Client.Views
 
         private void OnLobbyRequested(object sender, EventArgs e)
         {
-            ((MainWindow)Application.Current.MainWindow).ShowScreen(new LobbyScreen());
+            ((App)Application.Current).Navigation.NavigateTo(ScreenId.Lobby);
         }
 
         private void OnFriendsRequested(object sender, EventArgs e)

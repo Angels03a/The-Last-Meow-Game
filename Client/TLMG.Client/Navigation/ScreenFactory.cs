@@ -25,6 +25,7 @@ namespace TLMG.Client.Navigation
         private readonly IDialogManager _dialogs;
         private readonly IAccountsConnection _accountsConnection;
         private readonly IFriendsConnection _friendsConnection;
+        private readonly ILobbyConnection _lobbyConnection;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="ScreenFactory"/>.
@@ -33,16 +34,19 @@ namespace TLMG.Client.Navigation
         /// <param name="dialogs">Administrador de diálogos.</param>
         /// <param name="accountsConnection">Área de cuentas de la conexión con el servidor.</param>
         /// <param name="friendsConnection">Área de amigos de la conexión con el servidor.</param>
+        /// <param name="lobbyConnection">Área de sala de la conexión con el servidor.</param>
         public ScreenFactory(
             INavigationManager navigation,
             IDialogManager dialogs,
             IAccountsConnection accountsConnection,
-            IFriendsConnection friendsConnection)
+            IFriendsConnection friendsConnection,
+            ILobbyConnection lobbyConnection)
         {
             _navigation = navigation;
             _dialogs = dialogs;
             _accountsConnection = accountsConnection;
             _friendsConnection = friendsConnection;
+            _lobbyConnection = lobbyConnection;
         }
 
         /// <inheritdoc />
@@ -64,6 +68,9 @@ namespace TLMG.Client.Navigation
                 case ScreenId.Friends:
                     screenEntry = BuildFriendsEntry();
                     break;
+                case ScreenId.Lobby:
+                    screenEntry = BuildLobbyEntry();
+                    break;
                 default:
                     screenEntry = CreateLegacyScreen(screenId);
                     break;
@@ -83,7 +90,6 @@ namespace TLMG.Client.Navigation
                     { ScreenId.Options, () => new OptionsScreen() },
                     { ScreenId.Profile, () => new ProfileScreen() },
                     { ScreenId.HowToPlay, () => new HowToPlayScreen() },
-                    { ScreenId.Lobby, () => new LobbyScreen() },
                     { ScreenId.Gameplay, () => new GameplayScreen() },
                     { ScreenId.RoundResult, () => new RoundResultScreen() },
                     { ScreenId.GameOver, () => new GameOverScreen() },
@@ -118,6 +124,14 @@ namespace TLMG.Client.Navigation
             FriendsScreen friendsScreen = new FriendsScreen(friendsViewModel);
 
             return new ScreenEntry(friendsScreen, friendsViewModel);
+        }
+
+        private ScreenEntry BuildLobbyEntry()
+        {
+            LobbyViewModel lobbyViewModel = new LobbyViewModel(_lobbyConnection, _navigation, _dialogs);
+            LobbyScreen lobbyScreen = new LobbyScreen(lobbyViewModel);
+
+            return new ScreenEntry(lobbyScreen, lobbyViewModel);
         }
 
         private ScreenEntry BuildVerificationEntry(object parameter)

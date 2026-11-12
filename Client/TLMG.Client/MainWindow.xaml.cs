@@ -147,7 +147,7 @@ namespace TLMG.Client
                 if (!ServerConnection.CurrentRoom.InGame)
                 {
                     ClearHistory();
-                    ShowScreen(new LobbyScreen(), false);
+                    Navigation.NavigateToWithoutHistory(ScreenId.Lobby);
                 }
             }
             else if (!serverEventArguments.Payload.IsSuccess)

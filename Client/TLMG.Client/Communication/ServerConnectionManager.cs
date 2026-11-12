@@ -409,13 +409,24 @@ namespace TLMG.Client.Communication
             }
         }
 
-        /// <summary>Dispara ChangeCardsPerPlayerResultReceived.</summary>
+        /// <summary>
+        /// Aplica la sala que trae el resultado, con el estado Listo ya reiniciado por el servidor, y dispara
+        /// ChangeCardsPerPlayerResultReceived.
+        /// </summary>
         /// <param name="result">Resultado que llegó del servidor.</param>
         internal void NotifyChangeCardsPerPlayerResultReceived(OperationChangeCardsPerPlayerResult result)
         {
-            ChangeCardsPerPlayerResultReceived?.Invoke(
-                this,
-                new ServerEventArgs<OperationChangeCardsPerPlayerResult>(result));
+            if (result != null)
+            {
+                if (result.Room != null)
+                {
+                    NotifyLobbyRoomChanged(result.Room);
+                }
+
+                ChangeCardsPerPlayerResultReceived?.Invoke(
+                    this,
+                    new ServerEventArgs<OperationChangeCardsPerPlayerResult>(result));
+            }
         }
 
         /// <summary>Dispara RoomInvitationReceived.</summary>
