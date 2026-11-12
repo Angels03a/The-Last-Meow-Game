@@ -49,6 +49,7 @@ namespace TLMG.Client
                 new DialogManager(),
                 ServerConnection,
                 ServerConnection,
+                ServerConnection,
                 ServerConnection);
             Navigation = navigationManager;
 

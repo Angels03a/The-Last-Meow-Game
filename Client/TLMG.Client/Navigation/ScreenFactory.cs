@@ -26,6 +26,7 @@ namespace TLMG.Client.Navigation
         private readonly IAccountsConnection _accountsConnection;
         private readonly IFriendsConnection _friendsConnection;
         private readonly ILobbyConnection _lobbyConnection;
+        private readonly ILeaderboardConnection _leaderboardConnection;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="ScreenFactory"/>.
@@ -35,18 +36,21 @@ namespace TLMG.Client.Navigation
         /// <param name="accountsConnection">Área de cuentas de la conexión con el servidor.</param>
         /// <param name="friendsConnection">Área de amigos de la conexión con el servidor.</param>
         /// <param name="lobbyConnection">Área de sala de la conexión con el servidor.</param>
+        /// <param name="leaderboardConnection">Área de la tabla de posiciones de la conexión con el servidor.</param>
         public ScreenFactory(
             INavigationManager navigation,
             IDialogManager dialogs,
             IAccountsConnection accountsConnection,
             IFriendsConnection friendsConnection,
-            ILobbyConnection lobbyConnection)
+            ILobbyConnection lobbyConnection,
+            ILeaderboardConnection leaderboardConnection)
         {
             _navigation = navigation;
             _dialogs = dialogs;
             _accountsConnection = accountsConnection;
             _friendsConnection = friendsConnection;
             _lobbyConnection = lobbyConnection;
+            _leaderboardConnection = leaderboardConnection;
         }
 
         /// <inheritdoc />
@@ -89,6 +93,9 @@ namespace TLMG.Client.Navigation
                 case ScreenId.HowToPlay:
                     screenEntry = BuildHowToPlayEntry();
                     break;
+                case ScreenId.Leaderboard:
+                    screenEntry = BuildLeaderboardEntry();
+                    break;
                 default:
                     screenEntry = CreateLegacyScreen(screenId);
                     break;
@@ -102,7 +109,6 @@ namespace TLMG.Client.Navigation
             Dictionary<ScreenId, Func<FrameworkElement>> legacyScreens =
                 new Dictionary<ScreenId, Func<FrameworkElement>>
                 {
-                    { ScreenId.Leaderboard, () => new LeaderboardScreen() },
                     { ScreenId.FugitiveKitten, () => new FugitiveKittenScreen() },
                     { ScreenId.Gameplay, () => new GameplayScreen() },
                     { ScreenId.RoundResult, () => new RoundResultScreen() },
@@ -138,6 +144,17 @@ namespace TLMG.Client.Navigation
             FriendsScreen friendsScreen = new FriendsScreen(friendsViewModel);
 
             return new ScreenEntry(friendsScreen, friendsViewModel);
+        }
+
+        private ScreenEntry BuildLeaderboardEntry()
+        {
+            LeaderboardViewModel leaderboardViewModel = new LeaderboardViewModel(
+                _leaderboardConnection,
+                _navigation,
+                _dialogs);
+            LeaderboardScreen leaderboardScreen = new LeaderboardScreen(leaderboardViewModel);
+
+            return new ScreenEntry(leaderboardScreen, leaderboardViewModel);
         }
 
         private ScreenEntry BuildHowToPlayEntry()
