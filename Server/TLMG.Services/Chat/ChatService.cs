@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+
 using log4net;
+
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Validators;
@@ -23,14 +25,14 @@ namespace TLMG.Services.Chat
         }
 
         /// <summary>Suscribe el canal del jugador a su sala actual.</summary>
-        /// <param name="sessionToken">Token de sesión.</param>
-        /// <param name="channelId">Canal de chat.</param>
+        /// <param name="caller">Token de sesión y canal de chat.</param>
         /// <param name="callback">Callback de este canal.</param>
         /// <returns>Éxito o clave de rechazo, sin datos de otras salas.</returns>
-        public ResultWithNotification<OperationSubscribeToChatResult> SubscribeToChat(string sessionToken,
-            string channelId, IChatManagerCallback callback)
+        public ResultWithNotification<OperationSubscribeToChatResult> SubscribeToChat(
+            LobbyCaller caller,
+            IChatManagerCallback callback)
         {
-            string errorKey = _sessionRegistry.SubscribeToChat(sessionToken, channelId, callback);
+            string errorKey = _sessionRegistry.SubscribeToChat(caller, callback);
             OperationSubscribeToChatResult operationSubscribeToChatResult = new OperationSubscribeToChatResult
             {
                 IsSuccess = errorKey == null,
@@ -47,12 +49,12 @@ namespace TLMG.Services.Chat
         /// <summary>
         /// Valida y reserva el envío; el eco confirma aceptación y solo los rechazos tienen resultado.
         /// </summary>
-        /// <param name="sessionToken">Token vigente.</param>
-        /// <param name="channelId">Canal suscrito que envía.</param>
+        /// <param name="caller">Token vigente y canal suscrito que envía.</param>
         /// <param name="sendChatMessageRequest">Sala, correlación y texto; puede ser null.</param>
         /// <returns>Resultado null y entregas si se aceptó; rechazo sin entregas en otro caso.</returns>
-        public ResultWithNotification<OperationSendChatMessageResult> SendChatMessage(string sessionToken,
-            string channelId, OperationSendChatMessageRequest sendChatMessageRequest)
+        public ResultWithNotification<OperationSendChatMessageResult> SendChatMessage(
+            LobbyCaller caller,
+            OperationSendChatMessageRequest sendChatMessageRequest)
         {
             string text = null;
             int roomId = LobbyMembershipChange.NoRoomId;
@@ -67,10 +69,16 @@ namespace TLMG.Services.Chat
 
             string normalizedText;
             string validationErrorKey = ChatValidator.ValidateText(text, out normalizedText);
+            ChatSubmission chatSubmission = new ChatSubmission
+            {
+                RoomId = roomId,
+                ClientMessageId = clientMessageId,
+                Text = normalizedText,
+                ValidationErrorKey = validationErrorKey
+            };
+
             ChatDelivery chatDelivery;
-            string errorKey = _sessionRegistry.AcceptChatMessage(
-                sessionToken, channelId, roomId, clientMessageId, normalizedText, validationErrorKey,
-                out chatDelivery);
+            string errorKey = _sessionRegistry.AcceptChatMessage(caller, chatSubmission, out chatDelivery);
             ResultWithNotification<OperationSendChatMessageResult> sendChatMessageResult;
 
             if (errorKey != null)
