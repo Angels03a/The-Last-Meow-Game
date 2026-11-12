@@ -77,6 +77,9 @@ namespace TLMG.Client.Navigation
                 case ScreenId.ForgotPassword:
                     screenEntry = BuildForgotPasswordEntry();
                     break;
+                case ScreenId.Options:
+                    screenEntry = BuildOptionsEntry();
+                    break;
                 default:
                     screenEntry = CreateLegacyScreen(screenId);
                     break;
@@ -91,7 +94,6 @@ namespace TLMG.Client.Navigation
                 new Dictionary<ScreenId, Func<FrameworkElement>>
                 {
                     { ScreenId.NewPassword, () => new NewPasswordScreen() },
-                    { ScreenId.Options, () => new OptionsScreen() },
                     { ScreenId.Profile, () => new ProfileScreen() },
                     { ScreenId.HowToPlay, () => new HowToPlayScreen() },
                     { ScreenId.Leaderboard, () => new LeaderboardScreen() },
@@ -130,6 +132,14 @@ namespace TLMG.Client.Navigation
             FriendsScreen friendsScreen = new FriendsScreen(friendsViewModel);
 
             return new ScreenEntry(friendsScreen, friendsViewModel);
+        }
+
+        private ScreenEntry BuildOptionsEntry()
+        {
+            OptionsViewModel optionsViewModel = new OptionsViewModel(_navigation);
+            OptionsScreen optionsScreen = new OptionsScreen(optionsViewModel);
+
+            return new ScreenEntry(optionsScreen, optionsViewModel);
         }
 
         private ScreenEntry BuildForgotPasswordEntry()

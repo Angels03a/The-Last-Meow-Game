@@ -55,11 +55,11 @@
                             <Button x:Name="btnLanguageEnglish"
                                     Content="US English"
                                     Style="{StaticResource LanguageButtonInactiveStyle}"
-                                    Click="BtnLanguageEnglish_Click" />
+                                    Command="{Binding ChangeToEnglishCommand}" />
                             <Button x:Name="btnLanguageSpanish"
                                     Content="ES Español"
                                     Style="{StaticResource LanguageButtonActiveStyle}"
-                                    Click="BtnLanguageSpanish_Click" />
+                                    Command="{Binding ChangeToSpanishCommand}" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -90,12 +90,11 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="🔈" Style="{StaticResource OptionSmallIconStyle}" />
                             <Slider Grid.Column="1"
-                                    x:Name="sldMusic"
                                     Style="{StaticResource CustomSliderStyle}"
                                     Maximum="100"
-                                    ValueChanged="SldMusic_ValueChanged" />
+                                    Value="{Binding MusicVolume, Mode=TwoWay}" />
                             <TextBlock Grid.Column="2" Text="🔊" Style="{StaticResource OptionSmallIconStyle}" HorizontalAlignment="Right" Margin="0,0,8,0" />
-                            <TextBlock Grid.Column="3" x:Name="lblMusicVol" Style="{StaticResource OptionValueTextStyle}" />
+                            <TextBlock Grid.Column="3" Text="{Binding MusicVolumeText}" Style="{StaticResource OptionValueTextStyle}" />
                         </Grid>
 
                         <Grid>
@@ -118,12 +117,11 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="🔈" Style="{StaticResource OptionSmallIconStyle}" />
                             <Slider Grid.Column="1"
-                                    x:Name="sldSoundEffects"
                                     Style="{StaticResource CustomSliderStyle}"
                                     Maximum="100"
-                                    ValueChanged="SldSoundEffects_ValueChanged" />
+                                    Value="{Binding SoundEffectsVolume, Mode=TwoWay}" />
                             <TextBlock Grid.Column="2" Text="🔊" Style="{StaticResource OptionSmallIconStyle}" HorizontalAlignment="Right" Margin="0,0,8,0" />
-                            <TextBlock Grid.Column="3" x:Name="lblSoundEffectsVolume" Style="{StaticResource OptionValueTextStyle}" />
+                            <TextBlock Grid.Column="3" Text="{Binding SoundEffectsVolumeText}" Style="{StaticResource OptionValueTextStyle}" />
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -155,10 +153,9 @@
                     </StackPanel>
                 </Border>
 
-                <Button x:Name="btnReset"
-                        Content="{DynamicResource Options_ResetButton}"
+                <Button Content="{DynamicResource Options_ResetButton}"
                         Style="{StaticResource OptionsResetButtonStyle}"
-                        Click="BtnReset_Click" />
+                        Command="{Binding ResetCommand}" />
 
             </StackPanel>
         </ScrollViewer>

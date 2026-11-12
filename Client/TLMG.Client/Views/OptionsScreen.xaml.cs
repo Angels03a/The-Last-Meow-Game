@@ -1,105 +1,65 @@
-using System;
+using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
+
 using TLMG.Client.ViewModels;
-using TLMG.Client.Navigation;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Representa la pantalla de configuración de audio e idioma de la aplicación.
-    /// Delega la navegación al ViewModel y mantiene la lógica visual directa.
+    /// Vista de la configuración de audio e idioma. Solo conserva lógica visual: marcar el botón del idioma activo.
+    /// Los volúmenes, el idioma y la navegación viven en <see cref="OptionsViewModel"/>.
     /// </summary>
     public partial class OptionsScreen : LocalizableScreen
     {
-        private const double DefaultMusicVolumeLevel = 50.0;
-        private const double DefaultSoundEffectsVolumeLevel = 50.0;
-        private const double VolumeScalePercentFactor = 100.0;
-        private const string SpanishCultureIdentifier = "es-MX";
         private const string ActiveLanguageButtonStyleKey = "LanguageButtonActiveStyle";
         private const string InactiveLanguageButtonStyleKey = "LanguageButtonInactiveStyle";
 
         private readonly OptionsViewModel _viewModel;
 
         /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="OptionsScreen"/> con la configuración por defecto.
+        /// Inicializa una nueva instancia de la clase <see cref="OptionsScreen"/> con su ViewModel.
         /// </summary>
-        public OptionsScreen()
+        /// <param name="optionsViewModel">ViewModel que la fábrica de pantallas crea e inyecta.</param>
+        public OptionsScreen(OptionsViewModel optionsViewModel)
         {
             InitializeComponent();
 
-            _viewModel = new OptionsViewModel();
-            DataContext = _viewModel;
+            _viewModel = optionsViewModel;
+            DataContext = optionsViewModel;
 
-            _viewModel.BackRequested += NavigateToMainMenu;
-
-            InitializeDefaultSettings();
-            InitializeLanguageButtons();
+            Loaded += OnScreenLoaded;
+            Unloaded += OnScreenUnloaded;
         }
 
-        protected override void UpdateDynamicLabels()
+        private void OnScreenLoaded(object sender, RoutedEventArgs e)
         {
-            UpdateVolumeLabel(lblMusicVol, sldMusic.Value);
-            UpdateVolumeLabel(lblSoundEffectsVolume, sldSoundEffects.Value);
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            _viewModel.Activate();
+            ShowActiveLanguageButton();
         }
 
-        private void InitializeDefaultSettings()
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
-            sldMusic.Value = DefaultMusicVolumeLevel;
-            sldSoundEffects.Value = DefaultSoundEffectsVolumeLevel;
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _viewModel.Deactivate();
         }
 
-        private void InitializeLanguageButtons()
+        private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (LanguageManager.CurrentCulture == LanguageManager.EnglishCultureCode)
+            if (e.PropertyName == nameof(OptionsViewModel.IsEnglishActive))
             {
-                btnLanguageEnglish.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
-                btnLanguageSpanish.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
-            }
-            else
-            {
-                btnLanguageSpanish.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
-                btnLanguageEnglish.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
+                ShowActiveLanguageButton();
             }
         }
 
-        private void UpdateVolumeLabel(TextBlock targetLabelElement, double targetVolumeValue)
+        private void ShowActiveLanguageButton()
         {
-            targetLabelElement.Text = (targetVolumeValue / VolumeScalePercentFactor).ToString("P0");
-        }
+            Style activeStyle = (Style)FindResource(ActiveLanguageButtonStyleKey);
+            Style inactiveStyle = (Style)FindResource(InactiveLanguageButtonStyleKey);
 
-        private void SldMusic_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            UpdateVolumeLabel(lblMusicVol, e.NewValue);
-        }
-
-        private void SldSoundEffects_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            UpdateVolumeLabel(lblSoundEffectsVolume, e.NewValue);
-        }
-
-        private void BtnLanguageEnglish_Click(object sender, RoutedEventArgs e)
-        {
-            LanguageManager.ChangeLanguage(LanguageManager.EnglishCultureCode);
-            btnLanguageEnglish.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
-            btnLanguageSpanish.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
-        }
-
-        private void BtnLanguageSpanish_Click(object sender, RoutedEventArgs e)
-        {
-            LanguageManager.ChangeLanguage(SpanishCultureIdentifier);
-            btnLanguageSpanish.Style = (Style)FindResource(ActiveLanguageButtonStyleKey);
-            btnLanguageEnglish.Style = (Style)FindResource(InactiveLanguageButtonStyleKey);
-        }
-
-        private void BtnReset_Click(object sender, RoutedEventArgs e)
-        {
-            InitializeDefaultSettings();
-        }
-
-        private void NavigateToMainMenu(object sender, EventArgs e)
-        {
-            ((App)Application.Current).Navigation.NavigateTo(ScreenId.MainMenu);
+            btnLanguageEnglish.Style = _viewModel.IsEnglishActive ? activeStyle : inactiveStyle;
+            btnLanguageSpanish.Style = _viewModel.IsEnglishActive ? inactiveStyle : activeStyle;
         }
     }
 }
