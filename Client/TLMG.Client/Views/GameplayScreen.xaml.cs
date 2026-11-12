@@ -1,8 +1,6 @@
 using System;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using TLMG.Client.Models;
 using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
@@ -27,7 +25,8 @@ namespace TLMG.Client.Views
         {
             InitializeComponent();
 
-            _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+            _viewModel = viewModel;
+
             Loaded += OnScreenLoaded;
             Unloaded += OnScreenUnloaded;
             DataContext = _viewModel;
@@ -66,12 +65,16 @@ namespace TLMG.Client.Views
 
         private void OnScreenLoaded(object sender, RoutedEventArgs e)
         {
+            _viewModel.Activate();
+
             _viewModel.KickVoteRequested -= OnKickVoteRequested;
             _viewModel.KickVoteRequested += OnKickVoteRequested;
         }
 
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
+            _viewModel.Deactivate();
+
             _viewModel.KickVoteRequested -= OnKickVoteRequested;
         }
 
@@ -96,6 +99,5 @@ namespace TLMG.Client.Views
         {
             brdPlayerContextMenu.Visibility = Visibility.Collapsed;
         }
-
     }
 }

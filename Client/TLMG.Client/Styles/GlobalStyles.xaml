@@ -3007,7 +3007,6 @@
         <Setter Property="FontSize" Value="14" />
     </Style>
 
-    <!-- Pantalla del Gatito Fugitivo (FugitiveKittenScreen). Medidas y colores del prototipo de Figma. -->
     <SolidColorBrush x:Key="Brush_FugitiveKittenStage" Color="#050507" />
     <SolidColorBrush x:Key="Brush_FugitiveKittenDoorWall" Color="#15151F" />
     <SolidColorBrush x:Key="Brush_FugitiveKittenDoorFlap" Color="#22223A" />
@@ -3038,7 +3037,6 @@
     <SolidColorBrush x:Key="Brush_FugitiveKittenGrayStripe" Color="#5F5F75" />
     <SolidColorBrush x:Key="Brush_FugitiveKittenGrayCream" Color="#D2D2DE" />
 
-    <!-- Color activo del gatito; FugitiveKittenScreen lo reemplaza en sus recursos según el color elegido. -->
     <StaticResource x:Key="Brush_FugitiveKittenBody" ResourceKey="Brush_FugitiveKittenOrangeBody" />
     <StaticResource x:Key="Brush_FugitiveKittenStripe" ResourceKey="Brush_FugitiveKittenOrangeStripe" />
     <StaticResource x:Key="Brush_FugitiveKittenCream" ResourceKey="Brush_FugitiveKittenOrangeCream" />
@@ -3122,7 +3120,6 @@
         <Setter Property="Opacity" Value="0.7" />
     </Style>
 
-    <!-- Nube del "puf"; empieza invisible y la pantalla la anima al entrar a "Lo atrapó otro". -->
     <Style x:Key="FugitiveKittenPuffCloudStyle" TargetType="Ellipse">
         <Setter Property="Fill" Value="{StaticResource Brush_FugitiveKittenPuff}" />
         <Setter Property="Opacity" Value="0" />
@@ -3171,7 +3168,6 @@
         <Setter Property="Margin" Value="0,18,0,0" />
     </Style>
 
-    <!-- Gatera de 112×120; el origen es la esquina superior izquierda del muro. -->
     <ControlTemplate x:Key="FugitiveKittenDoorTemplate" TargetType="ContentControl">
         <Canvas Width="112" Height="120">
             <Path Data="M0,120 V14 Q0,0 14,0 H98 Q112,0 112,14 V120 Z"
@@ -3187,7 +3183,6 @@
         </Canvas>
     </ControlTemplate>
 
-    <!-- Brillo de la gatera a k = 1; la pantalla le da Opacity = k. Los halos excluyen el muro. -->
     <ControlTemplate x:Key="FugitiveKittenDoorGlowTemplate" TargetType="ContentControl">
         <Canvas Width="112" Height="120">
             <Path Fill="{StaticResource Brush_Gold}" Opacity="0.07">
@@ -3219,7 +3214,6 @@
         </Canvas>
     </ControlTemplate>
 
-    <!-- Borde ámbar sólido del hueco mientras la gatera brilla; va fuera de la capa con Opacity = k. -->
     <ControlTemplate x:Key="FugitiveKittenDoorHoleGlowTemplate" TargetType="ContentControl">
         <Canvas Width="112" Height="120">
             <Rectangle Canvas.Left="22" Canvas.Top="38" Width="68" Height="82" RadiusX="10" RadiusY="10"
@@ -3227,7 +3221,6 @@
         </Canvas>
     </ControlTemplate>
 
-    <!-- Placa de la gatera cerrada cuando el gatito escapa; mismo origen que la gatera. -->
     <ControlTemplate x:Key="FugitiveKittenDoorShutterTemplate" TargetType="ContentControl">
         <Canvas Width="112" Height="120">
             <Rectangle Canvas.Left="22" Canvas.Top="38" Width="68" Height="82" RadiusX="10" RadiusY="10"
@@ -3241,7 +3234,6 @@
         </Canvas>
     </ControlTemplate>
 
-    <!-- Caja de 136×84; el origen es la esquina superior izquierda del frente (las solapas suben 18 px). -->
     <ControlTemplate x:Key="FugitiveKittenBoxTemplate" TargetType="ContentControl">
         <Canvas Width="136" Height="84">
             <Polygon Points="0,0 22,-18 58,-14 40,0" Fill="{StaticResource Brush_FugitiveKittenBoxFlap}" />
@@ -3256,7 +3248,6 @@
         </Canvas>
     </ControlTemplate>
 
-    <!-- Brillo de la caja a k = 1; los halos excluyen el frente y las solapas. -->
     <ControlTemplate x:Key="FugitiveKittenBoxGlowTemplate" TargetType="ContentControl">
         <Canvas Width="136" Height="84">
             <Path Fill="{StaticResource Brush_Gold}" Opacity="0.07">
@@ -3284,7 +3275,6 @@
         </Canvas>
     </ControlTemplate>
 
-    <!-- Partes del gatito que no cambian entre poses: brillo, rayas y cabeza (96×64, mirando a la derecha). -->
     <ControlTemplate x:Key="FugitiveKittenHeadTemplate" TargetType="ContentControl">
         <Canvas Width="96" Height="64">
             <Path Data="M38,23 Q40,28 37,32 M46,22 Q48,27 45,31 M54,23 Q56,28 53,31"
@@ -3325,7 +3315,6 @@
         <Setter Property="StrokeEndLineCap" Value="Round" />
     </Style>
 
-    <!-- Brillo cálido alrededor del gatito, común a las dos poses. -->
     <ControlTemplate x:Key="FugitiveKittenAuraTemplate" TargetType="ContentControl">
         <Canvas Width="96" Height="64">
             <Ellipse Canvas.Left="-14" Canvas.Top="-6" Width="124" Height="80"
@@ -3335,7 +3324,6 @@
         </Canvas>
     </ControlTemplate>
 
-    <!-- Pose "Estirada" del gatito en carrera. -->
     <ControlTemplate x:Key="FugitiveKittenReachPoseTemplate" TargetType="ContentControl">
         <Canvas Width="96" Height="64">
             <ContentControl Template="{StaticResource FugitiveKittenAuraTemplate}" Focusable="False" />
@@ -3351,8 +3339,6 @@
             <ContentControl Template="{StaticResource FugitiveKittenHeadTemplate}" Focusable="False" />
         </Canvas>
     </ControlTemplate>
-
-    <!-- Pose "Recogida" del gatito en carrera; todo el cuerpo sube 2 px. -->
     <ControlTemplate x:Key="FugitiveKittenGatherPoseTemplate" TargetType="ContentControl">
         <Canvas Width="96" Height="64">
             <ContentControl Template="{StaticResource FugitiveKittenAuraTemplate}" Focusable="False" />
@@ -3483,6 +3469,59 @@
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsGuestSession}" Value="True">
                 <Setter Property="Visibility" Value="Visible" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="GameplayHandCardItemButtonStyle" TargetType="Button"
+       BasedOn="{StaticResource GameplayHandCardEgyptianButtonStyle}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Kind}" Value="Zombie">
+                <Setter Property="Background" Value="{StaticResource Brush_OnlineSoft}" />
+                <Setter Property="BorderBrush" Value="{StaticResource Brush_OnlineBorder}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Kind}" Value="Skull">
+                <Setter Property="Background" Value="{StaticResource Brush_AccentSoft}" />
+                <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding DataContext.IsCompactHand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                     Value="True">
+                <Setter Property="Width" Value="52" />
+                <Setter Property="Height" Value="68" />
+                <Setter Property="Margin" Value="0,0,6,6" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="GameplayHandCardItemEmojiStyle" TargetType="TextBlock"
+       BasedOn="{StaticResource GameplayHandCardEmojiStyle}">
+        <Setter Property="Text" Value="🎴" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Kind}" Value="Skull">
+                <Setter Property="Text" Value="☠️" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding DataContext.IsCompactHand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                     Value="True">
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="Margin" Value="0,0,0,2" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="GameplayHandCardItemLabelStyle" TargetType="TextBlock"
+       BasedOn="{StaticResource GameplayHandCardEgyptianLabelStyle}">
+        <Setter Property="Text" Value="{DynamicResource Common_EgyptianCatLabel}" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Kind}" Value="Zombie">
+                <Setter Property="Text" Value="{DynamicResource Common_ZombieCatLabel}" />
+                <Setter Property="Foreground" Value="{StaticResource Brush_Online}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Kind}" Value="Skull">
+                <Setter Property="Text" Value="{DynamicResource Common_SkullCatLabel}" />
+                <Setter Property="Foreground" Value="{StaticResource Brush_AccentLight}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding DataContext.IsCompactHand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                     Value="True">
+                <Setter Property="FontSize" Value="8" />
             </DataTrigger>
         </Style.Triggers>
     </Style>

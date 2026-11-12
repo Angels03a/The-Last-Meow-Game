@@ -52,32 +52,40 @@
                                        Style="{StaticResource GameplayScoreboardEmojiStyle}" />
                             <TextBlock Text="NyanProwler"
                                        Style="{StaticResource GameplayScoreboardNameStyle}" />
-                            <TextBlock Text="1/2"
-                                       Style="{StaticResource GameplayScoreboardValueStyle}" />
+                            <TextBlock Style="{StaticResource GameplayScoreboardValueStyle}">
+                                <Run Text="1/" />
+                                <Run Text="{Binding ChallengesToWin, Mode=OneWay}" />
+                            </TextBlock>
                         </StackPanel>
                         <StackPanel Style="{StaticResource GameplayScoreboardItemStyle}">
                             <TextBlock Text="🐱"
                                        Style="{StaticResource GameplayScoreboardEmojiStyle}" />
                             <TextBlock Text="CatNapper9000"
                                        Style="{StaticResource GameplayScoreboardNameStyle}" />
-                            <TextBlock Text="0/2"
-                                       Style="{StaticResource GameplayScoreboardValueStyle}" />
+                            <TextBlock Style="{StaticResource GameplayScoreboardValueStyle}">
+                                <Run Text="0/" />
+                                <Run Text="{Binding ChallengesToWin, Mode=OneWay}" />
+                            </TextBlock>
                         </StackPanel>
                         <StackPanel Style="{StaticResource GameplayScoreboardItemStyle}">
                             <TextBlock Text="🐱"
                                        Style="{StaticResource GameplayScoreboardEmojiStyle}" />
                             <TextBlock Text="WhiskerKnight"
                                        Style="{StaticResource GameplayScoreboardNameStyle}" />
-                            <TextBlock Text="1/2"
-                                       Style="{StaticResource GameplayScoreboardValueStyle}" />
+                            <TextBlock Style="{StaticResource GameplayScoreboardValueStyle}">
+                                <Run Text="1/" />
+                                <Run Text="{Binding ChallengesToWin, Mode=OneWay}" />
+                            </TextBlock>
                         </StackPanel>
                         <StackPanel Style="{StaticResource GameplayScoreboardItemStyle}">
                             <TextBlock Text="🐱"
                                        Style="{StaticResource GameplayScoreboardEmojiStyle}" />
                             <TextBlock Text="GraveyardPaws"
                                        Style="{StaticResource GameplayScoreboardNameStyle}" />
-                            <TextBlock Text="0/2"
-                                       Style="{StaticResource GameplayScoreboardValueStyle}" />
+                            <TextBlock Style="{StaticResource GameplayScoreboardValueStyle}">
+                                <Run Text="0/" />
+                                <Run Text="{Binding ChallengesToWin, Mode=OneWay}" />
+                            </TextBlock>
                         </StackPanel>
                     </StackPanel>
 
@@ -273,34 +281,38 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="1" Style="{StaticResource GameplayHandPanelStyle}">
-                        <TextBlock Text="{DynamicResource Gameplay_YourHandLabel}"
+                    <Grid Grid.Column="2" VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="{DynamicResource Gameplay_YourHandLabel}"
                                    Style="{StaticResource GameplayHandLabelTextStyle}" />
-                        <Button Style="{StaticResource GameplayHandCardEgyptianButtonStyle}">
-                            <StackPanel>
-                                <TextBlock Text="🎴"
-                                           Style="{StaticResource GameplayHandCardEmojiStyle}" />
-                                <TextBlock Text="{DynamicResource Common_EgyptianCatLabel}"
-                                           Style="{StaticResource GameplayHandCardEgyptianLabelStyle}" />
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource GameplayHandCardZombieButtonStyle}">
-                            <StackPanel>
-                                <TextBlock Text="🎴"
-                                           Style="{StaticResource GameplayHandCardEmojiStyle}" />
-                                <TextBlock Text="{DynamicResource Common_ZombieCatLabel}"
-                                           Style="{StaticResource GameplayHandCardZombieLabelStyle}" />
-                            </StackPanel>
-                        </Button>
-                        <Button Style="{StaticResource GameplayHandCardSkullButtonStyle}">
-                            <StackPanel>
-                                <TextBlock Text="☠️"
-                                           Style="{StaticResource GameplayHandCardEmojiStyle}" />
-                                <TextBlock Text="{DynamicResource Common_SkullCatLabel}"
-                                           Style="{StaticResource GameplayHandCardSkullLabelStyle}" />
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
+
+                        <ItemsControl Grid.Column="1"
+                                      ItemsSource="{Binding HandCards}"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Center">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="{Binding DataContext.HandColumnCount, 
+                                        RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource GameplayHandCardItemButtonStyle}">
+                                        <StackPanel>
+                                            <TextBlock Style="{StaticResource GameplayHandCardItemEmojiStyle}" />
+                                            <TextBlock Style="{StaticResource GameplayHandCardItemLabelStyle}" />
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
 
                     <StackPanel Grid.Column="3" Style="{StaticResource GameplayActionsPanelStyle}">
                         <Border Style="{StaticResource GameplayBidSelectorBorderStyle}">
@@ -338,14 +350,18 @@
                            Style="{StaticResource GameplayChatTitleTextStyle}" />
 
                 <ScrollViewer Grid.Row="1" Style="{StaticResource GameplayChatMessagesScrollViewerStyle}">
-                    <StackPanel>
-                        <TextBlock Style="{StaticResource GameplayChatMessageTextStyle}">
-                            <Run Text="" Style="{StaticResource GameplayChatAuthorRunStyle}" />
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource GameplayChatMessageTextStyle}">
-                            <Run Text="" Style="{StaticResource GameplayChatAuthorRunStyle}" />
-                        </TextBlock>
-                    </StackPanel>
+                    <ItemsControl ItemsSource="{Binding ChatMessages}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Style="{StaticResource GameplayChatMessageTextStyle}">
+                                    <Run Text="{Binding SenderNickname, Mode=OneWay}" 
+                                         Style="{StaticResource GameplayChatAuthorRunStyle}" />
+                                    <Run Text=": " />
+                                    <Run Text="{Binding Text, Mode=OneWay}" />
+                                </TextBlock>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </ScrollViewer>
 
                 <Border Grid.Row="2" Style="{StaticResource GameplayChatFooterBorderStyle}">
@@ -355,11 +371,13 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0"
+                                 Text="{Binding ChatInput, UpdateSourceTrigger=PropertyChanged}"
                                  Tag="{DynamicResource Gameplay_ChatPlaceholder}"
                                  Style="{StaticResource GameplayChatInputStyle}" />
                         <Button Grid.Column="1"
                                 Content="{DynamicResource Gameplay_SendChatButton}"
-                                Style="{StaticResource GameplaySendChatButtonStyle}" />
+                                Style="{StaticResource GameplaySendChatButtonStyle}"
+                                Command="{Binding SendChatCommand}" />
                     </Grid>
                 </Border>
 

@@ -98,7 +98,7 @@ namespace TLMG.Client.Navigation
                     screenEntry = BuildLeaderboardEntry();
                     break;
                 case ScreenId.Gameplay:
-                    GameplayViewModel gameplayViewModel = new GameplayViewModel(_navigation);
+                    GameplayViewModel gameplayViewModel = new GameplayViewModel(_navigation, _lobbyConnection);
                     screenEntry = new ScreenEntry(new GameplayScreen(gameplayViewModel), gameplayViewModel);
                     break;
                 case ScreenId.Moderation:

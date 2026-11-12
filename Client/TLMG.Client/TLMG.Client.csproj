@@ -85,7 +85,10 @@
     <Compile Include="Models\ChatMessageEntry.cs" />
     <Compile Include="Models\FriendEntry.cs" />
     <Compile Include="Models\FriendRequestEntry.cs" />
+    <Compile Include="Models\HandCardEntry.cs" />
+    <Compile Include="Models\HandCardKind.cs" />
     <Compile Include="Models\LobbyPlayerEntry.cs" />
+    <Compile Include="Models\MatchModeSettings.cs" />
     <Compile Include="Models\ModerationMode.cs" />
     <Compile Include="Models\PlayerRankEntry.cs" />
     <Compile Include="Navigation\DialogManager.cs" />

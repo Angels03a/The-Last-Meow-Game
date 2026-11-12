@@ -1,44 +1,58 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
-using TLMG.Client.Navigation;
-using TLMG.Client.Models;
-
 using CommunityToolkit.Mvvm.Input;
+using TLMG.Client.Communication;
+using TLMG.Client.Models;
+using TLMG.Client.Navigation;
+using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>
-    /// Estado y comandos de la pantalla de partida.
-    /// </summary>
     public class GameplayViewModel : ViewModelBase
     {
         private const int CurrentRoundNumberValue = 3;
         private const int InitialBidAmount = 4;
         private const int MinimumBidAmount = 1;
-        private const int MaximumBidAmount = 12;
         private const int BidStep = 1;
-
+        private const int DemoFaceDownCardsOnTable = 6;
         private const string PhaseBiddingKey = "Gameplay_PhaseBiddingLabel";
+        private const string ChatEmptyErrorKey = "Lobby_ChatEmptyError";
 
         private readonly RelayCommand _decreaseBidCommand;
         private readonly RelayCommand _increaseBidCommand;
+        private readonly RelayCommand _sendChatCommand;
         private readonly INavigationManager _navigation;
+        private readonly ILobbyConnection _lobbyConnection;
+        private readonly MatchModeSettings _matchMode;
+        private readonly int _maximumBidAmount;
+        private readonly List<HandCardEntry> _handCards;
+        private readonly ObservableCollection<ChatMessageEntry> _chatMessages;
+
         private int _bidAmount;
         private int _currentBidAmount;
         private string _selectedPlayerName;
+        private string _chatInput;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="GameplayViewModel"/>.
-        /// </summary>
-        public GameplayViewModel(INavigationManager navigation)
+        public GameplayViewModel(INavigationManager navigation, ILobbyConnection lobbyConnection)
         {
-            _navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
-            _bidAmount = InitialBidAmount;
+            _navigation = navigation;
+            _lobbyConnection = lobbyConnection;
+
+            _matchMode = MatchModeSettings.FromCardsPerPlayer(ReadCardsPerPlayer(lobbyConnection));
+            _maximumBidAmount = CalculateMaximumBid(DemoFaceDownCardsOnTable, _matchMode.CardsPerPlayer);
+            _handCards = BuildHandCards(_matchMode);
+            _bidAmount = Math.Min(InitialBidAmount, _maximumBidAmount);
             _currentBidAmount = InitialBidAmount;
             _selectedPlayerName = string.Empty;
+            _chatInput = string.Empty;
+            _chatMessages = new ObservableCollection<ChatMessageEntry>();
 
             _decreaseBidCommand = new RelayCommand(ExecuteDecreaseBid, CanExecuteDecreaseBid);
             _increaseBidCommand = new RelayCommand(ExecuteIncreaseBid, CanExecuteIncreaseBid);
+            _sendChatCommand = new RelayCommand(ExecuteSendChat, CanExecuteSendChat);
+
             ExitCommand = new RelayCommand(ExecuteExit);
             ReportPlayerCommand = new RelayCommand(ExecuteReportPlayer);
             KickPlayerCommand = new RelayCommand(ExecuteKickPlayer);
@@ -48,57 +62,26 @@ namespace TLMG.Client.ViewModels
             DemoInactivityCommand = new RelayCommand(ExecuteDemoInactivity);
         }
 
-        /// <summary>
-        /// Se produce cuando se solicita iniciar la votación de expulsión del jugador seleccionado.
-        /// </summary>
         public event EventHandler KickVoteRequested;
-
-        /// <summary>Comando que reduce la apuesta seleccionada.</summary>
         public ICommand DecreaseBidCommand => _decreaseBidCommand;
-
-        /// <summary>Comando que aumenta la apuesta seleccionada.</summary>
         public ICommand IncreaseBidCommand => _increaseBidCommand;
-
-        /// <summary>Comando que solicita salir de la partida.</summary>
+        public ICommand SendChatCommand => _sendChatCommand;
         public ICommand ExitCommand { get; }
-
-        /// <summary>Comando del menú contextual para reportar.</summary>
         public ICommand ReportPlayerCommand { get; }
-
-        /// <summary>Comando del menú contextual para votar la expulsión.</summary>
         public ICommand KickPlayerCommand { get; }
-
-        /// <summary>Comando del menú contextual para bloquear.</summary>
         public ICommand BlockPlayerCommand { get; }
-
-        /// <summary>Comando demo que abre el resultado de ronda.</summary>
         public ICommand DemoRevealCardsCommand { get; }
-
-        /// <summary>Comando demo que abre el fin de partida.</summary>
         public ICommand DemoGameOverCommand { get; }
-
-        /// <summary>Comando demo que abre la partida cerrada por inactividad.</summary>
         public ICommand DemoInactivityCommand { get; }
 
-        /// <summary>
-        /// Número de la ronda en curso.
-        /// </summary>
-        public int CurrentRoundNumber
-        {
-            get { return CurrentRoundNumberValue; }
-        }
+        public int CurrentRoundNumber => CurrentRoundNumberValue;
+        public string PhaseLabelKey => PhaseBiddingKey;
+        public int ChallengesToWin => _matchMode.ChallengesToWin;
+        public bool IsCompactHand => _matchMode.IsCompactHand;
+        public int HandColumnCount => _matchMode.HandColumnCount;
+        public IReadOnlyList<HandCardEntry> HandCards => _handCards;
+        public ObservableCollection<ChatMessageEntry> ChatMessages => _chatMessages;
 
-        /// <summary>
-        /// Clave de recurso del nombre de la fase actual.
-        /// </summary>
-        public string PhaseLabelKey
-        {
-            get { return PhaseBiddingKey; }
-        }
-
-        /// <summary>
-        /// Apuesta que el jugador local tiene seleccionada.
-        /// </summary>
         public int BidAmount
         {
             get { return _bidAmount; }
@@ -112,18 +95,12 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>
-        /// Apuesta vigente en la mesa.
-        /// </summary>
         public int CurrentBidAmount
         {
             get { return _currentBidAmount; }
             private set { SetProperty(ref _currentBidAmount, value); }
         }
 
-        /// <summary>
-        /// Nombre del jugador sobre el que se abrió el menú contextual.
-        /// </summary>
         public string SelectedPlayerName
         {
             get { return _selectedPlayerName; }
@@ -136,12 +113,73 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>
-        /// Título del menú contextual, con el nombre del jugador en mayúsculas.
-        /// </summary>
-        public string ContextMenuTitle
+        public string ChatInput
         {
-            get { return SelectedPlayerName.ToUpperInvariant(); }
+            get { return _chatInput; }
+            set
+            {
+                if (SetProperty(ref _chatInput, value))
+                {
+                    _sendChatCommand.NotifyCanExecuteChanged();
+                }
+            }
+        }
+
+        public string ContextMenuTitle => SelectedPlayerName.ToUpperInvariant();
+
+        public void Activate()
+        {
+            _lobbyConnection.ChatMessageReceived += OnChatMessageReceived;
+        }
+
+        public void Deactivate()
+        {
+            _lobbyConnection.ChatMessageReceived -= OnChatMessageReceived;
+            _chatMessages.Clear();
+        }
+
+        protected override void OnDisposed()
+        {
+            Deactivate();
+            base.OnDisposed();
+        }
+
+        private static int ReadCardsPerPlayer(ILobbyConnection lobbyConnection)
+        {
+            int cardsPerPlayer = MatchModeSettings.FourCardsPerPlayer;
+            LobbyRoom currentRoom = lobbyConnection.CurrentRoom;
+
+            if (currentRoom != null)
+            {
+                cardsPerPlayer = currentRoom.CardsPerPlayerCount;
+            }
+
+            return cardsPerPlayer;
+        }
+
+        private static int CalculateMaximumBid(int faceDownCardsOnTable, int cardsPerPlayer)
+        {
+            return Math.Min(faceDownCardsOnTable, cardsPerPlayer);
+        }
+
+        private static List<HandCardEntry> BuildHandCards(MatchModeSettings matchMode)
+        {
+            List<HandCardEntry> handCards = new List<HandCardEntry>();
+            bool isNextSafeCardEgyptian = true;
+
+            for (int safeCardNumber = 0; safeCardNumber < matchMode.SafeCardCount; safeCardNumber++)
+            {
+                HandCardKind safeCardKind = isNextSafeCardEgyptian ? HandCardKind.Egyptian : HandCardKind.Zombie;
+                handCards.Add(new HandCardEntry { Kind = safeCardKind });
+                isNextSafeCardEgyptian = !isNextSafeCardEgyptian;
+            }
+
+            for (int fatalCardNumber = 0; fatalCardNumber < matchMode.FatalCatCount; fatalCardNumber++)
+            {
+                handCards.Add(new HandCardEntry { Kind = HandCardKind.Skull });
+            }
+
+            return handCards;
         }
 
         private void ExecuteDecreaseBid()
@@ -151,8 +189,7 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecuteDecreaseBid()
         {
-            bool canDecrease = BidAmount > MinimumBidAmount;
-            return canDecrease;
+            return BidAmount > MinimumBidAmount;
         }
 
         private void ExecuteIncreaseBid()
@@ -162,8 +199,44 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecuteIncreaseBid()
         {
-            bool canIncrease = BidAmount < MaximumBidAmount;
-            return canIncrease;
+            return BidAmount < _maximumBidAmount;
+        }
+
+        private void ExecuteSendChat()
+        {
+            string messageText = (ChatInput ?? string.Empty).Trim();
+            bool isEmptyMessage = string.IsNullOrEmpty(messageText);
+
+            if (!isEmptyMessage)
+            {
+                bool wasMessageSent = _lobbyConnection.SendChatMessage(messageText);
+
+                if (wasMessageSent)
+                {
+                    ChatInput = string.Empty;
+                }
+            }
+        }
+
+        private bool CanExecuteSendChat()
+        {
+            string messageText = (ChatInput ?? string.Empty).Trim();
+            bool isEmptyMessage = string.IsNullOrEmpty(messageText);
+
+            return !isEmptyMessage;
+        }
+
+        private void OnChatMessageReceived(object sender, ServerEventArgs<ChatMessage> eventArgs)
+        {
+            ChatMessage chatMessage = eventArgs.Payload;
+            ChatMessageEntry newEntry = new ChatMessageEntry
+            {
+                SenderNickname = chatMessage.SenderNickname,
+                Text = chatMessage.Text,
+                IsLocalSender = chatMessage.SenderUserId == _lobbyConnection.PlayerUserId
+            };
+
+            _chatMessages.Add(newEntry);
         }
 
         private void ExecuteExit()
@@ -173,7 +246,9 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteReportPlayer()
         {
-            _navigation.NavigateToWithoutHistory(ScreenId.Moderation, Tuple.Create(SelectedPlayerName, ModerationMode.Report));
+            _navigation.NavigateToWithoutHistory(
+                ScreenId.Moderation,
+                Tuple.Create(SelectedPlayerName, ModerationMode.Report));
         }
 
         private void ExecuteKickPlayer()
@@ -183,7 +258,9 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteBlockPlayer()
         {
-            _navigation.NavigateToWithoutHistory(ScreenId.Moderation, Tuple.Create(SelectedPlayerName, ModerationMode.Block));
+            _navigation.NavigateToWithoutHistory(
+                ScreenId.Moderation,
+                Tuple.Create(SelectedPlayerName, ModerationMode.Block));
         }
 
         private void ExecuteDemoRevealCards()
