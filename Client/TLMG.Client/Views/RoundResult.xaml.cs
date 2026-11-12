@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using TLMG.Client.Navigation;
 
 namespace TLMG.Client.Views
 {
@@ -41,7 +42,7 @@ namespace TLMG.Client.Views
 
         private void BtnBackToMenu_Click(object sender, RoutedEventArgs e)
         {
-            NavigateToScreen(new MainMenuScreen());
+            ((App)Application.Current).Navigation.NavigateToWithoutHistory(ScreenId.MainMenu);
         }
 
         private void NavigateToScreen(UserControl targetScreen)

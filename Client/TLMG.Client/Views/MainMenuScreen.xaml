@@ -15,6 +15,10 @@
         </ResourceDictionary>
     </local:LocalizableScreen.Resources>
 
+    <local:LocalizableScreen.InputBindings>
+        <KeyBinding Key="F8" Command="{Binding NavigateToFugitiveKittenCommand}" />
+    </local:LocalizableScreen.InputBindings>
+
     <Grid Background="{StaticResource Brush_BackgroundDark}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="280" />

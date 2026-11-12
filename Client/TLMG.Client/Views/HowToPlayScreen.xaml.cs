@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
+using TLMG.Client.Navigation;
 
 namespace TLMG.Client.Views
 {
@@ -156,8 +157,7 @@ namespace TLMG.Client.Views
 
         private void ReturnToMainMenu()
         {
-            var applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(new MainMenuScreen());
+            ((App)Application.Current).Navigation.NavigateTo(ScreenId.MainMenu);
         }
 
         /// <summary>

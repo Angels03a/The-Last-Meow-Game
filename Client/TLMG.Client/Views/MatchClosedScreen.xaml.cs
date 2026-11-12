@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using TLMG.Client.Navigation;
 
 namespace TLMG.Client.Views
 {
@@ -7,7 +8,6 @@ namespace TLMG.Client.Views
         private const string InactivityMessageFormatKey = "MatchClosed_InactivityMessageFormat";
         private const string DefaultFormat = "{0}";
         private const int MatchInactivityTimeoutMinutes = 10;
-        private const bool SaveScreenInHistory = false;
 
         public MatchClosedScreen()
         {
@@ -22,8 +22,7 @@ namespace TLMG.Client.Views
 
         private void BtnMainMenu_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(new MainMenuScreen(), SaveScreenInHistory);
+            ((App)Application.Current).Navigation.NavigateToWithoutHistory(ScreenId.MainMenu);
         }
     }
 }

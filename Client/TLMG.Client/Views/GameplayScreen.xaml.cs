@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using TLMG.Client.Models;
 using TLMG.Client.ViewModels;
+using TLMG.Client.Navigation;
 
 namespace TLMG.Client.Views
 {
@@ -74,7 +75,7 @@ namespace TLMG.Client.Views
         {
             // TODO: Agregar confirmación de salida antes de navegar a la pantalla principal.
 
-            NavigateToScreen(new MainMenuScreen());
+            ((App)Application.Current).Navigation.NavigateToWithoutHistory(ScreenId.MainMenu);
         }
 
         // FIXME: Los métodos de navegación a la pantalla de moderación (reportes y bloqueos)

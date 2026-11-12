@@ -71,6 +71,9 @@ namespace TLMG.Client.Navigation
                 case ScreenId.Lobby:
                     screenEntry = BuildLobbyEntry();
                     break;
+                case ScreenId.MainMenu:
+                    screenEntry = BuildMainMenuEntry();
+                    break;
                 default:
                     screenEntry = CreateLegacyScreen(screenId);
                     break;
@@ -86,10 +89,11 @@ namespace TLMG.Client.Navigation
                 {
                     { ScreenId.NewPassword, () => new NewPasswordScreen() },
                     { ScreenId.ForgotPassword, () => new ForgotPasswordScreen() },
-                    { ScreenId.MainMenu, () => new MainMenuScreen() },
                     { ScreenId.Options, () => new OptionsScreen() },
                     { ScreenId.Profile, () => new ProfileScreen() },
                     { ScreenId.HowToPlay, () => new HowToPlayScreen() },
+                    { ScreenId.Leaderboard, () => new LeaderboardScreen() },
+                    { ScreenId.FugitiveKitten, () => new FugitiveKittenScreen() },
                     { ScreenId.Gameplay, () => new GameplayScreen() },
                     { ScreenId.RoundResult, () => new RoundResultScreen() },
                     { ScreenId.GameOver, () => new GameOverScreen() },
@@ -124,6 +128,14 @@ namespace TLMG.Client.Navigation
             FriendsScreen friendsScreen = new FriendsScreen(friendsViewModel);
 
             return new ScreenEntry(friendsScreen, friendsViewModel);
+        }
+
+        private ScreenEntry BuildMainMenuEntry()
+        {
+            MainMenuViewModel mainMenuViewModel = new MainMenuViewModel(_accountsConnection, _navigation);
+            MainMenuScreen mainMenuScreen = new MainMenuScreen(mainMenuViewModel);
+
+            return new ScreenEntry(mainMenuScreen, mainMenuViewModel);
         }
 
         private ScreenEntry BuildLobbyEntry()

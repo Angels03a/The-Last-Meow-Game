@@ -13,6 +13,12 @@ namespace TLMG.Client.Communication
         private const string RegistrationUnexpectedErrorKey = "CreateAccount_DataModelError";
 
         /// <inheritdoc />
+        public void LogOut()
+        {
+            Disconnect();
+        }
+
+        /// <inheritdoc />
         /// <remarks>
         /// Bloquea el hilo de la interfaz hasta que el servidor responde o vencen los tiempos del binding (BL-079).
         /// </remarks>

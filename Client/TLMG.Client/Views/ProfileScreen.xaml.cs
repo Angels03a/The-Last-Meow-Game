@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using TLMG.Client.ViewModels;
+using TLMG.Client.Navigation;
 
 namespace TLMG.Client.Views
 {
@@ -67,8 +68,7 @@ namespace TLMG.Client.Views
 
         private void NavigateToMainMenu(object sender, EventArgs e)
         {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(new MainMenuScreen());
+            ((App)Application.Current).Navigation.NavigateTo(ScreenId.MainMenu);
         }
     }
 }

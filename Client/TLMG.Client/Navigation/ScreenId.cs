@@ -22,6 +22,7 @@
         RoundResult,
         GameOver,
         MatchClosed,
-        Moderation
+        Moderation,
+        FugitiveKitten
     }
 }

@@ -1,65 +1,44 @@
-﻿using System;
 using System.Windows.Input;
 
 using CommunityToolkit.Mvvm.Input;
 
+using TLMG.Client.Communication;
+using TLMG.Client.Navigation;
+
 namespace TLMG.Client.ViewModels
 {
     /// <summary>
-    /// Gestiona los comandos de navegación y el estado de la pantalla del menú principal.
+    /// ViewModel del menú principal: muestra el nickname del jugador en sesión y navega a las demás pantallas con
+    /// el administrador de navegación. Cerrar sesión libera la conexión con el servidor y regresa al inicio de
+    /// sesión.
     /// </summary>
     public class MainMenuViewModel : ViewModelBase
     {
-        private string _playerNickname;
+        private readonly IAccountsConnection _accountsConnection;
+        private readonly INavigationManager _navigationManager;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="MainMenuViewModel"/>.
         /// </summary>
-        public MainMenuViewModel()
+        /// <param name="accountsConnection">Área de cuentas de la conexión con el servidor.</param>
+        /// <param name="navigationManager">Administrador de navegación.</param>
+        public MainMenuViewModel(IAccountsConnection accountsConnection, INavigationManager navigationManager)
         {
+            _accountsConnection = accountsConnection;
+            _navigationManager = navigationManager;
+
+            // TODO: Mostrar lo que se decida para el invitado, que no tiene nickname; hoy queda vacío. (BL-089).
+            PlayerNickname = _accountsConnection.PlayerNickname ?? string.Empty;
+
             NavigateToLobbyCommand = new RelayCommand(ExecuteNavigateToLobby);
             NavigateToFriendsCommand = new RelayCommand(ExecuteNavigateToFriends);
             NavigateToProfileCommand = new RelayCommand(ExecuteNavigateToProfile);
             NavigateToHowToPlayCommand = new RelayCommand(ExecuteNavigateToHowToPlay);
             NavigateToLeaderboardCommand = new RelayCommand(ExecuteNavigateToLeaderboard);
             NavigateToOptionsCommand = new RelayCommand(ExecuteNavigateToOptions);
+            NavigateToFugitiveKittenCommand = new RelayCommand(ExecuteNavigateToFugitiveKitten);
             LogOutCommand = new RelayCommand(ExecuteLogOut);
         }
-
-        /// <summary>
-        /// Se produce cuando se solicita navegar a la sala (Lobby).
-        /// </summary>
-        public event EventHandler LobbyRequested;
-
-        /// <summary>
-        /// Se produce cuando se solicita navegar a la lista de amigos.
-        /// </summary>
-        public event EventHandler FriendsRequested;
-
-        /// <summary>
-        /// Se produce cuando se solicita navegar al perfil del jugador.
-        /// </summary>
-        public event EventHandler ProfileRequested;
-
-        /// <summary>
-        /// Se produce cuando se solicita navegar a las instrucciones de juego.
-        /// </summary>
-        public event EventHandler HowToPlayRequested;
-
-        /// <summary>
-        /// Se produce cuando se solicita navegar a la tabla de posiciones (Leaderboard).
-        /// </summary>
-        public event EventHandler LeaderboardRequested;
-
-        /// <summary>
-        /// Se produce cuando se solicita navegar a las opciones.
-        /// </summary>
-        public event EventHandler OptionsRequested;
-
-        /// <summary>
-        /// Se produce cuando se solicita cerrar sesión.
-        /// </summary>
-        public event EventHandler LogOutRequested;
 
         /// <summary>Comando para navegar al Lobby.</summary>
         public ICommand NavigateToLobbyCommand { get; }
@@ -79,51 +58,57 @@ namespace TLMG.Client.ViewModels
         /// <summary>Comando para navegar a las opciones.</summary>
         public ICommand NavigateToOptionsCommand { get; }
 
+        /// <summary>Comando del acceso temporal con F8 a la pantalla del Gatito Fugitivo.</summary>
+        public ICommand NavigateToFugitiveKittenCommand { get; }
+
         /// <summary>Comando para cerrar sesión.</summary>
         public ICommand LogOutCommand { get; }
 
-        /// <summary>
-        /// Nickname del jugador actual.
-        /// </summary>
-        public string PlayerNickname
-        {
-            get { return _playerNickname; }
-            set { SetProperty(ref _playerNickname, value); }
-        }
+        /// <summary>Nickname del jugador en sesión; vacío para un invitado.</summary>
+        public string PlayerNickname { get; }
 
         private void ExecuteNavigateToLobby()
         {
-            LobbyRequested?.Invoke(this, EventArgs.Empty);
+            _navigationManager.NavigateTo(ScreenId.Lobby);
         }
 
         private void ExecuteNavigateToFriends()
         {
-            FriendsRequested?.Invoke(this, EventArgs.Empty);
+            _navigationManager.NavigateTo(ScreenId.Friends);
         }
 
         private void ExecuteNavigateToProfile()
         {
-            ProfileRequested?.Invoke(this, EventArgs.Empty);
+            _navigationManager.NavigateTo(ScreenId.Profile);
         }
 
         private void ExecuteNavigateToHowToPlay()
         {
-            HowToPlayRequested?.Invoke(this, EventArgs.Empty);
+            _navigationManager.NavigateTo(ScreenId.HowToPlay);
         }
 
         private void ExecuteNavigateToLeaderboard()
         {
-            LeaderboardRequested?.Invoke(this, EventArgs.Empty);
+            _navigationManager.NavigateTo(ScreenId.Leaderboard);
         }
 
         private void ExecuteNavigateToOptions()
         {
-            OptionsRequested?.Invoke(this, EventArgs.Empty);
+            _navigationManager.NavigateTo(ScreenId.Options);
+        }
+
+        // TODO: Retirar el acceso temporal con F8 a FugitiveKittenScreen. (BL-122).
+        // TODO: Abrir FugitiveKittenScreen al iniciar una partida de 8 cartas, no desde el menú. (BL-118).
+        private void ExecuteNavigateToFugitiveKitten()
+        {
+            _navigationManager.NavigateTo(ScreenId.FugitiveKitten);
         }
 
         private void ExecuteLogOut()
         {
-            LogOutRequested?.Invoke(this, EventArgs.Empty);
+            _accountsConnection.LogOut();
+            _navigationManager.NavigateToWithoutHistory(ScreenId.Login);
+            _navigationManager.ClearHistory();
         }
     }
 }

@@ -12,6 +12,12 @@ namespace TLMG.Client.Communication
     public interface IAccountsConnection
     {
         /// <summary>
+        /// Obtiene el nickname del jugador en sesión, o null si no hay sesión registrada (por ejemplo, un invitado).
+        /// Solo sirve para mostrar.
+        /// </summary>
+        string PlayerNickname { get; }
+
+        /// <summary>
         /// Inicia sesión como jugador registrado y, si el servidor la acepta, deja la sesión abierta en el manager.
         /// </summary>
         /// <param name="email">Correo capturado por el jugador.</param>
@@ -31,5 +37,11 @@ namespace TLMG.Client.Communication
         /// </returns>
         OperationRegisterPlayerAccountResult RegisterPlayerAccount(
             PlayerAccountRegistration playerAccountRegistration);
+
+        /// <summary>
+        /// Cierra la sesión: libera los canales y limpia el estado del jugador. Es seguro llamarlo sin sesión, por
+        /// ejemplo con un invitado.
+        /// </summary>
+        void LogOut();
     }
 }
