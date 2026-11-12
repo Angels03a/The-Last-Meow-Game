@@ -123,42 +123,42 @@
                                            Margin="0,0,0,12" />
                                 <WrapPanel>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Click="BtnSelectAvatar_Click" Tag="🐱">
+                                            Command="{Binding SelectAvatarCommand}" CommandParameter="🐱">
                                         <TextBlock Text="🐱" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Click="BtnSelectAvatar_Click" Tag="🧟">
+                                            Command="{Binding SelectAvatarCommand}" CommandParameter="🧟">
                                         <TextBlock Text="🧟" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Click="BtnSelectAvatar_Click" Tag="💀">
+                                            Command="{Binding SelectAvatarCommand}" CommandParameter="💀">
                                         <TextBlock Text="💀" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Click="BtnSelectAvatar_Click" Tag="🚀">
+                                            Command="{Binding SelectAvatarCommand}" CommandParameter="🚀">
                                         <TextBlock Text="🚀" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Click="BtnSelectAvatar_Click" Tag="🐯">
+                                            Command="{Binding SelectAvatarCommand}" CommandParameter="🐯">
                                         <TextBlock Text="🐯" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Click="BtnSelectAvatar_Click" Tag="🦁">
+                                            Command="{Binding SelectAvatarCommand}" CommandParameter="🦁">
                                         <TextBlock Text="🦁" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Click="BtnSelectAvatar_Click" Tag="🐸">
+                                            Command="{Binding SelectAvatarCommand}" CommandParameter="🐸">
                                         <TextBlock Text="🐸" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Click="BtnSelectAvatar_Click" Tag="👾">
+                                            Command="{Binding SelectAvatarCommand}" CommandParameter="👾">
                                         <TextBlock Text="👾" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
@@ -224,9 +224,9 @@
                                        Style="{StaticResource ProfileNicknameHintTextStyle}"
                                        Margin="0,8,0,0" />
 
-                            <TextBlock x:Name="lblNicknameError"
-                                       Style="{StaticResource ErrorTextStyle}"
-                                       Visibility="Hidden" />
+                            <TextBlock DataContext="{Binding NicknameError}"
+                                       Text="{Binding Text}"
+                                       Style="{StaticResource StatusMessageTextStyle}" />
                         </StackPanel>
                     </Border>
 

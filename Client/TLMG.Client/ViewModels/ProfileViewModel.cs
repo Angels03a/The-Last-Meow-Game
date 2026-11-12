@@ -1,45 +1,46 @@
-﻿using System;
+using System;
 using System.Windows.Input;
 
 using CommunityToolkit.Mvvm.Input;
 
+using TLMG.Client.Navigation;
+
 namespace TLMG.Client.ViewModels
 {
     /// <summary>
-    /// Gestiona el estado de edición, validación de perfil y comandos de navegación de la pantalla de perfil.
+    /// Gestiona el estado de edición, la validación del nickname y la navegación de la pantalla de perfil. Los datos
+    /// del perfil siguen siendo de muestra: el servidor aún no los entrega (BL-103).
     /// </summary>
     public class ProfileViewModel : ViewModelBase
     {
         private const int DaysSincePasswordChange = 45;
         private const string ProfileScreenResourcePrefix = "CreateAccount"; 
-        private const string DefaultLastPasswordFormat = "{0}";
+        private const string LastPasswordChangeFormatKey = "Profile_LastPasswordChange";
 
         private bool _isEditingAvatar;
         private bool _isEditingNickname;
         private string _currentAvatar = "🐱";
         private string _displayNickname = "WhiskerKnight";
         private string _editingNickname;
-        private string _nicknameErrorKey;
         private string _lastPasswordChangeLabel;
-        private string _currentPasswordFormat = DefaultLastPasswordFormat;
+        private readonly INavigationManager _navigationManager;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="ProfileViewModel"/>.
         /// </summary>
-        public ProfileViewModel()
+        /// <param name="navigationManager">Administrador de navegación.</param>
+        public ProfileViewModel(INavigationManager navigationManager)
         {
+            _navigationManager = navigationManager;
+            NicknameError = new StatusMessage();
+
             BackCommand = new RelayCommand(ExecuteBack);
             ToggleAvatarEditModeCommand = new RelayCommand(ExecuteToggleAvatarEditMode);
-            SelectAvatarCommand = new RelayCommand(ExecuteSelectAvatar);
+            SelectAvatarCommand = new RelayCommand<string>(ExecuteSelectAvatar);
             BeginNicknameEditCommand = new RelayCommand(ExecuteBeginNicknameEdit);
             SaveNicknameCommand = new RelayCommand(ExecuteSaveNickname);
             ChangePasswordCommand = new RelayCommand(ExecuteChangePassword);
         }
-
-        /// <summary>
-        /// Se produce cuando se solicita la navegación de regreso.
-        /// </summary>
-        public event EventHandler BackRequested;
 
         /// <summary>Comando para regresar a la pantalla anterior.</summary>
         public ICommand BackCommand { get; }
@@ -47,7 +48,7 @@ namespace TLMG.Client.ViewModels
         /// <summary>Comando para alternar entre el estado de lectura y edición de avatar.</summary>
         public ICommand ToggleAvatarEditModeCommand { get; }
 
-        /// <summary>Comando para cambiar el avatar actual por el recibido desde la interfaz.</summary>
+        /// <summary>Comando para cambiar el avatar actual; el parámetro es el texto del avatar elegido.</summary>
         public ICommand SelectAvatarCommand { get; }
 
         /// <summary>Comando para entrar al modo de edición de nickname.</summary>
@@ -94,12 +95,8 @@ namespace TLMG.Client.ViewModels
             set { SetProperty(ref _editingNickname, value); }
         }
 
-        /// <summary>Obtiene la clave de error de validación del nickname.</summary>
-        public string NicknameErrorKey
-        {
-            get { return _nicknameErrorKey; }
-            private set { SetProperty(ref _nicknameErrorKey, value); }
-        }
+        /// <summary>Mensaje de error de validación del nickname.</summary>
+        public StatusMessage NicknameError { get; }
 
         /// <summary>Obtiene el texto localizado del último cambio de contraseña.</summary>
         public string LastPasswordChangeLabel
@@ -109,31 +106,46 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
-        /// Actualiza el formato del texto localizado de "Último cambio de contraseña".
+        /// Empieza a escuchar el cambio de idioma para refrescar el texto del último cambio de contraseña. La vista
+        /// lo llama al cargarse.
         /// </summary>
-        /// <param name="passwordFormat">Formato localizado del último cambio de contraseña.</param>
-        public void UpdateLocalizedFormats(string passwordFormat)
+        public void Activate()
         {
-            _currentPasswordFormat = passwordFormat ?? DefaultLastPasswordFormat;
-            LastPasswordChangeLabel = string.Format(_currentPasswordFormat, DaysSincePasswordChange);
+            Deactivate();
+
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+            UpdateLastPasswordChangeLabel();
         }
 
-        /// <summary>
-        /// Procesa la selección de un nuevo avatar y valida que CommandParameter sea texto.
-        /// </summary>
-        /// <param name="commandParameterAvatar">Avatar seleccionado en la interfaz.</param>
-        public void ProcessAvatarSelection(object commandParameterAvatar)
+        /// <summary>Deja de escuchar el cambio de idioma. La vista lo llama al descargarse.</summary>
+        public void Deactivate()
         {
-            if (commandParameterAvatar is string newAvatarText)
-            {
-                CurrentAvatar = newAvatarText;
-                IsEditingAvatar = false;
-            }
+            LanguageManager.LanguageChanged -= OnLanguageChanged;
+        }
+
+        /// <summary>Libera la suscripción al cambio de idioma y el temporizador del mensaje.</summary>
+        protected override void OnDisposed()
+        {
+            Deactivate();
+            NicknameError.Dispose();
+
+            base.OnDisposed();
+        }
+
+        private void OnLanguageChanged(object sender, EventArgs eventArgs)
+        {
+            UpdateLastPasswordChangeLabel();
+        }
+
+        private void UpdateLastPasswordChangeLabel()
+        {
+            string passwordFormat = LanguageManager.FindText(LastPasswordChangeFormatKey);
+            LastPasswordChangeLabel = string.Format(passwordFormat, DaysSincePasswordChange);
         }
 
         private void ExecuteBack()
         {
-            BackRequested?.Invoke(this, EventArgs.Empty);
+            _navigationManager.GoBack();
         }
 
         private void ExecuteToggleAvatarEditMode()
@@ -141,26 +153,35 @@ namespace TLMG.Client.ViewModels
             IsEditingAvatar = !IsEditingAvatar;
         }
 
-        private void ExecuteSelectAvatar()
+        private void ExecuteSelectAvatar(string avatarText)
         {
-            
+            if (!string.IsNullOrEmpty(avatarText))
+            {
+                CurrentAvatar = avatarText;
+                IsEditingAvatar = false;
+            }
         }
 
         private void ExecuteBeginNicknameEdit()
         {
             EditingNickname = DisplayNickname;
-            NicknameErrorKey = null;
+            NicknameError.Hide();
             IsEditingNickname = true;
         }
 
         private void ExecuteSaveNickname()
         {
-            NicknameErrorKey = ValidationHelper.GetNicknameValidationErrorKey(EditingNickname);
+            string nicknameErrorKey = ValidationHelper.GetNicknameValidationErrorKey(EditingNickname);
 
-            if (NicknameErrorKey == null)
+            if (nicknameErrorKey == null)
             {
+                NicknameError.Hide();
                 DisplayNickname = EditingNickname;
                 IsEditingNickname = false;
+            }
+            else
+            {
+                NicknameError.ShowError(LanguageManager.FindText(nicknameErrorKey));
             }
         }
 
