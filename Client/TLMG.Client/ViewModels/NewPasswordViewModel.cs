@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 using CommunityToolkit.Mvvm.Input;
+
+using TLMG.Client.Navigation;
 
 namespace TLMG.Client.ViewModels
 {
     /// <summary>
-    /// Estado, validación y comandos de la pantalla de nueva contraseña.
+    /// ViewModel de la pantalla de nueva contraseña: valida la política y la coincidencia, calcula la fuerza y
+    /// navega con el administrador de navegación. Todavía no envía la contraseña al servidor.
     /// </summary>
     public class NewPasswordViewModel : ViewModelBase
     {
@@ -29,53 +33,54 @@ namespace TLMG.Client.ViewModels
         private const string IncompleteFieldsErrorKey = "NewPassword_IncompleteFieldsError";
         private const string PolicyErrorKey = "NewPassword_PolicyError";
         private const string MismatchErrorKey = "NewPassword_MismatchError";
+        private const string SuccessMessageKey = "NewPassword_SuccessMessage";
+        private const int SuccessRedirectDelayMilliseconds = 500;
+
+        private readonly INavigationManager _navigationManager;
+        private readonly RelayCommand _setPasswordCommand;
+        private readonly RelayCommand _backCommand;
 
         private string _newPassword;
         private string _confirmPassword;
         private int _passwordStrengthScore;
         private string _strengthLabelKey;
         private string _strengthBrushKey;
-        private string _passwordErrorKey;
-        private string _confirmPasswordErrorKey;
-        private string _formErrorKey;
+        private bool _isBusy;
+        private DispatcherTimer _redirectTimer;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="NewPasswordViewModel"/>.
         /// </summary>
-        public NewPasswordViewModel()
+        /// <param name="navigationManager">Administrador de navegación.</param>
+        public NewPasswordViewModel(INavigationManager navigationManager)
         {
-            SetPasswordCommand = new RelayCommand(ExecuteSetPassword);
-            BackCommand = new RelayCommand(ExecuteBack);
+            _navigationManager = navigationManager;
+
+            PasswordError = new StatusMessage();
+            ConfirmPasswordError = new StatusMessage();
+            FormMessage = new StatusMessage();
+
+            _setPasswordCommand = new RelayCommand(ExecuteSetPassword, CanExecuteSetPassword);
+            _backCommand = new RelayCommand(ExecuteBack, CanExecuteBack);
         }
 
-        /// <summary>
-        /// Se produce cuando la nueva contraseña es válida y la vista debe confirmar y redirigir.
-        /// </summary>
-        public event EventHandler PasswordAccepted;
-
-        /// <summary>
-        /// Se produce cuando el jugador solicita volver a la pantalla de contraseña olvidada.
-        /// </summary>
-        public event EventHandler BackRequested;
-
-        /// <summary>
-        /// Se produce cuando hay claves de error que la vista debe mostrar.
-        /// </summary>
-        public event EventHandler ValidationFailed;
-
-        /// <summary>
-        /// Se produce cuando cambia la fuerza de la contraseña y la vista debe redibujar el indicador.
-        /// </summary>
-        public event EventHandler PasswordStrengthChanged;
-
         /// <summary>Comando que valida las contraseñas y solicita guardar la nueva.</summary>
-        public ICommand SetPasswordCommand { get; }
+        public ICommand SetPasswordCommand => _setPasswordCommand;
 
         /// <summary>Comando que solicita volver a la pantalla de contraseña olvidada.</summary>
-        public ICommand BackCommand { get; }
+        public ICommand BackCommand => _backCommand;
+
+        /// <summary>Mensaje de error de la política de contraseña.</summary>
+        public StatusMessage PasswordError { get; }
+
+        /// <summary>Mensaje de error de la coincidencia de las contraseñas.</summary>
+        public StatusMessage ConfirmPasswordError { get; }
+
+        /// <summary>Mensaje general del formulario (éxito o error).</summary>
+        public StatusMessage FormMessage { get; }
 
         /// <summary>
-        /// Nueva contraseña copiada desde el PasswordBox de la vista.
+        /// Nueva contraseña capturada.
         /// </summary>
         public string NewPassword
         {
@@ -90,7 +95,7 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
-        /// Confirmación de la contraseña copiada desde el PasswordBox de la vista.
+        /// Confirmación de la contraseña capturada.
         /// </summary>
         public string ConfirmPassword
         {
@@ -125,31 +130,29 @@ namespace TLMG.Client.ViewModels
             private set { SetProperty(ref _strengthBrushKey, value); }
         }
 
-        /// <summary>
-        /// Clave de error de la política de contraseña; null si no hay error.
-        /// </summary>
-        public string PasswordErrorKey
+        /// <summary>Indica si la contraseña se aceptó y se espera la redirección; bloquea los comandos.</summary>
+        public bool IsBusy
         {
-            get { return _passwordErrorKey; }
-            private set { SetProperty(ref _passwordErrorKey, value); }
+            get { return _isBusy; }
+            private set
+            {
+                if (SetProperty(ref _isBusy, value))
+                {
+                    _setPasswordCommand.NotifyCanExecuteChanged();
+                    _backCommand.NotifyCanExecuteChanged();
+                }
+            }
         }
 
-        /// <summary>
-        /// Clave de error de la coincidencia de contraseñas; null si no hay error.
-        /// </summary>
-        public string ConfirmPasswordErrorKey
+        /// <summary>Detiene el temporizador de redirección y libera los mensajes.</summary>
+        protected override void OnDisposed()
         {
-            get { return _confirmPasswordErrorKey; }
-            private set { SetProperty(ref _confirmPasswordErrorKey, value); }
-        }
+            StopRedirectTimer();
+            PasswordError.Dispose();
+            ConfirmPasswordError.Dispose();
+            FormMessage.Dispose();
 
-        /// <summary>
-        /// Clave de error general del formulario; null si no hay error.
-        /// </summary>
-        public string FormErrorKey
-        {
-            get { return _formErrorKey; }
-            private set { SetProperty(ref _formErrorKey, value); }
+            base.OnDisposed();
         }
 
         private void ExecuteSetPassword()
@@ -160,17 +163,33 @@ namespace TLMG.Client.ViewModels
 
             if (isFormValid)
             {
-                PasswordAccepted?.Invoke(this, EventArgs.Empty);
+                AcceptPassword();
             }
-            else
-            {
-                ValidationFailed?.Invoke(this, EventArgs.Empty);
-            }
+        }
+
+        private bool CanExecuteSetPassword()
+        {
+            bool canSetPassword = !IsBusy;
+            return canSetPassword;
+        }
+
+        // TODO: Enviar la nueva contraseña al servidor; hoy solo se valida. (BL-007).
+        private void AcceptPassword()
+        {
+            IsBusy = true;
+            FormMessage.ShowSuccess(LanguageManager.FindText(SuccessMessageKey));
+            StartRedirectTimer();
         }
 
         private void ExecuteBack()
         {
-            BackRequested?.Invoke(this, EventArgs.Empty);
+            _navigationManager.NavigateToWithoutHistory(ScreenId.ForgotPassword);
+        }
+
+        private bool CanExecuteBack()
+        {
+            bool canBack = !IsBusy;
+            return canBack;
         }
 
         private bool ValidateForm()
@@ -180,31 +199,35 @@ namespace TLMG.Client.ViewModels
             bool areFieldsFilled = hasNewPassword && hasConfirmation;
             bool isPasswordStrong = PasswordStrengthScore >= ValidationHelper.RequiredPasswordStrengthScore;
             bool doPasswordsMatch = NewPassword == ConfirmPassword;
+            bool isFormValid = false;
 
             if (!areFieldsFilled)
             {
-                FormErrorKey = IncompleteFieldsErrorKey;
+                FormMessage.ShowError(LanguageManager.FindText(IncompleteFieldsErrorKey));
             }
             else if (!isPasswordStrong)
             {
-                PasswordErrorKey = PolicyErrorKey;
+                PasswordError.ShowError(LanguageManager.FindText(PolicyErrorKey));
             }
             else if (!doPasswordsMatch)
             {
-                ConfirmPasswordErrorKey = MismatchErrorKey;
+                ConfirmPasswordError.ShowError(LanguageManager.FindText(MismatchErrorKey));
+            }
+            else
+            {
+                isFormValid = true;
             }
 
-            bool isFormValid = !HasErrors();
             return isFormValid;
         }
 
         private void UpdatePasswordStrength()
         {
-            PasswordStrengthScore = ValidationHelper.CalculatePasswordStrength(NewPassword);
-            StrengthLabelKey = GetStrengthLabelKey(PasswordStrengthScore);
-            StrengthBrushKey = GetStrengthBrushKey(PasswordStrengthScore);
+            int strengthScore = ValidationHelper.CalculatePasswordStrength(NewPassword);
 
-            PasswordStrengthChanged?.Invoke(this, EventArgs.Empty);
+            StrengthLabelKey = GetStrengthLabelKey(strengthScore);
+            StrengthBrushKey = GetStrengthBrushKey(strengthScore);
+            PasswordStrengthScore = strengthScore;
         }
 
         private string GetStrengthLabelKey(int strengthScore)
@@ -259,19 +282,39 @@ namespace TLMG.Client.ViewModels
             return brushKey;
         }
 
-        private bool HasErrors()
-        {
-            bool hasFieldErrors = PasswordErrorKey != null || ConfirmPasswordErrorKey != null;
-            bool hasErrors = hasFieldErrors || FormErrorKey != null;
-
-            return hasErrors;
-        }
-
         private void ClearErrors()
         {
-            PasswordErrorKey = null;
-            ConfirmPasswordErrorKey = null;
-            FormErrorKey = null;
+            PasswordError.Hide();
+            ConfirmPasswordError.Hide();
+            FormMessage.Hide();
+        }
+
+        private void StartRedirectTimer()
+        {
+            StopRedirectTimer();
+            _redirectTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(SuccessRedirectDelayMilliseconds)
+            };
+            _redirectTimer.Tick += OnRedirectTimerTick;
+            _redirectTimer.Start();
+        }
+
+        private void StopRedirectTimer()
+        {
+            if (_redirectTimer != null)
+            {
+                _redirectTimer.Stop();
+                _redirectTimer.Tick -= OnRedirectTimerTick;
+                _redirectTimer = null;
+            }
+        }
+
+        private void OnRedirectTimerTick(object sender, EventArgs eventArgs)
+        {
+            StopRedirectTimer();
+            _navigationManager.NavigateToWithoutHistory(ScreenId.Login);
+            _navigationManager.ClearHistory();
         }
     }
 }

@@ -1,33 +1,32 @@
 using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Threading;
-using TLMG.Client.Navigation;
+
 using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Representa la pantalla de restablecimiento y configuración de una nueva contraseña.
+    /// Vista de la nueva contraseña. Solo conserva lógica visual: pintar las barras y la etiqueta de fuerza con los
+    /// pinceles del diccionario. La validación, los mensajes y la navegación viven en
+    /// <see cref="NewPasswordViewModel"/>.
     /// </summary>
     public partial class NewPasswordScreen : LocalizableScreen
     {
-        private const bool IsErrorMessage = true;
         private const int FirstIndex = 0;
-        private const int SuccessRedirectDelayMilliseconds = 500;
 
-        private const string SuccessMessageKey = "NewPassword_SuccessMessage";
         private const string EmptyBarBrushKey = "Brush_Border";
 
         private readonly NewPasswordViewModel _viewModel;
         private readonly Border[] _strengthBars;
-        private readonly DispatcherTimer _redirectTimer;
 
         /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="NewPasswordScreen"/> y sus temporizadores.
+        /// Inicializa una nueva instancia de la clase <see cref="NewPasswordScreen"/> con su ViewModel.
         /// </summary>
-        public NewPasswordScreen()
+        /// <param name="newPasswordViewModel">ViewModel que la fábrica de pantallas crea e inyecta.</param>
+        public NewPasswordScreen(NewPasswordViewModel newPasswordViewModel)
         {
             InitializeComponent();
 
@@ -36,82 +35,37 @@ namespace TLMG.Client.Views
                 brdStrength1, brdStrength2, brdStrength3, brdStrength4, brdStrength5
             };
 
-            _viewModel = new NewPasswordViewModel();
-            _viewModel.PasswordAccepted += OnPasswordAccepted;
-            _viewModel.BackRequested += OnBackRequested;
-            _viewModel.ValidationFailed += OnValidationFailed;
-            _viewModel.PasswordStrengthChanged += OnPasswordStrengthChanged;
-            DataContext = _viewModel;
+            _viewModel = newPasswordViewModel;
+            DataContext = newPasswordViewModel;
 
-            _redirectTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(SuccessRedirectDelayMilliseconds)
-            };
-            _redirectTimer.Tick += OnRedirectTimerTick;
-
+            Loaded += OnScreenLoaded;
             Unloaded += OnScreenUnloaded;
         }
 
+        /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
             UpdatePasswordStrengthDisplay();
         }
 
-        private void PwdNewPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        private void OnScreenLoaded(object sender, RoutedEventArgs e)
         {
-            if (sender is PasswordBox passwordBox)
-            {
-                _viewModel.NewPassword = passwordBox.Password;
-            }
-        }
-
-        private void PwdConfirmPassword_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            if (sender is PasswordBox passwordBox)
-            {
-                _viewModel.ConfirmPassword = passwordBox.Password;
-            }
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            UpdatePasswordStrengthDisplay();
         }
 
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
-            _redirectTimer.Stop();
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
         }
 
-        private void OnPasswordStrengthChanged(object sender, EventArgs e)
+        private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            UpdatePasswordStrengthDisplay();
-        }
-
-        private void OnValidationFailed(object sender, EventArgs e)
-        {
-            HideErrorMessages();
-
-            ShowErrorKey(lblPasswordError, _viewModel.PasswordErrorKey);
-            ShowErrorKey(lblMismatchError, _viewModel.ConfirmPasswordErrorKey);
-            ShowErrorKey(lblFormMessage, _viewModel.FormErrorKey);
-        }
-
-        private void OnPasswordAccepted(object sender, EventArgs e)
-        {
-            HideErrorMessages();
-
-            ShowStatusMessage(lblFormMessage, FindMessage(SuccessMessageKey), !IsErrorMessage);
-            _redirectTimer.Start();
-        }
-
-        private void OnBackRequested(object sender, EventArgs e)
-        {
-            ((App)Application.Current).Navigation.NavigateTo(ScreenId.ForgotPassword);
-        }
-
-        private void OnRedirectTimerTick(object sender, EventArgs e)
-        {
-            _redirectTimer.Stop();
-
-            NavigationManager navigationManager = ((App)Application.Current).Navigation;
-            navigationManager.NavigateToWithoutHistory(ScreenId.Login);
-            navigationManager.ClearHistory();
+            if (e.PropertyName == nameof(NewPasswordViewModel.PasswordStrengthScore))
+            {
+                UpdatePasswordStrengthDisplay();
+            }
         }
 
         private void UpdatePasswordStrengthDisplay()
@@ -149,22 +103,6 @@ namespace TLMG.Client.Views
             {
                 lblStrengthLabel.Visibility = Visibility.Collapsed;
             }
-        }
-
-        private void ShowErrorKey(TextBlock errorLabel, string errorKey)
-        {
-            if (errorKey != null)
-            {
-                string localizedMessage = ErrorMessageHelper.FindErrorMessage(this, errorKey);
-                ShowStatusMessage(errorLabel, localizedMessage, IsErrorMessage);
-            }
-        }
-
-        private void HideErrorMessages()
-        {
-            lblFormMessage.Visibility = Visibility.Hidden;
-            lblPasswordError.Visibility = Visibility.Hidden;
-            lblMismatchError.Visibility = Visibility.Hidden;
         }
 
         private string FindMessage(string resourceKey)
