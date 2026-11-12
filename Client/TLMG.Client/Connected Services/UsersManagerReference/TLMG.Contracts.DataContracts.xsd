@@ -83,6 +83,13 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="OperationChangePlayerReadinessRequest" nillable="true" type="tns:OperationChangePlayerReadinessRequest" />
+  <xs:complexType name="OperationChangeCardsPerPlayerRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CardsPerPlayerCount" type="xs:int" />
+      <xs:element minOccurs="0" name="RoomId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationChangeCardsPerPlayerRequest" nillable="true" type="tns:OperationChangeCardsPerPlayerRequest" />
   <xs:complexType name="OperationMatchStartRequest">
     <xs:sequence>
       <xs:element minOccurs="0" name="CountdownId" type="xs:long" />
@@ -157,6 +164,16 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="OperationChangePlayerReadinessResult" nillable="true" type="tns:OperationChangePlayerReadinessResult" />
+  <xs:complexType name="OperationChangeCardsPerPlayerResult">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:OperationResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Room" nillable="true" type="tns:LobbyRoom" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="OperationChangeCardsPerPlayerResult" nillable="true" type="tns:OperationChangeCardsPerPlayerResult" />
   <xs:complexType name="OperationRequestMatchStartResult">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:OperationResult">
@@ -173,6 +190,7 @@
       <xs:extension base="tns:OperationResult">
         <xs:sequence>
           <xs:element minOccurs="0" name="Friends" nillable="true" type="tns:ArrayOfFriend" />
+          <xs:element minOccurs="0" name="PendingFriendRequests" nillable="true" type="tns:ArrayOfFriendRequest" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -192,6 +210,21 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="Friend" nillable="true" type="tns:Friend" />
+  <xs:complexType name="ArrayOfFriendRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="FriendRequest" nillable="true" type="tns:FriendRequest" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfFriendRequest" nillable="true" type="tns:ArrayOfFriendRequest" />
+  <xs:complexType name="FriendRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="FriendRequestId" type="xs:int" />
+      <xs:element minOccurs="0" name="IsIncoming" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="FriendRequest" nillable="true" type="tns:FriendRequest" />
   <xs:complexType name="OperationInviteFriendToRoomResult">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:OperationResult">
@@ -217,6 +250,38 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="RoomInvitation" nillable="true" type="tns:RoomInvitation" />
+  <xs:complexType name="OperationSendFriendRequestResult">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:OperationResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="NewFriend" nillable="true" type="tns:Friend" />
+          <xs:element minOccurs="0" name="SentFriendRequest" nillable="true" type="tns:FriendRequest" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="OperationSendFriendRequestResult" nillable="true" type="tns:OperationSendFriendRequestResult" />
+  <xs:complexType name="OperationAcceptFriendRequestResult">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:OperationResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="FriendRequestId" type="xs:int" />
+          <xs:element minOccurs="0" name="NewFriend" nillable="true" type="tns:Friend" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="OperationAcceptFriendRequestResult" nillable="true" type="tns:OperationAcceptFriendRequestResult" />
+  <xs:complexType name="OperationDeclineFriendRequestResult">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:OperationResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="FriendRequestId" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="OperationDeclineFriendRequestResult" nillable="true" type="tns:OperationDeclineFriendRequestResult" />
   <xs:complexType name="OperationSendChatMessageRequest">
     <xs:sequence>
       <xs:element minOccurs="0" name="ClientMessageId" type="ser:guid" />

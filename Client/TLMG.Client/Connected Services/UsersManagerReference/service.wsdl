@@ -208,6 +208,9 @@
   <wsdl:message name="ILobbyManager_ChangePlayerReadiness_InputMessage">
     <wsdl:part name="parameters" element="tns:ChangePlayerReadiness" />
   </wsdl:message>
+  <wsdl:message name="ILobbyManager_ChangeCardsPerPlayer_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeCardsPerPlayer" />
+  </wsdl:message>
   <wsdl:message name="ILobbyManager_RequestMatchStart_InputMessage">
     <wsdl:part name="parameters" element="tns:RequestMatchStart" />
   </wsdl:message>
@@ -226,6 +229,9 @@
   <wsdl:message name="ILobbyManager_ChangePlayerReadinessResult_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:ChangePlayerReadinessResult" />
   </wsdl:message>
+  <wsdl:message name="ILobbyManager_ChangeCardsPerPlayerResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ChangeCardsPerPlayerResult" />
+  </wsdl:message>
   <wsdl:message name="ILobbyManager_RequestMatchStartResult_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:RequestMatchStartResult" />
   </wsdl:message>
@@ -237,6 +243,15 @@
   </wsdl:message>
   <wsdl:message name="IFriendsManager_AcceptRoomInvitation_InputMessage">
     <wsdl:part name="parameters" element="tns:AcceptRoomInvitation" />
+  </wsdl:message>
+  <wsdl:message name="IFriendsManager_SendFriendRequest_InputMessage">
+    <wsdl:part name="parameters" element="tns:SendFriendRequest" />
+  </wsdl:message>
+  <wsdl:message name="IFriendsManager_AcceptFriendRequest_InputMessage">
+    <wsdl:part name="parameters" element="tns:AcceptFriendRequest" />
+  </wsdl:message>
+  <wsdl:message name="IFriendsManager_DeclineFriendRequest_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeclineFriendRequest" />
   </wsdl:message>
   <wsdl:message name="IFriendsManager_SubscribeToFriendsResult_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:SubscribeToFriendsResult" />
@@ -252,6 +267,21 @@
   </wsdl:message>
   <wsdl:message name="IFriendsManager_OnRoomInvitationReceived_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:OnRoomInvitationReceived" />
+  </wsdl:message>
+  <wsdl:message name="IFriendsManager_SendFriendRequestResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:SendFriendRequestResult" />
+  </wsdl:message>
+  <wsdl:message name="IFriendsManager_AcceptFriendRequestResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:AcceptFriendRequestResult" />
+  </wsdl:message>
+  <wsdl:message name="IFriendsManager_DeclineFriendRequestResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:DeclineFriendRequestResult" />
+  </wsdl:message>
+  <wsdl:message name="IFriendsManager_OnFriendRequestReceived_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:OnFriendRequestReceived" />
+  </wsdl:message>
+  <wsdl:message name="IFriendsManager_OnFriendAdded_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:OnFriendAdded" />
   </wsdl:message>
   <wsdl:message name="IChatManager_SubscribeToChat_InputMessage">
     <wsdl:part name="parameters" element="tns:SubscribeToChat" />
@@ -301,6 +331,9 @@
     <wsdl:operation name="ChangePlayerReadiness">
       <wsdl:input wsaw:Action="http://tempuri.org/ILobbyManager/ChangePlayerReadiness" message="tns:ILobbyManager_ChangePlayerReadiness_InputMessage" />
     </wsdl:operation>
+    <wsdl:operation name="ChangeCardsPerPlayer">
+      <wsdl:input wsaw:Action="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayer" message="tns:ILobbyManager_ChangeCardsPerPlayer_InputMessage" />
+    </wsdl:operation>
     <wsdl:operation name="RequestMatchStart">
       <wsdl:input wsaw:Action="http://tempuri.org/ILobbyManager/RequestMatchStart" message="tns:ILobbyManager_RequestMatchStart_InputMessage" />
     </wsdl:operation>
@@ -319,6 +352,9 @@
     <wsdl:operation name="ChangePlayerReadinessResult">
       <wsdl:output wsaw:Action="http://tempuri.org/ILobbyManager/ChangePlayerReadinessResult" message="tns:ILobbyManager_ChangePlayerReadinessResult_OutputCallbackMessage" />
     </wsdl:operation>
+    <wsdl:operation name="ChangeCardsPerPlayerResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayerResult" message="tns:ILobbyManager_ChangeCardsPerPlayerResult_OutputCallbackMessage" />
+    </wsdl:operation>
     <wsdl:operation name="RequestMatchStartResult">
       <wsdl:output wsaw:Action="http://tempuri.org/ILobbyManager/RequestMatchStartResult" message="tns:ILobbyManager_RequestMatchStartResult_OutputCallbackMessage" />
     </wsdl:operation>
@@ -332,6 +368,15 @@
     </wsdl:operation>
     <wsdl:operation name="AcceptRoomInvitation">
       <wsdl:input wsaw:Action="http://tempuri.org/IFriendsManager/AcceptRoomInvitation" message="tns:IFriendsManager_AcceptRoomInvitation_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SendFriendRequest">
+      <wsdl:input wsaw:Action="http://tempuri.org/IFriendsManager/SendFriendRequest" message="tns:IFriendsManager_SendFriendRequest_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AcceptFriendRequest">
+      <wsdl:input wsaw:Action="http://tempuri.org/IFriendsManager/AcceptFriendRequest" message="tns:IFriendsManager_AcceptFriendRequest_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeclineFriendRequest">
+      <wsdl:input wsaw:Action="http://tempuri.org/IFriendsManager/DeclineFriendRequest" message="tns:IFriendsManager_DeclineFriendRequest_InputMessage" />
     </wsdl:operation>
     <wsdl:operation name="SubscribeToFriendsResult">
       <wsdl:output wsaw:Action="http://tempuri.org/IFriendsManager/SubscribeToFriendsResult" message="tns:IFriendsManager_SubscribeToFriendsResult_OutputCallbackMessage" />
@@ -347,6 +392,21 @@
     </wsdl:operation>
     <wsdl:operation name="OnRoomInvitationReceived">
       <wsdl:output wsaw:Action="http://tempuri.org/IFriendsManager/OnRoomInvitationReceived" message="tns:IFriendsManager_OnRoomInvitationReceived_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SendFriendRequestResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/IFriendsManager/SendFriendRequestResult" message="tns:IFriendsManager_SendFriendRequestResult_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AcceptFriendRequestResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/IFriendsManager/AcceptFriendRequestResult" message="tns:IFriendsManager_AcceptFriendRequestResult_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeclineFriendRequestResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/IFriendsManager/DeclineFriendRequestResult" message="tns:IFriendsManager_DeclineFriendRequestResult_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="OnFriendRequestReceived">
+      <wsdl:output wsaw:Action="http://tempuri.org/IFriendsManager/OnFriendRequestReceived" message="tns:IFriendsManager_OnFriendRequestReceived_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="OnFriendAdded">
+      <wsdl:output wsaw:Action="http://tempuri.org/IFriendsManager/OnFriendAdded" message="tns:IFriendsManager_OnFriendAdded_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="IChatManager">
@@ -440,6 +500,12 @@
         <soap12:body use="literal" />
       </wsdl:input>
     </wsdl:operation>
+    <wsdl:operation name="ChangeCardsPerPlayer">
+      <soap12:operation soapAction="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayer" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
     <wsdl:operation name="RequestMatchStart">
       <soap12:operation soapAction="http://tempuri.org/ILobbyManager/RequestMatchStart" style="document" />
       <wsdl:input>
@@ -476,6 +542,12 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ChangeCardsPerPlayerResult">
+      <soap12:operation soapAction="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayerResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="RequestMatchStartResult">
       <soap12:operation soapAction="http://tempuri.org/ILobbyManager/RequestMatchStartResult" style="document" />
       <wsdl:output>
@@ -501,6 +573,24 @@
     </wsdl:operation>
     <wsdl:operation name="AcceptRoomInvitation">
       <soap12:operation soapAction="http://tempuri.org/IFriendsManager/AcceptRoomInvitation" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="SendFriendRequest">
+      <soap12:operation soapAction="http://tempuri.org/IFriendsManager/SendFriendRequest" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="AcceptFriendRequest">
+      <soap12:operation soapAction="http://tempuri.org/IFriendsManager/AcceptFriendRequest" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="DeclineFriendRequest">
+      <soap12:operation soapAction="http://tempuri.org/IFriendsManager/DeclineFriendRequest" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -531,6 +621,36 @@
     </wsdl:operation>
     <wsdl:operation name="OnRoomInvitationReceived">
       <soap12:operation soapAction="http://tempuri.org/IFriendsManager/OnRoomInvitationReceived" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendFriendRequestResult">
+      <soap12:operation soapAction="http://tempuri.org/IFriendsManager/SendFriendRequestResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AcceptFriendRequestResult">
+      <soap12:operation soapAction="http://tempuri.org/IFriendsManager/AcceptFriendRequestResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeclineFriendRequestResult">
+      <soap12:operation soapAction="http://tempuri.org/IFriendsManager/DeclineFriendRequestResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="OnFriendRequestReceived">
+      <soap12:operation soapAction="http://tempuri.org/IFriendsManager/OnFriendRequestReceived" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="OnFriendAdded">
+      <soap12:operation soapAction="http://tempuri.org/IFriendsManager/OnFriendAdded" style="document" />
       <wsdl:output>
         <soap12:body use="literal" />
       </wsdl:output>
@@ -577,7 +697,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/AccountRegistrationService</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>STELLARLOQ\armas</Upn>
+          <Upn>ANGEL\luisi</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
@@ -586,7 +706,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/LeaderboardManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>STELLARLOQ\armas</Upn>
+          <Upn>ANGEL\luisi</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
@@ -595,7 +715,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/LobbyManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>STELLARLOQ\armas</Upn>
+          <Upn>ANGEL\luisi</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
@@ -604,7 +724,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/FriendsManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>STELLARLOQ\armas</Upn>
+          <Upn>ANGEL\luisi</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
@@ -613,7 +733,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/ChatManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>STELLARLOQ\armas</Upn>
+          <Upn>ANGEL\luisi</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>

@@ -116,10 +116,14 @@ namespace TLMG.Client.UsersManagerReference {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationEnterLobbyResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationLeaveLobbyResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessResult))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationRequestMatchStartResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationSubscribeToFriendsResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationInviteFriendToRoomResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationAcceptRoomInvitationResult))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationSendFriendRequestResult))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationAcceptFriendRequestResult))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationDeclineFriendRequestResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationSubscribeToChatResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationSendChatMessageResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationRegisterPlayerAccountResult))]
@@ -336,6 +340,29 @@ namespace TLMG.Client.UsersManagerReference {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OperationChangeCardsPerPlayerResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class OperationChangeCardsPerPlayerResult : TLMG.Client.UsersManagerReference.OperationResult {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.LobbyRoom RoomField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.LobbyRoom Room {
+            get {
+                return this.RoomField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.RoomField, value) != true)) {
+                    this.RoomField = value;
+                    this.RaisePropertyChanged("Room");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationRequestMatchStartResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
     public partial class OperationRequestMatchStartResult : TLMG.Client.UsersManagerReference.OperationResult {
@@ -382,6 +409,9 @@ namespace TLMG.Client.UsersManagerReference {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.Friend[] FriendsField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.FriendRequest[] PendingFriendRequestsField;
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.Friend[] Friends {
             get {
@@ -391,6 +421,19 @@ namespace TLMG.Client.UsersManagerReference {
                 if ((object.ReferenceEquals(this.FriendsField, value) != true)) {
                     this.FriendsField = value;
                     this.RaisePropertyChanged("Friends");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.FriendRequest[] PendingFriendRequests {
+            get {
+                return this.PendingFriendRequestsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.PendingFriendRequestsField, value) != true)) {
+                    this.PendingFriendRequestsField = value;
+                    this.RaisePropertyChanged("PendingFriendRequests");
                 }
             }
         }
@@ -421,6 +464,107 @@ namespace TLMG.Client.UsersManagerReference {
                 if ((this.RoomIdField.Equals(value) != true)) {
                     this.RoomIdField = value;
                     this.RaisePropertyChanged("RoomId");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OperationSendFriendRequestResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class OperationSendFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.Friend NewFriendField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.FriendRequest SentFriendRequestField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.Friend NewFriend {
+            get {
+                return this.NewFriendField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NewFriendField, value) != true)) {
+                    this.NewFriendField = value;
+                    this.RaisePropertyChanged("NewFriend");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.FriendRequest SentFriendRequest {
+            get {
+                return this.SentFriendRequestField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.SentFriendRequestField, value) != true)) {
+                    this.SentFriendRequestField = value;
+                    this.RaisePropertyChanged("SentFriendRequest");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OperationAcceptFriendRequestResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class OperationAcceptFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int FriendRequestIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.Friend NewFriendField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int FriendRequestId {
+            get {
+                return this.FriendRequestIdField;
+            }
+            set {
+                if ((this.FriendRequestIdField.Equals(value) != true)) {
+                    this.FriendRequestIdField = value;
+                    this.RaisePropertyChanged("FriendRequestId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.Friend NewFriend {
+            get {
+                return this.NewFriendField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NewFriendField, value) != true)) {
+                    this.NewFriendField = value;
+                    this.RaisePropertyChanged("NewFriend");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OperationDeclineFriendRequestResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class OperationDeclineFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int FriendRequestIdField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int FriendRequestId {
+            get {
+                return this.FriendRequestIdField;
+            }
+            set {
+                if ((this.FriendRequestIdField.Equals(value) != true)) {
+                    this.FriendRequestIdField = value;
+                    this.RaisePropertyChanged("FriendRequestId");
                 }
             }
         }
@@ -917,6 +1061,99 @@ namespace TLMG.Client.UsersManagerReference {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FriendRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class FriendRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int FriendRequestIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsIncomingField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string NicknameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int UserIdField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int FriendRequestId {
+            get {
+                return this.FriendRequestIdField;
+            }
+            set {
+                if ((this.FriendRequestIdField.Equals(value) != true)) {
+                    this.FriendRequestIdField = value;
+                    this.RaisePropertyChanged("FriendRequestId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsIncoming {
+            get {
+                return this.IsIncomingField;
+            }
+            set {
+                if ((this.IsIncomingField.Equals(value) != true)) {
+                    this.IsIncomingField = value;
+                    this.RaisePropertyChanged("IsIncoming");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Nickname {
+            get {
+                return this.NicknameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true)) {
+                    this.NicknameField = value;
+                    this.RaisePropertyChanged("Nickname");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int UserId {
+            get {
+                return this.UserIdField;
+            }
+            set {
+                if ((this.UserIdField.Equals(value) != true)) {
+                    this.UserIdField = value;
+                    this.RaisePropertyChanged("UserId");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
     public partial class SystemFault : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
@@ -1055,6 +1292,67 @@ namespace TLMG.Client.UsersManagerReference {
                 if ((this.IsReadyField.Equals(value) != true)) {
                     this.IsReadyField = value;
                     this.RaisePropertyChanged("IsReady");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int RoomId {
+            get {
+                return this.RoomIdField;
+            }
+            set {
+                if ((this.RoomIdField.Equals(value) != true)) {
+                    this.RoomIdField = value;
+                    this.RaisePropertyChanged("RoomId");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OperationChangeCardsPerPlayerRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class OperationChangeCardsPerPlayerRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int CardsPerPlayerCountField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int RoomIdField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int CardsPerPlayerCount {
+            get {
+                return this.CardsPerPlayerCountField;
+            }
+            set {
+                if ((this.CardsPerPlayerCountField.Equals(value) != true)) {
+                    this.CardsPerPlayerCountField = value;
+                    this.RaisePropertyChanged("CardsPerPlayerCount");
                 }
             }
         }
@@ -1552,6 +1850,12 @@ namespace TLMG.Client.UsersManagerReference {
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangePlayerReadiness")]
         System.Threading.Tasks.Task ChangePlayerReadinessAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessRequest request);
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayer")]
+        void ChangeCardsPerPlayer(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayer")]
+        System.Threading.Tasks.Task ChangeCardsPerPlayerAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request);
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/RequestMatchStart")]
         void RequestMatchStart(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request);
         
@@ -1576,6 +1880,9 @@ namespace TLMG.Client.UsersManagerReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangePlayerReadinessResult")]
         void ChangePlayerReadinessResult(TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessResult result);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayerResult")]
+        void ChangeCardsPerPlayerResult(TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerResult result);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/RequestMatchStartResult")]
         void RequestMatchStartResult(TLMG.Client.UsersManagerReference.OperationRequestMatchStartResult result);
@@ -1641,6 +1948,14 @@ namespace TLMG.Client.UsersManagerReference {
             return base.Channel.ChangePlayerReadinessAsync(sessionToken, request);
         }
         
+        public void ChangeCardsPerPlayer(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request) {
+            base.Channel.ChangeCardsPerPlayer(sessionToken, request);
+        }
+        
+        public System.Threading.Tasks.Task ChangeCardsPerPlayerAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request) {
+            return base.Channel.ChangeCardsPerPlayerAsync(sessionToken, request);
+        }
+        
         public void RequestMatchStart(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request) {
             base.Channel.RequestMatchStart(sessionToken, request);
         }
@@ -1671,6 +1986,24 @@ namespace TLMG.Client.UsersManagerReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/AcceptRoomInvitation")]
         System.Threading.Tasks.Task AcceptRoomInvitationAsync(string sessionToken, int invitationId);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/SendFriendRequest")]
+        void SendFriendRequest(string sessionToken, string friendNickname);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/SendFriendRequest")]
+        System.Threading.Tasks.Task SendFriendRequestAsync(string sessionToken, string friendNickname);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/AcceptFriendRequest")]
+        void AcceptFriendRequest(string sessionToken, int friendRequestId);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/AcceptFriendRequest")]
+        System.Threading.Tasks.Task AcceptFriendRequestAsync(string sessionToken, int friendRequestId);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/DeclineFriendRequest")]
+        void DeclineFriendRequest(string sessionToken, int friendRequestId);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/DeclineFriendRequest")]
+        System.Threading.Tasks.Task DeclineFriendRequestAsync(string sessionToken, int friendRequestId);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1690,6 +2023,21 @@ namespace TLMG.Client.UsersManagerReference {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/OnRoomInvitationReceived")]
         void OnRoomInvitationReceived(TLMG.Client.UsersManagerReference.RoomInvitation roomInvitation);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/SendFriendRequestResult")]
+        void SendFriendRequestResult(TLMG.Client.UsersManagerReference.OperationSendFriendRequestResult operationSendFriendRequestResult);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/AcceptFriendRequestResult")]
+        void AcceptFriendRequestResult(TLMG.Client.UsersManagerReference.OperationAcceptFriendRequestResult operationAcceptFriendRequestResult);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/DeclineFriendRequestResult")]
+        void DeclineFriendRequestResult(TLMG.Client.UsersManagerReference.OperationDeclineFriendRequestResult operationDeclineFriendRequestResult);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/OnFriendRequestReceived")]
+        void OnFriendRequestReceived(TLMG.Client.UsersManagerReference.FriendRequest friendRequest);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/OnFriendAdded")]
+        void OnFriendAdded(TLMG.Client.UsersManagerReference.Friend friend);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1742,6 +2090,30 @@ namespace TLMG.Client.UsersManagerReference {
         
         public System.Threading.Tasks.Task AcceptRoomInvitationAsync(string sessionToken, int invitationId) {
             return base.Channel.AcceptRoomInvitationAsync(sessionToken, invitationId);
+        }
+        
+        public void SendFriendRequest(string sessionToken, string friendNickname) {
+            base.Channel.SendFriendRequest(sessionToken, friendNickname);
+        }
+        
+        public System.Threading.Tasks.Task SendFriendRequestAsync(string sessionToken, string friendNickname) {
+            return base.Channel.SendFriendRequestAsync(sessionToken, friendNickname);
+        }
+        
+        public void AcceptFriendRequest(string sessionToken, int friendRequestId) {
+            base.Channel.AcceptFriendRequest(sessionToken, friendRequestId);
+        }
+        
+        public System.Threading.Tasks.Task AcceptFriendRequestAsync(string sessionToken, int friendRequestId) {
+            return base.Channel.AcceptFriendRequestAsync(sessionToken, friendRequestId);
+        }
+        
+        public void DeclineFriendRequest(string sessionToken, int friendRequestId) {
+            base.Channel.DeclineFriendRequest(sessionToken, friendRequestId);
+        }
+        
+        public System.Threading.Tasks.Task DeclineFriendRequestAsync(string sessionToken, int friendRequestId) {
+            return base.Channel.DeclineFriendRequestAsync(sessionToken, friendRequestId);
         }
     }
     
