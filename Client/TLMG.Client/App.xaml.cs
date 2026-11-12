@@ -1,4 +1,7 @@
 using System.Windows;
+using System.Windows.Threading;
+
+using log4net;
 
 using TLMG.Client.Communication;
 using TLMG.Client.Navigation;
@@ -13,6 +16,10 @@ namespace TLMG.Client
     /// </summary>
     public partial class App : Application
     {
+        private const string UnexpectedErrorKey = "Common_UnexpectedError";
+        private static readonly ILog _log = LogManager.GetLogger(typeof(App));
+        private IDialogManager _dialogs;
+
         /// <summary>
         /// Inicializa una nueva instancia de la aplicación y configura el idioma inicial.
         /// </summary>
@@ -44,14 +51,25 @@ namespace TLMG.Client
 
             MainWindowViewModel mainWindowViewModel = new MainWindowViewModel();
             NavigationManager navigationManager = new NavigationManager(mainWindowViewModel);
+            _dialogs = new DialogManager();
             navigationManager.ScreenFactory = new ScreenFactory(
                 navigationManager,
-                new DialogManager(),
+                _dialogs,
                 ServerConnection);
             Navigation = navigationManager;
+            DispatcherUnhandledException += OnDispatcherUnhandledException;
 
             MainWindow shellWindow = new MainWindow(mainWindowViewModel);
             shellWindow.Show();
+        }
+
+        private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs eventArguments)
+        {
+            _log.Error("Error inesperado en la interfaz de usuario.", eventArguments.Exception);
+            Navigation.NavigateToWithoutHistory(ScreenId.Login);
+            Navigation.ClearHistory();
+            _dialogs.ShowError(UnexpectedErrorKey);
+            eventArguments.Handled = true;
         }
 
         /// <summary>
