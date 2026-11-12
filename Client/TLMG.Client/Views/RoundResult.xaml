@@ -1,4 +1,4 @@
-﻿<local:LocalizableScreen x:Class="TLMG.Client.Views.RoundResultScreen"
+<local:LocalizableScreen x:Class="TLMG.Client.Views.RoundResultScreen"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -158,11 +158,11 @@
                         <Button x:Name="btnContinue"
                                 Content="{DynamicResource RoundResult_ContinueButton}"
                                 Style="{StaticResource RoundResultContinueButtonStyle}"
-                                Click="BtnContinue_Click" />
+                                Command="{Binding ContinueCommand}" />
                         <Button x:Name="btnBackToMenu"
                                 Content="{DynamicResource RoundResult_BackToMenuButton}"
                                 Style="{StaticResource ResultSecondaryButtonStyle}"
-                                Click="BtnBackToMenu_Click" />
+                                Command="{Binding MainMenuCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>

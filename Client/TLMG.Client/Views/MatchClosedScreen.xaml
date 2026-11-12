@@ -34,7 +34,7 @@
                 <Button x:Name="btnMainMenu"
                         Content="{DynamicResource MatchClosed_MainMenuButton}"
                         Style="{StaticResource MatchClosedButtonStyle}"
-                        Click="BtnMainMenu_Click" />
+                        Command="{Binding MainMenuCommand}" />
             </StackPanel>
         </Border>
     </Grid>

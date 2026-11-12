@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 
 using log4net;
 
 using TLMG.Client.Communication;
+using TLMG.Client.Models;
 using TLMG.Client.ViewModels;
 using TLMG.Client.Views;
 
@@ -96,6 +97,35 @@ namespace TLMG.Client.Navigation
                 case ScreenId.Leaderboard:
                     screenEntry = BuildLeaderboardEntry();
                     break;
+                case ScreenId.Gameplay:
+                    GameplayViewModel gameplayViewModel = new GameplayViewModel(_navigation);
+                    screenEntry = new ScreenEntry(new GameplayScreen(gameplayViewModel), gameplayViewModel);
+                    break;
+                case ScreenId.Moderation:
+                    Tuple<string, ModerationMode> moderation = parameter as Tuple<string, ModerationMode>;
+                    if (moderation == null)
+                    {
+                        _log.Warn("Se solicitó moderación sin parámetros; se conserva la pantalla actual.");
+                        return null;
+                    }
+                    ModerationViewModel moderationViewModel = new ModerationViewModel(
+                        _navigation,
+                        moderation.Item1,
+                        moderation.Item2);
+                    screenEntry = new ScreenEntry(new ModerationScreen(moderationViewModel), moderationViewModel);
+                    break;
+                case ScreenId.GameOver:
+                    GameOverViewModel gameOverViewModel = new GameOverViewModel(_navigation);
+                    screenEntry = new ScreenEntry(new GameOverScreen(gameOverViewModel), gameOverViewModel);
+                    break;
+                case ScreenId.RoundResult:
+                    RoundResultViewModel roundResultViewModel = new RoundResultViewModel(_navigation);
+                    screenEntry = new ScreenEntry(new RoundResultScreen(roundResultViewModel), roundResultViewModel);
+                    break;
+                case ScreenId.MatchClosed:
+                    MatchClosedViewModel matchClosedViewModel = new MatchClosedViewModel(_navigation);
+                    screenEntry = new ScreenEntry(new MatchClosedScreen(matchClosedViewModel), matchClosedViewModel);
+                    break;
                 default:
                     screenEntry = CreateLegacyScreen(screenId);
                     break;
@@ -109,11 +139,7 @@ namespace TLMG.Client.Navigation
             Dictionary<ScreenId, Func<FrameworkElement>> legacyScreens =
                 new Dictionary<ScreenId, Func<FrameworkElement>>
                 {
-                    { ScreenId.FugitiveKitten, () => new FugitiveKittenScreen() },
-                    { ScreenId.Gameplay, () => new GameplayScreen() },
-                    { ScreenId.RoundResult, () => new RoundResultScreen() },
-                    { ScreenId.GameOver, () => new GameOverScreen() },
-                    { ScreenId.MatchClosed, () => new MatchClosedScreen() }
+                    { ScreenId.FugitiveKitten, () => new FugitiveKittenScreen() }
                 };
 
             return legacyScreens;

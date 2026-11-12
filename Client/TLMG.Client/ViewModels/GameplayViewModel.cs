@@ -1,5 +1,7 @@
-﻿using System;
+using System;
 using System.Windows.Input;
+using TLMG.Client.Navigation;
+using TLMG.Client.Models;
 
 using CommunityToolkit.Mvvm.Input;
 
@@ -20,6 +22,7 @@ namespace TLMG.Client.ViewModels
 
         private readonly RelayCommand _decreaseBidCommand;
         private readonly RelayCommand _increaseBidCommand;
+        private readonly INavigationManager _navigation;
         private int _bidAmount;
         private int _currentBidAmount;
         private string _selectedPlayerName;
@@ -27,8 +30,9 @@ namespace TLMG.Client.ViewModels
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="GameplayViewModel"/>.
         /// </summary>
-        public GameplayViewModel()
+        public GameplayViewModel(INavigationManager navigation)
         {
+            _navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
             _bidAmount = InitialBidAmount;
             _currentBidAmount = InitialBidAmount;
             _selectedPlayerName = string.Empty;
@@ -45,39 +49,9 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
-        /// Se produce cuando el jugador solicita salir de la partida.
-        /// </summary>
-        public event EventHandler ExitRequested;
-
-        /// <summary>
-        /// Se produce cuando se solicita reportar al jugador seleccionado.
-        /// </summary>
-        public event EventHandler ReportRequested;
-
-        /// <summary>
-        /// Se produce cuando se solicita bloquear al jugador seleccionado.
-        /// </summary>
-        public event EventHandler BlockRequested;
-
-        /// <summary>
         /// Se produce cuando se solicita iniciar la votación de expulsión del jugador seleccionado.
         /// </summary>
         public event EventHandler KickVoteRequested;
-
-        /// <summary>
-        /// Se produce cuando se solicita la pantalla demo de resultado de ronda.
-        /// </summary>
-        public event EventHandler DemoRoundResultRequested;
-
-        /// <summary>
-        /// Se produce cuando se solicita la pantalla demo de fin de partida.
-        /// </summary>
-        public event EventHandler DemoGameOverRequested;
-
-        /// <summary>
-        /// Se produce cuando se solicita la pantalla demo de partida cerrada.
-        /// </summary>
-        public event EventHandler DemoInactivityRequested;
 
         /// <summary>Comando que reduce la apuesta seleccionada.</summary>
         public ICommand DecreaseBidCommand => _decreaseBidCommand;
@@ -194,12 +168,12 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteExit()
         {
-            ExitRequested?.Invoke(this, EventArgs.Empty);
+            _navigation.NavigateToWithoutHistory(ScreenId.MainMenu);
         }
 
         private void ExecuteReportPlayer()
         {
-            ReportRequested?.Invoke(this, EventArgs.Empty);
+            _navigation.NavigateToWithoutHistory(ScreenId.Moderation, Tuple.Create(SelectedPlayerName, ModerationMode.Report));
         }
 
         private void ExecuteKickPlayer()
@@ -209,22 +183,22 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteBlockPlayer()
         {
-            BlockRequested?.Invoke(this, EventArgs.Empty);
+            _navigation.NavigateToWithoutHistory(ScreenId.Moderation, Tuple.Create(SelectedPlayerName, ModerationMode.Block));
         }
 
         private void ExecuteDemoRevealCards()
         {
-            DemoRoundResultRequested?.Invoke(this, EventArgs.Empty);
+            _navigation.NavigateToWithoutHistory(ScreenId.RoundResult);
         }
 
         private void ExecuteDemoGameOver()
         {
-            DemoGameOverRequested?.Invoke(this, EventArgs.Empty);
+            _navigation.NavigateToWithoutHistory(ScreenId.GameOver);
         }
 
         private void ExecuteDemoInactivity()
         {
-            DemoInactivityRequested?.Invoke(this, EventArgs.Empty);
+            _navigation.NavigateToWithoutHistory(ScreenId.MatchClosed);
         }
     }
 }

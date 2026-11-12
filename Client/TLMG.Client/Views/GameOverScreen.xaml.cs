@@ -1,6 +1,6 @@
-﻿using System.Windows;
+using System.Windows;
+using TLMG.Client.ViewModels;
 using System.Windows.Controls;
-using TLMG.Client.Navigation;
 
 namespace TLMG.Client.Views
 {
@@ -8,34 +8,21 @@ namespace TLMG.Client.Views
     {
         private const string WinnerTitleFormatKey = "GameOver_WinnerTitleFormat";
         private const string DefaultFormat = "{0}";
-        private const string WinnerName = "NyanProwler";
-        private const bool SaveScreenInHistory = false;
+        private readonly GameOverViewModel _viewModel;
 
-        public GameOverScreen()
+        /// <summary>Inicializa la vista con su ViewModel.</summary>
+        public GameOverScreen(GameOverViewModel viewModel)
         {
             InitializeComponent();
+            _viewModel = viewModel;
+            DataContext = viewModel;
         }
 
         protected override void UpdateDynamicLabels()
         {
             string winnerTitleFormat = TryFindResource(WinnerTitleFormatKey) as string ?? DefaultFormat;
-            lblWinnerTitle.Text = string.Format(winnerTitleFormat, WinnerName.ToUpperInvariant());
+            lblWinnerTitle.Text = string.Format(winnerTitleFormat, _viewModel.WinnerName.ToUpperInvariant());
         }
 
-        private void BtnRematch_Click(object sender, RoutedEventArgs e)
-        {
-            NavigateToScreen(new GameplayScreen());
-        }
-
-        private void BtnMainMenu_Click(object sender, RoutedEventArgs e)
-        {
-            ((App)Application.Current).Navigation.NavigateToWithoutHistory(ScreenId.MainMenu);
-        }
-
-        private void NavigateToScreen(UserControl targetScreen)
-        {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(targetScreen, SaveScreenInHistory);
-        }
     }
 }
