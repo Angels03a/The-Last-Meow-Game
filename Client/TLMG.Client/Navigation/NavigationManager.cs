@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace TLMG.Client.Navigation
@@ -86,7 +86,7 @@ namespace TLMG.Client.Navigation
 
         private void Show(ScreenEntry newEntry, bool saveInHistory)
         {
-            if (newEntry.View != null)
+            if (newEntry != null && newEntry.View != null)
             {
                 if (_currentEntry != null)
                 {

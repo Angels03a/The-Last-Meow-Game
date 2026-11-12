@@ -1,4 +1,5 @@
-﻿using System.Windows;
+using System.Windows;
+using TLMG.Client.ViewModels;
 using System.Windows.Controls;
 
 namespace TLMG.Client.Views
@@ -10,15 +11,14 @@ namespace TLMG.Client.Views
         private const string EliminatedTitleFormatKey = "RoundResult_EliminatedTitleFormat";
         private const string ScoresTitleFormatKey = "RoundResult_ScoresTitleFormat";
         private const string DefaultFormat = "{0}";
-        private const string WinnerName = "WhiskerKnight";
-        private const string EliminatedPlayerName = "GraveyardPaws";
-        private const int CompletedBidCardCount = 4;
-        private const int TargetWinsCount = 2;
-        private const bool SaveScreenInHistory = false;
+        private readonly RoundResultViewModel _viewModel;
 
-        public RoundResultScreen()
+        /// <summary>Inicializa la vista con su ViewModel.</summary>
+        public RoundResultScreen(RoundResultViewModel viewModel)
         {
             InitializeComponent();
+            _viewModel = viewModel;
+            DataContext = viewModel;
         }
 
         protected override void UpdateDynamicLabels()
@@ -28,26 +28,11 @@ namespace TLMG.Client.Views
             string eliminatedTitleFormat = TryFindResource(EliminatedTitleFormatKey) as string ?? DefaultFormat;
             string scoresTitleFormat = TryFindResource(ScoresTitleFormatKey) as string ?? DefaultFormat;
 
-            lblWinnerTitle.Text = string.Format(winnerTitleFormat, WinnerName.ToUpperInvariant());
-            lblBidCompleted.Text = string.Format(bidCompletedFormat, CompletedBidCardCount);
-            lblEliminatedTitle.Text = string.Format(eliminatedTitleFormat, EliminatedPlayerName);
-            lblScoresTitle.Text = string.Format(scoresTitleFormat, TargetWinsCount);
+            lblWinnerTitle.Text = string.Format(winnerTitleFormat, _viewModel.WinnerName.ToUpperInvariant());
+            lblBidCompleted.Text = string.Format(bidCompletedFormat, _viewModel.CompletedBidCardCount);
+            lblEliminatedTitle.Text = string.Format(eliminatedTitleFormat, _viewModel.EliminatedPlayerName);
+            lblScoresTitle.Text = string.Format(scoresTitleFormat, _viewModel.TargetWinsCount);
         }
 
-        private void BtnContinue_Click(object sender, RoutedEventArgs e)
-        {
-            NavigateToScreen(new GameplayScreen());
-        }
-
-        private void BtnBackToMenu_Click(object sender, RoutedEventArgs e)
-        {
-            NavigateToScreen(new MainMenuScreen());
-        }
-
-        private void NavigateToScreen(UserControl targetScreen)
-        {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(targetScreen, SaveScreenInHistory);
-        }
     }
 }

@@ -171,26 +171,8 @@ namespace TLMG.Client
         // BL-046: punto único de integración; GameplayScreen debe estar incluida y compilada en el proyecto.
         private void NavigateToAuthorizedMatch()
         {
-            try
-            {
-                Type gameplayType = typeof(MainWindow).Assembly.GetType("TLMG.Client.Views.GameplayScreen");
-
-                if (gameplayType == null)
-                {
-                    ShowServerError("Lobby_GameplayUnavailableError");
-                }
-                else
-                {
-                    UserControl gameplayScreen = (UserControl)Activator.CreateInstance(gameplayType);
-                    ClearHistory();
-                    ShowScreen(gameplayScreen, false);
-                }
-            }
-            catch (Exception exception)
-            {
-                _log.Error("No se pudo abrir la pantalla de partida autorizada.", exception);
-                ShowServerError("Common_UnexpectedError");
-            }
+            Navigation.ClearHistory();
+            Navigation.NavigateToWithoutHistory(ScreenId.Gameplay);
         }
 
         private void OnChatErrorReceived(object sender, ServerEventArgs<string> eventArguments)

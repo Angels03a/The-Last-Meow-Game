@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 
 using log4net;
 
 using TLMG.Client.Communication;
+using TLMG.Client.Models;
 using TLMG.Client.ViewModels;
 using TLMG.Client.Views;
 
@@ -57,6 +58,28 @@ namespace TLMG.Client.Navigation
                 case ScreenId.Verification:
                     screenEntry = BuildVerificationEntry(parameter);
                     break;
+                case ScreenId.Gameplay:
+                    GameplayViewModel gameplayViewModel = new GameplayViewModel(_navigation);
+                    screenEntry = new ScreenEntry(new GameplayScreen(gameplayViewModel), gameplayViewModel);
+                    break;
+                case ScreenId.Moderation:
+                    Tuple<string, ModerationMode> moderation = parameter as Tuple<string, ModerationMode>;
+                    if (moderation == null)
+                    {
+                        _log.Warn("Se solicitó moderación sin parámetros; se conserva la pantalla actual.");
+                        return null;
+                    }
+                    ModerationViewModel moderationViewModel = new ModerationViewModel(_navigation, moderation.Item1, moderation.Item2);
+                    screenEntry = new ScreenEntry(new ModerationScreen(moderationViewModel), moderationViewModel);
+                    break;
+                case ScreenId.GameOver:
+                    GameOverViewModel gameoverViewModel = new GameOverViewModel(_navigation);
+                    screenEntry = new ScreenEntry(new GameOverScreen(gameoverViewModel), gameoverViewModel);
+                    break;
+                case ScreenId.RoundResult:
+                    RoundResultViewModel roundresultViewModel = new RoundResultViewModel(_navigation);
+                    screenEntry = new ScreenEntry(new RoundResultScreen(roundresultViewModel), roundresultViewModel);
+                    break;
                 default:
                     screenEntry = CreateLegacyScreen(screenId);
                     break;
@@ -78,9 +101,6 @@ namespace TLMG.Client.Navigation
                     { ScreenId.Friends, () => new FriendsScreen() },
                     { ScreenId.HowToPlay, () => new HowToPlayScreen() },
                     { ScreenId.Lobby, () => new LobbyScreen() },
-                    { ScreenId.Gameplay, () => new GameplayScreen() },
-                    { ScreenId.RoundResult, () => new RoundResultScreen() },
-                    { ScreenId.GameOver, () => new GameOverScreen() },
                     { ScreenId.MatchClosed, () => new MatchClosedScreen() }
                 };
 

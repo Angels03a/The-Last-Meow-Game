@@ -1,9 +1,12 @@
-﻿using System.Windows;
+using System.Windows;
+using TLMG.Client.ViewModels;
+using System.ComponentModel;
 using System.Windows.Documents;
 using TLMG.Client.Models;
 
 namespace TLMG.Client.Views
 {
+    /// <summary>Presentación visual de moderación.</summary>
     public partial class ModerationScreen : LocalizableScreen
     {
         private const string BlockIntroKey = "Moderation_BlockIntroLabel";
@@ -19,18 +22,21 @@ namespace TLMG.Client.Views
         private const string DefaultFormat = "{0}";
         private const string WordSeparator = " ";
         private const int FirstReasonIndex = 0;
-        private const bool SaveScreenInHistory = false;
 
-        private readonly string _targetPlayerName;
-        private ModerationMode _currentMode;
 
-        public ModerationScreen(string targetPlayerName, ModerationMode initialMode)
+        private readonly ModerationViewModel _viewModel;
+
+        /// <summary>Inicializa la vista con su ViewModel.</summary>
+        public ModerationScreen(ModerationViewModel viewModel)
         {
             InitializeComponent();
-            _targetPlayerName = targetPlayerName;
-            lblTargetPlayerName.Text = targetPlayerName;
+            _viewModel = viewModel;
+            DataContext = viewModel;
+            Loaded += OnScreenLoaded;
+            Unloaded += OnScreenUnloaded;
+            lblTargetPlayerName.Text = viewModel.TargetPlayerName;
             cmbReportReason.SelectedIndex = FirstReasonIndex;
-            ApplyMode(initialMode);
+            ApplyMode(viewModel.Mode);
         }
 
         protected override void UpdateDynamicLabels()
@@ -38,7 +44,7 @@ namespace TLMG.Client.Views
             string blockIntroMessage = TryFindResource(BlockIntroKey) as string ?? string.Empty;
             string blockDetail = TryFindResource(BlockDetailKey) as string ?? string.Empty;
             Run introRun = new Run(blockIntroMessage + WordSeparator);
-            Run nameRun = new Run(_targetPlayerName);
+            Run nameRun = new Run(_viewModel.TargetPlayerName);
             Run detailRun = new Run(WordSeparator + blockDetail);
 
             nameRun.Style = FindStyle(BlockPlayerNameRunStyleKey);
@@ -50,34 +56,25 @@ namespace TLMG.Client.Views
             UpdateSuccessTexts();
         }
 
-        private void BtnReportTab_Click(object sender, RoutedEventArgs e)
+        private void OnScreenLoaded(object sender, RoutedEventArgs e)
         {
-            ApplyMode(ModerationMode.Report);
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            RefreshVisualState();
         }
-
-        private void BtnBlockTab_Click(object sender, RoutedEventArgs e)
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
-            ApplyMode(ModerationMode.Block);
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
         }
-
-        private void BtnSubmitReport_Click(object sender, RoutedEventArgs e)
+        private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            ShowSuccessCard();
+            RefreshVisualState();
         }
-
-        private void BtnConfirmBlock_Click(object sender, RoutedEventArgs e)
+        private void RefreshVisualState()
         {
-            ShowSuccessCard();
-        }
-
-        private void BtnCancel_Click(object sender, RoutedEventArgs e)
-        {
-            NavigateToGameplay();
-        }
-
-        private void BtnReturnToGame_Click(object sender, RoutedEventArgs e)
-        {
-            NavigateToGameplay();
+            ApplyMode(_viewModel.Mode);
+            scrForm.Visibility = _viewModel.IsCompleted ? Visibility.Collapsed : Visibility.Visible;
+            brdSuccessCard.Visibility = _viewModel.IsCompleted ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void ApplyMode(ModerationMode mode)
@@ -86,7 +83,6 @@ namespace TLMG.Client.Views
             string reportTabStyleKey = isReportMode ? ReportTabActiveStyleKey : TabInactiveStyleKey;
             string blockTabStyleKey = isReportMode ? TabInactiveStyleKey : BlockTabActiveStyleKey;
 
-            _currentMode = mode;
             pnlReportForm.Visibility = isReportMode ? Visibility.Visible : Visibility.Collapsed;
             pnlBlockForm.Visibility = isReportMode ? Visibility.Collapsed : Visibility.Visible;
             btnReportTab.Style = FindStyle(reportTabStyleKey);
@@ -96,7 +92,7 @@ namespace TLMG.Client.Views
 
         private void UpdateSuccessTexts()
         {
-            bool isReportMode = _currentMode == ModerationMode.Report;
+            bool isReportMode = _viewModel.Mode == ModerationMode.Report;
             string titleKey = isReportMode ? ReportSuccessTitleKey : BlockSuccessTitleKey;
             string successMessage;
 
@@ -107,18 +103,13 @@ namespace TLMG.Client.Views
             else
             {
                 string messageFormat = TryFindResource(BlockSuccessMessageFormatKey) as string ?? DefaultFormat;
-                successMessage = string.Format(messageFormat, _targetPlayerName);
+                successMessage = string.Format(messageFormat, _viewModel.TargetPlayerName);
             }
 
             lblSuccessTitle.Text = TryFindResource(titleKey) as string ?? string.Empty;
             lblSuccessMessage.Text = successMessage;
         }
 
-        private void ShowSuccessCard()
-        {
-            scrForm.Visibility = Visibility.Collapsed;
-            brdSuccessCard.Visibility = Visibility.Visible;
-        }
 
         private Style FindStyle(string styleKey)
         {
@@ -126,10 +117,5 @@ namespace TLMG.Client.Views
             return foundStyle;
         }
 
-        private void NavigateToGameplay()
-        {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(new GameplayScreen(), SaveScreenInHistory);
-        }
     }
 }

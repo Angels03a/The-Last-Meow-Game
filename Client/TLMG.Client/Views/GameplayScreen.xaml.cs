@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -17,25 +17,19 @@ namespace TLMG.Client.Views
         private const double NoMargin = 0;
         private const double ContextMenuWidthPixels = 190;
         private const double ContextMenuHeightPixels = 200;
-        private const bool SaveScreenInHistory = false;
 
         private readonly GameplayViewModel _viewModel;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="GameplayScreen"/>.
         /// </summary>
-        public GameplayScreen()
+        public GameplayScreen(GameplayViewModel viewModel)
         {
             InitializeComponent();
 
-            _viewModel = new GameplayViewModel();
-            _viewModel.ExitRequested += OnExitRequested;
-            _viewModel.ReportRequested += OnReportRequested;
-            _viewModel.BlockRequested += OnBlockRequested;
-            _viewModel.KickVoteRequested += OnKickVoteRequested;
-            _viewModel.DemoRoundResultRequested += OnDemoRoundResultRequested;
-            _viewModel.DemoGameOverRequested += OnDemoGameOverRequested;
-            _viewModel.DemoInactivityRequested += OnDemoInactivityRequested;
+            _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+            Loaded += OnScreenLoaded;
+            Unloaded += OnScreenUnloaded;
             DataContext = _viewModel;
         }
 
@@ -70,47 +64,21 @@ namespace TLMG.Client.Views
             HidePlayerContextMenu();
         }
 
-        private void OnExitRequested(object sender, EventArgs e)
+        private void OnScreenLoaded(object sender, RoutedEventArgs e)
         {
-            // TODO: Agregar confirmación de salida antes de navegar a la pantalla principal.
-
-            NavigateToScreen(new MainMenuScreen());
+            _viewModel.KickVoteRequested -= OnKickVoteRequested;
+            _viewModel.KickVoteRequested += OnKickVoteRequested;
         }
 
-        // FIXME: Los métodos de navegación a la pantalla de moderación (reportes y bloqueos)
-        // son código duplicado con la clase ModerationScreen.
-        // Deberían refactorizarse para evitar la duplicación.
-        private void OnReportRequested(object sender, EventArgs e)
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
-            HidePlayerContextMenu();
-            NavigateToModerationScreen(ModerationMode.Report);
-        }
-
-        private void OnBlockRequested(object sender, EventArgs e)
-        {
-            HidePlayerContextMenu();
-            NavigateToModerationScreen(ModerationMode.Block);
+            _viewModel.KickVoteRequested -= OnKickVoteRequested;
         }
 
         private void OnKickVoteRequested(object sender, EventArgs e)
         {
             HidePlayerContextMenu();
-            StartKickVote();
-        }
-
-        private void OnDemoRoundResultRequested(object sender, EventArgs e)
-        {
-            NavigateToScreen(new RoundResultScreen());
-        }
-
-        private void OnDemoGameOverRequested(object sender, EventArgs e)
-        {
-            NavigateToScreen(new GameOverScreen());
-        }
-
-        private void OnDemoInactivityRequested(object sender, EventArgs e)
-        {
-            NavigateToScreen(new MatchClosedScreen());
+            // TODO (BL-161): Iniciar la votación de expulsión del jugador seleccionado.
         }
 
         private void ShowPlayerContextMenu(Point clickPosition)
@@ -129,20 +97,5 @@ namespace TLMG.Client.Views
             brdPlayerContextMenu.Visibility = Visibility.Collapsed;
         }
 
-        private void NavigateToModerationScreen(ModerationMode moderationMode)
-        {
-            NavigateToScreen(new ModerationScreen(_viewModel.SelectedPlayerName, moderationMode));
-        }
-
-        private void StartKickVote()
-        {
-            // TODO: Iniciar la votación de expulsión del jugador seleccionado.
-        }
-
-        private void NavigateToScreen(UserControl targetScreen)
-        {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(targetScreen, SaveScreenInHistory);
-        }
     }
 }
