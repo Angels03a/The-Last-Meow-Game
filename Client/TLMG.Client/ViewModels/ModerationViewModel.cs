@@ -41,7 +41,7 @@ namespace TLMG.Client.ViewModels
         private void ExecuteBlockTab() { Mode = ModerationMode.Block; }
         private void ExecuteSubmit()
         {
-            // FIXME: Flujo de demostración existente; todavía no envía reportes ni bloqueos al servidor.
+            // FIXME: Flujo de demostración existente; todavía no envía reportes ni bloqueos al servidor. (BL-165).
             IsCompleted = true;
         }
         private void ExecuteReturn() { _navigation.NavigateToWithoutHistory(ScreenId.Gameplay); }

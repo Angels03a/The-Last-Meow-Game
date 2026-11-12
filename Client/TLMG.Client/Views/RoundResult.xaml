@@ -38,7 +38,7 @@
                                            Style="{StaticResource RoundResultSafeCardNameStyle}" />
 
                                 <!--  FIXME: Los siguientes TextBlock están hardcodeados y deberían ser reemplazados 
-                                con bindings dinámicos a los nombres de los jugadores. -->
+                                con bindings dinámicos a los nombres de los jugadores. (BL-166). -->
 
                                 <TextBlock Text="NyanProwler" 
                                            Style="{StaticResource RoundResultCardOwnerTextStyle}" />

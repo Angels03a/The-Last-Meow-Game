@@ -23,7 +23,7 @@ namespace TLMG.Client.ViewModels
         public ICommand MainMenuCommand { get; }
         private void ExecuteContinue() { _navigation.NavigateToWithoutHistory(ScreenId.Gameplay); }
         private void ExecuteMainMenu() { _navigation.NavigateToWithoutHistory(ScreenId.MainMenu); }
-        // FIXME: Conservar datos de demostración hasta integrar el resultado real de la partida.
+        // FIXME: Conservar datos de demostración hasta integrar el resultado real de la partida. (BL-166).
         /// <summary>Valor de demostración del resultado.</summary>
         public string WinnerName => "NyanProwler";
     }
