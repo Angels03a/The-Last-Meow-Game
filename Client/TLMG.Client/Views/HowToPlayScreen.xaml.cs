@@ -1,28 +1,34 @@
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
-using TLMG.Client.Navigation;
+
+using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Pantalla informativa con las instrucciones y reglas del juego distribuidas por pasos.
+    /// Vista de las instrucciones y reglas del juego distribuidas por pasos. Conserva solo lógica visual: mostrar el
+    /// contenido, el emoji, el título, el indicador y los puntos del paso actual. El número de paso y la navegación
+    /// viven en <see cref="HowToPlayViewModel"/>.
     /// </summary>
     public partial class HowToPlayScreen : LocalizableScreen
     {
-        private const int MinStep = 1;
-        private const int MaxStep = 5;
         private const int StepNumberOffset = 1;
 
-        private int _currentStep;
+        private readonly HowToPlayViewModel _viewModel;
         private readonly StepData[] _steps;
 
         /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="HowToPlayScreen"/>.
+        /// Inicializa una nueva instancia de la clase <see cref="HowToPlayScreen"/> con su ViewModel.
         /// </summary>
-        public HowToPlayScreen()
+        /// <param name="howToPlayViewModel">ViewModel que la fábrica de pantallas crea e inyecta.</param>
+        public HowToPlayScreen(HowToPlayViewModel howToPlayViewModel)
         {
             InitializeComponent();
+
+            _viewModel = howToPlayViewModel;
+            DataContext = howToPlayViewModel;
 
             _steps = new StepData[]
             {
@@ -68,7 +74,9 @@ namespace TLMG.Client.Views
                 }
             };
 
-            _currentStep = MinStep;
+            Loaded += OnScreenLoaded;
+            Unloaded += OnScreenUnloaded;
+
             UpdateStepVisibility();
         }
 
@@ -83,7 +91,7 @@ namespace TLMG.Client.Views
             string format = TryFindResource("HowToPlay_StepIndicatorFormat") as string;
             if (!string.IsNullOrEmpty(format))
             {
-                lblStepIndicator.Text = string.Format(format, _currentStep, MaxStep);
+                lblStepIndicator.Text = string.Format(format, _viewModel.CurrentStep, _viewModel.StepCount);
             }
         }
 
@@ -92,7 +100,7 @@ namespace TLMG.Client.Views
             for (int stepIndex = 0; stepIndex < _steps.Length; stepIndex++)
             {
                 StepData step = _steps[stepIndex];
-                bool isActive = (stepIndex + StepNumberOffset) == _currentStep;
+                bool isActive = (stepIndex + StepNumberOffset) == _viewModel.CurrentStep;
 
                 step.ContentGrid.Visibility = isActive ? Visibility.Visible : Visibility.Collapsed;
                 step.SidebarButton.IsDefault = isActive;
@@ -107,57 +115,29 @@ namespace TLMG.Client.Views
 
             RefreshStepIndicatorText();
 
-            btnPrevious.Visibility = _currentStep > MinStep ? Visibility.Visible : Visibility.Hidden;
-            string nextButtonResourceKey = _currentStep == MaxStep ? "HowToPlay_FinishButton" : "HowToPlay_NextButton";
+            btnPrevious.Visibility = _viewModel.IsFirstStep ? Visibility.Hidden : Visibility.Visible;
+            string nextButtonResourceKey = _viewModel.IsLastStep ? "HowToPlay_FinishButton" : "HowToPlay_NextButton";
             btnNext.SetResourceReference(ContentControl.ContentProperty, nextButtonResourceKey);
         }
 
-        private void BtnNext_Click(object sender, RoutedEventArgs e)
+        private void OnScreenLoaded(object sender, RoutedEventArgs e)
         {
-            if (_currentStep < MaxStep)
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            UpdateStepVisibility();
+        }
+
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        {
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+        }
+
+        private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(HowToPlayViewModel.CurrentStep))
             {
-                _currentStep++;
                 UpdateStepVisibility();
             }
-            else
-            {
-                ReturnToMainMenu();
-            }
-        }
-
-        private void BtnPrevious_Click(object sender, RoutedEventArgs e)
-        {
-            if (_currentStep > MinStep)
-            {
-                _currentStep--;
-                UpdateStepVisibility();
-            }
-        }
-
-        private void BtnSidebarStep_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button clickedButton)
-            {
-                for (int stepIndex = 0; stepIndex < _steps.Length; stepIndex++)
-                {
-                    if (_steps[stepIndex].SidebarButton == clickedButton)
-                    {
-                        _currentStep = stepIndex + StepNumberOffset;
-                        break;
-                    }
-                }
-                UpdateStepVisibility();
-            }
-        }
-
-        private void BtnBack_Click(object sender, RoutedEventArgs e)
-        {
-            ReturnToMainMenu();
-        }
-
-        private void ReturnToMainMenu()
-        {
-            ((App)Application.Current).Navigation.NavigateTo(ScreenId.MainMenu);
         }
 
         /// <summary>

@@ -40,7 +40,7 @@
                 <StackPanel Grid.Row="1">
                     <Button x:Name="btnStep1"
                             Style="{StaticResource HowToPlaySidebarButtonStyle}"
-                            Click="BtnSidebarStep_Click"
+                            Command="{Binding GoToStepCommand}" CommandParameter="1"
                             IsDefault="True">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="24" Height="24" CornerRadius="12" Background="#8A2BE2" Margin="0,0,16,0">
@@ -55,7 +55,7 @@
                     </Button>
                     <Button x:Name="btnStep2"
                             Style="{StaticResource HowToPlaySidebarButtonStyle}"
-                            Click="BtnSidebarStep_Click">
+                            Command="{Binding GoToStepCommand}" CommandParameter="2">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="24" Height="24" CornerRadius="12" Background="#2E2E3E" Margin="0,0,16,0">
                                 <TextBlock Text="2"
@@ -69,7 +69,7 @@
                     </Button>
                     <Button x:Name="btnStep3"
                             Style="{StaticResource HowToPlaySidebarButtonStyle}"
-                            Click="BtnSidebarStep_Click">
+                            Command="{Binding GoToStepCommand}" CommandParameter="3">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="24" Height="24" CornerRadius="12" Background="#2E2E3E" Margin="0,0,16,0">
                                 <TextBlock
@@ -84,7 +84,7 @@
                     </Button>
                     <Button x:Name="btnStep4"
                             Style="{StaticResource HowToPlaySidebarButtonStyle}"
-                            Click="BtnSidebarStep_Click">
+                            Command="{Binding GoToStepCommand}" CommandParameter="4">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="24"
                                     Height="24"
@@ -102,7 +102,7 @@
                     </Button>
                     <Button x:Name="btnStep5"
                             Style="{StaticResource HowToPlaySidebarButtonStyle}"
-                            Click="BtnSidebarStep_Click">
+                            Command="{Binding GoToStepCommand}" CommandParameter="5">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="24" Height="24" CornerRadius="12" Background="#2E2E3E" Margin="0,0,16,0">
                                 <TextBlock Text="5"
@@ -121,7 +121,7 @@
                         Content="{DynamicResource HowToPlay_BackButton}"
                         Style="{StaticResource SidebarBackButtonStyle}"
                         Margin="24,0,24,0"
-                        Click="BtnBack_Click" />
+                        Command="{Binding BackCommand}" />
             </Grid>
         </Border>
 
@@ -474,7 +474,7 @@
                         Content="{DynamicResource HowToPlay_PreviousButton}"
                         Style="{DynamicResource GhostButtonStyle}"
                         Visibility="Hidden"
-                        Click="BtnPrevious_Click" />
+                        Command="{Binding PreviousCommand}" />
 
                 <StackPanel
                     Grid.Column="1"
@@ -492,7 +492,7 @@
                         Grid.Column="2"
                         Content="{DynamicResource HowToPlay_NextButton}"
                         Style="{StaticResource PrimaryButtonStyle}"
-                        Click="BtnNext_Click" />
+                        Command="{Binding NextCommand}" />
             </Grid>
         </Grid>
     </Grid>
