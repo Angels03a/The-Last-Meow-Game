@@ -47,6 +47,28 @@ namespace TLMG.Client.Communication
         /// <summary>Se dispara cuando un amigo pasa a estar en línea o deja de estarlo.</summary>
         public event EventHandler<ServerEventArgs<Friend>> FriendPresenceChanged;
 
+        /// <summary>Se dispara cuando otro jugador envía una solicitud de amistad al jugador.</summary>
+        public event EventHandler<ServerEventArgs<FriendRequest>> FriendRequestReceived;
+
+        /// <summary>Se dispara cuando una solicitud se aceptó y el nuevo amigo entra a la lista.</summary>
+        public event EventHandler<ServerEventArgs<Friend>> FriendAdded;
+
+        /// <summary>Se dispara con el resultado de enviar una solicitud de amistad.</summary>
+        public event EventHandler<ServerEventArgs<OperationSendFriendRequestResult>>
+            SendFriendRequestResultReceived;
+
+        /// <summary>Se dispara con el resultado de aceptar una solicitud de amistad.</summary>
+        public event EventHandler<ServerEventArgs<OperationAcceptFriendRequestResult>>
+            AcceptFriendRequestResultReceived;
+
+        /// <summary>Se dispara con el resultado de rechazar una solicitud de amistad.</summary>
+        public event EventHandler<ServerEventArgs<OperationDeclineFriendRequestResult>>
+            DeclineFriendRequestResultReceived;
+
+        /// <summary>Se dispara con el resultado de cambiar las cartas por jugador de la sala.</summary>
+        public event EventHandler<ServerEventArgs<OperationChangeCardsPerPlayerResult>>
+            ChangeCardsPerPlayerResultReceived;
+
         /// <summary>Se dispara cuando un amigo invita al jugador a su sala.</summary>
         public event EventHandler<ServerEventArgs<RoomInvitation>> RoomInvitationReceived;
 
@@ -300,6 +322,56 @@ namespace TLMG.Client.Communication
         {
             UpdateFriendPresence(friend);
             FriendPresenceChanged?.Invoke(this, new ServerEventArgs<Friend>(friend));
+        }
+
+        /// <summary>Dispara FriendRequestReceived.</summary>
+        /// <param name="friendRequest">La solicitud que llegó del servidor.</param>
+        internal void NotifyFriendRequestReceived(FriendRequest friendRequest)
+        {
+            FriendRequestReceived?.Invoke(this, new ServerEventArgs<FriendRequest>(friendRequest));
+        }
+
+        /// <summary>Dispara FriendAdded.</summary>
+        /// <param name="friend">El nuevo amigo que llegó del servidor.</param>
+        internal void NotifyFriendAdded(Friend friend)
+        {
+            FriendAdded?.Invoke(this, new ServerEventArgs<Friend>(friend));
+        }
+
+        /// <summary>Dispara SendFriendRequestResultReceived.</summary>
+        /// <param name="result">Resultado que llegó del servidor.</param>
+        internal void NotifySendFriendRequestResultReceived(OperationSendFriendRequestResult result)
+        {
+            SendFriendRequestResultReceived?.Invoke(
+                this,
+                new ServerEventArgs<OperationSendFriendRequestResult>(result));
+        }
+
+        /// <summary>Dispara AcceptFriendRequestResultReceived.</summary>
+        /// <param name="result">Resultado que llegó del servidor.</param>
+        internal void NotifyAcceptFriendRequestResultReceived(OperationAcceptFriendRequestResult result)
+        {
+            AcceptFriendRequestResultReceived?.Invoke(
+                this,
+                new ServerEventArgs<OperationAcceptFriendRequestResult>(result));
+        }
+
+        /// <summary>Dispara DeclineFriendRequestResultReceived.</summary>
+        /// <param name="result">Resultado que llegó del servidor.</param>
+        internal void NotifyDeclineFriendRequestResultReceived(OperationDeclineFriendRequestResult result)
+        {
+            DeclineFriendRequestResultReceived?.Invoke(
+                this,
+                new ServerEventArgs<OperationDeclineFriendRequestResult>(result));
+        }
+
+        /// <summary>Dispara ChangeCardsPerPlayerResultReceived.</summary>
+        /// <param name="result">Resultado que llegó del servidor.</param>
+        internal void NotifyChangeCardsPerPlayerResultReceived(OperationChangeCardsPerPlayerResult result)
+        {
+            ChangeCardsPerPlayerResultReceived?.Invoke(
+                this,
+                new ServerEventArgs<OperationChangeCardsPerPlayerResult>(result));
         }
 
         /// <summary>Dispara RoomInvitationReceived.</summary>

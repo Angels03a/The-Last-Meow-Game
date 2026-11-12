@@ -86,6 +86,60 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyRoomInvitationReceived(roomInvitation));
         }
 
+        /// <summary>Entrega la solicitud de amistad recibida mediante el dispatcher de la interfaz.</summary>
+        /// <param name="friendRequest">La solicitud recibida del servidor.</param>
+        public void OnFriendRequestReceived(FriendRequest friendRequest)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyFriendRequestReceived(friendRequest));
+        }
+
+        /// <summary>Avisa que un nuevo amigo entró a la lista del jugador.</summary>
+        /// <param name="friend">El nuevo amigo con su presencia actual.</param>
+        public void OnFriendAdded(Friend friend)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyFriendAdded(friend));
+        }
+
+        /// <summary>Entrega el resultado de enviar una solicitud de amistad.</summary>
+        /// <param name="operationSendFriendRequestResult">Resultado con éxito o clave de error.</param>
+        public void SendFriendRequestResult(
+            OperationSendFriendRequestResult operationSendFriendRequestResult)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifySendFriendRequestResultReceived(
+                    operationSendFriendRequestResult));
+        }
+
+        /// <summary>Entrega el resultado de aceptar una solicitud de amistad.</summary>
+        /// <param name="operationAcceptFriendRequestResult">Resultado con éxito o clave de error.</param>
+        public void AcceptFriendRequestResult(
+            OperationAcceptFriendRequestResult operationAcceptFriendRequestResult)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyAcceptFriendRequestResultReceived(
+                    operationAcceptFriendRequestResult));
+        }
+
+        /// <summary>Entrega el resultado de rechazar una solicitud de amistad.</summary>
+        /// <param name="operationDeclineFriendRequestResult">Resultado con éxito o clave de error.</param>
+        public void DeclineFriendRequestResult(
+            OperationDeclineFriendRequestResult operationDeclineFriendRequestResult)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyDeclineFriendRequestResultReceived(
+                    operationDeclineFriendRequestResult));
+        }
+
+        /// <summary>Entrega el resultado de cambiar las cartas por jugador de la sala.</summary>
+        /// <param name="result">Resultado con la sala actualizada o la clave de error.</param>
+        public void ChangeCardsPerPlayerResult(OperationChangeCardsPerPlayerResult result)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyChangeCardsPerPlayerResultReceived(result));
+        }
+
         /// <summary>Entrega el resultado de crear una sala.</summary>
         /// <param name="operationCreateRoomResult">Resultado con la sala o la clave de error.</param>
         public void CreateRoomResult(OperationCreateRoomResult operationCreateRoomResult)
