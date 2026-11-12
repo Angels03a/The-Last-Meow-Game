@@ -1,29 +1,28 @@
-﻿using System.Windows;
+﻿using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
+    /// <summary>Pantalla de cierre de partida.</summary>
     public partial class MatchClosedScreen : LocalizableScreen
     {
         private const string InactivityMessageFormatKey = "MatchClosed_InactivityMessageFormat";
         private const string DefaultFormat = "{0}";
-        private const int MatchInactivityTimeoutMinutes = 10;
-        private const bool SaveScreenInHistory = false;
+        private readonly MatchClosedViewModel _viewModel;
 
-        public MatchClosedScreen()
+        /// <summary>Inicializa la vista con su ViewModel.</summary>
+        /// <param name="viewModel">Estado y comandos de la pantalla.</param>
+        public MatchClosedScreen(MatchClosedViewModel viewModel)
         {
             InitializeComponent();
+            _viewModel = viewModel;
+            DataContext = viewModel;
         }
 
         protected override void UpdateDynamicLabels()
         {
             string inactivityMessageFormat = TryFindResource(InactivityMessageFormatKey) as string ?? DefaultFormat;
-            lblInactivityMessage.Text = string.Format(inactivityMessageFormat, MatchInactivityTimeoutMinutes);
+            lblInactivityMessage.Text = string.Format(inactivityMessageFormat, _viewModel.InactivityTimeoutMinutes);
         }
 
-        private void BtnMainMenu_Click(object sender, RoutedEventArgs e)
-        {
-            MainWindow applicationMainWindow = (MainWindow)Application.Current.MainWindow;
-            applicationMainWindow.ShowScreen(new MainMenuScreen(), SaveScreenInHistory);
-        }
     }
 }

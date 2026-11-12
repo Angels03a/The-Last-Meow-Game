@@ -80,6 +80,10 @@ namespace TLMG.Client.Navigation
                     RoundResultViewModel roundresultViewModel = new RoundResultViewModel(_navigation);
                     screenEntry = new ScreenEntry(new RoundResultScreen(roundresultViewModel), roundresultViewModel);
                     break;
+                case ScreenId.MatchClosed:
+                    MatchClosedViewModel matchClosedViewModel = new MatchClosedViewModel(_navigation);
+                    screenEntry = new ScreenEntry(new MatchClosedScreen(matchClosedViewModel), matchClosedViewModel);
+                    break;
                 default:
                     screenEntry = CreateLegacyScreen(screenId);
                     break;
@@ -100,8 +104,7 @@ namespace TLMG.Client.Navigation
                     { ScreenId.Profile, () => new ProfileScreen() },
                     { ScreenId.Friends, () => new FriendsScreen() },
                     { ScreenId.HowToPlay, () => new HowToPlayScreen() },
-                    { ScreenId.Lobby, () => new LobbyScreen() },
-                    { ScreenId.MatchClosed, () => new MatchClosedScreen() }
+                    { ScreenId.Lobby, () => new LobbyScreen() }
                 };
 
             return legacyScreens;
