@@ -1,8 +1,5 @@
 ﻿namespace TLMG.Domain.Constants
 {
-    /// <summary>
-    /// Catálogo centralizado de claves de error que el servidor envía al cliente.
-    /// </summary>
     public static class ErrorKeys
     {
         public static class Common
@@ -23,6 +20,13 @@
             public const string ChatRateLimit = "Lobby_ChatRateLimitError";
             public const string ChatNotSubscribed = "Lobby_ChatNotSubscribedError";
             public const string CardsPerPlayerNotValid = "Lobby_CardsPerPlayerNotValidError";
+            public const string PlayerDisconnectedFormat = "Lobby_PlayerDisconnectedMessageFormat";
+        }
+
+        public static class Leaderboard
+        {
+            public const string ConnectionError = "Leaderboard_ConnectionErrorMessage";
+            public const string Empty = "Leaderboard_EmptyMessage";
         }
 
         public static class CreateAccount

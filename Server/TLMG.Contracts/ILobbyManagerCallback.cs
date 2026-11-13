@@ -5,43 +5,47 @@ using TLMG.Contracts.DataContracts;
 namespace TLMG.Contracts
 {
     /// <summary>
-    /// Callback con el que el servidor responde las operaciones de sala y avisa sus cambios; lo implementa el cliente.
+    /// Callback with which the server answers room operations and announces room changes; the client implements
+    /// it.
     /// </summary>
     [ServiceContract]
     public interface ILobbyManagerCallback
     {
-        /// <summary>Entrega el resultado de crear una sala al cliente.</summary>
-        /// <param name="operationCreateRoomResult">Resultado con la sala o la clave de error.</param>
+        /// <summary>Delivers the result of creating a room.</summary>
+        /// <param name="operationCreateRoomResult">The room or the error key.</param>
         [OperationContract(IsOneWay = true)]
-        void CreateRoomResult(OperationCreateRoomResult operationCreateRoomResult);
+        void CreateRoomResult(OperationLobbyRoomResult operationCreateRoomResult);
 
-        /// <summary>Entrega el resultado de entrar a una sala al cliente.</summary>
-        /// <param name="operationEnterLobbyResult">Resultado con la sala o la clave de error.</param>
+        /// <summary>Delivers the result of entering a room.</summary>
+        /// <param name="operationEnterLobbyResult">The room or the error key.</param>
         [OperationContract(IsOneWay = true)]
-        void EnterLobbyResult(OperationEnterLobbyResult operationEnterLobbyResult);
+        void EnterLobbyResult(OperationLobbyRoomResult operationEnterLobbyResult);
 
-        /// <summary>Entrega el resultado de salir de una sala al cliente.</summary>
-        /// <param name="operationLeaveLobbyResult">Resultado con éxito o clave de error.</param>
+        /// <summary>Delivers the result of leaving a room.</summary>
+        /// <param name="operationLeaveLobbyResult">Success or the error key.</param>
         [OperationContract(IsOneWay = true)]
-        void LeaveLobbyResult(OperationLeaveLobbyResult operationLeaveLobbyResult);
+        void LeaveLobbyResult(OperationResult operationLeaveLobbyResult);
 
-        /// <summary>Avisa cambios de miembros, estado Listo, cuenta o inicio autorizado de la partida.</summary>
-        /// <param name="lobbyRoom">La sala con la lista actualizada de jugadores.</param>
+        /// <summary>
+        /// Announces member changes, Ready state, countdown or the authorized match start so every client keeps the
+        /// same room without asking for it.
+        /// </summary>
+        /// <param name="lobbyRoom">The room with the updated list of players.</param>
         [OperationContract(IsOneWay = true)]
         void OnLobbyRoomChanged(LobbyRoom lobbyRoom);
 
-        /// <summary>Entrega el resultado de ChangePlayerReadiness al solicitante.</summary>
-        /// <param name="result">Resultado con el estado actual o la clave de error.</param>
+        /// <summary>Delivers the result of changing the Ready state.</summary>
+        /// <param name="result">The current room or the error key.</param>
         [OperationContract(IsOneWay = true)]
-        void ChangePlayerReadinessResult(OperationChangePlayerReadinessResult result);
+        void ChangePlayerReadinessResult(OperationLobbyRoomResult result);
 
-        /// <summary>Entrega el resultado de ChangeCardsPerPlayer al solicitante.</summary>
-        /// <param name="result">Resultado con el estado actual de la sala o la clave de error.</param>
+        /// <summary>Delivers the result of changing the cards per player.</summary>
+        /// <param name="result">The current room or the error key.</param>
         [OperationContract(IsOneWay = true)]
-        void ChangeCardsPerPlayerResult(OperationChangeCardsPerPlayerResult result);
+        void ChangeCardsPerPlayerResult(OperationLobbyRoomResult result);
 
-        /// <summary>Entrega el resultado de RequestMatchStart al solicitante.</summary>
-        /// <param name="result">Resultado con el estado actual o la clave de error.</param>
+        /// <summary>Delivers the result of the match start check.</summary>
+        /// <param name="result">The current room, the retry delay or the error key.</param>
         [OperationContract(IsOneWay = true)]
         void RequestMatchStartResult(OperationRequestMatchStartResult result);
     }

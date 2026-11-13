@@ -39,16 +39,15 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataContracts\OperationLobbyRoomResult.cs" />
     <Compile Include="DataContracts\OperationResult.cs" />
     <Compile Include="DataContracts\SystemFault.cs" />
     <Compile Include="IChatManagerCallback.cs" />
     <Compile Include="IChatManager.cs" />
-    <Compile Include="DataContracts\OperationSubscribeToChatResult.cs" />
     <Compile Include="DataContracts\OperationSendChatMessageResult.cs" />
     <Compile Include="DataContracts\OperationSendChatMessageRequest.cs" />
     <Compile Include="DataContracts\ChatMessage.cs" />
     <Compile Include="DataContracts\OperationChangePlayerReadinessRequest.cs" />
-    <Compile Include="DataContracts\OperationChangePlayerReadinessResult.cs" />
     <Compile Include="DataContracts\OperationMatchStartRequest.cs" />
     <Compile Include="DataContracts\OperationRequestMatchStartResult.cs" />
     <Compile Include="DataContracts\Friend.cs" />
@@ -59,26 +58,24 @@
     <Compile Include="DataContracts\OperationAcceptFriendRequestResult.cs" />
     <Compile Include="DataContracts\OperationAcceptRoomInvitationResult.cs" />
     <Compile Include="DataContracts\OperationChangeCardsPerPlayerRequest.cs" />
-    <Compile Include="DataContracts\OperationChangeCardsPerPlayerResult.cs" />
-    <Compile Include="DataContracts\OperationCreateRoomResult.cs" />
     <Compile Include="DataContracts\OperationDeclineFriendRequestResult.cs" />
-    <Compile Include="DataContracts\OperationEnterLobbyResult.cs" />
     <Compile Include="DataContracts\OperationGetLeaderboardResult.cs" />
-    <Compile Include="DataContracts\OperationInviteFriendToRoomResult.cs" />
-    <Compile Include="DataContracts\OperationLeaveLobbyResult.cs" />
     <Compile Include="DataContracts\OperationLogInRequest.cs" />
     <Compile Include="DataContracts\OperationLogInResult.cs" />
-    <Compile Include="DataContracts\OperationRegisterPlayerAccountResult.cs" />
     <Compile Include="DataContracts\OperationSendFriendRequestResult.cs" />
     <Compile Include="DataContracts\OperationSubscribeToFriendsResult.cs" />
     <Compile Include="DataContracts\PlayerAccountRegistration.cs" />
     <Compile Include="DataContracts\RoomInvitation.cs" />
+    <Compile Include="IFriendshipManager.cs" />
+    <Compile Include="IFriendshipManagerCallback.cs" />
     <Compile Include="IFriendsManager.cs" />
     <Compile Include="IFriendsManagerCallback.cs" />
     <Compile Include="ILeaderboardManager.cs" />
     <Compile Include="ILeaderboardManagerCallback.cs" />
     <Compile Include="ILobbyManager.cs" />
     <Compile Include="ILobbyManagerCallback.cs" />
+    <Compile Include="IRoomInvitationManager.cs" />
+    <Compile Include="IRoomInvitationManagerCallback.cs" />
     <Compile Include="IUsersManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

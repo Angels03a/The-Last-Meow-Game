@@ -5,46 +5,46 @@ using TLMG.Contracts.DataContracts;
 namespace TLMG.Contracts
 {
     /// <summary>
-    /// Contrato para crear salas, entrar a ellas y salir; el estado de la sala llega por ILobbyManagerCallback.
+    /// Contract to create rooms, enter and leave them; the room state reaches clients through
+    /// ILobbyManagerCallback.
     /// </summary>
     [ServiceContract(CallbackContract = typeof(ILobbyManagerCallback))]
     public interface ILobbyManager
     {
-        /// <summary>Solicita crear una sala nueva y quedar dentro; la respuesta llega por CreateRoomResult.</summary>
-        /// <param name="sessionToken">Token de la sesión del jugador.</param>
+        /// <summary>Requests a new room and stays inside it; the answer is CreateRoomResult.</summary>
+        /// <param name="sessionToken">Session token of the player.</param>
         [OperationContract(IsOneWay = true)]
         void CreateRoom(string sessionToken);
 
-        /// <summary>Solicita entrar a una sala con autorización; la respuesta llega por EnterLobbyResult.</summary>
-        /// <param name="sessionToken">Token de la sesión del jugador.</param>
-        /// <param name="roomId">Identificador de la sala a la que se quiere entrar.</param>
+        /// <summary>Requests to enter an authorized room; the answer is EnterLobbyResult.</summary>
+        /// <param name="sessionToken">Session token of the player.</param>
+        /// <param name="roomId">Identifier of the room to enter.</param>
         [OperationContract(IsOneWay = true)]
         void EnterLobby(string sessionToken, int roomId);
 
-        /// <summary>Solicita salir de la sala actual; la respuesta llega por LeaveLobbyResult.</summary>
-        /// <param name="sessionToken">Token de la sesión del jugador.</param>
+        /// <summary>Requests to leave the current room; the answer is LeaveLobbyResult.</summary>
+        /// <param name="sessionToken">Session token of the player.</param>
         [OperationContract(IsOneWay = true)]
         void LeaveLobby(string sessionToken);
 
-        /// <summary>Solicita cambiar el estado Listo del propio jugador.</summary>
-        /// <param name="sessionToken">Token de la sesión del jugador.</param>
-        /// <param name="request">Datos de la petición; null se rechaza sin revelar la sala.</param>
+        /// <summary>Requests to change the own Ready state; the answer is ChangePlayerReadinessResult.</summary>
+        /// <param name="sessionToken">Session token of the player.</param>
+        /// <param name="request">Room and wanted state; null is rejected without revealing the room.</param>
         [OperationContract(IsOneWay = true)]
         void ChangePlayerReadiness(string sessionToken, OperationChangePlayerReadinessRequest request);
 
         /// <summary>
-        /// Solicita cambiar la cantidad de cartas por jugador de la sala (4, 6 u 8); la respuesta llega por
-        /// ChangeCardsPerPlayerResult. Un cambio real deja a todos en No Listo (Regla No. 11) y se avisa a la sala por
-        /// OnLobbyRoomChanged; pedir el valor que ya tiene la sala responde éxito sin cambios ni reinicio del Listo.
+        /// Requests to change the cards per player of the room, which sets everyone to Not Ready when the value
+        /// really changes; the answer is ChangeCardsPerPlayerResult.
         /// </summary>
-        /// <param name="sessionToken">Token de la sesión del jugador.</param>
-        /// <param name="request">Datos de la petición; null se rechaza sin revelar la sala.</param>
+        /// <param name="sessionToken">Session token of the player.</param>
+        /// <param name="request">Room and wanted amount; null is rejected without revealing the room.</param>
         [OperationContract(IsOneWay = true)]
         void ChangeCardsPerPlayer(string sessionToken, OperationChangeCardsPerPlayerRequest request);
 
-        /// <summary>Solicita validar la cuenta y autorizar el inicio con el reloj del servidor.</summary>
-        /// <param name="sessionToken">Token de la sesión del jugador.</param>
-        /// <param name="request">Datos de la petición; null se rechaza sin revelar la sala.</param>
+        /// <summary>Requests the server to validate the countdown and authorize the match start.</summary>
+        /// <param name="sessionToken">Session token of the player.</param>
+        /// <param name="request">Room and observed countdown generation; null is rejected.</param>
         [OperationContract(IsOneWay = true)]
         void RequestMatchStart(string sessionToken, OperationMatchStartRequest request);
     }

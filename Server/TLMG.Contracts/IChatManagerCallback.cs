@@ -8,10 +8,8 @@ namespace TLMG.Contracts
     [ServiceContract]
     public interface IChatManagerCallback
     {
-        /// <summary>Entrega el resultado de la suscripción.</summary>
-        /// <param name="operationSubscribeToChatResult">Éxito o clave de error.</param>
         [OperationContract(IsOneWay = true)]
-        void SubscribeToChatResult(OperationSubscribeToChatResult operationSubscribeToChatResult);
+        void SubscribeToChatResult(OperationResult operationSubscribeToChatResult);
 
         /// <summary>Entrega únicamente el rechazo de un envío.</summary>
         /// <param name="operationSendChatMessageResult">Correlación y clave de error.</param>
