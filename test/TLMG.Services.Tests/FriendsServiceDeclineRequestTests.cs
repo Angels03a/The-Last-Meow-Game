@@ -1,8 +1,8 @@
-using Xunit;
-
+using System;
 using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Repositories;
 using TLMG.Services.Sessions;
+using Xunit;
 
 namespace TLMG.Services.Tests
 {
@@ -123,24 +123,16 @@ namespace TLMG.Services.Tests
             Assert.Equal(NotValidKey, actual.OperationResult.ErrorKey);
         }
 
-        /// <summary>Verifica DeclineFriendRequest_WhenRepositoryFails_ReturnsUnexpectedError.</summary>
         [Fact]
-        public void DeclineFriendRequest_WhenRepositoryFails_ReturnsUnexpectedError()
+        public void DeclineFriendRequest_WhenRepositoryFails_ThrowsInvalidOperationException()
         {
-            // Arrange
             FriendsScenario scenario = new FriendsScenario();
             int friendshipId = scenario.Repository.Seed(FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId,
                 FriendshipState.Pending);
             scenario.Repository.ThrowOnAnyCall = true;
 
-            // Act
-            ResultWithNotification<OperationDeclineFriendRequestResult> actual =
-                scenario.Service.DeclineFriendRequest(scenario.BravoToken, friendshipId);
-
-            // Assert
-            Assert.False(actual.OperationResult.IsSuccess);
-            Assert.Equal("Common_UnexpectedError", actual.OperationResult.ErrorKey);
-            Assert.Empty(actual.Notifications);
+            Assert.Throws<InvalidOperationException>(() =>
+                scenario.Service.DeclineFriendRequest(scenario.BravoToken, friendshipId));
         }
     }
 }

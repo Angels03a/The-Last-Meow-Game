@@ -1,8 +1,8 @@
-using Xunit;
-
+using System;
 using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Repositories;
 using TLMG.Services.Sessions;
+using Xunit;
 
 namespace TLMG.Services.Tests
 {
@@ -11,7 +11,6 @@ namespace TLMG.Services.Tests
     {
         private const string InvalidSessionKey = "Common_InvalidSessionError";
 
-        private const string UnexpectedKey = "Common_UnexpectedError";
 
         /// <summary>Verifica SendFriendRequest_WithExistingNickname_CreatesPendingRequestAndNotifiesReceiver.</summary>
         [Fact]
@@ -218,23 +217,14 @@ namespace TLMG.Services.Tests
             Assert.Empty(actual.Notifications);
         }
 
-        /// <summary>Verifica SendFriendRequest_WhenRepositoryFails_ReturnsUnexpectedError.</summary>
         [Fact]
-        public void SendFriendRequest_WhenRepositoryFails_ReturnsUnexpectedError()
+        public void SendFriendRequest_WhenRepositoryFails_ThrowsInvalidOperationException()
         {
-            // Arrange
             FriendsScenario scenario = new FriendsScenario();
             scenario.Repository.ThrowOnAnyCall = true;
 
-            // Act
-            ResultWithNotification<OperationSendFriendRequestResult> actual =
-                scenario.Service.SendFriendRequest(scenario.AlphaToken, "Bravo");
-
-            // Assert
-            Assert.False(actual.OperationResult.IsSuccess);
-            Assert.Equal(UnexpectedKey, actual.OperationResult.ErrorKey);
-            Assert.Null(actual.OperationResult.SentFriendRequest);
-            Assert.Empty(actual.Notifications);
+            Assert.Throws<InvalidOperationException>(() =>
+                scenario.Service.SendFriendRequest(scenario.AlphaToken, "Bravo"));
         }
     }
 }

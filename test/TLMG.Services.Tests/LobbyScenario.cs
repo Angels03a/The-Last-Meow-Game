@@ -1,5 +1,4 @@
 using System;
-
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Tests
@@ -15,7 +14,8 @@ namespace TLMG.Services.Tests
         internal LobbyScenario()
         {
             CreatorToken = Registry.StartSession(1, "Creator", out SessionEnd replaced);
-            RoomId = Registry.CreateRoom(CreatorToken, "creator", null).RoomId;
+            LobbyCaller creatorCaller = new LobbyCaller(CreatorToken, "creator");
+            RoomId = Registry.CreateRoom(creatorCaller, null).RoomId;
         }
 
         internal string Authorize(int userId)
@@ -24,6 +24,7 @@ namespace TLMG.Services.Tests
             Registry.SubscribeFriendsChannel(token, "friends" + userId, null, Array.Empty<int>());
             RoomInvitationCreation invitation = Registry.CreateRoomInvitation(CreatorToken, userId);
             Registry.AcceptRoomInvitation(token, invitation.InvitationId);
+
             return token;
         }
 
@@ -32,7 +33,8 @@ namespace TLMG.Services.Tests
             for (int userId = 2; userId <= 6; userId++)
             {
                 string token = Authorize(userId);
-                Registry.EnterRoom(token, RoomId, "lobby" + userId, null);
+                LobbyCaller caller = new LobbyCaller(token, "lobby" + userId);
+                Registry.EnterRoom(caller, RoomId, null);
             }
         }
     }

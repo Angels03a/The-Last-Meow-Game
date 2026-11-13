@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-
 using TLMG.Contracts;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Tests
 {
-    /// <summary>Registro de sesiones de prueba cuyas operaciones fallan, para probar errores inesperados.</summary>
     internal sealed class FailingSessionRegistryStub : ISessionRegistry
     {
         private const string FailureMessage = "Fallo simulado del registro de sesiones.";
@@ -24,15 +22,13 @@ namespace TLMG.Services.Tests
             throw new InvalidOperationException(FailureMessage);
 
         public LobbyMembershipChange CreateRoom(
-            string sessionToken,
-            string channelId,
+            LobbyCaller caller,
             ILobbyManagerCallback lobbyCallback) =>
             throw new InvalidOperationException(FailureMessage);
 
         public LobbyMembershipChange EnterRoom(
-            string sessionToken,
+            LobbyCaller caller,
             int roomId,
-            string channelId,
             ILobbyManagerCallback lobbyCallback) =>
             throw new InvalidOperationException(FailureMessage);
 
@@ -62,36 +58,29 @@ namespace TLMG.Services.Tests
             throw new InvalidOperationException(FailureMessage);
 
         public LobbyMembershipChange ChangePlayerReadiness(
-            string sessionToken,
-            string channelId,
+            LobbyCaller caller,
             int roomId,
             bool isReady) =>
             throw new InvalidOperationException(FailureMessage);
 
         public LobbyMembershipChange ChangeCardsPerPlayer(
-            string sessionToken,
-            string channelId,
+            LobbyCaller caller,
             int roomId,
             int cardsPerPlayerCount) =>
             throw new InvalidOperationException(FailureMessage);
 
         public LobbyMembershipChange RequestMatchStart(
-            string sessionToken,
-            string channelId,
+            LobbyCaller caller,
             int roomId,
             long countdownId) =>
             throw new InvalidOperationException(FailureMessage);
 
-        public string SubscribeToChat(string sessionToken, string channelId, IChatManagerCallback callback) =>
+        public string SubscribeToChat(LobbyCaller caller, IChatManagerCallback callback) =>
             throw new InvalidOperationException(FailureMessage);
 
         public string AcceptChatMessage(
-            string sessionToken,
-            string channelId,
-            int roomId,
-            Guid clientMessageId,
-            string normalizedText,
-            string validationErrorKey,
+            LobbyCaller caller,
+            ChatSubmission submission,
             out ChatDelivery chatDelivery) =>
             throw new InvalidOperationException(FailureMessage);
 

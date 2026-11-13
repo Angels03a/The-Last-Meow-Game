@@ -8,17 +8,17 @@ namespace TLMG.Services.Tests
     {
         internal int CallCount { get; private set; }
 
-        public void CreateRoomResult(OperationCreateRoomResult operationCreateRoomResult)
+        public void CreateRoomResult(OperationLobbyRoomResult operationCreateRoomResult)
         {
             CallCount++;
         }
 
-        public void EnterLobbyResult(OperationEnterLobbyResult operationEnterLobbyResult)
+        public void EnterLobbyResult(OperationLobbyRoomResult operationEnterLobbyResult)
         {
             CallCount++;
         }
 
-        public void LeaveLobbyResult(OperationLeaveLobbyResult operationLeaveLobbyResult)
+        public void LeaveLobbyResult(OperationResult operationLeaveLobbyResult)
         {
             CallCount++;
         }
@@ -28,12 +28,12 @@ namespace TLMG.Services.Tests
             CallCount++;
         }
 
-        public void ChangePlayerReadinessResult(OperationChangePlayerReadinessResult result)
+        public void ChangePlayerReadinessResult(OperationLobbyRoomResult result)
         {
             CallCount++;
         }
 
-        public void ChangeCardsPerPlayerResult(OperationChangeCardsPerPlayerResult result)
+        public void ChangeCardsPerPlayerResult(OperationLobbyRoomResult result)
         {
             CallCount++;
         }

@@ -3,7 +3,6 @@ using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Tests
 {
-    /// <summary>Ayudantes de prueba para sumar jugadores a la sala de un LobbyScenario y marcarlos Listo.</summary>
     internal static class LobbyReadinessHelper
     {
         internal const string CreatorChannelId = "creator";
@@ -15,15 +14,17 @@ namespace TLMG.Services.Tests
             ILobbyManagerCallback callback)
         {
             string token = scenario.Authorize(userId);
-            scenario.Registry.EnterRoom(token, scenario.RoomId, channelId, callback);
+            LobbyCaller caller = new LobbyCaller(token, channelId);
+            scenario.Registry.EnterRoom(caller, scenario.RoomId, callback);
 
             return token;
         }
 
         internal static LobbyMembershipChange MarkReady(LobbyScenario scenario, string token, string channelId)
         {
+            LobbyCaller caller = new LobbyCaller(token, channelId);
             LobbyMembershipChange change = scenario.Registry.ChangePlayerReadiness(
-                token, channelId, scenario.RoomId, true);
+                caller, scenario.RoomId, true);
 
             return change;
         }

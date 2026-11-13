@@ -19,7 +19,7 @@ namespace TLMG.Services.Tests
             OtherCallCount++;
         }
 
-        public void InviteFriendToRoomResult(OperationInviteFriendToRoomResult operationInviteFriendToRoomResult)
+        public void InviteFriendToRoomResult(OperationResult operationInviteFriendToRoomResult)
         {
             OtherCallCount++;
         }
