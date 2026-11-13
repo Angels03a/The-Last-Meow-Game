@@ -96,10 +96,12 @@
     <Compile Include="DatabaseModel\Verification_Code.cs">
       <DependentUpon>TLMGModel.tt</DependentUpon>
     </Compile>
-	<Compile Include="DatabaseModel\vw_Leaderboard.cs">
-	  <DependentUpon>TLMGModel.tt</DependentUpon>
-	</Compile>
+    <Compile Include="DatabaseModel\vw_Leaderboard.cs">
+      <DependentUpon>TLMGModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\ChatInputOutcome.cs" />
+    <Compile Include="Repositories\ChatMessageRepository.cs" />
     <Compile Include="Repositories\FriendshipRepository.cs" />
     <Compile Include="Repositories\PlayerRepository.cs" />
   </ItemGroup>
