@@ -27,20 +27,20 @@ namespace TLMG.Services.Chat {
             _chatMessageRepository = chatMessageRepository;
         }
 
-        public ResultWithNotification<OperationSubscribeToChatResult> SubscribeToChat(
+        public ResultWithNotification<OperationResult> SubscribeToChat(
             LobbyCaller caller,
             IChatManagerCallback callback)
         {
             string errorKey = _sessionRegistry.SubscribeToChat(caller, callback);
-            OperationSubscribeToChatResult operationSubscribeToChatResult = new OperationSubscribeToChatResult
+            OperationResult operationSubscribeToChatResult = new OperationResult
             {
                 IsSuccess = errorKey == null,
                 ErrorKey = errorKey
             };
             LogChatRejection(errorKey);
 
-            ResultWithNotification<OperationSubscribeToChatResult> subscribeToChatResult =
-                new ResultWithNotification<OperationSubscribeToChatResult>(operationSubscribeToChatResult);
+            ResultWithNotification<OperationResult> subscribeToChatResult =
+                new ResultWithNotification<OperationResult>(operationSubscribeToChatResult);
 
             return subscribeToChatResult;
         }

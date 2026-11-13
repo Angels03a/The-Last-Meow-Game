@@ -18,7 +18,7 @@ namespace TLMG.Services
         {
             ILobbyManagerCallback callback = GetLobbyCallback();
 
-            LobbyOperationResultWithNotification<OperationCreateRoomResult> createRoomResult =
+            LobbyOperationResultWithNotification<OperationLobbyRoomResult> createRoomResult =
                 _lobbyService.CreateRoom(CreateLobbyCaller(sessionToken), callback);
 
             SafeNotify(() => callback.CreateRoomResult(createRoomResult.OperationResult));
@@ -29,7 +29,7 @@ namespace TLMG.Services
         {
             ILobbyManagerCallback callback = GetLobbyCallback();
 
-            LobbyOperationResultWithNotification<OperationEnterLobbyResult> enterLobbyResult =
+            LobbyOperationResultWithNotification<OperationLobbyRoomResult> enterLobbyResult =
                 _lobbyService.EnterLobby(CreateLobbyCaller(sessionToken), roomId, callback);
 
             SafeNotify(() => callback.EnterLobbyResult(enterLobbyResult.OperationResult));
@@ -40,7 +40,7 @@ namespace TLMG.Services
         {
             ILobbyManagerCallback callback = GetLobbyCallback();
 
-            LobbyOperationResultWithNotification<OperationLeaveLobbyResult> leaveLobbyResult =
+            LobbyOperationResultWithNotification<OperationResult> leaveLobbyResult =
                 _lobbyService.LeaveLobby(sessionToken);
 
             SafeNotify(() => callback.LeaveLobbyResult(leaveLobbyResult.OperationResult));
@@ -53,7 +53,7 @@ namespace TLMG.Services
         {
             ILobbyManagerCallback callback = GetLobbyCallback();
 
-            LobbyOperationResultWithNotification<OperationChangePlayerReadinessResult> changePlayerReadinessResult =
+            LobbyOperationResultWithNotification<OperationLobbyRoomResult> changePlayerReadinessResult =
                 _lobbyService.ChangePlayerReadiness(CreateLobbyCaller(sessionToken), changePlayerReadinessRequest);
 
             SafeNotify(() => callback.ChangePlayerReadinessResult(changePlayerReadinessResult.OperationResult));
@@ -77,7 +77,7 @@ namespace TLMG.Services
         {
             ILobbyManagerCallback callback = GetLobbyCallback();
 
-            LobbyOperationResultWithNotification<OperationChangeCardsPerPlayerResult>
+            LobbyOperationResultWithNotification<OperationLobbyRoomResult>
                 changeCardsPerPlayerResult = _lobbyService.ChangeCardsPerPlayer(
                     CreateLobbyCaller(sessionToken), changeCardsPerPlayerRequest);
 

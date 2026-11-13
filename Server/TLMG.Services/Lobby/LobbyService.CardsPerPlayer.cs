@@ -9,19 +9,12 @@ namespace TLMG.Services.Lobby
 {
     public partial class LobbyService
     {
-        /// <summary>
-        /// Cambia las cartas por jugador de la sala: valida el valor, delega la regla atómica en el registro y arma
-        /// el resultado y los avisos para los demás jugadores, que quien llama envía fuera de cualquier candado.
-        /// </summary>
-        /// <param name="caller">Token de sesión y canal de lobby del jugador.</param>
-        /// <param name="operationChangeCardsPerPlayerRequest">Sala y cantidad deseada; null se rechaza sin revelar la sala.</param>
-        /// <returns>El resultado con la sala o la clave de error y los avisos para los demás jugadores.</returns>
-        public LobbyOperationResultWithNotification<OperationChangeCardsPerPlayerResult> ChangeCardsPerPlayer(
+        public LobbyOperationResultWithNotification<OperationLobbyRoomResult> ChangeCardsPerPlayer(
             LobbyCaller caller,
             OperationChangeCardsPerPlayerRequest operationChangeCardsPerPlayerRequest)
         {
-            OperationChangeCardsPerPlayerResult operationChangeCardsPerPlayerResult =
-                new OperationChangeCardsPerPlayerResult();
+            OperationLobbyRoomResult operationChangeCardsPerPlayerResult =
+                new OperationLobbyRoomResult();
             IReadOnlyList<LobbyChangeNotification> lobbyChangeNotifications = LobbyChangeNotification.None;
 
             string validationErrorKey = ValidateCardsPerPlayerRequest(operationChangeCardsPerPlayerRequest);
@@ -41,8 +34,8 @@ namespace TLMG.Services.Lobby
                 operationChangeCardsPerPlayerResult.ErrorKey = validationErrorKey;
             }
 
-            LobbyOperationResultWithNotification<OperationChangeCardsPerPlayerResult> changeCardsPerPlayerResult =
-                new LobbyOperationResultWithNotification<OperationChangeCardsPerPlayerResult>(
+            LobbyOperationResultWithNotification<OperationLobbyRoomResult> changeCardsPerPlayerResult =
+                new LobbyOperationResultWithNotification<OperationLobbyRoomResult>(
                     operationChangeCardsPerPlayerResult,
                     lobbyChangeNotifications);
 
@@ -74,12 +67,12 @@ namespace TLMG.Services.Lobby
             return errorKey;
         }
 
-        private static OperationChangeCardsPerPlayerResult CreateChangeCardsPerPlayerResult(
+        private static OperationLobbyRoomResult CreateChangeCardsPerPlayerResult(
             LobbyMembershipChange lobbyMembershipChange,
             OperationChangeCardsPerPlayerRequest operationChangeCardsPlayerRequest)
         {
-            OperationChangeCardsPerPlayerResult operationChangeCardsPerPlayerResult =
-                new OperationChangeCardsPerPlayerResult();
+            OperationLobbyRoomResult operationChangeCardsPerPlayerResult =
+                new OperationLobbyRoomResult();
             ApplyOutcome(operationChangeCardsPerPlayerResult, lobbyMembershipChange);
 
             if (operationChangeCardsPerPlayerResult.IsSuccess)

@@ -16,7 +16,7 @@ namespace TLMG.Services
         {
             IChatManagerCallback callback = GetChatCallback();
 
-            ResultWithNotification<OperationSubscribeToChatResult> subscribeToChatResultWithNotification =
+            ResultWithNotification<OperationResult> subscribeToChatResultWithNotification =
                 _chatService.SubscribeToChat(CreateChatCaller(sessionToken), callback);
 
             SafeNotify(() =>

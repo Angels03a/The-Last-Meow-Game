@@ -21,11 +21,11 @@ namespace TLMG.Services.Accounts
             _passwordHasher = passwordHasher;
         }
 
-        public OperationRegisterPlayerAccountResult RegisterPlayerAccount(PlayerAccountRegistration 
+        public OperationResult RegisterPlayerAccount(PlayerAccountRegistration 
             playerAccountRegistration)
         {
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult = 
-                new OperationRegisterPlayerAccountResult();
+            OperationResult operationRegisterPlayerAccountResult = 
+                new OperationResult();
             string validationErrorKey = ValidateRegisterPlayerAccountRequest(playerAccountRegistration, 
                 out PlayerRegistration playerRegistration);
 
@@ -67,10 +67,10 @@ namespace TLMG.Services.Accounts
             return errorKey;
         }
 
-        private OperationRegisterPlayerAccountResult CreateAccount(PlayerRegistration playerRegistration)
+        private OperationResult CreateAccount(PlayerRegistration playerRegistration)
         {
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult = 
-                new OperationRegisterPlayerAccountResult();
+            OperationResult operationRegisterPlayerAccountResult = 
+                new OperationResult();
 
             string nickname = playerRegistration.Nickname;
             string email = playerRegistration.Email.ToLowerInvariant();

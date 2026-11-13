@@ -8,7 +8,7 @@ namespace TLMG.Services.Lobby
         private const int LobbyStartCheckRetrySeconds = 1;
         private const int ZeroCount = 0;
 
-        public LobbyOperationResultWithNotification<OperationChangePlayerReadinessResult> ChangePlayerReadiness(
+        public LobbyOperationResultWithNotification<OperationLobbyRoomResult> ChangePlayerReadiness(
             LobbyCaller caller,
             OperationChangePlayerReadinessRequest lobbyRequest)
         {
@@ -26,8 +26,8 @@ namespace TLMG.Services.Lobby
                     _sessionRegistry.ChangePlayerReadiness(caller, requestedRoomId, lobbyRequest.IsReady);
             }
 
-            OperationChangePlayerReadinessResult operationChangePlayerReadinessResult =
-                new OperationChangePlayerReadinessResult();
+            OperationLobbyRoomResult operationChangePlayerReadinessResult =
+                new OperationLobbyRoomResult();
             ApplyOutcome(operationChangePlayerReadinessResult, lobbyMembershipChange);
             operationChangePlayerReadinessResult.Room = ConvertRoomOrNull(lobbyMembershipChange);
 
@@ -36,8 +36,8 @@ namespace TLMG.Services.Lobby
                 LogRejectedOperation("cambiar el estado Listo", lobbyMembershipChange, requestedRoomId);
             }
 
-            LobbyOperationResultWithNotification<OperationChangePlayerReadinessResult> changePlayerReadinessResult =
-                new LobbyOperationResultWithNotification<OperationChangePlayerReadinessResult>(
+            LobbyOperationResultWithNotification<OperationLobbyRoomResult> changePlayerReadinessResult =
+                new LobbyOperationResultWithNotification<OperationLobbyRoomResult>(
                     operationChangePlayerReadinessResult,
                     CreateNotifications(lobbyMembershipChange));
 

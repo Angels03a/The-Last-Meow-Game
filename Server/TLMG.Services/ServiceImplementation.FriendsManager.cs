@@ -31,7 +31,7 @@ namespace TLMG.Services
             IFriendsManagerCallback callback = 
                 OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
 
-            ResultWithNotification<OperationInviteFriendToRoomResult> inviteFriendToRoomResultWithNotification =
+            ResultWithNotification<OperationResult> inviteFriendToRoomResultWithNotification =
                 _friendsService.InviteFriendToRoom(sessionToken, friendUserId);
 
             SafeNotify(() => 

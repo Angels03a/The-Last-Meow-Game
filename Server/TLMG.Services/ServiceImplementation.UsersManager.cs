@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ServiceModel;
-using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using TLMG.Contracts;
 using TLMG.Domain.Constants;
 using TLMG.Services.Sessions;
 
@@ -9,10 +9,10 @@ namespace TLMG.Services
 {
     public partial class ServiceImplementation : IUsersManager
     {
-        public OperationRegisterPlayerAccountResult RegisterPlayerAccount(PlayerAccountRegistration 
+        public OperationResult RegisterPlayerAccount(PlayerAccountRegistration 
             registrationPlayerAccount)
         {
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult;
+            OperationResult operationRegisterPlayerAccountResult;
 
             try
             {
