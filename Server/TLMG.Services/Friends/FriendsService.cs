@@ -11,11 +11,6 @@ using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Friends
 {
-    /// <summary>
-    /// Lógica de la lista de amigos y las invitaciones a sala: consulta la amistad en la base de datos fuera de
-    /// cualquier candado, delega en el registro de sesiones la parte atómica y arma las respuestas y los avisos; no
-    /// conoce WCF y nunca notifica, eso lo hace quien la llama.
-    /// </summary>
     public class FriendsService
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(FriendsService));
@@ -35,23 +30,12 @@ namespace TLMG.Services.Friends
         private IFriendshipRepository _friendshipRepository;
         private ISessionRegistry _sessionRegistry;
 
-        /// <summary>Crea el servicio de amigos con su repositorio y el registro compartido de sesiones.</summary>
-        /// <param name="friendshipRepository">Repositorio de amistades.</param>
-        /// <param name="sessionRegistry">Registro de sesiones, salas, canales de amigos e invitaciones.</param>
         public FriendsService(IFriendshipRepository friendshipRepository, ISessionRegistry sessionRegistry)
         {
             _friendshipRepository = friendshipRepository;
             _sessionRegistry = sessionRegistry;
         }
 
-        /// <summary>
-        /// Registra el canal de amigos de la sesión, lo que deja al jugador en línea, y devuelve sus amigos aceptados
-        /// indicando cuáles están en línea.
-        /// </summary>
-        /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
-        /// <param name="channelId">Identificador del canal de amigos desde el que llama el jugador.</param>
-        /// <param name="friendsCallback">Callback del canal de amigos del jugador.</param>
-        /// <returns>El resultado con los amigos o la clave de error.</returns>
         public ResultWithNotification<OperationSubscribeToFriendsResult> SubscribeToFriends(string sessionToken,
             string channelId,IFriendsManagerCallback friendsCallback)
         {
@@ -73,10 +57,6 @@ namespace TLMG.Services.Friends
             return subscribeToFriendsResult;
         }
 
-        /// <summary>Invita a un amigo en línea a la sala del jugador de la sesión.</summary>
-        /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
-        /// <param name="friendUserId">Id de la cuenta del amigo al que se invita.</param>
-        /// <returns>El resultado para quien invita y el aviso de invitación para el invitado.</returns>
         public ResultWithNotification<OperationInviteFriendToRoomResult> InviteFriendToRoom(string sessionToken, 
             int friendUserId)
         {
@@ -115,12 +95,6 @@ namespace TLMG.Services.Friends
             return inviteFriendToRoomResult;
         }
 
-        /// <summary>
-        /// Acepta una invitación del jugador de la sesión y lo autoriza a entrar a la sala; no lo mete en ella.
-        /// </summary>
-        /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
-        /// <param name="invitationId">Id de la invitación recibida.</param>
-        /// <returns>El resultado con el id de la sala o la clave de error.</returns>
         public ResultWithNotification<OperationAcceptRoomInvitationResult> AcceptRoomInvitation(string sessionToken, 
             int invitationId)
         {
@@ -153,49 +127,28 @@ namespace TLMG.Services.Friends
             return acceptRoomInvitationResult;
         }
 
-        /// <summary>
-        /// Solicita amistad al jugador con ese nickname: valida el nickname y la sesión de registrado, aplica las
-        /// reglas de pareja (solicitud cruzada se acepta sola, rechazada se reactiva) y prepara los avisos que quien
-        /// llama envía fuera de cualquier candado. Un error inesperado se registra y responde Common_UnexpectedError.
-        /// </summary>
-        /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
-        /// <param name="friendNickname">Nickname buscado.</param>
-        /// <returns>El resultado y los avisos para el receptor o para los dos jugadores.</returns>
         public ResultWithNotification<OperationSendFriendRequestResult> SendFriendRequest(
             string sessionToken,
             string friendNickname)
         {
             OperationSendFriendRequestResult operationSendFriendRequestResult =
-                new OperationSendFriendRequestResult();
+            new OperationSendFriendRequestResult();
+
             IReadOnlyList<Action> friendRequestNotifications = _noNotifications;
 
-            try
-            {
-                string normalizedNickname;
-                PlayerSession playerSession;
-                string errorKey = FindSendRequestErrorKey(
-                    sessionToken, friendNickname, out normalizedNickname, out playerSession);
+            string normalizedNickname;
+            PlayerSession playerSession;
+            string errorKey = FindSendRequestErrorKey(
+                sessionToken, friendNickname, out normalizedNickname, out playerSession);
 
-                if (errorKey == null)
-                {
-                    friendRequestNotifications = ApplySendFriendRequest(
-                        playerSession, normalizedNickname, operationSendFriendRequestResult);
-                }
-                else
-                {
-                    operationSendFriendRequestResult.ErrorKey = errorKey;
-                }
-            }
-            catch (OutOfMemoryException)
+            if (errorKey == null)
             {
-                throw;
+                friendRequestNotifications = ApplySendFriendRequest(
+                    playerSession, normalizedNickname, operationSendFriendRequestResult);
             }
-            catch (Exception exception)
+            else
             {
-                _log.Error("Error inesperado al enviar una solicitud de amistad.", exception);
-                operationSendFriendRequestResult =
-                    new OperationSendFriendRequestResult { ErrorKey = ErrorKeys.Common.Unexpected };
-                friendRequestNotifications = _noNotifications;
+                operationSendFriendRequestResult.ErrorKey = errorKey;
             }
 
             ResultWithNotification<OperationSendFriendRequestResult> sendFriendRequestResult =
@@ -206,13 +159,6 @@ namespace TLMG.Services.Friends
             return sendFriendRequestResult;
         }
 
-        /// <summary>
-        /// Acepta una solicitud de amistad: la identidad sale de la sesión, solo el receptor de una solicitud
-        /// pendiente puede aceptarla y los dos jugadores en línea reciben OnFriendAdded.
-        /// </summary>
-        /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
-        /// <param name="friendRequestId">Identificador de la solicitud recibida.</param>
-        /// <returns>El resultado con el amigo nuevo o la clave de error, y los avisos.</returns>
         public ResultWithNotification<OperationAcceptFriendRequestResult> AcceptFriendRequest(
             string sessionToken,
             int friendRequestId)
@@ -221,30 +167,16 @@ namespace TLMG.Services.Friends
                 new OperationAcceptFriendRequestResult();
             IReadOnlyList<Action> friendRequestNotifications = _noNotifications;
 
-            try
-            {
-                FriendRequestAnswer friendRequestAnswer =
-                    AnswerFriendRequest(sessionToken, friendRequestId, FriendshipState.Accepted);
-                operationAcceptFriendRequestResult.ErrorKey = friendRequestAnswer.ErrorKey;
+            FriendRequestAnswer friendRequestAnswer =
+                AnswerFriendRequest(sessionToken, friendRequestId, FriendshipState.Accepted);
+            operationAcceptFriendRequestResult.ErrorKey = friendRequestAnswer.ErrorKey;
 
-                if (friendRequestAnswer.ErrorKey == null)
-                {
-                    operationAcceptFriendRequestResult.IsSuccess = true;
-                    operationAcceptFriendRequestResult.FriendRequestId = friendRequestId;
-                    operationAcceptFriendRequestResult.NewFriend = friendRequestAnswer.NewFriend;
-                    friendRequestNotifications = friendRequestAnswer.Notifications;
-                }
-            }
-            catch (OutOfMemoryException)
+            if (friendRequestAnswer.ErrorKey == null)
             {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _log.Error("Error inesperado al aceptar una solicitud de amistad.", exception);
-                operationAcceptFriendRequestResult =
-                    new OperationAcceptFriendRequestResult { ErrorKey = ErrorKeys.Common.Unexpected };
-                friendRequestNotifications = _noNotifications;
+                operationAcceptFriendRequestResult.IsSuccess = true;
+                operationAcceptFriendRequestResult.FriendRequestId = friendRequestId;
+                operationAcceptFriendRequestResult.NewFriend = friendRequestAnswer.NewFriend;
+                friendRequestNotifications = friendRequestAnswer.Notifications;
             }
 
             ResultWithNotification<OperationAcceptFriendRequestResult> acceptFriendRequestResult =
@@ -255,13 +187,6 @@ namespace TLMG.Services.Friends
             return acceptFriendRequestResult;
         }
 
-        /// <summary>
-        /// Rechaza una solicitud de amistad: la identidad sale de la sesión y solo el receptor de una solicitud
-        /// pendiente puede rechazarla. Rechazar no se avisa a quien la envió.
-        /// </summary>
-        /// <param name="sessionToken">Token de la sesión recibido del cliente.</param>
-        /// <param name="friendRequestId">Identificador de la solicitud recibida.</param>
-        /// <returns>El resultado con el id rechazado o la clave de error; sin avisos.</returns>
         public ResultWithNotification<OperationDeclineFriendRequestResult> DeclineFriendRequest(
             string sessionToken,
             int friendRequestId)
@@ -269,27 +194,14 @@ namespace TLMG.Services.Friends
             OperationDeclineFriendRequestResult operationDeclineFriendRequestResult =
                 new OperationDeclineFriendRequestResult();
 
-            try
-            {
-                FriendRequestAnswer friendRequestAnswer =
-                    AnswerFriendRequest(sessionToken, friendRequestId, FriendshipState.Rejected);
-                operationDeclineFriendRequestResult.ErrorKey = friendRequestAnswer.ErrorKey;
+            FriendRequestAnswer friendRequestAnswer =
+                AnswerFriendRequest(sessionToken, friendRequestId, FriendshipState.Rejected);
+            operationDeclineFriendRequestResult.ErrorKey = friendRequestAnswer.ErrorKey;
 
-                if (friendRequestAnswer.ErrorKey == null)
-                {
-                    operationDeclineFriendRequestResult.IsSuccess = true;
-                    operationDeclineFriendRequestResult.FriendRequestId = friendRequestId;
-                }
-            }
-            catch (OutOfMemoryException)
+            if (friendRequestAnswer.ErrorKey == null)
             {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                _log.Error("Error inesperado al rechazar una solicitud de amistad.", exception);
-                operationDeclineFriendRequestResult =
-                    new OperationDeclineFriendRequestResult { ErrorKey = ErrorKeys.Common.Unexpected };
+                operationDeclineFriendRequestResult.IsSuccess = true;
+                operationDeclineFriendRequestResult.FriendRequestId = friendRequestId;
             }
 
             ResultWithNotification<OperationDeclineFriendRequestResult> declineFriendRequestResult =
@@ -298,12 +210,6 @@ namespace TLMG.Services.Friends
             return declineFriendRequestResult;
         }
 
-        /// <summary>
-        /// Termina la sesión del jugador cuyo canal de amigos se cerró o falló: sale de su sala, pierde sus
-        /// invitaciones y su callback, y se avisa a su sala y a sus amigos en línea.
-        /// </summary>
-        /// <param name="channelId">Identificador del canal de amigos que terminó.</param>
-        /// <returns>Los avisos para los demás jugadores; vacía si el canal ya no era el de ninguna sesión.</returns>
         public IReadOnlyList<Action> EndSessionByFriendsChannel(string channelId)
         {
             SessionEnd sessionEnd;

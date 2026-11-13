@@ -10,9 +10,6 @@ using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Accounts
 {
-    /// <summary>
-    /// Lógica del inicio de sesión; no conoce WCF.
-    /// </summary>
     public class PlayerLogInService
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerLogInService));

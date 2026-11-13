@@ -14,25 +14,25 @@ namespace TLMG.Services.Lobby
         /// el resultado y los avisos para los demás jugadores, que quien llama envía fuera de cualquier candado.
         /// </summary>
         /// <param name="caller">Token de sesión y canal de lobby del jugador.</param>
-        /// <param name="request">Sala y cantidad deseada; null se rechaza sin revelar la sala.</param>
+        /// <param name="operationChangeCardsPerPlayerRequest">Sala y cantidad deseada; null se rechaza sin revelar la sala.</param>
         /// <returns>El resultado con la sala o la clave de error y los avisos para los demás jugadores.</returns>
         public LobbyOperationResultWithNotification<OperationChangeCardsPerPlayerResult> ChangeCardsPerPlayer(
             LobbyCaller caller,
-            OperationChangeCardsPerPlayerRequest request)
+            OperationChangeCardsPerPlayerRequest operationChangeCardsPerPlayerRequest)
         {
             OperationChangeCardsPerPlayerResult operationChangeCardsPerPlayerResult =
                 new OperationChangeCardsPerPlayerResult();
             IReadOnlyList<LobbyChangeNotification> lobbyChangeNotifications = LobbyChangeNotification.None;
 
-            string validationErrorKey = ValidateCardsPerPlayerRequest(request);
+            string validationErrorKey = ValidateCardsPerPlayerRequest(operationChangeCardsPerPlayerRequest);
 
             if (validationErrorKey == null)
             {
                 LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.ChangeCardsPerPlayer(
-                    caller, request.RoomId, request.CardsPerPlayerCount);
+                    caller, operationChangeCardsPerPlayerRequest.RoomId, operationChangeCardsPerPlayerRequest.CardsPerPlayerCount);
 
                 operationChangeCardsPerPlayerResult = CreateChangeCardsPerPlayerResult(
-                    lobbyMembershipChange, request);
+                    lobbyMembershipChange, operationChangeCardsPerPlayerRequest);
 
                 lobbyChangeNotifications = CreateNotifications(lobbyMembershipChange);
             }
@@ -49,25 +49,25 @@ namespace TLMG.Services.Lobby
             return changeCardsPerPlayerResult;
         }
 
-        private static string ValidateCardsPerPlayerRequest(OperationChangeCardsPerPlayerRequest request)
+        private static string ValidateCardsPerPlayerRequest(OperationChangeCardsPerPlayerRequest operationChangeCardsPerPlayerRequest)
         {
             string errorKey;
 
-            if (request == null)
+            if (operationChangeCardsPerPlayerRequest == null)
             {
                 errorKey = ErrorKeys.Common.InvalidSession;
                 _log.Warn("Se rechazó cambiar las cartas por jugador: la petición llegó vacía.");
             }
             else
             {
-                errorKey = CardsPerPlayerValidator.ValidateCardsPerPlayerCount(request.CardsPerPlayerCount);
+                errorKey = CardsPerPlayerValidator.ValidateCardsPerPlayerCount(operationChangeCardsPerPlayerRequest.CardsPerPlayerCount);
 
                 if (errorKey != null)
                 {
                     _log.WarnFormat(
                         "Se rechazó cambiar las cartas por jugador de la sala {0}: el valor {1} no es válido.",
-                        request.RoomId,
-                        request.CardsPerPlayerCount);
+                        operationChangeCardsPerPlayerRequest.RoomId,
+                        operationChangeCardsPerPlayerRequest.CardsPerPlayerCount);
                 }
             }
 
@@ -76,7 +76,7 @@ namespace TLMG.Services.Lobby
 
         private static OperationChangeCardsPerPlayerResult CreateChangeCardsPerPlayerResult(
             LobbyMembershipChange lobbyMembershipChange,
-            OperationChangeCardsPerPlayerRequest request)
+            OperationChangeCardsPerPlayerRequest operationChangeCardsPlayerRequest)
         {
             OperationChangeCardsPerPlayerResult operationChangeCardsPerPlayerResult =
                 new OperationChangeCardsPerPlayerResult();
@@ -87,12 +87,12 @@ namespace TLMG.Services.Lobby
                 _log.InfoFormat(
                     "El jugador {0} cambió las cartas por jugador de la sala {1} a {2}.",
                     lobbyMembershipChange.UserId,
-                    request.RoomId,
-                    request.CardsPerPlayerCount);
+                    operationChangeCardsPlayerRequest.RoomId,
+                    operationChangeCardsPlayerRequest.CardsPerPlayerCount);
             }
             else
             {
-                LogRejectedOperation("cambiar las cartas por jugador", lobbyMembershipChange, request.RoomId);
+                LogRejectedOperation("cambiar las cartas por jugador", lobbyMembershipChange, operationChangeCardsPlayerRequest.RoomId);
             }
 
             operationChangeCardsPerPlayerResult.Room = ConvertRoomOrNull(lobbyMembershipChange);

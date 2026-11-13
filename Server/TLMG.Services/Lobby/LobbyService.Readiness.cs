@@ -8,10 +8,6 @@ namespace TLMG.Services.Lobby
         private const int LobbyStartCheckRetrySeconds = 1;
         private const int ZeroCount = 0;
 
-        /// <summary>Cambia el estado Listo y prepara el resultado y los avisos fuera del candado.</summary>
-        /// <param name="caller">Token de sesión y canal de lobby del jugador.</param>
-        /// <param name="lobbyRequest">Sala y estado deseado; null se rechaza.</param>
-        /// <returns>Resultado de la petición y avisos de estado.</returns>
         public LobbyOperationResultWithNotification<OperationChangePlayerReadinessResult> ChangePlayerReadiness(
             LobbyCaller caller,
             OperationChangePlayerReadinessRequest lobbyRequest)
@@ -48,12 +44,6 @@ namespace TLMG.Services.Lobby
             return changePlayerReadinessResult;
         }
 
-        /// <summary>
-        /// Valida el inicio con el reloj del registro; una consulta anticipada solo indica reintento.
-        /// </summary>
-        /// <param name="caller">Token de sesión y canal de lobby del jugador.</param>
-        /// <param name="matchStartRequest">Sala y generación de cuenta observada; null se rechaza.</param>
-        /// <returns>Estado actual, reintento si hay cuenta y avisos si se autorizó la partida.</returns>
         public LobbyOperationResultWithNotification<OperationRequestMatchStartResult> RequestMatchStart(
             LobbyCaller caller,
             OperationMatchStartRequest matchStartRequest)

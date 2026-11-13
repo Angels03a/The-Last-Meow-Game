@@ -7,18 +7,8 @@ using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Helpers
 {
-    /// <summary>
-    /// Arma los avisos de presencia y de salida de sala que siguen a un cambio de sesión; no guarda estado ni
-    /// notifica: devuelve invocaciones listas para que quien las recibe las entregue fuera de cualquier candado.
-    /// </summary>
     public static class SessionNotificationHelper
     {
-        /// <summary>Arma el aviso de presencia de un jugador para cada amigo en línea.</summary>
-        /// <param name="recipientCallbacks">Callbacks de los amigos en línea a quienes avisar.</param>
-        /// <param name="userId">Id de la cuenta del jugador cuya presencia cambió.</param>
-        /// <param name="nickname">Nickname del jugador.</param>
-        /// <param name="isOnline">true si el jugador pasó a estar en línea; false si dejó de estarlo.</param>
-        /// <returns>Una invocación por amigo; vacía si no hay a quién avisar. Nunca es null.</returns>
         public static IReadOnlyList<Action> CreatePresenceNotifications(
             IReadOnlyList<IFriendsManagerCallback> recipientCallbacks,
             int userId,
@@ -38,9 +28,6 @@ namespace TLMG.Services.Helpers
             return readOnlyNotifications;
         }
 
-        /// <summary>Arma los avisos que siguen a terminar una sesión: la sala que deja y su presencia.</summary>
-        /// <param name="sessionEnd">Lo que devolvió el registro al terminar la sesión; puede ser null.</param>
-        /// <returns>Las invocaciones para los demás jugadores; vacía si sessionEnd es null. Nunca es null.</returns>
         public static IReadOnlyList<Action> CreateSessionEndNotifications(SessionEnd sessionEnd)
         {
             List<Action> notifications = new List<Action>();

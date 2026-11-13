@@ -8,9 +8,6 @@ using TLMG.Domain.Validators;
 
 namespace TLMG.Services.Accounts
 {
-    /// <summary>
-    /// Lógica del registro de cuentas; orquesta validadores del dominio y persistencia.
-    /// </summary>
     public class PlayerAccountRegistrationService
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerAccountRegistrationService));

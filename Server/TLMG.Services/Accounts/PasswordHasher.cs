@@ -5,9 +5,6 @@ using log4net;
 
 namespace TLMG.Services.Accounts
 {
-    /// <summary>
-    /// Hash SHA-256 con sal aleatoria por contraseña, guardado como v1$sal$hash (D-44).
-    /// </summary>
     public class PasswordHasher : IPasswordHasher
     {
         private const string FormatVersion = "v1";

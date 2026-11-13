@@ -5,9 +5,6 @@ using TLMG.Domain.Repositories;
 
 namespace TLMG.Services.Leaderboard
 {
-    /// <summary>
-    /// Lógica de la tabla de posiciones; no conoce WCF.
-    /// </summary>
     public class LeaderboardService
     {
         private const int MaximumLeaderboardPlayerCount = 100;
@@ -15,15 +12,11 @@ namespace TLMG.Services.Leaderboard
 
         private IPlayerRepository _playerRepository;
 
-        /// <summary>Crea el servicio de la tabla de posiciones con su repositorio.</summary>
-        /// <param name="playerRepository">Repositorio de cuentas.</param>
         public LeaderboardService(IPlayerRepository playerRepository)
         {
             _playerRepository = playerRepository;
         }
 
-        /// <summary>Obtiene los mejores jugadores activos, ordenados por puntos.</summary>
-        /// <returns>Resultado con los jugadores o, si falla, la clave de error.</returns>
         public OperationGetLeaderboardResult GetLeaderboard()
         {
             OperationGetLeaderboardResult operationGetLeaderboardResult = 
