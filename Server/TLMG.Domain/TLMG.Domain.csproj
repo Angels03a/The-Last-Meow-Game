@@ -48,6 +48,9 @@
     <Compile Include="Entities\PlayerRegistration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AcceptedFriend.cs" />
+    <Compile Include="Repositories\ChatMessageRecord.cs" />
+    <Compile Include="Repositories\ChatMessageSaveStatus.cs" />
+    <Compile Include="Repositories\ChatMessageScope.cs" />
     <Compile Include="Repositories\CredentialsLookupStatus.cs" />
     <Compile Include="Repositories\FriendCandidateLookup.cs" />
     <Compile Include="Repositories\FriendListLookup.cs" />
@@ -58,6 +61,7 @@
     <Compile Include="Repositories\FriendshipState.cs" />
     <Compile Include="Repositories\FriendshipWriteResult.cs" />
     <Compile Include="Repositories\FriendshipWriteStatus.cs" />
+    <Compile Include="Repositories\IChatMessageRepository.cs" />
     <Compile Include="Repositories\IFriendshipRepository.cs" />
     <Compile Include="Repositories\IPlayerRepository.cs" />
     <Compile Include="Repositories\LeaderboardLookup.cs" />
