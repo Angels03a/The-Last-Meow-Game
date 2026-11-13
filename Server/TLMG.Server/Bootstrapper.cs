@@ -30,7 +30,7 @@ namespace TLMG.Server
             PlayerLogInService logInService =
                 new PlayerLogInService(playerRepository, passwordHasher, sessionRegistry);
 
-            ChatService chatService = new ChatService(sessionRegistry);
+            ChatService chatService = new ChatService(sessionRegistry, new ChatMessageRepository());
 
             FriendsService friendsService =
                 new FriendsService(friendshipRepository, sessionRegistry);

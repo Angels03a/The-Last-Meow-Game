@@ -5,29 +5,28 @@ using log4net;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Repositories;
 using TLMG.Domain.Validators;
 using TLMG.Services.Sessions;
 
-namespace TLMG.Services.Chat
-{
-    /// <summary>Valida mensajes y prepara entregas fuera del candado; no guarda historial.</summary>
+namespace TLMG.Services.Chat { 
+
     public sealed class ChatService
     {
+        // TODO: Persist the game (R-12), so that messages are saved in the appropriate scope.
+        private const ChatMessageScope PersistedChatScope = ChatMessageScope.Lobby;
+
         private static readonly ILog _log = LogManager.GetLogger(typeof(ChatService));
 
         private ISessionRegistry _sessionRegistry;
+        private IChatMessageRepository _chatMessageRepository;
 
-        /// <summary>Crea el servicio con el registro compartido.</summary>
-        /// <param name="sessionRegistry">Registro de sesiones, salas y canales.</param>
-        public ChatService(ISessionRegistry sessionRegistry)
+        public ChatService(ISessionRegistry sessionRegistry, IChatMessageRepository chatMessageRepository)
         {
             _sessionRegistry = sessionRegistry;
+            _chatMessageRepository = chatMessageRepository;
         }
 
-        /// <summary>Suscribe el canal del jugador a su sala actual.</summary>
-        /// <param name="caller">Token de sesión y canal de chat.</param>
-        /// <param name="callback">Callback de este canal.</param>
-        /// <returns>Éxito o clave de rechazo, sin datos de otras salas.</returns>
         public ResultWithNotification<OperationSubscribeToChatResult> SubscribeToChat(
             LobbyCaller caller,
             IChatManagerCallback callback)
@@ -46,12 +45,6 @@ namespace TLMG.Services.Chat
             return subscribeToChatResult;
         }
 
-        /// <summary>
-        /// Valida y reserva el envío; el eco confirma aceptación y solo los rechazos tienen resultado.
-        /// </summary>
-        /// <param name="caller">Token vigente y canal suscrito que envía.</param>
-        /// <param name="sendChatMessageRequest">Sala, correlación y texto; puede ser null.</param>
-        /// <returns>Resultado null y entregas si se aceptó; rechazo sin entregas en otro caso.</returns>
         public ResultWithNotification<OperationSendChatMessageResult> SendChatMessage(
             LobbyCaller caller,
             OperationSendChatMessageRequest sendChatMessageRequest)
@@ -94,14 +87,12 @@ namespace TLMG.Services.Chat
             else
             {
                 sendChatMessageResult = new ResultWithNotification<OperationSendChatMessageResult>(
-                    null, CreateChatNotifications(chatDelivery));
+                    null, CreateChatActions(chatDelivery));
             }
 
             return sendChatMessageResult;
         }
 
-        /// <summary>Registra solo la clave del rechazo, nunca token ni texto.</summary>
-        /// <param name="errorKey">Clave conocida, o null si no hay rechazo.</param>
         private static void LogChatRejection(string errorKey)
         {
             if (errorKey != null)
@@ -110,12 +101,20 @@ namespace TLMG.Services.Chat
             }
         }
 
-        /// <summary>Prepara una captura independiente por destinatario fuera de _sessionsLock.</summary>
-        /// <param name="chatDelivery">Copia del envío aceptado.</param>
-        /// <returns>Entregas que incluyen el eco al emisor.</returns>
-        private static IReadOnlyList<Action> CreateChatNotifications(ChatDelivery chatDelivery)
+        private IReadOnlyList<Action> CreateChatActions(ChatDelivery chatDelivery)
         {
-            // TODO: Conservar el chat durante 24 horas mediante persistencia. (BL-106).
+            List<Action> chatActions = CreateDeliveryNotifications(chatDelivery);
+            ChatMessageRecord chatMessageRecord = CreateChatMessageRecord(chatDelivery);
+
+            chatActions.Add(() => SaveChatMessage(chatMessageRecord));
+
+            IReadOnlyList<Action> readOnlyChatActions = chatActions.AsReadOnly();
+
+            return readOnlyChatActions;
+        }
+
+        private static List<Action> CreateDeliveryNotifications(ChatDelivery chatDelivery)
+        {
             List<Action> notifications = new List<Action>();
 
             foreach (IChatManagerCallback recipient in chatDelivery.Recipients)
@@ -132,9 +131,34 @@ namespace TLMG.Services.Chat
                 notifications.Add(() => recipient.OnChatMessageReceived(chatMessage));
             }
 
-            IReadOnlyList<Action> readOnlyNotifications = notifications.AsReadOnly();
+            return notifications;
+        }
 
-            return readOnlyNotifications;
+        private static ChatMessageRecord CreateChatMessageRecord(ChatDelivery chatDelivery)
+        {
+            ChatMessageRecord chatMessageRecord = new ChatMessageRecord
+            {
+                UserId = chatDelivery.Sender.UserId,
+                Scope = PersistedChatScope,
+                RoomNumber = chatDelivery.RoomId,
+                Text = chatDelivery.Text,
+                SentAtUtc = chatDelivery.SentAtUtc
+            };
+
+            return chatMessageRecord;
+        }
+
+        private void SaveChatMessage(ChatMessageRecord chatMessageRecord)
+        {
+            ChatMessageSaveStatus chatMessageSaveStatus = _chatMessageRepository.SaveChatMessage(chatMessageRecord);
+
+            if (chatMessageSaveStatus != ChatMessageSaveStatus.Saved)
+            {
+                _log.WarnFormat(
+                    "No se conservó un mensaje de chat del jugador {0}: {1}.",
+                    chatMessageRecord.UserId,
+                    chatMessageSaveStatus);
+            }
         }
     }
 }
