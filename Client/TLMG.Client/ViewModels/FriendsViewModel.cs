@@ -339,7 +339,7 @@ namespace TLMG.Client.ViewModels
 
         private void OnInviteFriendResultReceived(
             object sender,
-            ServerEventArgs<OperationInviteFriendToRoomResult> eventArgs)
+            ServerEventArgs<OperationResult> eventArgs)
         {
             if (eventArgs.Payload.IsSuccess)
             {

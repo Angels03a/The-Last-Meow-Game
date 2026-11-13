@@ -1,5 +1,4 @@
 using System;
-
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
@@ -7,7 +6,7 @@ namespace TLMG.Client.Communication
     internal sealed partial class ServerConnectionManager
     {
         /// <summary>Entrega el resultado de pedir un cambio de preparación.</summary>
-        public event EventHandler<ServerEventArgs<OperationChangePlayerReadinessResult>> ReadinessResultReceived;
+        public event EventHandler<ServerEventArgs<OperationLobbyRoomResult>> ReadinessResultReceived;
 
         /// <summary>Entrega el resultado de comprobar el inicio; IsSuccess no autoriza navegar.</summary>
         public event EventHandler<ServerEventArgs<OperationRequestMatchStartResult>> MatchStartResultReceived;
@@ -25,11 +24,12 @@ namespace TLMG.Client.Communication
 
             if (hasLobbyChannel)
             {
-                OperationChangePlayerReadinessRequest changePlayerReadinessRequest = new OperationChangePlayerReadinessRequest
-                {
-                    RoomId = CurrentRoom.RoomId,
-                    IsReady = isReadyToStartMatch
-                };
+                OperationChangePlayerReadinessRequest changePlayerReadinessRequest =
+                    new OperationChangePlayerReadinessRequest
+                    {
+                        RoomId = CurrentRoom.RoomId,
+                        IsReady = isReadyToStartMatch
+                    };
                 wasChangePlayerReadinessSent = TrySend(
                     () => _lobbyClient.ChangePlayerReadiness(_sessionToken, changePlayerReadinessRequest),
                     "cambiar el estado Listo");
@@ -40,14 +40,14 @@ namespace TLMG.Client.Communication
 
         /// <summary>Publica el resultado y canaliza su foto por el mismo filtro autoritativo de versiones.</summary>
         /// <param name="changePlayerReadinessResult">Resultado del servidor.</param>
-        internal void NotifyReadinessResultReceived(OperationChangePlayerReadinessResult changePlayerReadinessResult)
+        internal void NotifyReadinessResultReceived(OperationLobbyRoomResult changePlayerReadinessResult)
         {
             if (changePlayerReadinessResult != null)
             {
                 NotifyLobbyRoomChanged(changePlayerReadinessResult.Room);
                 ReadinessResultReceived?.Invoke(
                     this,
-                    new ServerEventArgs<OperationChangePlayerReadinessResult>(changePlayerReadinessResult));
+                    new ServerEventArgs<OperationLobbyRoomResult>(changePlayerReadinessResult));
             }
         }
 

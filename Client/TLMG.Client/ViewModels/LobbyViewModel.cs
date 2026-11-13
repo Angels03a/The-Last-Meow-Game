@@ -12,12 +12,6 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>
-    /// ViewModel de la pantalla de sala (lobby): sala y jugadores que entrega el servidor, estado Listo, cartas por
-    /// jugador (4, 6 u 8), cuenta regresiva, chat y navegación. No decide nada: el servidor arbitra el estado Listo,
-    /// el inicio de partida y las cartas por jugador, y el ViewModel solo pide y muestra. Escucha al servidor solo
-    /// entre Activate y Deactivate.
-    /// </summary>
     public class LobbyViewModel : ViewModelBase
     {
         private const int MaximumPlayersPerRoom = 6;
@@ -62,12 +56,6 @@ namespace TLMG.Client.ViewModels
         private bool _isCountdownVisible;
         private int _countdownSecondsRemaining;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="LobbyViewModel"/>.
-        /// </summary>
-        /// <param name="lobbyConnection">Área de sala de la conexión con el servidor.</param>
-        /// <param name="navigationManager">Administrador de navegación.</param>
-        /// <param name="dialogManager">Administrador de diálogos.</param>
         public LobbyViewModel(
             ILobbyConnection lobbyConnection,
             INavigationManager navigationManager,
@@ -87,74 +75,60 @@ namespace TLMG.Client.ViewModels
             _sendChatCommand = new RelayCommand(ExecuteSendChat, CanExecuteSendChat);
         }
 
-        /// <summary>Comando que pide confirmación y sale de la sala.</summary>
         public ICommand LeaveLobbyCommand { get; }
 
-        /// <summary>Comando que abre la lista de amigos para invitarlos a la sala.</summary>
         public ICommand InviteFriendsCommand { get; }
 
-        /// <summary>Comando que pide cambiar el estado Listo del jugador local.</summary>
         public ICommand ToggleReadyCommand => _toggleReadyCommand;
 
-        /// <summary>Comando que cancela la cuenta regresiva quitando el estado Listo del jugador local.</summary>
         public ICommand CancelCountdownCommand { get; }
 
-        /// <summary>Comando que valida y envía el mensaje de chat.</summary>
         public ICommand SendChatCommand => _sendChatCommand;
 
-        /// <summary>Jugadores de la sala.</summary>
         public ObservableCollection<LobbyPlayerEntry> Players
         {
             get { return _players; }
         }
 
-        /// <summary>Mensajes de chat recibidos.</summary>
         public ObservableCollection<ChatMessageEntry> ChatMessages
         {
             get { return _chatMessages; }
         }
 
-        /// <summary>Indica si el jugador está en una sala.</summary>
         public bool HasRoom
         {
             get { return _hasRoom; }
             private set { SetProperty(ref _hasRoom, value); }
         }
 
-        /// <summary>Identificador de la sala actual.</summary>
         public int RoomId
         {
             get { return _roomId; }
             private set { SetProperty(ref _roomId, value); }
         }
 
-        /// <summary>Número de jugadores en la sala.</summary>
         public int PlayerCount
         {
             get { return _players.Count; }
         }
 
-        /// <summary>Máximo de jugadores por sala.</summary>
         public int MaximumPlayers
         {
             get { return MaximumPlayersPerRoom; }
         }
 
-        /// <summary>Texto de la sala en el idioma activo ("Sala #n · x/y jugadores"); vacío sin sala.</summary>
         public string RoomInformation
         {
             get { return _roomInformation; }
             private set { SetProperty(ref _roomInformation, value); }
         }
 
-        /// <summary>Indica si el jugador local está en estado Listo.</summary>
         public bool IsLocalPlayerReady
         {
             get { return _isLocalPlayerReady; }
             private set { SetProperty(ref _isLocalPlayerReady, value); }
         }
 
-        /// <summary>Indica si el jugador local puede cambiar su estado Listo y las cartas por jugador.</summary>
         public bool IsReadyButtonEnabled
         {
             get { return _isReadyButtonEnabled; }
@@ -167,10 +141,6 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>
-        /// Posición elegida en la lista de cartas por jugador (0 = 4, 1 = 6, 2 = 8), o -1 sin sala. Al elegirla el
-        /// jugador se pide el cambio al servidor; el valor definitivo es el de la sala que él devuelve.
-        /// </summary>
         public int SelectedCardsPerPlayerIndex
         {
             get { return _selectedCardsPerPlayerIndex; }
@@ -184,14 +154,12 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>Texto escrito en la caja del chat.</summary>
         public string ChatInput
         {
             get { return _chatInput; }
             set { SetProperty(ref _chatInput, value); }
         }
 
-        /// <summary>Indica si el chat acepta mensajes.</summary>
         public bool IsChatEnabled
         {
             get { return _isChatEnabled; }
@@ -204,21 +172,18 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>Indica si la sesión es de invitado, que no puede usar el chat.</summary>
         public bool IsGuestSession
         {
             get { return _isGuestSession; }
             private set { SetProperty(ref _isGuestSession, value); }
         }
 
-        /// <summary>Indica si la cuenta regresiva de inicio está a la vista.</summary>
         public bool IsCountdownVisible
         {
             get { return _isCountdownVisible; }
             private set { SetProperty(ref _isCountdownVisible, value); }
         }
 
-        /// <summary>Segundos que faltan para iniciar; 0 mientras el servidor no confirma la cuenta.</summary>
         public int CountdownSecondsRemaining
         {
             get { return _countdownSecondsRemaining; }
@@ -231,16 +196,11 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>Indica si hay segundos que mostrar; si no, la pantalla muestra «Esperando al servidor».</summary>
         public bool HasCountdownSeconds
         {
             get { return _countdownSecondsRemaining > NoSecondsRemaining; }
         }
 
-        /// <summary>
-        /// Empieza a escuchar al servidor, muestra la sala, el chat y la cuenta, y crea la sala si el jugador
-        /// registrado no tiene una. La vista lo llama al cargarse.
-        /// </summary>
         public void Activate()
         {
             Deactivate();
@@ -260,7 +220,6 @@ namespace TLMG.Client.ViewModels
             ShowOrCreateRoom();
         }
 
-        /// <summary>Deja de escuchar al servidor y vacía el chat. La vista lo llama al descargarse.</summary>
         public void Deactivate()
         {
             _lobbyConnection.CreateRoomResultReceived -= OnCreateRoomResultReceived;
@@ -276,7 +235,6 @@ namespace TLMG.Client.ViewModels
             _chatMessages.Clear();
         }
 
-        /// <summary>Libera las suscripciones al servidor y al cambio de idioma.</summary>
         protected override void OnDisposed()
         {
             Deactivate();
@@ -379,7 +337,7 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        private void OnCreateRoomResultReceived(object sender, ServerEventArgs<OperationCreateRoomResult> eventArgs)
+        private void OnCreateRoomResultReceived(object sender, ServerEventArgs<OperationLobbyRoomResult> eventArgs)
         {
             if (eventArgs.Payload.IsSuccess)
             {
@@ -398,7 +356,7 @@ namespace TLMG.Client.ViewModels
 
         private void OnReadinessResultReceived(
             object sender,
-            ServerEventArgs<OperationChangePlayerReadinessResult> eventArgs)
+            ServerEventArgs<OperationLobbyRoomResult> eventArgs)
         {
             if (!eventArgs.Payload.IsSuccess)
             {
@@ -418,7 +376,7 @@ namespace TLMG.Client.ViewModels
 
         private void OnChangeCardsPerPlayerResultReceived(
             object sender,
-            ServerEventArgs<OperationChangeCardsPerPlayerResult> eventArgs)
+            ServerEventArgs<OperationLobbyRoomResult> eventArgs)
         {
             if (!eventArgs.Payload.IsSuccess)
             {

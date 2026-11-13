@@ -200,7 +200,7 @@ namespace TLMG.Client.ViewModels
                 playerAccountRegistration.Password = Password;
                 playerAccountRegistration.HasAcceptedTerms = HasAcceptedTerms;
 
-                OperationRegisterPlayerAccountResult registrationResult =
+                OperationResult registrationResult =
                     _accountsConnection.RegisterPlayerAccount(playerAccountRegistration);
 
                 if (registrationResult.IsSuccess)

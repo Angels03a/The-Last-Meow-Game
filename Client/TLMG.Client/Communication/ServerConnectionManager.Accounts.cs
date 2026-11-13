@@ -1,6 +1,5 @@
 using System;
 using System.ServiceModel;
-
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
@@ -12,16 +11,11 @@ namespace TLMG.Client.Communication
         private const string RegistrationConnectionErrorKey = "CreateAccount_NetworkError";
         private const string RegistrationUnexpectedErrorKey = "CreateAccount_DataModelError";
 
-        /// <inheritdoc />
         public void LogOut()
         {
             Disconnect();
         }
 
-        /// <inheritdoc />
-        /// <remarks>
-        /// Bloquea el hilo de la interfaz hasta que el servidor responde o vencen los tiempos del binding (BL-079).
-        /// </remarks>
         public OperationLogInResult LogIn(string email, string password)
         {
             OperationLogInRequest operationLogInRequest = new OperationLogInRequest
@@ -44,14 +38,10 @@ namespace TLMG.Client.Communication
             return operationLogInResult;
         }
 
-        /// <inheritdoc />
-        /// <remarks>
-        /// Bloquea el hilo de la interfaz hasta que el servidor responde o vencen los tiempos del binding (BL-079).
-        /// </remarks>
-        public OperationRegisterPlayerAccountResult RegisterPlayerAccount(
+        public OperationResult RegisterPlayerAccount(
             PlayerAccountRegistration playerAccountRegistration)
         {
-            OperationRegisterPlayerAccountResult operationRegisterPlayerAccountResult = SendUsersManagerRequest(
+            OperationResult operationRegisterPlayerAccountResult = SendUsersManagerRequest(
                 usersClient => usersClient.RegisterPlayerAccount(playerAccountRegistration),
                 "registrar la cuenta",
                 RegistrationConnectionErrorKey,
@@ -85,12 +75,12 @@ namespace TLMG.Client.Communication
             where ResultType : OperationResult, new()
         {
             UsersManagerClient usersClient = null;
-            ResultType result;
+            ResultType sendUsersManagerResult;
 
             try
             {
                 usersClient = new UsersManagerClient();
-                result = sendRequest(usersClient);
+                sendUsersManagerResult = sendRequest(usersClient);
             }
             catch (FaultException<SystemFault> systemFault)
             {
@@ -100,37 +90,37 @@ namespace TLMG.Client.Communication
                         requestDescription,
                         systemFault.Detail.SystemErrorMessage),
                     systemFault);
-                result = CreateFailedResult<ResultType>(unexpectedErrorKey);
+                sendUsersManagerResult = CreateFailedResult<ResultType>(unexpectedErrorKey);
             }
             catch (FaultException faultException)
             {
                 _log.Error(string.Format("El servidor devolvió una falla inesperada al {0}.", requestDescription),
                     faultException);
-                result = CreateFailedResult<ResultType>(unexpectedErrorKey);
+                sendUsersManagerResult = CreateFailedResult<ResultType>(unexpectedErrorKey);
             }
             catch (CommunicationException communicationException)
             {
                 _log.Error(string.Format("Error de comunicación al {0}.", requestDescription),
                     communicationException);
-                result = CreateFailedResult<ResultType>(connectionErrorKey);
+                sendUsersManagerResult = CreateFailedResult<ResultType>(connectionErrorKey);
             }
             catch (TimeoutException timeoutException)
             {
                 _log.Error(string.Format("Se agotó el tiempo al {0}.", requestDescription), timeoutException);
-                result = CreateFailedResult<ResultType>(connectionErrorKey);
+                sendUsersManagerResult = CreateFailedResult<ResultType>(connectionErrorKey);
             }
             finally
             {
                 CloseClientSafely(usersClient);
             }
 
-            if (result == null)
+            if (sendUsersManagerResult == null)
             {
                 _log.Error(string.Format("El servidor respondió sin resultado al {0}.", requestDescription));
-                result = CreateFailedResult<ResultType>(unexpectedErrorKey);
+                sendUsersManagerResult = CreateFailedResult<ResultType>(unexpectedErrorKey);
             }
 
-            return result;
+            return sendUsersManagerResult;
         }
 
         private static ResultType CreateFailedResult<ResultType>(string errorKey)

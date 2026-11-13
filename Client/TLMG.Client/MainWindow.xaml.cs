@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-
 using log4net;
-
 using TLMG.Client.Communication;
 using TLMG.Client.Navigation;
 using TLMG.Client.UsersManagerReference;
@@ -13,9 +11,6 @@ using TLMG.Client.Views;
 
 namespace TLMG.Client
 {
-    /// <summary>
-    /// Ventana principal que muestra la pantalla actual y atiende los avisos globales del servidor.
-    /// </summary>
     public partial class MainWindow : Window
     {
         private const string ConnectionLostMessageKey = "Common_ConnectionLostError";
@@ -27,10 +22,6 @@ namespace TLMG.Client
 
         private readonly HashSet<Guid> _enteredMatchIds = new HashSet<Guid>();
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="MainWindow"/> y muestra la pantalla de carga.
-        /// </summary>
-        /// <param name="mainWindowViewModel">ViewModel que expone la pantalla que se está mostrando.</param>
         public MainWindow(MainWindowViewModel mainWindowViewModel)
         {
             InitializeComponent();
@@ -51,31 +42,16 @@ namespace TLMG.Client
 
         private static NavigationManager Navigation => ((App)Application.Current).Navigation;
 
-        /// <summary>
-        /// Muestra una pantalla que aún no tiene ViewModel. Puente temporal hacia NavigationManager, que lleva el
-        /// único historial de pantallas.
-        /// </summary>
-        /// <param name="newScreen">Instancia del control de usuario que representa la pantalla a mostrar.</param>
-        /// <param name="saveInHistory">
-        /// Indica si la pantalla actual debe guardarse en el historial para permitir retroceder.
-        /// </param>
         public void ShowScreen(UserControl newScreen, bool saveInHistory = true)
         {
             Navigation.ShowExistingScreen(newScreen, saveInHistory);
         }
 
-        /// <summary>
-        /// Regresa a la pantalla anterior del historial o muestra el menú principal si el historial está vacío.
-        /// Puente temporal hacia NavigationManager.
-        /// </summary>
         public void GoBack()
         {
             Navigation.GoBack();
         }
 
-        /// <summary>
-        /// Limpia el historial de pantallas. Puente temporal hacia NavigationManager.
-        /// </summary>
         public void ClearHistory()
         {
             Navigation.ClearHistory();
@@ -138,7 +114,7 @@ namespace TLMG.Client
 
         private void OnEnterLobbyResultReceived(
             object sender,
-            ServerEventArgs<OperationEnterLobbyResult> serverEventArguments)
+            ServerEventArgs<OperationLobbyRoomResult> serverEventArguments)
         {
             bool hasEnteredRoom = serverEventArguments.Payload.IsSuccess && ServerConnection.CurrentRoom != null;
 
@@ -168,7 +144,6 @@ namespace TLMG.Client
             }
         }
 
-        // BL-046: punto único de integración; GameplayScreen debe estar incluida y compilada en el proyecto.
         private void NavigateToAuthorizedMatch()
         {
             Navigation.ClearHistory();

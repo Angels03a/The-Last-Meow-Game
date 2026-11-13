@@ -329,7 +329,7 @@
     <None Include="Connected Services\UsersManagerReference\TLMG.Client.UsersManagerReference.OperationLogInResult.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Connected Services\UsersManagerReference\TLMG.Client.UsersManagerReference.OperationRegisterPlayerAccountResult.datasource">
+    <None Include="Connected Services\UsersManagerReference\TLMG.Client.UsersManagerReference.OperationResult.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Connected Services\UsersManagerReference\TLMG.Contracts.DataContracts.xsd">
@@ -360,6 +360,5 @@
   <ItemGroup>
     <WCFMetadataStorage Include="Connected Services\UsersManagerReference\" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

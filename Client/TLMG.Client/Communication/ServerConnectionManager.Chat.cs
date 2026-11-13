@@ -46,7 +46,7 @@ namespace TLMG.Client.Communication
             return wasMessageSent;
         }
 
-        internal void NotifyChatSubscriptionResult(ServerCallback callback, OperationSubscribeToChatResult chatResult)
+        internal void NotifyChatSubscriptionResult(ServerCallback callback, OperationResult chatResult)
         {
             if (IsCurrentChatCallback(callback) && chatResult != null)
             {

@@ -390,4 +390,6 @@
     <sys:String x:Key="Lobby_ChatNotSubscribedError">No estás conectado al chat.</sys:String>
     <sys:String x:Key="Lobby_GuestCannotChatError">El chat requiere iniciar sesión.</sys:String>
     <sys:String x:Key="Common_OutOfMemoryError">No se pudo completar la operación. Inténtalo más tarde.</sys:String>
+    <sys:String x:Key="Leaderboard_EmptyMessage">Aún no hay jugadores registrados en la clasificación.</sys:String>
+    <sys:String x:Key="Lobby_PlayerDisconnectedMessageFormat">{0} se desconectó de la sala.</sys:String>
 </ResourceDictionary>

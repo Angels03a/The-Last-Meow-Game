@@ -35,7 +35,7 @@ namespace TLMG.Client.Communication
         /// <returns>
         /// El resultado del servidor, o un resultado fallido con ErrorKey si no se pudo conectar. Nunca es null.
         /// </returns>
-        OperationRegisterPlayerAccountResult RegisterPlayerAccount(
+        OperationResult RegisterPlayerAccount(
             PlayerAccountRegistration playerAccountRegistration);
 
         /// <summary>

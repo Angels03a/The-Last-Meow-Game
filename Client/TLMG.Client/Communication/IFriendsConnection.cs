@@ -27,7 +27,7 @@ namespace TLMG.Client.Communication
         event EventHandler<ServerEventArgs<Friend>> FriendAdded;
 
         /// <summary>Se dispara con el resultado de invitar a un amigo a la sala.</summary>
-        event EventHandler<ServerEventArgs<OperationInviteFriendToRoomResult>> InviteFriendResultReceived;
+        event EventHandler<ServerEventArgs<OperationResult>> InviteFriendResultReceived;
 
         /// <summary>Se dispara con el resultado de enviar una solicitud de amistad.</summary>
         event EventHandler<ServerEventArgs<OperationSendFriendRequestResult>> SendFriendRequestResultReceived;

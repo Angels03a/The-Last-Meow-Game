@@ -1,5 +1,4 @@
 using System;
-
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
@@ -15,19 +14,19 @@ namespace TLMG.Client.Communication
     public interface ILobbyConnection
     {
         /// <summary>Se dispara con el resultado de crear una sala.</summary>
-        event EventHandler<ServerEventArgs<OperationCreateRoomResult>> CreateRoomResultReceived;
+        event EventHandler<ServerEventArgs<OperationLobbyRoomResult>> CreateRoomResultReceived;
 
         /// <summary>Se dispara cuando cambia la sala del jugador (jugadores, listos o cartas por jugador).</summary>
         event EventHandler<ServerEventArgs<LobbyRoom>> LobbyRoomChanged;
 
         /// <summary>Se dispara con el resultado de cambiar el estado Listo.</summary>
-        event EventHandler<ServerEventArgs<OperationChangePlayerReadinessResult>> ReadinessResultReceived;
+        event EventHandler<ServerEventArgs<OperationLobbyRoomResult>> ReadinessResultReceived;
 
         /// <summary>Se dispara con el resultado de comprobar el inicio de la partida.</summary>
         event EventHandler<ServerEventArgs<OperationRequestMatchStartResult>> MatchStartResultReceived;
 
         /// <summary>Se dispara con el resultado de cambiar las cartas por jugador.</summary>
-        event EventHandler<ServerEventArgs<OperationChangeCardsPerPlayerResult>> ChangeCardsPerPlayerResultReceived;
+        event EventHandler<ServerEventArgs<OperationLobbyRoomResult>> ChangeCardsPerPlayerResultReceived;
 
         /// <summary>Se dispara con cada mensaje de chat que el servidor confirma.</summary>
         event EventHandler<ServerEventArgs<ChatMessage>> ChatMessageReceived;

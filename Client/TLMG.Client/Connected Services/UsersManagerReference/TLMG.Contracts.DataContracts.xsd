@@ -10,14 +10,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="PlayerAccountRegistration" nillable="true" type="tns:PlayerAccountRegistration" />
-  <xs:complexType name="OperationRegisterPlayerAccountResult">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:OperationResult">
-        <xs:sequence />
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="OperationRegisterPlayerAccountResult" nillable="true" type="tns:OperationRegisterPlayerAccountResult" />
   <xs:complexType name="OperationResult">
     <xs:sequence>
       <xs:element minOccurs="0" name="ErrorKey" nillable="true" type="xs:string" />
@@ -97,16 +89,16 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="OperationMatchStartRequest" nillable="true" type="tns:OperationMatchStartRequest" />
-  <xs:complexType name="OperationCreateRoomResult">
+  <xs:complexType name="OperationLobbyRoomResult">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:OperationResult">
         <xs:sequence>
-          <xs:element minOccurs="0" name="LobbyRoom" nillable="true" type="tns:LobbyRoom" />
+          <xs:element minOccurs="0" name="Room" nillable="true" type="tns:LobbyRoom" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="OperationCreateRoomResult" nillable="true" type="tns:OperationCreateRoomResult" />
+  <xs:element name="OperationLobbyRoomResult" nillable="true" type="tns:OperationLobbyRoomResult" />
   <xs:complexType name="LobbyRoom">
     <xs:sequence>
       <xs:element minOccurs="0" name="CardsPerPlayerCount" type="xs:int" />
@@ -136,50 +128,11 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="LobbyPlayer" nillable="true" type="tns:LobbyPlayer" />
-  <xs:complexType name="OperationEnterLobbyResult">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:OperationResult">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="Room" nillable="true" type="tns:LobbyRoom" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="OperationEnterLobbyResult" nillable="true" type="tns:OperationEnterLobbyResult" />
-  <xs:complexType name="OperationLeaveLobbyResult">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:OperationResult">
-        <xs:sequence />
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="OperationLeaveLobbyResult" nillable="true" type="tns:OperationLeaveLobbyResult" />
-  <xs:complexType name="OperationChangePlayerReadinessResult">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:OperationResult">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="Room" nillable="true" type="tns:LobbyRoom" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="OperationChangePlayerReadinessResult" nillable="true" type="tns:OperationChangePlayerReadinessResult" />
-  <xs:complexType name="OperationChangeCardsPerPlayerResult">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:OperationResult">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="Room" nillable="true" type="tns:LobbyRoom" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="OperationChangeCardsPerPlayerResult" nillable="true" type="tns:OperationChangeCardsPerPlayerResult" />
   <xs:complexType name="OperationRequestMatchStartResult">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:OperationResult">
+      <xs:extension base="tns:OperationLobbyRoomResult">
         <xs:sequence>
           <xs:element minOccurs="0" name="RetryAfterSeconds" type="xs:int" />
-          <xs:element minOccurs="0" name="Room" nillable="true" type="tns:LobbyRoom" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -225,31 +178,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="FriendRequest" nillable="true" type="tns:FriendRequest" />
-  <xs:complexType name="OperationInviteFriendToRoomResult">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:OperationResult">
-        <xs:sequence />
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="OperationInviteFriendToRoomResult" nillable="true" type="tns:OperationInviteFriendToRoomResult" />
-  <xs:complexType name="OperationAcceptRoomInvitationResult">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:OperationResult">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="RoomId" type="xs:int" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="OperationAcceptRoomInvitationResult" nillable="true" type="tns:OperationAcceptRoomInvitationResult" />
-  <xs:complexType name="RoomInvitation">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="InvitationId" type="xs:int" />
-      <xs:element minOccurs="0" name="InviterNickname" nillable="true" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="RoomInvitation" nillable="true" type="tns:RoomInvitation" />
   <xs:complexType name="OperationSendFriendRequestResult">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:OperationResult">
@@ -282,6 +210,23 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="OperationDeclineFriendRequestResult" nillable="true" type="tns:OperationDeclineFriendRequestResult" />
+  <xs:complexType name="OperationAcceptRoomInvitationResult">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:OperationResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="RoomId" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="OperationAcceptRoomInvitationResult" nillable="true" type="tns:OperationAcceptRoomInvitationResult" />
+  <xs:complexType name="RoomInvitation">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="InvitationId" type="xs:int" />
+      <xs:element minOccurs="0" name="InviterNickname" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="RoomInvitation" nillable="true" type="tns:RoomInvitation" />
   <xs:complexType name="OperationSendChatMessageRequest">
     <xs:sequence>
       <xs:element minOccurs="0" name="ClientMessageId" type="ser:guid" />
@@ -290,14 +235,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="OperationSendChatMessageRequest" nillable="true" type="tns:OperationSendChatMessageRequest" />
-  <xs:complexType name="OperationSubscribeToChatResult">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:OperationResult">
-        <xs:sequence />
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="OperationSubscribeToChatResult" nillable="true" type="tns:OperationSubscribeToChatResult" />
   <xs:complexType name="OperationSendChatMessageResult">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:OperationResult">

@@ -1,5 +1,4 @@
 using System.ServiceModel;
-
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
@@ -23,7 +22,7 @@ namespace TLMG.Client.Communication
 
         /// <summary>Entrega el aviso de chat mediante el dispatcher de la interfaz.</summary>
         /// <param name="chatResult">Aviso recibido del servidor.</param>
-        public void SubscribeToChatResult(OperationSubscribeToChatResult chatResult)
+        public void SubscribeToChatResult(OperationResult chatResult)
         {
             _serverConnection.RunOnInterface(
                 () => _serverConnection.NotifyChatSubscriptionResult(this, chatResult));
@@ -55,7 +54,7 @@ namespace TLMG.Client.Communication
 
         /// <summary>Entrega el resultado de invitar a un amigo a la sala.</summary>
         /// <param name="operationInviteFriendToRoomResult">Resultado con éxito o clave de error.</param>
-        public void InviteFriendToRoomResult(OperationInviteFriendToRoomResult operationInviteFriendToRoomResult)
+        public void InviteFriendToRoomResult(OperationResult operationInviteFriendToRoomResult)
         {
             _serverConnection.RunOnInterface(
                 () => _serverConnection.NotifyInviteFriendResultReceived(operationInviteFriendToRoomResult));
@@ -134,7 +133,7 @@ namespace TLMG.Client.Communication
 
         /// <summary>Entrega el resultado de cambiar las cartas por jugador de la sala.</summary>
         /// <param name="result">Resultado con la sala actualizada o la clave de error.</param>
-        public void ChangeCardsPerPlayerResult(OperationChangeCardsPerPlayerResult result)
+        public void ChangeCardsPerPlayerResult(OperationLobbyRoomResult result)
         {
             _serverConnection.RunOnInterface(
                 () => _serverConnection.NotifyChangeCardsPerPlayerResultReceived(result));
@@ -142,7 +141,7 @@ namespace TLMG.Client.Communication
 
         /// <summary>Entrega el resultado de crear una sala.</summary>
         /// <param name="operationCreateRoomResult">Resultado con la sala o la clave de error.</param>
-        public void CreateRoomResult(OperationCreateRoomResult operationCreateRoomResult)
+        public void CreateRoomResult(OperationLobbyRoomResult operationCreateRoomResult)
         {
             _serverConnection.RunOnInterface(
                 () => _serverConnection.NotifyCreateRoomResultReceived(operationCreateRoomResult));
@@ -150,7 +149,7 @@ namespace TLMG.Client.Communication
 
         /// <summary>Entrega el resultado de entrar a una sala.</summary>
         /// <param name="operationEnterLobbyResult">Resultado con la sala o la clave de error.</param>
-        public void EnterLobbyResult(OperationEnterLobbyResult operationEnterLobbyResult)
+        public void EnterLobbyResult(OperationLobbyRoomResult operationEnterLobbyResult)
         {
             _serverConnection.RunOnInterface(
                 () => _serverConnection.NotifyEnterLobbyResultReceived(operationEnterLobbyResult));
@@ -158,7 +157,7 @@ namespace TLMG.Client.Communication
 
         /// <summary>Entrega el resultado de salir de una sala.</summary>
         /// <param name="operationLeaveLobbyResult">Resultado con éxito o clave de error.</param>
-        public void LeaveLobbyResult(OperationLeaveLobbyResult operationLeaveLobbyResult)
+        public void LeaveLobbyResult(OperationResult operationLeaveLobbyResult)
         {
             _serverConnection.RunOnInterface(
                 () => _serverConnection.NotifyLeaveLobbyResultReceived(operationLeaveLobbyResult));
@@ -174,7 +173,7 @@ namespace TLMG.Client.Communication
 
         /// <summary>Entrega el resultado de ChangePlayerReadiness por el dispatcher de la interfaz.</summary>
         /// <param name="changePlayerReadinessResult">Resultado recibido del servidor.</param>
-        public void ChangePlayerReadinessResult(OperationChangePlayerReadinessResult changePlayerReadinessResult)
+        public void ChangePlayerReadinessResult(OperationLobbyRoomResult changePlayerReadinessResult)
         {
             _serverConnection.RunOnInterface(
                 () => _serverConnection.NotifyReadinessResultReceived(changePlayerReadinessResult));
