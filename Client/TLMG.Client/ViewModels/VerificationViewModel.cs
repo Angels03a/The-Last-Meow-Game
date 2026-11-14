@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Windows.Input;
-
 using CommunityToolkit.Mvvm.Input;
+using TLMG.Client.Communication;
+using TLMG.Client.Navigation;
+using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
@@ -17,14 +19,17 @@ namespace TLMG.Client.ViewModels
         private const int InitialFailedAttempts = 0;
         private const int SecondsPerMinute = 60;
 
-        private const string SimulatedVerificationCode = "123456";
         private const string TimerFormat = "{0:00}:{1:00}";
         private const string ExpiredCodeErrorKey = "Verification_ExpiredCodeError";
         private const string AttemptsExhaustedErrorKey = "Verification_AttemptsExhaustedError";
         private const string IncorrectCodeErrorKey = "Verification_IncorrectCodeError";
+        private const string UnexpectedErrorKey = "CreateAccount_DataModelError";
 
+        private readonly IAccountsConnection _accountsConnection;
+        private readonly VerificationNavigationParameter _navigationParameter;
         private readonly RelayCommand _verifyCodeCommand;
         private readonly RelayCommand _resendCodeCommand;
+
         private string _digit1;
         private string _digit2;
         private string _digit3;
@@ -36,15 +41,23 @@ namespace TLMG.Client.ViewModels
         private int _remainingSecondsUntilResend;
         private bool _areDigitsEnabled;
         private bool _isCountdownRunning;
+        private bool _isBusy;
         private string _expirationText;
         private string _formErrorKey;
         private string _verificationErrorKey;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="VerificationViewModel"/>.
-        /// </summary>
         public VerificationViewModel()
+            : this(null, null)
         {
+        }
+
+        public VerificationViewModel(
+            IAccountsConnection accountsConnection,
+            VerificationNavigationParameter navigationParameter)
+        {
+            _accountsConnection = accountsConnection;
+            _navigationParameter = navigationParameter;
+
             _remainingSecondsUntilExpiry = VerificationCodeExpirySeconds;
             _remainingSecondsUntilResend = CodeResendCooldownSeconds;
             _failedAttempts = InitialFailedAttempts;
@@ -57,116 +70,68 @@ namespace TLMG.Client.ViewModels
             UpdateExpirationText();
         }
 
-        /// <summary>
-        /// Se produce cuando el código capturado es correcto.
-        /// </summary>
         public event EventHandler VerificationSucceeded;
 
-        /// <summary>
-        /// Se produce cuando el jugador solicita volver a la pantalla anterior.
-        /// </summary>
         public event EventHandler BackRequested;
 
-        /// <summary>
-        /// Se produce cuando cambian las claves de error que la vista debe mostrar.
-        /// </summary>
         public event EventHandler MessagesChanged;
 
-        /// <summary>
-        /// Se produce cuando cambia el número de intentos fallidos.
-        /// </summary>
         public event EventHandler AttemptsChanged;
 
-        /// <summary>
-        /// Se produce cuando se vacían los dígitos y la vista debe enfocar la primera caja.
-        /// </summary>
         public event EventHandler DigitsCleared;
 
-        /// <summary>
-        /// Se produce cuando la cuenta regresiva debe iniciar o detenerse en la vista.
-        /// </summary>
         public event EventHandler CountdownStateChanged;
 
-        /// <summary>
-        /// Se produce en cada segundo de la cuenta regresiva.
-        /// </summary>
         public event EventHandler CountdownUpdated;
 
-        /// <summary>Comando que compara el código capturado con el esperado.</summary>
         public ICommand VerifyCodeCommand => _verifyCodeCommand;
 
-        /// <summary>Comando que reinicia el código, los intentos y los plazos.</summary>
         public ICommand ResendCodeCommand => _resendCodeCommand;
 
-        /// <summary>Comando que solicita volver a la pantalla anterior.</summary>
         public ICommand BackCommand { get; }
 
-        /// <summary>
-        /// Primer dígito del código.
-        /// </summary>
         public string Digit1
         {
             get { return _digit1; }
             set { SetDigit(ref _digit1, value); }
         }
 
-        /// <summary>
-        /// Segundo dígito del código.
-        /// </summary>
         public string Digit2
         {
             get { return _digit2; }
             set { SetDigit(ref _digit2, value); }
         }
 
-        /// <summary>
-        /// Tercer dígito del código.
-        /// </summary>
         public string Digit3
         {
             get { return _digit3; }
             set { SetDigit(ref _digit3, value); }
         }
 
-        /// <summary>
-        /// Cuarto dígito del código.
-        /// </summary>
         public string Digit4
         {
             get { return _digit4; }
             set { SetDigit(ref _digit4, value); }
         }
 
-        /// <summary>
-        /// Quinto dígito del código.
-        /// </summary>
         public string Digit5
         {
             get { return _digit5; }
             set { SetDigit(ref _digit5, value); }
         }
 
-        /// <summary>
-        /// Sexto dígito del código.
-        /// </summary>
         public string Digit6
         {
             get { return _digit6; }
             set { SetDigit(ref _digit6, value); }
         }
 
-        /// <summary>
-        /// Intentos fallidos acumulados.
-        /// </summary>
         public int FailedAttempts
         {
             get { return _failedAttempts; }
             private set { SetProperty(ref _failedAttempts, value); }
         }
 
-        /// <summary>
-        /// Segundos restantes para poder reenviar el código.
-        /// </summary>
         public int ResendSecondsRemaining
         {
             get { return _remainingSecondsUntilResend; }
@@ -179,9 +144,6 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>
-        /// Indica si las cajas de dígitos aceptan captura.
-        /// </summary>
         public bool AreDigitsEnabled
         {
             get { return _areDigitsEnabled; }
@@ -194,54 +156,49 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>
-        /// Indica si la cuenta regresiva está corriendo.
-        /// </summary>
+        public bool IsBusy
+        {
+            get { return _isBusy; }
+            private set
+            {
+                if (SetProperty(ref _isBusy, value))
+                {
+                    _verifyCodeCommand.NotifyCanExecuteChanged();
+                    _resendCodeCommand.NotifyCanExecuteChanged();
+                }
+            }
+        }
+
         public bool IsCountdownRunning
         {
             get { return _isCountdownRunning; }
             private set { SetProperty(ref _isCountdownRunning, value); }
         }
 
-        /// <summary>
-        /// Tiempo restante de vigencia del código en formato mm:ss.
-        /// </summary>
         public string ExpirationText
         {
             get { return _expirationText; }
             private set { SetProperty(ref _expirationText, value); }
         }
 
-        /// <summary>
-        /// Clave del error que bloquea el formulario; null si no hay bloqueo.
-        /// </summary>
         public string FormErrorKey
         {
             get { return _formErrorKey; }
             private set { SetProperty(ref _formErrorKey, value); }
         }
 
-        /// <summary>
-        /// Clave del error temporal de código incorrecto; null si no hay error.
-        /// </summary>
         public string VerificationErrorKey
         {
             get { return _verificationErrorKey; }
             private set { SetProperty(ref _verificationErrorKey, value); }
         }
 
-        /// <summary>
-        /// Inicia la cuenta regresiva de vigencia y de reenvío.
-        /// </summary>
         public void StartCountdown()
         {
             IsCountdownRunning = true;
             CountdownStateChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        /// <summary>
-        /// Avanza un segundo la cuenta regresiva. La vista lo invoca desde su temporizador.
-        /// </summary>
         public void Tick()
         {
             if (_remainingSecondsUntilExpiry > TimeExpired)
@@ -268,29 +225,94 @@ namespace TLMG.Client.ViewModels
         private void ExecuteVerifyCode()
         {
             string enteredCode = GetEnteredCode();
-            bool isCodeCorrect = enteredCode == SimulatedVerificationCode;
-
             VerificationErrorKey = null;
+            FormErrorKey = null;
 
-            if (isCodeCorrect)
+            if (_accountsConnection == null || _navigationParameter == null)
+            {
+                FormErrorKey = UnexpectedErrorKey;
+                MessagesChanged?.Invoke(this, EventArgs.Empty);
+            }
+            else if (_navigationParameter.VerificationFlow == VerificationFlow.AccountRegistration)
+            {
+                VerifyRegistrationCode(enteredCode);
+            }
+        }
+
+        private void VerifyRegistrationCode(string enteredCode)
+        {
+            IsBusy = true;
+
+            OperationResult registrationResult =
+                _accountsConnection.CompletePlayerAccountRegistration(
+                    _navigationParameter.PendingRegistration,
+                    enteredCode);
+
+            IsBusy = false;
+
+            if (registrationResult.IsSuccess)
             {
                 StopCountdown();
                 MessagesChanged?.Invoke(this, EventArgs.Empty);
                 VerificationSucceeded?.Invoke(this, EventArgs.Empty);
             }
-            else
+            else if (registrationResult.ErrorKey == IncorrectCodeErrorKey)
             {
                 RecordFailedAttempt();
+            }
+            else if (registrationResult.ErrorKey == AttemptsExhaustedErrorKey)
+            {
+                ExhaustVerificationAttempts();
+            }
+            else if (registrationResult.ErrorKey == ExpiredCodeErrorKey)
+            {
+                StopCountdown();
+                LockForm(ExpiredCodeErrorKey);
+                MessagesChanged?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                FormErrorKey = registrationResult.ErrorKey ?? UnexpectedErrorKey;
+                MessagesChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
         private bool CanExecuteVerifyCode()
         {
-            bool canVerify = AreDigitsEnabled && AreAllDigitsProvided();
+            bool canVerify = !IsBusy && AreDigitsEnabled && AreAllDigitsProvided();
             return canVerify;
         }
 
         private void ExecuteResendCode()
+        {
+            if (_accountsConnection != null && _navigationParameter != null)
+            {
+                VerificationErrorKey = null;
+                FormErrorKey = null;
+                MessagesChanged?.Invoke(this, EventArgs.Empty);
+
+                IsBusy = true;
+
+                OperationResult resendResult =
+                    _accountsConnection.ResendAccountVerificationCode(
+                        _navigationParameter.TargetEmail,
+                        LanguageManager.CurrentCulture);
+
+                IsBusy = false;
+
+                if (resendResult.IsSuccess)
+                {
+                    ResetVerificationStateAfterResend();
+                }
+                else
+                {
+                    FormErrorKey = resendResult.ErrorKey ?? UnexpectedErrorKey;
+                    MessagesChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        private void ResetVerificationStateAfterResend()
         {
             _remainingSecondsUntilExpiry = VerificationCodeExpirySeconds;
             ResendSecondsRemaining = CodeResendCooldownSeconds;
@@ -315,7 +337,7 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecuteResendCode()
         {
-            bool canResend = ResendSecondsRemaining <= TimeExpired;
+            bool canResend = !IsBusy && ResendSecondsRemaining <= TimeExpired;
             return canResend;
         }
 
@@ -329,20 +351,26 @@ namespace TLMG.Client.ViewModels
         {
             FailedAttempts++;
 
-            bool areAttemptsExhausted = FailedAttempts >= MaximumVerificationAttempts;
-
-            if (areAttemptsExhausted)
+            if (FailedAttempts >= MaximumVerificationAttempts)
             {
-                StopCountdown();
-                LockForm(AttemptsExhaustedErrorKey);
+                ExhaustVerificationAttempts();
             }
             else
             {
                 VerificationErrorKey = IncorrectCodeErrorKey;
+                ClearDigits();
+                AttemptsChanged?.Invoke(this, EventArgs.Empty);
+                MessagesChanged?.Invoke(this, EventArgs.Empty);
+                DigitsCleared?.Invoke(this, EventArgs.Empty);
             }
+        }
 
+        private void ExhaustVerificationAttempts()
+        {
+            FailedAttempts = MaximumVerificationAttempts;
+            StopCountdown();
+            LockForm(AttemptsExhaustedErrorKey);
             ClearDigits();
-
             AttemptsChanged?.Invoke(this, EventArgs.Empty);
             MessagesChanged?.Invoke(this, EventArgs.Empty);
             DigitsCleared?.Invoke(this, EventArgs.Empty);

@@ -43,5 +43,15 @@ namespace TLMG.Client.Communication
         /// ejemplo con un invitado.
         /// </summary>
         void LogOut();
+
+        OperationResult RequestAccountVerificationCode(
+            PlayerAccountRegistration playerAccountRegistration,
+            string cultureCode);
+
+        OperationResult CompletePlayerAccountRegistration(
+            PlayerAccountRegistration playerAccountRegistration,
+            string verificationCode);
+
+        OperationResult ResendAccountVerificationCode(string email, string cultureCode);
     }
 }

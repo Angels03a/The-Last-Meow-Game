@@ -243,6 +243,7 @@ namespace TLMG.Client.Navigation
         {
             VerificationNavigationParameter verificationParameter = parameter as VerificationNavigationParameter;
             VerificationScreen verificationScreen = null;
+            VerificationViewModel verificationViewModel = null;
 
             if (verificationParameter == null)
             {
@@ -250,11 +251,19 @@ namespace TLMG.Client.Navigation
             }
             else if (verificationParameter.VerificationFlow == VerificationFlow.AccountRegistration)
             {
-                verificationScreen = new VerificationScreen(FinishAccountRegistration, ReturnToCreateAccount);
+                verificationViewModel = new VerificationViewModel(_accountsConnection, verificationParameter);
+                verificationScreen = new VerificationScreen(
+                    verificationViewModel,
+                    FinishAccountRegistration,
+                    ReturnToCreateAccount);
             }
             else if (verificationParameter.VerificationFlow == VerificationFlow.PasswordRecovery)
             {
-                verificationScreen = new VerificationScreen(ContinueToNewPassword, ReturnToForgotPassword);
+                verificationViewModel = new VerificationViewModel(_accountsConnection, verificationParameter);
+                verificationScreen = new VerificationScreen(
+                    verificationViewModel,
+                    ContinueToNewPassword,
+                    ReturnToForgotPassword);
             }
             else
             {
@@ -263,7 +272,7 @@ namespace TLMG.Client.Navigation
                     verificationParameter.VerificationFlow);
             }
 
-            return new ScreenEntry(verificationScreen, null);
+            return new ScreenEntry(verificationScreen, verificationViewModel);
         }
 
         private void FinishAccountRegistration()

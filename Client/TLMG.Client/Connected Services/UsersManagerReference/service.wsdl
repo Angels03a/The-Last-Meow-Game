@@ -181,6 +181,33 @@
   <wsdl:message name="IUsersManager_RegisterPlayerAccount_SystemFaultFault_FaultMessage">
     <wsdl:part xmlns:q1="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q1:SystemFault" />
   </wsdl:message>
+  <wsdl:message name="IUsersManager_RequestAccountVerificationCode_InputMessage">
+    <wsdl:part name="parameters" element="tns:RequestAccountVerificationCode" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_RequestAccountVerificationCode_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RequestAccountVerificationCodeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_RequestAccountVerificationCode_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q2="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q2:SystemFault" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_CompletePlayerAccountRegistration_InputMessage">
+    <wsdl:part name="parameters" element="tns:CompletePlayerAccountRegistration" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_CompletePlayerAccountRegistration_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CompletePlayerAccountRegistrationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_CompletePlayerAccountRegistration_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q3="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q3:SystemFault" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_ResendAccountVerificationCode_InputMessage">
+    <wsdl:part name="parameters" element="tns:ResendAccountVerificationCode" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_ResendAccountVerificationCode_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ResendAccountVerificationCodeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_ResendAccountVerificationCode_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q4="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q4:SystemFault" />
+  </wsdl:message>
   <wsdl:message name="IUsersManager_LogIn_InputMessage">
     <wsdl:part name="parameters" element="tns:LogIn" />
   </wsdl:message>
@@ -188,7 +215,7 @@
     <wsdl:part name="parameters" element="tns:LogInResponse" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_LogIn_SystemFaultFault_FaultMessage">
-    <wsdl:part xmlns:q2="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q2:SystemFault" />
+    <wsdl:part xmlns:q5="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q5:SystemFault" />
   </wsdl:message>
   <wsdl:message name="ILeaderboardManager_GetLeaderboard_InputMessage">
     <wsdl:part name="parameters" element="tns:GetLeaderboard" />
@@ -303,6 +330,21 @@
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/RegisterPlayerAccount" message="tns:IUsersManager_RegisterPlayerAccount_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/RegisterPlayerAccountResponse" message="tns:IUsersManager_RegisterPlayerAccount_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/RegisterPlayerAccountSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_RegisterPlayerAccount_SystemFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RequestAccountVerificationCode">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/RequestAccountVerificationCode" message="tns:IUsersManager_RequestAccountVerificationCode_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/RequestAccountVerificationCodeResponse" message="tns:IUsersManager_RequestAccountVerificationCode_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/RequestAccountVerificationCodeSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_RequestAccountVerificationCode_SystemFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CompletePlayerAccountRegistration">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistration" message="tns:IUsersManager_CompletePlayerAccountRegistration_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistrationResponse" message="tns:IUsersManager_CompletePlayerAccountRegistration_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistrationSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_CompletePlayerAccountRegistration_SystemFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ResendAccountVerificationCode">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/ResendAccountVerificationCode" message="tns:IUsersManager_ResendAccountVerificationCode_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/ResendAccountVerificationCodeResponse" message="tns:IUsersManager_ResendAccountVerificationCode_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/ResendAccountVerificationCodeSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_ResendAccountVerificationCode_SystemFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation name="LogIn">
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/LogIn" message="tns:IUsersManager_LogIn_InputMessage" />
@@ -432,6 +474,42 @@
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="RegisterPlayerAccount">
       <soap12:operation soapAction="http://tempuri.org/IUsersManager/RegisterPlayerAccount" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="RequestAccountVerificationCode">
+      <soap12:operation soapAction="http://tempuri.org/IUsersManager/RequestAccountVerificationCode" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="CompletePlayerAccountRegistration">
+      <soap12:operation soapAction="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistration" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="ResendAccountVerificationCode">
+      <soap12:operation soapAction="http://tempuri.org/IUsersManager/ResendAccountVerificationCode" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
