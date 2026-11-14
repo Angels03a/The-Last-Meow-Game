@@ -41,6 +41,13 @@
             public const string NicknameTaken = "CreateAccount_NicknameTakenError";
         }
 
+        public static class Verification
+        {
+            public const string IncorrectCode = "Verification_IncorrectCodeError";
+            public const string ExpiredCode = "Verification_ExpiredCodeError";
+            public const string AttemptsExhausted = "Verification_AttemptsExhaustedError";
+        }
+
         public static class Login
         {
             public const string IncompleteFields = "Login_IncompleteFieldsError";

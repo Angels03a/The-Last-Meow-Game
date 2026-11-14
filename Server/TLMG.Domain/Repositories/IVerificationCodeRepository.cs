@@ -4,9 +4,10 @@ namespace TLMG.Domain.Repositories
 {
     public interface IVerificationCodeRepository
     {
-        VerificationCodeRecord FindLatestCodeByEmail(string email, string type);
-        void SaveCode(VerificationCodeRecord record);
-        bool ConsumeCodeIfValid(string email, string codeHash, DateTime nowUtc);
-        void DeleteExpiredCodes(DateTime nowUtc);
+        int? SavePendingRegistration(PendingRegistrationRecord pendingRegistration);
+        PendingRegistrationRecord FindPendingRegistrationByEmail(string email);
+        void DeletePendingRegistration(int pendingId);
+        bool SaveCode(VerificationCodeRecord verificationCodeRecord);
+        VerificationCodeValidationResult ValidateCode(VerificationCodeRecord verificationCode, DateTime nowUtc);
     }
 }
