@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Accounts\AccountVerificationDispatcher.cs" />
     <Compile Include="Sessions\ChatReservation.cs" />
     <Compile Include="Sessions\ChatSubmission.cs" />
     <Compile Include="Sessions\LobbyCaller.cs" />
@@ -134,11 +135,21 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="EmailConfig.xml" />
-    <Content Include="Templates\AccountVerificationEnglish.html" />
-    <Content Include="Templates\AccountVerificationSpanish.html" />
-    <Content Include="Templates\PasswordResetEnglish.html" />
-    <Content Include="Templates\PasswordResetSpanish.html" />
+    <Content Include="EmailConfig.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\AccountVerificationEnglish.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\AccountVerificationSpanish.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\PasswordResetEnglish.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\PasswordResetSpanish.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
