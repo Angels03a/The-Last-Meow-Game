@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Accounts\AccountVerificationDispatcher.cs" />
     <Compile Include="Sessions\ChatReservation.cs" />
     <Compile Include="Sessions\ChatSubmission.cs" />
     <Compile Include="Sessions\LobbyCaller.cs" />
@@ -106,6 +107,14 @@
     <Compile Include="Sessions\SessionRegistry.cs" />
     <Compile Include="Sessions\SessionRegistry.Friends.cs" />
     <Compile Include="Sessions\SessionRegistry.Lobbies.cs" />
+    <Compile Include="Utilities\CodeGeneratorUtility.cs" />
+    <Compile Include="Utilities\EmailTemplates.cs" />
+    <Compile Include="Utilities\EmailUtility.cs" />
+    <Compile Include="Utilities\Languages\EmailLanguageStrategyFactory.cs" />
+    <Compile Include="Utilities\Languages\EnglishEmailLanguageStrategy.cs" />
+    <Compile Include="Utilities\Languages\IEmailLanguageStrategy.cs" />
+    <Compile Include="Utilities\Languages\SpanishEmailLanguageStrategy.cs" />
+    <Compile Include="Utilities\VerificationCodeStore.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TLMG.Contracts\TLMG.Contracts.csproj">
@@ -124,6 +133,23 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="EmailConfig.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\AccountVerificationEnglish.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\AccountVerificationSpanish.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\PasswordResetEnglish.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Templates\PasswordResetSpanish.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

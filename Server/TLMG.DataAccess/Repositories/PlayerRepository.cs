@@ -112,7 +112,12 @@ namespace TLMG.DataAccess.Repositories
                     string.Format("Error de conexión al registrar a {0}.", nickname),
                     sqlException);
             }
-
+            catch (Exception exception)
+            {
+                _log.Error(
+                    string.Format("Error inesperado al registrar a {0}.", nickname),
+                    exception);
+            }
             return wasPlayerCreated;
         }
 

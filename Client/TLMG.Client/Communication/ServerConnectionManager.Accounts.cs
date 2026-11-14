@@ -132,5 +132,46 @@ namespace TLMG.Client.Communication
 
             return failedResult;
         }
+
+        public OperationResult RequestAccountVerificationCode(
+            PlayerAccountRegistration playerAccountRegistration,
+            string cultureCode)
+        {
+            OperationResult operationResult = SendUsersManagerRequest(
+                usersClient => usersClient.RequestAccountVerificationCode(
+                    playerAccountRegistration,
+                    cultureCode),
+                "solicitar el código de verificación",
+                RegistrationConnectionErrorKey,
+                RegistrationUnexpectedErrorKey);
+
+            return operationResult;
+        }
+
+        public OperationResult CompletePlayerAccountRegistration(
+            PlayerAccountRegistration playerAccountRegistration,
+            string verificationCode)
+        {
+            OperationResult operationResult = SendUsersManagerRequest(
+                usersClient => usersClient.CompletePlayerAccountRegistration(
+                    playerAccountRegistration,
+                    verificationCode),
+                "completar el registro de la cuenta",
+                RegistrationConnectionErrorKey,
+                RegistrationUnexpectedErrorKey);
+
+            return operationResult;
+        }
+
+        public OperationResult ResendAccountVerificationCode(string email, string cultureCode)
+        {
+            OperationResult operationResult = SendUsersManagerRequest(
+                usersClient => usersClient.ResendAccountVerificationCode(email, cultureCode),
+                "reenviar el código de verificación",
+                RegistrationConnectionErrorKey,
+                RegistrationUnexpectedErrorKey);
+
+            return operationResult;
+        }
     }
 }

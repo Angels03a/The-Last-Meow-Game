@@ -104,6 +104,7 @@
     <Compile Include="Repositories\ChatMessageRepository.cs" />
     <Compile Include="Repositories\FriendshipRepository.cs" />
     <Compile Include="Repositories\PlayerRepository.cs" />
+    <Compile Include="Repositories\VerificationCodeRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <EntityDeploy Include="DatabaseModel\TLMGModel.edmx">

@@ -19,6 +19,7 @@ namespace TLMG.Client.ViewModels
         private const string IncompleteFieldsErrorKey = "Login_IncompleteFieldsError";
         private const string UnknownErrorKey = "Login_DataModelError";
         private const string SuccessMessageKey = "Login_SuccessMessage";
+        private const string SpanishCultureCode = "es-MX";
         private const int LoginAttemptDelayMilliseconds = 50;
         private const int RedirectDelayMilliseconds = 500;
 
@@ -31,6 +32,7 @@ namespace TLMG.Client.ViewModels
 
         private string _email;
         private string _password;
+        private bool _isEnglishActive;
         private bool _isPasswordVisible;
         private bool _isBusy;
         private DispatcherTimer _loginAttemptTimer;
@@ -54,6 +56,10 @@ namespace TLMG.Client.ViewModels
             _playAsGuestCommand = new RelayCommand(ExecutePlayAsGuest, CanExecutePlayAsGuest);
             _forgotPasswordCommand = new RelayCommand(ExecuteForgotPassword, CanExecuteForgotPassword);
             _createAccountCommand = new RelayCommand(ExecuteCreateAccount, CanExecuteCreateAccount);
+            ChangeToEnglishCommand = new RelayCommand(ExecuteChangeToEnglish);
+            ChangeToSpanishCommand = new RelayCommand(ExecuteChangeToSpanish);
+
+            UpdateActiveLanguage();
         }
 
         /// <summary>
@@ -81,6 +87,12 @@ namespace TLMG.Client.ViewModels
         /// <summary>Comando para navegar a la creación de cuenta.</summary>
         public ICommand CreateAccountCommand => _createAccountCommand;
 
+        /// <summary>Comando para cambiar la interfaz a inglés.</summary>
+        public ICommand ChangeToEnglishCommand { get; }
+
+        /// <summary>Comando para cambiar la interfaz a español.</summary>
+        public ICommand ChangeToSpanishCommand { get; }
+
         /// <summary>
         /// Correo electrónico capturado.
         /// </summary>
@@ -97,6 +109,15 @@ namespace TLMG.Client.ViewModels
         {
             get { return _password; }
             set { SetProperty(ref _password, value); }
+        }
+
+        /// <summary>
+        /// Indica si el idioma activo es el inglés; si no, es el español.
+        /// </summary>
+        public bool IsEnglishActive
+        {
+            get { return _isEnglishActive; }
+            private set { SetProperty(ref _isEnglishActive, value); }
         }
 
         /// <summary>
@@ -140,10 +161,30 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
+        /// Empieza a escuchar el cambio de idioma para refrescar el botón activo. La vista lo llama al cargarse.
+        /// </summary>
+        public void Activate()
+        {
+            Deactivate();
+
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+            UpdateActiveLanguage();
+        }
+
+        /// <summary>
+        /// Deja de escuchar el cambio de idioma. La vista lo llama al descargarse.
+        /// </summary>
+        public void Deactivate()
+        {
+            LanguageManager.LanguageChanged -= OnLanguageChanged;
+        }
+
+        /// <summary>
         /// Libera los recursos utilizados por el ViewModel.
         /// </summary>
         protected override void OnDisposed()
         {
+            Deactivate();
             StopLoginAttemptTimer();
             StopRedirectTimer();
 
@@ -159,6 +200,28 @@ namespace TLMG.Client.ViewModels
             _playAsGuestCommand.NotifyCanExecuteChanged();
             _forgotPasswordCommand.NotifyCanExecuteChanged();
             _createAccountCommand.NotifyCanExecuteChanged();
+        }
+
+        private void ExecuteChangeToEnglish()
+        {
+            LanguageManager.ChangeLanguage(LanguageManager.EnglishCultureCode);
+            UpdateActiveLanguage();
+        }
+
+        private void ExecuteChangeToSpanish()
+        {
+            LanguageManager.ChangeLanguage(SpanishCultureCode);
+            UpdateActiveLanguage();
+        }
+
+        private void OnLanguageChanged(object sender, EventArgs eventArgs)
+        {
+            UpdateActiveLanguage();
+        }
+
+        private void UpdateActiveLanguage()
+        {
+            IsEnglishActive = LanguageManager.CurrentCulture == LanguageManager.EnglishCultureCode;
         }
 
         private void ExecuteLogIn()

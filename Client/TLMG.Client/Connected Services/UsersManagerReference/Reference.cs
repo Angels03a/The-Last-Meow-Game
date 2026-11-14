@@ -1596,6 +1596,28 @@ namespace TLMG.Client.UsersManagerReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/RegisterPlayerAccount", ReplyAction="http://tempuri.org/IUsersManager/RegisterPlayerAccountResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RegisterPlayerAccountAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/RequestAccountVerificationCode", ReplyAction="http://tempuri.org/IUsersManager/RequestAccountVerificationCodeResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/RequestAccountVerificationCodeSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+        TLMG.Client.UsersManagerReference.OperationResult RequestAccountVerificationCode(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/RequestAccountVerificationCode", ReplyAction="http://tempuri.org/IUsersManager/RequestAccountVerificationCodeResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RequestAccountVerificationCodeAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistration", ReplyAction="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistrationResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistrationSystemFaultFaul" +
+            "t", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+        TLMG.Client.UsersManagerReference.OperationResult CompletePlayerAccountRegistration(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistration", ReplyAction="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistrationResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> CompletePlayerAccountRegistrationAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/ResendAccountVerificationCode", ReplyAction="http://tempuri.org/IUsersManager/ResendAccountVerificationCodeResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/ResendAccountVerificationCodeSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+        TLMG.Client.UsersManagerReference.OperationResult ResendAccountVerificationCode(string email, string cultureCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/ResendAccountVerificationCode", ReplyAction="http://tempuri.org/IUsersManager/ResendAccountVerificationCodeResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> ResendAccountVerificationCodeAsync(string email, string cultureCode);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/LogIn", ReplyAction="http://tempuri.org/IUsersManager/LogInResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/LogInSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationLogInResult LogIn(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest);
@@ -1637,6 +1659,30 @@ namespace TLMG.Client.UsersManagerReference {
         
         public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RegisterPlayerAccountAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration) {
             return base.Channel.RegisterPlayerAccountAsync(playerAccountRegistration);
+        }
+        
+        public TLMG.Client.UsersManagerReference.OperationResult RequestAccountVerificationCode(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode) {
+            return base.Channel.RequestAccountVerificationCode(playerAccountRegistration, cultureCode);
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RequestAccountVerificationCodeAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode) {
+            return base.Channel.RequestAccountVerificationCodeAsync(playerAccountRegistration, cultureCode);
+        }
+        
+        public TLMG.Client.UsersManagerReference.OperationResult CompletePlayerAccountRegistration(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode) {
+            return base.Channel.CompletePlayerAccountRegistration(playerAccountRegistration, verificationCode);
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> CompletePlayerAccountRegistrationAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode) {
+            return base.Channel.CompletePlayerAccountRegistrationAsync(playerAccountRegistration, verificationCode);
+        }
+        
+        public TLMG.Client.UsersManagerReference.OperationResult ResendAccountVerificationCode(string email, string cultureCode) {
+            return base.Channel.ResendAccountVerificationCode(email, cultureCode);
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> ResendAccountVerificationCodeAsync(string email, string cultureCode) {
+            return base.Channel.ResendAccountVerificationCodeAsync(email, cultureCode);
         }
         
         public TLMG.Client.UsersManagerReference.OperationLogInResult LogIn(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest) {

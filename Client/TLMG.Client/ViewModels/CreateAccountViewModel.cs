@@ -194,24 +194,30 @@ namespace TLMG.Client.ViewModels
             {
                 IsBusy = true;
 
-                PlayerAccountRegistration playerAccountRegistration = new PlayerAccountRegistration();
-                playerAccountRegistration.Nickname = Nickname;
-                playerAccountRegistration.Email = Email;
-                playerAccountRegistration.Password = Password;
-                playerAccountRegistration.HasAcceptedTerms = HasAcceptedTerms;
-
-                OperationResult registrationResult =
-                    _accountsConnection.RegisterPlayerAccount(playerAccountRegistration);
-
-                if (registrationResult.IsSuccess)
+                PlayerAccountRegistration playerAccountRegistration = new PlayerAccountRegistration
                 {
-                    VerificationNavigationParameter parameter = 
-                        new VerificationNavigationParameter(VerificationFlow.AccountRegistration);
+                    Nickname = Nickname,
+                    Email = Email,
+                    Password = Password,
+                    HasAcceptedTerms = HasAcceptedTerms
+                };
+
+                OperationResult verificationRequestResult =
+                    _accountsConnection.RequestAccountVerificationCode(
+                        playerAccountRegistration,
+                        LanguageManager.CurrentCulture);
+
+                if (verificationRequestResult.IsSuccess)
+                {
+                    VerificationNavigationParameter parameter =
+                        new VerificationNavigationParameter(
+                            VerificationFlow.AccountRegistration,
+                            playerAccountRegistration);
                     _navigation.NavigateTo(ScreenId.Verification, parameter);
                 }
                 else
                 {
-                    ApplyServerError(registrationResult.ErrorKey);
+                    ApplyServerError(verificationRequestResult.ErrorKey);
                 }
 
                 IsBusy = false;

@@ -7,6 +7,7 @@ using TLMG.Services.Friends;
 using TLMG.Services.Leaderboard;
 using TLMG.Services.Lobby;
 using TLMG.Services.Sessions;
+using TLMG.Services.Utilities;
 
 namespace TLMG.Server
 {
@@ -20,12 +21,20 @@ namespace TLMG.Server
         {
             IPlayerRepository playerRepository = new PlayerRepository();
             IFriendshipRepository friendshipRepository = new FriendshipRepository();
+            IVerificationCodeRepository verificationCodeRepository = new VerificationCodeRepository();
 
             IPasswordHasher passwordHasher = new PasswordHasher();
             ISessionRegistry sessionRegistry = new SessionRegistry();
+            VerificationCodeStore verificationCodeStore = new VerificationCodeStore(verificationCodeRepository);
+            EmailUtility emailUtility = new EmailUtility();
+            AccountVerificationDispatcher verificationDispatcher =
+                new AccountVerificationDispatcher(verificationCodeStore, emailUtility);
 
             PlayerAccountRegistrationService registrationService =
-                new PlayerAccountRegistrationService(playerRepository, passwordHasher);
+                new PlayerAccountRegistrationService(
+                    playerRepository,
+                    passwordHasher,
+                    verificationDispatcher);
 
             PlayerLogInService logInService =
                 new PlayerLogInService(playerRepository, passwordHasher, sessionRegistry);

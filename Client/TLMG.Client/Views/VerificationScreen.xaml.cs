@@ -37,11 +37,25 @@ namespace TLMG.Client.Views
         private readonly DispatcherTimer _countdownTimer;
 
         /// <summary>
-        /// Inicializa la pantalla de verificación con sus acciones de navegación.
+        /// Inicializa la pantalla de verificación con un ViewModel por defecto.
         /// </summary>
         /// <param name="onVerifiedCallbackAction">Acción al verificar el código correctamente.</param>
         /// <param name="onBackCallbackAction">Acción al regresar a la pantalla anterior.</param>
         public VerificationScreen(
+            Action onVerifiedCallbackAction,
+            Action onBackCallbackAction)
+            : this(new VerificationViewModel(), onVerifiedCallbackAction, onBackCallbackAction)
+        {
+        }
+
+        /// <summary>
+        /// Inicializa la pantalla de verificación con su ViewModel y sus acciones de navegación.
+        /// </summary>
+        /// <param name="viewModel">ViewModel de verificación inyectado por la fábrica de pantallas.</param>
+        /// <param name="onVerifiedCallbackAction">Acción al verificar el código correctamente.</param>
+        /// <param name="onBackCallbackAction">Acción al regresar a la pantalla anterior.</param>
+        public VerificationScreen(
+            VerificationViewModel viewModel,
             Action onVerifiedCallbackAction,
             Action onBackCallbackAction)
         {
@@ -58,7 +72,7 @@ namespace TLMG.Client.Views
             };
             _countdownTimer.Tick += OnCountdownTimerTick;
 
-            _viewModel = new VerificationViewModel();
+            _viewModel = viewModel;
             _viewModel.VerificationSucceeded += OnVerificationSucceeded;
             _viewModel.BackRequested += OnBackRequested;
             _viewModel.MessagesChanged += OnMessagesChanged;

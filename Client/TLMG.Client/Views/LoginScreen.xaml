@@ -27,6 +27,21 @@
         <Grid Grid.Column="0" Background="{StaticResource Brush_BackgroundDark}">
             <Ellipse Style="{StaticResource HeroBackgroundGlowStyle}" />
 
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="0,24,24,0"
+                        Panel.ZIndex="10">
+                <Button x:Name="btnLanguageEnglish"
+                        Content="EN-US"
+                        Style="{StaticResource LanguageButtonInactiveStyle}"
+                        Command="{Binding ChangeToEnglishCommand}" />
+                <Button x:Name="btnLanguageSpanish"
+                        Content="ES-MX"
+                        Style="{StaticResource LanguageButtonActiveStyle}"
+                        Command="{Binding ChangeToSpanishCommand}" />
+            </StackPanel>
+
             <StackPanel Style="{StaticResource HeroContentPanelStyle}">
                 <StackPanel Style="{StaticResource HeroEmojiRowStyle}">
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
