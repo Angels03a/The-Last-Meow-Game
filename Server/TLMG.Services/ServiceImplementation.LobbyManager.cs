@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ServiceModel;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
-using TLMG.Services.Lobby;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services
@@ -18,33 +16,33 @@ namespace TLMG.Services
         {
             ILobbyManagerCallback callback = GetLobbyCallback();
 
-            LobbyOperationResultWithNotification<OperationLobbyRoomResult> createRoomResult =
+            ResultWithNotification<OperationLobbyRoomResult> createRoomResult =
                 _lobbyService.CreateRoom(CreateLobbyCaller(sessionToken), callback);
 
             SafeNotify(() => callback.CreateRoomResult(createRoomResult.OperationResult));
-            NotifyLobbyMembers(createRoomResult.Notifications);
+            SafeNotifyAll(createRoomResult.Notifications);
         }
 
         public void EnterLobby(string sessionToken, int roomId)
         {
             ILobbyManagerCallback callback = GetLobbyCallback();
 
-            LobbyOperationResultWithNotification<OperationLobbyRoomResult> enterLobbyResult =
+            ResultWithNotification<OperationLobbyRoomResult> enterLobbyResult =
                 _lobbyService.EnterLobby(CreateLobbyCaller(sessionToken), roomId, callback);
 
             SafeNotify(() => callback.EnterLobbyResult(enterLobbyResult.OperationResult));
-            NotifyLobbyMembers(enterLobbyResult.Notifications);
+            SafeNotifyAll(enterLobbyResult.Notifications);
         }
 
         public void LeaveLobby(string sessionToken)
         {
             ILobbyManagerCallback callback = GetLobbyCallback();
 
-            LobbyOperationResultWithNotification<OperationResult> leaveLobbyResult =
+            ResultWithNotification<OperationResult> leaveLobbyResult =
                 _lobbyService.LeaveLobby(sessionToken);
 
             SafeNotify(() => callback.LeaveLobbyResult(leaveLobbyResult.OperationResult));
-            NotifyLobbyMembers(leaveLobbyResult.Notifications);
+            SafeNotifyAll(leaveLobbyResult.Notifications);
         }
 
         public void ChangePlayerReadiness(
@@ -53,22 +51,22 @@ namespace TLMG.Services
         {
             ILobbyManagerCallback callback = GetLobbyCallback();
 
-            LobbyOperationResultWithNotification<OperationLobbyRoomResult> changePlayerReadinessResult =
+            ResultWithNotification<OperationLobbyRoomResult> changePlayerReadinessResult =
                 _lobbyService.ChangePlayerReadiness(CreateLobbyCaller(sessionToken), changePlayerReadinessRequest);
 
             SafeNotify(() => callback.ChangePlayerReadinessResult(changePlayerReadinessResult.OperationResult));
-            NotifyLobbyMembers(changePlayerReadinessResult.Notifications);
+            SafeNotifyAll(changePlayerReadinessResult.Notifications);
         }
 
         public void RequestMatchStart(string sessionToken, OperationMatchStartRequest matchStartRequest)
         {
             ILobbyManagerCallback callback = GetLobbyCallback();
 
-            LobbyOperationResultWithNotification<OperationRequestMatchStartResult> requestMatchStartResult =
+            ResultWithNotification<OperationRequestMatchStartResult> requestMatchStartResult =
                 _lobbyService.RequestMatchStart(CreateLobbyCaller(sessionToken), matchStartRequest);
 
             SafeNotify(() => callback.RequestMatchStartResult(requestMatchStartResult.OperationResult));
-            NotifyLobbyMembers(requestMatchStartResult.Notifications);
+            SafeNotifyAll(requestMatchStartResult.Notifications);
         }
 
         public void ChangeCardsPerPlayer(
@@ -77,12 +75,12 @@ namespace TLMG.Services
         {
             ILobbyManagerCallback callback = GetLobbyCallback();
 
-            LobbyOperationResultWithNotification<OperationLobbyRoomResult>
+            ResultWithNotification<OperationLobbyRoomResult>
                 changeCardsPerPlayerResult = _lobbyService.ChangeCardsPerPlayer(
                     CreateLobbyCaller(sessionToken), changeCardsPerPlayerRequest);
 
             SafeNotify(() => callback.ChangeCardsPerPlayerResult(changeCardsPerPlayerResult.OperationResult));
-            NotifyLobbyMembers(changeCardsPerPlayerResult.Notifications);
+            SafeNotifyAll(changeCardsPerPlayerResult.Notifications);
         }
 
         private ILobbyManagerCallback GetLobbyCallback()
@@ -119,15 +117,7 @@ namespace TLMG.Services
 
         private void RemovePlayerOfLobbyChannel()
         {
-            NotifyLobbyMembers(_lobbyService.LeaveLobbyByChannel(_lobbyChannelId));
-        }
-
-        private void NotifyLobbyMembers(IReadOnlyList<LobbyChangeNotification> lobbyNotifications)
-        {
-            foreach (LobbyChangeNotification lobbyNotification in lobbyNotifications)
-            {
-                SafeNotify(() => lobbyNotification.Callback.OnLobbyRoomChanged(lobbyNotification.LobbyRoom));
-            }
+            SafeNotifyAll(_lobbyService.LeaveLobbyByChannel(_lobbyChannelId));
         }
     }
 }

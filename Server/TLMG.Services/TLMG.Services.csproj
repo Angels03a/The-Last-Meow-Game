@@ -80,8 +80,6 @@
     <Compile Include="Helpers\LobbyRoomHelper.cs" />
     <Compile Include="Helpers\SessionNotificationHelper.cs" />
     <Compile Include="Helpers\SessionTokenHelper.cs" />
-    <Compile Include="Lobby\LobbyChangeNotification.cs" />
-    <Compile Include="Lobby\LobbyOperationResultWithNotification.cs" />
     <Compile Include="Lobby\LobbyService.cs" />
     <Compile Include="Accounts\IPasswordHasher.cs" />
     <Compile Include="Accounts\PasswordHasher.cs" />

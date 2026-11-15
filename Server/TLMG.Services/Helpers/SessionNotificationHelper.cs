@@ -47,15 +47,21 @@ namespace TLMG.Services.Helpers
             return readOnlyNotifications;
         }
 
-        private static IReadOnlyList<Action> CreateRoomNotifications(LobbyMembershipChange roomDeparture)
+        /// <summary>
+        /// Crea los avisos OnLobbyRoomChanged de un cambio de sala, uno por cada destinatario del cambio. Si el cambio
+        /// no trae sala (rechazado o sala vacía), no hay avisos.
+        /// </summary>
+        /// <param name="lobbyMembershipChange">Cambio de la sala con la foto y los destinatarios.</param>
+        /// <returns>Los avisos, sin enviar, en el orden de los destinatarios.</returns>
+        internal static IReadOnlyList<Action> CreateRoomNotifications(LobbyMembershipChange lobbyMembershipChange)
         {
             List<Action> notifications = new List<Action>();
 
-            if (roomDeparture.Room != null)
+            if (lobbyMembershipChange.Room != null)
             {
-                LobbyRoom lobbyRoom = LobbyRoomHelper.ConvertToLobbyRoom(roomDeparture.Room);
+                LobbyRoom lobbyRoom = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
 
-                foreach (ILobbyManagerCallback recipientCallback in roomDeparture.RecipientCallbacks)
+                foreach (ILobbyManagerCallback recipientCallback in lobbyMembershipChange.RecipientCallbacks)
                 {
                     notifications.Add(() => recipientCallback.OnLobbyRoomChanged(lobbyRoom));
                 }

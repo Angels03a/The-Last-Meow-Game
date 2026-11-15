@@ -1,4 +1,5 @@
 using TLMG.Contracts.DataContracts;
+using TLMG.Services.Helpers;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Lobby
@@ -8,7 +9,7 @@ namespace TLMG.Services.Lobby
         private const int LobbyStartCheckRetrySeconds = 1;
         private const int ZeroCount = 0;
 
-        public LobbyOperationResultWithNotification<OperationLobbyRoomResult> ChangePlayerReadiness(
+        public ResultWithNotification<OperationLobbyRoomResult> ChangePlayerReadiness(
             LobbyCaller caller,
             OperationChangePlayerReadinessRequest lobbyRequest)
         {
@@ -36,15 +37,15 @@ namespace TLMG.Services.Lobby
                 LogRejectedOperation("cambiar el estado Listo", lobbyMembershipChange, requestedRoomId);
             }
 
-            LobbyOperationResultWithNotification<OperationLobbyRoomResult> changePlayerReadinessResult =
-                new LobbyOperationResultWithNotification<OperationLobbyRoomResult>(
+            ResultWithNotification<OperationLobbyRoomResult> changePlayerReadinessResult =
+                new ResultWithNotification<OperationLobbyRoomResult>(
                     operationChangePlayerReadinessResult,
-                    CreateNotifications(lobbyMembershipChange));
+                    SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange));
 
             return changePlayerReadinessResult;
         }
 
-        public LobbyOperationResultWithNotification<OperationRequestMatchStartResult> RequestMatchStart(
+        public ResultWithNotification<OperationRequestMatchStartResult> RequestMatchStart(
             LobbyCaller caller,
             OperationMatchStartRequest matchStartRequest)
         {
@@ -87,10 +88,10 @@ namespace TLMG.Services.Lobby
                     lobbyMembershipChange.RoomId);
             }
 
-            LobbyOperationResultWithNotification<OperationRequestMatchStartResult> requestMatchStartResult =
-                new LobbyOperationResultWithNotification<OperationRequestMatchStartResult>(
+            ResultWithNotification<OperationRequestMatchStartResult> requestMatchStartResult =
+                new ResultWithNotification<OperationRequestMatchStartResult>(
                     operationRequestMatchStartResult,
-                    CreateNotifications(lobbyMembershipChange));
+                    SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange));
 
             return requestMatchStartResult;
         }

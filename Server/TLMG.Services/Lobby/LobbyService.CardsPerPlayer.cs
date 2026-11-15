@@ -1,22 +1,21 @@
-﻿using System.Collections.Generic;
-
-using TLMG.Contracts.DataContracts;
+﻿using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Constants;
 using TLMG.Domain.Validators;
+using TLMG.Services.Helpers;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Lobby
 {
     public partial class LobbyService
     {
-        public LobbyOperationResultWithNotification<OperationLobbyRoomResult> ChangeCardsPerPlayer(
+        public ResultWithNotification<OperationLobbyRoomResult> ChangeCardsPerPlayer(
             LobbyCaller caller,
             OperationChangeCardsPerPlayerRequest operationChangeCardsPerPlayerRequest)
         {
             OperationLobbyRoomResult operationChangeCardsPerPlayerResult =
                 new OperationLobbyRoomResult();
-            IReadOnlyList<LobbyChangeNotification> lobbyChangeNotifications = LobbyChangeNotification.None;
 
+            ResultWithNotification<OperationLobbyRoomResult> changeCardsPerPlayerResult;
             string validationErrorKey = ValidateCardsPerPlayerRequest(operationChangeCardsPerPlayerRequest);
 
             if (validationErrorKey == null)
@@ -27,17 +26,16 @@ namespace TLMG.Services.Lobby
                 operationChangeCardsPerPlayerResult = CreateChangeCardsPerPlayerResult(
                     lobbyMembershipChange, operationChangeCardsPerPlayerRequest);
 
-                lobbyChangeNotifications = CreateNotifications(lobbyMembershipChange);
+                changeCardsPerPlayerResult = new ResultWithNotification<OperationLobbyRoomResult>(
+                    operationChangeCardsPerPlayerResult,
+                    SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange));
             }
             else
             {
                 operationChangeCardsPerPlayerResult.ErrorKey = validationErrorKey;
+                changeCardsPerPlayerResult =
+                    new ResultWithNotification<OperationLobbyRoomResult>(operationChangeCardsPerPlayerResult);
             }
-
-            LobbyOperationResultWithNotification<OperationLobbyRoomResult> changeCardsPerPlayerResult =
-                new LobbyOperationResultWithNotification<OperationLobbyRoomResult>(
-                    operationChangeCardsPerPlayerResult,
-                    lobbyChangeNotifications);
 
             return changeCardsPerPlayerResult;
         }

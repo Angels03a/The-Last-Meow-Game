@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using log4net;
 
@@ -32,7 +33,7 @@ namespace TLMG.Services.Lobby
             _sessionRegistry = sessionRegistry;
         }
 
-        public LobbyOperationResultWithNotification<OperationLobbyRoomResult> CreateRoom(
+        public ResultWithNotification<OperationLobbyRoomResult> CreateRoom(
             LobbyCaller caller,
             ILobbyManagerCallback lobbyCallback)
         {
@@ -54,26 +55,26 @@ namespace TLMG.Services.Lobby
                 LogRejectedOperation("crear una sala", lobbyMembershipChange, lobbyMembershipChange.RoomId);
             }
 
-            LobbyOperationResultWithNotification<OperationLobbyRoomResult> createRoomResult =
-                new LobbyOperationResultWithNotification<OperationLobbyRoomResult>(operationCreateRoomResult);
+            ResultWithNotification<OperationLobbyRoomResult> createRoomResult =
+                new ResultWithNotification<OperationLobbyRoomResult>(operationCreateRoomResult);
 
             return createRoomResult;
         }
 
-        public LobbyOperationResultWithNotification<OperationLobbyRoomResult> EnterLobby(
+        public ResultWithNotification<OperationLobbyRoomResult> EnterLobby(
             LobbyCaller caller,
             int roomId,
             ILobbyManagerCallback lobbyCallback)
         {
             LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.EnterRoom(caller, roomId, lobbyCallback);
             OperationLobbyRoomResult operationEnterLobbyResult = new OperationLobbyRoomResult();
-            IReadOnlyList<LobbyChangeNotification> lobbyNotifications = LobbyChangeNotification.None;
+            IReadOnlyList<Action> lobbyNotifications =
+                SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange);
 
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
                 operationEnterLobbyResult.IsSuccess = true;
                 operationEnterLobbyResult.Room = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
-                lobbyNotifications = CreateNotifications(lobbyMembershipChange);
                 _log.InfoFormat("El jugador {0} entró a la sala {1}.", lobbyMembershipChange.UserId, roomId);
             }
             else
@@ -82,24 +83,24 @@ namespace TLMG.Services.Lobby
                 LogRejectedOperation("entrar a una sala", lobbyMembershipChange, roomId);
             }
 
-            LobbyOperationResultWithNotification<OperationLobbyRoomResult> enterLobbyResult =
-                new LobbyOperationResultWithNotification<OperationLobbyRoomResult>(
+            ResultWithNotification<OperationLobbyRoomResult> enterLobbyResult =
+                new ResultWithNotification<OperationLobbyRoomResult>(
                     operationEnterLobbyResult,
                     lobbyNotifications);
 
             return enterLobbyResult;
         }
 
-        public LobbyOperationResultWithNotification<OperationResult> LeaveLobby(string sessionToken)
+        public ResultWithNotification<OperationResult> LeaveLobby(string sessionToken)
         {
             LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.LeaveRoom(sessionToken);
             OperationResult operationLeaveLobbyResult = new OperationResult();
-            IReadOnlyList<LobbyChangeNotification> lobbyChangeNotifications = LobbyChangeNotification.None;
+            IReadOnlyList<Action> lobbyChangeNotifications =
+                SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange);
 
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
                 operationLeaveLobbyResult.IsSuccess = true;
-                lobbyChangeNotifications = CreateNotifications(lobbyMembershipChange);
                 _log.InfoFormat(
                     "El jugador {0} salió de la sala {1}.",
                     lobbyMembershipChange.UserId,
@@ -115,22 +116,22 @@ namespace TLMG.Services.Lobby
                 LogRejectedOperation("salir de una sala", lobbyMembershipChange, lobbyMembershipChange.RoomId);
             }
 
-            LobbyOperationResultWithNotification<OperationResult> leaveLobbyResult =
-                new LobbyOperationResultWithNotification<OperationResult>(
+            ResultWithNotification<OperationResult> leaveLobbyResult =
+                new ResultWithNotification<OperationResult>(
                     operationLeaveLobbyResult,
                     lobbyChangeNotifications);
 
             return leaveLobbyResult;
         }
 
-        public IReadOnlyList<LobbyChangeNotification> LeaveLobbyByChannel(string channelId)
+        public IReadOnlyList<Action> LeaveLobbyByChannel(string channelId)
         {
             LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.LeaveRoomByChannel(channelId);
-            IReadOnlyList<LobbyChangeNotification> lobbyChangeNotifications = LobbyChangeNotification.None;
+            IReadOnlyList<Action> lobbyChangeNotifications =
+                SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange);
 
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
-                lobbyChangeNotifications = CreateNotifications(lobbyMembershipChange);
                 _log.InfoFormat(
                     "El jugador {0} salió de la sala {1} porque su canal de lobby terminó.",
                     lobbyMembershipChange.UserId,
@@ -194,27 +195,6 @@ namespace TLMG.Services.Lobby
                 lobbyMembershipChange.UserId,
                 requestedRoomId,
                 lobbyMembershipChange.Status);
-        }
-
-        private static IReadOnlyList<LobbyChangeNotification> CreateNotifications(
-            LobbyMembershipChange lobbyMembershipChange)
-        {
-            List<LobbyChangeNotification> lobbyChangeNotifications = new List<LobbyChangeNotification>();
-
-            if (lobbyMembershipChange.Room != null)
-            {
-                LobbyRoom lobbyRoom = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
-
-                foreach (ILobbyManagerCallback recipientCallback in lobbyMembershipChange.RecipientCallbacks)
-                {
-                    lobbyChangeNotifications.Add(new LobbyChangeNotification(recipientCallback, lobbyRoom));
-                }
-            }
-
-            IReadOnlyList<LobbyChangeNotification> readOnlyLobbyChangeNotifications =
-                lobbyChangeNotifications.AsReadOnly();
-
-            return readOnlyLobbyChangeNotifications;
         }
     }
 }
