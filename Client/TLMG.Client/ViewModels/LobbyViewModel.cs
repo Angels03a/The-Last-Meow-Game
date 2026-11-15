@@ -276,8 +276,8 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteSendChat()
         {
-            string messageText = (ChatInput ?? string.Empty).Trim();
-            bool isEmptyMessage = string.IsNullOrEmpty(messageText);
+            string messageText = ChatInputHelper.TrimMessageText(ChatInput);
+            bool isEmptyMessage = ChatInputHelper.IsEmptyMessage(messageText);
             bool canSendMessage = !isEmptyMessage && ChatInputHelper.CanEnterText(messageText);
 
             if (isEmptyMessage)
@@ -388,13 +388,9 @@ namespace TLMG.Client.ViewModels
         private void OnChatMessageReceived(object sender, ServerEventArgs<ChatMessage> eventArgs)
         {
             ChatMessage chatMessage = eventArgs.Payload;
+            ChatMessageEntry newEntry = ChatEntryHelper.CreateEntry(chatMessage, _lobbyConnection.PlayerUserId);
 
-            _chatMessages.Add(new ChatMessageEntry
-            {
-                SenderNickname = chatMessage.SenderNickname,
-                Text = chatMessage.Text,
-                IsLocalSender = chatMessage.SenderUserId == _lobbyConnection.PlayerUserId
-            });
+            _chatMessages.Add(newEntry);
         }
 
         private void OnChatAvailabilityChanged(object sender, EventArgs eventArgs)

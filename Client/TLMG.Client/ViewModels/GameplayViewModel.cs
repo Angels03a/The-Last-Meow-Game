@@ -129,6 +129,8 @@ namespace TLMG.Client.ViewModels
 
         public void Activate()
         {
+            Deactivate();
+
             _lobbyConnection.ChatMessageReceived += OnChatMessageReceived;
         }
 
@@ -204,10 +206,11 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteSendChat()
         {
-            string messageText = (ChatInput ?? string.Empty).Trim();
-            bool isEmptyMessage = string.IsNullOrEmpty(messageText);
+            string messageText = ChatInputHelper.TrimMessageText(ChatInput);
+            bool canSendMessage = !ChatInputHelper.IsEmptyMessage(messageText)
+                && ChatInputHelper.CanEnterText(messageText);
 
-            if (!isEmptyMessage)
+            if (canSendMessage)
             {
                 bool wasMessageSent = _lobbyConnection.SendChatMessage(messageText);
 
@@ -220,8 +223,8 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecuteSendChat()
         {
-            string messageText = (ChatInput ?? string.Empty).Trim();
-            bool isEmptyMessage = string.IsNullOrEmpty(messageText);
+            string messageText = ChatInputHelper.TrimMessageText(ChatInput);
+            bool isEmptyMessage = ChatInputHelper.IsEmptyMessage(messageText);
 
             return !isEmptyMessage;
         }
@@ -229,12 +232,7 @@ namespace TLMG.Client.ViewModels
         private void OnChatMessageReceived(object sender, ServerEventArgs<ChatMessage> eventArgs)
         {
             ChatMessage chatMessage = eventArgs.Payload;
-            ChatMessageEntry newEntry = new ChatMessageEntry
-            {
-                SenderNickname = chatMessage.SenderNickname,
-                Text = chatMessage.Text,
-                IsLocalSender = chatMessage.SenderUserId == _lobbyConnection.PlayerUserId
-            };
+            ChatMessageEntry newEntry = ChatEntryHelper.CreateEntry(chatMessage, _lobbyConnection.PlayerUserId);
 
             _chatMessages.Add(newEntry);
         }
