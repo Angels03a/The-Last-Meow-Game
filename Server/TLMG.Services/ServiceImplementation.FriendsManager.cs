@@ -97,18 +97,13 @@ namespace TLMG.Services
             {
                 IContextChannel friendsChannel = OperationContext.Current.Channel;
                 _friendsChannelId = friendsChannel.SessionId;
-                friendsChannel.Closed += OnFriendsChannelClosed;
-                friendsChannel.Faulted += OnFriendsChannelFaulted;
+                friendsChannel.Closed += OnFriendsChannelEnded;
+                friendsChannel.Faulted += OnFriendsChannelEnded;
                 _isFriendsChannelObserved = true;
             }
         }
 
-        private void OnFriendsChannelClosed(object sender, EventArgs eventArguments)
-        {
-            EndSessionOfFriendsChannel();
-        }
-
-        private void OnFriendsChannelFaulted(object sender, EventArgs eventArguments)
+        private void OnFriendsChannelEnded(object sender, EventArgs eventArguments)
         {
             EndSessionOfFriendsChannel();
         }

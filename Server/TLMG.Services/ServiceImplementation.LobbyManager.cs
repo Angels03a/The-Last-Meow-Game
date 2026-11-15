@@ -106,18 +106,13 @@ namespace TLMG.Services
             {
                 IContextChannel lobbyChannel = OperationContext.Current.Channel;
                 _lobbyChannelId = lobbyChannel.SessionId;
-                lobbyChannel.Closed += OnLobbyChannelClosed;
-                lobbyChannel.Faulted += OnLobbyChannelFaulted;
+                lobbyChannel.Closed += OnLobbyChannelEnded;
+                lobbyChannel.Faulted += OnLobbyChannelEnded;
                 _isLobbyChannelObserved = true;
             }
         }
 
-        private void OnLobbyChannelClosed(object sender, EventArgs eventArguments)
-        {
-            RemovePlayerOfLobbyChannel();
-        }
-
-        private void OnLobbyChannelFaulted(object sender, EventArgs eventArguments)
+        private void OnLobbyChannelEnded(object sender, EventArgs eventArguments)
         {
             RemovePlayerOfLobbyChannel();
         }
