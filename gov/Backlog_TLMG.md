@@ -36,12 +36,7 @@ Formato de entrada:
 - Depende de: BL-006, BL-002, cuenta Gmail emisora
 - Estado: Pendiente
 - Nota (2026-11-11 23:55): relación. La recuperación de contraseña sigue simulada: ForgotPasswordViewModel.cs:137 y NewPasswordViewModel.cs:176 llevan TODO que citan esta entrada, y VerificationViewModel.cs:20 compara con el código fijo «123456». Falta una operación de servidor que envíe el código, lo valide y guarde la nueva contraseña.
-
-### BL-008 · Crear la cuenta Gmail emisora y el archivo de secretos
-- Creado: 2026-10-20 10:30
-- Por qué: el envío SMTP necesita credenciales; irán en un archivo cifrado fuera de Git. La cuenta Gmail es solo el remitente: los destinatarios siguen la regla RC-E-03. Requiere verificación en dos pasos y contraseña de aplicación (no se pega en chats ni en el repo).
-- Depende de: nada
-- Estado: Pendiente
+- Nota (2026-11-15 00:32): avance en el rango 78e1fa1..8aa6844. El 2FA del registro ya funciona de extremo a extremo: SMTP y plantillas HTML (1b40829), generador de código, estrategia por idioma, EmailUtility y VerificationCodeStore (0e19d8e), VerificationCodeRepository con EF6 y procedimientos (b5abe2e, 0429cb1), operaciones RequestAccountVerificationCode, CompletePlayerAccountRegistration y ResendAccountVerificationCode (ead5dd3; IUsersManager.cs:28, 40 y 52, PlayerAccountRegistrationService.cs:55, 81 y 124) y la pantalla de verificación conectada al servidor (54fe884; VerificationViewModel.cs:247). La bandera VerificationEnabled no existe en el código (git grep sin resultados): el flujo de registro siempre usa 2FA. Sigue Pendiente porque falta: (a) la recuperación de contraseña: IForgotPasswordManager (ad8b5f4) es solo un contrato; ServiceImplementation no lo implementa, Server/TLMG.Server/App.config no tiene su endpoint, no está en el proxy, los TODO de ForgotPasswordViewModel.cs:137 y NewPasswordViewModel.cs:176 siguen y VerificationViewModel.cs:236 solo atiende VerificationFlow.AccountRegistration; (b) el login con 2FA (BL-053); (c) RegisterPlayerAccount sigue creando la cuenta sin código (BL-177); (d) nadie llama a dbo.PurgeExpiredRegistrations (database/TLMG_DB_v4.1.sql:644); solo se borra el pendiente vencido al consultarlo (VerificationCodeStore.FindValidPendingRegistration); (e) el envío real del código de registro por correo ya lo confirmó el encargado el 2026-11-15; sigue sin confirmarse el flujo completo con el cliente (registro, código, cuenta creada e inicio de sesión). Pendiente de ratificar o implementar: esta entrada (Por qué) y la nota de BL-053 describen el 2FA con la bandera VerificationEnabled apagada, y el Estándar lo repite («función apagada por ahora», docs/Estandar.md:1518, D-42) y fija las credenciales SMTP en un archivo ignorado por Git y cifrado con DPAPI (docs/Estandar.md:1431, D-43). El código hace lo contrario: el 2FA del registro siempre está encendido y EmailConfig.xml va en texto plano. Hay que ratificar lo implementado o ajustar el código, y la Bitácora debe reflejar la decisión (BL-114). La parte del archivo de secretos está en BL-171.
 
 ### BL-009 · Revisar con el encargado el uso de `lock` y `SemaphoreSlim`
 - Creado: 2026-10-20 10:30
@@ -49,6 +44,7 @@ Formato de entrada:
 - Depende de: antes de BL-007
 - Estado: Pendiente
 - Nota (2026-10-29 22:53): la parte del lock quedó resuelta por D-58: el Estándar §11.1 autoriza un único lock para SessionRegistry y exige autorización del encargado para cualquier otro uso de lock, SemaphoreSlim o Interlocked. En 53263f1 los 12 lock del código son todos _sessionsLock y SemaphoreSlim tiene 0 usos. Sigue abierta la parte del SemaphoreSlim del 2FA, porque D-42 y ADR-05 todavía lo prescriben y BL-007 depende de ello.
+- Nota (2026-11-15 00:32): verificado sobre 8aa6844. SemaphoreSlim tiene 0 usos y los 19 lock del servidor son todos _sessionsLock en SessionRegistry (git grep). El 2FA se implementó sin primitivas de sincronización: el estado vive en la base de datos (VerificationCodeStore, VerificationCodeRepository), por lo que la parte del SemaphoreSlim del 2FA ya no aplica en el código. Sigue Pendiente porque D-42 y ADR-05 todavía lo prescriben y esos documentos no están en el repositorio (BL-026); corregirlos o ratificarlos con el encargado.
 
 ### BL-010 · Revisar ADR-07 (colas priorizadas del chat) contra la regla de no usar hilos
 - Creado: 2026-10-20 10:30
@@ -67,6 +63,7 @@ Formato de entrada:
 - Por qué: faltan los roles jugador registrado e invitado, y la enmienda de D-41 (callback en `IUsersManager`).
 - Depende de: BL-002
 - Estado: Pendiente
+- Nota (2026-11-15 00:32): los contratos cambiaron en 78e1fa1..8aa6844 y el documento de contratos sigue sin estar en docs/ (BL-026), así que no se puede actualizar. Para cuando exista: IFriendsManager ahora hereda IFriendshipManager e IRoomInvitationManager (2ab3567; IFriendsManager.cs:10) y su callback hereda IFriendshipManagerCallback e IRoomInvitationManagerCallback (IFriendsManagerCallback.cs:10); IUsersManager suma RequestAccountVerificationCode, CompletePlayerAccountRegistration y ResendAccountVerificationCode (ead5dd3); IForgotPasswordManager existe sin implementar (ad8b5f4); y OperationResult se usa directamente como resultado de varias operaciones (2ab3567; ver nota en BL-109). Sin cambio de estado.
 
 ### BL-013 · Verificar el usuario de conexión a la base de datos
 - Creado: 2026-10-20 10:30
@@ -88,6 +85,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-29 22:53): AccountRegistration.cs ya no existe. El servidor tiene CommonErrorKeyHelper (Common_UnexpectedError, usado por lobby y amigos) y el cliente ErrorMessageHelper (33dc497), que traduce la ErrorKey y cae en Common_UnexpectedError. Siguen tres claves de error inesperado: CreateAccount_DataModelError (ServiceImplementation.UsersManager.cs:14, PlayerAccountRegistrationService.cs:24-25, con dos constantes del mismo valor), Login_DataModelError (ServiceImplementation.UsersManager.cs:15, PlayerLogInService.cs:21) y Common_UnexpectedError. ResolveSaveFailureErrorKey está en PlayerAccountRegistrationService.cs:156.
 - Nota (2026-11-02 16:06): hoy hay cinco claves para un fallo inesperado o de datos: Common_UnexpectedError, CreateAccount_DataModelError, Login_DataModelError, Leaderboard_ConnectionErrorMessage (el servidor la usa para un fallo de datos, LeaderboardService.cs:14) y, en el cliente, Common_ConnectionLostError. Se propone una sola clave del servidor (Common_UnexpectedError) y reutilizar ErrorMessageHelper en Login, CreateAccount y Leaderboard.
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; sin avance de fondo. Las ErrorKey del servidor están en TLMG.Domain.Constants.ErrorKeys, que el rango amplió con Verification (0429cb1; ErrorKeys.cs:44-48) y Friends, y ambos diccionarios conservan paridad (391 claves cada uno, verificado). Sigue dispersa la parte del cliente: 36 constantes *ErrorKey con valores escritos en 13 archivos (por ejemplo VerificationViewModel.cs:23-26, GameplayViewModel.cs:21 y LobbyViewModel.cs:28, estas dos con la misma Lobby_ChatEmptyError). CreateAccount_DataModelError sigue como clave genérica y ahora también la usa el flujo del 2FA (cinco usos en PlayerAccountRegistrationService.cs:153, 198, 205, 238 y 257, y VerificationViewModel.cs:26). El inventario de diálogos y mensajes duplicados está en BL-174.
 
 ### BL-018 · Revisar el texto de `CreateAccount_DataModelError`
 - Creado: 2026-10-20 12:30
@@ -96,6 +94,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-25): `Login_DataModelError` ya tiene texto neutro (445d216); `CreateAccount_DataModelError` sigue con texto técnico. Pendiente: actualizar a mano la fila de `Login_DataModelError` en TLMG_Diccionario_v3.xlsx.
 - Nota (2026-10-25): `Leaderboard_DataModelErrorMessage` ya no se referencia en ningún `.cs` ni `.xaml` (git grep: solo aparece en Strings.es-MX.xaml:199 y Strings.en-US.xaml:199, sus definiciones). Es candidata a retirarse de ambos diccionarios y de TLMG_Diccionario_v3.xlsx.
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; sin cambio. CreateAccount_DataModelError conserva el texto técnico «el modelo de datos no se encuentra disponible» (Strings.es-MX.xaml:194) y el rango lo usa en más lugares: el envío y la validación del código devuelven esa clave (PlayerAccountRegistrationService.cs:153, 198, 205, 238 y 257) y VerificationViewModel.cs:26 la toma como error inesperado. Leaderboard_DataModelErrorMessage sigue definida y sin uso (Strings.es-MX.xaml:199).
 
 ### BL-021 · Probar el cliente contra un servidor en otra PC
 - Creado: 2026-10-20 16:25
@@ -111,6 +110,7 @@ Formato de entrada:
 - Hechos verificados (2026-10-20 16:40): `includeExceptionDetailInFaults="false"` ya está escrito en el servidor. El servidor no define `serviceThrottling`, `maxConnections` ni `listenBacklog`: rigen los valores por defecto de .NET (revisar sus valores contra la documentación y el número de jugadores).
 - Depende de: BL-021
 - Estado: Pendiente
+- Nota (2026-11-15 00:32): prueba de estrés del 2026-11-14 en la PC de Martín (dictado por el encargado, no verificable desde el repositorio): servidor y 6 clientes en 2 salas de 3 y 4 invitados; picos de aproximadamente 99 % de RAM y CPU; no se logró tumbar el servidor. Limitaciones: todo corrió en la misma máquina, no se revisó el log del servidor y no se probó entre dos PC (BL-021). No cierra la entrada: Server/TLMG.Server/App.config sigue sin serviceThrottling, maxConnections ni listenBacklog (git grep).
 
 ### BL-026 · Llevar los documentos de referencia a `docs/` y ajustar las referencias de CLAUDE.md
 - Creado: 2026-10-20 22:15
@@ -133,6 +133,7 @@ Formato de entrada:
 - Depende de: BL-008
 - Estado: Pendiente
 - Nota (2026-10-25): Cadena de conexión del servidor movida a ConnectionStrings.config y regla de .gitignore hechas en el commit a733631. Pendiente: nombre y patrón del archivo cifrado de SMTP (D-43, BL-008). No cerrada.
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; sin cambio. El .gitignore solo cubre ConnectionStrings.config (.gitignore:432). EmailConfig.xml está versionado y sin .example: ver BL-171.
 
 ### BL-033 · Nivel de log por configuración y consola del servidor
 - Creado: 2026-10-25 00:49
@@ -147,6 +148,7 @@ Formato de entrada:
 - Por qué: el cliente fija 10/15/5 s; Server/TLMG.Server/App.config:21 no define ninguno (Estándar §11.1 lo declara pendiente). Complementa BL-021 y BL-023 (mex, serviceThrottling).
 - Depende de: BL-021
 - Estado: Pendiente
+- Nota (2026-11-15 00:32): prueba de estrés del 2026-11-14 en la PC de Martín (ver la nota de BL-023): servidor y 6 clientes en 2 salas de 3 y 4 invitados, picos de aproximadamente 99 % de RAM y CPU, sin tumbar el servidor; misma máquina, sin revisar el log del servidor y sin probar entre dos PC (BL-021). No cierra la entrada: Server/TLMG.Server/App.config sigue sin tiempos límite en el binding (git grep de Timeout sin resultados).
 
 ### BL-037 · Sacar EF6 y SqlClient de TLMG.Services; DataAccess devuelve un resultado controlado
 - Creado: 2026-10-25 00:49
@@ -154,6 +156,7 @@ Formato de entrada:
 - Depende de: decisión del mecanismo (alternativas por presentar); BL-017
 - Estado: Pendiente
 - Nota (2026-11-02 16:06): avance en 0358fe9. PlayerAccountRegistrationService ya no conoce EF ni SQL y PlayerRepository captura sus excepciones y devuelve PlayerExistenceLookupStatus o bool. Falta: la detección de duplicados se borró en lugar de moverse (BL-094), y TLMG.Services.csproj:3 y 38-43 y packages.config siguen referenciando EntityFramework.
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; avance de patrón, sin cierre. Los repositorios nuevos del rango capturan SqlException y EntityException dentro de TLMG.DataAccess (VerificationCodeRepository y ChatMessageRepository; 0429cb1, 65c9d8a) y TLMG.Services no tiene using de EF ni de System.Data (git grep). Siguen sin cambio TLMG.Services.csproj:3, 38-42 y 159-162 y packages.config:3 con EntityFramework 6.5.2, y la detección de duplicados al guardar (BL-094).
 
 ### BL-039 · Arrancar las pruebas unitarias (proyecto test/ y marco)
 - Creado: 2026-10-25 00:49
@@ -165,6 +168,7 @@ Formato de entrada:
 - Nota (2026-11-07 04:28): incluir las pruebas del catálogo de rutas del Gatito Fugitivo: cada ruta suma la ventana, el escape no es negativo, cada túnel sale por otra gatera y cada escondite sale por la misma caja. Depende también de BL-116.
 
 - Nota (2026-11-11 14:08): se integran los proyectos de pruebas en la solución del servidor y se agregan el SDK y el adaptador de Visual Studio. MSBuild compiló la solución sin errores y VSTest descubrió y ejecutó 178 pruebas correctas. Pendiente de confirmar mediante commit; la meta de 300 pruebas sigue abierta.
+- Nota (2026-11-15 00:32): dato del encargado (2026-11-15): 248 pruebas en verde, 104 en TLMG.Domain.Tests y 144 en TLMG.Services.Tests; el cliente sigue con 0. Conteo estático sobre 8aa6844 (no se pudo ejecutar en Linux): 2 [Fact] + 102 [InlineData] en Domain y 68 [Fact] + 76 [InlineData] en Services, que da 104 y 144 y coincide. test/ no tiene TLMG.Client.Tests (BL-164). Faltan 52 pruebas para el mínimo de 300 (Estándar §15.1). El rango actualizó stubs y pruebas a los contratos nuevos (c78a54f). No cierra la entrada.
 
 ### BL-040 · Crear TLMG.Domain (motor de reglas puro)
 - Creado: 2026-10-25 00:49
@@ -173,6 +177,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-06 13:30): decisión del encargado: Domain amplio (entidades, Validators, Repositories, Engine; Estándar §4.3), sin "Managers" (§3.14). Etapa 1: constantes, entidades y validadores. Etapa 2: interfaces de repositorio (DataAccess referencia a Domain; revisar cómo Services obtiene los repositorios, D-51). Etapa 3: motor de reglas.
 - Nota (2026-11-07 04:28): el dominio alojará las constantes de tiempo del Gatito Fugitivo (arranque, medio carril, oculto y tolerancia de 150 ms) y el catálogo de rutas, con el escape calculado como la ventana menos los demás tramos (etapa 1 de la decisión del 2026-11-06).
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844. Avance de la etapa 2: el rango agregó a TLMG.Domain.Repositories las interfaces y tipos del chat (IChatMessageRepository, ChatMessageRecord, ChatMessageSaveStatus y ChatMessageScope; d64acfa) y de los códigos de verificación (IVerificationCodeRepository, PendingRegistrationRecord, VerificationCodeRecord y VerificationCodeValidationResult; 0429cb1). Sigue sin Engine (no existe Server/TLMG.Domain/Engine/): la etapa 3 y el motor de reglas están pendientes. Un detalle por revisar: VerificationCodeValidationResult.Status es una cadena que PlayerAccountRegistrationService.cs:221-250 compara con «Valid», «Invalid», «TooManyAttempts», «Expired» y «NoActiveCode», sin enum ni constantes.
 
 ### BL-041 · Migrar las pantallas a MVVM con CommunityToolkit.Mvvm (D-39, D-50)
 - Creado: 2026-10-25 00:49
@@ -182,6 +187,7 @@ Formato de entrada:
 - Nota (2026-11-07 04:28): FugitiveKittenScreen nace sin ViewModel; su estado visible vive en el code-behind. Al migrarla, crear FugitiveKittenViewModel con CatchKittenCommand, ejecutable solo mientras el tramo es visible, y un modelo de presentación propio.
 - Nota (2026-11-10 12:00): avance de infraestructura. Fase 4b (8c4e9be): ViewModelBase hereda de ObservableObject y los comandos son ICommand creados con el RelayCommand del toolkit, sin generadores (§7.1, D-50); el paquete se instaló en 6eb2fec. Fase 5 (cefa0a3): LoginViewModel y CreateAccountViewModel dependen de IAccountsConnection (D-60, D-70). El resto de las pantallas sigue pendiente.
 - Nota (2026-11-11 23:55): avance (b6dec93). En origin/dev-LS_Angel hay 12 pantallas migradas. Once reciben el ViewModel por constructor desde ScreenFactory (B3): Login y CreateAccount (384ef1a), MainMenu (c6a081a), ForgotPassword (7d882b1), Friends (93fa788), Lobby (0fc59c2), Options (f4b2ff6), Profile (e74e10b), NewPassword (da8518b), HowToPlay (09d5647) y Leaderboard (b6dec93). La duodécima, Verification, está en la fábrica (db51858) pero su ViewModel se crea dentro de la vista (VerificationScreen.xaml.cs:61). Gameplay tiene GameplayViewModel creado dentro de la vista (GameplayScreen.xaml.cs:32) y se migra en mvvm-resto. En la rama mvvm-resto, sin integrar: Gameplay, GameOver, RoundResult y Moderation (04a7d13) y MatchClosed (2d4bafb); con ellas serían 17. Fuera de la migración por decisión: FugitiveKitten, Loading y ChangePassword (BL-169) y MainWindow (BL-142).
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844. La fábrica de Verification avanzó: ScreenFactory.BuildVerificationEntry crea el VerificationViewModel y se lo pasa a la vista para los flujos AccountRegistration y PasswordRecovery (ScreenFactory.cs:242-270), con lo que Verification cumple B3, lo que la nota del 2026-11-11 23:55 dejaba pendiente (VerificationScreen.xaml.cs:61). GameplayViewModel también se crea en la fábrica (ScreenFactory.cs:101). No cambia el estado.
 
 ### BL-043 · Limpieza de estilo del diagnóstico (no incluida en BL-027)
 - Creado: 2026-10-25 00:49
@@ -255,6 +261,7 @@ Formato de entrada:
 - Por qué: CU-03 FA-02 pide un segundo factor cuando la cuenta lleva 30 días sin iniciar sesión. El servidor ya guarda last_time en UTC (3b6c905).
 - Depende de: BL-007 y BL-008 (el 2FA está apagado)
 - Estado: Pendiente
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; sin cambio. El 2FA del registro ya existe (BL-007), pero PlayerLogInService no pide código tras 30 días de inactividad (git grep de VerificationCode en PlayerLogInService.cs sin resultados).
 
 ### BL-054 · Revisión del esquema de la tabla User
 - Creado: 2026-10-25 19:32
@@ -426,6 +433,8 @@ Formato de entrada:
 - Depende de: decisión del encargado (un catch por operación o un método común)
 - Estado: Pendiente
 - Nota (2026-11-02 17:23): diferida por decisión del encargado; pendiente conocido. Severidad alta: es una deuda latente; un error inesperado no deja rastro en el log y en un cierre de canal puede terminar el proceso del servidor.
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; sigue Pendiente. Hecho: los catch (OutOfMemoryException) que lanzaban FaultException<SystemFault> con Common_OutOfMemoryError pasaron de 17 a 5: 0 en Leaderboard, Lobby, Chat y Friends, y quedan solo los de ServiceImplementation.UsersManager.cs. El cambio vino en bbf1a49, 0e568ef y 4f122cc. Sigue sin catch (Exception) general en los puntos de entrada y sin IErrorHandler (git grep: solo Program.cs:75 y PlayerRepository.cs:115). Decisión del encargado (2026-11-15): el manejo actual de excepciones se mantiene sin cambios por ahora; la forma de resolverlo se definirá después. Dependencia con BL-098 sin cambio.
+- Nota (2026-11-15 00:32): hallazgo de estilo, independiente de lo anterior (Estándar §9): el cuerpo de las operaciones quedó con un nivel de sangría de más tras quitar el try, por ejemplo en ServiceImplementation.LeaderboardManager.cs:11-18; revisar los demás ServiceImplementation.*Manager.cs.
 
 ### BL-094 · El registro ya no distingue el correo o nickname duplicado al guardar
 - Creado: 2026-11-02 16:06
@@ -433,6 +442,7 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Pendiente
 - Nota (2026-11-02 17:23): diferida por decisión del encargado; pendiente conocido.
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; sin cambio. PlayerRepository.CreatePlayer sigue devolviendo bool (PlayerRepository.cs:82) y el rango agregó un segundo llamador, la finalización del registro tras verificar el código (PlayerAccountRegistrationService.cs:227-238), que ante una carrera devuelve CreateAccount_DataModelError en lugar de EmailTaken o NicknameTaken. La comprobación previa de duplicados no cubre dos finalizaciones simultáneas.
 
 ### BL-095 · El cliente no tiene red para excepciones no controladas
 - Creado: 2026-11-02 16:06
@@ -448,6 +458,7 @@ Formato de entrada:
 - Depende de: BL-093 (mismos archivos)
 - Estado: Pendiente
 - Nota (2026-11-02 17:23): diferida por decisión del encargado; pendiente conocido.
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; sin cambio. Siguen los dos mecanismos: LobbyOperationResultWithNotification y LobbyChangeNotification en el lobby (carpeta Lobby/ y ServiceImplementation.LobbyManager.cs) y ResultWithNotification<T> con Action en amigos, chat y cuentas (ChatService.cs, FriendsService.cs y ServiceImplementation.UsersManager.cs). Los manejadores Closed y Faulted siguen separados (ServiceImplementation.LobbyManager.cs:109-110 y ServiceImplementation.FriendsManager.cs:100-101).
 
 ### BL-101 · Corregir los defectos del Estándar detectados en las revisiones del lobby
 - Creado: 2026-11-02 16:06
@@ -476,18 +487,12 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Pendiente
 
-### BL-105 · Llevar la modalidad colaborativa al servidor
-- Creado: 2026-11-03 23:24
-- Por qué: DefaultCardsPerPlayerCount queda fija en 4 hasta que la modalidad llegue al servidor; entonces deberá reflejar la selección colaborativa de 4, 6 u 8 cartas.
-- Depende de: cambio de modalidad colaborativa del lobby
-- Estado: Pendiente
-- Nota (2026-11-11 23:55): avance. La modalidad ya llega al servidor: estado por sala en SessionRegistry.Readiness.cs:297 y :387 (8b5b84f) y el cliente lee CardsPerPlayerCount de la sala y la cambia desde el combo de LobbyScreen (0fc59c2). DefaultCardsPerPlayerCount (:12) queda solo como valor inicial de la sala. Se cierra junto con BL-151.
-
 ### BL-106 · Conservar el chat 24 horas (RF-51)
 - Creado: 2026-11-03 23:53
 - Por qué: hoy el chat es solo en memoria y sin historial; falta conservar los mensajes durante 24 horas.
 - Depende de: persistencia del chat
 - Estado: Pendiente
+- Nota (2026-11-15 00:32): avance en el rango 78e1fa1..8aa6844. Se guarda cada mensaje aceptado como evidencia después de entregarlo: interfaz y tipos del dominio (d64acfa), ChatMessageRepository con dbo.InsertChatMessage (65c9d8a; database/TLMG_DB_v4.1.sql:674) y ChatService.SaveChatMessage (55f7571; ChatService.cs:151-163). D-67 fija el chat como evidencia de 24 h como máximo, no como historial visible. Sigue Pendiente: nadie llama a dbo.PurgeExpiredMessages ni a dbo.GetChatEvidence (git grep sin resultados en C#), así que la retención de 24 h no se cumple; y ChatService.cs:16-17 guarda siempre el ámbito Lobby con un TODO sin BL (BL-178). El estado Depende de «persistencia del chat» ya se cumple.
 
 ### BL-107 · Filtrar palabras ofensivas en el chat y el nickname (RC-M-01, RC-N-01)
 - Creado: 2026-11-04 16:40
@@ -522,6 +527,7 @@ Formato de entrada:
 - Por qué: ChatInputHelper (cliente) y ChatValidationHelper (servidor) llevan la misma lista, que no puede compartirse entre soluciones. Si una cambia, la otra debe cambiar. Cubrir ambas con pruebas.
 - Depende de: BL-039
 - Estado: Pendiente
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844. El lado servidor ya no es ChatValidationHelper sino TLMG.Domain.Validators.ChatValidator, con la lista en ValidationRules.cs:43 y pruebas en TLMG.Domain.Tests/ChatValidatorTests.cs (el cambio es anterior al rango, b098001). El cliente conserva su copia en ChatInputHelper.cs:10 sin pruebas (no existe TLMG.Client.Tests, BL-164) y el rango no cambió ninguna de las dos. Sigue Pendiente.
 
 ### BL-114 · Actualizar la Bitácora con D-58 a D-66
 - Creado: 2026-11-06 13:30
@@ -534,6 +540,7 @@ Formato de entrada:
 - Por qué: Estándar §4.3 los ubica en TLMG.Domain.Validators y §16.1 en TLMG.Services.Helpers (carpeta que §4.3 no lista). Decidir y corregir el que sobre. Recomendado: Domain.Validators.
 - Depende de: BL-040
 - Estado: Pendiente
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; sin cambio en el rango. El código ya cumple la recomendación: los validadores viven en TLMG.Domain.Validators desde b098001 (anterior al rango) y Server/TLMG.Services/Helpers ya no tiene validadores. Falta corregir el Estándar, cuyo §16.1 (docs/Estandar.md:4295) sigue ubicando PlayerAccountRegistrationValidationHelper en TLMG.Services.Helpers.
 
 ### BL-116 · Contrato IMatchManager del Gatito Fugitivo y sus DTO
 - Creado: 2026-11-07 04:28
@@ -598,6 +605,7 @@ Formato de entrada:
 - Depende de: Fase 6
 - Estado: Pendiente
 - Nota (2026-11-11 23:55): relación (b6dec93). LanguageManager.FindText depende de Application.Current (LanguageManager.cs:86-92) y lo llaman 8 ViewModels (Login, CreateAccount, ForgotPassword, Friends, Leaderboard, Lobby, NewPassword y Profile), lo que impide probarlos sin una aplicación WPF. Resolver esto es requisito de BL-164.
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; sin cambio. ErrorMessageHelper.FindErrorMessage sigue con un solo llamador (MainWindow.xaml.cs:161) y LanguageManager.FindText con Application.Current (LanguageManager.cs:86) lo usan los ViewModels y DialogManager. Inventario ampliado en BL-174.
 
 ### BL-141 · Retirar el puente de MainWindow y migrar los 7 BackRequested al manager
 - Creado: 2026-11-11 08:40
@@ -618,6 +626,7 @@ Formato de entrada:
 - Depende de: BL-041; BL-007
 - Estado: Pendiente
 - Nota (2026-11-11 23:55): avance (b6dec93). VerificationFlow.PasswordRecovery tiene caso en ScreenFactory (7d882b1) y Leaderboard tiene el suyo (BuildLeaderboardEntry, b6dec93); FugitiveKitten sigue registrada en el mapa heredado (c6a081a). Siguen sin caso en la fábrica Loading y Moderation (git grep sobre ScreenFactory.cs). Pendiente también revisar el «Atrás» de Verification con el 2FA real (BL-007).
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; sin cambio de fondo. Loading y Moderation siguen sin caso en ScreenFactory. El «Atrás» de Verification pasó al flujo del 2FA real: ReturnToCreateAccount (ScreenFactory.cs) se ejecuta con la cuenta ya guardada como registro pendiente, no como cuenta; comprobar a mano qué ve el jugador al volver.
 
 ### BL-144 · NavigationManager sin <summary> y falta la clave Common_InfoTitle
 - Creado: 2026-11-11 08:46
@@ -663,14 +672,6 @@ Formato de entrada:
 - Depende de: BL-147
 - Estado: Pendiente
 
-### BL-151 · Servidor: operación ChangeCardsPerPlayer (modalidad del lobby)
-- Creado: 2026-11-11 19:30
-- Por qué: el Paquete 1 (contratos congelados de amigos y modalidad) congeló el contrato (ILobbyManager.ChangeCardsPerPlayer, OperationChangeCardsPerPlayerRequest y Result, CardsPerPlayerValidator) y dejó un cascarón en LobbyService.ChangeCardsPerPlayer (LobbyService.CardsPerPlayer.cs) que responde Common_UnexpectedError. Falta la lógica: estado por sala en SessionRegistry (hoy DefaultCardsPerPlayerCount fija en 4, SessionRegistry.Readiness.cs:10), valores 4, 6 y 8 (D-04), mismo valor = éxito sin cambios y sin reiniciar Listo, valor distinto = todos a No Listo (Regla No. 11) y aviso a la sala por OnLobbyRoomChanged, con el lock único (Estándar §11.1) y los avisos fuera del lock, sin cambiar las firmas que usan las pruebas. Incluye pruebas del registro y del servicio. Al terminar cierra BL-105.
-- Depende de: Paquete 1; BL-154 para probarla desde el cliente
-- Estado: Pendiente
-- Nota (2026-11-11 20:32): avance en la rama paquete2-modalidad, sin confirmar: ChangeCardsPerPlayer quedó implementado en SessionRegistry.ChangeCardsPerPlayer (SessionRegistry.Readiness.cs) y en LobbyService.ChangeCardsPerPlayer (LobbyService.CardsPerPlayer.cs), con pruebas en TLMG.Services.Tests. Falta compilar, correr las pruebas y probarla con el cliente (BL-154). Sigue pendiente hasta tener el commit; BL-105 se cierra con ella.
-- Nota (2026-11-11 23:55): commit encontrado: 8b5b84f (SessionRegistry.ChangeCardsPerPlayer y LobbyService.ChangeCardsPerPlayer), con pruebas LobbyServiceCardsPerPlayerTests y SessionRegistryCardsPerPlayerTests. Sigue pendiente porque no consta que se hayan compilado y corrido las pruebas del servidor; el cliente ya la usa (0fc59c2).
-
 ### BL-152 · Servidor: solicitudes de amistad (enviar, aceptar y rechazar)
 - Creado: 2026-11-11 19:30
 - Por qué: el Paquete 1 congeló el contrato (SendFriendRequest, AcceptFriendRequest, DeclineFriendRequest, sus Result, FriendRequest, OnFriendRequestReceived, OnFriendAdded y PendingFriendRequests en OperationSubscribeToFriendsResult) y dejó cascarones en FriendsService que responden Common_UnexpectedError. Falta: IFriendshipRepository (búsqueda por nickname, fila de la pareja, pendientes, alta y cambio de estado condicionado, con EF y sin concatenar SQL), las reglas de pareja en FriendsService (solicitud cruzada se acepta sola; reactivar tras rechazo sin espera; ErrorKey de ErrorKeys.Friends), los avisos fuera del lock, el refresco de la lista de amigos del canal en SessionRegistry (parte de altas de BL-071) y el rechazo del invitado con Common_InvalidSessionError. Fuera de alcance: cancelar, bloquear, reportar y eliminar amigos. Incluye pruebas con un stub de IFriendshipRepository.
@@ -678,6 +679,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-11 21:22): avance en la rama paquete2-amigos, sin confirmar: SendFriendRequest, AcceptFriendRequest y DeclineFriendRequest quedaron implementados en FriendsService con IFriendshipRepository (FriendshipRepository con EF; los cambios de estado son UPDATE parametrizados con las filas afectadas revisadas), FindFriendsCallbackOfUser y AddFriendshipToOnlineChannels en SessionRegistry (esta última cubre la parte de altas de BL-071) y PendingFriendRequests en la suscripción, con pruebas en TLMG.Services.Tests. Falta compilar, correr las pruebas, aplicar la v4.1 (BL-153) y probarlas con el cliente (BL-154). Sigue pendiente hasta tener el commit.
 - Nota (2026-11-11 23:55): commit encontrado: 27cb845 (FriendsService, FriendshipRepository y SessionRegistry), con pruebas FriendsService*Tests y SessionRegistryFriendsTests. Sigue pendiente porque no consta que se hayan corrido las pruebas ni aplicado la v4.1 (BL-153); el cliente ya la usa (93fa788).
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; sigue Pendiente. El rango partió el contrato de amistades (IFriendshipManager, 2ab3567) y reescribió FriendsService (0e568ef, bbf1a49); las pruebas de FriendsService se adaptaron en c78a54f y entran en las 144 en verde que reporta el encargado. Falta aplicar y verificar la v4.1 de la base (BL-153), de la que depende.
 
 ### BL-153 · Aplicar la v4.1 del script de base de datos y registrarla en la Bitácora
 - Creado: 2026-11-11 19:30
@@ -714,6 +716,7 @@ Formato de entrada:
 - Por qué: no existe proyecto de pruebas del cliente: test/ solo tiene TLMG.Services.Tests y TLMG.Domain.Tests. Estándar §15.2 pide un proyecto .Tests con el nombre exacto del de producción (test/TLMG.Client.Tests) y xUnit.net (D-61). Cubrir cada ViewModel con flujo normal, 3 alternos y 1 de excepción; ya dependen de interfaces por área (IAccountsConnection, IFriendsConnection, ILobbyConnection, ILeaderboardConnection) y de INavigationManager e IDialogManager. Obstáculos: LanguageManager.FindText usa Application.Current (BL-134) y los DispatcherTimer. Decidido: se crea después de la demo.
 - Depende de: BL-039; BL-080; BL-134
 - Estado: Pendiente
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; sin cambio. test/ solo tiene TLMG.Domain.Tests y TLMG.Services.Tests.
 
 ### BL-165 · Reportes y bloqueos reales en Moderation
 - Creado: 2026-11-11 23:55
@@ -749,6 +752,60 @@ Formato de entrada:
 - Creado: 2026-11-11 23:55
 - Por qué: gov/CLAUDE.md §1 dice que el uso de IA se declara en el SAD (§1.4) y no en el historial de commits. Falta redactarla: qué se pidió a la herramienta en cada paso, qué se aceptó o rechazó y cómo se verificó (compilación en Visual Studio, pruebas manuales y revisión del diff).
 - Depende de: BL-026
+- Estado: Pendiente
+
+### BL-171 · URGENTE: EmailConfig.xml está versionado; ignorarlo y dejar un .example
+- Creado: 2026-11-15 00:32
+- Por qué: Server/TLMG.Services/EmailConfig.xml está en Git (agregado en 1b40829, copiado a la salida en TLMG.Services.csproj:138) con el campo AppPassword con un texto de ejemplo. Es urgente porque ya hay cuentas válidas: la cuenta Gmail emisora existe y los códigos ya llegan por correo (BL-008, cerrada el 2026-11-15), así que el archivo recibirá la contraseña de aplicación real en la copia local del encargado y quedaría lista para un commit. El .gitignore no lo cubre (solo ignora ConnectionStrings.config, .gitignore:432) y gov/CLAUDE.md §5 y §7 prohíben secretos en Git. Pasos: (1) mientras no se ignore, quien tenga la clave real en su copia local usa git update-index --skip-worktree sobre ese archivo para no subirla por accidente; (2) antes de sacarlo de Git (git rm --cached), quien tenga su clave real debe respaldarla fuera del repositorio, porque el pull borra la copia local; (3) dejar EmailConfig.xml.example versionado e ignorar EmailConfig.xml; (4) ajustar la referencia de TLMG.Services.csproj:138 para que el build no falle si el archivo no existe; (5) pendiente de D-43: cifrado con DPAPI (BL-007). No se escribe ninguna credencial en esta entrada. Severidad urgente.
+- Depende de: BL-032
+- Estado: Pendiente
+
+### BL-172 · LoginScreen.xaml.cs ganó 44 líneas de code-behind con el selector de idioma (por revisar)
+- Creado: 2026-11-15 00:32
+- Por qué: 3569016 agregó a Client/TLMG.Client/Views/LoginScreen.xaml.cs (63 líneas) los manejadores OnScreenLoaded y OnScreenUnloaded, la suscripción a PropertyChanged del ViewModel y ShowActiveLanguageButton, que cambia el Style de btnLanguageEnglish y btnLanguageSpanish según LoginViewModel.IsEnglishActive. Revisar contra B3 y el Estándar §7.1 (la vista solo lleva InitializeComponent, el DataContext y lógica puramente visual; docs/Estandar.md:1528) y buscar duplicidad: ¿otras pantallas (Options, por ejemplo) ya cambian el idioma con otra mecánica? Candidata de duplicidad. Solo inventario: no se propone ni se hace ningún cambio de código hasta decidirlo.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-173 · GameplayViewModel cambió en dos ramas (Codex y Nicole): revisar estados y formas duplicadas (por revisar)
+- Creado: 2026-11-15 00:32
+- Por qué: GameplayViewModel.cs y sus modelos los tocaron dos líneas de trabajo: Luis Ángel (rama de Codex: 04a7d13, 2e26417) y Nicole (0cd0d9f, b68a4f6, 650ff5f). Verificar que no queden dos estados o dos formas de lo mismo. Hallazgos del inventario sobre 8aa6844: (1) el envío y la recepción del chat están repetidos en GameplayViewModel.cs:205-240 y LobbyViewModel.cs:277-300 y 388-398, con diferencias (Lobby valida con ChatInputHelper y avisa del texto vacío; Gameplay no); (2) Lobby_ChatEmptyError está como constante en ambos (GameplayViewModel.cs:21, LobbyViewModel.cs:28); (3) 4, 6 y 8 cartas por jugador están definidos en MatchModeSettings.cs:11-14, LobbyViewModel.cs:20-22 y CardsPerPlayerValidator del dominio; (4) la ronda actual y las cartas boca abajo siguen fijas (GameplayViewModel.cs:15 y 19, ligado a BL-166). Solo inventario: no se propone ni se hace ningún cambio de código.
+- Depende de: BL-166
+- Estado: Pendiente
+
+### BL-174 · Diálogos y mensajes de error duplicados en el cliente (inventario previo, por revisar)
+- Creado: 2026-11-15 00:32
+- Por qué: Inventario de solo lectura sobre 8aa6844: (a) tres rutas para traducir una ErrorKey: ErrorMessageHelper.FindErrorMessage (un solo llamador, MainWindow.xaml.cs:161), LanguageManager.FindText (Application.Current; lo usan 8 ViewModels y DialogManager) y la copia de la clave genérica en cada uno (UnexpectedErrorKey en ErrorMessageHelper.cs:10 y LanguageManager); (b) tres formas de mostrar un error: IDialogManager.ShowError (DialogManager.cs:15; lo usan LobbyViewModel, LeaderboardViewModel y App.xaml.cs:74), StatusMessage.ShowError dentro del formulario (FriendsViewModel.cs:455, ForgotPassword y NewPassword), más tres MessageBox directos en MainWindow.xaml.cs:81, 89 y 160 (BL-142); (c) 36 constantes *ErrorKey con el valor escrito en 13 archivos del cliente, algunas repetidas (Lobby_ChatEmptyError, Common_UnexpectedError); (d) VerificationViewModel usa CreateAccount_DataModelError como error inesperado (VerificationViewModel.cs:26). Relacionada con BL-017 y BL-134. Solo inventario: no se propone ni se hace ningún cambio de código.
+- Depende de: BL-017; BL-134
+- Estado: Pendiente
+
+### BL-175 · Clases grandes por revisar tras el PR #4 (inventario previo)
+- Creado: 2026-11-15 00:32
+- Por qué: Tamaño sobre 8aa6844 (antes en 78e1fa1): PlayerAccountRegistrationService.cs 376 líneas (159; +245 en el diff: sumó el 2FA con el registro directo, el pendiente, el reenvío y la finalización); FriendsService.cs 965 (889; el diff cambió ~680 líneas); ServerConnectionManager.cs 603 (745), repartido ya en seis archivos parciales; entre todos suman 1 262 líneas (Accounts, Chat, FriendRequests, Leaderboard, Lobby y Readiness; ver BL-108); GameplayViewModel.cs 280 (203). Revisar si alguna concentra más de una responsabilidad (Estándar §3.14 y gov/CLAUDE.md §5: clases que hacen de todo). Solo inventario: no se propone ni se hace ningún cambio de código.
+- Depende de: BL-108
+- Estado: Pendiente
+
+### BL-176 · Advertencias y mensajes de compilación: IDE0059, IDE0270 y xUnit2013
+- Creado: 2026-11-15 00:32
+- Por qué: El encargado reportó en Visual Studio 1 advertencia y 5 mensajes, sin poder reproducirlos en Linux. IDE0059 (asignación innecesaria) e IDE0270 (simplificar con coalescencia) aparecen como mensajes; xUnit2013 está en test/TLMG.Services.Tests/FriendsServiceAcceptRequestTests.cs:56 (Assert.Equal(1, actual.Notifications.Count) debe ser Assert.Single). No se pudo confirmar qué diagnóstico es la advertencia y cuáles los mensajes, ni ubicar IDE0059 e IDE0270: tomar el número de línea de la lista de errores de Visual Studio; las primeras sospechas son las inicializaciones en null de PlayerAccountRegistrationService.cs (:86, 127, 168, 177, 217, 267, 335 y 351-352). Otros Assert.Equal con tamaño de colección mayor que 1 no avisan (por ejemplo LobbyServiceCardsPerPlayerTests.cs:43). Revisar la lista completa al corregir.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-177 · RegisterPlayerAccount crea cuentas sin código y evita el 2FA (hallazgo adicional)
+- Creado: 2026-11-15 00:32
+- Por qué: IUsersManager.RegisterPlayerAccount (IUsersManager.cs:18) sigue publicado y PlayerAccountRegistrationService.RegisterPlayerAccount (:36) guarda la cuenta de inmediato con CreateAccount (:290), sin pasar por el código del correo. El cliente ya no la usa en el registro (CreateAccountViewModel.cs:206 llama a RequestAccountVerificationCode), pero el servidor no confía en el cliente (gov/CLAUDE.md §7): cualquier cliente WCF puede registrar una cuenta con un correo ajeno sin verificarlo. Opciones por presentar al encargado: retirar la operación del contrato (cambia el contrato y exige regenerar el proxy, BL-113) o hacer que falle cuando el 2FA esté activo. Severidad alta.
+- Depende de: BL-007; decisión del encargado
+- Estado: Pendiente
+
+### BL-178 · TODO del chat sin identificador BL y con formato ajeno al Estándar (hallazgo adicional)
+- Creado: 2026-11-15 00:32
+- Por qué: Server/TLMG.Services/Chat/ChatService.cs:16 tiene «TODO: Persist the game (R-12), so that messages are saved in the appropriate scope.» sin (BL-xxx), en inglés y sin el formato de §12.3; el ámbito se guarda siempre como Lobby (ChatService.cs:17). Además Views/GameplayScreen.xaml.cs:84 usa «TODO (BL-161)» fuera del formato y cita BL-161, que sigue reservada sin entrada. Corregir ambos comentarios cuando se defina el ámbito de la partida (BL-106) y dar de alta BL-161 con su alcance.
+- Depende de: BL-106; BL-161
+- Estado: Pendiente
+
+### BL-179 · EmailUtility registra el correo del destinatario y no valida su configuración (hallazgo adicional)
+- Creado: 2026-11-15 00:32
+- Por qué: EmailUtility.cs:101 y 105-106 escriben el correo del destinatario en el log. gov/CLAUDE.md §6 lo prohíbe de forma expresa (no registrar correos); el Estándar §10.3 (docs/Estandar.md:2571) prohíbe los «datos personales» pero no nombra el correo, así que se cita gov/CLAUDE.md §6. Los mensajes de log de ese archivo están en inglés y §6 pide español. Si EmailConfig.xml falta o está incompleto, el constructor solo registra el error y deja los campos en null (EmailUtility.cs:52-70), y SendEmail usa _senderEmail al crear la dirección (:83) sin comprobarlo; los catch de SendEmail solo cubren SmtpFailedRecipientException y SmtpException (:99-107). No se propone cambiar código hasta que el encargado decida.
+- Depende de: BL-171
 - Estado: Pendiente
 
 ## Finalizados
@@ -863,6 +920,7 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Finalizado el 2026-10-29 · commit 3fd8662
 - Nota (2026-10-29 22:53): verificado sobre 53263f1. Los cuatro bindings de Client/TLMG.Client/App.config conservan 5/10/15 s (D-46) y ningún endpoint lleva <identity>. La revisión debe repetirse en cada regeneración del proxy; se propone llevarla como paso fijo de la regeneración (Estándar, D-40) en lugar de una entrada abierta.
+- Nota (2026-11-15 00:32): verificado sobre 8aa6844, tras la regeneración del proxy de Nicole (62330d0). Client/TLMG.Client/App.config conserva openTimeout 10 s, sendTimeout 15 s y closeTimeout 5 s en los cinco bindings (App.config:9, 14, 19, 24 y 29) y ningún endpoint lleva <identity>; el único cambio del archivo fueron dos líneas en blanco (git diff 78e1fa1..8aa6844). Sin cambio de estado: la entrada ya está finalizada.
 
 ### BL-064 · Emitir las autorizaciones de entrada al aceptar una invitación
 - Creado: 2026-10-29 15:07
@@ -1124,12 +1182,14 @@ Formato de entrada:
 - Por qué: cada operación de ServiceImplementation verifica nulos y arma Common_UnexpectedError por su cuenta, y cada …Result repite IsSuccess y ErrorKey. Decisión del encargado (2026-11-06): clase base OperationResult en TLMG.Contracts.DataContracts, de la que heredan los …Result (Estándar §17.1). Las firmas de operaciones y callbacks se declaran con el tipo derivado, nunca con el base. Exige regenerar el proxy una sola vez y repetir el paso fijo de BL-057 (apertura 10 s, envío 15 s, cierre 5 s; sin <identity>). El cliente reutiliza ErrorMessageHelper.
 - Depende de: BL-017 (inventario previo de los …Result)
 - Estado: Finalizado el 2026-11-11 · commits d056740 y f82c786
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844; la entrada sigue finalizada, con una desviación por decidir. La entrada dice que las firmas se declaran con el tipo derivado y nunca con el base, pero 2ab3567 hizo que operaciones y callbacks devuelvan OperationResult directamente (por ejemplo IUsersManager.cs:18 y IRoomInvitationManagerCallback.cs:14) para no tener una clase vacía por operación (OperationResult.cs:5-7). Es una decisión de contrato: confirmar con el encargado si reemplaza la regla del 2026-11-06 y, de ser así, registrarla en el Estándar §17.1 y la Bitácora (D-66).
 
 ### BL-113 · Regenerar el proxy cuando cambie un contrato
 - Creado: 2026-11-06 12:15
 - Se hace dentro de BL-109, que es el cambio de contrato; incluye corregir el nombre desfasado OperationRequestMatchStartRequest.
 - Depende de: BL-109
 - Estado: Finalizado el 2026-11-11 · commits 7b8ae86 y f82c786
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844. El rango cambió contratos otra vez (2ab3567) y el proxy se regeneró en 62330d0 (Connected Services/UsersManagerReference, un solo proxy con todos los contratos). Se repitió el paso fijo de BL-057: los bindings siguen con 10/15/5 s y sin <identity>. Sin cambio de estado: la entrada ya está finalizada.
 
 ### BL-036 · Mover el callback y el cierre del canal a Communication/
 - Creado: 2026-10-25 00:49
@@ -1168,3 +1228,28 @@ Formato de entrada:
 - Depende de: BL-154
 - Estado: Finalizado el 2026-11-11 · commits 69f0776, d3fde5b y 93fa788
 - Nota (2026-11-11 23:55): cierre: el proxy se regeneró en 69f0776, ServerCallback implementa OnFriendRequestReceived, OnFriendAdded y los resultados en d3fde5b, y FriendsViewModel envía, acepta y rechaza solicitudes y muestra las pendientes en 93fa788.
+
+### BL-008 · Crear la cuenta Gmail emisora y el archivo de secretos
+- Creado: 2026-10-20 10:30
+- Por qué: el envío SMTP necesita credenciales; irán en un archivo cifrado fuera de Git. La cuenta Gmail es solo el remitente: los destinatarios siguen la regla RC-E-03. Requiere verificación en dos pasos y contraseña de aplicación (no se pega en chats ni en el repo).
+- Depende de: nada
+- Estado: Finalizado el 2026-11-15 · commit 1b40829
+- Nota (2026-11-15 00:32): cierre parcial por decisión del encargado. El encargado confirmó el 2026-11-15 que la cuenta Gmail emisora existe y que los códigos de verificación del registro ya llegan por correo (SMTP y plantillas en 1b40829; EmailUtility lee EmailConfig.xml en EmailUtility.cs:28). La parte del archivo de secretos fuera de Git (ignorado y cifrado según D-43) NO está hecha: EmailConfig.xml está versionado y en texto plano, y esa parte pasa a BL-171.
+
+### BL-105 · Llevar la modalidad colaborativa al servidor
+- Creado: 2026-11-03 23:24
+- Por qué: DefaultCardsPerPlayerCount queda fija en 4 hasta que la modalidad llegue al servidor; entonces deberá reflejar la selección colaborativa de 4, 6 u 8 cartas.
+- Depende de: cambio de modalidad colaborativa del lobby
+- Estado: Finalizado el 2026-11-15 · commit 8b5b84f
+- Nota (2026-11-11 23:55): avance. La modalidad ya llega al servidor: estado por sala en SessionRegistry.Readiness.cs:297 y :387 (8b5b84f) y el cliente lee CardsPerPlayerCount de la sala y la cambia desde el combo de LobbyScreen (0fc59c2). DefaultCardsPerPlayerCount (:12) queda solo como valor inicial de la sala. Se cierra junto con BL-151.
+- Nota (2026-11-15 00:32): cierre. Evidencia: 8b5b84f está en origin/main (git merge-base --is-ancestor); el estado de la modalidad por sala vive en SessionRegistry.Readiness.cs; el cliente lee CardsPerPlayerCount de la sala y la cambia desde el combo de LobbyScreen desde 0fc59c2 (también en origin/main); el encargado reporta las 144 pruebas de TLMG.Services.Tests en verde (2026-11-15), entre ellas LobbyServiceCardsPerPlayerTests y SessionRegistryCardsPerPlayerTests, y la prueba con 3 clientes. DefaultCardsPerPlayerCount queda solo como valor inicial de la sala. Se cierra junto con BL-151.
+
+### BL-151 · Servidor: operación ChangeCardsPerPlayer (modalidad del lobby)
+- Creado: 2026-11-11 19:30
+- Por qué: el Paquete 1 (contratos congelados de amigos y modalidad) congeló el contrato (ILobbyManager.ChangeCardsPerPlayer, OperationChangeCardsPerPlayerRequest y Result, CardsPerPlayerValidator) y dejó un cascarón en LobbyService.ChangeCardsPerPlayer (LobbyService.CardsPerPlayer.cs) que responde Common_UnexpectedError. Falta la lógica: estado por sala en SessionRegistry (hoy DefaultCardsPerPlayerCount fija en 4, SessionRegistry.Readiness.cs:10), valores 4, 6 y 8 (D-04), mismo valor = éxito sin cambios y sin reiniciar Listo, valor distinto = todos a No Listo (Regla No. 11) y aviso a la sala por OnLobbyRoomChanged, con el lock único (Estándar §11.1) y los avisos fuera del lock, sin cambiar las firmas que usan las pruebas. Incluye pruebas del registro y del servicio. Al terminar cierra BL-105.
+- Depende de: Paquete 1; BL-154 para probarla desde el cliente
+- Estado: Finalizado el 2026-11-15 · commit 8b5b84f
+- Nota (2026-11-11 20:32): avance en la rama paquete2-modalidad, sin confirmar: ChangeCardsPerPlayer quedó implementado en SessionRegistry.ChangeCardsPerPlayer (SessionRegistry.Readiness.cs) y en LobbyService.ChangeCardsPerPlayer (LobbyService.CardsPerPlayer.cs), con pruebas en TLMG.Services.Tests. Falta compilar, correr las pruebas y probarla con el cliente (BL-154). Sigue pendiente hasta tener el commit; BL-105 se cierra con ella.
+- Nota (2026-11-11 23:55): commit encontrado: 8b5b84f (SessionRegistry.ChangeCardsPerPlayer y LobbyService.ChangeCardsPerPlayer), con pruebas LobbyServiceCardsPerPlayerTests y SessionRegistryCardsPerPlayerTests. Sigue pendiente porque no consta que se hayan compilado y corrido las pruebas del servidor; el cliente ya la usa (0fc59c2).
+- Nota (2026-11-15 00:32): cierre. Evidencia: 8b5b84f (SessionRegistry.ChangeCardsPerPlayer y LobbyService.ChangeCardsPerPlayer) está en origin/main (git merge-base --is-ancestor); el rango 78e1fa1..8aa6844 adaptó sus pruebas (c78a54f); el encargado reporta las 144 pruebas de TLMG.Services.Tests en verde (2026-11-15); el cliente usa la operación desde 0fc59c2; y el encargado reporta la prueba con 3 clientes. Cierra BL-105.
+
