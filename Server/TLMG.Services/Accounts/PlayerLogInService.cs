@@ -64,7 +64,7 @@ namespace TLMG.Services.Accounts
 
             ResultWithNotification<OperationLogInResult> loginResult = 
                 new ResultWithNotification<OperationLogInResult>(operationLogInResult,
-                SessionNotificationHelper.CreateSessionEndNotifications(replacedSession));
+                SessionNotificationHelper.CreateReplacedSessionNotifications(replacedSession));
 
             return loginResult;
         }

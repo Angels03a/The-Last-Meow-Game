@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ServiceModel;
+
+using log4net;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
@@ -9,6 +12,8 @@ namespace TLMG.Services.Helpers
 {
     public static class SessionNotificationHelper
     {
+        private static readonly ILog _log = LogManager.GetLogger(typeof(SessionNotificationHelper));
+
         public static IReadOnlyList<Action> CreatePresenceNotifications(
             IReadOnlyList<IFriendsManagerCallback> recipientCallbacks,
             int userId,
@@ -45,6 +50,36 @@ namespace TLMG.Services.Helpers
             IReadOnlyList<Action> readOnlyNotifications = notifications.AsReadOnly();
 
             return readOnlyNotifications;
+        }
+
+        /// <summary>
+        /// Arma los avisos de una sesión reemplazada por un nuevo inicio y, al final, el cierre inmediato de su canal
+        /// de amigos para que el cliente viejo caiga en ConnectionLost. Se usa Abort y no Close porque no espera al
+        /// cliente y no lanza excepciones; si el callback no es un canal (por ejemplo, un stub), no agrega nada.
+        /// </summary>
+        /// <param name="replacedSession">Lo que devolvió el registro al reemplazar la sesión; puede ser null.</param>
+        /// <returns>
+        /// Las invocaciones por entregar fuera de cualquier candado; vacía si no había sesión anterior.
+        /// </returns>
+        public static IReadOnlyList<Action> CreateReplacedSessionNotifications(SessionEnd replacedSession)
+        {
+            List<Action> notifications = new List<Action>(CreateSessionEndNotifications(replacedSession));
+            ICommunicationObject replacedChannel = replacedSession?.FriendsCallback as ICommunicationObject;
+
+            if (replacedChannel != null)
+            {
+                notifications.Add(() => AbortFriendsChannel(replacedChannel, replacedSession.UserId));
+            }
+
+            IReadOnlyList<Action> readOnlyNotifications = notifications.AsReadOnly();
+
+            return readOnlyNotifications;
+        }
+
+        private static void AbortFriendsChannel(ICommunicationObject friendsChannel, int userId)
+        {
+            friendsChannel.Abort();
+            _log.InfoFormat("Se cerró el canal de amigos de la sesión anterior del jugador {0}.", userId);
         }
 
         /// <summary>

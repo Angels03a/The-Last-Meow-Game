@@ -246,10 +246,18 @@ namespace TLMG.Services.Sessions
             _authorizedRoomIdsByUserId.Remove(endedSession.UserId);
             IReadOnlyList<IFriendsManagerCallback> presenceRecipients =
                 FindPresenceRecipientsOfUser(endedSession.UserId);
+            FriendsChannel friendsChannel;
+            _friendsChannelsByUserId.TryGetValue(endedSession.UserId, out friendsChannel);
+            IFriendsManagerCallback friendsCallback = FindCallbackOfChannel(friendsChannel);
             RemoveFriendsChannelOfUser(endedSession.UserId);
             RemoveInvitationsOfUser(endedSession.UserId);
             SessionEnd sessionEnd =
-                new SessionEnd(endedSession.UserId, endedSession.Nickname, roomDeparture, presenceRecipients);
+                new SessionEnd(
+                    endedSession.UserId,
+                    endedSession.Nickname,
+                    roomDeparture,
+                    friendsCallback,
+                    presenceRecipients);
 
             return sessionEnd;
         }
