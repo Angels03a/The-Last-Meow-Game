@@ -26,6 +26,7 @@
     <Compile Include="CardsPerPlayerValidatorTests.cs" />
     <Compile Include="ChatValidatorTests.cs" />
     <Compile Include="FriendNicknameValidatorTests.cs" />
+    <Compile Include="MatchBettingTests.cs" />
     <Compile Include="MatchModeRulesTests.cs" />
     <Compile Include="MatchStateTests.cs" />
     <Compile Include="PlayerAccountRegistrationValidatorTests.cs" />

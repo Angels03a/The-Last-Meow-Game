@@ -12,6 +12,8 @@ namespace TLMG.Domain.Engine
     /// </summary>
     public sealed class MatchState
     {
+        private const int EmptyHandBetValue = 1;
+
         private readonly List<MatchPlayer> _players = new List<MatchPlayer>();
         private int _activePlayerIndex;
 
@@ -66,6 +68,31 @@ namespace TLMG.Domain.Engine
         /// <summary>Obtiene al jugador que tiene el turno; la partida empieza con el primero del orden.</summary>
         public MatchPlayer ActivePlayer => _players[_activePlayerIndex];
 
+        /// <summary>Obtiene la fase de la ronda: colocando cartas, apostando o con el reto listo.</summary>
+        public MatchPhase Phase { get; private set; }
+
+        /// <summary>Obtiene la apuesta actual, o 0 si no hay; con el reto listo, las cartas a voltear.</summary>
+        public int CurrentBet { get; private set; }
+
+        /// <summary>Obtiene a quien tiene la apuesta más alta (el apostador con el reto listo), o null.</summary>
+        public MatchPlayer HighestBidder { get; private set; }
+
+        /// <summary>Obtiene las cartas boca abajo en la mesa: la suma de las pilas de los jugadores.</summary>
+        public int CardsOnTable
+        {
+            get
+            {
+                int cardCount = 0;
+
+                foreach (MatchPlayer player in _players)
+                {
+                    cardCount += player.Pile.Count;
+                }
+
+                return cardCount;
+            }
+        }
+
         /// <summary>
         /// Coloca una carta de la mano del jugador arriba de su pila y pasa el turno al siguiente del orden. No
         /// cambia las vidas. Si rechaza la acción, el estado no cambia.
@@ -81,6 +108,10 @@ namespace TLMG.Domain.Engine
             if (player == null)
             {
                 placementStatus = CardPlacementStatus.PlayerNotInMatch;
+            }
+            else if (Phase != MatchPhase.PlacingCards)
+            {
+                placementStatus = CardPlacementStatus.BetOpen;
             }
             else if (!ReferenceEquals(player, ActivePlayer))
             {
@@ -101,6 +132,162 @@ namespace TLMG.Domain.Engine
             }
 
             return placementStatus;
+        }
+
+        /// <summary>
+        /// Abre una apuesta como acción del turno, alternativa a colocar. El valor va de 1 al menor entre las cartas
+        /// de la mesa y las de la modalidad; con la mano vacía debe ser exactamente 1. Si rechaza, nada cambia.
+        /// </summary>
+        /// <param name="playerId">Jugador que abre la apuesta.</param>
+        /// <param name="betValue">Cartas que declara poder voltear.</param>
+        /// <returns>Accepted si se abrió; en otro caso, el motivo del rechazo.</returns>
+        public BetActionStatus OpenBet(int playerId, int betValue)
+        {
+            BetActionStatus betStatus = CheckBettingActor(
+                playerId,
+                MatchPhase.PlacingCards,
+                BetActionStatus.BetAlreadyOpen);
+            int maximumBetValue = GetMaximumBetValue();
+
+            if (betStatus == BetActionStatus.Accepted)
+            {
+                if (maximumBetValue == 0)
+                {
+                    betStatus = BetActionStatus.TableEmpty;
+                }
+                else if (ActivePlayer.Hand.Count == 0 && betValue != EmptyHandBetValue)
+                {
+                    betStatus = BetActionStatus.EmptyHandRequiresBetOfOne;
+                }
+                else if (betValue < 1 || betValue > maximumBetValue)
+                {
+                    betStatus = BetActionStatus.BetValueNotValid;
+                }
+                else
+                {
+                    foreach (MatchPlayer player in _players)
+                    {
+                        player.HasWithdrawnFromBet = false;
+                    }
+
+                    Phase = MatchPhase.Betting;
+                    CurrentBet = betValue;
+                    HighestBidder = ActivePlayer;
+                    MoveToNextBettor();
+                }
+            }
+
+            return betStatus;
+        }
+
+        /// <summary>
+        /// Sube la apuesta en el turno del jugador: el valor debe ser estrictamente mayor que la apuesta actual y no
+        /// pasar del menor entre las cartas de la mesa y las de la modalidad. Si rechaza, el estado no cambia.
+        /// </summary>
+        /// <param name="playerId">Jugador que sube.</param>
+        /// <param name="betValue">Nueva apuesta, en cartas a voltear.</param>
+        /// <returns>Accepted si se subió; en otro caso, el motivo del rechazo.</returns>
+        public BetActionStatus RaiseBet(int playerId, int betValue)
+        {
+            BetActionStatus betStatus = CheckBettingActor(playerId, MatchPhase.Betting, BetActionStatus.BetNotOpen);
+
+            if (betStatus == BetActionStatus.Accepted)
+            {
+                if (betValue <= CurrentBet || betValue > GetMaximumBetValue())
+                {
+                    betStatus = BetActionStatus.BetValueNotValid;
+                }
+                else
+                {
+                    CurrentBet = betValue;
+                    HighestBidder = ActivePlayer;
+                    MoveToNextBettor();
+                }
+            }
+
+            return betStatus;
+        }
+
+        /// <summary>
+        /// Retira al jugador de la apuesta en curso; no puede volver a participar en ella. Cuando queda un solo
+        /// apostador, el reto queda listo para resolverse (la resolución es de la etapa E3).
+        /// </summary>
+        /// <param name="playerId">Jugador que se retira.</param>
+        /// <returns>Accepted si se retiró; en otro caso, el motivo del rechazo.</returns>
+        public BetActionStatus WithdrawFromBet(int playerId)
+        {
+            BetActionStatus betStatus = CheckBettingActor(playerId, MatchPhase.Betting, BetActionStatus.BetNotOpen);
+
+            if (betStatus == BetActionStatus.Accepted)
+            {
+                ActivePlayer.HasWithdrawnFromBet = true;
+
+                if (CountRemainingBettors() == 1)
+                {
+                    Phase = MatchPhase.ChallengeReady;
+                    _activePlayerIndex = _players.IndexOf(HighestBidder);
+                }
+                else
+                {
+                    MoveToNextBettor();
+                }
+            }
+
+            return betStatus;
+        }
+
+        private BetActionStatus CheckBettingActor(
+            int playerId,
+            MatchPhase requiredPhase,
+            BetActionStatus wrongPhaseStatus)
+        {
+            BetActionStatus betStatus = BetActionStatus.Accepted;
+            MatchPlayer player = FindPlayer(playerId);
+
+            if (player == null)
+            {
+                betStatus = BetActionStatus.PlayerNotInMatch;
+            }
+            else if (Phase != requiredPhase)
+            {
+                betStatus = wrongPhaseStatus;
+            }
+            else if (!ReferenceEquals(player, ActivePlayer))
+            {
+                betStatus = BetActionStatus.NotPlayersTurn;
+            }
+
+            return betStatus;
+        }
+
+        private int GetMaximumBetValue()
+        {
+            return Math.Min(CardsOnTable, ModeRules.CardsPerPlayerCount);
+        }
+
+        private int CountRemainingBettors()
+        {
+            int bettorCount = 0;
+
+            foreach (MatchPlayer player in _players)
+            {
+                if (!player.HasWithdrawnFromBet)
+                {
+                    bettorCount++;
+                }
+            }
+
+            return bettorCount;
+        }
+
+        /// <summary>Pasa el turno al siguiente del orden que no se haya retirado; siempre queda alguno.</summary>
+        private void MoveToNextBettor()
+        {
+            do
+            {
+                _activePlayerIndex = (_activePlayerIndex + 1) % _players.Count;
+            }
+            while (ActivePlayer.HasWithdrawnFromBet);
         }
 
         private MatchPlayer FindPlayer(int playerId)

@@ -43,6 +43,9 @@ namespace TLMG.Domain.Engine
         /// <summary>Obtiene las vidas del jugador: las cartas de la mano más las de la pila.</summary>
         public int Lives => _hand.Count + _pile.Count;
 
+        /// <summary>Obtiene si el jugador se retiró de la apuesta en curso y ya no participa en ella.</summary>
+        public bool HasWithdrawnFromBet { get; internal set; }
+
         /// <summary>Obtiene los retos exitosos del jugador.</summary>
         public int SuccessfulChallenges { get; internal set; }
 

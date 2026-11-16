@@ -43,9 +43,11 @@
   <ItemGroup>
     <Compile Include="Constants\ErrorKeys.cs" />
     <Compile Include="Constants\ValidationRules.cs" />
+    <Compile Include="Engine\BetActionStatus.cs" />
     <Compile Include="Engine\CardKind.cs" />
     <Compile Include="Engine\CardPlacementStatus.cs" />
     <Compile Include="Engine\MatchModeRules.cs" />
+    <Compile Include="Engine\MatchPhase.cs" />
     <Compile Include="Engine\MatchPlayer.cs" />
     <Compile Include="Engine\MatchState.cs" />
     <Compile Include="Entities\Player.cs" />
