@@ -2,7 +2,7 @@
 {
     public class VerificationCodeValidationResult
     {
-        public string Status { get; set; }
+        public VerificationCodeStatus Status { get; set; }
         public int AttemptsFailed { get; set; }
     }
 }

@@ -11,9 +11,21 @@ namespace TLMG.DataAccess.Repositories
 {
     public class VerificationCodeRepository : IVerificationCodeRepository
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof(VerificationCodeRepository));
+        private const int EmailLength = 254;
+        private const int NicknameLength = 12;
+        private const int HashLength = 255;
+        private const int CodeTypeLength = 30;
+        private const int NoFailedAttempts = 0;
+        private const string SavedStatus = "Saved";
         private const string CreatedStatus = "Created";
-        private const string UnexpectedErrorStatus = "Error";
+
+        private static readonly ILog _log = LogManager.GetLogger(typeof(VerificationCodeRepository));
+
+        private class SavePendingRegistrationSpResult
+        {
+            public string Status { get; set; }
+            public int? PendingId { get; set; }
+        }
 
         private class CreateVerificationCodeSpResult
         {
@@ -30,42 +42,42 @@ namespace TLMG.DataAccess.Repositories
         public int? SavePendingRegistration(PendingRegistrationRecord pendingRegistration)
         {
             int? pendingId = null;
-            const string upsertCommand =
-                "DELETE vc " +
-                "FROM dbo.Verification_Code vc " +
-                "INNER JOIN dbo.Pending_Registration pr ON vc.id_pending = pr.id_pending " +
-                "WHERE pr.email = @Email; " +
-                "DELETE FROM dbo.Pending_Registration WHERE email = @Email; " +
-                "INSERT INTO dbo.Pending_Registration (email, nickname, password_hash, created_at, expires_at) " +
-                "OUTPUT INSERTED.id_pending " +
-                "VALUES (@Email, @Nickname, @PasswordHash, @CreatedAt, @ExpiresAt);";
+            const string storedProcedureCommand =
+                "EXEC dbo.SavePendingRegistration @email, @nickname, @password_hash, @created_at_utc, @expires_at_utc";
 
             try
             {
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
                 {
                     SqlParameter emailParameter =
-                        new SqlParameter("@Email", SqlDbType.VarChar, 254) { Value = pendingRegistration.Email };
+                        CreateVarCharParameter("@email", pendingRegistration.Email, EmailLength);
                     SqlParameter nicknameParameter =
-                        new SqlParameter("@Nickname", SqlDbType.VarChar, 12) { Value = pendingRegistration.Nickname };
+                        CreateVarCharParameter("@nickname", pendingRegistration.Nickname, NicknameLength);
                     SqlParameter passwordHashParameter =
-                        new SqlParameter("@PasswordHash", SqlDbType.VarChar, 255) { Value = pendingRegistration.PasswordHash };
+                        CreateVarCharParameter("@password_hash", pendingRegistration.PasswordHash, HashLength);
                     SqlParameter createdAtParameter =
-                        new SqlParameter("@CreatedAt", SqlDbType.DateTime2) { Value = pendingRegistration.CreatedAtUtc };
+                        CreateDateTimeParameter("@created_at_utc", pendingRegistration.CreatedAtUtc);
                     SqlParameter expiresAtParameter =
-                        new SqlParameter("@ExpiresAt", SqlDbType.DateTime2) { Value = pendingRegistration.ExpiresAtUtc };
+                        CreateDateTimeParameter("@expires_at_utc", pendingRegistration.ExpiresAtUtc);
 
-                    int insertedId = context.Database.SqlQuery<int>(
-                        upsertCommand,
-                        emailParameter,
-                        nicknameParameter,
-                        passwordHashParameter,
-                        createdAtParameter,
-                        expiresAtParameter).SingleOrDefault();
+                    SavePendingRegistrationSpResult spResult = context.Database
+                        .SqlQuery<SavePendingRegistrationSpResult>(
+                            storedProcedureCommand,
+                            emailParameter,
+                            nicknameParameter,
+                            passwordHashParameter,
+                            createdAtParameter,
+                            expiresAtParameter)
+                        .FirstOrDefault();
 
-                    if (insertedId > 0)
+                    if (spResult != null && spResult.Status == SavedStatus)
                     {
-                        pendingId = insertedId;
+                        pendingId = spResult.PendingId;
+                    }
+                    else
+                    {
+                        string failedStatus = spResult != null ? spResult.Status : null;
+                        _log.WarnFormat("dbo.SavePendingRegistration no guardó el registro. Estado: {0}.", failedStatus);
                     }
                 }
             }
@@ -84,21 +96,17 @@ namespace TLMG.DataAccess.Repositories
         public PendingRegistrationRecord FindPendingRegistrationByEmail(string email)
         {
             PendingRegistrationRecord pendingRecord = null;
-            const string selectQuery =
-                "SELECT TOP (1) id_pending AS PendingId, email AS Email, nickname AS Nickname, " +
-                "password_hash AS PasswordHash, created_at AS CreatedAtUtc, expires_at AS ExpiresAtUtc " +
-                "FROM dbo.Pending_Registration WHERE email = @Email ORDER BY id_pending DESC;";
+            const string storedProcedureCommand = "EXEC dbo.FindPendingRegistration @email";
 
             try
             {
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
                 {
-                    SqlParameter emailParameter =
-                        new SqlParameter("@Email", SqlDbType.VarChar, 254) { Value = email };
+                    SqlParameter emailParameter = CreateVarCharParameter("@email", email, EmailLength);
 
-                    pendingRecord = context.Database.SqlQuery<PendingRegistrationRecord>(
-                        selectQuery,
-                        emailParameter).FirstOrDefault();
+                    pendingRecord = context.Database
+                        .SqlQuery<PendingRegistrationRecord>(storedProcedureCommand, emailParameter)
+                        .FirstOrDefault();
                 }
             }
             catch (SqlException sqlException)
@@ -115,19 +123,16 @@ namespace TLMG.DataAccess.Repositories
 
         public void DeletePendingRegistration(int pendingId)
         {
-            const string deleteCommand =
-                "DELETE FROM dbo.Verification_Code WHERE id_pending = @PendingId; " +
-                "DELETE FROM dbo.Pending_Registration WHERE id_pending = @PendingId;";
-
+            const string storedProcedureCommand = "EXEC dbo.DeletePendingRegistration @id_pending";
 
             try
             {
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
                 {
                     SqlParameter pendingIdParameter =
-                        new SqlParameter("@PendingId", SqlDbType.Int) { Value = pendingId };
+                        new SqlParameter("@id_pending", SqlDbType.Int) { Value = pendingId };
 
-                    context.Database.ExecuteSqlCommand(deleteCommand, pendingIdParameter);
+                    context.Database.ExecuteSqlCommand(storedProcedureCommand, pendingIdParameter);
                 }
             }
             catch (SqlException sqlException)
@@ -146,41 +151,46 @@ namespace TLMG.DataAccess.Repositories
             const string storedProcedureCommand =
                 "EXEC dbo.CreateVerificationCode @id_user, @id_pending, @type, @code_hash, @expiration_utc";
 
-            try
+            string codeTypeText = ConvertToCodeTypeText(verificationCodeRecord.Type);
+
+            if (codeTypeText != null)
             {
-                using (TLMG_DBEntities context = new TLMG_DBEntities())
+                try
                 {
-                    SqlParameter userIdParameter =
-                        CreateNullableIntParameter("@id_user", verificationCodeRecord.UserId);
-                    SqlParameter pendingIdParameter =
-                        CreateNullableIntParameter("@id_pending", verificationCodeRecord.PendingId);
-                    SqlParameter typeParameter =
-                        new SqlParameter("@type", SqlDbType.VarChar, 30) { Value = verificationCodeRecord.Type };
-                    SqlParameter codeHashParameter =
-                        new SqlParameter("@code_hash", SqlDbType.VarChar, 255) { Value = verificationCodeRecord.CodeHash };
-                    SqlParameter expirationParameter =
-                        new SqlParameter("@expiration_utc", SqlDbType.DateTime2) { Value = verificationCodeRecord.ExpiresAtUtc };
+                    using (TLMG_DBEntities context = new TLMG_DBEntities())
+                    {
+                        SqlParameter userIdParameter =
+                            CreateNullableIntParameter("@id_user", verificationCodeRecord.UserId);
+                        SqlParameter pendingIdParameter =
+                            CreateNullableIntParameter("@id_pending", verificationCodeRecord.PendingId);
+                        SqlParameter typeParameter =
+                            CreateVarCharParameter("@type", codeTypeText, CodeTypeLength);
+                        SqlParameter codeHashParameter =
+                            CreateVarCharParameter("@code_hash", verificationCodeRecord.CodeHash, HashLength);
+                        SqlParameter expirationParameter =
+                            CreateDateTimeParameter("@expiration_utc", verificationCodeRecord.ExpiresAtUtc);
 
-                    CreateVerificationCodeSpResult spResult = context.Database
-                        .SqlQuery<CreateVerificationCodeSpResult>(
-                            storedProcedureCommand,
-                            userIdParameter,
-                            pendingIdParameter,
-                            typeParameter,
-                            codeHashParameter,
-                            expirationParameter)
-                        .FirstOrDefault();
+                        CreateVerificationCodeSpResult spResult = context.Database
+                            .SqlQuery<CreateVerificationCodeSpResult>(
+                                storedProcedureCommand,
+                                userIdParameter,
+                                pendingIdParameter,
+                                typeParameter,
+                                codeHashParameter,
+                                expirationParameter)
+                            .FirstOrDefault();
 
-                    wasCodeSaved = spResult != null && spResult.status == CreatedStatus;
+                        wasCodeSaved = spResult != null && spResult.status == CreatedStatus;
+                    }
                 }
-            }
-            catch (SqlException sqlException)
-            {
-                _log.Error("Error SQL al ejecutar dbo.CreateVerificationCode.", sqlException);
-            }
-            catch (EntityException entityException)
-            {
-                _log.Error("Error de entidad al ejecutar dbo.CreateVerificationCode.", entityException);
+                catch (SqlException sqlException)
+                {
+                    _log.Error("Error SQL al ejecutar dbo.CreateVerificationCode.", sqlException);
+                }
+                catch (EntityException entityException)
+                {
+                    _log.Error("Error de entidad al ejecutar dbo.CreateVerificationCode.", entityException);
+                }
             }
 
             return wasCodeSaved;
@@ -192,64 +202,151 @@ namespace TLMG.DataAccess.Repositories
         {
             VerificationCodeValidationResult validationResult = new VerificationCodeValidationResult
             {
-                Status = UnexpectedErrorStatus,
-                AttemptsFailed = 0
+                Status = VerificationCodeStatus.UnexpectedError,
+                AttemptsFailed = NoFailedAttempts
             };
 
             const string storedProcedureCommand =
                 "EXEC dbo.ValidateVerificationCode @id_user, @id_pending, @type, @code_hash, @now_utc";
 
-            try
+            string codeTypeText = ConvertToCodeTypeText(verificationCode.Type);
+
+            if (codeTypeText != null)
             {
-                using (TLMG_DBEntities context = new TLMG_DBEntities())
+                try
                 {
-                    SqlParameter userIdParameter =
-                        CreateNullableIntParameter("@id_user", verificationCode.UserId);
-                    SqlParameter pendingIdParameter =
-                        CreateNullableIntParameter("@id_pending", verificationCode.PendingId);
-                    SqlParameter typeParameter =
-                        new SqlParameter("@type", SqlDbType.VarChar, 30) { Value = verificationCode.Type };
-                    SqlParameter codeHashParameter =
-                        new SqlParameter("@code_hash", SqlDbType.VarChar, 255) { Value = verificationCode.CodeHash };
-                    SqlParameter nowUtcParameter =
-                        new SqlParameter("@now_utc", SqlDbType.DateTime2) { Value = nowUtc };
-
-                    ValidateVerificationCodeSpResult spResult = context.Database
-                        .SqlQuery<ValidateVerificationCodeSpResult>(
-                            storedProcedureCommand,
-                            userIdParameter,
-                            pendingIdParameter,
-                            typeParameter,
-                            codeHashParameter,
-                            nowUtcParameter)
-                        .FirstOrDefault();
-
-                    if (spResult != null)
+                    using (TLMG_DBEntities context = new TLMG_DBEntities())
                     {
-                        validationResult.Status = spResult.status;
-                        validationResult.AttemptsFailed = spResult.attempts_failed ?? 0;
-                    }
-                    else
-                    {
-                        _log.Error("dbo.ValidateVerificationCode no devolvió ninguna fila.");
+                        SqlParameter userIdParameter =
+                            CreateNullableIntParameter("@id_user", verificationCode.UserId);
+                        SqlParameter pendingIdParameter =
+                            CreateNullableIntParameter("@id_pending", verificationCode.PendingId);
+                        SqlParameter typeParameter =
+                            CreateVarCharParameter("@type", codeTypeText, CodeTypeLength);
+                        SqlParameter codeHashParameter =
+                            CreateVarCharParameter("@code_hash", verificationCode.CodeHash, HashLength);
+                        SqlParameter nowUtcParameter = CreateDateTimeParameter("@now_utc", nowUtc);
+
+                        ValidateVerificationCodeSpResult spResult = context.Database
+                            .SqlQuery<ValidateVerificationCodeSpResult>(
+                                storedProcedureCommand,
+                                userIdParameter,
+                                pendingIdParameter,
+                                typeParameter,
+                                codeHashParameter,
+                                nowUtcParameter)
+                            .FirstOrDefault();
+
+                        if (spResult != null)
+                        {
+                            validationResult.Status = ConvertToStatus(spResult.status);
+                            validationResult.AttemptsFailed = spResult.attempts_failed ?? NoFailedAttempts;
+                        }
+                        else
+                        {
+                            _log.Error("dbo.ValidateVerificationCode no devolvió ninguna fila.");
+                        }
                     }
                 }
+                catch (InvalidOperationException invalidOperationException)
+                {
+                    _log.Error(
+                        "Resultado inesperado al ejecutar dbo.ValidateVerificationCode.",
+                        invalidOperationException);
+                }
+                catch (SqlException sqlException)
+                {
+                    _log.Error("Error SQL al ejecutar dbo.ValidateVerificationCode.", sqlException);
+                }
+                catch (EntityException entityException)
+                {
+                    _log.Error("Error de entidad al ejecutar dbo.ValidateVerificationCode.", entityException);
+                }
             }
-            catch (InvalidOperationException invalidOperationException)
-            {
-                _log.Error("Resultado inesperado al ejecutar dbo.ValidateVerificationCode.", invalidOperationException);
-            }
-            catch (SqlException sqlException)
-            {
-                _log.Error("Error SQL al ejecutar dbo.ValidateVerificationCode.", sqlException);
-            }
-            catch (EntityException entityException)
-            {
-                _log.Error("Error de entidad al ejecutar dbo.ValidateVerificationCode.", entityException);
-            }
-
 
             return validationResult;
+        }
+
+        private static VerificationCodeStatus ConvertToStatus(string storedProcedureStatus)
+        {
+            const string validStatus = "Valid";
+            const string invalidStatus = "Invalid";
+            const string tooManyAttemptsStatus = "TooManyAttempts";
+            const string expiredStatus = "Expired";
+            const string noActiveCodeStatus = "NoActiveCode";
+
+            VerificationCodeStatus verificationCodeStatus;
+
+            switch (storedProcedureStatus)
+            {
+                case validStatus:
+                    verificationCodeStatus = VerificationCodeStatus.Valid;
+                    break;
+                case invalidStatus:
+                    verificationCodeStatus = VerificationCodeStatus.Invalid;
+                    break;
+                case tooManyAttemptsStatus:
+                    verificationCodeStatus = VerificationCodeStatus.TooManyAttempts;
+                    break;
+                case expiredStatus:
+                    verificationCodeStatus = VerificationCodeStatus.Expired;
+                    break;
+                case noActiveCodeStatus:
+                    verificationCodeStatus = VerificationCodeStatus.NoActiveCode;
+                    break;
+                default:
+                    verificationCodeStatus = VerificationCodeStatus.UnexpectedError;
+                    break;
+            }
+
+            return verificationCodeStatus;
+        }
+
+        private static string ConvertToCodeTypeText(VerificationCodeType verificationCodeType)
+        {
+            const string registrationText = "CODE_REGISTRATION";
+            const string logInText = "CODE_LOGIN";
+            const string passwordChangeText = "CODE_PASSWORD_CHANGE";
+            const string passwordResetText = "CODE_PASSWORD_RESET";
+
+            string codeTypeText = null;
+
+            switch (verificationCodeType)
+            {
+                case VerificationCodeType.Registration:
+                    codeTypeText = registrationText;
+                    break;
+                case VerificationCodeType.LogIn:
+                    codeTypeText = logInText;
+                    break;
+                case VerificationCodeType.PasswordChange:
+                    codeTypeText = passwordChangeText;
+                    break;
+                case VerificationCodeType.PasswordReset:
+                    codeTypeText = passwordResetText;
+                    break;
+                default:
+                    _log.ErrorFormat("Tipo de código de verificación no soportado: {0}.", verificationCodeType);
+                    break;
+            }
+
+            return codeTypeText;
+        }
+
+        private static SqlParameter CreateVarCharParameter(string parameterName, string value, int length)
+        {
+            return new SqlParameter(parameterName, SqlDbType.VarChar, length)
+            {
+                Value = (object)value ?? DBNull.Value
+            };
+        }
+
+        private static SqlParameter CreateDateTimeParameter(string parameterName, DateTime value)
+        {
+            return new SqlParameter(parameterName, SqlDbType.DateTime2)
+            {
+                Value = value
+            };
         }
 
         private static SqlParameter CreateNullableIntParameter(string parameterName, int? value)

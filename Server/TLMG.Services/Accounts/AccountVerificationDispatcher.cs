@@ -37,14 +37,10 @@ namespace TLMG.Services.Accounts
 
         public bool SendRegistrationCode(int pendingId, string normalizedEmail, string cultureCode)
         {
-            const string registrationCodeType = "CODE_REGISTRATION";
             bool wasDispatched = false;
             string plainCode = _codeGeneratorUtility.GenerateSixDigitCode();
 
-            bool wasCodeSaved = _verificationCodeStore.SaveRegistrationCode(
-                pendingId,
-                plainCode,
-                registrationCodeType);
+            bool wasCodeSaved = _verificationCodeStore.SaveRegistrationCode(pendingId, plainCode);
 
             if (wasCodeSaved)
             {
@@ -60,12 +56,7 @@ namespace TLMG.Services.Accounts
 
         public VerificationCodeValidationResult ValidateRegistrationCode(int pendingId, string plainCode)
         {
-            const string registrationCodeType = "CODE_REGISTRATION";
-
-            return _verificationCodeStore.ValidateRegistrationCode(
-                pendingId,
-                plainCode,
-                registrationCodeType);
+            return _verificationCodeStore.ValidateRegistrationCode(pendingId, plainCode);
         }
     }
 }
