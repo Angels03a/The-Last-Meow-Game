@@ -52,18 +52,16 @@ namespace TLMG.Services.Accounts
             return operationRegisterPlayerAccountResult;
         }
 
-        public OperationResult RequestVerificationCode(
-            PlayerAccountRegistration playerAccountRegistration,
+        public OperationResult RequestVerificationCode(PlayerAccountRegistration playerAccountRegistration,
             string cultureCode)
         {
             OperationResult operationResult = new OperationResult();
-            string errorKey = ValidateRegisterPlayerAccountRequest(
-                playerAccountRegistration,
+            string errorKey = ValidateRegisterPlayerAccountRequest(playerAccountRegistration,
                 out PlayerRegistration playerRegistration);
 
             if (errorKey == null)
             {
-                string normalizedEmail = playerRegistration.Email.ToLowerInvariant();
+                string normalizedEmail = playerRegistration.Email;
                 errorKey = FindDuplicateAccountErrorKey(normalizedEmail, playerRegistration.Nickname);
 
                 if (errorKey == null)
@@ -78,8 +76,7 @@ namespace TLMG.Services.Accounts
             return operationResult;
         }
 
-        public OperationResult CompleteRegistration(
-            PlayerAccountRegistration playerAccountRegistration,
+        public OperationResult CompleteRegistration(PlayerAccountRegistration playerAccountRegistration,
             string verificationCode)
         {
             OperationResult operationResult = new OperationResult();
@@ -101,7 +98,7 @@ namespace TLMG.Services.Accounts
 
             if (errorKey == null)
             {
-                string normalizedEmail = playerAccountRegistration.Email.Trim().ToLowerInvariant();
+                string normalizedEmail = AccountFieldValidator.NormalizeEmail(playerAccountRegistration.Email);
                 PendingRegistrationRecord pendingRecord =
                     _verificationDispatcher.FindValidPendingRegistration(normalizedEmail);
 
@@ -137,7 +134,7 @@ namespace TLMG.Services.Accounts
             }
             else
             {
-                string normalizedEmail = email.Trim().ToLowerInvariant();
+                string normalizedEmail = AccountFieldValidator.NormalizeEmail(email);
                 PendingRegistrationRecord pendingRecord =
                     _verificationDispatcher.FindValidPendingRegistration(normalizedEmail);
 
@@ -210,79 +207,77 @@ namespace TLMG.Services.Accounts
             return errorKey;
         }
 
-        private string VerifyCodeAndFinalizePlayer(
-            PendingRegistrationRecord pendingRecord,
-            string plainCode)
+        private string VerifyCodeAndFinalizePlayer(PendingRegistrationRecord pendingRecord, string plainCode)
         {
-            string errorKey = null;
+            string errorKey;
             VerificationCodeValidationResult validationResult =
                 _verificationDispatcher.ValidateRegistrationCode(pendingRecord.PendingId, plainCode);
 
-            if (validationResult.Status == "Valid")
+            switch (validationResult.Status)
             {
-                errorKey = FindDuplicateAccountErrorKey(pendingRecord.Email, pendingRecord.Nickname);
-
-                if (errorKey == null)
-                {
-                    bool wasCreated = _playerRepository.CreatePlayer(
-                        pendingRecord.Nickname,
-                        pendingRecord.Email,
-                        pendingRecord.PasswordHash);
-
-                    if (wasCreated)
-                    {
-                        _verificationDispatcher.DeletePendingRegistration(pendingRecord.PendingId);
-                    }
-                    else
-                    {
-                        errorKey = ErrorKeys.CreateAccount.DataModel;
-                    }
-                }
-            }
-            else if (validationResult.Status == "Invalid")
-            {
-                errorKey = ErrorKeys.Verification.IncorrectCode;
-            }
-            else if (validationResult.Status == "TooManyAttempts")
-            {
-                errorKey = ErrorKeys.Verification.AttemptsExhausted;
-            }
-            else if (validationResult.Status == "Expired" || validationResult.Status == "NoActiveCode")
-            {
-                errorKey = ErrorKeys.Verification.ExpiredCode;
-            }
-            else
-            {
-                _log.ErrorFormat("Estado de validación no reconocido: {0}.", validationResult.Status);
-                errorKey = ErrorKeys.CreateAccount.DataModel;
+                case VerificationCodeStatus.Valid:
+                    errorKey = FinalizePlayer(pendingRecord);
+                    break;
+                case VerificationCodeStatus.Invalid:
+                    errorKey = ErrorKeys.Verification.IncorrectCode;
+                    break;
+                case VerificationCodeStatus.TooManyAttempts:
+                    errorKey = ErrorKeys.Verification.AttemptsExhausted;
+                    break;
+                case VerificationCodeStatus.Expired:
+                case VerificationCodeStatus.NoActiveCode:
+                    errorKey = ErrorKeys.Verification.ExpiredCode;
+                    break;
+                default:
+                    _log.ErrorFormat("Estado de validación no reconocido: {0}.", validationResult.Status);
+                    errorKey = ErrorKeys.CreateAccount.DataModel;
+                    break;
             }
 
             return errorKey;
         }
 
-        private static string ValidateRegisterPlayerAccountRequest(
-            PlayerAccountRegistration playerAccountRegistration,
+        private string FinalizePlayer(PendingRegistrationRecord pendingRecord)
+        {
+            string errorKey = FindDuplicateAccountErrorKey(pendingRecord.Email, pendingRecord.Nickname);
+
+            if (errorKey == null)
+            {
+                bool wasCreated = _playerRepository.CreatePlayer(
+                    pendingRecord.Nickname,
+                    pendingRecord.Email,
+                    pendingRecord.PasswordHash);
+
+                if (wasCreated)
+                {
+                    _verificationDispatcher.DeletePendingRegistration(pendingRecord.PendingId);
+                }
+                else
+                {
+                    errorKey = ErrorKeys.CreateAccount.DataModel;
+                }
+            }
+
+            return errorKey;
+        }
+
+        private static string ValidateRegisterPlayerAccountRequest(PlayerAccountRegistration playerAccountRegistration,
             out PlayerRegistration playerRegistration)
         {
-            string errorKey = null;
             playerRegistration = null;
 
-            if (playerAccountRegistration == null)
-            {
-                errorKey = ErrorKeys.CreateAccount.IncompleteFields;
-            }
-            else
+            if (playerAccountRegistration != null)
             {
                 playerRegistration = new PlayerRegistration
                 {
                     Nickname = playerAccountRegistration.Nickname,
-                    Email = playerAccountRegistration.Email,
+                    Email = AccountFieldValidator.NormalizeEmail(playerAccountRegistration.Email),
                     Password = playerAccountRegistration.Password,
                     HasAcceptedTerms = playerAccountRegistration.HasAcceptedTerms
                 };
-
-                errorKey = PlayerAccountRegistrationValidator.ValidateAccountPlayerRegistration(playerRegistration);
             }
+
+            string errorKey = PlayerAccountRegistrationValidator.ValidateAccountPlayerRegistration(playerRegistration);
 
             return errorKey;
         }
@@ -292,7 +287,7 @@ namespace TLMG.Services.Accounts
             OperationResult operationRegisterPlayerAccountResult = new OperationResult();
 
             string nickname = playerRegistration.Nickname;
-            string email = playerRegistration.Email.ToLowerInvariant();
+            string email = playerRegistration.Email;
             string errorKey = FindDuplicateAccountErrorKey(email, nickname);
 
             if (errorKey == null)

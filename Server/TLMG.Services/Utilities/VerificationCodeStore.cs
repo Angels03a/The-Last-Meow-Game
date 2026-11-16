@@ -7,9 +7,11 @@ namespace TLMG.Services.Utilities
 {
     public class VerificationCodeStore
     {
-        private readonly IVerificationCodeRepository _verificationCodeRepository;
         private const int CodeExpirationMinutes = 5;
         private const int PendingRegistrationMinutes = 15;
+        private const string HexByteFormat = "x2";
+
+        private readonly IVerificationCodeRepository _verificationCodeRepository;
 
         public VerificationCodeStore(IVerificationCodeRepository verificationCodeRepository)
         {
@@ -52,7 +54,7 @@ namespace TLMG.Services.Utilities
             _verificationCodeRepository.DeletePendingRegistration(pendingId);
         }
 
-        public bool SaveRegistrationCode(int pendingId, string plainCode, string type)
+        public bool SaveRegistrationCode(int pendingId, string plainCode)
         {
             DateTime nowUtc = DateTime.UtcNow;
             VerificationCodeRecord record = new VerificationCodeRecord
@@ -60,7 +62,7 @@ namespace TLMG.Services.Utilities
                 UserId = null,
                 PendingId = pendingId,
                 CodeHash = ComputeCodeHash(plainCode),
-                Type = type,
+                Type = VerificationCodeType.Registration,
                 GeneratedAtUtc = nowUtc,
                 ExpiresAtUtc = nowUtc.AddMinutes(CodeExpirationMinutes)
             };
@@ -70,16 +72,13 @@ namespace TLMG.Services.Utilities
             return wasCodeSaved;
         }
 
-        public VerificationCodeValidationResult ValidateRegistrationCode(
-            int pendingId,
-            string plainCode,
-            string type)
+        public VerificationCodeValidationResult ValidateRegistrationCode(int pendingId, string plainCode)
         {
             VerificationCodeRecord recordToValidate = new VerificationCodeRecord
             {
                 UserId = null,
                 PendingId = pendingId,
-                Type = type,
+                Type = VerificationCodeType.Registration,
                 CodeHash = ComputeCodeHash(plainCode)
             };
 
@@ -97,14 +96,14 @@ namespace TLMG.Services.Utilities
             {
                 byte[] inputBytes = Encoding.UTF8.GetBytes(plainCode);
                 byte[] hashBytes = sha256.ComputeHash(inputBytes);
-                StringBuilder builder = new StringBuilder();
+                StringBuilder hashBuilder = new StringBuilder();
 
-                for (int byteIndex = 0; byteIndex < hashBytes.Length; byteIndex++)
+                foreach (byte hashByte in hashBytes)
                 {
-                    builder.Append(hashBytes[byteIndex].ToString("x2"));
+                    hashBuilder.Append(hashByte.ToString(HexByteFormat));
                 }
 
-                computedHash = builder.ToString();
+                computedHash = hashBuilder.ToString();
             }
 
             return computedHash;

@@ -11,10 +11,6 @@ using TLMG.Services.Utilities;
 
 namespace TLMG.Server
 {
-    /// <summary>
-    /// Composition Root: Construye el grafo de dependencias completo y lo inyecta 
-    /// en la capa WCF antes de abrir el ServiceHost.
-    /// </summary>
     public static class Bootstrapper
     {
         public static void Initialize()
@@ -25,37 +21,40 @@ namespace TLMG.Server
 
             IPasswordHasher passwordHasher = new PasswordHasher();
             ISessionRegistry sessionRegistry = new SessionRegistry();
+            
             VerificationCodeStore verificationCodeStore = new VerificationCodeStore(verificationCodeRepository);
+            
             EmailUtility emailUtility = new EmailUtility();
+            
             AccountVerificationDispatcher verificationDispatcher =
                 new AccountVerificationDispatcher(verificationCodeStore, emailUtility);
 
             PlayerAccountRegistrationService registrationService =
-                new PlayerAccountRegistrationService(
-                    playerRepository,
-                    passwordHasher,
-                    verificationDispatcher);
+                new PlayerAccountRegistrationService(playerRepository, passwordHasher, verificationDispatcher);
 
             PlayerLogInService logInService =
                 new PlayerLogInService(playerRepository, passwordHasher, sessionRegistry);
 
             ChatService chatService = new ChatService(sessionRegistry, new ChatMessageRepository());
 
-            FriendsService friendsService =
-                new FriendsService(friendshipRepository, sessionRegistry);
+            FriendsService friendsService = new FriendsService(friendshipRepository, sessionRegistry);
 
             LeaderboardService leaderboardService = new LeaderboardService(playerRepository);
 
             LobbyService lobbyService = new LobbyService(sessionRegistry);
 
-            ServiceImplementation.ConfigureDependencies(
-                sessionRegistry,
-                registrationService,
-                logInService,
-                chatService,
-                friendsService,
-                leaderboardService,
-                lobbyService);
+            ServiceDependencies dependencies = new ServiceDependencies
+            {
+                SessionRegistry = sessionRegistry,
+                RegistrationService = registrationService,
+                LogInService = logInService,
+                ChatService = chatService,
+                FriendsService = friendsService,
+                LeaderboardService = leaderboardService,
+                LobbyService = lobbyService
+            };
+
+            ServiceImplementation.ConfigureDependencies(dependencies);
         }
     }
 }

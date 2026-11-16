@@ -69,30 +69,21 @@ namespace TLMG.Services.Accounts
             return loginResult;
         }
 
-        private static string ValidateLogInRequest(OperationLogInRequest operationLogInRequest, 
+        private static string ValidateLogInRequest(OperationLogInRequest operationLogInRequest,
             out PlayerLogin playerLogin)
         {
-            string errorKey = null;
+            string errorKey = ErrorKeys.Login.IncompleteFields;
             playerLogin = null;
 
-            if (operationLogInRequest == null
-                || string.IsNullOrWhiteSpace(operationLogInRequest.Email)
-                || string.IsNullOrWhiteSpace(operationLogInRequest.Password))
-            {
-                errorKey = ErrorKeys.Login.IncompleteFields;
-            }
-            else
+            if (operationLogInRequest != null)
             {
                 playerLogin = new PlayerLogin
                 {
-                    Email = operationLogInRequest.Email,
+                    Email = AccountFieldValidator.NormalizeEmail(operationLogInRequest.Email),
                     Password = operationLogInRequest.Password
                 };
 
-                if (PlayerAccountRegistrationValidator.ValidateEmail(playerLogin.Email) != null)
-                {
-                    errorKey = ErrorKeys.Login.EmailFormat;
-                }
+                errorKey = PlayerLogInValidator.ValidateLogIn(playerLogin);
             }
 
             return errorKey;
@@ -101,8 +92,7 @@ namespace TLMG.Services.Accounts
         private string AuthenticatePlayer(PlayerLogin playerLogin, out PlayerCredentials playerCredentials)
         {
             string errorKey = ErrorKeys.Login.InvalidCredentials;
-            string email = playerLogin.Email.ToLowerInvariant();
-            playerCredentials = _playerRepository.FindCredentialsByEmail(email);
+            playerCredentials = _playerRepository.FindCredentialsByEmail(playerLogin.Email);
 
             if (playerCredentials.Status == CredentialsLookupStatus.DataFailure)
             {

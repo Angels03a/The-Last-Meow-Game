@@ -25,27 +25,15 @@ namespace TLMG.Services
         private static FriendsService _friendsService;
         private static LeaderboardService _leaderboardService;
         private static LobbyService _lobbyService;
-
-        /// <summary>
-        /// Recibe el grafo de objetos ya construido desde el Composition Root.
-        /// WCF se vuelve ciego respecto a la base de datos y la encriptación.
-        /// </summary>
-        public static void ConfigureDependencies(
-            ISessionRegistry sessionRegistry,
-            PlayerAccountRegistrationService registrationService,
-            PlayerLogInService logInService,
-            ChatService chatService,
-            FriendsService friendsService,
-            LeaderboardService leaderboardService,
-            LobbyService lobbyService)
+        public static void ConfigureDependencies(ServiceDependencies serviceDependencies)
         {
-            _sessionRegistry = sessionRegistry;
-            _playerAccountRegistrationService = registrationService;
-            _playerLogInService = logInService;
-            _chatService = chatService;
-            _friendsService = friendsService;
-            _leaderboardService = leaderboardService;
-            _lobbyService = lobbyService;
+            _sessionRegistry = serviceDependencies.SessionRegistry;
+            _playerAccountRegistrationService = serviceDependencies.RegistrationService;
+            _playerLogInService = serviceDependencies.LogInService;
+            _chatService = serviceDependencies.ChatService;
+            _friendsService = serviceDependencies.FriendsService;
+            _leaderboardService = serviceDependencies.LeaderboardService;
+            _lobbyService = serviceDependencies.LobbyService;
         }
 
         private void SafeNotifyAll(IReadOnlyList<Action> notifications)
