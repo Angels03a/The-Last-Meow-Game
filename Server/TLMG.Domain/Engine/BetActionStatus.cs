@@ -25,6 +25,15 @@ namespace TLMG.Domain.Engine
         EmptyHandRequiresBetOfOne,
 
         /// <summary>El valor está fuera del rango permitido o no supera la apuesta actual.</summary>
-        BetValueNotValid
+        BetValueNotValid,
+
+        /// <summary>Para abrir una apuesta hay que haber colocado antes una carta propia en la ronda.</summary>
+        NoCardPlacedInRound,
+
+        /// <summary>Hay un castigo pendiente: no se admite ninguna acción de juego.</summary>
+        PunishmentPending,
+
+        /// <summary>La partida terminó: no se admite ninguna acción de juego.</summary>
+        MatchFinished
     }
 }

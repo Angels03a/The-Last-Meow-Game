@@ -19,6 +19,12 @@ namespace TLMG.Domain.Engine
         HandEmpty,
 
         /// <summary>La mano del jugador no contiene una carta de ese tipo.</summary>
-        CardNotInHand
+        CardNotInHand,
+
+        /// <summary>Hay un castigo pendiente: no se admite ninguna acción de juego.</summary>
+        PunishmentPending,
+
+        /// <summary>La partida terminó: no se admite ninguna acción de juego.</summary>
+        MatchFinished
     }
 }

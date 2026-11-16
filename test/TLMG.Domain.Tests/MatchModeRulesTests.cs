@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 using Xunit;
 
@@ -9,6 +12,8 @@ namespace TLMG.Domain.Tests
     /// <summary>Pruebas de MatchModeRules.</summary>
     public class MatchModeRulesTests
     {
+        private const BindingFlags PublicInstanceMembers = BindingFlags.Instance | BindingFlags.Public;
+
         /// <summary>Verifica CreateFromCardsPerPlayerCount_WithSupportedCount_ReturnsModeData.</summary>
         [Theory]
         [InlineData(4, 1, 3, 2)]
@@ -61,6 +66,48 @@ namespace TLMG.Domain.Tests
 
             // Assert
             Assert.IsType<ArgumentOutOfRangeException>(thrown);
+        }
+
+        /// <summary>Verifica Properties_Always_HaveNoPublicSetter.</summary>
+        [Fact]
+        public void Properties_Always_HaveNoPublicSetter()
+        {
+            // Arrange
+            PropertyInfo[] publicProperties = typeof(MatchModeRules).GetProperties(PublicInstanceMembers);
+
+            // Act
+            IEnumerable<MethodInfo> publicSetters = publicProperties
+                .Select(property => property.GetSetMethod(false))
+                .Where(setter => setter != null);
+
+            // Assert
+            Assert.Empty(publicSetters);
+        }
+
+        /// <summary>Verifica Methods_Always_ContainNoPublicInstanceMethodBesidesAccessors.</summary>
+        [Fact]
+        public void Methods_Always_ContainNoPublicInstanceMethodBesidesAccessors()
+        {
+            // Arrange
+            MethodInfo[] declaredMethods = typeof(MatchModeRules).GetMethods(
+                PublicInstanceMembers | BindingFlags.DeclaredOnly);
+
+            // Act
+            IEnumerable<MethodInfo> modeChangingMethods = declaredMethods.Where(method => !method.IsSpecialName);
+
+            // Assert
+            Assert.Empty(modeChangingMethods);
+        }
+
+        /// <summary>Verifica Fields_Always_ContainNoPublicInstanceField.</summary>
+        [Fact]
+        public void Fields_Always_ContainNoPublicInstanceField()
+        {
+            // Act
+            FieldInfo[] publicFields = typeof(MatchModeRules).GetFields(PublicInstanceMembers);
+
+            // Assert
+            Assert.Empty(publicFields);
         }
     }
 }

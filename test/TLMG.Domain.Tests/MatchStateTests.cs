@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 using Xunit;
 
@@ -20,6 +21,8 @@ namespace TLMG.Domain.Tests
         private const int ThreePlayers = 3;
         private const int SixPlayers = 6;
         private const CardKind UndefinedCardKind = (CardKind)99;
+        private const string ModeRulesParameterName = "modeRules";
+        private const string PlayersParameterName = "playerIdsInJoinOrder";
 
         /// <summary>Verifica Constructor_WithSupportedMode_DealsFatalCatsAndSafeCardsToEveryPlayer.</summary>
         [Theory]
@@ -425,6 +428,78 @@ namespace TLMG.Domain.Tests
             // Assert
             Assert.Equal(FirstPlayerId, match.PlayerInTurn.PlayerId);
             Assert.Equal(FourCardsPerPlayer, match.Players[0].HandCards.Count);
+        }
+
+        /// <summary>Verifica Constructor_WithBothArgumentsNull_ReportsModeRulesFirst.</summary>
+        [Fact]
+        public void Constructor_WithBothArgumentsNull_ReportsModeRulesFirst()
+        {
+            // Act
+            Exception thrown = Record.Exception(() => new MatchState(null, null));
+
+            // Assert
+            ArgumentNullException nullException = Assert.IsType<ArgumentNullException>(thrown);
+            Assert.Equal(ModeRulesParameterName, nullException.ParamName);
+        }
+
+        /// <summary>Verifica Constructor_WithTooFewPlayersThatRepeat_ReportsCountBeforeDuplicates.</summary>
+        [Fact]
+        public void Constructor_WithTooFewPlayersThatRepeat_ReportsCountBeforeDuplicates()
+        {
+            // Arrange
+            List<int> playerIds = new List<int> { FirstPlayerId, FirstPlayerId };
+            MatchModeRules modeRules = MatchModeRules.CreateFromCardsPerPlayerCount(FourCardsPerPlayer);
+
+            // Act
+            Exception thrown = Record.Exception(() => new MatchState(modeRules, playerIds));
+
+            // Assert
+            Assert.IsType<ArgumentOutOfRangeException>(thrown);
+        }
+
+        /// <summary>Verifica Constructor_WithDuplicatePlayerIds_ReportsPlayersParameter.</summary>
+        [Fact]
+        public void Constructor_WithDuplicatePlayerIds_ReportsPlayersParameter()
+        {
+            // Arrange
+            List<int> playerIds = new List<int> { FirstPlayerId, SecondPlayerId, FirstPlayerId };
+            MatchModeRules modeRules = MatchModeRules.CreateFromCardsPerPlayerCount(FourCardsPerPlayer);
+
+            // Act
+            Exception thrown = Record.Exception(() => new MatchState(modeRules, playerIds));
+
+            // Assert
+            ArgumentException duplicateException = Assert.IsType<ArgumentException>(thrown);
+            Assert.Equal(PlayersParameterName, duplicateException.ParamName);
+        }
+
+        /// <summary>Verifica ModeRules_Always_HasNoPublicSetter.</summary>
+        [Fact]
+        public void ModeRules_Always_HasNoPublicSetter()
+        {
+            // Arrange
+            PropertyInfo modeRulesProperty = typeof(MatchState).GetProperty(nameof(MatchState.ModeRules));
+
+            // Act
+            MethodInfo publicSetter = modeRulesProperty.GetSetMethod(false);
+
+            // Assert
+            Assert.Null(publicSetter);
+        }
+
+        /// <summary>Verifica PublicMethods_Always_DoNotAcceptModeRules.</summary>
+        [Fact]
+        public void PublicMethods_Always_DoNotAcceptModeRules()
+        {
+            // Arrange
+            MethodInfo[] publicMethods = typeof(MatchState).GetMethods(BindingFlags.Instance | BindingFlags.Public);
+
+            // Act
+            IEnumerable<MethodInfo> methodsThatAcceptModeRules = publicMethods.Where(
+                method => method.GetParameters().Any(parameter => parameter.ParameterType == typeof(MatchModeRules)));
+
+            // Assert
+            Assert.Empty(methodsThatAcceptModeRules);
         }
 
         private static MatchState CreateMatch(int cardsPerPlayerCount, int playerCount)

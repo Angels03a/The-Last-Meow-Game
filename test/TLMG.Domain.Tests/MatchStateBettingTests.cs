@@ -26,6 +26,9 @@ namespace TLMG.Domain.Tests
         private const int PlacementsBeforeFatalCat = 4;
         private const int PlacementsForThreeCardsOnTable = 3;
         private const int PlacementsForEightCardsOnTable = 8;
+        private const int TwoPlacementsBeforeThirdPlayer = 2;
+        private const int ThreePlacementsUntilThirdPlayerAgain = 3;
+        private const int TwoCardBet = 2;
         private const int PlacementsForTwelveCardsOnTable = 12;
 
         /// <summary>Verifica OpenBet_Scenario1Round1_ThirdPlayerOpensTwoWithFiveCardsOnTable.</summary>
@@ -575,6 +578,40 @@ namespace TLMG.Domain.Tests
             Assert.Equal(RoundPhase.ChallengeReady, match.Phase);
             Assert.Equal(FirstPlayerId, match.PlayerInTurn.PlayerId);
             Assert.Equal(2, match.CurrentBet);
+        }
+
+        /// <summary>Verifica OpenBet_WithoutOwnCardPlacedInRound_ReturnsNoCardPlacedInRound.</summary>
+        [Fact]
+        public void OpenBet_WithoutOwnCardPlacedInRound_ReturnsNoCardPlacedInRound()
+        {
+            // Arrange: A y B colocaron una carta; C tiene el turno sin haber colocado ninguna.
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
+            PlaceSafeCards(match, TwoPlacementsBeforeThirdPlayer);
+
+            // Act
+            BetActionStatus status = match.OpenBet(ThirdPlayerId, TwoCardBet);
+
+            // Assert
+            Assert.Equal(BetActionStatus.NoCardPlacedInRound, status);
+            Assert.Equal(RoundPhase.PlacingCards, match.Phase);
+            Assert.Equal(ThirdPlayerId, match.PlayerInTurn.PlayerId);
+        }
+
+        /// <summary>Verifica OpenBet_AfterPlacingOwnCard_ReturnsAccepted.</summary>
+        [Fact]
+        public void OpenBet_AfterPlacingOwnCard_ReturnsAccepted()
+        {
+            // Arrange: C intenta abrir sin carta, coloca una y vuelve a tener el turno.
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
+            PlaceSafeCards(match, TwoPlacementsBeforeThirdPlayer);
+            match.OpenBet(ThirdPlayerId, TwoCardBet);
+            PlaceSafeCards(match, ThreePlacementsUntilThirdPlayerAgain);
+
+            // Act
+            BetActionStatus status = match.OpenBet(ThirdPlayerId, TwoCardBet);
+
+            // Assert
+            Assert.Equal(BetActionStatus.Accepted, status);
         }
 
         private static MatchState CreateMatch(int cardsPerPlayerCount, int playerCount)

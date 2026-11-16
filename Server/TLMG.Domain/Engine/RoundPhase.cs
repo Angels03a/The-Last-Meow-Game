@@ -9,7 +9,13 @@ namespace TLMG.Domain.Engine
         /// <summary>Hay una apuesta en curso; nadie coloca y cada jugador sube o se retira en su turno.</summary>
         Betting,
 
-        /// <summary>Queda un solo apostador: el reto está listo para resolverse (etapa E3).</summary>
-        ChallengeReady
+        /// <summary>Queda un solo apostador: el reto está listo y en resolución, carta por carta.</summary>
+        ChallengeReady,
+
+        /// <summary>El reto falló: hay un castigo pendiente y el motor rechaza toda acción de juego.</summary>
+        PunishmentPending,
+
+        /// <summary>Un jugador alcanzó los retos exitosos de la modalidad y la partida terminó.</summary>
+        MatchFinished
     }
 }

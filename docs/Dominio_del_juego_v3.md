@@ -116,7 +116,8 @@ La pantalla de juego se divide en 5 zonas.
   - Al subir una apuesta solo se permiten valores mayores que la apuesta actual.
   - **Mano vacía:** si el jugador no tiene cartas en la mano, el contador queda fijo en **1** y la única acción
     disponible es apostar.
-  - **Botón Apostar:** abre la apuesta o la sube. Está ligado al contador.
+  - **Botón Apostar:** abre la apuesta o la sube. Está ligado al contador. Para abrirla, el jugador debe haber
+    colocado al menos una carta propia en la ronda.
   - **Botón Retirarse:** solo aparece durante una ronda de apuestas.
   - Los botones solo están activos en el turno del jugador (No. 1).
 - **Colocar una carta:** un clic sobre la carta de la mano. Animación de traslación desde el panel inferior hacia su
@@ -166,22 +167,30 @@ La pantalla de juego se divide en 5 zonas.
 ### 4.2. Flujo de una ronda
 
 1. **Colocación (por turnos).** Cada turno, el jugador activo elige **una** de dos acciones: colocar una carta de su
-   mano o abrir una apuesta. Con la mano vacía solo puede abrir una apuesta de **exactamente 1**. No hay turno
+   mano o abrir una apuesta (solo si ya colocó al menos una carta propia en la ronda). Con la mano vacía solo puede abrir una apuesta de **exactamente 1**. No hay turno
    pasivo.
 2. **Apuesta.** Quien abre declara un número de 1 hasta min(cartas en mesa, modalidad). Nadie más coloca. En orden de
    turno, cada jugador **sube** o se **retira**. El que se retira no vuelve a esa apuesta. La apuesta no se cancela
    (No. 3), salvo por la salida de un jugador a mitad de ronda.
 3. **Resolución.** Queda un solo jugador con la apuesta más alta. Voltea:
    - **a)** Primero su propia pila, de arriba hacia abajo.
-   - **b)** Después elige de qué jugador voltear, siempre la carta de arriba de esa pila.
-   - **c)** Se detiene al llegar al número prometido (éxito) o al revelar un Gato (fallo), salvo la vida extra.
+   - **b)** Después elige de qué jugador voltear, siempre la carta de arriba de esa pila. La elección se hace
+     **antes de cada volteo** (puede alternar o repetir pila). Tras voltear, la siguiente carta sin voltear pasa a
+     ser la de arriba. Elegir una pila sin cartas por voltear se rechaza con `ErrorKey` y no cambia el estado.
+   - **c)** Se detiene al llegar al número prometido (éxito) o al revelar un Gato (fallo). Con vida extra, el
+     primer Gato (propio o ajeno) la consume, **cuenta como una de las cartas prometidas** y la revelación continúa.
 4. **Éxito:** +1 reto exitoso. **Todas** las cartas regresan a sus dueños. Si llega a la cantidad de la modalidad,
    **gana al instante** (No. 7).
 5. **Fallo:** las cartas regresan a sus dueños y se abre el **castigo pendiente**. Elige la carta que se pierde:
    - el dueño de la pila donde estaba el Gato, **a ciegas**, si el Gato era ajeno;
    - el propio apostador, **viendo sus cartas**, si el Gato era suyo;
-   - el sistema, **al azar**, si pasan 10 segundos o quien debe elegir fue expulsado;
-   - si el castigado tiene 1 sola vida, no hay elección y queda eliminado de inmediato.
+   - el sistema, **al azar** (misma probabilidad para cada carta del castigado, incluido el Gato), si pasan 10
+     segundos o quien debe elegir fue expulsado;
+   - si el castigado tiene 1 sola vida, no hay elección y queda eliminado de inmediato;
+   - si quien elige se desconecta, sus 10 segundos siguen corriendo. Si se desconecta el castigado, el castigo se
+     suspende durante la pausa de 15 segundos y, si no regresa, se cancela;
+   - si alguien sale durante un castigo pendiente, la ronda **no** se reinicia: se resuelve o cancela el castigo y
+     empieza la siguiente (el contador de rondas sube una vez).
 6. **Siguiente ronda.** Si el juego no terminó, empieza el **primer jugador activo del orden fijo**.
 
 ### 4.3. Fin de la partida y orden final
@@ -192,7 +201,13 @@ La pantalla de juego se divide en 5 zonas.
   2. Sobrevivientes por: más retos exitosos, más vidas, quien llegó antes a su número de retos y, por último, orden
      de turnos.
   3. Eliminados por quedarse sin vidas: el eliminado más tarde queda mejor.
-  4. Quienes abandonaron o fueron expulsados (0 puntos): al final.
+  4. Quienes abandonaron o fueron expulsados (0 puntos): al final. Quien salió más tarde queda mejor. Si dos salidas
+     coinciden, queda mejor quien comenzó su desconexión más tarde y, si aún empatan, quien va antes en el orden de
+     turnos.
+- Un **jugador eliminado** pasa a ser espectador con la vista pública (nunca ve cartas ocultas) y puede salir sin
+  penalización. Si sale después de eliminado, **conserva** los puntos de su posición.
+- Un **jugador invitado** ocupa su posición en la tabla, aunque cobre 0. Los demás conservan la suya.
+- Si todos los demás abandonan, el jugador restante gana de inmediato y recibe los puntos normales de ganador.
 
 ### 4.4. Escenarios
 
@@ -274,7 +289,8 @@ Orden A, B, C, D.
 1. Con 8 cartas seleccionadas y todos en LISTO, todos ven el gatito fugitivo 15 segundos. **A** lo atrapa primero:
    recibe 1 vida extra.
 2. En una ronda, A apuesta **3** con la pila `S`, `G`, `G` (arriba el segundo Gato).
-3. A voltea su carta de arriba: `G`. **Primer Gato:** consume la vida extra y no hay fallo. La revelación continúa.
+3. A voltea su carta de arriba: `G`. **Primer Gato:** consume la vida extra y no hay fallo. Cuenta como 1 de las 3
+   cartas prometidas. La revelación continúa.
 4. A voltea la siguiente: `G`. **Segundo Gato:** el reto falla y se abre el castigo pendiente (propio, con cartas a
    la vista).
 5. La vida extra ya no existe para el resto de la partida. No cuenta como vida.
@@ -347,7 +363,7 @@ Orden A, B, C, D. Es la ronda 6. A abrió una apuesta de 2 y B sube a 3.
 
 ---
 
-## 6. Decisiones tomadas
+## 6. Decisiones tomadas (antes puntos por decidir)
 
 1. **Botón Rendirse.** Se quita. No debe ir.
 2. **Botón Revelar cartas.** Se quita. No debe ir.
@@ -362,4 +378,30 @@ Orden A, B, C, D. Es la ronda 6. A abrió una apuesta de 2 y B sube a 3.
 9. **Castigo.** Se cambia al pop-up, basado en Skull. Cada turno es una sola acción.
 10. **Puntaje.** Se adopta Base = jugadores contados − 1 (mínimo 2).
 11. **Marcador.** El que llega después con los mismos puntos va en la posición siguiente.
+12. **Abrir apuesta (H-01).** Exige haber colocado al menos una carta propia en la ronda.
+13. **Elección de pila (H-02).** Se elige el jugador antes de cada volteo.
+14. **Siguiente carta (H-03).** Tras voltear, la siguiente sin voltear pasa a ser la de arriba.
+15. **Pila sin cartas (H-04).** Elegirla se rechaza con `ErrorKey` y no cambia el estado.
+16. **Vida extra (H-05).** El Gato que la consume cuenta como carta prometida.
+17. **Desconexión en castigo (H-06).** A quien elige le sigue corriendo su límite de 10 s. Si se desconecta el
+    castigado, el castigo se suspende durante la pausa de 15 s y, si no regresa, se cancela.
+18. **Salida en castigo (H-07).** No reinicia la ronda. El contador sube una vez.
+19. **Azar (H-08).** Uniforme sobre todas las cartas del castigado, incluido el Gato, en ambos modos.
+20. **Eliminado (H-09).** Espectador con vista pública. Puede salir sin penalización.
+21. **Invitado a mitad de tabla (H-10).** Conserva su posición y cobra 0.
+22. **Salidas simultáneas (H-11).** Por el inicio de la desconexión y, si empatan, por el orden de turnos.
+23. **Eliminado que sale (H-12).** Conserva los puntos de su posición.
+24. **Todos abandonan (H-13).** El restante gana con puntos normales. Riesgo anotado: dos cuentas amigas podrían
+    abandonar a propósito para dar puntos a una tercera.
 
+---
+
+## Notas del autor
+
+Revisión
+- método enviar, y callback notificar recepción
+- no es necesario el de respuestas, sino solo por el mensaje
+- versión con diccionarios, explícito, que se explique la definición del diccionario y en donde se agrega el callback,
+  sin métodos innecesarios.
+
+![[Recording 20261113130349.m4a]]

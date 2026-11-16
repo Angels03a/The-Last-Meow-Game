@@ -9,6 +9,8 @@ namespace TLMG.Domain.Engine
     /// </summary>
     public sealed class MatchPlayer
     {
+        private const int LastIndexOffset = 1;
+
         private readonly List<CardKind> _handCards = new List<CardKind>();
         private readonly List<CardKind> _pileCards = new List<CardKind>();
 
@@ -40,11 +42,20 @@ namespace TLMG.Domain.Engine
         /// <summary>Obtiene si el jugador se retiró de la apuesta en curso y ya no participa en ella.</summary>
         public bool HasWithdrawnFromBet { get; internal set; }
 
+        /// <summary>
+        /// Obtiene cuántas cartas de la pila, contadas desde arriba, ya se voltearon en la resolución en curso; es 0
+        /// fuera de una resolución.
+        /// </summary>
+        public int RevealedCardCount { get; private set; }
+
         /// <summary>Obtiene los retos exitosos del jugador.</summary>
         public int SuccessfulChallengeCount { get; internal set; }
 
         /// <summary>Obtiene si el jugador conserva su vida extra; solo existe en la modalidad de 8 cartas.</summary>
         public bool HasExtraLife { get; internal set; }
+
+        /// <summary>Obtiene las cartas de la pila que todavía están boca abajo.</summary>
+        internal int UnrevealedCardCount => _pileCards.Count - RevealedCardCount;
 
         /// <summary>Quita la carta de la mano y la deja arriba de la pila, si la mano la contiene.</summary>
         /// <param name="card">Tipo de carta que se coloca.</param>
@@ -59,6 +70,24 @@ namespace TLMG.Domain.Engine
             }
 
             return wasPlaced;
+        }
+
+        /// <summary>Voltea la carta de arriba que sigue boca abajo; la pila no debe estar toda volteada.</summary>
+        /// <returns>El tipo de la carta volteada.</returns>
+        internal CardKind RevealTopCard()
+        {
+            CardKind revealedCard = _pileCards[UnrevealedCardCount - LastIndexOffset];
+            RevealedCardCount++;
+
+            return revealedCard;
+        }
+
+        /// <summary>Devuelve a la mano las cartas de la pila y la deja vacía y sin cartas volteadas.</summary>
+        internal void ReturnPileToHand()
+        {
+            _handCards.AddRange(_pileCards);
+            _pileCards.Clear();
+            RevealedCardCount = 0;
         }
     }
 }
