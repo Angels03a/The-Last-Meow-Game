@@ -12,11 +12,11 @@ namespace TLMG.Domain.Engine
         /// <summary>Juega otro jugador: solo puede actuar quien tiene el turno.</summary>
         NotPlayersTurn,
 
-        /// <summary>No se puede abrir porque ya hay una apuesta abierta o un reto listo para resolver.</summary>
-        BetAlreadyOpen,
+        /// <summary>No se puede abrir porque ya hay una apuesta en curso o un reto listo para resolver.</summary>
+        BetInProgress,
 
-        /// <summary>No se puede subir ni retirarse porque no hay una apuesta abierta.</summary>
-        BetNotOpen,
+        /// <summary>No se puede subir ni retirarse porque no hay una ronda de apuestas en curso.</summary>
+        NoBetInProgress,
 
         /// <summary>No se puede abrir porque no hay cartas boca abajo en la mesa.</summary>
         TableEmpty,

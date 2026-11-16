@@ -9,54 +9,55 @@ namespace TLMG.Domain.Tests
     /// <summary>Pruebas de MatchModeRules.</summary>
     public class MatchModeRulesTests
     {
-        /// <summary>Verifica FromCardsPerPlayerCount_WithSupportedCount_ReturnsModeData.</summary>
+        /// <summary>Verifica CreateFromCardsPerPlayerCount_WithSupportedCount_ReturnsModeData.</summary>
         [Theory]
         [InlineData(4, 1, 3, 2)]
         [InlineData(6, 1, 5, 2)]
         [InlineData(8, 2, 6, 4)]
-        public void FromCardsPerPlayerCount_WithSupportedCount_ReturnsModeData(
+        public void CreateFromCardsPerPlayerCount_WithSupportedCount_ReturnsModeData(
             int cardsPerPlayerCount,
             int expectedFatalCatCount,
             int expectedSafeCardCount,
-            int expectedChallengesToWin)
+            int expectedSuccessfulChallengesToWin)
         {
             // Act
-            MatchModeRules modeRules = MatchModeRules.FromCardsPerPlayerCount(cardsPerPlayerCount);
+            MatchModeRules modeRules = MatchModeRules.CreateFromCardsPerPlayerCount(cardsPerPlayerCount);
 
             // Assert
             Assert.Equal(cardsPerPlayerCount, modeRules.CardsPerPlayerCount);
             Assert.Equal(expectedFatalCatCount, modeRules.FatalCatCount);
             Assert.Equal(expectedSafeCardCount, modeRules.SafeCardCount);
-            Assert.Equal(expectedChallengesToWin, modeRules.ChallengesToWin);
+            Assert.Equal(expectedSuccessfulChallengesToWin, modeRules.SuccessfulChallengesToWin);
         }
 
-        /// <summary>Verifica FromCardsPerPlayerCount_WithSupportedCount_AllowsExtraLifeOnlyInEightMode.</summary>
+        /// <summary>Verifica CreateFromCardsPerPlayerCount_WithSupportedCount_AllowsExtraLifeOnlyInEightMode.</summary>
         [Theory]
         [InlineData(4, false)]
         [InlineData(6, false)]
         [InlineData(8, true)]
-        public void FromCardsPerPlayerCount_WithSupportedCount_AllowsExtraLifeOnlyInEightMode(
+        public void CreateFromCardsPerPlayerCount_WithSupportedCount_AllowsExtraLifeOnlyInEightMode(
             int cardsPerPlayerCount,
             bool expectedAllowsExtraLife)
         {
             // Act
-            MatchModeRules modeRules = MatchModeRules.FromCardsPerPlayerCount(cardsPerPlayerCount);
+            MatchModeRules modeRules = MatchModeRules.CreateFromCardsPerPlayerCount(cardsPerPlayerCount);
 
             // Assert
             Assert.Equal(expectedAllowsExtraLife, modeRules.AllowsExtraLife);
         }
 
-        /// <summary>Verifica FromCardsPerPlayerCount_WithUnsupportedCount_ThrowsArgumentOutOfRange.</summary>
+        /// <summary>Verifica CreateFromCardsPerPlayerCount_WithUnsupportedCount_ThrowsArgumentOutOfRange.</summary>
         [Theory]
         [InlineData(0)]
         [InlineData(5)]
         [InlineData(7)]
         [InlineData(9)]
         [InlineData(-4)]
-        public void FromCardsPerPlayerCount_WithUnsupportedCount_ThrowsArgumentOutOfRange(int cardsPerPlayerCount)
+        public void CreateFromCardsPerPlayerCount_WithUnsupportedCount_ThrowsArgumentOutOfRange(int cardsPerPlayerCount)
         {
             // Act
-            Exception thrown = Record.Exception(() => MatchModeRules.FromCardsPerPlayerCount(cardsPerPlayerCount));
+            Exception thrown = Record.Exception(
+                () => MatchModeRules.CreateFromCardsPerPlayerCount(cardsPerPlayerCount));
 
             // Assert
             Assert.IsType<ArgumentOutOfRangeException>(thrown);

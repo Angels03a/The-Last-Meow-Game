@@ -15,11 +15,11 @@ namespace TLMG.Domain.Engine
         private const int ShortMatchChallengesToWin = 2;
         private const int LongMatchChallengesToWin = 4;
 
-        private MatchModeRules(int cardsPerPlayerCount, int fatalCatCount, int challengesToWin)
+        private MatchModeRules(int cardsPerPlayerCount, int fatalCatCount, int successfulChallengesToWin)
         {
             CardsPerPlayerCount = cardsPerPlayerCount;
             FatalCatCount = fatalCatCount;
-            ChallengesToWin = challengesToWin;
+            SuccessfulChallengesToWin = successfulChallengesToWin;
         }
 
         /// <summary>Obtiene las cartas que recibe cada jugador: 4, 6 u 8.</summary>
@@ -32,7 +32,7 @@ namespace TLMG.Domain.Engine
         public int SafeCardCount => CardsPerPlayerCount - FatalCatCount;
 
         /// <summary>Obtiene los retos exitosos que se necesitan para ganar la partida.</summary>
-        public int ChallengesToWin { get; }
+        public int SuccessfulChallengesToWin { get; }
 
         /// <summary>Obtiene si la modalidad admite vida extra; solo la de 8 cartas.</summary>
         public bool AllowsExtraLife => CardsPerPlayerCount == ValidationRules.EightCardsPerPlayerCount;
@@ -41,15 +41,14 @@ namespace TLMG.Domain.Engine
         /// <param name="cardsPerPlayerCount">Cartas por jugador: 4, 6 u 8; Services la valida antes.</param>
         /// <returns>Las reglas de la modalidad.</returns>
         /// <exception cref="ArgumentOutOfRangeException">La cantidad no es una modalidad permitida.</exception>
-        public static MatchModeRules FromCardsPerPlayerCount(int cardsPerPlayerCount)
+        public static MatchModeRules CreateFromCardsPerPlayerCount(int cardsPerPlayerCount)
         {
             MatchModeRules modeRules;
 
-            if (cardsPerPlayerCount == ValidationRules.FourCardsPerPlayerCount)
-            {
-                modeRules = new MatchModeRules(cardsPerPlayerCount, SingleFatalCatCount, ShortMatchChallengesToWin);
-            }
-            else if (cardsPerPlayerCount == ValidationRules.SixCardsPerPlayerCount)
+            bool isShortMode = cardsPerPlayerCount == ValidationRules.FourCardsPerPlayerCount
+                || cardsPerPlayerCount == ValidationRules.SixCardsPerPlayerCount;
+
+            if (isShortMode)
             {
                 modeRules = new MatchModeRules(cardsPerPlayerCount, SingleFatalCatCount, ShortMatchChallengesToWin);
             }

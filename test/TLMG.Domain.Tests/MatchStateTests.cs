@@ -11,8 +11,8 @@ namespace TLMG.Domain.Tests
     /// <summary>Pruebas de MatchState: creación de la partida y colocación de una carta.</summary>
     public class MatchStateTests
     {
-        private const int FourCards = 4;
-        private const int EightCards = 8;
+        private const int FourCardsPerPlayer = 4;
+        private const int EightCardsPerPlayer = 8;
         private const int FirstPlayerId = 1;
         private const int SecondPlayerId = 2;
         private const int ThirdPlayerId = 3;
@@ -36,9 +36,9 @@ namespace TLMG.Domain.Tests
 
             // Assert
             Assert.All(match.Players, player => Assert.Equal(
-                expectedFatalCatCount, player.Hand.Count(card => card == CardKind.FatalCat)));
+                expectedFatalCatCount, player.HandCards.Count(card => card == CardKind.FatalCat)));
             Assert.All(match.Players, player => Assert.Equal(
-                expectedSafeCardCount, player.Hand.Count(card => card == CardKind.Safe)));
+                expectedSafeCardCount, player.HandCards.Count(card => card == CardKind.Safe)));
         }
 
         /// <summary>Verifica Constructor_WithSupportedMode_StartsWithLivesEqualToCardsPerPlayer.</summary>
@@ -60,12 +60,11 @@ namespace TLMG.Domain.Tests
         public void Constructor_WithValidPlayers_StartsWithEmptyPileAndNoChallenges()
         {
             // Act
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Assert
-            Assert.All(match.Players, player => Assert.Empty(player.Pile));
-            Assert.All(match.Players, player => Assert.Equal(0, player.SuccessfulChallenges));
-            Assert.All(match.Players, player => Assert.Null(player.ChallengeReachedOrder));
+            Assert.All(match.Players, player => Assert.Empty(player.PileCards));
+            Assert.All(match.Players, player => Assert.Equal(0, player.SuccessfulChallengeCount));
         }
 
         /// <summary>Verifica Constructor_WithValidPlayers_FreezesTurnOrderAsJoinOrder.</summary>
@@ -74,9 +73,10 @@ namespace TLMG.Domain.Tests
         {
             // Arrange
             List<int> joinOrder = new List<int> { ThirdPlayerId, FirstPlayerId, SecondPlayerId };
+            MatchModeRules modeRules = MatchModeRules.CreateFromCardsPerPlayerCount(FourCardsPerPlayer);
 
             // Act
-            MatchState match = new MatchState(MatchModeRules.FromCardsPerPlayerCount(FourCards), joinOrder);
+            MatchState match = new MatchState(modeRules, joinOrder);
 
             // Assert
             Assert.Equal(joinOrder, match.Players.Select(player => player.PlayerId));
@@ -87,10 +87,10 @@ namespace TLMG.Domain.Tests
         public void Constructor_WithValidPlayers_StartsWithFirstPlayerActive()
         {
             // Act
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Assert
-            Assert.Equal(FirstPlayerId, match.ActivePlayer.PlayerId);
+            Assert.Equal(FirstPlayerId, match.PlayerInTurn.PlayerId);
         }
 
         /// <summary>Verifica Constructor_WithBoundaryPlayerCount_CreatesMatch.</summary>
@@ -100,7 +100,7 @@ namespace TLMG.Domain.Tests
         public void Constructor_WithBoundaryPlayerCount_CreatesMatch(int playerCount)
         {
             // Act
-            MatchState match = CreateMatch(FourCards, playerCount);
+            MatchState match = CreateMatch(FourCardsPerPlayer, playerCount);
 
             // Assert
             Assert.Equal(playerCount, match.Players.Count);
@@ -114,7 +114,7 @@ namespace TLMG.Domain.Tests
         public void Constructor_WithTooFewPlayers_ThrowsArgumentOutOfRange(int playerCount)
         {
             // Act
-            Exception thrown = Record.Exception(() => CreateMatch(FourCards, playerCount));
+            Exception thrown = Record.Exception(() => CreateMatch(FourCardsPerPlayer, playerCount));
 
             // Assert
             Assert.IsType<ArgumentOutOfRangeException>(thrown);
@@ -127,7 +127,7 @@ namespace TLMG.Domain.Tests
         public void Constructor_WithTooManyPlayers_ThrowsArgumentOutOfRange(int playerCount)
         {
             // Act
-            Exception thrown = Record.Exception(() => CreateMatch(FourCards, playerCount));
+            Exception thrown = Record.Exception(() => CreateMatch(FourCardsPerPlayer, playerCount));
 
             // Assert
             Assert.IsType<ArgumentOutOfRangeException>(thrown);
@@ -142,7 +142,7 @@ namespace TLMG.Domain.Tests
 
             // Act
             Exception thrown = Record.Exception(
-                () => new MatchState(MatchModeRules.FromCardsPerPlayerCount(FourCards), playerIds));
+                () => new MatchState(MatchModeRules.CreateFromCardsPerPlayerCount(FourCardsPerPlayer), playerIds));
 
             // Assert
             Assert.IsType<ArgumentException>(thrown);
@@ -165,7 +165,7 @@ namespace TLMG.Domain.Tests
         {
             // Act
             Exception thrown = Record.Exception(
-                () => new MatchState(MatchModeRules.FromCardsPerPlayerCount(FourCards), null));
+                () => new MatchState(MatchModeRules.CreateFromCardsPerPlayerCount(FourCardsPerPlayer), null));
 
             // Assert
             Assert.IsType<ArgumentNullException>(thrown);
@@ -176,15 +176,15 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_WithSafeCardOnTurn_ReturnsPlacedAndMovesCardToPile()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Act
             CardPlacementStatus status = match.PlaceCard(FirstPlayerId, CardKind.Safe);
 
             // Assert
             Assert.Equal(CardPlacementStatus.Placed, status);
-            Assert.Equal(3, match.Players[0].Hand.Count);
-            Assert.Equal(new[] { CardKind.Safe }, match.Players[0].Pile);
+            Assert.Equal(3, match.Players[0].HandCards.Count);
+            Assert.Equal(new[] { CardKind.Safe }, match.Players[0].PileCards);
         }
 
         /// <summary>Verifica PlaceCard_WithFatalCatOnTurn_LeavesCatOnTopOfPile.</summary>
@@ -192,15 +192,15 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_WithFatalCatOnTurn_LeavesCatOnTopOfPile()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Act
             CardPlacementStatus status = match.PlaceCard(FirstPlayerId, CardKind.FatalCat);
 
             // Assert
             Assert.Equal(CardPlacementStatus.Placed, status);
-            Assert.Equal(0, match.Players[0].Hand.Count(card => card == CardKind.FatalCat));
-            Assert.Equal(new[] { CardKind.FatalCat }, match.Players[0].Pile);
+            Assert.Equal(0, match.Players[0].HandCards.Count(card => card == CardKind.FatalCat));
+            Assert.Equal(new[] { CardKind.FatalCat }, match.Players[0].PileCards);
         }
 
         /// <summary>Verifica PlaceCard_OnTurn_DoesNotChangeLives.</summary>
@@ -225,13 +225,13 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_OnTurn_PassesTurnToNextPlayer()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Act
             match.PlaceCard(FirstPlayerId, CardKind.Safe);
 
             // Assert
-            Assert.Equal(SecondPlayerId, match.ActivePlayer.PlayerId);
+            Assert.Equal(SecondPlayerId, match.PlayerInTurn.PlayerId);
         }
 
         /// <summary>Verifica PlaceCard_ByLastPlayerOfOrder_PassesTurnToFirstPlayer.</summary>
@@ -239,13 +239,13 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_ByLastPlayerOfOrder_PassesTurnToFirstPlayer()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Act
             PlaceRound(match, CardKind.Safe);
 
             // Assert
-            Assert.Equal(FirstPlayerId, match.ActivePlayer.PlayerId);
+            Assert.Equal(FirstPlayerId, match.PlayerInTurn.PlayerId);
         }
 
         /// <summary>Verifica PlaceCard_WithSixPlayers_PassesTurnInJoinOrder.</summary>
@@ -253,14 +253,14 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_WithSixPlayers_PassesTurnInJoinOrder()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, SixPlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, SixPlayers);
 
             // Act
             PlaceRound(match, CardKind.Safe);
 
             // Assert
-            Assert.All(match.Players, player => Assert.Equal(1, player.Pile.Count));
-            Assert.Equal(FirstPlayerId, match.ActivePlayer.PlayerId);
+            Assert.All(match.Players, player => Assert.Equal(1, player.PileCards.Count));
+            Assert.Equal(FirstPlayerId, match.PlayerInTurn.PlayerId);
         }
 
         /// <summary>Verifica PlaceCard_WithSecondCard_KeepsLatestCardOnTop.</summary>
@@ -268,14 +268,14 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_WithSecondCard_KeepsLatestCardOnTop()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceRound(match, CardKind.Safe);
 
             // Act
             match.PlaceCard(FirstPlayerId, CardKind.FatalCat);
 
             // Assert
-            Assert.Equal(new[] { CardKind.Safe, CardKind.FatalCat }, match.Players[0].Pile);
+            Assert.Equal(new[] { CardKind.Safe, CardKind.FatalCat }, match.Players[0].PileCards);
         }
 
         /// <summary>Verifica PlaceCard_ByPlayerOutOfTurn_ReturnsNotPlayersTurn.</summary>
@@ -283,7 +283,7 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_ByPlayerOutOfTurn_ReturnsNotPlayersTurn()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Act
             CardPlacementStatus status = match.PlaceCard(SecondPlayerId, CardKind.Safe);
@@ -297,15 +297,15 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_ByPlayerOutOfTurn_KeepsStateUnchanged()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Act
             match.PlaceCard(SecondPlayerId, CardKind.Safe);
 
             // Assert
-            Assert.Equal(FirstPlayerId, match.ActivePlayer.PlayerId);
-            Assert.Equal(FourCards, match.Players[1].Hand.Count);
-            Assert.Empty(match.Players[1].Pile);
+            Assert.Equal(FirstPlayerId, match.PlayerInTurn.PlayerId);
+            Assert.Equal(FourCardsPerPlayer, match.Players[1].HandCards.Count);
+            Assert.Empty(match.Players[1].PileCards);
         }
 
         /// <summary>Verifica PlaceCard_ByUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
@@ -313,7 +313,7 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_ByUnknownPlayer_ReturnsPlayerNotInMatch()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Act
             CardPlacementStatus status = match.PlaceCard(UnknownPlayerId, CardKind.Safe);
@@ -327,7 +327,7 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_WithEmptyHand_ReturnsHandEmpty()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             EmptyEveryHand(match);
 
             // Act
@@ -342,14 +342,14 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_WithEmptyHand_KeepsLivesInThePile()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Act
             EmptyEveryHand(match);
 
             // Assert
-            Assert.Equal(0, match.Players[0].Hand.Count);
-            Assert.Equal(FourCards, match.Players[0].Lives);
+            Assert.Equal(0, match.Players[0].HandCards.Count);
+            Assert.Equal(FourCardsPerPlayer, match.Players[0].Lives);
         }
 
         /// <summary>Verifica PlaceCard_WithFatalCatAlreadyPlaced_ReturnsCardNotInHand.</summary>
@@ -357,7 +357,7 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_WithFatalCatAlreadyPlaced_ReturnsCardNotInHand()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceRound(match, CardKind.FatalCat);
 
             // Act
@@ -372,14 +372,14 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_WithEightCards_PlacesBothFatalCats()
         {
             // Arrange
-            MatchState match = CreateMatch(EightCards, ThreePlayers);
+            MatchState match = CreateMatch(EightCardsPerPlayer, ThreePlayers);
 
             // Act
             PlaceRound(match, CardKind.FatalCat);
             PlaceRound(match, CardKind.FatalCat);
 
             // Assert
-            Assert.Equal(new[] { CardKind.FatalCat, CardKind.FatalCat }, match.Players[0].Pile);
+            Assert.Equal(new[] { CardKind.FatalCat, CardKind.FatalCat }, match.Players[0].PileCards);
         }
 
         /// <summary>Verifica PlaceCard_WithEightCardsAndTwoCatsPlaced_ReturnsCardNotInHandForThird.</summary>
@@ -387,7 +387,7 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_WithEightCardsAndTwoCatsPlaced_ReturnsCardNotInHandForThird()
         {
             // Arrange
-            MatchState match = CreateMatch(EightCards, ThreePlayers);
+            MatchState match = CreateMatch(EightCardsPerPlayer, ThreePlayers);
             PlaceRound(match, CardKind.FatalCat);
             PlaceRound(match, CardKind.FatalCat);
 
@@ -403,7 +403,7 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_WithUndefinedCardKind_ReturnsCardNotInHand()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Act
             CardPlacementStatus status = match.PlaceCard(FirstPlayerId, UndefinedCardKind);
@@ -417,20 +417,21 @@ namespace TLMG.Domain.Tests
         public void PlaceCard_WhenCardIsNotInHand_KeepsTurnWithSamePlayer()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Act
             match.PlaceCard(FirstPlayerId, UndefinedCardKind);
 
             // Assert
-            Assert.Equal(FirstPlayerId, match.ActivePlayer.PlayerId);
-            Assert.Equal(FourCards, match.Players[0].Hand.Count);
+            Assert.Equal(FirstPlayerId, match.PlayerInTurn.PlayerId);
+            Assert.Equal(FourCardsPerPlayer, match.Players[0].HandCards.Count);
         }
 
         private static MatchState CreateMatch(int cardsPerPlayerCount, int playerCount)
         {
             List<int> playerIds = Enumerable.Range(FirstPlayerId, playerCount).ToList();
-            MatchState match = new MatchState(MatchModeRules.FromCardsPerPlayerCount(cardsPerPlayerCount), playerIds);
+            MatchModeRules modeRules = MatchModeRules.CreateFromCardsPerPlayerCount(cardsPerPlayerCount);
+            MatchState match = new MatchState(modeRules, playerIds);
 
             return match;
         }

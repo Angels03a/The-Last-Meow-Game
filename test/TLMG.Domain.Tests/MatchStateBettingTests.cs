@@ -12,10 +12,10 @@ namespace TLMG.Domain.Tests
     /// Pruebas de las apuestas de MatchState: abrir, subir y retirarse. Los escenarios 1 (ronda 1), 2 y 3 del
     /// Dominio v3 (§4.4) se usan solo en su parte de colocación y apuesta.
     /// </summary>
-    public class MatchBettingTests
+    public class MatchStateBettingTests
     {
-        private const int FourCards = 4;
-        private const int EightCards = 8;
+        private const int FourCardsPerPlayer = 4;
+        private const int EightCardsPerPlayer = 8;
         private const int FirstPlayerId = 1;
         private const int SecondPlayerId = 2;
         private const int ThirdPlayerId = 3;
@@ -28,12 +28,12 @@ namespace TLMG.Domain.Tests
         private const int PlacementsForEightCardsOnTable = 8;
         private const int PlacementsForTwelveCardsOnTable = 12;
 
-        /// <summary>Verifica OpenBet_Scenario1Round1_AOpensTwoWithFiveCardsOnTable.</summary>
+        /// <summary>Verifica OpenBet_Scenario1Round1_ThirdPlayerOpensTwoWithFiveCardsOnTable.</summary>
         [Fact]
-        public void OpenBet_Scenario1Round1_AOpensTwoWithFiveCardsOnTable()
+        public void OpenBet_Scenario1Round1_ThirdPlayerOpensTwoWithFiveCardsOnTable()
         {
             // Arrange: orden C, B, A (ids 1, 2, 3); C S, B S, A S, C S y B coloca el Gato.
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsBeforeFatalCat);
             match.PlaceCard(SecondPlayerId, CardKind.FatalCat);
 
@@ -43,17 +43,17 @@ namespace TLMG.Domain.Tests
             // Assert
             Assert.Equal(BetActionStatus.Accepted, status);
             Assert.Equal(5, match.CardsOnTable);
-            Assert.Equal(MatchPhase.Betting, match.Phase);
+            Assert.Equal(RoundPhase.Betting, match.Phase);
             Assert.Equal(2, match.CurrentBet);
-            Assert.Equal(ThirdPlayerId, match.HighestBidder.PlayerId);
+            Assert.Equal(ThirdPlayerId, match.BetLeader.PlayerId);
         }
 
-        /// <summary>Verifica WithdrawFromBet_Scenario1Round1_LeavesChallengeReadyForA.</summary>
+        /// <summary>Verifica WithdrawFromBet_Scenario1Round1_LeavesChallengeReadyForThirdPlayer.</summary>
         [Fact]
-        public void WithdrawFromBet_Scenario1Round1_LeavesChallengeReadyForA()
+        public void WithdrawFromBet_Scenario1Round1_LeavesChallengeReadyForThirdPlayer()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsBeforeFatalCat);
             match.PlaceCard(SecondPlayerId, CardKind.FatalCat);
             match.OpenBet(ThirdPlayerId, 2);
@@ -63,10 +63,10 @@ namespace TLMG.Domain.Tests
             match.WithdrawFromBet(SecondPlayerId);
 
             // Assert
-            Assert.Equal(MatchPhase.ChallengeReady, match.Phase);
-            Assert.Equal(ThirdPlayerId, match.HighestBidder.PlayerId);
+            Assert.Equal(RoundPhase.ChallengeReady, match.Phase);
+            Assert.Equal(ThirdPlayerId, match.BetLeader.PlayerId);
             Assert.Equal(2, match.CurrentBet);
-            Assert.Equal(ThirdPlayerId, match.ActivePlayer.PlayerId);
+            Assert.Equal(ThirdPlayerId, match.PlayerInTurn.PlayerId);
         }
 
         /// <summary>Verifica OpenBet_Scenario2WithThreeCardsOnTable_LeavesChallengeReadyForThree.</summary>
@@ -74,7 +74,7 @@ namespace TLMG.Domain.Tests
         public void OpenBet_Scenario2WithThreeCardsOnTable_LeavesChallengeReadyForThree()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsForThreeCardsOnTable);
 
             // Act
@@ -84,8 +84,8 @@ namespace TLMG.Domain.Tests
 
             // Assert
             Assert.Equal(BetActionStatus.Accepted, status);
-            Assert.Equal(MatchPhase.ChallengeReady, match.Phase);
-            Assert.Equal(FirstPlayerId, match.HighestBidder.PlayerId);
+            Assert.Equal(RoundPhase.ChallengeReady, match.Phase);
+            Assert.Equal(FirstPlayerId, match.BetLeader.PlayerId);
             Assert.Equal(3, match.CurrentBet);
         }
 
@@ -94,7 +94,7 @@ namespace TLMG.Domain.Tests
         public void OpenBet_Scenario2WithValueAboveTable_ReturnsBetValueNotValid()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsForThreeCardsOnTable);
 
             // Act
@@ -104,12 +104,12 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.BetValueNotValid, status);
         }
 
-        /// <summary>Verifica RaiseBet_Scenario3WithRaiseAndWithdrawals_LeavesChallengeReadyForB.</summary>
+        /// <summary>Verifica RaiseBet_Scenario3WithRaiseAndWithdrawals_LeavesChallengeReadyForSecondPlayer.</summary>
         [Fact]
-        public void RaiseBet_Scenario3WithRaiseAndWithdrawals_LeavesChallengeReadyForB()
+        public void RaiseBet_Scenario3WithRaiseAndWithdrawals_LeavesChallengeReadyForSecondPlayer()
         {
             // Arrange: 4 jugadores y 8 cartas en la mesa; A abre con 2.
-            MatchState match = CreateMatch(FourCards, FourPlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, FourPlayers);
             PlaceSafeCards(match, PlacementsForEightCardsOnTable);
             match.OpenBet(FirstPlayerId, 2);
 
@@ -122,8 +122,8 @@ namespace TLMG.Domain.Tests
             // Assert
             Assert.Equal(BetActionStatus.Accepted, raiseStatus);
             Assert.Equal(BetActionStatus.Accepted, withdrawStatus);
-            Assert.Equal(MatchPhase.ChallengeReady, match.Phase);
-            Assert.Equal(SecondPlayerId, match.HighestBidder.PlayerId);
+            Assert.Equal(RoundPhase.ChallengeReady, match.Phase);
+            Assert.Equal(SecondPlayerId, match.BetLeader.PlayerId);
             Assert.Equal(3, match.CurrentBet);
         }
 
@@ -132,7 +132,7 @@ namespace TLMG.Domain.Tests
         public void RaiseBet_Scenario3WithValueAboveCap_ReturnsBetValueNotValid()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, FourPlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, FourPlayers);
             PlaceSafeCards(match, PlacementsForEightCardsOnTable);
             match.OpenBet(FirstPlayerId, 2);
 
@@ -148,7 +148,7 @@ namespace TLMG.Domain.Tests
         public void RaiseBet_Scenario3WithValueEqualToCap_ReturnsAccepted()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, FourPlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, FourPlayers);
             PlaceSafeCards(match, PlacementsForEightCardsOnTable);
             match.OpenBet(FirstPlayerId, 2);
 
@@ -164,7 +164,7 @@ namespace TLMG.Domain.Tests
         public void OpenBet_WithEightCardMode_LimitsValueToCardsOnTable()
         {
             // Arrange
-            MatchState match = CreateMatch(EightCards, ThreePlayers);
+            MatchState match = CreateMatch(EightCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsForThreeCardsOnTable);
 
             // Act
@@ -181,7 +181,7 @@ namespace TLMG.Domain.Tests
         public void OpenBet_WithValueAboveModeCap_ReturnsBetValueNotValid()
         {
             // Arrange: 12 cartas en la mesa, pero la modalidad de 4 limita la apuesta a 4.
-            MatchState match = CreateMatch(FourCards, FourPlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, FourPlayers);
             PlaceSafeCards(match, PlacementsForTwelveCardsOnTable);
 
             // Act
@@ -200,7 +200,7 @@ namespace TLMG.Domain.Tests
         public void OpenBet_WithZeroOrNegativeValue_ReturnsBetValueNotValid(int betValue)
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsForThreeCardsOnTable);
 
             // Act
@@ -215,14 +215,14 @@ namespace TLMG.Domain.Tests
         public void OpenBet_WithEmptyTable_ReturnsTableEmpty()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Act
             BetActionStatus status = match.OpenBet(FirstPlayerId, 1);
 
             // Assert
             Assert.Equal(BetActionStatus.TableEmpty, status);
-            Assert.Equal(MatchPhase.PlacingCards, match.Phase);
+            Assert.Equal(RoundPhase.PlacingCards, match.Phase);
         }
 
         /// <summary>Verifica OpenBet_WithEmptyHandAndValueOne_ReturnsAccepted.</summary>
@@ -230,7 +230,7 @@ namespace TLMG.Domain.Tests
         public void OpenBet_WithEmptyHandAndValueOne_ReturnsAccepted()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             EmptyEveryHand(match);
 
             // Act
@@ -248,7 +248,7 @@ namespace TLMG.Domain.Tests
         public void OpenBet_WithEmptyHandAndValueAboveOne_ReturnsEmptyHandRequiresBetOfOne(int betValue)
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             EmptyEveryHand(match);
 
             // Act
@@ -263,7 +263,7 @@ namespace TLMG.Domain.Tests
         public void RaiseBet_ByEmptyHandPlayer_ReturnsAccepted()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             EmptyEveryHand(match);
             match.OpenBet(FirstPlayerId, 1);
 
@@ -280,7 +280,7 @@ namespace TLMG.Domain.Tests
         public void WithdrawFromBet_ByEmptyHandPlayer_ReturnsAccepted()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             EmptyEveryHand(match);
             match.OpenBet(FirstPlayerId, 1);
 
@@ -297,7 +297,7 @@ namespace TLMG.Domain.Tests
         public void OpenBet_OutOfTurn_ReturnsNotPlayersTurn()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsForThreeCardsOnTable);
 
             // Act
@@ -305,7 +305,7 @@ namespace TLMG.Domain.Tests
 
             // Assert
             Assert.Equal(BetActionStatus.NotPlayersTurn, status);
-            Assert.Equal(MatchPhase.PlacingCards, match.Phase);
+            Assert.Equal(RoundPhase.PlacingCards, match.Phase);
         }
 
         /// <summary>Verifica OpenBet_ByUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
@@ -313,7 +313,7 @@ namespace TLMG.Domain.Tests
         public void OpenBet_ByUnknownPlayer_ReturnsPlayerNotInMatch()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsForThreeCardsOnTable);
 
             // Act
@@ -323,12 +323,12 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.PlayerNotInMatch, status);
         }
 
-        /// <summary>Verifica OpenBet_WithBetOpen_ReturnsBetAlreadyOpen.</summary>
+        /// <summary>Verifica OpenBet_WithBetInProgress_ReturnsBetInProgress.</summary>
         [Fact]
-        public void OpenBet_WithBetOpen_ReturnsBetAlreadyOpen()
+        public void OpenBet_WithBetInProgress_ReturnsBetInProgress()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsForThreeCardsOnTable);
             match.OpenBet(FirstPlayerId, 1);
 
@@ -336,12 +336,12 @@ namespace TLMG.Domain.Tests
             BetActionStatus status = match.OpenBet(SecondPlayerId, 2);
 
             // Assert
-            Assert.Equal(BetActionStatus.BetAlreadyOpen, status);
+            Assert.Equal(BetActionStatus.BetInProgress, status);
         }
 
-        /// <summary>Verifica OpenBet_WithChallengeReady_ReturnsBetAlreadyOpen.</summary>
+        /// <summary>Verifica OpenBet_WithChallengeReady_ReturnsBetInProgress.</summary>
         [Fact]
-        public void OpenBet_WithChallengeReady_ReturnsBetAlreadyOpen()
+        public void OpenBet_WithChallengeReady_ReturnsBetInProgress()
         {
             // Arrange
             MatchState match = CreateReadyChallenge();
@@ -350,7 +350,7 @@ namespace TLMG.Domain.Tests
             BetActionStatus status = match.OpenBet(FirstPlayerId, 2);
 
             // Assert
-            Assert.Equal(BetActionStatus.BetAlreadyOpen, status);
+            Assert.Equal(BetActionStatus.BetInProgress, status);
         }
 
         /// <summary>Verifica RaiseBet_WithEqualValue_ReturnsBetValueNotValid.</summary>
@@ -358,7 +358,7 @@ namespace TLMG.Domain.Tests
         public void RaiseBet_WithEqualValue_ReturnsBetValueNotValid()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsBeforeFatalCat);
             match.OpenBet(SecondPlayerId, 2);
 
@@ -374,7 +374,7 @@ namespace TLMG.Domain.Tests
         public void RaiseBet_WithLowerValue_KeepsBetAndTurn()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsBeforeFatalCat);
             match.OpenBet(SecondPlayerId, 3);
 
@@ -384,27 +384,27 @@ namespace TLMG.Domain.Tests
             // Assert
             Assert.Equal(BetActionStatus.BetValueNotValid, status);
             Assert.Equal(3, match.CurrentBet);
-            Assert.Equal(ThirdPlayerId, match.ActivePlayer.PlayerId);
+            Assert.Equal(ThirdPlayerId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica RaiseBet_WithoutBet_ReturnsBetNotOpen.</summary>
+        /// <summary>Verifica RaiseBet_WithoutBet_ReturnsNoBetInProgress.</summary>
         [Fact]
-        public void RaiseBet_WithoutBet_ReturnsBetNotOpen()
+        public void RaiseBet_WithoutBet_ReturnsNoBetInProgress()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsForThreeCardsOnTable);
 
             // Act
             BetActionStatus status = match.RaiseBet(FirstPlayerId, 2);
 
             // Assert
-            Assert.Equal(BetActionStatus.BetNotOpen, status);
+            Assert.Equal(BetActionStatus.NoBetInProgress, status);
         }
 
-        /// <summary>Verifica RaiseBet_WithChallengeReady_ReturnsBetNotOpen.</summary>
+        /// <summary>Verifica RaiseBet_WithChallengeReady_ReturnsNoBetInProgress.</summary>
         [Fact]
-        public void RaiseBet_WithChallengeReady_ReturnsBetNotOpen()
+        public void RaiseBet_WithChallengeReady_ReturnsNoBetInProgress()
         {
             // Arrange
             MatchState match = CreateReadyChallenge();
@@ -413,7 +413,7 @@ namespace TLMG.Domain.Tests
             BetActionStatus status = match.RaiseBet(FirstPlayerId, 3);
 
             // Assert
-            Assert.Equal(BetActionStatus.BetNotOpen, status);
+            Assert.Equal(BetActionStatus.NoBetInProgress, status);
         }
 
         /// <summary>Verifica RaiseBet_OutOfTurn_ReturnsNotPlayersTurn.</summary>
@@ -421,7 +421,7 @@ namespace TLMG.Domain.Tests
         public void RaiseBet_OutOfTurn_ReturnsNotPlayersTurn()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsForThreeCardsOnTable);
             match.OpenBet(FirstPlayerId, 1);
 
@@ -437,7 +437,7 @@ namespace TLMG.Domain.Tests
         public void RaiseBet_ByWithdrawnPlayer_ReturnsNotPlayersTurn()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, FourPlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, FourPlayers);
             PlaceSafeCards(match, PlacementsForEightCardsOnTable);
             match.OpenBet(FirstPlayerId, 1);
             match.WithdrawFromBet(SecondPlayerId);
@@ -449,12 +449,12 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.NotPlayersTurn, status);
         }
 
-        /// <summary>Verifica WithdrawFromBet_WithBetOpen_SkipsWithdrawnPlayerInNextTurns.</summary>
+        /// <summary>Verifica WithdrawFromBet_WithBetInProgress_SkipsWithdrawnPlayerInNextTurns.</summary>
         [Fact]
-        public void WithdrawFromBet_WithBetOpen_SkipsWithdrawnPlayerInNextTurns()
+        public void WithdrawFromBet_WithBetInProgress_SkipsWithdrawnPlayerInNextTurns()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, FourPlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, FourPlayers);
             PlaceSafeCards(match, PlacementsForEightCardsOnTable);
             match.OpenBet(FirstPlayerId, 1);
             match.WithdrawFromBet(SecondPlayerId);
@@ -465,21 +465,21 @@ namespace TLMG.Domain.Tests
             match.RaiseBet(FirstPlayerId, 4);
 
             // Assert
-            Assert.Equal(ThirdPlayerId, match.ActivePlayer.PlayerId);
+            Assert.Equal(ThirdPlayerId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica WithdrawFromBet_WithoutBet_ReturnsBetNotOpen.</summary>
+        /// <summary>Verifica WithdrawFromBet_WithoutBet_ReturnsNoBetInProgress.</summary>
         [Fact]
-        public void WithdrawFromBet_WithoutBet_ReturnsBetNotOpen()
+        public void WithdrawFromBet_WithoutBet_ReturnsNoBetInProgress()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
 
             // Act
             BetActionStatus status = match.WithdrawFromBet(FirstPlayerId);
 
             // Assert
-            Assert.Equal(BetActionStatus.BetNotOpen, status);
+            Assert.Equal(BetActionStatus.NoBetInProgress, status);
             Assert.False(match.Players[0].HasWithdrawnFromBet);
         }
 
@@ -488,7 +488,7 @@ namespace TLMG.Domain.Tests
         public void WithdrawFromBet_OutOfTurn_ReturnsNotPlayersTurn()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsForThreeCardsOnTable);
             match.OpenBet(FirstPlayerId, 1);
 
@@ -499,12 +499,12 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.NotPlayersTurn, status);
         }
 
-        /// <summary>Verifica PlaceCard_WithBetOpen_ReturnsBetOpen.</summary>
+        /// <summary>Verifica PlaceCard_WithBetInProgress_ReturnsBetInProgress.</summary>
         [Fact]
-        public void PlaceCard_WithBetOpen_ReturnsBetOpen()
+        public void PlaceCard_WithBetInProgress_ReturnsBetInProgress()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsForThreeCardsOnTable);
             match.OpenBet(FirstPlayerId, 1);
 
@@ -512,13 +512,13 @@ namespace TLMG.Domain.Tests
             CardPlacementStatus status = match.PlaceCard(SecondPlayerId, CardKind.Safe);
 
             // Assert
-            Assert.Equal(CardPlacementStatus.BetOpen, status);
+            Assert.Equal(CardPlacementStatus.BetInProgress, status);
             Assert.Equal(PlacementsForThreeCardsOnTable, match.CardsOnTable);
         }
 
-        /// <summary>Verifica PlaceCard_WithChallengeReady_ReturnsBetOpen.</summary>
+        /// <summary>Verifica PlaceCard_WithChallengeReady_ReturnsBetInProgress.</summary>
         [Fact]
-        public void PlaceCard_WithChallengeReady_ReturnsBetOpen()
+        public void PlaceCard_WithChallengeReady_ReturnsBetInProgress()
         {
             // Arrange
             MatchState match = CreateReadyChallenge();
@@ -527,33 +527,33 @@ namespace TLMG.Domain.Tests
             CardPlacementStatus status = match.PlaceCard(FirstPlayerId, CardKind.Safe);
 
             // Assert
-            Assert.Equal(CardPlacementStatus.BetOpen, status);
+            Assert.Equal(CardPlacementStatus.BetInProgress, status);
         }
 
-        /// <summary>Verifica BettingRound_WithRaises_NeverGivesTurnToHighestBidderWhileOthersRemain.</summary>
+        /// <summary>Verifica RaiseBet_WithSuccessiveRaises_NeverGivesTurnToBetLeaderWhileOthersRemain.</summary>
         [Fact]
-        public void BettingRound_WithRaises_NeverGivesTurnToHighestBidderWhileOthersRemain()
+        public void RaiseBet_WithSuccessiveRaises_NeverGivesTurnToBetLeaderWhileOthersRemain()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             EmptyEveryHand(match);
 
             // Act
             match.OpenBet(FirstPlayerId, 1);
-            AssertActivePlayerIsNotHighestBidder(match);
+            AssertPlayerInTurnIsNotBetLeader(match);
             match.RaiseBet(SecondPlayerId, 2);
-            AssertActivePlayerIsNotHighestBidder(match);
+            AssertPlayerInTurnIsNotBetLeader(match);
             match.RaiseBet(ThirdPlayerId, 3);
-            AssertActivePlayerIsNotHighestBidder(match);
+            AssertPlayerInTurnIsNotBetLeader(match);
             match.RaiseBet(FirstPlayerId, 4);
-            AssertActivePlayerIsNotHighestBidder(match);
+            AssertPlayerInTurnIsNotBetLeader(match);
             match.WithdrawFromBet(SecondPlayerId);
-            AssertActivePlayerIsNotHighestBidder(match);
+            AssertPlayerInTurnIsNotBetLeader(match);
             match.WithdrawFromBet(ThirdPlayerId);
 
             // Assert
-            Assert.Equal(MatchPhase.ChallengeReady, match.Phase);
-            Assert.Equal(FirstPlayerId, match.HighestBidder.PlayerId);
+            Assert.Equal(RoundPhase.ChallengeReady, match.Phase);
+            Assert.Equal(FirstPlayerId, match.BetLeader.PlayerId);
             Assert.Equal(4, match.CurrentBet);
         }
 
@@ -562,7 +562,7 @@ namespace TLMG.Domain.Tests
         public void WithdrawFromBet_WhenOnlyOneBettorRemains_PutsTurnOnTheBettor()
         {
             // Arrange
-            MatchState match = CreateMatch(FourCards, FourPlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, FourPlayers);
             PlaceSafeCards(match, PlacementsForEightCardsOnTable);
             match.OpenBet(FirstPlayerId, 2);
             match.WithdrawFromBet(SecondPlayerId);
@@ -572,22 +572,23 @@ namespace TLMG.Domain.Tests
             match.WithdrawFromBet(FourthPlayerId);
 
             // Assert
-            Assert.Equal(MatchPhase.ChallengeReady, match.Phase);
-            Assert.Equal(FirstPlayerId, match.ActivePlayer.PlayerId);
+            Assert.Equal(RoundPhase.ChallengeReady, match.Phase);
+            Assert.Equal(FirstPlayerId, match.PlayerInTurn.PlayerId);
             Assert.Equal(2, match.CurrentBet);
         }
 
         private static MatchState CreateMatch(int cardsPerPlayerCount, int playerCount)
         {
             List<int> playerIds = Enumerable.Range(FirstPlayerId, playerCount).ToList();
-            MatchState match = new MatchState(MatchModeRules.FromCardsPerPlayerCount(cardsPerPlayerCount), playerIds);
+            MatchModeRules modeRules = MatchModeRules.CreateFromCardsPerPlayerCount(cardsPerPlayerCount);
+            MatchState match = new MatchState(modeRules, playerIds);
 
             return match;
         }
 
         private static MatchState CreateReadyChallenge()
         {
-            MatchState match = CreateMatch(FourCards, ThreePlayers);
+            MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsForThreeCardsOnTable);
             match.OpenBet(FirstPlayerId, 2);
             match.WithdrawFromBet(SecondPlayerId);
@@ -600,7 +601,7 @@ namespace TLMG.Domain.Tests
         {
             for (int placementIndex = 0; placementIndex < placementCount; placementIndex++)
             {
-                match.PlaceCard(match.ActivePlayer.PlayerId, CardKind.Safe);
+                match.PlaceCard(match.PlayerInTurn.PlayerId, CardKind.Safe);
             }
         }
 
@@ -608,7 +609,7 @@ namespace TLMG.Domain.Tests
         {
             for (int placementIndex = 0; placementIndex < placementCount; placementIndex++)
             {
-                match.PlaceCard(match.ActivePlayer.PlayerId, CardKind.FatalCat);
+                match.PlaceCard(match.PlayerInTurn.PlayerId, CardKind.FatalCat);
             }
         }
 
@@ -620,9 +621,9 @@ namespace TLMG.Domain.Tests
             PlaceFatalCats(match, match.ModeRules.FatalCatCount * playerCount);
         }
 
-        private static void AssertActivePlayerIsNotHighestBidder(MatchState match)
+        private static void AssertPlayerInTurnIsNotBetLeader(MatchState match)
         {
-            Assert.NotSame(match.HighestBidder, match.ActivePlayer);
+            Assert.NotSame(match.BetLeader, match.PlayerInTurn);
         }
     }
 }

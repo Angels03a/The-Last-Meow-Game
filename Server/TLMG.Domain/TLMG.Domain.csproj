@@ -47,9 +47,9 @@
     <Compile Include="Engine\CardKind.cs" />
     <Compile Include="Engine\CardPlacementStatus.cs" />
     <Compile Include="Engine\MatchModeRules.cs" />
-    <Compile Include="Engine\MatchPhase.cs" />
     <Compile Include="Engine\MatchPlayer.cs" />
     <Compile Include="Engine\MatchState.cs" />
+    <Compile Include="Engine\RoundPhase.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\PlayerLogin.cs" />
     <Compile Include="Entities\PlayerRegistration.cs" />

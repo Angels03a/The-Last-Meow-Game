@@ -9,8 +9,8 @@ namespace TLMG.Domain.Engine
         /// <summary>El jugador no forma parte de la partida.</summary>
         PlayerNotInMatch,
 
-        /// <summary>Hay una apuesta abierta o un reto listo para resolver: nadie puede colocar cartas.</summary>
-        BetOpen,
+        /// <summary>Hay una apuesta en curso o un reto listo para resolver: nadie puede colocar cartas.</summary>
+        BetInProgress,
 
         /// <summary>Juega otro jugador: solo puede actuar quien tiene el turno.</summary>
         NotPlayersTurn,
