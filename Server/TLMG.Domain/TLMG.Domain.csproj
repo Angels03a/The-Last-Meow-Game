@@ -72,12 +72,16 @@
     <Compile Include="Repositories\PlayerCredentials.cs" />
     <Compile Include="Repositories\PlayerExistenceLookupStatus.cs" />
     <Compile Include="Repositories\RankedPlayer.cs" />
+    <Compile Include="Repositories\VerificationCodeStatus.cs" />
+    <Compile Include="Repositories\VerificationCodeType.cs" />
     <Compile Include="Repositories\VerificationCodeValidationResult.cs" />
+    <Compile Include="Validators\AccountFieldValidator.cs" />
     <Compile Include="Validators\CardsPerPlayerValidator.cs" />
     <Compile Include="Repositories\VerificationCodeRecord.cs" />
     <Compile Include="Validators\ChatValidator.cs" />
     <Compile Include="Validators\FriendNicknameValidator.cs" />
     <Compile Include="Validators\PlayerAccountRegistrationValidator.cs" />
+    <Compile Include="Validators\PlayerLoginValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Engine\" />
