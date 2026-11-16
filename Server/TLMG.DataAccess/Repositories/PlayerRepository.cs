@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using log4net;
 using TLMG.DataAccess.DatabaseModel;
+using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
 
 namespace TLMG.DataAccess.Repositories
@@ -17,14 +18,6 @@ namespace TLMG.DataAccess.Repositories
     /// </summary>
     public class PlayerRepository : IPlayerRepository
     {
-        private const int InitialStatisticValue = 0;
-
-        // FIXME: Representar los estados de usuario con un enum en lugar de cadenas. (BL-047).
-        private const string ActiveUserState = "USER_ACTIVE";
-
-        // FIXME: Implementar la gestión de imágenes de perfil; se define en el pendiente de imágenes. (BL-045).
-        private const string DefaultProfileImage = "/img/default.png";
-
         private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerRepository));
 
         public PlayerExistenceLookupStatus FindEmailExistenceStatus(string email)
@@ -209,7 +202,7 @@ namespace TLMG.DataAccess.Repositories
                     IQueryable<RankedPlayer> rankedPlayersQuery = from player in context.Player.AsNoTracking()
                                                                   join user in context.User.AsNoTracking()
                                                                       on player.id_user equals user.id_user
-                                                                  where user.state == ActiveUserState
+                                                                  where user.state == ValidationRules.ActiveUserState
                                                                   orderby player.total_points descending, user.nickname
                                                                   select new RankedPlayer
                                                                   {
@@ -274,8 +267,8 @@ namespace TLMG.DataAccess.Repositories
                     email = email,
                     nickname = nickname,
                     password_hash = passwordHash,
-                    state = ActiveUserState,
-                    profile_image = DefaultProfileImage,
+                    state = ValidationRules.ActiveUserState,
+                    profile_image = ValidationRules.DefaultProfileImage,
                     last_time = DateTime.UtcNow
                 };
 
@@ -285,9 +278,9 @@ namespace TLMG.DataAccess.Repositories
                 Player newPlayer = new Player
                 {
                     id_user = newUser.id_user,
-                    total_points = InitialStatisticValue,
-                    total_wins = InitialStatisticValue,
-                    total_games_played = InitialStatisticValue
+                    total_points = ValidationRules.InitialStatisticValue,
+                    total_wins = ValidationRules.InitialStatisticValue,
+                    total_games_played = ValidationRules.InitialStatisticValue
                 };
 
                 context.Player.Add(newPlayer);

@@ -8,7 +8,6 @@ namespace TLMG.Services.Sessions
 {
     public partial class SessionRegistry
     {
-        private const int MinimumPlayersToStartCount = 3;
         private const int DefaultCardsPerPlayerCount = ValidationRules.FourCardsPerPlayerCount;
         private const int LobbyStartCountdownSeconds = 3;
 
@@ -235,8 +234,8 @@ namespace TLMG.Services.Sessions
         {
             List<LobbyMember> lobbyMembers = _membersByRoomId[roomId];
             LobbyStartState lobbyStartState = _startsByRoomId[roomId];
-            bool hasRequiredPlayerCount = lobbyMembers.Count >= MinimumPlayersToStartCount
-                && lobbyMembers.Count <= MaximumPlayersPerRoom;
+            bool hasRequiredPlayerCount = lobbyMembers.Count >= ValidationRules.MinimumPlayersPerMatchCount
+                && lobbyMembers.Count <= ValidationRules.MaximumPlayersPerMatchCount;
             bool areReady = hasRequiredPlayerCount
                 && lobbyMembers.TrueForAll(member => lobbyStartState.ReadyUserIds.Contains(member.UserId));
 

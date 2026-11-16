@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 
 using TLMG.Contracts;
+using TLMG.Domain.Constants;
 
 namespace TLMG.Services.Sessions
 {
     public partial class SessionRegistry
     {
-        private const int MaximumPlayersPerRoom = 6;
         private const int EmptyCount = 0;
 
         private readonly Dictionary<int, List<LobbyMember>> _membersByRoomId =
@@ -178,7 +178,7 @@ namespace TLMG.Services.Sessions
                 lobbyMembershipChange =
                     LobbyMembershipChange.CreateRejected(LobbyChangeStatus.NotAuthorized, playerSession.UserId);
             }
-            else if (members.Count >= MaximumPlayersPerRoom)
+            else if (members.Count >= ValidationRules.MaximumPlayersPerMatchCount)
             {
                 lobbyMembershipChange =
                     LobbyMembershipChange.CreateRejected(LobbyChangeStatus.RoomFull, playerSession.UserId);

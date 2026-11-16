@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
 
 namespace TLMG.Services.Leaderboard
@@ -8,7 +9,6 @@ namespace TLMG.Services.Leaderboard
     public class LeaderboardService
     {
         private const int MaximumLeaderboardPlayerCount = 100;
-        private const string DatabaseErrorKey = "Leaderboard_ConnectionErrorMessage";
 
         private IPlayerRepository _playerRepository;
 
@@ -31,7 +31,7 @@ namespace TLMG.Services.Leaderboard
             }
             else
             {
-                operationGetLeaderboardResult.ErrorKey = DatabaseErrorKey;
+                operationGetLeaderboardResult.ErrorKey = ErrorKeys.Leaderboard.ConnectionError;
             }
 
             return operationGetLeaderboardResult;

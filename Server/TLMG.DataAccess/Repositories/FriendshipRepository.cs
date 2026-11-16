@@ -17,7 +17,6 @@ namespace TLMG.DataAccess.Repositories
     /// </summary>
     public class FriendshipRepository : IFriendshipRepository
     {
-        private const string AcceptedFriendshipState = "FRIEND_ACCEPTED";
         private const int UniqueConstraintViolationNumber = 2627;
         private const int UniqueIndexViolationNumber = 2601;
         private const int StateColumnLength = 30;
@@ -49,12 +48,12 @@ WHERE id_friendship = @friendshipId
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
                 {
                     IQueryable<int> sentFriendIds = context.Friendship.AsNoTracking()
-                        .Where(friendship => friendship.state == AcceptedFriendshipState
+                        .Where(friendship => friendship.state == ValidationRules.AcceptedFriendshipState
                             && friendship.id_user_sender == userId)
                         .Select(friendship => friendship.id_user_receiver);
 
                     IQueryable<int> receivedFriendIds = context.Friendship.AsNoTracking()
-                        .Where(friendship => friendship.state == AcceptedFriendshipState
+                        .Where(friendship => friendship.state == ValidationRules.AcceptedFriendshipState
                             && friendship.id_user_receiver == userId)
                         .Select(friendship => friendship.id_user_sender);
 
@@ -101,7 +100,7 @@ WHERE id_friendship = @friendshipId
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
                 {
                     bool areAcceptedFriends = context.Friendship.AsNoTracking()
-                        .Where(friendship => friendship.state == AcceptedFriendshipState)
+                        .Where(friendship => friendship.state == ValidationRules.AcceptedFriendshipState)
                         .Where(friendship => friendship.id_user_sender == userId
                             || friendship.id_user_sender == otherUserId)
                         .Where(friendship => friendship.id_user_receiver == userId

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using TLMG.Contracts;
+using TLMG.Domain.Constants;
 
 namespace TLMG.Services.Sessions
 {
@@ -250,7 +251,7 @@ namespace TLMG.Services.Sessions
             {
                 roomInvitationCreation = RoomInvitationCreation.CreateRejected(FriendsChangeStatus.CannotInvite);
             }
-            else if (_membersByRoomId[roomId].Count >= MaximumPlayersPerRoom)
+            else if (_membersByRoomId[roomId].Count >= ValidationRules.MaximumPlayersPerMatchCount)
             {
                 roomInvitationCreation = RoomInvitationCreation.CreateRejected(FriendsChangeStatus.RoomFull);
             }

@@ -12,7 +12,10 @@ namespace TLMG.Domain.Constants
         public const int InvalidCharacterIndex = -1;
         public const int NoUserId = 0;
 
+        // FIXME: Representar los estados de usuario con un enum en lugar de cadenas. (BL-047).
         public const string ActiveUserState = "USER_ACTIVE";
+
+        // FIXME: Implementar la gestión de imágenes de perfil; se define en el pendiente de imágenes. (BL-045).
         public const string DefaultProfileImage = "/img/default.png";
         public const int InitialStatisticValue = 0;
 
