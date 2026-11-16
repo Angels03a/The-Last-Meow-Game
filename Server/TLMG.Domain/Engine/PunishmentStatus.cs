@@ -6,6 +6,12 @@ namespace TLMG.Domain.Engine
         /// <summary>Se eliminó la carta del castigado; Phase indica cómo sigue la partida.</summary>
         CardRemoved,
 
+        /// <summary>El castigo quedó suspendido: su plazo se detuvo y se guardó el tiempo restante.</summary>
+        Suspended,
+
+        /// <summary>El castigo se reanudó con el tiempo que le quedaba, sin reiniciar el plazo.</summary>
+        Resumed,
+
         /// <summary>El jugador que pide elegir no forma parte de la partida.</summary>
         PlayerNotInMatch,
 
@@ -22,6 +28,15 @@ namespace TLMG.Domain.Engine
         DeadlineExpired,
 
         /// <summary>El plazo para elegir todavía no vence: aún no puede elegir el sistema.</summary>
-        DeadlineNotReached
+        DeadlineNotReached,
+
+        /// <summary>El castigo está suspendido: no se puede elegir, vencer ni volver a suspender.</summary>
+        PunishmentSuspended,
+
+        /// <summary>El castigo no está suspendido: no hay nada que reanudar.</summary>
+        PunishmentNotSuspended,
+
+        /// <summary>Solo el jugador castigado puede suspender o reanudar su castigo.</summary>
+        NotThePunished
     }
 }

@@ -52,8 +52,8 @@ namespace TLMG.Domain.Engine
 
         /// <summary>
         /// Resuelve el castigo cuando venció el plazo (nowUtc igual o posterior a DeadlineUtc): el sistema elige al
-        /// azar, con la misma probabilidad para cada carta del castigado, incluido el Gato. Antes del plazo se
-        /// rechaza. Si rechaza, nada cambia.
+        /// azar, con la misma probabilidad para cada carta del castigado, incluido el Gato. Antes del plazo o con el
+        /// castigo suspendido se rechaza. Si rechaza, nada cambia.
         /// </summary>
         /// <param name="nowUtc">Hora UTC del servidor.</param>
         /// <param name="pickRandomIndex">
@@ -73,19 +73,81 @@ namespace TLMG.Domain.Engine
                 throw new ArgumentNullException(nameof(pickRandomIndex));
             }
 
-            PunishmentStatus punishmentStatus = PunishmentStatus.CardRemoved;
+            PunishmentStatus punishmentStatus;
 
             if (Phase != RoundPhase.PunishmentPending)
             {
                 punishmentStatus = PunishmentStatus.NoPunishmentPending;
             }
-            else if (!PendingPunishment.HasExpired(nowUtc))
+            else
             {
-                punishmentStatus = PunishmentStatus.DeadlineNotReached;
+                punishmentStatus = PendingPunishment.ValidateExpiration(nowUtc);
+            }
+
+            if (punishmentStatus == PunishmentStatus.CardRemoved)
+            {
+                ResolvePunishmentAtRandom(pickRandomIndex);
+            }
+
+            return punishmentStatus;
+        }
+
+        /// <summary>
+        /// Suspende el castigo pendiente porque el jugador castigado se desconectó (Reglas 4.0.6): su plazo deja de
+        /// correr y se guarda el tiempo restante. Si quien se desconecta es quien elige y no es el castigado, se
+        /// rechaza y su plazo sigue corriendo; con Gato propio ambos son el mismo jugador y sí se suspende (H-14). Un
+        /// castigo vencido no se suspende. La fase sigue en PunishmentPending. Si rechaza, nada cambia.
+        /// </summary>
+        /// <param name="playerId">Jugador que se desconectó; lo detecta Services.</param>
+        /// <param name="nowUtc">Hora UTC del servidor; el motor nunca lee el reloj.</param>
+        /// <returns>Suspended si se suspendió; en otro caso, el motivo del rechazo.</returns>
+        /// <exception cref="ArgumentException">nowUtc no es una hora UTC.</exception>
+        public PunishmentStatus SuspendPunishment(int playerId, DateTime nowUtc)
+        {
+            ValidateUtc(nowUtc);
+            PunishmentStatus punishmentStatus;
+
+            if (FindPlayer(playerId) == null)
+            {
+                punishmentStatus = PunishmentStatus.PlayerNotInMatch;
+            }
+            else if (Phase != RoundPhase.PunishmentPending)
+            {
+                punishmentStatus = PunishmentStatus.NoPunishmentPending;
             }
             else
             {
-                ResolvePunishmentAtRandom(pickRandomIndex);
+                punishmentStatus = PendingPunishment.Suspend(playerId, nowUtc);
+            }
+
+            return punishmentStatus;
+        }
+
+        /// <summary>
+        /// Reanuda el castigo suspendido porque el jugador castigado regresó a tiempo: la nueva hora límite es nowUtc
+        /// más el tiempo que quedaba, nunca el plazo completo. La ventana de reconexión la mide Services. Si rechaza,
+        /// nada cambia.
+        /// </summary>
+        /// <param name="playerId">Jugador que regresó; debe ser el castigado.</param>
+        /// <param name="nowUtc">Hora UTC del servidor; el motor nunca lee el reloj.</param>
+        /// <returns>Resumed si se reanudó; en otro caso, el motivo del rechazo.</returns>
+        /// <exception cref="ArgumentException">nowUtc no es una hora UTC.</exception>
+        public PunishmentStatus ResumePunishment(int playerId, DateTime nowUtc)
+        {
+            ValidateUtc(nowUtc);
+            PunishmentStatus punishmentStatus;
+
+            if (FindPlayer(playerId) == null)
+            {
+                punishmentStatus = PunishmentStatus.PlayerNotInMatch;
+            }
+            else if (Phase != RoundPhase.PunishmentPending)
+            {
+                punishmentStatus = PunishmentStatus.NoPunishmentPending;
+            }
+            else
+            {
+                punishmentStatus = PendingPunishment.Resume(playerId, nowUtc);
             }
 
             return punishmentStatus;
