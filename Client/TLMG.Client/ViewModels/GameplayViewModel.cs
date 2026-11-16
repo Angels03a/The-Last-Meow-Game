@@ -239,6 +239,8 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteExit()
         {
+            _lobbyConnection.LeaveLobby();
+            _navigation.ClearHistory();
             _navigation.NavigateToWithoutHistory(ScreenId.MainMenu);
         }
 
