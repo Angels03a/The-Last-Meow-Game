@@ -58,6 +58,12 @@ namespace TLMG.Domain.Engine
         /// <summary>Obtiene los retos exitosos del jugador.</summary>
         public int SuccessfulChallengeCount { get; internal set; }
 
+        /// <summary>
+        /// Obtiene la secuencia del último reto exitoso del jugador en la partida, o 0 si no tiene ninguno. Una
+        /// secuencia menor indica que alcanzó antes su número actual de retos (Reglas 5.0.4).
+        /// </summary>
+        public int LastSuccessfulChallengeSequence { get; internal set; }
+
         /// <summary>Obtiene si el jugador conserva su vida extra; solo existe en la modalidad de 8 cartas.</summary>
         public bool HasExtraLife { get; internal set; }
 

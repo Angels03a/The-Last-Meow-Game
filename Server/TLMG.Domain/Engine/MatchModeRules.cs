@@ -14,6 +14,12 @@ namespace TLMG.Domain.Engine
         private const int DoubleFatalCatCount = 2;
         private const int ShortMatchChallengesToWin = 2;
         private const int LongMatchChallengesToWin = 4;
+        private const int FourCardsWinnerBonusPoints = 1;
+        private const int SixCardsWinnerBonusPoints = 2;
+        private const int EightCardsWinnerBonusPoints = 3;
+        private const int FourCardsNonWinnerBonusPoints = 0;
+        private const int SixCardsNonWinnerBonusPoints = 1;
+        private const int EightCardsNonWinnerBonusPoints = 2;
 
         private MatchModeRules(int cardsPerPlayerCount, int fatalCatCount, int successfulChallengesToWin)
         {
@@ -33,6 +39,12 @@ namespace TLMG.Domain.Engine
 
         /// <summary>Obtiene los retos exitosos que se necesitan para ganar la partida.</summary>
         public int SuccessfulChallengesToWin { get; }
+
+        /// <summary>Obtiene el bono de puntos del ganador en esta modalidad: +1, +2 o +3 (Reglas 5.0.1).</summary>
+        public int WinnerBonusPoints => SelectWinnerBonusPoints(CardsPerPlayerCount);
+
+        /// <summary>Obtiene el bono de puntos de quien no gana en esta modalidad: 0, +1 o +2 (Reglas 5.0.1).</summary>
+        public int NonWinnerBonusPoints => SelectNonWinnerBonusPoints(CardsPerPlayerCount);
 
         /// <summary>Obtiene si la modalidad admite vida extra; solo la de 8 cartas.</summary>
         public bool AllowsExtraLife => CardsPerPlayerCount == ValidationRules.EightCardsPerPlayerCount;
@@ -62,6 +74,52 @@ namespace TLMG.Domain.Engine
             }
 
             return modeRules;
+        }
+
+        /// <summary>Bono del ganador según las cartas por jugador; la fábrica ya validó la modalidad.</summary>
+        private static int SelectWinnerBonusPoints(int cardsPerPlayerCount)
+        {
+            int winnerBonusPoints;
+
+            switch (cardsPerPlayerCount)
+            {
+                case ValidationRules.FourCardsPerPlayerCount:
+                    winnerBonusPoints = FourCardsWinnerBonusPoints;
+                    break;
+                case ValidationRules.SixCardsPerPlayerCount:
+                    winnerBonusPoints = SixCardsWinnerBonusPoints;
+                    break;
+                case ValidationRules.EightCardsPerPlayerCount:
+                    winnerBonusPoints = EightCardsWinnerBonusPoints;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(cardsPerPlayerCount));
+            }
+
+            return winnerBonusPoints;
+        }
+
+        /// <summary>Bono de quien no gana según las cartas por jugador; la fábrica ya validó la modalidad.</summary>
+        private static int SelectNonWinnerBonusPoints(int cardsPerPlayerCount)
+        {
+            int nonWinnerBonusPoints;
+
+            switch (cardsPerPlayerCount)
+            {
+                case ValidationRules.FourCardsPerPlayerCount:
+                    nonWinnerBonusPoints = FourCardsNonWinnerBonusPoints;
+                    break;
+                case ValidationRules.SixCardsPerPlayerCount:
+                    nonWinnerBonusPoints = SixCardsNonWinnerBonusPoints;
+                    break;
+                case ValidationRules.EightCardsPerPlayerCount:
+                    nonWinnerBonusPoints = EightCardsNonWinnerBonusPoints;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(cardsPerPlayerCount));
+            }
+
+            return nonWinnerBonusPoints;
         }
     }
 }

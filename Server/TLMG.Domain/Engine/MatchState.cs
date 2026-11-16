@@ -20,6 +20,7 @@ namespace TLMG.Domain.Engine
         private readonly List<MatchPlayer> _eliminatedPlayers = new List<MatchPlayer>();
         private bool _hasExtraLifeBeenGranted;
         private bool _hasAnyCardBeenPlaced;
+        private int _successfulChallengeSequence;
 
         /// <summary>Inicia una partida con la mano completa para cada jugador.</summary>
         /// <param name="modeRules">Reglas de la modalidad elegida en la sala.</param>

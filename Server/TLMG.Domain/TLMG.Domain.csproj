@@ -49,6 +49,8 @@
     <Compile Include="Engine\ChallengeResolution.cs" />
     <Compile Include="Engine\ChallengeRevealStatus.cs" />
     <Compile Include="Engine\ExtraLifeStatus.cs" />
+    <Compile Include="Engine\FinalStandings.cs" />
+    <Compile Include="Engine\FinalStandingsStatus.cs" />
     <Compile Include="Engine\MatchModeRules.cs" />
     <Compile Include="Engine\MatchPlayer.cs" />
     <Compile Include="Engine\MatchState.Betting.cs" />
@@ -56,6 +58,7 @@
     <Compile Include="Engine\MatchState.cs" />
     <Compile Include="Engine\MatchState.Punishment.cs" />
     <Compile Include="Engine\PendingPunishment.cs" />
+    <Compile Include="Engine\PlayerStanding.cs" />
     <Compile Include="Engine\PunishmentStatus.cs" />
     <Compile Include="Engine\RoundPhase.cs" />
     <Compile Include="Entities\Player.cs" />

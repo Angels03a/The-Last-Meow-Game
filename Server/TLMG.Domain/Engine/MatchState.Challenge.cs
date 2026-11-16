@@ -64,14 +64,17 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Reto exitoso: suma un reto al apostador y todas las cartas jugadas vuelven a las manos. Si llegó a los retos
-        /// de la modalidad, la partida termina con su victoria; si no, empieza la siguiente ronda.
+        /// Reto exitoso: suma un reto al apostador, le asigna la siguiente secuencia de éxito y todas las cartas
+        /// jugadas vuelven a las manos. Si llegó a los retos de la modalidad, la partida termina con su victoria; si
+        /// no, empieza la siguiente ronda.
         /// </summary>
         private void CompleteChallengeSuccess()
         {
             MatchPlayer bettor = BetLeader;
             Resolution.ReturnPilesToHands();
             bettor.SuccessfulChallengeCount++;
+            _successfulChallengeSequence++;
+            bettor.LastSuccessfulChallengeSequence = _successfulChallengeSequence;
 
             if (bettor.SuccessfulChallengeCount >= ModeRules.SuccessfulChallengesToWin)
             {

@@ -25,9 +25,11 @@
   <ItemGroup>
     <Compile Include="CardsPerPlayerValidatorTests.cs" />
     <Compile Include="ChatValidatorTests.cs" />
+    <Compile Include="FinalStandingsTests.cs" />
     <Compile Include="FriendNicknameValidatorTests.cs" />
     <Compile Include="MatchModeRulesTests.cs" />
     <Compile Include="MatchStateBettingTests.cs" />
+    <Compile Include="MatchStateChallengeSequenceTests.cs" />
     <Compile Include="MatchStateChallengeTests.cs" />
     <Compile Include="MatchStateExtraLifeTests.cs" />
     <Compile Include="MatchStatePunishmentTests.cs" />
