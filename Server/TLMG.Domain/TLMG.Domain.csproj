@@ -43,6 +43,11 @@
   <ItemGroup>
     <Compile Include="Constants\ErrorKeys.cs" />
     <Compile Include="Constants\ValidationRules.cs" />
+    <Compile Include="Engine\CardKind.cs" />
+    <Compile Include="Engine\CardPlacementStatus.cs" />
+    <Compile Include="Engine\MatchModeRules.cs" />
+    <Compile Include="Engine\MatchPlayer.cs" />
+    <Compile Include="Engine\MatchState.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\PlayerLogin.cs" />
     <Compile Include="Entities\PlayerRegistration.cs" />
@@ -78,9 +83,6 @@
     <Compile Include="Validators\ChatValidator.cs" />
     <Compile Include="Validators\FriendNicknameValidator.cs" />
     <Compile Include="Validators\PlayerAccountRegistrationValidator.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Engine\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

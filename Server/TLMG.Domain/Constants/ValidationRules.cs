@@ -38,6 +38,9 @@ namespace TLMG.Domain.Constants
         public const int SixCardsPerPlayerCount = 6;
         public const int EightCardsPerPlayerCount = 8;
 
+        public const int MinimumPlayersPerMatchCount = 3;
+        public const int MaximumPlayersPerMatchCount = 6;
+
         public const int ChatMaximumMessageLengthCharacters = 160;
         public const string ChatAllowedCharacters = 
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÁÉÍÓÚáéíóúÑñ0123456789 ,?¿";
