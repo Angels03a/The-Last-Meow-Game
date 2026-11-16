@@ -10,6 +10,7 @@ namespace TLMG.Domain.Engine
     public sealed class MatchPlayer
     {
         private const int LastIndexOffset = 1;
+        private const int NoLives = 0;
 
         private readonly List<CardKind> _handCards = new List<CardKind>();
         private readonly List<CardKind> _pileCards = new List<CardKind>();
@@ -38,6 +39,12 @@ namespace TLMG.Domain.Engine
 
         /// <summary>Obtiene las vidas del jugador: las cartas de la mano más las de la pila.</summary>
         public int Lives => _handCards.Count + _pileCards.Count;
+
+        /// <summary>
+        /// Obtiene si el jugador quedó eliminado: sus vidas llegaron a cero. Tener la mano vacía con cartas en la pila
+        /// no es eliminación.
+        /// </summary>
+        public bool IsEliminated => Lives == NoLives;
 
         /// <summary>Obtiene si el jugador se retiró de la apuesta en curso y ya no participa en ella.</summary>
         public bool HasWithdrawnFromBet { get; internal set; }
@@ -80,6 +87,17 @@ namespace TLMG.Domain.Engine
             RevealedCardCount++;
 
             return revealedCard;
+        }
+
+        /// <summary>Quita para siempre una carta de la mano; el índice debe ser válido.</summary>
+        /// <param name="handIndex">Índice de la carta en la mano.</param>
+        /// <returns>El tipo de la carta quitada.</returns>
+        internal CardKind RemoveHandCardAt(int handIndex)
+        {
+            CardKind removedCard = _handCards[handIndex];
+            _handCards.RemoveAt(handIndex);
+
+            return removedCard;
         }
 
         /// <summary>Devuelve a la mano las cartas de la pila y la deja vacía y sin cartas volteadas.</summary>

@@ -1,3 +1,5 @@
+using System;
+
 using Xunit;
 
 using TLMG.Domain.Engine;
@@ -15,6 +17,8 @@ namespace TLMG.Domain.Tests
         private const int ThirdPlayerId = 3;
         private const int UnknownPlayerId = 99;
         private const int OneCardBet = 1;
+
+        private static readonly DateTime _nowUtc = new DateTime(2026, 11, 20, 12, 0, 0, DateTimeKind.Utc);
 
         /// <summary>Verifica GrantExtraLife_WithEightCardMode_GrantsItToThePlayer.</summary>
         [Fact]
@@ -94,7 +98,7 @@ namespace TLMG.Domain.Tests
             match.OpenBet(FirstPlayerId, OneCardBet);
             match.WithdrawFromBet(SecondPlayerId);
             match.WithdrawFromBet(ThirdPlayerId);
-            match.RevealCard(FirstPlayerId, FirstPlayerId);
+            match.RevealCard(FirstPlayerId, FirstPlayerId, _nowUtc);
 
             // Act
             ExtraLifeStatus status = match.GrantExtraLife(SecondPlayerId);

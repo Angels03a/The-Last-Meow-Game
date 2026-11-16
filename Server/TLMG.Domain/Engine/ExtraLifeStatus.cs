@@ -13,6 +13,9 @@ namespace TLMG.Domain.Engine
         ModeDoesNotAllowExtraLife,
 
         /// <summary>La vida extra ya se otorgó en esta partida; solo un jugador la obtiene, una vez.</summary>
-        ExtraLifeAlreadyGranted
+        ExtraLifeAlreadyGranted,
+
+        /// <summary>Ya se colocó una carta en la partida: la vida extra solo se otorga antes de empezar.</summary>
+        CardAlreadyPlaced
     }
 }

@@ -1,3 +1,5 @@
+using System;
+
 using Xunit;
 
 using TLMG.Domain.Engine;
@@ -38,6 +40,8 @@ namespace TLMG.Domain.Tests
         private const CardKind SafeCard = CardKind.Safe;
         private const CardKind FatalCatCard = CardKind.FatalCat;
 
+        private static readonly DateTime _nowUtc = new DateTime(2026, 11, 20, 12, 0, 0, DateTimeKind.Utc);
+
         /// <summary>Verifica RevealCard_Scenario1WithThreeSafePiles_SucceedsOnThirdReveal.</summary>
         [Fact]
         public void RevealCard_Scenario1WithThreeSafePiles_SucceedsOnThirdReveal()
@@ -48,9 +52,9 @@ namespace TLMG.Domain.Tests
             OpenAndConcede(match, ThreeCardBet);
 
             // Act
-            ChallengeRevealStatus ownPileStatus = match.RevealCard(PlayerAId, PlayerAId);
-            ChallengeRevealStatus secondPileStatus = match.RevealCard(PlayerAId, PlayerBId);
-            ChallengeRevealStatus thirdPileStatus = match.RevealCard(PlayerAId, PlayerCId);
+            ChallengeRevealStatus ownPileStatus = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            ChallengeRevealStatus secondPileStatus = match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
+            ChallengeRevealStatus thirdPileStatus = match.RevealCard(PlayerAId, PlayerCId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.Revealed, ownPileStatus);
@@ -84,12 +88,12 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerCId, PlayerAId, PlayerBId);
             PlaceInTurn(match, SafeCard, SafeCard, SafeCard, SafeCard);
             OpenAndConcede(match, FourCardBet);
-            match.RevealCard(PlayerAId, PlayerAId);
-            match.RevealCard(PlayerAId, PlayerBId);
-            match.RevealCard(PlayerAId, PlayerCId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
+            match.RevealCard(PlayerAId, PlayerCId, _nowUtc);
 
             // Act
-            ChallengeRevealStatus lastStatus = match.RevealCard(PlayerAId, PlayerCId);
+            ChallengeRevealStatus lastStatus = match.RevealCard(PlayerAId, PlayerCId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.ChallengeSucceeded, lastStatus);
@@ -107,11 +111,11 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerCId, PlayerAId, PlayerBId);
             PlaceInTurn(match, SafeCard, SafeCard, SafeCard, SafeCard);
             OpenAndConcede(match, FourCardBet);
-            match.RevealCard(PlayerAId, PlayerAId);
-            match.RevealCard(PlayerAId, PlayerBId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
 
             // Act
-            ChallengeRevealStatus repeatedStatus = match.RevealCard(PlayerAId, PlayerBId);
+            ChallengeRevealStatus repeatedStatus = match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.PileFullyRevealed, repeatedStatus);
@@ -130,10 +134,10 @@ namespace TLMG.Domain.Tests
             RaiseAndConcede(match, OneCardBet, FourCardBet);
 
             // Act
-            ChallengeRevealStatus firstOwnStatus = match.RevealCard(PlayerAId, PlayerAId);
-            ChallengeRevealStatus secondOwnStatus = match.RevealCard(PlayerAId, PlayerAId);
-            ChallengeRevealStatus firstOtherStatus = match.RevealCard(PlayerAId, PlayerBId);
-            ChallengeRevealStatus secondOtherStatus = match.RevealCard(PlayerAId, PlayerBId);
+            ChallengeRevealStatus firstOwnStatus = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            ChallengeRevealStatus secondOwnStatus = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            ChallengeRevealStatus firstOtherStatus = match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
+            ChallengeRevealStatus secondOtherStatus = match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.Revealed, firstOwnStatus);
@@ -150,12 +154,12 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             PlaceInTurn(match, SafeCard, FatalCatCard, SafeCard, SafeCard, SafeCard);
             RaiseAndConcede(match, OneCardBet, FourCardBet);
-            match.RevealCard(PlayerAId, PlayerAId);
-            match.RevealCard(PlayerAId, PlayerAId);
-            match.RevealCard(PlayerAId, PlayerBId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
 
             // Act
-            ChallengeRevealStatus catStatus = match.RevealCard(PlayerAId, PlayerBId);
+            ChallengeRevealStatus catStatus = match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.ChallengeFailed, catStatus);
@@ -170,12 +174,12 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             PlaceInTurn(match, SafeCard, FatalCatCard, SafeCard, SafeCard, SafeCard);
             RaiseAndConcede(match, OneCardBet, FourCardBet);
-            match.RevealCard(PlayerAId, PlayerAId);
-            match.RevealCard(PlayerAId, PlayerAId);
-            match.RevealCard(PlayerAId, PlayerBId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
 
             // Act
-            match.RevealCard(PlayerAId, PlayerBId);
+            match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
 
             // Assert
             Assert.Equal(PlayerBId, match.PendingPunishment.ChooserPlayerId);
@@ -191,10 +195,10 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             PlaceInTurn(match, FatalCatCard, SafeCard, SafeCard, SafeCard, SafeCard, SafeCard);
             OpenAndConcede(match, TwoCardBet);
-            match.RevealCard(PlayerAId, PlayerAId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Act
-            match.RevealCard(PlayerAId, PlayerAId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Assert
             Assert.All(match.Players, player => Assert.Equal(FourCardsPerPlayer, player.HandCards.Count));
@@ -213,7 +217,7 @@ namespace TLMG.Domain.Tests
             OpenAndConcede(match, ThreeCardBet);
 
             // Act
-            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerBId);
+            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.OwnPileFirst, status);
@@ -229,10 +233,10 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             PlaceInTurn(match, FatalCatCard, SafeCard, SafeCard, SafeCard, SafeCard, SafeCard);
             OpenAndConcede(match, TwoCardBet);
-            ChallengeRevealStatus safeStatus = match.RevealCard(PlayerAId, PlayerAId);
+            ChallengeRevealStatus safeStatus = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Act
-            ChallengeRevealStatus catStatus = match.RevealCard(PlayerAId, PlayerAId);
+            ChallengeRevealStatus catStatus = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.Revealed, safeStatus);
@@ -247,10 +251,10 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             PlaceInTurn(match, FatalCatCard, SafeCard, SafeCard, SafeCard, SafeCard, SafeCard);
             OpenAndConcede(match, TwoCardBet);
-            match.RevealCard(PlayerAId, PlayerAId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Act
-            match.RevealCard(PlayerAId, PlayerAId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Assert
             Assert.Equal(PlayerAId, match.PendingPunishment.ChooserPlayerId);
@@ -268,7 +272,7 @@ namespace TLMG.Domain.Tests
             OpenAndConcede(match, OneCardBet);
 
             // Act
-            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerAId);
+            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.ChallengeSucceeded, status);
@@ -288,9 +292,9 @@ namespace TLMG.Domain.Tests
             RaiseAndConcede(match, OneCardBet, ThreeCardBet);
 
             // Act
-            ChallengeRevealStatus ownStatus = match.RevealCard(PlayerAId, PlayerAId);
-            ChallengeRevealStatus catStatus = match.RevealCard(PlayerAId, PlayerBId);
-            ChallengeRevealStatus lastStatus = match.RevealCard(PlayerAId, PlayerCId);
+            ChallengeRevealStatus ownStatus = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            ChallengeRevealStatus catStatus = match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
+            ChallengeRevealStatus lastStatus = match.RevealCard(PlayerAId, PlayerCId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.Revealed, ownStatus);
@@ -310,12 +314,12 @@ namespace TLMG.Domain.Tests
             match.GrantExtraLife(PlayerAId);
             PlaceInTurn(match, SafeCard, SafeCard, SafeCard, FatalCatCard);
             RaiseAndConcede(match, OneCardBet, FourCardBet);
-            match.RevealCard(PlayerAId, PlayerAId);
-            match.RevealCard(PlayerAId, PlayerBId);
-            match.RevealCard(PlayerAId, PlayerBId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
+            match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
 
             // Act
-            ChallengeRevealStatus lastStatus = match.RevealCard(PlayerAId, PlayerCId);
+            ChallengeRevealStatus lastStatus = match.RevealCard(PlayerAId, PlayerCId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.ChallengeSucceeded, lastStatus);
@@ -333,7 +337,7 @@ namespace TLMG.Domain.Tests
             OpenAndConcede(match, OneCardBet);
 
             // Act
-            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerAId);
+            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.ChallengeSucceeded, status);
@@ -352,7 +356,7 @@ namespace TLMG.Domain.Tests
             OpenAndConcede(match, TwoCardBet);
 
             // Act
-            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerAId);
+            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.ChallengeFailed, status);
@@ -369,10 +373,10 @@ namespace TLMG.Domain.Tests
             match.GrantExtraLife(PlayerAId);
             PlaceCatsOnOwnPileOfFirstPlayer(match);
             OpenAndConcede(match, ThreeCardBet);
-            ChallengeRevealStatus firstCatStatus = match.RevealCard(PlayerAId, PlayerAId);
+            ChallengeRevealStatus firstCatStatus = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Act
-            ChallengeRevealStatus secondCatStatus = match.RevealCard(PlayerAId, PlayerAId);
+            ChallengeRevealStatus secondCatStatus = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.Revealed, firstCatStatus);
@@ -388,10 +392,10 @@ namespace TLMG.Domain.Tests
             match.GrantExtraLife(PlayerAId);
             PlaceCatsOnOwnPileOfFirstPlayer(match);
             OpenAndConcede(match, ThreeCardBet);
-            match.RevealCard(PlayerAId, PlayerAId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Act
-            match.RevealCard(PlayerAId, PlayerAId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Assert
             Assert.False(GetPlayer(match, PlayerAId).HasExtraLife);
@@ -408,11 +412,11 @@ namespace TLMG.Domain.Tests
             match.GrantExtraLife(PlayerAId);
             PlaceInTurn(match, FatalCatCard, SafeCard, SafeCard, FatalCatCard);
             RaiseAndConcede(match, OneCardBet, ThreeCardBet);
-            match.RevealCard(PlayerAId, PlayerAId);
-            match.RevealCard(PlayerAId, PlayerBId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
 
             // Act
-            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerBId);
+            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.ChallengeFailed, status);
@@ -480,7 +484,7 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
 
             // Act
-            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerAId);
+            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.NoChallengeInProgress, status);
@@ -496,7 +500,7 @@ namespace TLMG.Domain.Tests
             OpenAndConcede(match, ThreeCardBet);
 
             // Act
-            ChallengeRevealStatus status = match.RevealCard(PlayerBId, PlayerBId);
+            ChallengeRevealStatus status = match.RevealCard(PlayerBId, PlayerBId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.NotTheBettor, status);
@@ -513,7 +517,7 @@ namespace TLMG.Domain.Tests
             OpenAndConcede(match, ThreeCardBet);
 
             // Act
-            ChallengeRevealStatus status = match.RevealCard(UnknownPlayerId, PlayerAId);
+            ChallengeRevealStatus status = match.RevealCard(UnknownPlayerId, PlayerAId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.PlayerNotInMatch, status);
@@ -529,7 +533,7 @@ namespace TLMG.Domain.Tests
             OpenAndConcede(match, ThreeCardBet);
 
             // Act
-            ChallengeRevealStatus status = match.RevealCard(PlayerAId, UnknownPlayerId);
+            ChallengeRevealStatus status = match.RevealCard(PlayerAId, UnknownPlayerId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.PileOwnerNotInMatch, status);
@@ -545,7 +549,7 @@ namespace TLMG.Domain.Tests
             PlaySuccessfulRound(match);
 
             // Act
-            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerAId);
+            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.NoChallengeInProgress, status);
@@ -559,7 +563,7 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatchWithPunishmentPending();
 
             // Act
-            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerAId);
+            ChallengeRevealStatus status = match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Assert
             Assert.Equal(ChallengeRevealStatus.NoChallengeInProgress, status);
@@ -689,10 +693,10 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             PlaceInTurn(match, SafeCard, SafeCard, SafeCard);
             OpenAndConcede(match, ThreeCardBet);
-            match.RevealCard(PlayerAId, PlayerAId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             // Act
-            match.RevealCard(PlayerAId, PlayerCId);
+            match.RevealCard(PlayerAId, PlayerCId, _nowUtc);
 
             // Assert
             Assert.Equal(SafeCard, match.Resolution.LastRevealedCard);
@@ -775,9 +779,9 @@ namespace TLMG.Domain.Tests
         {
             PlaceInTurn(match, SafeCard, SafeCard, SafeCard);
             OpenAndConcede(match, ThreeCardBet);
-            match.RevealCard(PlayerAId, PlayerAId);
-            match.RevealCard(PlayerAId, PlayerBId);
-            ChallengeRevealStatus lastStatus = match.RevealCard(PlayerAId, PlayerCId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            match.RevealCard(PlayerAId, PlayerBId, _nowUtc);
+            ChallengeRevealStatus lastStatus = match.RevealCard(PlayerAId, PlayerCId, _nowUtc);
 
             return lastStatus;
         }
@@ -795,8 +799,8 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             PlaceInTurn(match, FatalCatCard, SafeCard, SafeCard, SafeCard, SafeCard, SafeCard);
             OpenAndConcede(match, TwoCardBet);
-            match.RevealCard(PlayerAId, PlayerAId);
-            match.RevealCard(PlayerAId, PlayerAId);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
+            match.RevealCard(PlayerAId, PlayerAId, _nowUtc);
 
             return match;
         }

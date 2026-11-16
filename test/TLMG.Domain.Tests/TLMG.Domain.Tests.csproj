@@ -30,6 +30,7 @@
     <Compile Include="MatchStateBettingTests.cs" />
     <Compile Include="MatchStateChallengeTests.cs" />
     <Compile Include="MatchStateExtraLifeTests.cs" />
+    <Compile Include="MatchStatePunishmentTests.cs" />
     <Compile Include="MatchStateTests.cs" />
     <Compile Include="PlayerAccountRegistrationValidatorTests.cs" />
     <Compile Include="TestAssembly.cs" />
