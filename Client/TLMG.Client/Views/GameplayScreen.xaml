@@ -370,7 +370,10 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBox Grid.Column="0"
+                        <TextBox x:Name="txtChatInput"
+                                 Grid.Column="0"
+                                 PreviewTextInput="OnChatPreviewTextInput"
+                                 DataObject.Pasting="OnChatPasting"
                                  Text="{Binding ChatInput, UpdateSourceTrigger=PropertyChanged}"
                                  Tag="{DynamicResource Gameplay_ChatPlaceholder}"
                                  Style="{StaticResource GameplayChatInputStyle}" />

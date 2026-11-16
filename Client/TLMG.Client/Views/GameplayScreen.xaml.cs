@@ -1,6 +1,8 @@
 using System;
 using System.Windows;
 using System.Windows.Input;
+
+using TLMG.Client.Communication;
 using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
@@ -26,6 +28,8 @@ namespace TLMG.Client.Views
             InitializeComponent();
 
             _viewModel = viewModel;
+
+            txtChatInput.MaxLength = ChatInputHelper.MaximumMessageCharacters;
 
             Loaded += OnScreenLoaded;
             Unloaded += OnScreenUnloaded;
@@ -98,6 +102,31 @@ namespace TLMG.Client.Views
         private void HidePlayerContextMenu()
         {
             brdPlayerContextMenu.Visibility = Visibility.Collapsed;
+        }
+
+        private bool CanInsertChatText(string insertedText)
+        {
+            string proposedText = txtChatInput.Text.Remove(txtChatInput.SelectionStart, txtChatInput.SelectionLength);
+            proposedText = proposedText.Insert(txtChatInput.SelectionStart, insertedText);
+            bool canInsert = ChatInputHelper.CanEnterText(proposedText);
+
+            return canInsert;
+        }
+
+        private void OnChatPreviewTextInput(object sender, TextCompositionEventArgs eventArguments)
+        {
+            eventArguments.Handled = !CanInsertChatText(eventArguments.Text);
+        }
+
+        private void OnChatPasting(object sender, DataObjectPastingEventArgs eventArguments)
+        {
+            string pastedText = eventArguments.DataObject.GetData(DataFormats.UnicodeText) as string;
+            bool canPaste = pastedText != null && CanInsertChatText(pastedText);
+
+            if (!canPaste)
+            {
+                eventArguments.CancelCommand();
+            }
         }
     }
 }

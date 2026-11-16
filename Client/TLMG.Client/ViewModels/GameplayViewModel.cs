@@ -132,11 +132,14 @@ namespace TLMG.Client.ViewModels
             Deactivate();
 
             _lobbyConnection.ChatMessageReceived += OnChatMessageReceived;
+            _lobbyConnection.ChatAvailabilityChanged += OnChatAvailabilityChanged;
+            _sendChatCommand.NotifyCanExecuteChanged();
         }
 
         public void Deactivate()
         {
             _lobbyConnection.ChatMessageReceived -= OnChatMessageReceived;
+            _lobbyConnection.ChatAvailabilityChanged -= OnChatAvailabilityChanged;
             _chatMessages.Clear();
         }
 
@@ -225,8 +228,14 @@ namespace TLMG.Client.ViewModels
         {
             string messageText = ChatInputHelper.TrimMessageText(ChatInput);
             bool isEmptyMessage = ChatInputHelper.IsEmptyMessage(messageText);
+            bool canSendMessage = !isEmptyMessage && _lobbyConnection.IsChatSubscribed;
 
-            return !isEmptyMessage;
+            return canSendMessage;
+        }
+
+        private void OnChatAvailabilityChanged(object sender, EventArgs eventArgs)
+        {
+            _sendChatCommand.NotifyCanExecuteChanged();
         }
 
         private void OnChatMessageReceived(object sender, ServerEventArgs<ChatMessage> eventArgs)
