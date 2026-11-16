@@ -347,7 +347,7 @@ namespace TLMG.Services.Friends
                 };
 
                 roomInvitationNotifications.Add(
-                    new RoomInvitationDispatch(inviteCallback, roomInvitation).Send);
+                    () => inviteCallback.OnRoomInvitationReceived(roomInvitation));
             }
 
             IReadOnlyList<Action> invitationNotifications = roomInvitationNotifications.AsReadOnly();
@@ -705,7 +705,7 @@ namespace TLMG.Services.Friends
                 };
 
                 notifications.Add(
-                    new FriendRequestDispatch(receiverCallback, receivedRequest).Send);
+                    () => receiverCallback.OnFriendRequestReceived(receivedRequest));
             }
 
             IReadOnlyList<Action> readOnlyNotifications = notifications.AsReadOnly();
@@ -728,7 +728,7 @@ namespace TLMG.Services.Friends
                 };
 
                 notifications.Add(
-                    new FriendAddedDispatch(firstCallback, secondAsFriend).Send);
+                    () => firstCallback.OnFriendAdded(secondAsFriend));
             }
 
             if (pair.FriendsAddition.IsSecondOnline)
@@ -742,7 +742,7 @@ namespace TLMG.Services.Friends
                 };
 
                 notifications.Add(
-                    new FriendAddedDispatch(secondCallback, firstAsFriend).Send);
+                    () => secondCallback.OnFriendAdded(firstAsFriend));
             }
 
             IReadOnlyList<Action> readOnlyNotifications = notifications.AsReadOnly();
@@ -910,57 +910,6 @@ namespace TLMG.Services.Friends
             public Friend NewFriend { get; set; }
 
             public IReadOnlyList<Action> Notifications { get; set; } = _notifications;
-        }
-
-        private sealed class RoomInvitationDispatch
-        {
-            private readonly IFriendsManagerCallback _callback;
-            private readonly RoomInvitation _invitation;
-
-            public RoomInvitationDispatch(IFriendsManagerCallback callback, RoomInvitation invitation)
-            {
-                _callback = callback;
-                _invitation = invitation;
-            }
-
-            public void Send()
-            {
-                _callback.OnRoomInvitationReceived(_invitation);
-            }
-        }
-
-        private sealed class FriendRequestDispatch
-        {
-            private readonly IFriendsManagerCallback _callback;
-            private readonly FriendRequest _request;
-
-            public FriendRequestDispatch(IFriendsManagerCallback callback, FriendRequest request)
-            {
-                _callback = callback;
-                _request = request;
-            }
-
-            public void Send()
-            {
-                _callback.OnFriendRequestReceived(_request);
-            }
-        }
-
-        private sealed class FriendAddedDispatch
-        {
-            private readonly IFriendsManagerCallback _callback;
-            private readonly Friend _friend;
-
-            public FriendAddedDispatch(IFriendsManagerCallback callback, Friend friend)
-            {
-                _callback = callback;
-                _friend = friend;
-            }
-
-            public void Send()
-            {
-                _callback.OnFriendAdded(_friend);
-            }
         }
     }
 }
