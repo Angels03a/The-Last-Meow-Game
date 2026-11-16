@@ -70,6 +70,7 @@ namespace TLMG.Client.ViewModels
 
             LeaveLobbyCommand = new RelayCommand(ExecuteLeaveLobby);
             InviteFriendsCommand = new RelayCommand(ExecuteInviteFriends);
+            OpenOptionsCommand = new RelayCommand(ExecuteOpenOptions);
             _toggleReadyCommand = new RelayCommand(ExecuteToggleReady, CanExecuteToggleReady);
             CancelCountdownCommand = new RelayCommand(ExecuteCancelCountdown);
             _sendChatCommand = new RelayCommand(ExecuteSendChat, CanExecuteSendChat);
@@ -78,6 +79,8 @@ namespace TLMG.Client.ViewModels
         public ICommand LeaveLobbyCommand { get; }
 
         public ICommand InviteFriendsCommand { get; }
+
+        public ICommand OpenOptionsCommand { get; }
 
         public ICommand ToggleReadyCommand => _toggleReadyCommand;
 
@@ -257,6 +260,11 @@ namespace TLMG.Client.ViewModels
         private void ExecuteInviteFriends()
         {
             _navigationManager.NavigateTo(ScreenId.Friends);
+        }
+
+        private void ExecuteOpenOptions()
+        {
+            _navigationManager.NavigateTo(ScreenId.Options);
         }
 
         private void ExecuteToggleReady()

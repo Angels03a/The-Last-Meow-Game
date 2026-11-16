@@ -200,6 +200,11 @@
                                 Style="{StaticResource ActionGhostSmallButtonStyle}"
                                 Margin="0,0,0,16"
                                 Command="{Binding InviteFriendsCommand}" />
+
+                        <Button Content="{DynamicResource MainMenu_NavOptions}"
+                                Style="{StaticResource ActionGhostSmallButtonStyle}"
+                                Margin="0,0,0,16"
+                                Command="{Binding OpenOptionsCommand}" />
                     </StackPanel>
 
                     <Button Grid.Row="2"
