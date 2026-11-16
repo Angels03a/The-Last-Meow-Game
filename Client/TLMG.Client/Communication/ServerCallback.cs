@@ -6,10 +6,13 @@ namespace TLMG.Client.Communication
     /// <summary>
     /// Recibe los callbacks del servidor en un hilo de WCF y los pasa al hilo de la interfaz como eventos del
     /// ServerConnectionManager que lo creó. No decide nada ni toca controles. UseSynchronizationContext = false evita
-    /// el interbloqueo cuando la interfaz llama al servidor mientras espera un callback.
+    /// el interbloqueo cuando la interfaz llama al servidor mientras espera un callback. Cada canal (amigos, lobby,
+    /// chat y consulta de la tabla de posiciones) crea su propia instancia, y el manager la compara por referencia
+    /// para ignorar lo que llegue de un canal anterior.
     /// </summary>
     [CallbackBehavior(UseSynchronizationContext = false)]
-    public sealed class ServerCallback : IFriendsManagerCallback, ILobbyManagerCallback, IChatManagerCallback
+    public sealed class ServerCallback : IFriendsManagerCallback, ILobbyManagerCallback, IChatManagerCallback,
+        ILeaderboardManagerCallback
     {
         private readonly ServerConnectionManager _serverConnection;
 
@@ -18,6 +21,14 @@ namespace TLMG.Client.Communication
         internal ServerCallback(ServerConnectionManager serverConnection)
         {
             _serverConnection = serverConnection;
+        }
+
+        /// <summary>Entrega la tabla de posiciones mediante el dispatcher de la interfaz.</summary>
+        /// <param name="operationGetLeaderboardResult">Resultado con los jugadores o la clave de error.</param>
+        public void GetLeaderboardResult(OperationGetLeaderboardResult operationGetLeaderboardResult)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyLeaderboardResultReceived(this, operationGetLeaderboardResult));
         }
 
         /// <summary>Entrega el aviso de chat mediante el dispatcher de la interfaz.</summary>

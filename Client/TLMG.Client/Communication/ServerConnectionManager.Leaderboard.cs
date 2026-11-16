@@ -7,12 +7,14 @@ namespace TLMG.Client.Communication
 {
     /// <summary>
     /// Parte del manager que consulta la tabla de posiciones. Usa un canal propio y de corta vida, que no depende de
-    /// la sesión del jugador: un fallo aquí se informa como resultado de la consulta y no desconecta la sesión.
+    /// la sesión del jugador: un fallo aquí se informa como resultado de la consulta y no desconecta la sesión. Su
+    /// receptor es una instancia nueva de ServerCallback por consulta, que no recibe sesión; la consulta anterior
+    /// queda descartada porque su instancia deja de ser la vigente.
     /// </summary>
     internal sealed partial class ServerConnectionManager : ILeaderboardConnection
     {
         private LeaderboardManagerClient _leaderboardClient;
-        private LeaderboardCallback _leaderboardCallback;
+        private ServerCallback _leaderboardCallback;
 
         /// <inheritdoc />
         public event EventHandler<ServerEventArgs<OperationGetLeaderboardResult>> LeaderboardResultReceived;
@@ -29,7 +31,7 @@ namespace TLMG.Client.Communication
 
             try
             {
-                _leaderboardCallback = new LeaderboardCallback(this);
+                _leaderboardCallback = new ServerCallback(this);
                 _leaderboardClient = new LeaderboardManagerClient(new InstanceContext(_leaderboardCallback));
                 _leaderboardClient.GetLeaderboard();
                 wasLeaderboardRequestSent = true;
@@ -63,7 +65,7 @@ namespace TLMG.Client.Communication
         /// <param name="callback">Receptor que entregó el resultado.</param>
         /// <param name="operationGetLeaderboardResult">Resultado que llegó del servidor.</param>
         internal void NotifyLeaderboardResultReceived(
-            LeaderboardCallback callback,
+            ServerCallback callback,
             OperationGetLeaderboardResult operationGetLeaderboardResult)
         {
             bool isCurrentCallback = ReferenceEquals(callback, _leaderboardCallback);

@@ -65,7 +65,6 @@
     <Compile Include="Communication\IFriendsConnection.cs" />
     <Compile Include="Communication\ILeaderboardConnection.cs" />
     <Compile Include="Communication\ILobbyConnection.cs" />
-    <Compile Include="Communication\LeaderboardCallback.cs" />
     <Compile Include="Communication\LobbyCountdown.cs" />
     <Compile Include="Communication\ServerConnectionManager.Accounts.cs" />
     <Compile Include="Communication\ServerConnectionManager.FriendRequests.cs" />
