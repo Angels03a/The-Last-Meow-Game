@@ -217,6 +217,24 @@
   <wsdl:message name="IUsersManager_LogIn_SystemFaultFault_FaultMessage">
     <wsdl:part xmlns:q5="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q5:SystemFault" />
   </wsdl:message>
+  <wsdl:message name="IUsersManager_GetPlayerProfile_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetPlayerProfile" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_GetPlayerProfile_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetPlayerProfileResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_GetPlayerProfile_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q6="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q6:SystemFault" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_UpdatePlayerProfile_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdatePlayerProfile" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_UpdatePlayerProfile_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdatePlayerProfileResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_UpdatePlayerProfile_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q7="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q7:SystemFault" />
+  </wsdl:message>
   <wsdl:message name="ILeaderboardManager_GetLeaderboard_InputMessage">
     <wsdl:part name="parameters" element="tns:GetLeaderboard" />
   </wsdl:message>
@@ -350,6 +368,16 @@
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/LogIn" message="tns:IUsersManager_LogIn_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/LogInResponse" message="tns:IUsersManager_LogIn_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/LogInSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_LogIn_SystemFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPlayerProfile">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/GetPlayerProfile" message="tns:IUsersManager_GetPlayerProfile_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/GetPlayerProfileResponse" message="tns:IUsersManager_GetPlayerProfile_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/GetPlayerProfileSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_GetPlayerProfile_SystemFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePlayerProfile">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/UpdatePlayerProfile" message="tns:IUsersManager_UpdatePlayerProfile_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/UpdatePlayerProfileResponse" message="tns:IUsersManager_UpdatePlayerProfile_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/UpdatePlayerProfileSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_UpdatePlayerProfile_SystemFaultFault_FaultMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="ILeaderboardManager">
@@ -522,6 +550,30 @@
     </wsdl:operation>
     <wsdl:operation name="LogIn">
       <soap12:operation soapAction="http://tempuri.org/IUsersManager/LogIn" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetPlayerProfile">
+      <soap12:operation soapAction="http://tempuri.org/IUsersManager/GetPlayerProfile" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePlayerProfile">
+      <soap12:operation soapAction="http://tempuri.org/IUsersManager/UpdatePlayerProfile" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

@@ -74,6 +74,34 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="GetPlayerProfile">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetPlayerProfileResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="GetPlayerProfileResult" nillable="true" type="q10:OperationPlayerProfileResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdatePlayerProfile">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="updateProfileRequest" nillable="true" type="q11:OperationUpdatePlayerProfileRequest" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdatePlayerProfileResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="UpdatePlayerProfileResult" nillable="true" type="q12:OperationResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="GetLeaderboard">
     <xs:complexType>
       <xs:sequence />
@@ -82,7 +110,7 @@
   <xs:element name="GetLeaderboardResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationGetLeaderboardResult" nillable="true" type="q10:OperationGetLeaderboardResult" />
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationGetLeaderboardResult" nillable="true" type="q13:OperationGetLeaderboardResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -112,7 +140,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
-        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="request" nillable="true" type="q11:OperationChangePlayerReadinessRequest" />
+        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="request" nillable="true" type="q14:OperationChangePlayerReadinessRequest" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -120,7 +148,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
-        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="request" nillable="true" type="q12:OperationChangeCardsPerPlayerRequest" />
+        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="request" nillable="true" type="q15:OperationChangeCardsPerPlayerRequest" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -128,56 +156,56 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
-        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="request" nillable="true" type="q13:OperationMatchStartRequest" />
+        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="request" nillable="true" type="q16:OperationMatchStartRequest" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="CreateRoomResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationCreateRoomResult" nillable="true" type="q14:OperationLobbyRoomResult" />
+        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationCreateRoomResult" nillable="true" type="q17:OperationLobbyRoomResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="EnterLobbyResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationEnterLobbyResult" nillable="true" type="q15:OperationLobbyRoomResult" />
+        <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationEnterLobbyResult" nillable="true" type="q18:OperationLobbyRoomResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="LeaveLobbyResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationLeaveLobbyResult" nillable="true" type="q16:OperationResult" />
+        <xs:element xmlns:q19="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationLeaveLobbyResult" nillable="true" type="q19:OperationResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="OnLobbyRoomChanged">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="lobbyRoom" nillable="true" type="q17:LobbyRoom" />
+        <xs:element xmlns:q20="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="lobbyRoom" nillable="true" type="q20:LobbyRoom" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="ChangePlayerReadinessResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="result" nillable="true" type="q18:OperationLobbyRoomResult" />
+        <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="result" nillable="true" type="q21:OperationLobbyRoomResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="ChangeCardsPerPlayerResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q19="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="result" nillable="true" type="q19:OperationLobbyRoomResult" />
+        <xs:element xmlns:q22="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="result" nillable="true" type="q22:OperationLobbyRoomResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="RequestMatchStartResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q20="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="result" nillable="true" type="q20:OperationRequestMatchStartResult" />
+        <xs:element xmlns:q23="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="result" nillable="true" type="q23:OperationRequestMatchStartResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -215,49 +243,49 @@
   <xs:element name="SubscribeToFriendsResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationSubscribeToFriendsResult" nillable="true" type="q21:OperationSubscribeToFriendsResult" />
+        <xs:element xmlns:q24="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationSubscribeToFriendsResult" nillable="true" type="q24:OperationSubscribeToFriendsResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="SendFriendRequestResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q22="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationSendFriendRequestResult" nillable="true" type="q22:OperationSendFriendRequestResult" />
+        <xs:element xmlns:q25="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationSendFriendRequestResult" nillable="true" type="q25:OperationSendFriendRequestResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="AcceptFriendRequestResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q23="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationAcceptFriendRequestResult" nillable="true" type="q23:OperationAcceptFriendRequestResult" />
+        <xs:element xmlns:q26="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationAcceptFriendRequestResult" nillable="true" type="q26:OperationAcceptFriendRequestResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="DeclineFriendRequestResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q24="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationDeclineFriendRequestResult" nillable="true" type="q24:OperationDeclineFriendRequestResult" />
+        <xs:element xmlns:q27="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationDeclineFriendRequestResult" nillable="true" type="q27:OperationDeclineFriendRequestResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="OnFriendPresenceChanged">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q25="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="friend" nillable="true" type="q25:Friend" />
+        <xs:element xmlns:q28="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="friend" nillable="true" type="q28:Friend" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="OnFriendRequestReceived">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q26="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="friendRequest" nillable="true" type="q26:FriendRequest" />
+        <xs:element xmlns:q29="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="friendRequest" nillable="true" type="q29:FriendRequest" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="OnFriendAdded">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q27="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="friend" nillable="true" type="q27:Friend" />
+        <xs:element xmlns:q30="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="friend" nillable="true" type="q30:Friend" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -280,21 +308,21 @@
   <xs:element name="InviteFriendToRoomResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q28="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationInviteFriendToRoomResult" nillable="true" type="q28:OperationResult" />
+        <xs:element xmlns:q31="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationInviteFriendToRoomResult" nillable="true" type="q31:OperationResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="AcceptRoomInvitationResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q29="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationAcceptRoomInvitationResult" nillable="true" type="q29:OperationAcceptRoomInvitationResult" />
+        <xs:element xmlns:q32="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationAcceptRoomInvitationResult" nillable="true" type="q32:OperationAcceptRoomInvitationResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="OnRoomInvitationReceived">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q30="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="roomInvitation" nillable="true" type="q30:RoomInvitation" />
+        <xs:element xmlns:q33="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="roomInvitation" nillable="true" type="q33:RoomInvitation" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -309,28 +337,28 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
-        <xs:element xmlns:q31="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="request" nillable="true" type="q31:OperationSendChatMessageRequest" />
+        <xs:element xmlns:q34="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="request" nillable="true" type="q34:OperationSendChatMessageRequest" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="SubscribeToChatResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q32="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationSubscribeToChatResult" nillable="true" type="q32:OperationResult" />
+        <xs:element xmlns:q35="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationSubscribeToChatResult" nillable="true" type="q35:OperationResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="SendChatMessageResult">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q33="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationSendChatMessageResult" nillable="true" type="q33:OperationSendChatMessageResult" />
+        <xs:element xmlns:q36="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operationSendChatMessageResult" nillable="true" type="q36:OperationSendChatMessageResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="OnChatMessageReceived">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q34="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="chatMessage" nillable="true" type="q34:ChatMessage" />
+        <xs:element xmlns:q37="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="chatMessage" nillable="true" type="q37:ChatMessage" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
