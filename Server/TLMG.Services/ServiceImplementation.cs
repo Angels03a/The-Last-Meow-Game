@@ -1,7 +1,10 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ServiceModel;
+
+using log4net;
+
+using TLMG.Contracts.DataContracts;
 using TLMG.Services.Accounts;
 using TLMG.Services.Chat;
 using TLMG.Services.Friends;
@@ -21,19 +24,32 @@ namespace TLMG.Services
         private static ISessionRegistry _sessionRegistry;
         private static PlayerAccountRegistrationService _playerAccountRegistrationService;
         private static PlayerLogInService _playerLogInService;
+        private static PlayerProfileService _playerProfileService;
         private static ChatService _chatService;
         private static FriendsService _friendsService;
         private static LeaderboardService _leaderboardService;
         private static LobbyService _lobbyService;
+
         public static void ConfigureDependencies(ServiceDependencies serviceDependencies)
         {
             _sessionRegistry = serviceDependencies.SessionRegistry;
             _playerAccountRegistrationService = serviceDependencies.RegistrationService;
             _playerLogInService = serviceDependencies.LogInService;
+            _playerProfileService = serviceDependencies.ProfileService;
             _chatService = serviceDependencies.ChatService;
             _friendsService = serviceDependencies.FriendsService;
             _leaderboardService = serviceDependencies.LeaderboardService;
             _lobbyService = serviceDependencies.LobbyService;
+        }
+
+        private static TResult CreateFailedOperationResult<TResult>(string errorKey)
+            where TResult : OperationResult, new()
+        {
+            TResult failedResult = new TResult();
+            failedResult.IsSuccess = false;
+            failedResult.ErrorKey = errorKey;
+
+            return failedResult;
         }
 
         private void SafeNotifyAll(IReadOnlyList<Action> notifications)

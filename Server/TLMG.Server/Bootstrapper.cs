@@ -16,16 +16,17 @@ namespace TLMG.Server
         public static void Initialize()
         {
             IPlayerRepository playerRepository = new PlayerRepository();
+            IPlayerProfileRepository playerProfileRepository = new PlayerProfileRepository();
             IFriendshipRepository friendshipRepository = new FriendshipRepository();
             IVerificationCodeRepository verificationCodeRepository = new VerificationCodeRepository();
 
             IPasswordHasher passwordHasher = new PasswordHasher();
-            ISessionRegistry sessionRegistry = new SessionRegistry();
-            
+            SessionRegistry sessionRegistry = new SessionRegistry();
+
             VerificationCodeStore verificationCodeStore = new VerificationCodeStore(verificationCodeRepository);
-            
+
             EmailUtility emailUtility = new EmailUtility();
-            
+
             AccountVerificationDispatcher verificationDispatcher =
                 new AccountVerificationDispatcher(verificationCodeStore, emailUtility);
 
@@ -34,6 +35,9 @@ namespace TLMG.Server
 
             PlayerLogInService logInService =
                 new PlayerLogInService(playerRepository, passwordHasher, sessionRegistry);
+
+            PlayerProfileService profileService =
+                new PlayerProfileService(playerProfileRepository, sessionRegistry);
 
             ChatService chatService = new ChatService(sessionRegistry, new ChatMessageRepository());
 
@@ -48,6 +52,7 @@ namespace TLMG.Server
                 SessionRegistry = sessionRegistry,
                 RegistrationService = registrationService,
                 LogInService = logInService,
+                ProfileService = profileService,
                 ChatService = chatService,
                 FriendsService = friendsService,
                 LeaderboardService = leaderboardService,

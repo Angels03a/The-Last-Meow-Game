@@ -3,6 +3,7 @@ using System.ServiceModel;
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Constants;
+using TLMG.Services.Accounts;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services
@@ -149,6 +150,40 @@ namespace TLMG.Services
             }
 
             return result;
+        }
+
+        public OperationPlayerProfileResult GetPlayerProfile(string sessionToken)
+        {
+            OperationPlayerProfileResult profileResult;
+
+            try
+            {
+                profileResult = _playerProfileService.GetProfile(sessionToken);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente en el servidor al obtener un perfil.", outOfMemoryException);
+                profileResult = CreateFailedOperationResult<OperationPlayerProfileResult>(ErrorKeys.Common.OutOfMemory);
+            }
+
+            return profileResult;
+        }
+
+        public OperationResult UpdatePlayerProfile(OperationUpdatePlayerProfileRequest updateProfileRequest)
+        {
+            OperationResult updateResult;
+
+            try
+            {
+                updateResult = _playerProfileService.UpdateProfile(updateProfileRequest);
+            }
+            catch (OutOfMemoryException outOfMemoryException)
+            {
+                _log.Fatal("Memoria insuficiente en el servidor al actualizar un perfil.", outOfMemoryException);
+                updateResult = CreateFailedOperationResult<OperationResult>(ErrorKeys.Common.OutOfMemory);
+            }
+
+            return updateResult;
         }
     }
 }

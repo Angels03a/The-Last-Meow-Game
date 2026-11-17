@@ -40,7 +40,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataContracts\OperationLobbyRoomResult.cs" />
+    <Compile Include="DataContracts\OperationPlayerProfileResult.cs" />
     <Compile Include="DataContracts\OperationResult.cs" />
+    <Compile Include="DataContracts\OperationUpdatePlayerProfileRequest.cs" />
     <Compile Include="DataContracts\SystemFault.cs" />
     <Compile Include="IChatManagerCallback.cs" />
     <Compile Include="IChatManager.cs" />
