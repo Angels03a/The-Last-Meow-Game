@@ -220,6 +220,7 @@ Formato de entrada:
 - Depende de: BL-040 y Reglas de The Last Meow (GameplayScreen); BL-042 (navegación)
 - Estado: Pendiente
 - Nota (2026-11-11 23:55): avance. GameplayScreen ya existe (Views/GameplayScreen.xaml.cs) y MainWindow la abre por reflexión en NavigateToAuthorizedMatch (MainWindow.xaml.cs:171-186, comentario BL-046). ChangePasswordScreen existe solo como Page de plantilla, sin lógica ni uso (Views/ChangePasswordScreen.xaml.cs, 28 líneas); ProfileViewModel.cs:190 conserva el TODO que cita esta entrada. Ver BL-169.
+- Nota (2026-11-17 11:49): avance (dff94a9). GameplayScreen ya muestra datos reales de la partida: GameplayViewModel recibe la vista privada por IMatchConnection y la mano, la pila, el turno, la ronda, la fase y los contadores salen del servidor; los datos ficticios de jugadores y mano se retiraron de la pantalla. La apuesta actual permanece fija en 0 y sus controles (−, +, Retar y Rendirse) quedan deshabilitados hasta I2b (ver BL-166). Siguen pendientes ChangePasswordScreen (ver BL-169) y las apuestas, el revelado y el castigo (I2b). Sin cambio de estado.
 
 ### BL-047 · Estados de usuario como enum
 - Creado: 2026-10-25 14:23
@@ -232,6 +233,7 @@ Formato de entrada:
 - Por qué: configuration.svcinfo, configuration91.svcinfo y service.wsdl de Connected Services/UsersManagerReference contienen la identidad de Windows (UPN) que el servidor publica en el WSDL. Es el mecanismo normal de Visual Studio y ya estaba en los proxies anteriores del historial; esos archivos no se editan a mano (Estándar §4.3).
 - Depende de: BL-021 (seguridad entre dos PC, identidad explícita del endpoint)
 - Estado: Pendientez
+- Nota (2026-11-17 11:49): la regeneración del proxy del 2026-11-17 (bf24d95) volvió a escribir en configuration.svcinfo, configuration91.svcinfo y service.wsdl la identidad de Windows (UPN) del equipo desde el que se regeneró. Se mantiene el criterio de la entrada: son archivos generados y no se editan a mano. No se anota aquí el usuario ni el equipo. Sin cambio de estado.
 
 ### BL-049 · Revisar el nombre del método del callback y el atributo [ServiceContract] en IUsersManagerCallback
 - Creado: 2026-10-25 17:10
@@ -282,6 +284,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-10-29 22:53): avance. La sesión termina cuando el canal de amigos se cierra o falla (d6d6326; ServiceImplementation.FriendsManager.cs:121, FriendsService.EndSessionByFriendsChannel), así que cerrar la ventana o perder la conexión ya libera sesión, sala y presencia. Siguen sin vencerse una sesión cuyo canal de amigos nunca se abrió (login exitoso con SubscribeToFriends fallido o cliente caído antes de abrirlo) y una conexión TCP medio abierta, que solo detecta el receiveTimeout de WCF [S: el servidor no lo define, rige el valor por defecto]. Falta el latido de ADR-04.
 - Nota (2026-11-10 12:04): el caso «login exitoso con SubscribeToFriends fallido» ya listado arriba tiene ahora un punto concreto en el cliente: ServerConnectionManager.LogIn (cefa0a3) llama a StartRegisteredSession y, si el canal de amigos falla justo después de un login correcto, muestra Login_NetworkError y descarta el token, pero el servidor ya emitió la sesión y puede dejarla viva hasta que se venza. Se registra aquí por ser equivalente y no como entrada nueva. Depende de la Fase 8.
+- Nota (2026-11-17 11:49): reconexión del canal de partida (I2a, dff94a9). Sin reconexión hasta I4: si el canal de partida falla, ServerConnectionManager.Match.cs lo limpia sin desconectar la sesión, y el jugador sigue en la sesión y en la sala pero sin tablero jugable (Gameplay muestra Gameplay_MatchUnavailableLabel). No hay reintentos ni latido. En el servidor, perder el canal de partida solo quita su callback (SessionRegistry.RemoveMatchChannel) y no saca al jugador de la sala. La auditoría AUD-002 (ventana de reconexión) no tiene entrada en este archivo; la ventana de gracia sigue pendiente aquí (ADR-04). Sin cambio de estado.
 
 ### BL-060 · Retirar o reemplazar el script de demostración de amistades
 - Creado: 2026-10-29 13:05
@@ -480,6 +483,7 @@ Formato de entrada:
 - Depende de: G6 (parte del cliente: regenerar el proxy y guardar la identidad en ServerConnectionManager); decisión del encargado sobre el contrato
 - Estado: Pendiente
 - Nota (2026-11-11 23:55): avance. ProfileViewModel migrado a B3 (e74e10b) conserva los datos de muestra: DaysSincePasswordChange = 45 (ProfileViewModel.cs:16), «WhiskerKnight» (:23) y, en ProfileScreen.xaml, 142, 1,840, #38 y 87% (:91-112). Su <summary> cita esta entrada; el FIXME de LeaderboardViewModel cita BL-091, que remite aquí. Sin cambios de fondo hasta que exista la operación de perfil.
+- Nota (2026-11-17 11:49): avance (dff94a9). Gameplay dibuja el mismo avatar para todos los jugadores porque ni la vista de partida (MatchPlayerView) ni el inicio de sesión traen imagen. Los avatares reales dependen de esta operación de perfil y de un campo de imagen en el contrato de partida. Sin cambio de estado.
 
 ### BL-104 · Campo _hasVotedToKick de LobbyScreen asignado y nunca leído
 - Creado: 2026-11-03 15:41
@@ -514,6 +518,7 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Pendiente
 - Nota (2026-11-11 08:12): falta Common_OutOfMemoryError en el Excel TLMG_Diccionario_v3.xlsx.
+- Nota (2026-11-17 11:49): 14 claves nuevas para el Excel TLMG_Diccionario_v3.xlsx (dff94a9): las nueve Match_* (Match_NotInMatchError, Match_NotSubscribedError, Match_NotYourTurnError, Match_BetInProgressError, Match_HandEmptyError, Match_CardNotInHandError, Match_PunishmentPendingError, Match_FinishedError y Match_CardNotValidError) y Gameplay_PhasePlacingCardsLabel, Gameplay_PhaseChallengeReadyLabel, Gameplay_PhasePunishmentPendingLabel, Gameplay_PhaseMatchFinishedLabel y Gameplay_MatchUnavailableLabel. Verificado sobre dff94a9: las 14 existen en Strings.es-MX.xaml y Strings.en-US.xaml, que tienen 405 claves cada uno, sin repetidas y con paridad exacta. Gameplay_PhaseBiddingLabel y Common_InvalidSessionError ya existían y se reutilizan. Sin cambio de estado.
 
 ### BL-111 · Sesión de servidor para invitados (crear sala y jugar sin chat)
 - Creado: 2026-11-06 12:15
@@ -534,6 +539,7 @@ Formato de entrada:
 - Por qué: el Estándar cita D-58 a D-63 y el SAD cita ADR-08; la Bitácora no los contiene. A registrar además: navegación por interfaz (INavigationManager e IDialogManager), Domain amplio, OperationResult y la enmienda a D-60. Numeración tentativa D-64 a D-66; confirmar contra la Bitácora.
 - Depende de: nada
 - Estado: Pendiente
+- Nota (2026-11-17 11:49): a registrar también en la Bitácora, y reflejar en el SAD, lo de I2a en el cliente (dff94a9): el canal Match (ServerConnectionManager.Match e IMatchConnection), el descarte de vistas por versión (MatchViewVersionHelper: solo se muestra una vista con versión mayor a la ya mostrada) y que la caída del canal de partida solo limpia ese canal, sin desconectar la sesión ni sacar al jugador de la sala. Sin cambio de estado.
 
 ### BL-115 · Unificar dónde viven los validadores del servidor
 - Creado: 2026-11-06 13:30
@@ -547,6 +553,7 @@ Formato de entrada:
 - Por qué: no existe ningún contrato de partida. Faltan la operación de un solo sentido TryCatchFugitiveKitten(sessionToken), los callbacks OnFugitiveKittenStarted y OnFugitiveKittenResolved, los DTO sin sufijo Data (D-56): FugitiveKittenRoute, KittenSegment y el resultado (nombre por decidir), su archivo ServiceImplementation.MatchManager.cs, el endpoint en el host y la regeneración del proxy.
 - Depende de: BL-040; BL-109 (los resultados heredan de OperationResult; regenerar el proxy una sola vez); BL-113
 - Estado: Pendiente
+- Nota (2026-11-17 11:49): avance de I2a. Ya existe el contrato IMatchManager con SubscribeToMatch(sessionToken, matchId) y PlaceCard(sessionToken, cardKind), su callback IMatchManagerCallback (SubscribeToMatchResult, PlaceCardResult y OnMatchViewChanged), los DTO MatchView y MatchPlayerView, los enums MatchCardKind y MatchRoundPhase, ServiceImplementation.MatchManager.cs y el endpoint MatchManager del host. Evidencia: bb46e5b (partida en memoria), 52060b4 (contrato y servidor), bf24d95 y c8d5677 (proxy, con ReferenceAllAssemblies restaurado) y dff94a9 (cliente). El «Por qué» («no existe ningún contrato de partida») quedó desactualizado para ese alcance. Siguen pendientes la operación TryCatchFugitiveKitten con sus callbacks y DTO, y las operaciones posteriores a I2a (apuesta, revelado, castigo y salida). I2a quedó funcionalmente completa para su alcance; la evidencia manual y lo no verificado están en BL-182. Sin cambio de estado.
 
 ### BL-117 · Envío del intento de atrape y recepción del resultado del Gatito Fugitivo
 - Creado: 2026-11-07 04:28
@@ -598,6 +605,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-11 08:02): probados a mano el inicio de sesión, el registro completo, el cambio de idioma y el servidor apagado. Faltan los CanExecute de los demás ViewModels.
 - Nota (2026-11-11 23:55): avance, según lo dictado por Martín. El 2026-11-11 probó a mano en dev-LS_Angel, con resultado correcto: Friends, Lobby (incluido el inicio de partida y el chat), MainMenu, ForgotPassword, Options, Profile, NewPassword, HowToPlay y Leaderboard, con 3 clientes en Friends y Lobby. No se registró si se cubrió el CanExecute de cada ViewModel. Pendiente: confirmar los CanExecute de cada ViewModel y probar a mano los ViewModels que no se mencionaron (Verification y los de la rama mvvm-resto).
+- Nota (2026-11-17 11:49): avance de I2a (dff94a9). El encargado probó a mano en Gameplay, con tres jugadores registrados, la colocación de cartas por turnos y los controles de apuesta deshabilitados. No se registró si se cubrió el CanExecute del botón de cada carta de la mano. Las demás pruebas manuales de la partida se llevan en BL-182. Sigue pendiente lo de esta entrada para los demás ViewModels.
 
 ### BL-134 · Unificar ErrorMessageHelper.FindErrorMessage con LanguageManager.FindText
 - Creado: 2026-11-10 11:46
@@ -729,6 +737,7 @@ Formato de entrada:
 - Por qué: en la rama mvvm-resto, RoundResultViewModel.cs:26-33 y GameOverViewModel.cs:26-28 llevan un FIXME sin entrada y valores fijos («WhiskerKnight», «NyanProwler»), GameOverScreen.xaml:63 repite un nombre fijo (y :97 en dev-LS_Angel) y MatchClosedViewModel.cs:11 fija 10 minutos de inactividad (04a7d13, 2d4bafb). En dev-LS_Angel, GameplayViewModel.cs:42-44 expone los comandos de demostración DemoRevealCards, DemoGameOver y DemoInactivity. Los datos deben salir del servidor cuando exista el contrato de partida, y los comandos de demostración no deben llegar a la entrega. Los FIXME de mvvm-resto sin entrada (GameOverViewModel.cs:26, RoundResultViewModel.cs:26 y ModerationViewModel.cs:44) deben citar su BL antes del merge (Estándar §12.3): Moderation, BL-165; GameOver y RoundResult, BL-166. ForgotPasswordScreen.xaml.cs:64 de esa rama lleva un TODO sin BL; en dev-LS_Angel ese archivo ya no lo tiene (7d882b1, el TODO equivalente está en ForgotPasswordViewModel.cs:137 y cita BL-007), así que al integrar hay que revisar si sigue existiendo y, si no, conservar la versión de dev-LS_Angel.
 - Depende de: BL-116; BL-117; BL-046
 - Estado: Pendiente
+- Nota (2026-11-17 11:49): avance (dff94a9). El panel de demostración de GameplayScreen (Revelar Cartas, Fin de Partida e Inactividad) queda oculto cuando la sala tiene una partida autorizada (GameplayViewModel.IsDemoPanelVisible; GameplayScreen.xaml:374). Los comandos DemoRevealCardsCommand, DemoGameOverCommand y DemoInactivityCommand siguen en GameplayViewModel.cs:69-71 y las pantallas de demostración no cambiaron, así que la entrada sigue abierta. Para I2b, que no tiene entrada propia: Gameplay muestra una «Apuesta actual» fija en 0 (CurrentBidAmount), con los controles de apuesta, Retar y Rendirse deshabilitados, y el marcador muestra vidas (mano más pila sobre las cartas por jugador) porque la vista de partida aún no trae los retos ganados. Las cuatro cartas apiladas del centro de la mesa son un adorno fijo que no representa las cartas en mesa; se juzga sin impacto funcional, pero conviene sustituirlas por el dato real cuando llegue I2b. Sin cambio de estado.
 
 ### BL-167 · Retirar Lobby_ErrorTitle y Lobby_GameplayUnavailableError (claves sin uso)
 - Creado: 2026-11-11 23:55
@@ -806,6 +815,30 @@ Formato de entrada:
 - Creado: 2026-11-15 00:32
 - Por qué: EmailUtility.cs:101 y 105-106 escriben el correo del destinatario en el log. gov/CLAUDE.md §6 lo prohíbe de forma expresa (no registrar correos); el Estándar §10.3 (docs/Estandar.md:2571) prohíbe los «datos personales» pero no nombra el correo, así que se cita gov/CLAUDE.md §6. Los mensajes de log de ese archivo están en inglés y §6 pide español. Si EmailConfig.xml falta o está incompleto, el constructor solo registra el error y deja los campos en null (EmailUtility.cs:52-70), y SendEmail usa _senderEmail al crear la dirección (:83) sin comprobarlo; los catch de SendEmail solo cubren SmtpFailedRecipientException y SmtpException (:99-107). No se propone cambiar código hasta que el encargado decida.
 - Depende de: BL-171
+- Estado: Pendiente
+
+### BL-180 · Avatares fantasma en los lugares vacíos de la mesa de Gameplay
+- Creado: 2026-11-17 11:49
+- Por qué: en la prueba manual de I2a con tres jugadores aparecen, arriba de la mesa, avatares sin nombre con punto naranja y marcador de turno en los lugares donde no hay rival: los lugares sin rival no se ocultan. Cada lugar es un ContentControl con la plantilla OpponentTemplate (GameplayScreen.xaml:184-205) y la causa exacta en WPF está por confirmar. Defecto visual: no afecta datos ni turnos. Se corrige en un parche visual aparte, previo a I2b si no hay complicaciones.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-181 · La mesa y la barra inferior de Gameplay cambian de altura al cambiar la pila de cartas
+- Creado: 2026-11-17 11:49
+- Por qué: en la prueba manual de I2a, al cambiar la pila de cartas la mesa y la barra inferior de GameplayScreen cambian de altura y el tablero se desplaza. La causa está por confirmar (la fila inferior es Auto, GameplayScreen.xaml:91-95, y la pila del jugador local se dibuja en ella). Defecto visual: no afecta datos ni turnos. Se corrige en el mismo parche visual de BL-180.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-182 · Pruebas manuales pendientes de I2a (canal de partida del cliente)
+- Creado: 2026-11-17 11:49
+- Por qué: I2a (servidor 52060b4, proxy bf24d95 y c8d5677, cliente dff94a9, sobre la partida en memoria de bb46e5b) quedó funcionalmente completa para su alcance. Verificado a mano por el encargado: tres jugadores registrados, modalidad de cuatro cartas, tres suscripciones aceptadas, mano propia privada y cantidades públicas de los rivales, turnos sincronizados y dos vueltas completas, colocación autoritativa, controles de apuesta deshabilitados y sin errores nuevos en el log de la partida probada. Sin verificar: (1) mesa con cinco y con seis jugadores; (2) caída aislada del canal de partida sin tirar la sesión (no se puede provocar solo con la interfaz); (3) cambio de idioma con la partida abierta; (4) los mensajes traducidos de las ErrorKey Match_* en la interfaz (el servidor las cubre con pruebas, la interfaz no); (5) las regresiones de AUD-001 (F1b, L1 y L2; la auditoría no tiene entrada propia en este archivo); (6) PENDIENTE DE REPRODUCCIÓN, no es un defecto confirmado: por la lectura del código, una suscripción rechazada podría mostrar la leyenda de conexión perdida (Gameplay_MatchUnavailableLabel) además del error, porque GameplayViewModel.OnMatchAvailabilityChanged marca la partida como no disponible siempre que IsMatchSubscribed es falso.
+- Depende de: nada
+- Estado: Pendiente
+
+### BL-183 · Validación de identidad duplicada entre el chat y la partida en SessionRegistry
+- Creado: 2026-11-17 11:49
+- Por qué: ValidateMatchIdentityInLock (SessionRegistry.MatchPlay.cs:189) repite el criterio de ValidateChatIdentityInLock (SessionRegistry.Chat.cs:110): token vigente, cuenta registrada y canal que no pertenezca a otro jugador, cada una con su propio mapa de canales. gov/CLAUDE.md §3 manda no duplicar lógica y reportar la duplicidad en el backlog; se dejó así en I2a para no modificar el chat. Unificarla en un solo helper parametrizado por el mapa de canales, cubierto por las pruebas existentes de TLMG.Services.Tests. BL-112 no la cubre: trata la lista de caracteres del chat.
+- Depende de: nada
 - Estado: Pendiente
 
 ## Finalizados
@@ -921,6 +954,7 @@ Formato de entrada:
 - Estado: Finalizado el 2026-10-29 · commit 3fd8662
 - Nota (2026-10-29 22:53): verificado sobre 53263f1. Los cuatro bindings de Client/TLMG.Client/App.config conservan 5/10/15 s (D-46) y ningún endpoint lleva <identity>. La revisión debe repetirse en cada regeneración del proxy; se propone llevarla como paso fijo de la regeneración (Estándar, D-40) en lugar de una entrada abierta.
 - Nota (2026-11-15 00:32): verificado sobre 8aa6844, tras la regeneración del proxy de Nicole (62330d0). Client/TLMG.Client/App.config conserva openTimeout 10 s, sendTimeout 15 s y closeTimeout 5 s en los cinco bindings (App.config:9, 14, 19, 24 y 29) y ningún endpoint lleva <identity>; el único cambio del archivo fueron dos líneas en blanco (git diff 78e1fa1..8aa6844). Sin cambio de estado: la entrada ya está finalizada.
+- Nota (2026-11-17 11:49): procedimiento real de la regeneración del proxy con Visual Studio el 2026-11-17. «Actualizar referencia de servicio» falló con NullReferenceException; el rodeo fue quitar la referencia y volver a agregarla con el mismo nombre. Visual Studio reescribió Client/TLMG.Client/App.config (se perdieron los tiempos de 10, 15 y 5 s y se agregó <identity> en los endpoints) y cambió ReferenceAllAssemblies a true en Reference.svcmap. Se descartó el App.config generado, se restauró el .svcmap (c8d5677) y el binding y el endpoint de IMatchManager se agregaron a mano en dff94a9, con los mismos tiempos y sin <identity>. Se agrega al paso fijo de la regeneración: revisar el git diff de App.config y de Reference.svcmap después de cada regeneración. Sin cambio de estado: la entrada ya está finalizada.
 
 ### BL-064 · Emitir las autorizaciones de entrada al aceptar una invitación
 - Creado: 2026-10-29 15:07
