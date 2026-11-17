@@ -165,6 +165,39 @@
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
+  <wsp:Policy wsu:Id="NetTcpBinding_IMatchManager_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1">
+        </msb:BinaryEncoding>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <msf:WindowsTransportSecurity xmlns:msf="http://schemas.microsoft.com/ws/2006/05/framing/policy">
+                  <msf:ProtectionLevel>EncryptAndSign</msf:ProtectionLevel>
+                </msf:WindowsTransportSecurity>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256>
+                </sp:Basic256>
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict>
+                </sp:Strict>
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+        <wsaw:UsingAddressing>
+        </wsaw:UsingAddressing>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
   <wsdl:types>
     <xsd:schema targetNamespace="http://tempuri.org/Imports">
       <xsd:import namespace="http://tempuri.org/" />
@@ -325,6 +358,21 @@
   <wsdl:message name="IChatManager_OnChatMessageReceived_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:OnChatMessageReceived" />
   </wsdl:message>
+  <wsdl:message name="IMatchManager_SubscribeToMatch_InputMessage">
+    <wsdl:part name="parameters" element="tns:SubscribeToMatch" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_PlaceCard_InputMessage">
+    <wsdl:part name="parameters" element="tns:PlaceCard" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_SubscribeToMatchResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:SubscribeToMatchResult" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_PlaceCardResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:PlaceCardResult" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_OnMatchViewChanged_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:OnMatchViewChanged" />
+  </wsdl:message>
   <wsdl:portType name="IUsersManager">
     <wsdl:operation name="RegisterPlayerAccount">
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/RegisterPlayerAccount" message="tns:IUsersManager_RegisterPlayerAccount_InputMessage" />
@@ -466,6 +514,23 @@
     </wsdl:operation>
     <wsdl:operation name="OnChatMessageReceived">
       <wsdl:output wsaw:Action="http://tempuri.org/IChatManager/OnChatMessageReceived" message="tns:IChatManager_OnChatMessageReceived_OutputCallbackMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="IMatchManager">
+    <wsdl:operation name="SubscribeToMatch">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/SubscribeToMatch" message="tns:IMatchManager_SubscribeToMatch_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="PlaceCard">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/PlaceCard" message="tns:IMatchManager_PlaceCard_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SubscribeToMatchResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/SubscribeToMatchResult" message="tns:IMatchManager_SubscribeToMatchResult_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="PlaceCardResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/PlaceCardResult" message="tns:IMatchManager_PlaceCardResult_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="OnMatchViewChanged">
+      <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/OnMatchViewChanged" message="tns:IMatchManager_OnMatchViewChanged_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetTcpBinding_IUsersManager" type="tns:IUsersManager">
@@ -769,13 +834,48 @@
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
+  <wsdl:binding name="NetTcpBinding_IMatchManager" type="tns:IMatchManager">
+    <wsp:PolicyReference URI="#NetTcpBinding_IMatchManager_policy">
+    </wsp:PolicyReference>
+    <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
+    <wsdl:operation name="SubscribeToMatch">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/SubscribeToMatch" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="PlaceCard">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/PlaceCard" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="SubscribeToMatchResult">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/SubscribeToMatchResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PlaceCardResult">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/PlaceCardResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="OnMatchViewChanged">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/OnMatchViewChanged" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
   <wsdl:service name="ServiceImplementation">
     <wsdl:port name="NetTcpBinding_IUsersManager" binding="tns:NetTcpBinding_IUsersManager">
       <soap12:address location="net.tcp://localhost:8081/AccountRegistrationService" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/AccountRegistrationService</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>STELLARLOQ\armas</Upn>
+          <Upn>ANGEL\luisi</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
@@ -784,7 +884,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/LeaderboardManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>STELLARLOQ\armas</Upn>
+          <Upn>ANGEL\luisi</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
@@ -793,7 +893,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/LobbyManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>STELLARLOQ\armas</Upn>
+          <Upn>ANGEL\luisi</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
@@ -802,7 +902,7 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/FriendsManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>STELLARLOQ\armas</Upn>
+          <Upn>ANGEL\luisi</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
@@ -811,7 +911,16 @@
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/ChatManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>STELLARLOQ\armas</Upn>
+          <Upn>ANGEL\luisi</Upn>
+        </Identity>
+      </wsa10:EndpointReference>
+    </wsdl:port>
+    <wsdl:port name="NetTcpBinding_IMatchManager" binding="tns:NetTcpBinding_IMatchManager">
+      <soap12:address location="net.tcp://localhost:8081/MatchManager" />
+      <wsa10:EndpointReference>
+        <wsa10:Address>net.tcp://localhost:8081/MatchManager</wsa10:Address>
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Upn>ANGEL\luisi</Upn>
         </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>

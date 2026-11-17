@@ -256,4 +256,56 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ChatMessage" nillable="true" type="tns:ChatMessage" />
+  <xs:simpleType name="MatchCardKind">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Safe" />
+      <xs:enumeration value="FatalCat" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="MatchCardKind" nillable="true" type="tns:MatchCardKind" />
+  <xs:complexType name="MatchView">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="MatchId" type="ser:guid" />
+      <xs:element minOccurs="0" name="OwnHandCards" nillable="true" type="tns:ArrayOfMatchCardKind" />
+      <xs:element minOccurs="0" name="OwnPileCards" nillable="true" type="tns:ArrayOfMatchCardKind" />
+      <xs:element minOccurs="0" name="Phase" type="tns:MatchRoundPhase" />
+      <xs:element minOccurs="0" name="PlayerInTurnUserId" type="xs:int" />
+      <xs:element minOccurs="0" name="Players" nillable="true" type="tns:ArrayOfMatchPlayerView" />
+      <xs:element minOccurs="0" name="RoundNumber" type="xs:int" />
+      <xs:element minOccurs="0" name="Version" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MatchView" nillable="true" type="tns:MatchView" />
+  <xs:complexType name="ArrayOfMatchCardKind">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="MatchCardKind" type="tns:MatchCardKind" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfMatchCardKind" nillable="true" type="tns:ArrayOfMatchCardKind" />
+  <xs:simpleType name="MatchRoundPhase">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PlacingCards" />
+      <xs:enumeration value="Betting" />
+      <xs:enumeration value="ChallengeReady" />
+      <xs:enumeration value="PunishmentPending" />
+      <xs:enumeration value="MatchFinished" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="MatchRoundPhase" nillable="true" type="tns:MatchRoundPhase" />
+  <xs:complexType name="ArrayOfMatchPlayerView">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="MatchPlayerView" nillable="true" type="tns:MatchPlayerView" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfMatchPlayerView" nillable="true" type="tns:ArrayOfMatchPlayerView" />
+  <xs:complexType name="MatchPlayerView">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="HandCardCount" type="xs:int" />
+      <xs:element minOccurs="0" name="IsEliminated" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PileCardCount" type="xs:int" />
+      <xs:element minOccurs="0" name="UserId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MatchPlayerView" nillable="true" type="tns:MatchPlayerView" />
 </xs:schema>
