@@ -158,7 +158,12 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        /// <summary>Autoriza una sola partida al vencer la generación vigente; requiere _sessionsLock.</summary>
+        /// <summary>
+        /// Autoriza una sola partida al vencer la generación vigente y crea su MatchState; requiere _sessionsLock.
+        /// Todo lo que puede lanzar (identificador, partida, estado de inicio nuevo, destinatarios, foto de la sala y
+        /// resultado) se arma antes de cambiar nada; al final solo hay dos asignaciones: la partida y luego el estado
+        /// de inicio que ya trae su MatchId.
+        /// </summary>
         /// <param name="userId">Jugador ya validado.</param>
         /// <param name="roomId">Sala actual del jugador.</param>
         /// <param name="countdownId">Generación observada por el cliente.</param>
@@ -166,16 +171,23 @@ namespace TLMG.Services.Sessions
         private LobbyMembershipChange RequestMatchStartInLock(int userId, int roomId, long countdownId)
         {
             LobbyStartState lobbyStartState = _startsByRoomId[roomId];
-            DateTime nowUtc = DateTime.UtcNow;
+            DateTime nowUtc = _readUtcNow();
             LobbyMembershipChange lobbyMembershipChange;
 
             if (CanAuthorizeMatchStartInLock(roomId, countdownId, nowUtc))
             {
-                lobbyStartState.MatchId = Guid.NewGuid();
-                lobbyStartState.MatchStartedAtUtc = nowUtc;
-                lobbyStartState.CountdownEndsAtUtc = null;
-                lobbyStartState.Version++;
-                lobbyMembershipChange = CopyLobbyChangeInLock(userId, roomId);
+                List<LobbyMember> lobbyMembers = _membersByRoomId[roomId];
+                Guid matchId = Guid.NewGuid();
+                MatchRecord matchRecord = CreateMatchRecordInLock(matchId, roomId);
+                LobbyStartState authorizedStart = CreateAuthorizedStart(lobbyStartState, matchId, nowUtc);
+                lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
+                    userId,
+                    roomId,
+                    CreateRoomSnapshot(roomId, lobbyMembers, authorizedStart),
+                    CopyCallbacks(lobbyMembers));
+
+                _matchesById[matchId] = matchRecord;
+                _startsByRoomId[roomId] = authorizedStart;
             }
             else
             {
@@ -222,7 +234,7 @@ namespace TLMG.Services.Sessions
                 if (AreLobbyPlayersReadyInLock(roomId))
                 {
                     lobbyStartState.CountdownId++;
-                    lobbyStartState.CountdownEndsAtUtc = DateTime.UtcNow.AddSeconds(LobbyStartCountdownSeconds);
+                    lobbyStartState.CountdownEndsAtUtc = _readUtcNow().AddSeconds(LobbyStartCountdownSeconds);
                 }
             }
         }
@@ -322,18 +334,46 @@ namespace TLMG.Services.Sessions
         /// <returns>Copia de solo lectura con la hora UTC del servidor.</returns>
         private LobbyStartSnapshot CreateStartSnapshotInLock(int roomId)
         {
-            LobbyStartState lobbyStartState = _startsByRoomId[roomId];
+            return CreateStartSnapshotInLock(_startsByRoomId[roomId]);
+        }
+
+        /// <summary>Copia un estado de inicio, publicado o por publicar; requiere _sessionsLock.</summary>
+        private LobbyStartSnapshot CreateStartSnapshotInLock(LobbyStartState lobbyStartState)
+        {
             LobbyStartSnapshot lobbyStartSnapshot = new LobbyStartSnapshot(
                 new List<int>(lobbyStartState.ReadyUserIds).AsReadOnly(),
                 lobbyStartState.Version,
                 lobbyStartState.CountdownId,
                 lobbyStartState.CountdownEndsAtUtc,
-                DateTime.UtcNow,
+                _readUtcNow(),
                 lobbyStartState.MatchId,
                 lobbyStartState.MatchStartedAtUtc,
                 lobbyStartState.CardsPerPlayerCount);
 
             return lobbyStartSnapshot;
+        }
+
+        /// <summary>
+        /// Arma, sin publicarlo, el estado de inicio que reemplazará al actual al autorizar: misma preparación y
+        /// modalidad, cuenta cerrada, MatchId y hora de inicio asignados y versión siguiente.
+        /// </summary>
+        private static LobbyStartState CreateAuthorizedStart(
+            LobbyStartState currentStart,
+            Guid matchId,
+            DateTime nowUtc)
+        {
+            LobbyStartState authorizedStart = new LobbyStartState
+            {
+                Version = currentStart.Version + 1,
+                CountdownId = currentStart.CountdownId,
+                CountdownEndsAtUtc = null,
+                MatchId = matchId,
+                MatchStartedAtUtc = nowUtc,
+                CardsPerPlayerCount = currentStart.CardsPerPlayerCount
+            };
+            authorizedStart.ReadyUserIds.UnionWith(currentStart.ReadyUserIds);
+
+            return authorizedStart;
         }
 
         /// <summary>Estado mutable privado; solo se accede bajo _sessionsLock y nunca viaja en los avisos.</summary>

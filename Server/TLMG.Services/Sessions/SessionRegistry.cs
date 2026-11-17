@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using log4net;
 
@@ -17,9 +18,25 @@ namespace TLMG.Services.Sessions
         private static readonly ILog _log = LogManager.GetLogger(typeof(SessionRegistry));
 
         private readonly object _sessionsLock = new object();
+        private readonly Func<DateTime> _readUtcNow;
         private readonly Dictionary<string, PlayerSession> _sessionsByToken =
             new Dictionary<string, PlayerSession>();
         private readonly Dictionary<int, string> _tokensByUserId = new Dictionary<int, string>();
+
+        /// <summary>Crea el registro con el reloj UTC del sistema.</summary>
+        public SessionRegistry() : this(ReadSystemUtcNow)
+        {
+        }
+
+        /// <summary>
+        /// Crea el registro con la fuente de hora UTC indicada; permite a las pruebas vencer la cuenta regresiva sin
+        /// esperar. El servidor usa el constructor sin parámetros.
+        /// </summary>
+        /// <param name="readUtcNow">Devuelve la hora UTC actual; se lee solo bajo _sessionsLock.</param>
+        internal SessionRegistry(Func<DateTime> readUtcNow)
+        {
+            _readUtcNow = readUtcNow;
+        }
 
         /// <inheritdoc />
         public string StartSession(int userId, string nickname, out SessionEnd replacedSession)
@@ -116,6 +133,11 @@ namespace TLMG.Services.Sessions
             SessionEnd sessionEnd = RemoveSessionStateOfUser(endedSession);
 
             return sessionEnd;
+        }
+
+        private static DateTime ReadSystemUtcNow()
+        {
+            return DateTime.UtcNow;
         }
     }
 }

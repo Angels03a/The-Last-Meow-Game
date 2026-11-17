@@ -5,14 +5,20 @@ namespace TLMG.Services.Tests
 {
     internal sealed class LobbyScenario
     {
-        internal SessionRegistry Registry { get; } = new SessionRegistry();
+        internal SessionRegistry Registry { get; }
 
         internal string CreatorToken { get; }
 
         internal int RoomId { get; }
 
-        internal LobbyScenario()
+        internal LobbyScenario() : this(new SessionRegistry())
         {
+        }
+
+        /// <summary>Crea la sala con un registro dado, por ejemplo uno con reloj controlado por la prueba.</summary>
+        internal LobbyScenario(SessionRegistry registry)
+        {
+            Registry = registry;
             CreatorToken = Registry.StartSession(1, "Creator", out SessionEnd replaced);
             LobbyCaller creatorCaller = new LobbyCaller(CreatorToken, "creator");
             RoomId = Registry.CreateRoom(creatorCaller, null).RoomId;

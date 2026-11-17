@@ -19,6 +19,9 @@ using System.Runtime.InteropServices;
 // COM, establezca el atributo ComVisible en true en este tipo.
 [assembly: ComVisible(false)]
 
+// Las pruebas de TLMG.Services.Tests usan el reloj inyectable y la lectura interna de partidas.
+[assembly: InternalsVisibleTo("TLMG.Services.Tests")]
+
 // El siguiente GUID sirve como id. de typelib si este proyecto se expone a COM.
 [assembly: Guid("f33c04b5-8f2c-456b-bf3c-4c1907763913")]
 

@@ -229,6 +229,7 @@ namespace TLMG.Services.Sessions
                 }
                 else
                 {
+                    ReleaseMatchOfRemovedRoomInLock(_startsByRoomId[roomId]);
                     _membersByRoomId.Remove(roomId);
                     _startsByRoomId.Remove(roomId);
                     RemoveRoomEntryAuthorizations(roomId);
@@ -325,6 +326,15 @@ namespace TLMG.Services.Sessions
 
         private LobbyRoomSnapshot CreateRoomSnapshot(int roomId, List<LobbyMember> members)
         {
+            return CreateRoomSnapshot(roomId, members, _startsByRoomId[roomId]);
+        }
+
+        /// <summary>Copia la sala con un estado de inicio, publicado o por publicar; requiere _sessionsLock.</summary>
+        private LobbyRoomSnapshot CreateRoomSnapshot(
+            int roomId,
+            List<LobbyMember> members,
+            LobbyStartState lobbyStartState)
+        {
             List<PlayerSession> players = new List<PlayerSession>();
 
             foreach (LobbyMember member in members)
@@ -333,7 +343,7 @@ namespace TLMG.Services.Sessions
             }
 
             LobbyRoomSnapshot lobbyRoomSnapshot =
-                new LobbyRoomSnapshot(roomId, players.AsReadOnly(), CreateStartSnapshotInLock(roomId));
+                new LobbyRoomSnapshot(roomId, players.AsReadOnly(), CreateStartSnapshotInLock(lobbyStartState));
 
             return lobbyRoomSnapshot;
         }

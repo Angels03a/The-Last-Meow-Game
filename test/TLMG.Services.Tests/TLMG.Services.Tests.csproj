@@ -45,6 +45,7 @@
     <Compile Include="SessionNotificationHelperTests.cs" />
     <Compile Include="SessionRegistryCardsPerPlayerTests.cs" />
     <Compile Include="SessionRegistryFriendsTests.cs" />
+    <Compile Include="SessionRegistryMatchesTests.cs" />
     <Compile Include="SessionRegistryReplacedSessionTests.cs" />
     <Compile Include="SessionRegistryTests.cs" />
     <Compile Include="TestAssembly.cs" />

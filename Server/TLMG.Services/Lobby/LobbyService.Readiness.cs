@@ -82,10 +82,12 @@ namespace TLMG.Services.Lobby
             if (lobbyMembershipChange.RecipientCallbacks.Count > ZeroCount)
             {
                 _log.InfoFormat(
-                    "El jugador {0} autorizó el inicio de la partida {1} en la sala {2}.",
+                    "El jugador {0} autorizó el inicio de la partida {1} en la sala {2}: {3} cartas, {4} jugadores.",
                     lobbyMembershipChange.UserId,
                     lobbyMembershipChange.Room.Start.MatchId,
-                    lobbyMembershipChange.RoomId);
+                    lobbyMembershipChange.RoomId,
+                    lobbyMembershipChange.Room.Start.CardsPerPlayerCount,
+                    lobbyMembershipChange.Room.Players.Count);
             }
 
             ResultWithNotification<OperationRequestMatchStartResult> requestMatchStartResult =

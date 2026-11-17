@@ -105,6 +105,8 @@
     <Compile Include="Sessions\SessionRegistry.cs" />
     <Compile Include="Sessions\SessionRegistry.Friends.cs" />
     <Compile Include="Sessions\SessionRegistry.Lobbies.cs" />
+    <Compile Include="Sessions\SessionRegistry.Matches.cs" />
+    <Compile Include="Sessions\MatchSnapshot.cs" />
     <Compile Include="Utilities\CodeGeneratorUtility.cs" />
     <Compile Include="Utilities\EmailTemplates.cs" />
     <Compile Include="Utilities\EmailUtility.cs" />
