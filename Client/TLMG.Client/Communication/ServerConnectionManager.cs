@@ -16,8 +16,10 @@ namespace TLMG.Client.Communication
         private readonly Dispatcher _interfaceDispatcher;
         private FriendsManagerClient _friendsClient;
         private IClientChannel _friendsChannel;
+        private ServerCallback _friendsCallback;
         private LobbyManagerClient _lobbyClient;
         private IClientChannel _lobbyChannel;
+        private ServerCallback _lobbyCallback;
         private string _sessionToken;
         private int? _enteringRoomId;
 
@@ -108,8 +110,10 @@ namespace TLMG.Client.Communication
             CloseClientSafely(_lobbyClient);
             _friendsClient = null;
             _friendsChannel = null;
+            _friendsCallback = null;
             _lobbyClient = null;
             _lobbyChannel = null;
+            _lobbyCallback = null;
             _sessionToken = null;
             PlayerUserId = NoUserId;
             PlayerNickname = null;
@@ -208,6 +212,17 @@ namespace TLMG.Client.Communication
         internal void RunOnInterface(Action action)
         {
             _interfaceDispatcher.BeginInvoke(action);
+        }
+
+        /// <summary>
+        /// Pasa al hilo de la interfaz un aviso de los canales de amigos o de lobby. La vigencia se comprueba al
+        /// ejecutarse en el hilo de la interfaz, no al llegar, porque entre ambos momentos el canal pudo cerrarse.
+        /// </summary>
+        /// <param name="callback">Receptor que entregó el aviso.</param>
+        /// <param name="notification">Aviso que se aplica solo si el receptor sigue vigente.</param>
+        internal void RunOnInterfaceIfCurrent(ServerCallback callback, Action notification)
+        {
+            RunOnInterface(() => RunIfCurrentCallback(callback, notification));
         }
 
         internal void NotifyFriendListReceived(
@@ -396,6 +411,25 @@ namespace TLMG.Client.Communication
             }
         }
 
+        /// <summary>
+        /// Aplica el aviso solo si viene del receptor vigente del canal de amigos o del de lobby; cada apertura crea
+        /// un receptor distinto, así que lo que llegue de un canal anterior se ignora sin cambiar nada.
+        /// </summary>
+        private void RunIfCurrentCallback(ServerCallback callback, Action notification)
+        {
+            bool isCurrentCallback = callback != null
+                && (ReferenceEquals(callback, _friendsCallback) || ReferenceEquals(callback, _lobbyCallback));
+
+            if (isCurrentCallback)
+            {
+                notification();
+            }
+            else
+            {
+                _log.Debug("Se ignoró un aviso de un canal con el servidor que ya no está vigente.");
+            }
+        }
+
         private void UpdateFriendPresence(Friend friend)
         {
             if (FriendList != null && friend != null)
@@ -448,7 +482,8 @@ namespace TLMG.Client.Communication
 
             try
             {
-                _friendsClient = new FriendsManagerClient(new InstanceContext(new ServerCallback(this)));
+                _friendsCallback = new ServerCallback(this);
+                _friendsClient = new FriendsManagerClient(new InstanceContext(_friendsCallback));
                 _friendsChannel = _friendsClient.InnerChannel;
                 WatchChannel(_friendsChannel);
                 _friendsClient.Open();
@@ -490,7 +525,8 @@ namespace TLMG.Client.Communication
 
             try
             {
-                _lobbyClient = new LobbyManagerClient(new InstanceContext(new ServerCallback(this)));
+                _lobbyCallback = new ServerCallback(this);
+                _lobbyClient = new LobbyManagerClient(new InstanceContext(_lobbyCallback));
                 _lobbyChannel = _lobbyClient.InnerChannel;
                 WatchChannel(_lobbyChannel);
                 _lobbyClient.Open();

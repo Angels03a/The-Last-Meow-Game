@@ -59,7 +59,8 @@ namespace TLMG.Client.Communication
         /// <param name="operationSubscribeToFriendsResult">Resultado con los amigos o la clave de error.</param>
         public void SubscribeToFriendsResult(OperationSubscribeToFriendsResult operationSubscribeToFriendsResult)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyFriendListReceived(operationSubscribeToFriendsResult));
         }
 
@@ -67,7 +68,8 @@ namespace TLMG.Client.Communication
         /// <param name="operationInviteFriendToRoomResult">Resultado con éxito o clave de error.</param>
         public void InviteFriendToRoomResult(OperationResult operationInviteFriendToRoomResult)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyInviteFriendResultReceived(operationInviteFriendToRoomResult));
         }
 
@@ -75,7 +77,8 @@ namespace TLMG.Client.Communication
         /// <param name="operationAcceptRoomInvitationResult">Resultado con el id de sala o la clave de error.</param>
         public void AcceptRoomInvitationResult(OperationAcceptRoomInvitationResult operationAcceptRoomInvitationResult)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyAcceptInvitationResultReceived(
                     operationAcceptRoomInvitationResult));
         }
@@ -84,7 +87,8 @@ namespace TLMG.Client.Communication
         /// <param name="friend">El amigo con su presencia actual.</param>
         public void OnFriendPresenceChanged(Friend friend)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyFriendPresenceChanged(friend));
         }
 
@@ -92,7 +96,8 @@ namespace TLMG.Client.Communication
         /// <param name="roomInvitation">La invitación recibida.</param>
         public void OnRoomInvitationReceived(RoomInvitation roomInvitation)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyRoomInvitationReceived(roomInvitation));
         }
 
@@ -100,7 +105,8 @@ namespace TLMG.Client.Communication
         /// <param name="friendRequest">La solicitud recibida del servidor.</param>
         public void OnFriendRequestReceived(FriendRequest friendRequest)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyFriendRequestReceived(friendRequest));
         }
 
@@ -108,7 +114,8 @@ namespace TLMG.Client.Communication
         /// <param name="friend">El nuevo amigo con su presencia actual.</param>
         public void OnFriendAdded(Friend friend)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyFriendAdded(friend));
         }
 
@@ -117,7 +124,8 @@ namespace TLMG.Client.Communication
         public void SendFriendRequestResult(
             OperationSendFriendRequestResult operationSendFriendRequestResult)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifySendFriendRequestResultReceived(
                     operationSendFriendRequestResult));
         }
@@ -127,7 +135,8 @@ namespace TLMG.Client.Communication
         public void AcceptFriendRequestResult(
             OperationAcceptFriendRequestResult operationAcceptFriendRequestResult)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyAcceptFriendRequestResultReceived(
                     operationAcceptFriendRequestResult));
         }
@@ -137,7 +146,8 @@ namespace TLMG.Client.Communication
         public void DeclineFriendRequestResult(
             OperationDeclineFriendRequestResult operationDeclineFriendRequestResult)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyDeclineFriendRequestResultReceived(
                     operationDeclineFriendRequestResult));
         }
@@ -146,7 +156,8 @@ namespace TLMG.Client.Communication
         /// <param name="result">Resultado con la sala actualizada o la clave de error.</param>
         public void ChangeCardsPerPlayerResult(OperationLobbyRoomResult result)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyChangeCardsPerPlayerResultReceived(result));
         }
 
@@ -154,7 +165,8 @@ namespace TLMG.Client.Communication
         /// <param name="operationCreateRoomResult">Resultado con la sala o la clave de error.</param>
         public void CreateRoomResult(OperationLobbyRoomResult operationCreateRoomResult)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyCreateRoomResultReceived(operationCreateRoomResult));
         }
 
@@ -162,7 +174,8 @@ namespace TLMG.Client.Communication
         /// <param name="operationEnterLobbyResult">Resultado con la sala o la clave de error.</param>
         public void EnterLobbyResult(OperationLobbyRoomResult operationEnterLobbyResult)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyEnterLobbyResultReceived(operationEnterLobbyResult));
         }
 
@@ -170,7 +183,8 @@ namespace TLMG.Client.Communication
         /// <param name="operationLeaveLobbyResult">Resultado con éxito o clave de error.</param>
         public void LeaveLobbyResult(OperationResult operationLeaveLobbyResult)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyLeaveLobbyResultReceived(operationLeaveLobbyResult));
         }
 
@@ -178,7 +192,8 @@ namespace TLMG.Client.Communication
         /// <param name="lobbyRoom">La sala con la lista actualizada de jugadores.</param>
         public void OnLobbyRoomChanged(LobbyRoom lobbyRoom)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyLobbyRoomChanged(lobbyRoom));
         }
 
@@ -186,7 +201,8 @@ namespace TLMG.Client.Communication
         /// <param name="changePlayerReadinessResult">Resultado recibido del servidor.</param>
         public void ChangePlayerReadinessResult(OperationLobbyRoomResult changePlayerReadinessResult)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyReadinessResultReceived(changePlayerReadinessResult));
         }
 
@@ -194,7 +210,8 @@ namespace TLMG.Client.Communication
         /// <param name="result">Resultado recibido del servidor.</param>
         public void RequestMatchStartResult(OperationRequestMatchStartResult result)
         {
-            _serverConnection.RunOnInterface(
+            _serverConnection.RunOnInterfaceIfCurrent(
+                this,
                 () => _serverConnection.NotifyMatchStartResultReceived(result));
         }
     }
