@@ -171,7 +171,7 @@ namespace TLMG.Domain.Tests
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
 
             // Act
-            PunishmentStatus status = match.ResumePunishment(PlayerAId, _returnUtc);
+            PunishmentStatus status = match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
 
             // Assert
             Assert.Equal(PunishmentStatus.Resumed, status);
@@ -187,7 +187,7 @@ namespace TLMG.Domain.Tests
             // Arrange: A regresa y elige viendo sus cartas una segura.
             MatchState match = CreateOwnPunishment();
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
-            match.ResumePunishment(PlayerAId, _returnUtc);
+            match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
             int safeCardIndex = IndexOfCard(match, PlayerAId, SafeCard);
 
             // Act
@@ -277,7 +277,7 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateBlindPunishment();
 
             // Act
-            PunishmentStatus status = match.ResumePunishment(PlayerAId, _disconnectUtc);
+            PunishmentStatus status = match.ResumePunishment(PlayerAId, _disconnectUtc, cardCount => FirstCardIndex);
 
             // Assert
             Assert.Equal(PunishmentStatus.PunishmentNotSuspended, status);
@@ -292,10 +292,11 @@ namespace TLMG.Domain.Tests
             // Arrange
             MatchState match = CreateBlindPunishment();
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
-            match.ResumePunishment(PlayerAId, _returnUtc);
+            match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
 
             // Act
-            PunishmentStatus status = match.ResumePunishment(PlayerAId, _resumedDeadlineUtc);
+            PunishmentStatus status = match.ResumePunishment(PlayerAId, _resumedDeadlineUtc,
+                cardCount => FirstCardIndex);
 
             // Assert
             Assert.Equal(PunishmentStatus.PunishmentNotSuspended, status);
@@ -315,7 +316,7 @@ namespace TLMG.Domain.Tests
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
 
             // Act
-            PunishmentStatus status = match.ResumePunishment(playerId, _returnUtc);
+            PunishmentStatus status = match.ResumePunishment(playerId, _returnUtc, cardCount => FirstCardIndex);
 
             // Assert
             Assert.Equal(PunishmentStatus.NotThePunished, status);
@@ -347,7 +348,7 @@ namespace TLMG.Domain.Tests
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
 
             // Act
-            PunishmentStatus status = match.ResumePunishment(UnknownPlayerId, _returnUtc);
+            PunishmentStatus status = match.ResumePunishment(UnknownPlayerId, _returnUtc, cardCount => FirstCardIndex);
 
             // Assert
             Assert.Equal(PunishmentStatus.PlayerNotInMatch, status);
@@ -377,7 +378,7 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
 
             // Act
-            PunishmentStatus status = match.ResumePunishment(PlayerAId, _returnUtc);
+            PunishmentStatus status = match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
 
             // Assert
             Assert.Equal(PunishmentStatus.NoPunishmentPending, status);
@@ -423,7 +424,7 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatchFinishedByLastSurvivor();
 
             // Act
-            PunishmentStatus status = match.ResumePunishment(PlayerCId, _returnUtc);
+            PunishmentStatus status = match.ResumePunishment(PlayerCId, _returnUtc, cardCount => FirstCardIndex);
 
             // Assert
             Assert.Equal(PunishmentStatus.NoPunishmentPending, status);
@@ -439,7 +440,7 @@ namespace TLMG.Domain.Tests
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
 
             // Act
-            PunishmentStatus status = match.ResumePunishment(PlayerAId, _returnUtc);
+            PunishmentStatus status = match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
 
             // Assert
             Assert.Equal(PunishmentStatus.Resumed, status);
@@ -455,7 +456,7 @@ namespace TLMG.Domain.Tests
             // Arrange
             MatchState match = CreateBlindPunishment();
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
-            match.ResumePunishment(PlayerAId, _returnUtc);
+            match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
 
             // Act
             PunishmentStatus status = match.ChoosePunishmentCard(PlayerBId, FirstCardIndex, _returnUtc);
@@ -473,7 +474,7 @@ namespace TLMG.Domain.Tests
             // Arrange
             MatchState match = CreateBlindPunishment();
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
-            match.ResumePunishment(PlayerAId, _returnUtc);
+            match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
 
             // Act
             PunishmentStatus status = match.ExpirePunishment(_resumedDeadlineUtc.AddTicks(-OneTick),
@@ -491,7 +492,7 @@ namespace TLMG.Domain.Tests
             // Arrange
             MatchState match = CreateBlindPunishment();
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
-            match.ResumePunishment(PlayerAId, _returnUtc);
+            match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
 
             // Act
             PunishmentStatus status = match.ExpirePunishment(_resumedDeadlineUtc, cardCount => FirstCardIndex);
@@ -508,7 +509,7 @@ namespace TLMG.Domain.Tests
             // Arrange
             MatchState match = CreateBlindPunishment();
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
-            match.ResumePunishment(PlayerAId, _returnUtc);
+            match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
 
             // Act
             PunishmentStatus status = match.ChoosePunishmentCard(PlayerBId, FirstCardIndex, _resumedDeadlineUtc);
@@ -525,11 +526,12 @@ namespace TLMG.Domain.Tests
             // Arrange: 3 s activos, pausa, 2 s activos, pausa; quedan 5 s al regresar por segunda vez.
             MatchState match = CreateBlindPunishment();
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
-            match.ResumePunishment(PlayerAId, _returnUtc);
+            match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
             match.SuspendPunishment(PlayerAId, _nowUtc.AddSeconds(SecondDisconnectAfterSeconds));
 
             // Act
-            PunishmentStatus status = match.ResumePunishment(PlayerAId, _nowUtc.AddSeconds(SecondReturnAfterSeconds));
+            PunishmentStatus status = match.ResumePunishment(PlayerAId, _nowUtc.AddSeconds(SecondReturnAfterSeconds),
+                cardCount => FirstCardIndex);
 
             // Assert
             Assert.Equal(PunishmentStatus.Resumed, status);
@@ -569,9 +571,9 @@ namespace TLMG.Domain.Tests
             AssertExactlyOneTimeValue(punishment);
             match.SuspendPunishment(PlayerAId, _returnUtc);
             AssertExactlyOneTimeValue(punishment);
-            match.ResumePunishment(PlayerAId, _returnUtc);
+            match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
             AssertExactlyOneTimeValue(punishment);
-            match.ResumePunishment(PlayerAId, _returnUtc);
+            match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
 
             // Assert
             AssertExactlyOneTimeValue(punishment);
@@ -609,7 +611,7 @@ namespace TLMG.Domain.Tests
             DateTime notUtcTime = DateTime.SpecifyKind(_returnUtc, timeKind);
 
             // Act
-            Action resumePunishment = () => match.ResumePunishment(PlayerAId, notUtcTime);
+            Action resumePunishment = () => match.ResumePunishment(PlayerAId, notUtcTime, cardCount => FirstCardIndex);
 
             // Assert
             Assert.Throws<ArgumentException>(resumePunishment);

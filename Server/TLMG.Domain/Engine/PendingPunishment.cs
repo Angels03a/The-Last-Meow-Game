@@ -174,6 +174,22 @@ namespace TLMG.Domain.Engine
         /// <returns>Resumed si se reanudó; en otro caso, el motivo del rechazo.</returns>
         internal PunishmentStatus Resume(int playerId, DateTime nowUtc)
         {
+            PunishmentStatus punishmentStatus = ValidateResume(playerId);
+
+            if (punishmentStatus == PunishmentStatus.Resumed)
+            {
+                DeadlineUtc = nowUtc + RemainingTime.Value;
+                RemainingTime = null;
+            }
+
+            return punishmentStatus;
+        }
+
+        /// <summary>Valida que pueda reanudar: es el castigado y el castigo está suspendido. No cambia nada.</summary>
+        /// <param name="playerId">Jugador que regresó.</param>
+        /// <returns>Resumed si puede reanudar; en otro caso, el motivo del rechazo.</returns>
+        internal PunishmentStatus ValidateResume(int playerId)
+        {
             PunishmentStatus punishmentStatus = PunishmentStatus.Resumed;
 
             if (playerId != PunishedPlayerId)
@@ -183,11 +199,6 @@ namespace TLMG.Domain.Engine
             else if (!IsSuspended)
             {
                 punishmentStatus = PunishmentStatus.PunishmentNotSuspended;
-            }
-            else
-            {
-                DeadlineUtc = nowUtc + RemainingTime.Value;
-                RemainingTime = null;
             }
 
             return punishmentStatus;

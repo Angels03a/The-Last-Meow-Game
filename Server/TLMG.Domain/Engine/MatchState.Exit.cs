@@ -5,22 +5,28 @@ namespace TLMG.Domain.Engine
 {
     public sealed partial class MatchState
     {
+        private const int LeavingPlayerCount = 1;
+
         /// <summary>
-        /// Saca de la partida a un jugador por abandono, desconexión no recuperada o votación (Reglas 4.0.6). El
-        /// jugador queda en Players con su salida registrada y no vuelve a participar. La ronda en curso se reinicia:
-        /// las cartas colocadas vuelven a las manos, se descartan la apuesta y lo revelado, la mesa queda vacía y
-        /// empieza una ronda nueva con el primer jugador en juego. Si queda un solo jugador en juego, gana y no empieza
-        /// otra ronda. Un eliminado que sale no cambia nada. Con un castigo pendiente se rechaza por ahora. Si
-        /// rechaza, nada cambia.
+        /// Saca de la partida a un jugador por abandono, desconexión no recuperada o votación (Reglas 4.0.6 y
+        /// 2.0.3.1). El jugador queda en Players con su salida registrada y no vuelve a participar. Si queda un solo
+        /// jugador en juego, gana: se limpian el castigo pendiente y la apuesta y no empieza otra ronda. Sin castigo
+        /// pendiente, la ronda en curso se reinicia: las cartas colocadas vuelven a las manos, se descartan la
+        /// apuesta y lo revelado y empieza una ronda nueva. Con castigo pendiente la ronda no se reinicia: si sale el
+        /// castigado, el castigo se cancela y empieza la siguiente ronda; si sale quien elige con el castigo activo,
+        /// el sistema elige al azar y el castigo se completa; con el castigo suspendido, o si sale un tercero, solo
+        /// se registra la salida. Un eliminado que sale no cambia nada. Si rechaza o el azar devuelve un índice
+        /// inválido, nada cambia.
         /// </summary>
         /// <param name="playerId">Jugador que sale.</param>
         /// <param name="exit">Inicio y hora efectiva de la salida, en UTC.</param>
         /// <param name="chooseRandomCardIndex">
-        /// Azar para la carta del castigo; se valida desde ahora, pero solo lo usará la salida durante el castigo
-        /// (E6b).
+        /// Azar uniforme sobre las cartas del castigado: recibe n y da [0, n). Se usa solo si sale quien elige con el
+        /// castigo activo.
         /// </param>
-        /// <returns>RoundRestarted, MatchFinished o EliminatedPlayerLeft; si no, el motivo del rechazo.</returns>
+        /// <returns>El efecto de la salida; MatchFinished si la partida terminó; o el motivo del rechazo.</returns>
         /// <exception cref="ArgumentNullException">exit o chooseRandomCardIndex es null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">El azar devolvió un índice fuera de [0, n).</exception>
         public PlayerExitStatus RemovePlayer(int playerId, PlayerExit exit, Func<int, int> chooseRandomCardIndex)
         {
             ValidateExitArguments(exit, chooseRandomCardIndex);
@@ -28,22 +34,87 @@ namespace TLMG.Domain.Engine
 
             if (exitStatus == PlayerExitStatus.RoundRestarted)
             {
-                FindParticipant(playerId).Exit = exit;
-                DiscardRoundInProgress();
+                MatchPlayer leavingPlayer = FindParticipant(playerId);
+                int? randomCardIndex = null;
 
-                if (HasSinglePlayerInPlay())
+                if (!LeavesSinglePlayerInPlay() && IsActiveChooserOnly(leavingPlayer))
                 {
-                    FinishWithLastPlayerInPlay();
-                    exitStatus = PlayerExitStatus.MatchFinished;
+                    randomCardIndex = PickRandomCardIndex(chooseRandomCardIndex);
                 }
-                else
-                {
-                    StartNextRound();
-                }
+
+                leavingPlayer.Exit = exit;
+                exitStatus = ApplyExit(leavingPlayer, randomCardIndex);
             }
 
             return exitStatus;
         }
+
+        /// <summary>Aplica la salida ya registrada: victoria del último, reinicio o efecto en el castigo.</summary>
+        private PlayerExitStatus ApplyExit(MatchPlayer leavingPlayer, int? randomCardIndex)
+        {
+            PlayerExitStatus exitStatus = PlayerExitStatus.RoundRestarted;
+
+            if (HasSinglePlayerInPlay())
+            {
+                PendingPunishment = null;
+                DiscardRoundInProgress();
+                FinishWithLastPlayerInPlay();
+                exitStatus = PlayerExitStatus.MatchFinished;
+            }
+            else if (Phase == RoundPhase.PunishmentPending)
+            {
+                exitStatus = ApplyExitDuringPunishment(leavingPlayer, randomCardIndex);
+            }
+            else
+            {
+                DiscardRoundInProgress();
+                StartNextRound();
+            }
+
+            return exitStatus;
+        }
+
+        /// <summary>
+        /// Efecto de la salida en el castigo pendiente: cancelarlo si salió el castigado, completarlo con la carta al
+        /// azar ya validada si salió quien elige con el castigo activo, o dejarlo igual.
+        /// </summary>
+        private PlayerExitStatus ApplyExitDuringPunishment(MatchPlayer leavingPlayer, int? randomCardIndex)
+        {
+            PlayerExitStatus exitStatus = PlayerExitStatus.ExitRecorded;
+
+            if (leavingPlayer.PlayerId == PendingPunishment.PunishedPlayerId)
+            {
+                PendingPunishment = null;
+                StartNextRound();
+                exitStatus = PlayerExitStatus.PunishmentCancelled;
+            }
+            else if (randomCardIndex.HasValue)
+            {
+                ApplyPunishment(randomCardIndex.Value);
+                exitStatus = PlayerExitStatus.PunishmentResolvedAtRandom;
+            }
+
+            if (Phase == RoundPhase.MatchFinished)
+            {
+                exitStatus = PlayerExitStatus.MatchFinished;
+            }
+
+            return exitStatus;
+        }
+
+        /// <summary>Indica si sale quien elige, no es el castigado y el castigo está activo (no suspendido).</summary>
+        private bool IsActiveChooserOnly(MatchPlayer leavingPlayer)
+        {
+            bool isChooserOnly = Phase == RoundPhase.PunishmentPending
+                && leavingPlayer.PlayerId == PendingPunishment.ChooserPlayerId
+                && leavingPlayer.PlayerId != PendingPunishment.PunishedPlayerId;
+
+            return isChooserOnly && !PendingPunishment.IsSuspended;
+        }
+
+        /// <summary>Indica si, al salir un jugador en juego, quedaría un solo jugador en juego.</summary>
+        private bool LeavesSinglePlayerInPlay() =>
+            _players.Count(player => player.IsInPlay) - LeavingPlayerCount == LastSurvivorCount;
 
         private static void ValidateExitArguments(PlayerExit exit, Func<int, int> chooseRandomCardIndex)
         {
@@ -79,10 +150,6 @@ namespace TLMG.Domain.Engine
             else if (participant.IsEliminated)
             {
                 exitStatus = PlayerExitStatus.EliminatedPlayerLeft;
-            }
-            else if (Phase == RoundPhase.PunishmentPending)
-            {
-                exitStatus = PlayerExitStatus.ExitDuringPunishmentNotYetSupported;
             }
 
             return exitStatus;

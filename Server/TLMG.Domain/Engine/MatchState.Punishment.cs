@@ -121,17 +121,28 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Reanuda el castigo suspendido porque el jugador castigado regresó a tiempo: la nueva hora límite es nowUtc
-        /// más el tiempo que quedaba, nunca el plazo completo. La ventana de reconexión la mide Services. Si rechaza,
-        /// nada cambia.
+        /// Reanuda el castigo suspendido porque el jugador castigado regresó a tiempo, en una sola transición. Si quien
+        /// elige sigue en la partida, la nueva hora límite es nowUtc más el tiempo que quedaba, nunca el plazo
+        /// completo, y el azar no se usa. Si quien elige ya salió, el plazo no se reanuda: el sistema elige al azar y
+        /// el castigo se completa (Reglas 2.0.3.1). La ventana de reconexión la mide Services. Si rechaza o el azar
+        /// devuelve un índice inválido, nada cambia.
         /// </summary>
         /// <param name="playerId">Jugador que regresó; debe ser el castigado.</param>
         /// <param name="nowUtc">Hora UTC del servidor; el motor nunca lee el reloj.</param>
-        /// <returns>Resumed si se reanudó; en otro caso, el motivo del rechazo.</returns>
+        /// <param name="chooseRandomCardIndex">Azar uniforme sobre la mano del castigado: recibe n, da [0, n).</param>
+        /// <returns>Resumed si se reanudó, CardRemoved si se resolvió al azar; si no, el motivo del rechazo.</returns>
         /// <exception cref="ArgumentException">nowUtc no es una hora UTC.</exception>
-        public PunishmentStatus ResumePunishment(int playerId, DateTime nowUtc)
+        /// <exception cref="ArgumentNullException">chooseRandomCardIndex es null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">El azar devolvió un índice fuera de [0, n).</exception>
+        public PunishmentStatus ResumePunishment(int playerId, DateTime nowUtc, Func<int, int> chooseRandomCardIndex)
         {
             ValidateUtc(nowUtc);
+
+            if (chooseRandomCardIndex == null)
+            {
+                throw new ArgumentNullException(nameof(chooseRandomCardIndex));
+            }
+
             PunishmentStatus punishmentStatus;
 
             if (FindPlayer(playerId) == null)
@@ -144,17 +155,47 @@ namespace TLMG.Domain.Engine
             }
             else
             {
-                punishmentStatus = PendingPunishment.Resume(playerId, nowUtc);
+                punishmentStatus = PendingPunishment.ValidateResume(playerId);
+            }
+
+            if (punishmentStatus == PunishmentStatus.Resumed)
+            {
+                punishmentStatus = ContinueResumedPunishment(playerId, nowUtc, chooseRandomCardIndex);
+            }
+
+            return punishmentStatus;
+        }
+
+        /// <summary>Reanuda el plazo si quien elige sigue en la partida; si ya salió, resuelve al azar.</summary>
+        private PunishmentStatus ContinueResumedPunishment(int playerId, DateTime nowUtc,
+            Func<int, int> chooseRandomCardIndex)
+        {
+            PunishmentStatus punishmentStatus = PunishmentStatus.Resumed;
+
+            if (FindPlayer(PendingPunishment.ChooserPlayerId) == null)
+            {
+                ResolvePunishmentAtRandom(chooseRandomCardIndex);
+                punishmentStatus = PunishmentStatus.CardRemoved;
+            }
+            else
+            {
+                PendingPunishment.Resume(playerId, nowUtc);
             }
 
             return punishmentStatus;
         }
 
         /// <summary>
-        /// Elige al azar la carta del castigado y aplica el castigo. Lo usa el vencimiento del plazo y lo reutilizará
-        /// la expulsión de quien elige (E6). Valida el índice antes de cambiar cualquier estado.
+        /// Elige al azar la carta del castigado y aplica el castigo. Lo usan el vencimiento del plazo y la reanudación
+        /// cuando quien elige ya salió. Valida el índice antes de cambiar cualquier estado.
         /// </summary>
         private void ResolvePunishmentAtRandom(Func<int, int> pickRandomIndex)
+        {
+            ApplyPunishment(PickRandomCardIndex(pickRandomIndex));
+        }
+
+        /// <summary>Pide al azar un índice de la mano del castigado y lo valida; no cambia nada.</summary>
+        private int PickRandomCardIndex(Func<int, int> pickRandomIndex)
         {
             int cardIndex = pickRandomIndex(PendingPunishment.PunishedCardCount);
 
@@ -163,7 +204,7 @@ namespace TLMG.Domain.Engine
                 throw new ArgumentOutOfRangeException(nameof(pickRandomIndex), "El azar devolvió un índice inválido.");
             }
 
-            ApplyPunishment(cardIndex);
+            return cardIndex;
         }
 
         /// <summary>

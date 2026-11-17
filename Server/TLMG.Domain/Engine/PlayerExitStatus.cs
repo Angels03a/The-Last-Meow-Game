@@ -22,9 +22,21 @@ namespace TLMG.Domain.Engine
         PlayerAlreadyLeft,
 
         /// <summary>
-        /// Rechazo transitorio: hay un castigo pendiente y la salida durante el castigo todavía no se resuelve en el
-        /// motor; nada cambia. E6b retira este valor al resolver o cancelar el castigo (2.0.3.1 y H-07).
+        /// Salió el castigado durante el castigo pendiente: el castigo se cancela sin pérdida de vida y empieza la
+        /// siguiente ronda (Reglas 2.0.3.1 y H-07).
         /// </summary>
-        ExitDuringPunishmentNotYetSupported
+        PunishmentCancelled,
+
+        /// <summary>
+        /// Salió quien elige con el castigo activo: el sistema eligió al azar la carta del castigado y el castigo se
+        /// completó (Reglas 2.0.3.1).
+        /// </summary>
+        PunishmentResolvedAtRandom,
+
+        /// <summary>
+        /// Se registró la salida durante el castigo pendiente sin tocarlo: salió un tercero, o quien elige con el
+        /// castigo suspendido; el castigo sigue y la ronda no cambia.
+        /// </summary>
+        ExitRecorded
     }
 }

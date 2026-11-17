@@ -354,44 +354,6 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeExit, DescribeMatch(match));
         }
 
-        /// <summary>Verifica RemovePlayer_WithPendingPunishment_ReturnsNotYetSupportedWithoutChange.</summary>
-        /// <param name="playerId">Jugador que intenta salir: el castigado, quien elige o un tercero.</param>
-        [Theory]
-        [InlineData(PlayerAId)]
-        [InlineData(PlayerBId)]
-        [InlineData(PlayerCId)]
-        public void RemovePlayer_WithPendingPunishment_ReturnsNotYetSupportedWithoutChange(int playerId)
-        {
-            // Arrange: restricción transitoria hasta E6b; A falla con el Gato de B y B elige a ciegas.
-            MatchState match = CreateMatchWithBlindPunishment();
-            string matchBeforeExit = DescribeMatch(match);
-
-            // Act
-            PlayerExitStatus status = LeaveNow(match, playerId);
-
-            // Assert
-            Assert.Equal(PlayerExitStatus.ExitDuringPunishmentNotYetSupported, status);
-            Assert.Equal(matchBeforeExit, DescribeMatch(match));
-        }
-
-        /// <summary>Verifica RemovePlayer_WithSuspendedPunishment_ReturnsNotYetSupportedWithoutChange.</summary>
-        [Fact]
-        public void RemovePlayer_WithSuspendedPunishment_ReturnsNotYetSupportedWithoutChange()
-        {
-            // Arrange: restricción transitoria hasta E6b; el castigo de A está suspendido.
-            MatchState match = CreateMatchWithBlindPunishment();
-            match.SuspendPunishment(PlayerAId, _startUtc);
-            string matchBeforeExit = DescribeMatch(match);
-
-            // Act
-            PlayerExitStatus status = LeaveNow(match, PlayerAId);
-
-            // Assert
-            Assert.Equal(PlayerExitStatus.ExitDuringPunishmentNotYetSupported, status);
-            Assert.Equal(matchBeforeExit, DescribeMatch(match));
-            Assert.NotNull(match.PendingPunishment.RemainingTime);
-        }
-
         /// <summary>Verifica RemovePlayer_WithNullExit_ThrowsArgumentNullExceptionWithoutChange.</summary>
         [Fact]
         public void RemovePlayer_WithNullExit_ThrowsArgumentNullExceptionWithoutChange()
@@ -486,7 +448,7 @@ namespace TLMG.Domain.Tests
             // Act
             PunishmentStatus chooseStatus = match.ChoosePunishmentCard(PlayerDId, FirstCardIndex, _startUtc);
             PunishmentStatus suspendStatus = match.SuspendPunishment(PlayerDId, _startUtc);
-            PunishmentStatus resumeStatus = match.ResumePunishment(PlayerDId, _startUtc);
+            PunishmentStatus resumeStatus = match.ResumePunishment(PlayerDId, _startUtc, _pickFirstCard);
 
             // Assert
             Assert.Equal(PunishmentStatus.PlayerNotInMatch, chooseStatus);

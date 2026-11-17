@@ -35,6 +35,7 @@
     <Compile Include="MatchStateExitTests.cs" />
     <Compile Include="MatchStateExtraLifeTests.cs" />
     <Compile Include="MatchStatePunishmentTests.cs" />
+    <Compile Include="MatchStatePunishmentExitTests.cs" />
     <Compile Include="MatchStatePunishmentSuspensionTests.cs" />
     <Compile Include="MatchStateTests.cs" />
     <Compile Include="PlayerAccountRegistrationValidatorTests.cs" />
