@@ -32,21 +32,33 @@
             </DataTemplate>
 
             <DataTemplate x:Key="ScoreboardPlayerTemplate">
-                <StackPanel Style="{StaticResource GameplayScoreboardItemStyle}">
-                    <TextBlock Text="🐱"
+                <Grid Style="{StaticResource GameplayScoreboardCellStyle}"
+                      ToolTip="{Binding Nickname}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="🐱"
                                Style="{StaticResource GameplayScoreboardEmojiStyle}" />
-                    <TextBlock Text="{Binding Nickname}"
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding Nickname}"
+                               TextTrimming="CharacterEllipsis"
                                Style="{StaticResource GameplayScoreboardNameStyle}" />
-                    <TextBlock Style="{StaticResource GameplayScoreboardValueStyle}">
+                    <TextBlock Grid.Column="2"
+                               Style="{StaticResource GameplayScoreboardValueStyle}">
                         <Run Text="{Binding LivesCount, Mode=OneWay}" />
                         <Run Text="/" />
                         <Run Text="{Binding MaximumLivesCount, Mode=OneWay}" />
                     </TextBlock>
-                    <TextBlock Text="🎯"
+                    <TextBlock Grid.Column="3"
+                               Text="🎯"
                                Style="{StaticResource GameplayScoreboardEmojiStyle}"
                                Visibility="{Binding IsInTurn,
                                    Converter={StaticResource BooleanToVisibilityConverter}}" />
-                </StackPanel>
+                </Grid>
             </DataTemplate>
 
             <DataTemplate x:Key="OpponentTemplate">
@@ -110,7 +122,6 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="0"
@@ -123,19 +134,16 @@
                     </Border>
 
                     <ItemsControl Grid.Column="2"
+                                  Margin="12,0,0,0"
+                                  VerticalAlignment="Center"
                                   ItemsSource="{Binding Board.Players}"
                                   ItemTemplate="{StaticResource ScoreboardPlayerTemplate}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Style="{StaticResource GameplayScoreboardPanelStyle}" />
+                                <UniformGrid Rows="1" />
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
-
-                    <Button Grid.Column="3"
-                            Content="{DynamicResource Gameplay_ExitButton}"
-                            Style="{StaticResource GameplayExitButtonStyle}"
-                            Command="{Binding ExitCommand}" />
                 </Grid>
             </Border>
 
@@ -143,13 +151,43 @@
                   x:Name="grdTable"
                   Background="{StaticResource Brush_BackgroundDark}"
                   MouseLeftButtonDown="GrdTable_MouseLeftButtonDown">
-                <Ellipse Style="{StaticResource GameplayTableEllipseStyle}" />
+                <Grid Style="{StaticResource GameplayTableAreaGridStyle}">
+                    <Ellipse Style="{StaticResource GameplayTableEllipseStyle}" />
+
+                    <TextBlock Text="{DynamicResource Gameplay_TableHint}"
+                               Style="{StaticResource GameplayTableHintTextStyle}" />
+
+                    <StackPanel Style="{StaticResource GameplayCenterCardsPanelStyle}">
+                        <Border Style="{StaticResource GameplayCenterCardFirstStyle}">
+                            <TextBlock Text="🎴"
+                                       Style="{StaticResource GameplayCenterCardEmojiStyle}" />
+                        </Border>
+                        <Border Style="{StaticResource GameplayCenterCardSecondStyle}">
+                            <TextBlock Text="🎴"
+                                       Style="{StaticResource GameplayCenterCardEmojiStyle}" />
+                        </Border>
+                        <Border Style="{StaticResource GameplayCenterCardThirdStyle}">
+                            <TextBlock Text="🎴"
+                                       Style="{StaticResource GameplayCenterCardEmojiStyle}" />
+                        </Border>
+                        <Border Style="{StaticResource GameplayCenterCardFourthStyle}">
+                            <TextBlock Text="🎴"
+                                       Style="{StaticResource GameplayCenterCardEmojiStyle}" />
+                        </Border>
+                    </StackPanel>
+
+                    <Border Style="{StaticResource GameplayCurrentBidBorderStyle}">
+                        <StackPanel Style="{StaticResource GameplayCurrentBidPanelStyle}">
+                            <TextBlock Text="{DynamicResource Gameplay_CurrentBidLabel}"
+                                       Style="{StaticResource GameplayCurrentBidLabelStyle}" />
+                            <TextBlock Text="{Binding CurrentBidAmount}"
+                                       Style="{StaticResource GameplayCurrentBidValueStyle}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
 
                 <TextBlock Text="{DynamicResource Gameplay_ModerationHint}"
                            Style="{StaticResource GameplayModerationHintTextStyle}" />
-
-                <TextBlock Text="{DynamicResource Gameplay_TableHint}"
-                           Style="{StaticResource GameplayTableHintTextStyle}" />
 
                 <TextBlock Text="{DynamicResource Gameplay_MatchUnavailableLabel}"
                            HorizontalAlignment="Center"
@@ -161,34 +199,6 @@
                            Panel.ZIndex="1"
                            Visibility="{Binding IsMatchUnavailable,
                                Converter={StaticResource BooleanToVisibilityConverter}}" />
-
-                <StackPanel Style="{StaticResource GameplayCenterCardsPanelStyle}">
-                    <Border Style="{StaticResource GameplayCenterCardFirstStyle}">
-                        <TextBlock Text="🎴"
-                                   Style="{StaticResource GameplayCenterCardEmojiStyle}" />
-                    </Border>
-                    <Border Style="{StaticResource GameplayCenterCardSecondStyle}">
-                        <TextBlock Text="🎴"
-                                   Style="{StaticResource GameplayCenterCardEmojiStyle}" />
-                    </Border>
-                    <Border Style="{StaticResource GameplayCenterCardThirdStyle}">
-                        <TextBlock Text="🎴"
-                                   Style="{StaticResource GameplayCenterCardEmojiStyle}" />
-                    </Border>
-                    <Border Style="{StaticResource GameplayCenterCardFourthStyle}">
-                        <TextBlock Text="🎴"
-                                   Style="{StaticResource GameplayCenterCardEmojiStyle}" />
-                    </Border>
-                </StackPanel>
-
-                <Border Style="{StaticResource GameplayCurrentBidBorderStyle}">
-                    <StackPanel Style="{StaticResource GameplayCurrentBidPanelStyle}">
-                        <TextBlock Text="{DynamicResource Gameplay_CurrentBidLabel}"
-                                   Style="{StaticResource GameplayCurrentBidLabelStyle}" />
-                        <TextBlock Text="{Binding CurrentBidAmount}"
-                                   Style="{StaticResource GameplayCurrentBidValueStyle}" />
-                    </StackPanel>
-                </Border>
 
                 <StackPanel Style="{StaticResource GameplayOpponentLeftPanelStyle}">
                     <ContentControl Content="{Binding Board.OpponentLeft}"
@@ -349,6 +359,14 @@
                 <TextBlock Grid.Row="0"
                            Text="{DynamicResource Gameplay_ChatTitle}"
                            Style="{StaticResource GameplayChatTitleTextStyle}" />
+
+                <Button Grid.Row="0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="0,10,16,0"
+                        Content="{DynamicResource Gameplay_ExitButton}"
+                        Style="{StaticResource GameplayExitButtonStyle}"
+                        Command="{Binding ExitCommand}" />
 
                 <ScrollViewer Grid.Row="1" Style="{StaticResource GameplayChatMessagesScrollViewerStyle}">
                     <ItemsControl ItemsSource="{Binding ChatMessages}">

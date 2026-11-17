@@ -1920,6 +1920,11 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
+    <Style x:Key="GameplayScoreboardCellStyle" TargetType="Grid">
+        <Setter Property="Margin" Value="6,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
     <Style x:Key="GameplayScoreboardEmojiStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14" />
         <Setter Property="Margin" Value="0,0,6,0" />
@@ -1947,11 +1952,17 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
+    <!-- Deja libre arriba la fila de rivales (unos 155 px) y abajo un margen; el óvalo y lo centrado en él se
+         ajustan al espacio restante. -->
+    <Style x:Key="GameplayTableAreaGridStyle" TargetType="Grid">
+        <Setter Property="Margin" Value="0,165,0,20" />
+    </Style>
+
     <Style x:Key="GameplayTableEllipseStyle" TargetType="Ellipse">
         <Setter Property="Width" Value="580" />
-        <Setter Property="Height" Value="440" />
+        <Setter Property="MaxHeight" Value="440" />
         <Setter Property="HorizontalAlignment" Value="Center" />
-        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="Stroke" Value="{StaticResource Brush_Border}" />
         <Setter Property="StrokeThickness" Value="3" />
         <Setter Property="Fill">
@@ -2193,7 +2204,7 @@
         <Setter Property="Background" Value="{StaticResource Brush_BackgroundPanel}" />
         <Setter Property="BorderBrush" Value="{StaticResource Brush_Border}" />
         <Setter Property="BorderThickness" Value="0,1,0,0" />
-        <Setter Property="Padding" Value="24,12" />
+        <Setter Property="Padding" Value="24,12,24,24" />
     </Style>
 
     <Style x:Key="GameplayLocalPlayerPanelStyle" TargetType="StackPanel">
