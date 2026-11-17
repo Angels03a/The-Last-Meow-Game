@@ -44,6 +44,12 @@
     <Compile Include="DataContracts\SystemFault.cs" />
     <Compile Include="IChatManagerCallback.cs" />
     <Compile Include="IChatManager.cs" />
+    <Compile Include="IMatchManager.cs" />
+    <Compile Include="IMatchManagerCallback.cs" />
+    <Compile Include="DataContracts\MatchCardKind.cs" />
+    <Compile Include="DataContracts\MatchPlayerView.cs" />
+    <Compile Include="DataContracts\MatchRoundPhase.cs" />
+    <Compile Include="DataContracts\MatchView.cs" />
     <Compile Include="DataContracts\OperationSendChatMessageResult.cs" />
     <Compile Include="DataContracts\OperationSendChatMessageRequest.cs" />
     <Compile Include="DataContracts\ChatMessage.cs" />

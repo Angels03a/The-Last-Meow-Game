@@ -203,6 +203,7 @@ namespace TLMG.Services.Sessions
         {
             LobbyMembershipChange lobbyMembershipChange;
             RemoveChatChannelOfUserInLock(userId);
+            RemoveMatchChannelOfUserInLock(userId);
             int roomId;
 
             if (!_roomIdsByUserId.TryGetValue(userId, out roomId))

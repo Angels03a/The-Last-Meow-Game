@@ -14,6 +14,9 @@ namespace TLMG.Services.Sessions
         /// </summary>
         private readonly Dictionary<Guid, MatchRecord> _matchesById = new Dictionary<Guid, MatchRecord>();
 
+        /// <summary>Versión de la primera vista de una partida; una versión mayor siempre es más reciente.</summary>
+        private const int InitialMatchVersion = 1;
+
         /// <summary>
         /// Copia el estado básico de una partida si el usuario estaba entre sus participantes al iniciarla; el
         /// MatchState nunca sale del candado. Es pertenencia histórica, no autorización: quien atienda acciones de
@@ -44,7 +47,8 @@ namespace TLMG.Services.Sessions
         /// <summary>
         /// Libera la partida de una sala que se elimina, en la misma sección crítica. Es el único punto de liberación.
         /// Hoy la sala se elimina en cuanto sale su último miembro, incluso por perder el canal o terminar la sesión,
-        /// porque aún no hay ventana de reconexión (AUD-002); cuando exista, solo cambia esta condición.
+        /// porque aún no hay ventana de reconexión (AUD-002); cuando exista, solo cambia esta condición. Los callbacks
+        /// de partida no necesitan descarte aquí: cada salida de la sala ya quitó el del jugador que salió.
         /// </summary>
         /// <param name="removedStart">Estado de inicio de la sala que se elimina.</param>
         private void ReleaseMatchOfRemovedRoomInLock(LobbyStartState removedStart)
@@ -66,10 +70,28 @@ namespace TLMG.Services.Sessions
             IReadOnlyList<int> participantUserIds =
                 _membersByRoomId[roomId].Select(member => member.UserId).ToList().AsReadOnly();
             MatchState matchState = new MatchState(modeRules, participantUserIds);
-            MatchRecord matchRecord =
-                new MatchRecord(matchId, roomId, matchState, participantUserIds, cardsPerPlayerCount);
+            MatchRecord matchRecord = new MatchRecord(
+                matchId,
+                roomId,
+                matchState,
+                participantUserIds,
+                cardsPerPlayerCount,
+                CopyNicknamesInLock(participantUserIds));
 
             return matchRecord;
+        }
+
+        /// <summary>Copia los nicknames de los participantes para congelarlos; requiere _sessionsLock.</summary>
+        private Dictionary<int, string> CopyNicknamesInLock(IReadOnlyList<int> participantUserIds)
+        {
+            Dictionary<int, string> nicknamesByUserId = new Dictionary<int, string>();
+
+            foreach (int userId in participantUserIds)
+            {
+                nicknamesByUserId[userId] = _sessionsByToken[_tokensByUserId[userId]].Nickname;
+            }
+
+            return nicknamesByUserId;
         }
 
         /// <summary>Copia inmutable de la partida; requiere _sessionsLock.</summary>
@@ -96,13 +118,16 @@ namespace TLMG.Services.Sessions
                 int roomId,
                 MatchState matchState,
                 IReadOnlyList<int> participantUserIds,
-                int cardsPerPlayerCount)
+                int cardsPerPlayerCount,
+                IReadOnlyDictionary<int, string> participantNicknames)
             {
                 MatchId = matchId;
                 RoomId = roomId;
                 MatchState = matchState;
                 ParticipantUserIds = participantUserIds;
                 CardsPerPlayerCount = cardsPerPlayerCount;
+                ParticipantNicknames = participantNicknames;
+                Version = InitialMatchVersion;
             }
 
             /// <summary>Identificador de la partida, el mismo que recibe la sala.</summary>
@@ -119,6 +144,12 @@ namespace TLMG.Services.Sessions
 
             /// <summary>Cartas por jugador de la sala al autorizar.</summary>
             public int CardsPerPlayerCount { get; }
+
+            /// <summary>Nicknames de los participantes al autorizar; las vistas los usan aunque salgan.</summary>
+            public IReadOnlyDictionary<int, string> ParticipantNicknames { get; }
+
+            /// <summary>Versión de la partida; sube con cada acción aceptada y solo bajo _sessionsLock.</summary>
+            public int Version { get; set; }
         }
     }
 }

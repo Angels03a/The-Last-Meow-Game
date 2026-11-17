@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using TLMG.Contracts;
+using TLMG.Contracts.DataContracts;
 
 namespace TLMG.Services.Sessions
 {
@@ -168,5 +169,33 @@ namespace TLMG.Services.Sessions
         /// <summary>Retira solo el canal que aún coincide; no borra el intervalo de envíos del jugador.</summary>
         /// <param name="channelId">Canal que se cerró o falló.</param>
         void RemoveChatChannel(string channelId);
+
+        /// <summary>
+        /// Autoriza la suscripción a una partida y devuelve la vista del jugador; todo bajo el mismo candado. El
+        /// userId sale de la sesión y la participación debe seguir vigente (sigue en la sala de esa partida).
+        /// </summary>
+        /// <param name="caller">Token de cuenta registrada y canal de partida.</param>
+        /// <param name="matchId">Partida solicitada.</param>
+        /// <param name="callback">Callback del canal de partida; sustituye al anterior del jugador.</param>
+        /// <returns>La vista del jugador si se aceptó; la clave de error si se rechazó.</returns>
+        MatchDelivery SubscribeToMatch(LobbyCaller caller, Guid matchId, IMatchManagerCallback callback);
+
+        /// <summary>
+        /// Autoriza y coloca una carta en la partida a la que está suscrito el canal. Si el motor la rechaza no
+        /// cambia nada; si la acepta sube la versión y devuelve una vista por cada suscrito.
+        /// </summary>
+        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
+        /// <param name="card">Tipo de carta que se quiere colocar.</param>
+        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        MatchDelivery PlaceCard(LobbyCaller caller, MatchCardKind card);
+
+        /// <summary>
+        /// Quita solo el callback de partida del canal que se cerró o falló, si sigue siendo el registrado. No
+        /// modifica la partida ni la sala.
+        /// </summary>
+        /// <param name="channelId">Canal que se cerró o falló.</param>
+        /// <param name="closedCallback">Callback que tenía ese canal; se compara por referencia.</param>
+        /// <returns>true si se quitó la suscripción; en caso contrario, false.</returns>
+        bool RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback);
     }
 }

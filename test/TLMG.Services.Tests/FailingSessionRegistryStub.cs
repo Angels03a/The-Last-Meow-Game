@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using TLMG.Contracts;
+using TLMG.Contracts.DataContracts;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Tests
@@ -85,6 +86,15 @@ namespace TLMG.Services.Tests
             throw new InvalidOperationException(FailureMessage);
 
         public void RemoveChatChannel(string channelId) =>
+            throw new InvalidOperationException(FailureMessage);
+
+        public MatchDelivery SubscribeToMatch(LobbyCaller caller, Guid matchId, IMatchManagerCallback callback) =>
+            throw new InvalidOperationException(FailureMessage);
+
+        public MatchDelivery PlaceCard(LobbyCaller caller, MatchCardKind card) =>
+            throw new InvalidOperationException(FailureMessage);
+
+        public bool RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback) =>
             throw new InvalidOperationException(FailureMessage);
     }
 }

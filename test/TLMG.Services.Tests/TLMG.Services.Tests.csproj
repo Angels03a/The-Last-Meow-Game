@@ -38,6 +38,13 @@
     <Compile Include="LobbyReadinessHelper.cs" />
     <Compile Include="LobbyScenario.cs" />
     <Compile Include="LobbyServiceCardsPerPlayerTests.cs" />
+    <Compile Include="ManualUtcClock.cs" />
+    <Compile Include="MatchCallbackStub.cs" />
+    <Compile Include="MatchPlayScenario.cs" />
+    <Compile Include="MatchServiceTests.cs" />
+    <Compile Include="MatchViewHelperTests.cs" />
+    <Compile Include="SessionRegistryMatchPlayAuthorizationTests.cs" />
+    <Compile Include="SessionRegistryMatchPlayTests.cs" />
     <Compile Include="PasswordHasherTests.cs" />
     <Compile Include="PlayerAccountRegistrationServiceTests.cs" />
     <Compile Include="PlayerLogInServiceTests.cs" />

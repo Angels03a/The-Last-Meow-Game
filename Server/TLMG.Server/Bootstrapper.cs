@@ -6,6 +6,7 @@ using TLMG.Services.Chat;
 using TLMG.Services.Friends;
 using TLMG.Services.Leaderboard;
 using TLMG.Services.Lobby;
+using TLMG.Services.Match;
 using TLMG.Services.Sessions;
 using TLMG.Services.Utilities;
 
@@ -48,6 +49,8 @@ namespace TLMG.Server
 
             LobbyService lobbyService = new LobbyService(sessionRegistry);
 
+            MatchService matchService = new MatchService(sessionRegistry);
+
             ServiceImplementation.ConfigureDependencies(
                 sessionRegistry,
                 registrationService,
@@ -55,7 +58,8 @@ namespace TLMG.Server
                 chatService,
                 friendsService,
                 leaderboardService,
-                lobbyService);
+                lobbyService,
+                matchService);
         }
     }
 }

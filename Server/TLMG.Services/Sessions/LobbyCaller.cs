@@ -1,7 +1,7 @@
 ﻿namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Identidad y canal de quien llama a una operación de lobby o de chat; se crea una vez por llamada.
+    /// Identidad y canal de quien llama a una operación de lobby, de chat o de partida; se crea una vez por llamada.
     /// </summary>
     public sealed class LobbyCaller
     {

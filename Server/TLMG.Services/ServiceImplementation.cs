@@ -7,6 +7,7 @@ using TLMG.Services.Chat;
 using TLMG.Services.Friends;
 using TLMG.Services.Leaderboard;
 using TLMG.Services.Lobby;
+using TLMG.Services.Match;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services
@@ -25,6 +26,7 @@ namespace TLMG.Services
         private static FriendsService _friendsService;
         private static LeaderboardService _leaderboardService;
         private static LobbyService _lobbyService;
+        private static MatchService _matchService;
 
         /// <summary>
         /// Recibe el grafo de objetos ya construido desde el Composition Root.
@@ -37,7 +39,8 @@ namespace TLMG.Services
             ChatService chatService,
             FriendsService friendsService,
             LeaderboardService leaderboardService,
-            LobbyService lobbyService)
+            LobbyService lobbyService,
+            MatchService matchService)
         {
             _sessionRegistry = sessionRegistry;
             _playerAccountRegistrationService = registrationService;
@@ -46,6 +49,7 @@ namespace TLMG.Services
             _friendsService = friendsService;
             _leaderboardService = leaderboardService;
             _lobbyService = lobbyService;
+            _matchService = matchService;
         }
 
         private void SafeNotifyAll(IReadOnlyList<Action> notifications)
