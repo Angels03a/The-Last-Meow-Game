@@ -1,7 +1,8 @@
 ﻿namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Identidad de un jugador con la sesión iniciada; es inmutable y no incluye el token.
+    /// Identidad de un jugador con la sesión iniciada; no incluye el token. Solo el registro de sesiones puede
+    /// cambiar el nickname, dentro de su candado, para que todos vean el nombre guardado.
     /// </summary>
     public sealed class PlayerSession
     {
@@ -18,6 +19,6 @@
         public int UserId { get; }
 
         /// <summary>Obtiene el nickname de la cuenta.</summary>
-        public string Nickname { get; }
+        public string Nickname { get; internal set; }
     }
 }

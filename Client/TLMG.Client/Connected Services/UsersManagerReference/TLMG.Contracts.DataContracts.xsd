@@ -42,6 +42,26 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="OperationLogInResult" nillable="true" type="tns:OperationLogInResult" />
+  <xs:complexType name="OperationPlayerProfileResult">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:OperationResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="AvatarKey" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="OperationPlayerProfileResult" nillable="true" type="tns:OperationPlayerProfileResult" />
+  <xs:complexType name="OperationUpdatePlayerProfileRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AvatarKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SessionToken" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationUpdatePlayerProfileRequest" nillable="true" type="tns:OperationUpdatePlayerProfileRequest" />
   <xs:complexType name="OperationGetLeaderboardResult">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:OperationResult">

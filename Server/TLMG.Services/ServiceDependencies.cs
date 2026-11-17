@@ -15,6 +15,7 @@ namespace TLMG.Services
         public ISessionRegistry SessionRegistry { get; set; }
         public PlayerAccountRegistrationService RegistrationService { get; set; }
         public PlayerLogInService LogInService { get; set; }
+        public PlayerProfileService ProfileService { get; set; }
         public ChatService ChatService { get; set; }
         public FriendsService FriendsService { get; set; }
         public LeaderboardService LeaderboardService { get; set; }

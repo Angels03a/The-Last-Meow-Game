@@ -41,10 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants\AvatarCatalog.cs" />
     <Compile Include="Constants\ErrorKeys.cs" />
     <Compile Include="Constants\ValidationRules.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\PlayerLogin.cs" />
+    <Compile Include="Entities\PlayerProfileUpdate.cs" />
     <Compile Include="Entities\PlayerRegistration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AcceptedFriend.cs" />
@@ -63,6 +65,7 @@
     <Compile Include="Repositories\FriendshipWriteStatus.cs" />
     <Compile Include="Repositories\IChatMessageRepository.cs" />
     <Compile Include="Repositories\IFriendshipRepository.cs" />
+    <Compile Include="Repositories\IPlayerProfileRepository.cs" />
     <Compile Include="Repositories\IPlayerRepository.cs" />
     <Compile Include="Repositories\IVerificationCodeRepository.cs" />
     <Compile Include="Repositories\LeaderboardLookup.cs" />
@@ -71,6 +74,9 @@
     <Compile Include="Repositories\PendingRegistrationRecord.cs" />
     <Compile Include="Repositories\PlayerCredentials.cs" />
     <Compile Include="Repositories\PlayerExistenceLookupStatus.cs" />
+    <Compile Include="Repositories\PlayerProfileLookup.cs" />
+    <Compile Include="Repositories\PlayerProfileLookupStatus.cs" />
+    <Compile Include="Repositories\PlayerProfileUpdateStatus.cs" />
     <Compile Include="Repositories\RankedPlayer.cs" />
     <Compile Include="Repositories\VerificationCodeStatus.cs" />
     <Compile Include="Repositories\VerificationCodeType.cs" />
@@ -82,6 +88,7 @@
     <Compile Include="Validators\FriendNicknameValidator.cs" />
     <Compile Include="Validators\PlayerAccountRegistrationValidator.cs" />
     <Compile Include="Validators\PlayerLoginValidator.cs" />
+    <Compile Include="Validators\PlayerProfileValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Engine\" />

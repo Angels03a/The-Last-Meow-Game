@@ -32,16 +32,11 @@ namespace TLMG.Domain.Validators
             return errorKey;
         }
 
-        private static string ValidateNickname(string nickname)
+        public static string ValidateNickname(string nickname)
         {
             string errorKey = null;
-            bool isLengthValid = AccountFieldValidator.IsLengthInRange(
-                nickname,
-                ValidationRules.NicknameMinimumLength,
-                ValidationRules.NicknameMaximumLength);
-            bool isFormatValid = isLengthValid && ValidationRules.NicknameRegex.IsMatch(nickname);
 
-            if (!isFormatValid)
+            if (!AccountFieldValidator.IsNicknameValid(nickname))
             {
                 errorKey = ErrorKeys.CreateAccount.NicknameFormat;
             }
@@ -49,7 +44,7 @@ namespace TLMG.Domain.Validators
             return errorKey;
         }
 
-        private static string ValidateEmail(string email)
+        public static string ValidateEmail(string email)
         {
             string errorKey = null;
 
@@ -61,7 +56,7 @@ namespace TLMG.Domain.Validators
             return errorKey;
         }
 
-        private static string ValidatePassword(string password)
+        public static string ValidatePassword(string password)
         {
             string errorKey = null;
             bool isLengthValid = AccountFieldValidator.IsLengthInRange(

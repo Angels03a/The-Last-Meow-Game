@@ -59,9 +59,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Accounts\AccountVerificationDispatcher.cs" />
+    <Compile Include="Accounts\PlayerProfileService.cs" />
     <Compile Include="ServiceDependencies.cs" />
     <Compile Include="Sessions\ChatReservation.cs" />
     <Compile Include="Sessions\ChatSubmission.cs" />
+    <Compile Include="Sessions\ISessionIdentityProvider.cs" />
     <Compile Include="Sessions\LobbyCaller.cs" />
     <Compile Include="Sessions\SessionRegistry.Chat.cs" />
     <Compile Include="Sessions\ChatDelivery.cs" />
@@ -69,6 +71,7 @@
     <Compile Include="ServiceImplementation.ChatManager.cs" />
     <Compile Include="Chat\ChatService.cs" />
     <Compile Include="Sessions\LobbyStartSnapshot.cs" />
+    <Compile Include="Sessions\SessionRegistry.Identity.cs" />
     <Compile Include="Sessions\SessionRegistry.Readiness.cs" />
     <Compile Include="Lobby\LobbyService.CardsPerPlayer.cs" />
     <Compile Include="Lobby\LobbyService.Readiness.cs" />

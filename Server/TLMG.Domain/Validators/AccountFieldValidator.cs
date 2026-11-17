@@ -15,6 +15,17 @@ namespace TLMG.Domain.Validators
             return isEmailValid;
         }
 
+        public static bool IsNicknameValid(string nickname)
+        {
+            bool isLengthValid = IsLengthInRange(
+                nickname,
+                ValidationRules.NicknameMinimumLength,
+                ValidationRules.NicknameMaximumLength);
+            bool isNicknameValid = isLengthValid && ValidationRules.NicknameRegex.IsMatch(nickname);
+
+            return isNicknameValid;
+        }
+
         public static bool IsLengthInRange(string text, int minimumLength, int maximumLength)
         {
             bool isInRange = false;

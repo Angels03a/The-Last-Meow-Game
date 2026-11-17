@@ -57,5 +57,19 @@ namespace TLMG.Contracts
         [OperationContract]
         [FaultContract(typeof(SystemFault))]
         OperationLogInResult LogIn(OperationLogInRequest operationLogInRequest);
+
+        /// <summary>Returns the profile of the session owner so the screen shows server data, not client state.</summary>
+        /// <param name="sessionToken">Token issued at log in that identifies the player.</param>
+        /// <returns>The profile data or the error key so the client can translate it.</returns>
+        [OperationContract]
+        [FaultContract(typeof(SystemFault))]
+        OperationPlayerProfileResult GetPlayerProfile(string sessionToken);
+
+        /// <summary>Updates nickname and avatar of the session owner in a single request-reply operation.</summary>
+        /// <param name="updateProfileRequest">Session token and the new profile values.</param>
+        /// <returns>Success or the error key so the client can translate it.</returns>
+        [OperationContract]
+        [FaultContract(typeof(SystemFault))]
+        OperationResult UpdatePlayerProfile(OperationUpdatePlayerProfileRequest updateProfileRequest);
     }
 }

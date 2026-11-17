@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:TLMG.Client.Views"
+             xmlns:models="clr-namespace:TLMG.Client.Models"
              mc:Ignorable="d"
              d:DesignHeight="720"
              d:DesignWidth="1280">
@@ -123,42 +124,50 @@
                                            Margin="0,0,0,12" />
                                 <WrapPanel>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}" CommandParameter="🐱">
+                                            Command="{Binding SelectAvatarCommand}"
+                                            CommandParameter="{x:Static models:AvatarCatalog.DefaultAvatarKey}">
                                         <TextBlock Text="🐱" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}" CommandParameter="🧟">
+                                            Command="{Binding SelectAvatarCommand}"
+                                            CommandParameter="{x:Static models:AvatarCatalog.ZombieAvatarKey}">
                                         <TextBlock Text="🧟" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}" CommandParameter="💀">
+                                            Command="{Binding SelectAvatarCommand}"
+                                            CommandParameter="{x:Static models:AvatarCatalog.SkullAvatarKey}">
                                         <TextBlock Text="💀" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}" CommandParameter="🚀">
+                                            Command="{Binding SelectAvatarCommand}"
+                                            CommandParameter="{x:Static models:AvatarCatalog.RocketAvatarKey}">
                                         <TextBlock Text="🚀" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}" CommandParameter="🐯">
+                                            Command="{Binding SelectAvatarCommand}"
+                                            CommandParameter="{x:Static models:AvatarCatalog.TigerAvatarKey}">
                                         <TextBlock Text="🐯" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}" CommandParameter="🦁">
+                                            Command="{Binding SelectAvatarCommand}"
+                                            CommandParameter="{x:Static models:AvatarCatalog.LionAvatarKey}">
                                         <TextBlock Text="🦁" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}" CommandParameter="🐸">
+                                            Command="{Binding SelectAvatarCommand}"
+                                            CommandParameter="{x:Static models:AvatarCatalog.FrogAvatarKey}">
                                         <TextBlock Text="🐸" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
                                     <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}" CommandParameter="👾">
+                                            Command="{Binding SelectAvatarCommand}"
+                                            CommandParameter="{x:Static models:AvatarCatalog.AlienAvatarKey}">
                                         <TextBlock Text="👾" FontSize="32" VerticalAlignment="Center"
                                                    Foreground="{StaticResource Brush_TextPrimary}" />
                                     </Button>
@@ -235,7 +244,7 @@
                             <TextBlock Text="{DynamicResource Profile_EmailTitle}"
                                        Style="{StaticResource SectionTitleStyle}"
                                        Margin="0,0,0,16" />
-                            <TextBlock Text="whiskers@meow.cat"
+                            <TextBlock Text="{Binding Email}"
                                        Style="{StaticResource SidebarProfileUsernameStyle}"
                                        Margin="0,0,0,4" />
                             <TextBlock Text="{DynamicResource Profile_EmailVerified}"

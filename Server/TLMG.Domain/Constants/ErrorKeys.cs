@@ -67,5 +67,12 @@
             public const string RequestAlreadySent = "Friends_RequestAlreadySentError";
             public const string RequestNotValid = "Friends_RequestNotValidError";
         }
+        public static class Profile
+        {
+            public const string NicknameFormat = "Profile_NicknameFormatError";
+            public const string NicknameTaken = "Profile_NicknameTakenError";
+            public const string AvatarNotValid = "Profile_AvatarNotValidError";
+            public const string DataModel = "Profile_DataModelError";
+        }
     }
 }
