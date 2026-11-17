@@ -299,7 +299,7 @@ namespace TLMG.Client.ViewModels
             PlayerRankEntry playerRankEntry = new PlayerRankEntry
             {
                 Rank = rank,
-                AvatarImagePath = ResolveAvatarImagePath(player.ProfileImage),
+                AvatarEmoji = AvatarCatalog.FindEmoji(player.ProfileImage),
                 PlayerName = player.Nickname,
                 Score = player.TotalPoints,
                 Wins = player.TotalWins,
@@ -314,7 +314,7 @@ namespace TLMG.Client.ViewModels
             PlayerRankEntry emptyEntry = new PlayerRankEntry
             {
                 Rank = rank,
-                AvatarImagePath = DefaultProfileImage,
+                AvatarEmoji = AvatarCatalog.FindEmoji(DefaultProfileImage),
                 PlayerName = DefaultPlayerName,
                 Score = DefaultEmptyScore,
                 Wins = DefaultEmptyWins,

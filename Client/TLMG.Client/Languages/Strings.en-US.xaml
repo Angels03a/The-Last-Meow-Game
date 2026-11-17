@@ -392,4 +392,25 @@
     <sys:String x:Key="Common_OutOfMemoryError">The operation could not be completed. Try again later.</sys:String>
     <sys:String x:Key="Leaderboard_EmptyMessage">No ranked players have been recorded yet.</sys:String>
     <sys:String x:Key="Lobby_PlayerDisconnectedMessageFormat">{0} disconnected from the room.</sys:String>
+    <sys:String x:Key="ChangePassword_SidebarTitle">SECURITY</sys:String>
+    <sys:String x:Key="ChangePassword_BackToProfileButton">← Back to Profile</sys:String>
+    <sys:String x:Key="ChangePassword_Title">Change Password</sys:String>
+    <sys:String x:Key="ChangePassword_Subtitle">Update your account password to keep your profile secure.</sys:String>
+    <sys:String x:Key="ChangePassword_VerifiedAccountStatus">Verified account</sys:String>
+    <sys:String x:Key="ChangePassword_CurrentPasswordLabel">Current Password</sys:String>
+    <sys:String x:Key="ChangePassword_NewPasswordLabel">New Password</sys:String>
+    <sys:String x:Key="ChangePassword_RequirementsHeader">PASSWORD REQUIREMENTS</sys:String>
+    <sys:String x:Key="ChangePassword_HintLength">• At least 8 characters (12+ recommended)</sys:String>
+    <sys:String x:Key="ChangePassword_HintUppercase">• At least one uppercase letter</sys:String>
+    <sys:String x:Key="ChangePassword_HintLowercase">• At least one lowercase letter</sys:String>
+    <sys:String x:Key="ChangePassword_HintNumber">• At least one number</sys:String>
+    <sys:String x:Key="ChangePassword_HintSymbol">• At least one special symbol (@, #, $, %, etc.)</sys:String>
+    <sys:String x:Key="ChangePassword_ConfirmPasswordLabel">Confirm New Password</sys:String>
+    <sys:String x:Key="ChangePassword_UpdateButton">Update Password</sys:String>
+    <sys:String x:Key="ChangePassword_CancelButton">Cancel</sys:String>
+    <sys:String x:Key="Profile_NicknameFormatError">Nickname must be between 3 and 12 characters long; only letters, numbers, and underscores are allowed.</sys:String>
+    <sys:String x:Key="Profile_NicknameTakenError">This nickname is already in use</sys:String>
+    <sys:String x:Key="Profile_AvatarNotValidError">The selected avatar is not valid.</sys:String>
+    <sys:String x:Key="Profile_NetworkError">Network error. Please try again later.</sys:String>
+    <sys:String x:Key="Profile_DataModelError">The profile could not be updated. Please try again later.</sys:String>
 </ResourceDictionary>
