@@ -639,16 +639,30 @@ namespace TLMG.Domain.Tests
 
         private static void WithdrawUntilChallengeReady(MatchState match)
         {
-            while (match.Phase == RoundPhase.Betting)
+            int maximumWithdrawals = match.Players.Count;
+
+            for (int withdrawal = 0; withdrawal < maximumWithdrawals && match.Phase == RoundPhase.Betting;
+                withdrawal++)
             {
-                match.WithdrawFromBet(match.PlayerInTurn.PlayerId);
+                int blockingPlayerId = match.PlayerInTurn.PlayerId;
+                BetActionStatus status = match.WithdrawFromBet(blockingPlayerId);
+                Assert.True(status == BetActionStatus.Accepted,
+                    $"El jugador {blockingPlayerId} no pudo retirarse en la ronda {match.RoundNumber}: {status}.");
             }
+
+            Assert.True(match.Phase == RoundPhase.ChallengeReady,
+                $"El reto no quedó listo en la ronda {match.RoundNumber}: fase {match.Phase}, turno de "
+                + $"{match.PlayerInTurn.PlayerId}.");
         }
 
         /// <summary>Quien tiene el turno abre la apuesta y todos los demás se retiran: el que abre apuesta.</summary>
         private static void OpenAndConcede(MatchState match, int betValue)
         {
-            match.OpenBet(match.PlayerInTurn.PlayerId, betValue);
+            int openingPlayerId = match.PlayerInTurn.PlayerId;
+            BetActionStatus openStatus = match.OpenBet(openingPlayerId, betValue);
+            Assert.True(openStatus == BetActionStatus.Accepted,
+                $"El jugador {openingPlayerId} no pudo abrir la apuesta de {betValue} en la ronda "
+                + $"{match.RoundNumber}: {openStatus}.");
             WithdrawUntilChallengeReady(match);
         }
 
@@ -701,10 +715,19 @@ namespace TLMG.Domain.Tests
 
         private static void PlaceSafeCardsUntilTurnOf(MatchState match, int playerId)
         {
-            while (match.PlayerInTurn.PlayerId != playerId)
+            int maximumPlacements = match.Players.Count;
+
+            for (int placement = 0; placement < maximumPlacements && match.PlayerInTurn.PlayerId != playerId;
+                placement++)
             {
-                match.PlaceCard(match.PlayerInTurn.PlayerId, SafeCard);
+                int blockingPlayerId = match.PlayerInTurn.PlayerId;
+                CardPlacementStatus status = match.PlaceCard(blockingPlayerId, SafeCard);
+                Assert.True(status == CardPlacementStatus.Placed,
+                    $"El jugador {blockingPlayerId} no pudo colocar en la ronda {match.RoundNumber}: {status}.");
             }
+
+            Assert.True(match.PlayerInTurn.PlayerId == playerId,
+                $"El turno quedó en {match.PlayerInTurn.PlayerId} en la ronda {match.RoundNumber}, no en {playerId}.");
         }
 
         /// <summary>Orden A, B, C, D; A pierde sus tres seguras y apuesta 1 sobre su último Gato.</summary>
@@ -751,13 +774,18 @@ namespace TLMG.Domain.Tests
         /// <summary>Hasta que B queda eliminado: en cada ronda B apuesta 1 sobre su Gato y pierde una carta.</summary>
         private static void EliminateSecondPlayer(MatchState match)
         {
-            while (!GetPlayer(match, PlayerBId).IsEliminated)
+            int maximumLosses = match.ModeRules.CardsPerPlayerCount;
+
+            for (int loss = 0; loss < maximumLosses && !GetPlayer(match, PlayerBId).IsEliminated; loss++)
             {
                 PlaceInTurn(match, SafeCard, FatalCatCard, SafeCard, SafeCard);
                 OpenAndConcede(match, OneCardBet);
                 match.RevealCard(PlayerBId, PlayerBId, _nowUtc);
                 ChooseSafeCardIfPending(match, PlayerBId);
             }
+
+            Assert.True(GetPlayer(match, PlayerBId).IsEliminated,
+                $"El jugador {PlayerBId} no quedó eliminado en la ronda {match.RoundNumber}.");
         }
 
         private static void ChooseSafeCardIfPending(MatchState match, int playerId)

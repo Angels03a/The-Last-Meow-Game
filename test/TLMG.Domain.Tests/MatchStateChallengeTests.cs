@@ -737,16 +737,30 @@ namespace TLMG.Domain.Tests
 
         private static void WithdrawUntilChallengeReady(MatchState match)
         {
-            while (match.Phase == RoundPhase.Betting)
+            int maximumWithdrawals = match.Players.Count;
+
+            for (int withdrawal = 0; withdrawal < maximumWithdrawals && match.Phase == RoundPhase.Betting;
+                withdrawal++)
             {
-                match.WithdrawFromBet(match.PlayerInTurn.PlayerId);
+                int blockingPlayerId = match.PlayerInTurn.PlayerId;
+                BetActionStatus status = match.WithdrawFromBet(blockingPlayerId);
+                Assert.True(status == BetActionStatus.Accepted,
+                    $"El jugador {blockingPlayerId} no pudo retirarse en la ronda {match.RoundNumber}: {status}.");
             }
+
+            Assert.True(match.Phase == RoundPhase.ChallengeReady,
+                $"El reto no quedó listo en la ronda {match.RoundNumber}: fase {match.Phase}, turno de "
+                + $"{match.PlayerInTurn.PlayerId}.");
         }
 
         /// <summary>Quien tiene el turno abre la apuesta y todos los demás se retiran: el que abre apuesta.</summary>
         private static void OpenAndConcede(MatchState match, int betValue)
         {
-            match.OpenBet(match.PlayerInTurn.PlayerId, betValue);
+            int openingPlayerId = match.PlayerInTurn.PlayerId;
+            BetActionStatus openStatus = match.OpenBet(openingPlayerId, betValue);
+            Assert.True(openStatus == BetActionStatus.Accepted,
+                $"El jugador {openingPlayerId} no pudo abrir la apuesta de {betValue} en la ronda "
+                + $"{match.RoundNumber}: {openStatus}.");
             WithdrawUntilChallengeReady(match);
         }
 
