@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 
@@ -40,7 +41,20 @@ namespace TLMG.Client.Views
         {
             string roundPhaseFormat = TryFindResource(RoundPhaseFormatKey) as string ?? DefaultRoundPhaseFormat;
             string phaseName = TryFindResource(_viewModel.PhaseLabelKey) as string ?? string.Empty;
-            lblRoundPhase.Text = string.Format(roundPhaseFormat, _viewModel.CurrentRoundNumber, phaseName);
+            lblRoundPhase.Text = string.Empty;
+
+            if (_viewModel.HasMatchView)
+            {
+                lblRoundPhase.Text = string.Format(roundPhaseFormat, _viewModel.CurrentRoundNumber, phaseName);
+            }
+        }
+
+        private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs eventArguments)
+        {
+            if (eventArguments.PropertyName == nameof(GameplayViewModel.PhaseLabelKey))
+            {
+                UpdateDynamicLabels();
+            }
         }
 
         private void PnlOpponent_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -73,6 +87,9 @@ namespace TLMG.Client.Views
 
             _viewModel.KickVoteRequested -= OnKickVoteRequested;
             _viewModel.KickVoteRequested += OnKickVoteRequested;
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            UpdateDynamicLabels();
         }
 
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
@@ -80,6 +97,7 @@ namespace TLMG.Client.Views
             _viewModel.Deactivate();
 
             _viewModel.KickVoteRequested -= OnKickVoteRequested;
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
         }
 
         private void OnKickVoteRequested(object sender, EventArgs e)

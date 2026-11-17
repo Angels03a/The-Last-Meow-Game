@@ -12,46 +12,43 @@ namespace TLMG.Client.ViewModels
 {
     public class GameplayViewModel : ViewModelBase
     {
-        private const int CurrentRoundNumberValue = 3;
-        private const int InitialBidAmount = 4;
-        private const int MinimumBidAmount = 1;
-        private const int BidStep = 1;
-        private const int DemoFaceDownCardsOnTable = 6;
-        private const string PhaseBiddingKey = "Gameplay_PhaseBiddingLabel";
+        private const int NoBetAmount = 0;
         private const string ChatEmptyErrorKey = "Lobby_ChatEmptyError";
+        private const string NotInMatchErrorKey = "Match_NotInMatchError";
 
-        private readonly RelayCommand _decreaseBidCommand;
-        private readonly RelayCommand _increaseBidCommand;
         private readonly RelayCommand _sendChatCommand;
+        private readonly RelayCommand<HandCardEntry> _placeCardCommand;
         private readonly INavigationManager _navigation;
         private readonly ILobbyConnection _lobbyConnection;
+        private readonly IMatchConnection _matchConnection;
+        private readonly IDialogManager _dialogs;
         private readonly MatchModeSettings _matchMode;
-        private readonly int _maximumBidAmount;
-        private readonly List<HandCardEntry> _handCards;
         private readonly ObservableCollection<ChatMessageEntry> _chatMessages;
 
-        private int _bidAmount;
-        private int _currentBidAmount;
+        private MatchBoard _board;
+        private bool _isMatchUnavailable;
         private string _selectedPlayerName;
         private string _chatInput;
 
-        public GameplayViewModel(INavigationManager navigation, ILobbyConnection lobbyConnection)
+        public GameplayViewModel(
+            INavigationManager navigation,
+            ILobbyConnection lobbyConnection,
+            IMatchConnection matchConnection,
+            IDialogManager dialogs)
         {
             _navigation = navigation;
             _lobbyConnection = lobbyConnection;
+            _matchConnection = matchConnection;
+            _dialogs = dialogs;
 
             _matchMode = MatchModeSettings.FromCardsPerPlayer(ReadCardsPerPlayer(lobbyConnection));
-            _maximumBidAmount = CalculateMaximumBid(DemoFaceDownCardsOnTable, _matchMode.CardsPerPlayer);
-            _handCards = BuildHandCards(_matchMode);
-            _bidAmount = Math.Min(InitialBidAmount, _maximumBidAmount);
-            _currentBidAmount = InitialBidAmount;
+            _board = MatchBoardHelper.CreateEmptyBoard();
             _selectedPlayerName = string.Empty;
             _chatInput = string.Empty;
             _chatMessages = new ObservableCollection<ChatMessageEntry>();
 
-            _decreaseBidCommand = new RelayCommand(ExecuteDecreaseBid, CanExecuteDecreaseBid);
-            _increaseBidCommand = new RelayCommand(ExecuteIncreaseBid, CanExecuteIncreaseBid);
             _sendChatCommand = new RelayCommand(ExecuteSendChat, CanExecuteSendChat);
+            _placeCardCommand = new RelayCommand<HandCardEntry>(ExecutePlaceCard, CanExecutePlaceCard);
 
             ExitCommand = new RelayCommand(ExecuteExit);
             ReportPlayerCommand = new RelayCommand(ExecuteReportPlayer);
@@ -63,8 +60,7 @@ namespace TLMG.Client.ViewModels
         }
 
         public event EventHandler KickVoteRequested;
-        public ICommand DecreaseBidCommand => _decreaseBidCommand;
-        public ICommand IncreaseBidCommand => _increaseBidCommand;
+        public ICommand PlaceCardCommand => _placeCardCommand;
         public ICommand SendChatCommand => _sendChatCommand;
         public ICommand ExitCommand { get; }
         public ICommand ReportPlayerCommand { get; }
@@ -74,32 +70,44 @@ namespace TLMG.Client.ViewModels
         public ICommand DemoGameOverCommand { get; }
         public ICommand DemoInactivityCommand { get; }
 
-        public int CurrentRoundNumber => CurrentRoundNumberValue;
-        public string PhaseLabelKey => PhaseBiddingKey;
-        public int ChallengesToWin => _matchMode.ChallengesToWin;
-        public bool IsCompactHand => _matchMode.IsCompactHand;
-        public int HandColumnCount => _matchMode.HandColumnCount;
-        public IReadOnlyList<HandCardEntry> HandCards => _handCards;
-        public ObservableCollection<ChatMessageEntry> ChatMessages => _chatMessages;
+        public int CurrentRoundNumber => _board.RoundNumber;
+        public string PhaseLabelKey => _board.PhaseLabelKey;
+        public bool HasMatchView => _board.HasMatchView;
 
-        public int BidAmount
+        /// <summary>Obtiene si la partida dejó de estar disponible y el tablero ya no se muestra actualizado.</summary>
+        public bool IsMatchUnavailable
         {
-            get { return _bidAmount; }
-            private set
+            get { return _isMatchUnavailable; }
+            private set { SetProperty(ref _isMatchUnavailable, value); }
+        }
+
+        /// <summary>Obtiene si se muestran los controles de demostración; no se muestran en una partida real.</summary>
+        public bool IsDemoPanelVisible
+        {
+            get
             {
-                if (SetProperty(ref _bidAmount, value))
-                {
-                    _decreaseBidCommand.NotifyCanExecuteChanged();
-                    _increaseBidCommand.NotifyCanExecuteChanged();
-                }
+                LobbyRoom currentRoom = _lobbyConnection.CurrentRoom;
+                bool isRealMatch = currentRoom != null && currentRoom.MatchId.HasValue;
+
+                return !isRealMatch;
             }
         }
+        public bool IsCompactHand => _matchMode.IsCompactHand;
+        public int HandColumnCount => _matchMode.HandColumnCount;
+        public ObservableCollection<ChatMessageEntry> ChatMessages => _chatMessages;
 
-        public int CurrentBidAmount
+        /// <summary>Obtiene lo que la pantalla dibuja de la última vista aceptada del servidor.</summary>
+        public MatchBoard Board
         {
-            get { return _currentBidAmount; }
-            private set { SetProperty(ref _currentBidAmount, value); }
+            get { return _board; }
+            private set { SetProperty(ref _board, value); }
         }
+
+        /// <summary>Las apuestas llegan en I2b; mientras tanto no hay apuesta ni se simula una.</summary>
+        public int BidAmount => NoBetAmount;
+
+        /// <summary>Las apuestas llegan en I2b; mientras tanto no hay apuesta ni se simula una.</summary>
+        public int CurrentBidAmount => NoBetAmount;
 
         public string SelectedPlayerName
         {
@@ -133,13 +141,21 @@ namespace TLMG.Client.ViewModels
 
             _lobbyConnection.ChatMessageReceived += OnChatMessageReceived;
             _lobbyConnection.ChatAvailabilityChanged += OnChatAvailabilityChanged;
+            _matchConnection.MatchViewChanged += OnMatchViewChanged;
+            _matchConnection.MatchErrorReceived += OnMatchErrorReceived;
+            _matchConnection.MatchAvailabilityChanged += OnMatchAvailabilityChanged;
             _sendChatCommand.NotifyCanExecuteChanged();
+            ShowBoardOf(_matchConnection.CurrentMatchView);
+            SubscribeToMatchIfNeeded();
         }
 
         public void Deactivate()
         {
             _lobbyConnection.ChatMessageReceived -= OnChatMessageReceived;
             _lobbyConnection.ChatAvailabilityChanged -= OnChatAvailabilityChanged;
+            _matchConnection.MatchViewChanged -= OnMatchViewChanged;
+            _matchConnection.MatchErrorReceived -= OnMatchErrorReceived;
+            _matchConnection.MatchAvailabilityChanged -= OnMatchAvailabilityChanged;
             _chatMessages.Clear();
         }
 
@@ -162,49 +178,77 @@ namespace TLMG.Client.ViewModels
             return cardsPerPlayer;
         }
 
-        private static int CalculateMaximumBid(int faceDownCardsOnTable, int cardsPerPlayer)
+        private void SubscribeToMatchIfNeeded()
         {
-            return Math.Min(faceDownCardsOnTable, cardsPerPlayer);
+            bool wasSubscriptionSent = _matchConnection.IsMatchSubscribed || _matchConnection.SubscribeToCurrentMatch();
+
+            if (!wasSubscriptionSent && !IsRealMatchAuthorized())
+            {
+                _dialogs.ShowError(NotInMatchErrorKey);
+            }
         }
 
-        private static List<HandCardEntry> BuildHandCards(MatchModeSettings matchMode)
+        private void ShowBoardOf(MatchView matchView)
         {
-            List<HandCardEntry> handCards = new List<HandCardEntry>();
-            bool isNextSafeCardEgyptian = true;
-
-            for (int safeCardNumber = 0; safeCardNumber < matchMode.SafeCardCount; safeCardNumber++)
+            if (matchView != null)
             {
-                HandCardKind safeCardKind = isNextSafeCardEgyptian ? HandCardKind.Egyptian : HandCardKind.Zombie;
-                handCards.Add(new HandCardEntry { Kind = safeCardKind });
-                isNextSafeCardEgyptian = !isNextSafeCardEgyptian;
+                int localUserId = _lobbyConnection.PlayerUserId;
+                Board = MatchBoardHelper.CreateBoard(matchView, localUserId, _matchMode.CardsPerPlayer);
+                OnPropertyChanged(nameof(CurrentRoundNumber));
+                OnPropertyChanged(nameof(PhaseLabelKey));
+                OnPropertyChanged(nameof(HasMatchView));
             }
 
-            for (int fatalCardNumber = 0; fatalCardNumber < matchMode.FatalCatCount; fatalCardNumber++)
+            _placeCardCommand.NotifyCanExecuteChanged();
+        }
+
+        private void OnMatchViewChanged(object sender, ServerEventArgs<MatchView> eventArgs)
+        {
+            ShowBoardOf(eventArgs.Payload);
+        }
+
+        private void OnMatchErrorReceived(object sender, ServerEventArgs<string> eventArgs)
+        {
+            _dialogs.ShowError(eventArgs.Payload);
+        }
+
+        private bool IsRealMatchAuthorized()
+        {
+            return !IsDemoPanelVisible;
+        }
+
+        /// <summary>
+        /// Al perder la disponibilidad el tablero deja de presentarse como actualizado: se vacía y se avisa al
+        /// jugador. Un fallo del canal de partida no lo saca de la sala ni de la sesión.
+        /// </summary>
+        private void OnMatchAvailabilityChanged(object sender, EventArgs eventArgs)
+        {
+            if (_matchConnection.IsMatchSubscribed)
             {
-                handCards.Add(new HandCardEntry { Kind = HandCardKind.Skull });
+                IsMatchUnavailable = false;
+            }
+            else
+            {
+                IsMatchUnavailable = true;
+                Board = MatchBoardHelper.CreateEmptyBoard();
+                OnPropertyChanged(nameof(CurrentRoundNumber));
+                OnPropertyChanged(nameof(PhaseLabelKey));
+                OnPropertyChanged(nameof(HasMatchView));
             }
 
-            return handCards;
+            _placeCardCommand.NotifyCanExecuteChanged();
         }
 
-        private void ExecuteDecreaseBid()
+        private void ExecutePlaceCard(HandCardEntry handCard)
         {
-            BidAmount -= BidStep;
+            _matchConnection.PlaceCard(MatchBoardHelper.ConvertToServerCard(handCard.Kind));
         }
 
-        private bool CanExecuteDecreaseBid()
+        private bool CanExecutePlaceCard(HandCardEntry handCard)
         {
-            return BidAmount > MinimumBidAmount;
-        }
+            bool canPlaceCard = handCard != null && _board.CanPlaceCards && _matchConnection.IsMatchSubscribed;
 
-        private void ExecuteIncreaseBid()
-        {
-            BidAmount += BidStep;
-        }
-
-        private bool CanExecuteIncreaseBid()
-        {
-            return BidAmount < _maximumBidAmount;
+            return canPlaceCard;
         }
 
         private void ExecuteSendChat()

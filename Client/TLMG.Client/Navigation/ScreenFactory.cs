@@ -27,6 +27,7 @@ namespace TLMG.Client.Navigation
         private readonly IAccountsConnection _accountsConnection;
         private readonly IFriendsConnection _friendsConnection;
         private readonly ILobbyConnection _lobbyConnection;
+        private readonly IMatchConnection _matchConnection;
         private readonly ILeaderboardConnection _leaderboardConnection;
 
         /// <summary>
@@ -37,6 +38,7 @@ namespace TLMG.Client.Navigation
         /// <param name="accountsConnection">Área de cuentas de la conexión con el servidor.</param>
         /// <param name="friendsConnection">Área de amigos de la conexión con el servidor.</param>
         /// <param name="lobbyConnection">Área de sala de la conexión con el servidor.</param>
+        /// <param name="matchConnection">Área de partida de la conexión con el servidor.</param>
         /// <param name="leaderboardConnection">Área de la tabla de posiciones de la conexión con el servidor.</param>
         public ScreenFactory(
             INavigationManager navigation,
@@ -44,6 +46,7 @@ namespace TLMG.Client.Navigation
             IAccountsConnection accountsConnection,
             IFriendsConnection friendsConnection,
             ILobbyConnection lobbyConnection,
+            IMatchConnection matchConnection,
             ILeaderboardConnection leaderboardConnection)
         {
             _navigation = navigation;
@@ -51,6 +54,7 @@ namespace TLMG.Client.Navigation
             _accountsConnection = accountsConnection;
             _friendsConnection = friendsConnection;
             _lobbyConnection = lobbyConnection;
+            _matchConnection = matchConnection;
             _leaderboardConnection = leaderboardConnection;
         }
 
@@ -98,7 +102,11 @@ namespace TLMG.Client.Navigation
                     screenEntry = BuildLeaderboardEntry();
                     break;
                 case ScreenId.Gameplay:
-                    GameplayViewModel gameplayViewModel = new GameplayViewModel(_navigation, _lobbyConnection);
+                    GameplayViewModel gameplayViewModel = new GameplayViewModel(
+                        _navigation,
+                        _lobbyConnection,
+                        _matchConnection,
+                        _dialogs);
                     screenEntry = new ScreenEntry(new GameplayScreen(gameplayViewModel), gameplayViewModel);
                     break;
                 case ScreenId.Moderation:

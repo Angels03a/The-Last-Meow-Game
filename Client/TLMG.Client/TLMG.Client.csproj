@@ -65,6 +65,9 @@
     <Compile Include="Communication\IFriendsConnection.cs" />
     <Compile Include="Communication\ILeaderboardConnection.cs" />
     <Compile Include="Communication\ILobbyConnection.cs" />
+    <Compile Include="Communication\IMatchConnection.cs" />
+    <Compile Include="Communication\MatchViewVersionHelper.cs" />
+    <Compile Include="Communication\ServerConnectionManager.Match.cs" />
     <Compile Include="Communication\LobbyCountdown.cs" />
     <Compile Include="Communication\ServerConnectionManager.Accounts.cs" />
     <Compile Include="Communication\ServerConnectionManager.FriendRequests.cs" />
@@ -86,6 +89,10 @@
     <Compile Include="Models\FriendEntry.cs" />
     <Compile Include="Models\FriendRequestEntry.cs" />
     <Compile Include="Models\HandCardEntry.cs" />
+    <Compile Include="Models\MatchBoard.cs" />
+    <Compile Include="Models\MatchPlayerEntry.cs" />
+    <Compile Include="Models\OpponentSlot.cs" />
+    <Compile Include="Models\PileCardEntry.cs" />
     <Compile Include="Models\HandCardKind.cs" />
     <Compile Include="Models\LobbyPlayerEntry.cs" />
     <Compile Include="Models\MatchModeSettings.cs" />
@@ -111,6 +118,7 @@
     <Compile Include="ViewModels\RoundResultViewModel.cs" />
     <Compile Include="ViewModels\ModerationViewModel.cs" />
     <Compile Include="ViewModels\GameplayViewModel.cs" />
+    <Compile Include="ViewModels\MatchBoardHelper.cs" />
     <Compile Include="ViewModels\HowToPlayViewModel.cs" />
     <Compile Include="ViewModels\LeaderboardViewModel.cs" />
     <Compile Include="ViewModels\LobbyViewModel.cs" />

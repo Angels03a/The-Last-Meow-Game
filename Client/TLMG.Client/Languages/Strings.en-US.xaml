@@ -392,4 +392,18 @@
     <sys:String x:Key="Common_OutOfMemoryError">The operation could not be completed. Try again later.</sys:String>
     <sys:String x:Key="Leaderboard_EmptyMessage">No ranked players have been recorded yet.</sys:String>
     <sys:String x:Key="Lobby_PlayerDisconnectedMessageFormat">{0} disconnected from the room.</sys:String>
+    <sys:String x:Key="Match_NotInMatchError">You are not part of this match.</sys:String>
+    <sys:String x:Key="Match_NotSubscribedError">You are not connected to the match yet.</sys:String>
+    <sys:String x:Key="Match_NotYourTurnError">It is not your turn.</sys:String>
+    <sys:String x:Key="Match_BetInProgressError">A bet is in progress; you can't place cards.</sys:String>
+    <sys:String x:Key="Match_HandEmptyError">You have no cards left in your hand.</sys:String>
+    <sys:String x:Key="Match_CardNotInHandError">You don't have that card in your hand.</sys:String>
+    <sys:String x:Key="Match_PunishmentPendingError">A punishment is pending; wait until it is resolved.</sys:String>
+    <sys:String x:Key="Match_FinishedError">The match has already ended.</sys:String>
+    <sys:String x:Key="Match_CardNotValidError">That card is not valid.</sys:String>
+    <sys:String x:Key="Gameplay_PhasePlacingCardsLabel">Placing cards</sys:String>
+    <sys:String x:Key="Gameplay_PhaseChallengeReadyLabel">Challenge ready</sys:String>
+    <sys:String x:Key="Gameplay_PhasePunishmentPendingLabel">Punishment pending</sys:String>
+    <sys:String x:Key="Gameplay_PhaseMatchFinishedLabel">Match finished</sys:String>
+    <sys:String x:Key="Gameplay_MatchUnavailableLabel">The connection to the match was lost.</sys:String>
 </ResourceDictionary>

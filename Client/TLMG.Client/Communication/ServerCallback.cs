@@ -7,12 +7,12 @@ namespace TLMG.Client.Communication
     /// Recibe los callbacks del servidor en un hilo de WCF y los pasa al hilo de la interfaz como eventos del
     /// ServerConnectionManager que lo creó. No decide nada ni toca controles. UseSynchronizationContext = false evita
     /// el interbloqueo cuando la interfaz llama al servidor mientras espera un callback. Cada canal (amigos, lobby,
-    /// chat y consulta de la tabla de posiciones) crea su propia instancia, y el manager la compara por referencia
-    /// para ignorar lo que llegue de un canal anterior.
+    /// chat, partida y consulta de la tabla de posiciones) crea su propia instancia, y el manager la compara por
+    /// referencia para ignorar lo que llegue de un canal anterior.
     /// </summary>
     [CallbackBehavior(UseSynchronizationContext = false)]
     public sealed class ServerCallback : IFriendsManagerCallback, ILobbyManagerCallback, IChatManagerCallback,
-        ILeaderboardManagerCallback
+        IMatchManagerCallback, ILeaderboardManagerCallback
     {
         private readonly ServerConnectionManager _serverConnection;
 
@@ -53,6 +53,30 @@ namespace TLMG.Client.Communication
         {
             _serverConnection.RunOnInterface(
                 () => _serverConnection.NotifyChatMessageReceived(this, chatResult));
+        }
+
+        /// <summary>Entrega el resultado de suscribirse a la partida mediante el dispatcher de la interfaz.</summary>
+        /// <param name="operationSubscribeToMatchResult">Aceptación o clave de error.</param>
+        public void SubscribeToMatchResult(OperationResult operationSubscribeToMatchResult)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyMatchSubscriptionResult(this, operationSubscribeToMatchResult));
+        }
+
+        /// <summary>Entrega el resultado de colocar una carta mediante el dispatcher de la interfaz.</summary>
+        /// <param name="operationPlaceCardResult">Aceptación o clave de error.</param>
+        public void PlaceCardResult(OperationResult operationPlaceCardResult)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyMatchPlaceCardResult(this, operationPlaceCardResult));
+        }
+
+        /// <summary>Entrega la vista privada de la partida mediante el dispatcher de la interfaz.</summary>
+        /// <param name="matchView">Vista del jugador, con su versión.</param>
+        public void OnMatchViewChanged(MatchView matchView)
+        {
+            _serverConnection.RunOnInterface(
+                () => _serverConnection.NotifyMatchViewReceived(this, matchView));
         }
 
         /// <summary>Entrega el resultado de suscribirse a los amigos.</summary>

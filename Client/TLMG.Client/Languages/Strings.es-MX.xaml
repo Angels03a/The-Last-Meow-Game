@@ -392,4 +392,18 @@
     <sys:String x:Key="Common_OutOfMemoryError">No se pudo completar la operación. Inténtalo más tarde.</sys:String>
     <sys:String x:Key="Leaderboard_EmptyMessage">Aún no hay jugadores registrados en la clasificación.</sys:String>
     <sys:String x:Key="Lobby_PlayerDisconnectedMessageFormat">{0} se desconectó de la sala.</sys:String>
+    <sys:String x:Key="Match_NotInMatchError">No perteneces a esta partida.</sys:String>
+    <sys:String x:Key="Match_NotSubscribedError">Aún no estás conectado a la partida.</sys:String>
+    <sys:String x:Key="Match_NotYourTurnError">No es tu turno.</sys:String>
+    <sys:String x:Key="Match_BetInProgressError">Hay una apuesta en curso; no puedes colocar cartas.</sys:String>
+    <sys:String x:Key="Match_HandEmptyError">Ya no tienes cartas en la mano.</sys:String>
+    <sys:String x:Key="Match_CardNotInHandError">No tienes esa carta en la mano.</sys:String>
+    <sys:String x:Key="Match_PunishmentPendingError">Hay un castigo pendiente; espera a que se resuelva.</sys:String>
+    <sys:String x:Key="Match_FinishedError">La partida ya terminó.</sys:String>
+    <sys:String x:Key="Match_CardNotValidError">Esa carta no es válida.</sys:String>
+    <sys:String x:Key="Gameplay_PhasePlacingCardsLabel">Colocar cartas</sys:String>
+    <sys:String x:Key="Gameplay_PhaseChallengeReadyLabel">Reto listo</sys:String>
+    <sys:String x:Key="Gameplay_PhasePunishmentPendingLabel">Castigo pendiente</sys:String>
+    <sys:String x:Key="Gameplay_PhaseMatchFinishedLabel">Partida terminada</sys:String>
+    <sys:String x:Key="Gameplay_MatchUnavailableLabel">Se perdió la conexión con la partida.</sys:String>
 </ResourceDictionary>

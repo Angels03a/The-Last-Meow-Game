@@ -447,6 +447,7 @@ namespace TLMG.Client.Communication
         private void ClearCurrentRoom()
         {
             CloseChatChannel();
+            CloseMatchChannel();
             Countdown.ResetTimerForMatchStart();
             CurrentRoom = null;
             IsRoomCreationPending = false;
