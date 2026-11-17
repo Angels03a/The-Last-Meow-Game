@@ -9,11 +9,14 @@ namespace TLMG.Domain.Engine
     /// <summary>
     /// Estado de una partida en curso: reglas de la modalidad, jugadores en su orden de turnos y jugador en turno.
     /// Es una biblioteca pura (§4.2): valida y calcula; Services decide qué notificar y guardar. El orden de turnos
-    /// es el de ingreso a la sala y se congela al crear la partida.
+    /// es el de ingreso a la sala y se congela al crear la partida. No es seguro entre hilos: quien la use debe
+    /// serializar cada operación completa sobre una misma partida, incluidas las lecturas.
     /// </summary>
     public sealed partial class MatchState
     {
         private const int NoBetValue = 0;
+        private const int FirstRoundNumber = 1;
+        private const int LastSurvivorCount = 1;
 
         private readonly List<MatchPlayer> _players = new List<MatchPlayer>();
         private int _playerInTurnIndex;
@@ -48,8 +51,17 @@ namespace TLMG.Domain.Engine
         /// <summary>Obtiene a los jugadores en su orden fijo de turnos.</summary>
         public IReadOnlyList<MatchPlayer> Players { get; }
 
-        /// <summary>Obtiene al jugador que tiene el turno; la partida empieza con el primero del orden.</summary>
+        /// <summary>
+        /// Obtiene al jugador que tiene el turno; la partida empieza con el primero del orden. Con la partida terminada
+        /// carece de significado: Phase es MatchFinished y toda acción se rechaza.
+        /// </summary>
         public MatchPlayer PlayerInTurn => _players[_playerInTurnIndex];
+
+        /// <summary>
+        /// Obtiene el número de la ronda en curso; empieza en 1 y solo sube cuando empieza una ronda nueva, incluida la
+        /// que reinicia una salida.
+        /// </summary>
+        public int RoundNumber { get; private set; } = FirstRoundNumber;
 
         /// <summary>Obtiene la fase de la ronda: colocando cartas, apostando o con el reto listo.</summary>
         public RoundPhase Phase { get; private set; }
@@ -61,8 +73,9 @@ namespace TLMG.Domain.Engine
         public MatchPlayer BetLeader { get; private set; }
 
         /// <summary>
-        /// Obtiene la última resolución disponible, o null si todavía no hubo ningún reto. Sigue disponible después de
-        /// cerrarse para consultar la última carta volteada; las acciones permitidas las decide Phase.
+        /// Obtiene la última resolución disponible, o null si todavía no hubo ningún reto o una salida reinició la
+        /// ronda. Sigue disponible después de cerrarse para consultar la última carta volteada; las acciones permitidas
+        /// las decide Phase.
         /// </summary>
         public ChallengeResolution Resolution { get; private set; }
 
@@ -195,20 +208,36 @@ namespace TLMG.Domain.Engine
         /// <summary>El motor solo recibe la hora UTC del servidor; nunca lee el reloj por su cuenta.</summary>
         private static void ValidateUtc(DateTime nowUtc)
         {
-            if (nowUtc.Kind != DateTimeKind.Utc)
-            {
-                throw new ArgumentException("La hora debe ser UTC.", nameof(nowUtc));
-            }
+            PlayerExit.ValidateUtc(nowUtc, nameof(nowUtc));
         }
 
-        /// <summary>Deja la mesa lista para colocar y da el turno al primer jugador activo del orden fijo.</summary>
+        /// <summary>
+        /// Empieza una ronda nueva: sube RoundNumber, deja la mesa lista para colocar y da el turno al primer jugador
+        /// en juego del orden fijo. Es el único punto que cuenta rondas.
+        /// </summary>
         private void StartNextRound()
         {
-            ClearWithdrawals();
+            RoundNumber++;
+            ResetBetting();
             Phase = RoundPhase.PlacingCards;
+            _playerInTurnIndex = _players.FindIndex(player => player.IsInPlay);
+        }
+
+        /// <summary>Deja la apuesta en su valor inicial: sin apuesta, sin líder y sin retiradas.</summary>
+        private void ResetBetting()
+        {
+            ClearWithdrawals();
             CurrentBet = NoBetValue;
             BetLeader = null;
-            _playerInTurnIndex = _players.FindIndex(player => !player.IsEliminated);
+        }
+
+        private bool HasSinglePlayerInPlay() => _players.Count(player => player.IsInPlay) == LastSurvivorCount;
+
+        /// <summary>Termina la partida con la victoria del único jugador que sigue en juego (No. 9b).</summary>
+        private void FinishWithLastPlayerInPlay()
+        {
+            Winner = _players.First(player => player.IsInPlay);
+            Phase = RoundPhase.MatchFinished;
         }
 
         private void ClearWithdrawals()
@@ -219,16 +248,28 @@ namespace TLMG.Domain.Engine
             }
         }
 
-        /// <summary>Pasa el turno al siguiente jugador activo del orden; quien coloca siempre lo está.</summary>
+        /// <summary>Pasa el turno al siguiente jugador en juego del orden; quien coloca siempre lo está.</summary>
         private void MoveToNextActivePlayer()
         {
             do
             {
                 _playerInTurnIndex = (_playerInTurnIndex + 1) % _players.Count;
             }
-            while (PlayerInTurn.IsEliminated);
+            while (!PlayerInTurn.IsInPlay);
         }
 
-        private MatchPlayer FindPlayer(int playerId) => _players.FirstOrDefault(player => player.PlayerId == playerId);
+        /// <summary>Busca a un jugador de la partida; quien ya salió no está en ella para ninguna acción.</summary>
+        private MatchPlayer FindPlayer(int playerId)
+        {
+            MatchPlayer participant = FindParticipant(playerId);
+            MatchPlayer player = null;
+
+            if (participant != null && !participant.HasLeftMatch)
+            {
+                player = participant;
+            }
+
+            return player;
+        }
     }
 }

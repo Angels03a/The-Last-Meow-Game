@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace TLMG.Domain.Engine
 {
     public sealed partial class MatchState
     {
-        private const int LastSurvivorCount = 1;
-
         /// <summary>Obtiene el último castigo aplicado, con la carta que se perdió, o null si no hubo.</summary>
         public PendingPunishment LastPunishment { get; private set; }
 
@@ -171,7 +168,7 @@ namespace TLMG.Domain.Engine
 
         /// <summary>
         /// Quita la carta, registra la eliminación si el castigado quedó sin vidas y comprueba el fin: con un solo
-        /// jugador activo gana él; si no, empieza la siguiente ronda con el primer jugador activo del orden.
+        /// jugador en juego gana él; si no, empieza la siguiente ronda con el primer jugador en juego del orden.
         /// </summary>
         private void ApplyPunishment(int cardIndex)
         {
@@ -185,10 +182,10 @@ namespace TLMG.Domain.Engine
                 _eliminatedPlayers.Add(punishment.PunishedPlayer);
             }
 
-            if (_players.Count(player => !player.IsEliminated) == LastSurvivorCount)
+            if (HasSinglePlayerInPlay())
             {
-                Winner = _players.First(player => !player.IsEliminated);
-                Phase = RoundPhase.MatchFinished;
+                ResetBetting();
+                FinishWithLastPlayerInPlay();
             }
             else
             {

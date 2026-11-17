@@ -46,6 +46,18 @@ namespace TLMG.Domain.Engine
         /// </summary>
         public bool IsEliminated => Lives == NoLives;
 
+        /// <summary>
+        /// Obtiene la salida del jugador de la partida (abandono, desconexión no recuperada o votación), o null
+        /// mientras sigue en ella.
+        /// </summary>
+        public PlayerExit Exit { get; internal set; }
+
+        /// <summary>Obtiene si el jugador salió de la partida; sigue en Players, pero ya no participa.</summary>
+        public bool HasLeftMatch => Exit != null;
+
+        /// <summary>Obtiene si el jugador sigue en juego: ni eliminado ni salido de la partida.</summary>
+        public bool IsInPlay => !IsEliminated && !HasLeftMatch;
+
         /// <summary>Obtiene si el jugador se retiró de la apuesta en curso y ya no participa en ella.</summary>
         public bool HasWithdrawnFromBet { get; internal set; }
 

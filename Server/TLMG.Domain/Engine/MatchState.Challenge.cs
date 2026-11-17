@@ -79,6 +79,7 @@ namespace TLMG.Domain.Engine
             if (bettor.SuccessfulChallengeCount >= ModeRules.SuccessfulChallengesToWin)
             {
                 Winner = bettor;
+                ResetBetting();
                 Phase = RoundPhase.MatchFinished;
             }
             else

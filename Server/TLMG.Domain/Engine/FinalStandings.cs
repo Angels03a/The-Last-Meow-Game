@@ -8,7 +8,7 @@ namespace TLMG.Domain.Engine
 {
     /// <summary>
     /// Tabla final de una partida terminada (Reglas 5.0.1 a 5.0.4): posiciones sin empates y puntos de cada jugador.
-    /// Solo lee la API pública de MatchState y no la modifica. El marcador acumulado y los abandonos no son de aquí.
+    /// Solo lee la API pública de MatchState y no la modifica. El marcador acumulado no es de aquí.
     /// </summary>
     public sealed class FinalStandings
     {
@@ -30,9 +30,10 @@ namespace TLMG.Domain.Engine
         public IReadOnlyList<PlayerStanding> Standings { get; }
 
         /// <summary>
-        /// Calcula la tabla final de una partida terminada. Todos los jugadores cuentan para la base. Los invitados
-        /// conservan su posición y cobran 0. Si la partida no ha terminado, se rechaza sin cambiar nada. Si un
-        /// identificador de invitado se repite, se toma una sola vez.
+        /// Calcula la tabla final de una partida terminada. Cuentan para la base todos los que no salieron de la
+        /// partida, invitados incluidos; quienes salieron van al final con 0 puntos. Los invitados conservan su
+        /// posición y cobran 0. Si la partida no ha terminado, se rechaza sin cambiar nada. Si un identificador de
+        /// invitado se repite, se toma una sola vez.
         /// </summary>
         /// <param name="match">Partida de la que se calcula la tabla.</param>
         /// <param name="guestPlayerIds">
@@ -87,41 +88,47 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Ordena a los jugadores por posición final (Reglas 5.0.4): el ganador; después quienes siguen en la partida,
-        /// por más retos, más vidas y menor secuencia del último éxito; al final los eliminados, del más tardío al
-        /// primero. El ordenamiento es estable, así que el último desempate es el orden de turnos.
+        /// Ordena a los jugadores por posición final (Reglas 5.0.4): el ganador; después quienes siguen en juego, por
+        /// más retos, más vidas y menor secuencia del último éxito; luego los eliminados, del más tardío al primero; al
+        /// final quienes salieron, por salida efectiva más tardía y luego por inicio más tardío (H-11). El
+        /// ordenamiento es estable, así que el último desempate es el orden de turnos.
         /// </summary>
         private static List<MatchPlayer> OrderPlayersByPosition(MatchState match)
         {
             List<MatchPlayer> playersByPosition = new List<MatchPlayer> { match.Winner };
 
             playersByPosition.AddRange(match.Players
-                .Where(player => !player.IsEliminated && !ReferenceEquals(player, match.Winner))
+                .Where(player => player.IsInPlay && !ReferenceEquals(player, match.Winner))
                 .OrderByDescending(player => player.SuccessfulChallengeCount)
                 .ThenByDescending(player => player.Lives)
                 .ThenBy(player => player.LastSuccessfulChallengeSequence));
             playersByPosition.AddRange(match.EliminatedPlayers.Reverse());
+            playersByPosition.AddRange(match.Players
+                .Where(player => player.HasLeftMatch)
+                .OrderByDescending(player => player.Exit.EffectiveAtUtc)
+                .ThenByDescending(player => player.Exit.StartedAtUtc));
 
             return playersByPosition;
         }
 
         /// <summary>
-        /// Arma una fila por jugador en orden de posición. Todos cuentan para la base; el invitado conserva su posición
-        /// y cobra 0.
+        /// Arma una fila por jugador en orden de posición. Cuentan para la base quienes no salieron; el invitado
+        /// conserva su posición y cobra 0, y quien salió cobra 0 sin pasar por CalculatePoints (Reglas 5.0.2).
         /// </summary>
         private static IReadOnlyList<PlayerStanding> CreateStandings(MatchState match, HashSet<int> guestIds)
         {
             List<MatchPlayer> playersByPosition = OrderPlayersByPosition(match);
             List<PlayerStanding> standings = new List<PlayerStanding>();
+            int countedPlayerCount = match.Players.Count(player => !player.HasLeftMatch);
 
             foreach (MatchPlayer player in playersByPosition)
             {
                 int position = standings.Count + FirstPosition;
                 int points = GuestPoints;
 
-                if (!guestIds.Contains(player.PlayerId))
+                if (!player.HasLeftMatch && !guestIds.Contains(player.PlayerId))
                 {
-                    points = CalculatePoints(position, playersByPosition.Count, match.ModeRules);
+                    points = CalculatePoints(position, countedPlayerCount, match.ModeRules);
                 }
 
                 standings.Add(new PlayerStanding(player.PlayerId, position, points));

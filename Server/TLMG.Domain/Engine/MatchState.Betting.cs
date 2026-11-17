@@ -167,8 +167,8 @@ namespace TLMG.Domain.Engine
 
         private int CountRemainingBettors() => _players.Count(player => IsBetting(player));
 
-        /// <summary>Indica si el jugador sigue en la apuesta en curso: no se retiró ni está eliminado.</summary>
-        private static bool IsBetting(MatchPlayer player) => !player.HasWithdrawnFromBet && !player.IsEliminated;
+        /// <summary>Indica si el jugador sigue en la apuesta en curso: no se retiró y sigue en juego.</summary>
+        private static bool IsBetting(MatchPlayer player) => !player.HasWithdrawnFromBet && player.IsInPlay;
 
         /// <summary>Pasa el turno al siguiente del orden que sigue en la apuesta; siempre queda alguno.</summary>
         private void MoveToNextBettor()

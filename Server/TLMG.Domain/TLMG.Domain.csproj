@@ -55,9 +55,12 @@
     <Compile Include="Engine\MatchPlayer.cs" />
     <Compile Include="Engine\MatchState.Betting.cs" />
     <Compile Include="Engine\MatchState.Challenge.cs" />
+    <Compile Include="Engine\MatchState.Exit.cs" />
     <Compile Include="Engine\MatchState.cs" />
     <Compile Include="Engine\MatchState.Punishment.cs" />
     <Compile Include="Engine\PendingPunishment.cs" />
+    <Compile Include="Engine\PlayerExit.cs" />
+    <Compile Include="Engine\PlayerExitStatus.cs" />
     <Compile Include="Engine\PlayerStanding.cs" />
     <Compile Include="Engine\PunishmentStatus.cs" />
     <Compile Include="Engine\RoundPhase.cs" />
