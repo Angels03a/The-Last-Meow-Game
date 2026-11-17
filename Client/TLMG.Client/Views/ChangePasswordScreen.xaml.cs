@@ -1,28 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Lógica de interacción para ChangePasswordScreen.xaml
+    /// Vista de la pantalla de cambio de contraseña del jugador.
     /// </summary>
-    public partial class ChangePasswordScreen : Page
+    public partial class ChangePasswordScreen : LocalizableScreen
     {
-        public ChangePasswordScreen()
+        /// <summary>
+        /// Inicializa una nueva instancia de la clase <see cref="ChangePasswordScreen"/> con su ViewModel.
+        /// </summary>
+        /// <param name="changePasswordViewModel">ViewModel que la fábrica de pantallas crea e inyecta.</param>
+        public ChangePasswordScreen(ChangePasswordViewModel changePasswordViewModel)
         {
             InitializeComponent();
+            DataContext = changePasswordViewModel;
         }
     }
 }
