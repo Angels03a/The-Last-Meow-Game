@@ -1966,6 +1966,9 @@
 
     <Style x:Key="GameplayModerationHintTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="11" />
+        <Setter Property="MaxWidth" Value="190" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextAlignment" Value="Right" />
         <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />
         <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="VerticalAlignment" Value="Top" />
@@ -2001,13 +2004,13 @@
     <Style x:Key="GameplayOpponentTopLeftPanelStyle" TargetType="StackPanel">
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Top" />
-        <Setter Property="Margin" Value="220,14,0,0" />
+        <Setter Property="Margin" Value="240,14,0,0" />
     </Style>
 
     <Style x:Key="GameplayOpponentTopRightPanelStyle" TargetType="StackPanel">
         <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="VerticalAlignment" Value="Top" />
-        <Setter Property="Margin" Value="0,14,220,0" />
+        <Setter Property="Margin" Value="0,14,240,0" />
     </Style>
 
     <Style x:Key="GameplayAvatarGridStyle" TargetType="Grid">
@@ -2056,6 +2059,10 @@
         <Setter Property="Foreground" Value="{StaticResource Brush_TextMuted}" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="Margin" Value="0,6,0,8" />
+    </Style>
+
+    <Style x:Key="GameplayMiniCardsHostStyle" TargetType="ItemsControl">
+        <Setter Property="MinHeight" Value="28" />
     </Style>
 
     <Style x:Key="GameplayMiniCardsPanelStyle" TargetType="StackPanel">

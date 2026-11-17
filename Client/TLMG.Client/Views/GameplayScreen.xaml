@@ -15,6 +15,15 @@
 
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
+            <Style x:Key="OpponentSlotContentStyle" TargetType="ContentControl">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Content, RelativeSource={RelativeSource Self}}"
+                                 Value="{x:Null}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
             <DataTemplate x:Key="PileCardTemplate">
                 <Border Style="{StaticResource GameplayMiniCardBorderStyle}">
                     <TextBlock Text="{Binding Symbol}"
@@ -61,7 +70,8 @@
                     <TextBlock Text="{Binding Nickname}"
                                Style="{StaticResource GameplayPlayerNameTextStyle}" />
                     <ItemsControl ItemsSource="{Binding PileCards}"
-                                  ItemTemplate="{StaticResource PileCardTemplate}">
+                                  ItemTemplate="{StaticResource PileCardTemplate}"
+                                  Style="{StaticResource GameplayMiniCardsHostStyle}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}" />
@@ -182,27 +192,32 @@
 
                 <StackPanel Style="{StaticResource GameplayOpponentLeftPanelStyle}">
                     <ContentControl Content="{Binding Board.OpponentLeft}"
-                                    ContentTemplate="{StaticResource OpponentTemplate}" />
+                                    ContentTemplate="{StaticResource OpponentTemplate}"
+                                    Style="{StaticResource OpponentSlotContentStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource GameplayOpponentTopLeftPanelStyle}">
                     <ContentControl Content="{Binding Board.OpponentTopLeft}"
-                                    ContentTemplate="{StaticResource OpponentTemplate}" />
+                                    ContentTemplate="{StaticResource OpponentTemplate}"
+                                    Style="{StaticResource OpponentSlotContentStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource GameplayOpponentTopPanelStyle}">
                     <ContentControl Content="{Binding Board.OpponentTop}"
-                                    ContentTemplate="{StaticResource OpponentTemplate}" />
+                                    ContentTemplate="{StaticResource OpponentTemplate}"
+                                    Style="{StaticResource OpponentSlotContentStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource GameplayOpponentTopRightPanelStyle}">
                     <ContentControl Content="{Binding Board.OpponentTopRight}"
-                                    ContentTemplate="{StaticResource OpponentTemplate}" />
+                                    ContentTemplate="{StaticResource OpponentTemplate}"
+                                    Style="{StaticResource OpponentSlotContentStyle}" />
                 </StackPanel>
 
                 <StackPanel Style="{StaticResource GameplayOpponentRightPanelStyle}">
                     <ContentControl Content="{Binding Board.OpponentRight}"
-                                    ContentTemplate="{StaticResource OpponentTemplate}" />
+                                    ContentTemplate="{StaticResource OpponentTemplate}"
+                                    Style="{StaticResource OpponentSlotContentStyle}" />
                 </StackPanel>
 
                 <Border x:Name="brdPlayerContextMenu" Style="{StaticResource GameplayContextMenuBorderStyle}">
@@ -252,7 +267,8 @@
                         <TextBlock Text="{Binding Board.LocalPlayer.Nickname}"
                                    Style="{StaticResource GameplayLocalPlayerNameTextStyle}" />
                         <ItemsControl ItemsSource="{Binding Board.OwnPileCards}"
-                                      ItemTemplate="{StaticResource PileCardTemplate}">
+                                      ItemTemplate="{StaticResource PileCardTemplate}"
+                                      Style="{StaticResource GameplayMiniCardsHostStyle}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}" />
