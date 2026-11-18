@@ -69,6 +69,22 @@
                 <Setter Property="MaxWidth" Value="140" />
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
             </Style>
+            <Style x:Key="PunishmentCardButtonStyle" TargetType="Button"
+                   BasedOn="{StaticResource GameplayHandCardItemButtonStyle}">
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled" Value="True">
+                        <Setter Property="Cursor" Value="Hand" />
+                    </Trigger>
+                    <MultiTrigger>
+                        <MultiTrigger.Conditions>
+                            <Condition Property="IsEnabled" Value="True" />
+                            <Condition Property="IsMouseOver" Value="True" />
+                        </MultiTrigger.Conditions>
+                        <Setter Property="BorderBrush" Value="{StaticResource Brush_White}" />
+                        <Setter Property="BorderThickness" Value="3" />
+                    </MultiTrigger>
+                </Style.Triggers>
+            </Style>
             <DataTemplate x:Key="PileCardTemplate">
                 <Border Style="{StaticResource ReadablePileCardStyle}">
                     <TextBlock Text="{Binding Symbol}"
@@ -458,6 +474,75 @@
             </Border>
         </Grid>
 
+        <Border Grid.Column="0" Panel.ZIndex="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Style="{StaticResource ModalBorderStyle}"
+                Visibility="{Binding Board.HasPunishment, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel Margin="20" MaxWidth="650">
+                <TextBlock Text="{DynamicResource Gameplay_PunishmentTitle}" FontSize="22" FontWeight="Bold"
+                           Foreground="{StaticResource Brush_White}" HorizontalAlignment="Center" />
+                <TextBlock FontSize="16" Foreground="{StaticResource Brush_White}" Margin="0,10,0,0">
+                    <Run Text="{DynamicResource Gameplay_PunishmentChooser}" />
+                    <Run Text="{Binding Board.PunishmentChooserName, Mode=OneWay}" />
+                </TextBlock>
+                <TextBlock FontSize="16" Foreground="{StaticResource Brush_White}">
+                    <Run Text="{DynamicResource Gameplay_PunishmentTarget}" />
+                    <Run Text="{Binding Board.PunishedPlayerName, Mode=OneWay}" />
+                </TextBlock>
+                <TextBlock Text="{DynamicResource Gameplay_PunishmentDeadline}" FontSize="14" TextWrapping="Wrap"
+                           Foreground="{StaticResource Brush_White}" Margin="0,8,0,8" />
+                <TextBlock FontSize="16" FontWeight="Bold" Foreground="{StaticResource Brush_White}"
+                           Margin="0,0,0,8"
+                           Visibility="{Binding Board.CanChoosePunishment,
+                               Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="{DynamicResource Gameplay_PunishmentChooseOwn}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Board.IsBlindPunishment}" Value="True">
+                                    <Setter Property="Text" Value="{DynamicResource Gameplay_PunishmentChooseBlind}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>                <ItemsControl ItemsSource="{Binding Board.PunishmentCards}"
+                              Visibility="{Binding Board.CanChoosePunishment,
+                                  Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel HorizontalAlignment="Center" /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Command="{Binding DataContext.ChoosePunishmentCommand,
+                                        RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding}" Style="{StaticResource PunishmentCardButtonStyle}">
+                                <Grid>
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource GameplayHandCardItemEmojiStyle}"
+                                                   Foreground="{StaticResource Brush_White}" />
+                                        <TextBlock Style="{StaticResource GameplayHandCardItemLabelStyle}"
+                                                   Foreground="{StaticResource Brush_White}" />
+                                    </StackPanel>
+                                    <Border Background="{StaticResource Brush_BackgroundDark}">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsBlind}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="🎴" FontSize="28" Foreground="{StaticResource Brush_White}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
         <Border Grid.Column="1" Style="{StaticResource SidePanelRightBorderStyle}">
             <Grid>
                 <Grid.RowDefinitions>

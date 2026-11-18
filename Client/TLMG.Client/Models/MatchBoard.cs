@@ -56,6 +56,24 @@ namespace TLMG.Client.Models
         /// <summary>Resultado del reto recibido del servidor.</summary>
         public TLMG.Client.UsersManagerReference.MatchChallengeOutcome ChallengeOutcome { get; set; }
 
+        /// <summary>Indica si hay un castigo pendiente.</summary>
+        public bool HasPunishment { get; set; }
+
+        /// <summary>Permiso publicado para elegir una carta.</summary>
+        public bool CanChoosePunishment { get; set; }
+
+        /// <summary>Indica si la elección es a ciegas.</summary>
+        public bool IsBlindPunishment { get; set; }
+
+        /// <summary>Nombre de quien elige.</summary>
+        public string PunishmentChooserName { get; set; }
+
+        /// <summary>Nombre de quien recibe el castigo.</summary>
+        public string PunishedPlayerName { get; set; }
+
+        /// <summary>Posiciones disponibles para el destinatario autorizado.</summary>
+        public IReadOnlyList<HandCardEntry> PunishmentCards { get; set; }
+
         /// <summary>Todos los jugadores, en su orden fijo de turnos.</summary>
         public IReadOnlyList<MatchPlayerEntry> Players { get; set; }
 

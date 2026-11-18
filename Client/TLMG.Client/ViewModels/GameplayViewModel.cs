@@ -17,6 +17,7 @@ namespace TLMG.Client.ViewModels
 
         private readonly RelayCommand _sendChatCommand;
         private readonly RelayCommand<HandCardEntry> _placeCardCommand;
+        private readonly RelayCommand<HandCardEntry> _choosePunishmentCommand;
         private readonly RelayCommand<MatchPlayerEntry> _revealCardCommand;
         private readonly RelayCommand _placeBetCommand;
         private readonly RelayCommand _withdrawBetCommand;
@@ -54,6 +55,7 @@ namespace TLMG.Client.ViewModels
 
             _sendChatCommand = new RelayCommand(ExecuteSendChat, CanExecuteSendChat);
             _placeCardCommand = new RelayCommand<HandCardEntry>(ExecutePlaceCard, CanExecutePlaceCard);
+            _choosePunishmentCommand = new RelayCommand<HandCardEntry>(ExecuteChoosePunishment, CanChoosePunishment);
             _revealCardCommand = new RelayCommand<MatchPlayerEntry>(ExecuteRevealCard, CanExecuteRevealCard);
             _placeBetCommand = new RelayCommand(ExecutePlaceBet, CanExecutePlaceBet);
             _withdrawBetCommand = new RelayCommand(ExecuteWithdrawBet, CanExecuteWithdrawBet);
@@ -71,6 +73,7 @@ namespace TLMG.Client.ViewModels
 
         public event EventHandler KickVoteRequested;
         public ICommand PlaceCardCommand => _placeCardCommand;
+        public ICommand ChoosePunishmentCommand => _choosePunishmentCommand;
         public ICommand RevealCardCommand => _revealCardCommand;
         public ICommand PlaceBetCommand => _placeBetCommand;
         public ICommand WithdrawBetCommand => _withdrawBetCommand;
@@ -223,6 +226,7 @@ namespace TLMG.Client.ViewModels
             }
 
             _placeCardCommand.NotifyCanExecuteChanged();
+            _choosePunishmentCommand.NotifyCanExecuteChanged();
             _revealCardCommand.NotifyCanExecuteChanged();
             if (Board.CanPlaceBet && Board.MinimumBetValue <= Board.MaximumBetValue)
             {
@@ -272,6 +276,7 @@ namespace TLMG.Client.ViewModels
             }
 
             _placeCardCommand.NotifyCanExecuteChanged();
+            _choosePunishmentCommand.NotifyCanExecuteChanged();
             _revealCardCommand.NotifyCanExecuteChanged();
             if (Board.CanPlaceBet && Board.MinimumBetValue <= Board.MaximumBetValue)
             {
@@ -342,6 +347,16 @@ namespace TLMG.Client.ViewModels
         private void ExecuteRevealCard(MatchPlayerEntry player)
         {
             _matchConnection.RevealCard(player.UserId);
+        }
+
+        private bool CanChoosePunishment(HandCardEntry card)
+        {
+            return card != null && _matchConnection.IsMatchSubscribed && Board.CanChoosePunishment;
+        }
+
+        private void ExecuteChoosePunishment(HandCardEntry card)
+        {
+            _matchConnection.ChoosePunishmentCard(card.Index);
         }
 
         private void ExecutePlaceCard(HandCardEntry handCard)

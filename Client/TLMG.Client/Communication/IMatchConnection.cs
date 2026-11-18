@@ -43,5 +43,8 @@ namespace TLMG.Client.Communication
 
         /// <summary>Solicita revelar la carta superior de una pila.</summary>
         bool RevealCard(int pileOwnerUserId);
+
+        /// <summary>Envía la posición elegida para el castigo.</summary>
+        bool ChoosePunishmentCard(int cardIndex);
     }
 }

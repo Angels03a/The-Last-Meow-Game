@@ -100,6 +100,29 @@ namespace TLMG.Client.ViewModels
                 board.Players = players.AsReadOnly();
                 board.LocalPlayer = players.FirstOrDefault(player => player.UserId == localUserId);
                 board.HandCards = CreateHandCards(matchView.OwnHandCards);
+                if (matchView.Punishment != null)
+                {
+                    board.HasPunishment = true;
+                    board.IsBlindPunishment = matchView.Punishment.IsBlindChoice;
+                    board.CanChoosePunishment = matchView.CanChoosePunishmentCard;
+                    board.PunishmentChooserName = players.FirstOrDefault(
+                        player => player.UserId == matchView.Punishment.ChooserUserId)?.Nickname ?? string.Empty;
+                    board.PunishedPlayerName = players.FirstOrDefault(
+                        player => player.UserId == matchView.Punishment.PunishedUserId)?.Nickname ?? string.Empty;
+                    if (board.CanChoosePunishment)
+                    {
+                        if (matchView.Punishment.IsBlindChoice)
+                        {
+                            board.PunishmentCards = Enumerable.Range(0, matchView.Punishment.CardSlotCount)
+                                .Select(index => new HandCardEntry { Index = index, IsBlind = true }).ToList().AsReadOnly();
+                        }
+                        else
+                        {
+                            board.PunishmentCards = board.HandCards.Select((card, index) =>
+                                new HandCardEntry { Index = index, Kind = card.Kind }).ToList().AsReadOnly();
+                        }
+                    }
+                }
                 board.OwnPileCards = board.LocalPlayer?.PileCards ?? new List<PileCardEntry>().AsReadOnly();
                 AssignOpponents(board, players, localUserId);
             }

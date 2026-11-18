@@ -101,6 +101,19 @@ namespace TLMG.Client.Communication
             return wasSent;
         }
 
+        /// <inheritdoc />
+        public bool ChoosePunishmentCard(int cardIndex)
+        {
+            bool wasSent = false;
+            if (_matchClient != null && IsMatchSubscribed)
+            {
+                wasSent = TrySendToMatchChannel(
+                    () => _matchClient.ChoosePunishmentCard(_sessionToken, cardIndex), "elegir una carta");
+            }
+
+            return wasSent;
+        }
+
         internal void NotifyMatchSubscriptionResult(ServerCallback callback, OperationResult subscriptionResult)
         {
             if (IsCurrentMatchCallback(callback) && subscriptionResult != null)

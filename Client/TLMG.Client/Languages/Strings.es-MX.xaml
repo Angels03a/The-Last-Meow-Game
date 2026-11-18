@@ -425,4 +425,13 @@
     <sys:String x:Key="Match_OwnPileFirstError">Primero revela tu propia pila.</sys:String>
     <sys:String x:Key="Match_PileEmptyError">No quedan cartas por revelar en esa pila.</sys:String>
     <sys:String x:Key="Gameplay_HiddenCardsLabel" xml:space="preserve">Ocultas: </sys:String>
+    <sys:String x:Key="Gameplay_PunishmentTitle" xml:space="preserve">Castigo pendiente</sys:String>
+    <sys:String x:Key="Gameplay_PunishmentChooser" xml:space="preserve">Elige: </sys:String>
+    <sys:String x:Key="Gameplay_PunishmentTarget" xml:space="preserve">Castigado: </sys:String>
+    <sys:String x:Key="Gameplay_PunishmentDeadline" xml:space="preserve">El servidor resuelve el castigo al vencer el plazo.</sys:String>
+    <sys:String x:Key="Match_NoPunishmentPendingError" xml:space="preserve">Ya no hay un castigo pendiente.</sys:String>
+    <sys:String x:Key="Match_NotTheChooserError" xml:space="preserve">Solo quien elige puede seleccionar una carta.</sys:String>
+    <sys:String x:Key="Match_CardIndexNotValidError" xml:space="preserve">La posición seleccionada no es válida.</sys:String>
+    <sys:String x:Key="Gameplay_PunishmentChooseOwn">Elige una carta para perder</sys:String>
+    <sys:String x:Key="Gameplay_PunishmentChooseBlind">Elige una carta boca abajo</sys:String>
 </ResourceDictionary>
