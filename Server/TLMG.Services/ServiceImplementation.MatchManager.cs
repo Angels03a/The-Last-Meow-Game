@@ -35,6 +35,28 @@ namespace TLMG.Services
             SafeNotifyAll(placeCardResult.Notifications);
         }
 
+        public void PlaceBet(string sessionToken, int betValue)
+        {
+            IMatchManagerCallback callback = GetMatchCallback();
+
+            ResultWithNotification<OperationResult> placeBetResult =
+                _matchService.PlaceBet(CreateMatchCaller(sessionToken), betValue);
+
+            SafeNotify(() => callback.PlaceBetResult(placeBetResult.OperationResult));
+            SafeNotifyAll(placeBetResult.Notifications);
+        }
+
+        public void WithdrawFromBet(string sessionToken)
+        {
+            IMatchManagerCallback callback = GetMatchCallback();
+
+            ResultWithNotification<OperationResult> withdrawFromBetResult =
+                _matchService.WithdrawFromBet(CreateMatchCaller(sessionToken));
+
+            SafeNotify(() => callback.WithdrawFromBetResult(withdrawFromBetResult.OperationResult));
+            SafeNotifyAll(withdrawFromBetResult.Notifications);
+        }
+
         private IMatchManagerCallback GetMatchCallback()
         {
             ObserveMatchChannel();

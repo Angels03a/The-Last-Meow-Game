@@ -60,6 +60,29 @@ namespace TLMG.Services.Match
             return placeCardResult;
         }
 
+        /// <summary>Abre o sube una apuesta y prepara la vista de cada suscrito.</summary>
+        /// <param name="caller">Token y canal de partida de quien pide.</param>
+        /// <param name="betValue">Cartas que declara poder voltear.</param>
+        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
+        public ResultWithNotification<OperationResult> PlaceBet(LobbyCaller caller, int betValue)
+        {
+            MatchDelivery matchDelivery = _sessionRegistry.PlaceBet(caller, betValue);
+            ResultWithNotification<OperationResult> placeBetResult = CreateResult(matchDelivery);
+
+            return placeBetResult;
+        }
+
+        /// <summary>Retira al jugador de la apuesta y prepara la vista de cada suscrito.</summary>
+        /// <param name="caller">Token y canal de partida de quien pide.</param>
+        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
+        public ResultWithNotification<OperationResult> WithdrawFromBet(LobbyCaller caller)
+        {
+            MatchDelivery matchDelivery = _sessionRegistry.WithdrawFromBet(caller);
+            ResultWithNotification<OperationResult> withdrawFromBetResult = CreateResult(matchDelivery);
+
+            return withdrawFromBetResult;
+        }
+
         /// <summary>Quita la suscripción de un canal de partida cerrado o fallido, sin tocar la partida.</summary>
         /// <param name="channelId">Canal que se cerró o falló.</param>
         /// <param name="closedCallback">Callback que tenía ese canal.</param>

@@ -32,5 +32,20 @@ namespace TLMG.Services.Match
 
         /// <summary>El tipo de carta recibido no existe.</summary>
         public const string CardNotValid = "Match_CardNotValidError";
+
+        /// <summary>No hay una apuesta en curso: no se puede subir ni retirarse.</summary>
+        public const string NoBetInProgress = "Match_NoBetInProgressError";
+
+        /// <summary>No hay cartas boca abajo en la mesa: no se puede apostar.</summary>
+        public const string TableEmpty = "Match_TableEmptyError";
+
+        /// <summary>Con la mano vacía solo se puede apostar exactamente 1.</summary>
+        public const string EmptyHandBet = "Match_EmptyHandBetError";
+
+        /// <summary>La apuesta está fuera del rango permitido o no supera la actual.</summary>
+        public const string BetValueNotValid = "Match_BetValueNotValidError";
+
+        /// <summary>Para abrir una apuesta hay que haber colocado antes una carta propia en la ronda.</summary>
+        public const string NoCardPlaced = "Match_NoCardPlacedError";
     }
 }

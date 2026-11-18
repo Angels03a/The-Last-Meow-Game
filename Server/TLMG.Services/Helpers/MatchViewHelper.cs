@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Constants;
 using TLMG.Domain.Engine;
 using TLMG.Services.Match;
 using TLMG.Services.Sessions;
@@ -39,6 +40,21 @@ namespace TLMG.Services.Helpers
                 { RoundPhase.ChallengeReady, MatchRoundPhase.ChallengeReady },
                 { RoundPhase.PunishmentPending, MatchRoundPhase.PunishmentPending },
                 { RoundPhase.MatchFinished, MatchRoundPhase.MatchFinished }
+            };
+
+        private static readonly Dictionary<BetActionStatus, string> _errorKeysByBetStatus =
+            new Dictionary<BetActionStatus, string>
+            {
+                { BetActionStatus.PlayerNotInMatch, MatchErrorKeys.NotInMatch },
+                { BetActionStatus.NotPlayersTurn, MatchErrorKeys.NotYourTurn },
+                { BetActionStatus.BetInProgress, MatchErrorKeys.BetInProgress },
+                { BetActionStatus.NoBetInProgress, MatchErrorKeys.NoBetInProgress },
+                { BetActionStatus.TableEmpty, MatchErrorKeys.TableEmpty },
+                { BetActionStatus.EmptyHandRequiresBetOfOne, MatchErrorKeys.EmptyHandBet },
+                { BetActionStatus.BetValueNotValid, MatchErrorKeys.BetValueNotValid },
+                { BetActionStatus.NoCardPlacedInRound, MatchErrorKeys.NoCardPlaced },
+                { BetActionStatus.PunishmentPending, MatchErrorKeys.PunishmentPending },
+                { BetActionStatus.MatchFinished, MatchErrorKeys.MatchFinished }
             };
 
         private static readonly Dictionary<CardPlacementStatus, string> _errorKeysByPlacementStatus =
@@ -117,6 +133,25 @@ namespace TLMG.Services.Helpers
             bool isValid = _engineCardsByContractCard.TryGetValue(contractCard, out engineCard);
 
             return isValid;
+        }
+
+        /// <summary>Traduce el estado devuelto por el motor al abrir, subir o retirarse de una apuesta.</summary>
+        /// <param name="betStatus">Resultado del motor.</param>
+        /// <returns>null si la acción se aplicó; la clave de error en cualquier otro caso.</returns>
+        internal static string ConvertToErrorKey(BetActionStatus betStatus)
+        {
+            string errorKey;
+
+            if (betStatus == BetActionStatus.Accepted)
+            {
+                errorKey = null;
+            }
+            else if (!_errorKeysByBetStatus.TryGetValue(betStatus, out errorKey))
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
+
+            return errorKey;
         }
 
         /// <summary>Traduce el estado devuelto por el motor al colocar una carta.</summary>

@@ -71,6 +71,37 @@ namespace TLMG.Services.Sessions
         }
 
         /// <summary>
+        /// Autoriza y abre o sube una apuesta: si ya hay una en curso la sube, y si no, intenta abrirla. Abrir borra
+        /// el desenlace del reto anterior.
+        /// </summary>
+        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
+        /// <param name="betValue">Cartas que el jugador declara poder voltear.</param>
+        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        public MatchDelivery PlaceBet(LobbyCaller caller, int betValue)
+        {
+            MatchAction placeBetAction =
+                (matchRecord, userId, nowUtc) => PlaceBetInEngineInLock(matchRecord, userId, betValue);
+            MatchDelivery matchDelivery = RunMatchAction(caller, placeBetAction);
+
+            return matchDelivery;
+        }
+
+        /// <summary>
+        /// Autoriza y retira al jugador de la apuesta. Si queda un solo apostador, el reto queda listo y el registro
+        /// empieza a anotar su desenlace.
+        /// </summary>
+        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
+        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        public MatchDelivery WithdrawFromBet(LobbyCaller caller)
+        {
+            MatchAction withdrawAction =
+                (matchRecord, userId, nowUtc) => WithdrawFromBetInEngineInLock(matchRecord, userId);
+            MatchDelivery matchDelivery = RunMatchAction(caller, withdrawAction);
+
+            return matchDelivery;
+        }
+
+        /// <summary>
         /// Único camino de las acciones de juego: autoriza, revisa los plazos vencidos con la hora real y aplica la
         /// acción al motor, todo bajo _sessionsLock. Si el estado cambió (por la acción o por un plazo vencido) sube
         /// la versión una sola vez y arma una vista por cada suscrito; el rechazo de la acción no deshace un plazo
@@ -318,6 +349,45 @@ namespace TLMG.Services.Sessions
                 {
                     matchRecord.LastChallenge = null;
                 }
+            }
+
+            return errorKey;
+        }
+
+        private string PlaceBetInEngineInLock(MatchRecord matchRecord, int userId, int betValue)
+        {
+            MatchState matchState = matchRecord.MatchState;
+            bool isOpening = matchState.Phase != RoundPhase.Betting;
+            BetActionStatus betStatus;
+
+            if (isOpening)
+            {
+                betStatus = matchState.OpenBet(userId, betValue);
+            }
+            else
+            {
+                betStatus = matchState.RaiseBet(userId, betValue);
+            }
+
+            string errorKey = MatchViewHelper.ConvertToErrorKey(betStatus);
+
+            if (errorKey == null && isOpening)
+            {
+                matchRecord.LastChallenge = null;
+            }
+
+            return errorKey;
+        }
+
+        private string WithdrawFromBetInEngineInLock(MatchRecord matchRecord, int userId)
+        {
+            MatchState matchState = matchRecord.MatchState;
+            string errorKey = MatchViewHelper.ConvertToErrorKey(matchState.WithdrawFromBet(userId));
+
+            if (errorKey == null && matchState.Phase == RoundPhase.ChallengeReady)
+            {
+                matchRecord.LastChallenge =
+                    MatchChallengeRecord.Begin(matchState.BetLeader.PlayerId, matchState.CurrentBet);
             }
 
             return errorKey;

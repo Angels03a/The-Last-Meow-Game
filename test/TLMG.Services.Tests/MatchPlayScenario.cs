@@ -123,6 +123,25 @@ namespace TLMG.Services.Tests
             return Registry.PlaceCard(MatchCallerOf(userId), cardKind);
         }
 
+        internal MatchDelivery PlaceBet(int userId, int betValue)
+        {
+            return Registry.PlaceBet(MatchCallerOf(userId), betValue);
+        }
+
+        internal MatchDelivery Withdraw(int userId)
+        {
+            return Registry.WithdrawFromBet(MatchCallerOf(userId));
+        }
+
+        /// <summary>Cada jugador coloca una carta segura en su turno, empezando por el creador.</summary>
+        internal void PlaceOneSafeCardEach()
+        {
+            foreach (int userId in UserIds)
+            {
+                Place(userId, MatchCardKind.Safe);
+            }
+        }
+
         /// <summary>Vista actual del jugador, leída al volver a suscribirlo con su callback.</summary>
         internal MatchView ReadViewAs(int userId)
         {

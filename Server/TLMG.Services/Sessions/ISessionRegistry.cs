@@ -196,6 +196,24 @@ namespace TLMG.Services.Sessions
         MatchDelivery PlaceCard(LobbyCaller caller, MatchCardKind card);
 
         /// <summary>
+        /// Autoriza y abre o sube una apuesta en la partida a la que está suscrito el canal; la fase decide cuál de las
+        /// dos es. Si el motor la rechaza no cambia nada; si la acepta sube la versión y devuelve una vista por cada
+        /// suscrito.
+        /// </summary>
+        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
+        /// <param name="betValue">Cartas que el jugador declara poder voltear.</param>
+        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        MatchDelivery PlaceBet(LobbyCaller caller, int betValue);
+
+        /// <summary>
+        /// Autoriza y retira al jugador de la apuesta en curso. Con un solo apostador restante el reto queda listo y su
+        /// desenlace empieza a registrarse.
+        /// </summary>
+        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
+        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        MatchDelivery WithdrawFromBet(LobbyCaller caller);
+
+        /// <summary>
         /// Quita solo el callback de partida del canal que se cerró o falló, si sigue siendo el registrado. No
         /// modifica la partida ni la sala.
         /// </summary>
