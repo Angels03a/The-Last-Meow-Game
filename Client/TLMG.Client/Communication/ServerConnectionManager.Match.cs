@@ -88,6 +88,19 @@ namespace TLMG.Client.Communication
             return wasSent;
         }
 
+        /// <inheritdoc />
+        public bool RevealCard(int pileOwnerUserId)
+        {
+            bool wasSent = false;
+            if (_matchClient != null && IsMatchSubscribed)
+            {
+                wasSent = TrySendToMatchChannel(
+                    () => _matchClient.RevealCard(_sessionToken, pileOwnerUserId), "revelar una carta");
+            }
+
+            return wasSent;
+        }
+
         internal void NotifyMatchSubscriptionResult(ServerCallback callback, OperationResult subscriptionResult)
         {
             if (IsCurrentMatchCallback(callback) && subscriptionResult != null)

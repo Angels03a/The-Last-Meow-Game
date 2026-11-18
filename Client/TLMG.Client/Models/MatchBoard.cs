@@ -41,6 +41,21 @@ namespace TLMG.Client.Models
         /// <summary>Nombre del líder de la apuesta, cuando existe.</summary>
         public string BetLeaderName { get; set; }
 
+        /// <summary>Indica si el servidor permite solicitar una revelación.</summary>
+        public bool CanRevealCard { get; set; }
+
+        /// <summary>Indica si hay información pública de un reto.</summary>
+        public bool HasChallenge { get; set; }
+
+        /// <summary>Cartas reveladas durante el reto.</summary>
+        public int RevealedCount { get; set; }
+
+        /// <summary>Cantidad prometida por el apostador.</summary>
+        public int PromisedCount { get; set; }
+
+        /// <summary>Resultado del reto recibido del servidor.</summary>
+        public TLMG.Client.UsersManagerReference.MatchChallengeOutcome ChallengeOutcome { get; set; }
+
         /// <summary>Todos los jugadores, en su orden fijo de turnos.</summary>
         public IReadOnlyList<MatchPlayerEntry> Players { get; set; }
 

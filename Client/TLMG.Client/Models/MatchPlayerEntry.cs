@@ -20,6 +20,9 @@ namespace TLMG.Client.Models
         /// <summary>Cartas que tiene boca abajo en su pila.</summary>
         public int PileCardCount { get; set; }
 
+        /// <summary>Cartas de la pila que todavía están ocultas.</summary>
+        public int HiddenPileCardCount { get; set; }
+
         /// <summary>Vidas del jugador: las cartas de la mano más las de la pila.</summary>
         public int LivesCount { get; set; }
 

@@ -414,4 +414,15 @@
     <sys:String x:Key="Match_BetValueNotValidError">The bet value is invalid.</sys:String>
     <sys:String x:Key="Match_NoCardPlacedError">Place a card first.</sys:String>
     <sys:String x:Key="Gameplay_TableHintBetting">RAISE THE BET OR WITHDRAW</sys:String>
+    <sys:String x:Key="Gameplay_RevealPile">Reveal a card from this pile</sys:String>
+    <sys:String x:Key="Gameplay_RevealProgress">Revealed:</sys:String>
+    <sys:String x:Key="Gameplay_ChallengeInProgress">Challenge in progress</sys:String>
+    <sys:String x:Key="Gameplay_ChallengeSucceeded">Challenge succeeded</sys:String>
+    <sys:String x:Key="Gameplay_ChallengeFailed">Challenge failed</sys:String>
+    <sys:String x:Key="Match_NoChallengeError">There is no challenge in progress.</sys:String>
+    <sys:String x:Key="Match_NotTheBettorError">Only the bettor can reveal.</sys:String>
+    <sys:String x:Key="Match_PileOwnerNotInMatchError">The pile owner is not in the match.</sys:String>
+    <sys:String x:Key="Match_OwnPileFirstError">Reveal your own pile first.</sys:String>
+    <sys:String x:Key="Match_PileEmptyError">There are no cards left to reveal in that pile.</sys:String>
+    <sys:String x:Key="Gameplay_HiddenCardsLabel" xml:space="preserve">Hidden: </sys:String>
 </ResourceDictionary>

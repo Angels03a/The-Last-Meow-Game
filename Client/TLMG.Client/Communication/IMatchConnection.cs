@@ -40,5 +40,8 @@ namespace TLMG.Client.Communication
 
         /// <summary>Solicita retirarse de la apuesta en curso.</summary>
         bool WithdrawFromBet();
+
+        /// <summary>Solicita revelar la carta superior de una pila.</summary>
+        bool RevealCard(int pileOwnerUserId);
     }
 }

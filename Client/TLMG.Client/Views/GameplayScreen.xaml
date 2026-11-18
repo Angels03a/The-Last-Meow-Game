@@ -24,10 +24,55 @@
                 </Style.Triggers>
             </Style>
 
+            <Style x:Key="PileButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}">
+                                <ContentPresenter />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding CommandParameter.PileCards.Count, RelativeSource={RelativeSource Self}}"
+                                 Value="0">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding CommandParameter, RelativeSource={RelativeSource Self}}"
+                                 Value="{x:Null}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="ReadablePileCardStyle" TargetType="Border"
+                   BasedOn="{StaticResource GameplayMiniCardBorderStyle}">
+                <Setter Property="Width" Value="56" />
+                <Setter Property="Height" Value="76" />
+                <Setter Property="Margin" Value="2,0" />
+                <Setter Property="BorderBrush" Value="{StaticResource Brush_AccentLight}" />
+                <Setter Property="BorderThickness" Value="2" />
+            </Style>
+            <Style x:Key="ReadablePileSymbolStyle" TargetType="TextBlock"
+                   BasedOn="{StaticResource GameplayMiniCardEmojiStyle}">
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="Foreground" Value="{StaticResource Brush_White}" />
+                <Setter Property="FontWeight" Value="Bold" />
+            </Style>
+            <Style x:Key="ReadablePlayerNameStyle" TargetType="TextBlock"
+                   BasedOn="{StaticResource GameplayPlayerNameTextStyle}">
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Foreground" Value="{StaticResource Brush_White}" />
+                <Setter Property="MaxWidth" Value="140" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            </Style>
             <DataTemplate x:Key="PileCardTemplate">
-                <Border Style="{StaticResource GameplayMiniCardBorderStyle}">
+                <Border Style="{StaticResource ReadablePileCardStyle}">
                     <TextBlock Text="{Binding Symbol}"
-                               Style="{StaticResource GameplayMiniCardEmojiStyle}" />
+                               Style="{StaticResource ReadablePileSymbolStyle}" />
                 </Border>
             </DataTemplate>
 
@@ -42,7 +87,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0"
                                Text="🐱"
-                               Style="{StaticResource GameplayScoreboardEmojiStyle}" />
+                               Style="{StaticResource GameplayScoreboardEmojiStyle}" Foreground="{StaticResource Brush_White}" />
                     <TextBlock Grid.Column="1"
                                Text="{Binding Nickname}"
                                TextTrimming="CharacterEllipsis"
@@ -55,7 +100,7 @@
                     </TextBlock>
                     <TextBlock Grid.Column="3"
                                Text="🎯"
-                               Style="{StaticResource GameplayScoreboardEmojiStyle}"
+                               Style="{StaticResource GameplayScoreboardEmojiStyle}" Foreground="{StaticResource Brush_White}"
                                Visibility="{Binding IsInTurn,
                                    Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </Grid>
@@ -68,10 +113,10 @@
                     <Grid Style="{StaticResource GameplayAvatarGridStyle}">
                         <Border Style="{StaticResource GameplayAvatarBorderStyle}">
                             <TextBlock Text="🐱"
-                                       Style="{StaticResource GameplayAvatarEmojiStyle}" />
+                                       Style="{StaticResource GameplayAvatarEmojiStyle}" Foreground="{StaticResource Brush_White}" />
                         </Border>
                         <TextBlock Text="🎯"
-                                   Style="{StaticResource GameplayTurnMarkerTextStyle}"
+                                   Style="{StaticResource GameplayTurnMarkerTextStyle}" Foreground="{StaticResource Brush_White}"
                                    Visibility="{Binding IsInTurn,
                                        Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <Border Style="{StaticResource GameplayWinBadgeBorderStyle}">
@@ -80,16 +125,29 @@
                         </Border>
                     </Grid>
                     <TextBlock Text="{Binding Nickname}"
-                               Style="{StaticResource GameplayPlayerNameTextStyle}" />
-                    <ItemsControl ItemsSource="{Binding PileCards}"
-                                  ItemTemplate="{StaticResource PileCardTemplate}"
-                                  Style="{StaticResource GameplayMiniCardsHostStyle}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
+                               Style="{StaticResource ReadablePlayerNameStyle}" />
+                    <Button Style="{StaticResource PileButtonStyle}"
+                            Command="{Binding DataContext.RevealCardCommand,
+                                     RelativeSource={RelativeSource AncestorType={x:Type local:LocalizableScreen}}}"
+                            CommandParameter="{Binding}"
+                            ToolTip="{DynamicResource Gameplay_RevealPile}">
+                        <Viewbox MaxWidth="140" MaxHeight="76" Stretch="Uniform" StretchDirection="DownOnly">
+                            <ItemsControl ItemsSource="{Binding PileCards}"
+                                      ItemTemplate="{StaticResource PileCardTemplate}"
+                                      Style="{StaticResource GameplayMiniCardsHostStyle}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </Viewbox>
+                    </Button>
+                    <TextBlock HorizontalAlignment="Center" Foreground="{StaticResource Brush_White}"
+                               FontSize="14" FontWeight="SemiBold">
+                        <Run Text="{DynamicResource Gameplay_HiddenCardsLabel}" />
+                        <Run Text="{Binding HiddenPileCardCount, Mode=OneWay}" />
+                    </TextBlock>
                     <TextBlock Text="{Binding HandCardCount, StringFormat='🃏 {0}'}"
                                HorizontalAlignment="Center"
                                Style="{StaticResource GameplayMiniCardEmojiStyle}" />
@@ -176,25 +234,31 @@
                         </TextBlock.Style>
                     </TextBlock>
 
-                    <StackPanel Style="{StaticResource GameplayCenterCardsPanelStyle}">
-                        <Border Style="{StaticResource GameplayCenterCardFirstStyle}">
-                            <TextBlock Text="🎴"
-                                       Style="{StaticResource GameplayCenterCardEmojiStyle}" />
-                        </Border>
-                        <Border Style="{StaticResource GameplayCenterCardSecondStyle}">
-                            <TextBlock Text="🎴"
-                                       Style="{StaticResource GameplayCenterCardEmojiStyle}" />
-                        </Border>
-                        <Border Style="{StaticResource GameplayCenterCardThirdStyle}">
-                            <TextBlock Text="🎴"
-                                       Style="{StaticResource GameplayCenterCardEmojiStyle}" />
-                        </Border>
-                        <Border Style="{StaticResource GameplayCenterCardFourthStyle}">
-                            <TextBlock Text="🎴"
-                                       Style="{StaticResource GameplayCenterCardEmojiStyle}" />
-                        </Border>
+                    <StackPanel Style="{StaticResource GameplayCenterCardsPanelStyle}" Orientation="Vertical"
+                                Visibility="{Binding Board.HasChallenge,
+                                    Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Style="{StaticResource GameplayCurrentBidLabelStyle}">
+                            <Run Text="{DynamicResource Gameplay_RevealProgress}" />
+                            <Run Text="{Binding Board.RevealedCount, Mode=OneWay}" />
+                            <Run Text="/" />
+                            <Run Text="{Binding Board.PromisedCount, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource GameplayCurrentBidLabelStyle}">
+                                    <Setter Property="Text" Value="{DynamicResource Gameplay_ChallengeInProgress}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Board.ChallengeOutcome}" Value="Succeeded">
+                                            <Setter Property="Text" Value="{DynamicResource Gameplay_ChallengeSucceeded}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Board.ChallengeOutcome}" Value="Failed">
+                                            <Setter Property="Text" Value="{DynamicResource Gameplay_ChallengeFailed}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </StackPanel>
-
                     <Border Style="{StaticResource GameplayCurrentBidBorderStyle}">
                         <StackPanel Style="{StaticResource GameplayCurrentBidPanelStyle}">
                             <TextBlock Text="{DynamicResource Gameplay_CurrentBidLabel}"
@@ -282,10 +346,10 @@
                         <Grid Style="{StaticResource GameplayLocalAvatarGridStyle}">
                             <Border Style="{StaticResource GameplayLocalAvatarBorderStyle}">
                                 <TextBlock Text="🐱"
-                                           Style="{StaticResource GameplayLocalAvatarEmojiStyle}" />
+                                           Style="{StaticResource GameplayLocalAvatarEmojiStyle}" Foreground="{StaticResource Brush_White}" />
                             </Border>
                             <TextBlock Text="🎯"
-                                       Style="{StaticResource GameplayTurnMarkerTextStyle}"
+                                       Style="{StaticResource GameplayTurnMarkerTextStyle}" Foreground="{StaticResource Brush_White}"
                                        Visibility="{Binding Board.IsLocalPlayerTurn,
                                            Converter={StaticResource BooleanToVisibilityConverter}}" />
                             <Border Style="{StaticResource GameplayWinBadgeBorderStyle}">
@@ -294,16 +358,27 @@
                             </Border>
                         </Grid>
                         <TextBlock Text="{Binding Board.LocalPlayer.Nickname}"
-                                   Style="{StaticResource GameplayLocalPlayerNameTextStyle}" />
-                        <ItemsControl ItemsSource="{Binding Board.OwnPileCards}"
-                                      ItemTemplate="{StaticResource PileCardTemplate}"
-                                      Style="{StaticResource GameplayMiniCardsHostStyle}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
+                                   Style="{StaticResource GameplayLocalPlayerNameTextStyle}" Foreground="{StaticResource Brush_White}" FontSize="14" />
+                        <TextBlock HorizontalAlignment="Center" Foreground="{StaticResource Brush_White}"
+                                   FontSize="14" FontWeight="SemiBold">
+                            <Run Text="{DynamicResource Gameplay_HiddenCardsLabel}" />
+                            <Run Text="{Binding Board.LocalPlayer.HiddenPileCardCount, Mode=OneWay}" />
+                        </TextBlock>
+                        <Button Style="{StaticResource PileButtonStyle}"
+                                Command="{Binding RevealCardCommand}" CommandParameter="{Binding Board.LocalPlayer}"
+                                ToolTip="{DynamicResource Gameplay_RevealPile}">
+                            <Viewbox MaxWidth="140" MaxHeight="76" Stretch="Uniform" StretchDirection="DownOnly">
+                                <ItemsControl ItemsSource="{Binding Board.OwnPileCards}"
+                                          ItemTemplate="{StaticResource PileCardTemplate}"
+                                          Style="{StaticResource GameplayMiniCardsHostStyle}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </Viewbox>
+                        </Button>
                     </StackPanel>
 
                     <Grid Grid.Column="2" VerticalAlignment="Center">
@@ -333,8 +408,8 @@
                                                 RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             CommandParameter="{Binding}">
                                         <StackPanel>
-                                            <TextBlock Style="{StaticResource GameplayHandCardItemEmojiStyle}" />
-                                            <TextBlock Style="{StaticResource GameplayHandCardItemLabelStyle}" />
+                                            <TextBlock Style="{StaticResource GameplayHandCardItemEmojiStyle}" Foreground="{StaticResource Brush_White}" />
+                                            <TextBlock Style="{StaticResource GameplayHandCardItemLabelStyle}" Foreground="{StaticResource Brush_White}" />
                                         </StackPanel>
                                     </Button>
                                 </DataTemplate>

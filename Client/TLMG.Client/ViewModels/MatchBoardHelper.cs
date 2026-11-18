@@ -12,7 +12,7 @@ namespace TLMG.Client.ViewModels
     /// </summary>
     public static class MatchBoardHelper
     {
-        private const string SafeCardSymbol = "🎴";
+        private const string SafeCardSymbol = "✅";
         private const string FatalCatSymbol = "☠️";
         private const string FaceDownCardSymbol = "🎴";
         private const string PlacingCardsLabelKey = "Gameplay_PhasePlacingCardsLabel";
@@ -83,6 +83,14 @@ namespace TLMG.Client.ViewModels
                 board.IsLocalPlayerTurn = isLocalPlayerTurn;
                 board.CanPlaceCards = matchView.CanPlaceCard;
                 board.CanPlaceBet = matchView.CanPlaceBet;
+                board.CanRevealCard = matchView.CanRevealCard;
+                board.HasChallenge = matchView.Challenge != null;
+                if (matchView.Challenge != null)
+                {
+                    board.RevealedCount = matchView.Challenge.RevealedCards?.Length ?? 0;
+                    board.PromisedCount = matchView.Challenge.PromisedCount;
+                    board.ChallengeOutcome = matchView.Challenge.Outcome;
+                }
                 board.CanWithdrawFromBet = matchView.CanWithdrawFromBet;
                 board.CurrentBet = matchView.CurrentBet;
                 board.MinimumBetValue = matchView.MinimumBetValue;
@@ -92,7 +100,7 @@ namespace TLMG.Client.ViewModels
                 board.Players = players.AsReadOnly();
                 board.LocalPlayer = players.FirstOrDefault(player => player.UserId == localUserId);
                 board.HandCards = CreateHandCards(matchView.OwnHandCards);
-                board.OwnPileCards = CreateOwnPileCards(matchView.OwnPileCards);
+                board.OwnPileCards = board.LocalPlayer?.PileCards ?? new List<PileCardEntry>().AsReadOnly();
                 AssignOpponents(board, players, localUserId);
             }
 
@@ -194,37 +202,28 @@ namespace TLMG.Client.ViewModels
                     Nickname = playerView.Nickname,
                     HandCardCount = playerView.HandCardCount,
                     PileCardCount = playerView.PileCardCount,
+                    HiddenPileCardCount = System.Math.Max(0,
+                        playerView.PileCardCount - (playerView.RevealedPileCards?.Length ?? 0)),
                     LivesCount = playerView.HandCardCount + playerView.PileCardCount,
                     MaximumLivesCount = cardsPerPlayer,
                     IsEliminated = playerView.IsEliminated,
                     IsInTurn = playerView.UserId == matchView.PlayerInTurnUserId,
-                    PileCards = CreateFaceDownPile(playerView.PileCardCount)
+                    PileCards = CreatePublicPile(playerView)
                 });
             }
 
             return players;
         }
 
-        private static IReadOnlyList<PileCardEntry> CreateFaceDownPile(int pileCardCount)
+        private static IReadOnlyList<PileCardEntry> CreatePublicPile(MatchPlayerView player)
         {
-            IReadOnlyList<PileCardEntry> faceDownPile = Enumerable.Range(0, pileCardCount)
-                .Select(cardNumber => new PileCardEntry { Symbol = FaceDownCardSymbol })
-                .ToList()
-                .AsReadOnly();
-
-            return faceDownPile;
+            MatchCardKind[] revealedCards = player.RevealedPileCards ?? new MatchCardKind[0];
+            int hiddenCount = System.Math.Max(0, player.PileCardCount - revealedCards.Length);
+            List<PileCardEntry> pile = Enumerable.Range(0, hiddenCount)
+                .Select(cardNumber => new PileCardEntry { Symbol = FaceDownCardSymbol }).ToList();
+            pile.AddRange(revealedCards.Select(card => new PileCardEntry { Symbol = FindSymbol(card) }));
+            return pile.AsReadOnly();
         }
-
-        private static IReadOnlyList<PileCardEntry> CreateOwnPileCards(IEnumerable<MatchCardKind> ownPileCards)
-        {
-            IReadOnlyList<PileCardEntry> pile = (ownPileCards ?? Enumerable.Empty<MatchCardKind>())
-                .Select(cardKind => new PileCardEntry { Symbol = FindSymbol(cardKind) })
-                .ToList()
-                .AsReadOnly();
-
-            return pile;
-        }
-
         private static string FindSymbol(MatchCardKind cardKind)
         {
             string symbol = SafeCardSymbol;

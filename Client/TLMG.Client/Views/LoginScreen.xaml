@@ -27,21 +27,6 @@
         <Grid Grid.Column="0" Background="{StaticResource Brush_BackgroundDark}">
             <Ellipse Style="{StaticResource HeroBackgroundGlowStyle}" />
 
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Top"
-                        Margin="0,24,24,0"
-                        Panel.ZIndex="10">
-                <Button x:Name="btnLanguageEnglish"
-                        Content="EN-US"
-                        Style="{StaticResource LanguageButtonInactiveStyle}"
-                        Command="{Binding ChangeToEnglishCommand}" />
-                <Button x:Name="btnLanguageSpanish"
-                        Content="ES-MX"
-                        Style="{StaticResource LanguageButtonActiveStyle}"
-                        Command="{Binding ChangeToSpanishCommand}" />
-            </StackPanel>
-
             <StackPanel Style="{StaticResource HeroContentPanelStyle}">
                 <StackPanel Style="{StaticResource HeroEmojiRowStyle}">
                     <StackPanel Style="{StaticResource HeroEmojiContainerStyle}">
@@ -72,7 +57,13 @@
         </Grid>
 
         <Border Grid.Column="1" Style="{StaticResource SidePanelBorderStyle}">
-            <StackPanel Style="{StaticResource SidePanelContentStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Style="{StaticResource SidePanelContentStyle}">
                 <Grid Style="{StaticResource AuthenticationTabsGridStyle}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -131,7 +122,23 @@
                 <TextBlock DataContext="{Binding FormMessage}"
                            Text="{Binding Text}"
                            Style="{StaticResource StatusMessageTextStyle}" />
-            </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,24">
+                    <Button Style="{StaticResource LanguageButtonInactiveStyle}"
+                            x:Name="btnLanguageEnglish"
+                            Content="EN-US"
+                            Command="{Binding ChangeToEnglishCommand}" />
+                    <Button Style="{StaticResource LanguageButtonActiveStyle}"
+                            x:Name="btnLanguageSpanish"
+                            Content="ES-MX"
+                            Margin="0"
+                            Command="{Binding ChangeToSpanishCommand}" />
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </local:LocalizableScreen>

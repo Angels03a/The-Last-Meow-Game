@@ -17,6 +17,7 @@ namespace TLMG.Client.ViewModels
 
         private readonly RelayCommand _sendChatCommand;
         private readonly RelayCommand<HandCardEntry> _placeCardCommand;
+        private readonly RelayCommand<MatchPlayerEntry> _revealCardCommand;
         private readonly RelayCommand _placeBetCommand;
         private readonly RelayCommand _withdrawBetCommand;
         private readonly RelayCommand _increaseBetCommand;
@@ -53,6 +54,7 @@ namespace TLMG.Client.ViewModels
 
             _sendChatCommand = new RelayCommand(ExecuteSendChat, CanExecuteSendChat);
             _placeCardCommand = new RelayCommand<HandCardEntry>(ExecutePlaceCard, CanExecutePlaceCard);
+            _revealCardCommand = new RelayCommand<MatchPlayerEntry>(ExecuteRevealCard, CanExecuteRevealCard);
             _placeBetCommand = new RelayCommand(ExecutePlaceBet, CanExecutePlaceBet);
             _withdrawBetCommand = new RelayCommand(ExecuteWithdrawBet, CanExecuteWithdrawBet);
             _increaseBetCommand = new RelayCommand(ExecuteIncreaseBet, CanIncreaseBet);
@@ -69,6 +71,7 @@ namespace TLMG.Client.ViewModels
 
         public event EventHandler KickVoteRequested;
         public ICommand PlaceCardCommand => _placeCardCommand;
+        public ICommand RevealCardCommand => _revealCardCommand;
         public ICommand PlaceBetCommand => _placeBetCommand;
         public ICommand WithdrawBetCommand => _withdrawBetCommand;
         public ICommand IncreaseBetCommand => _increaseBetCommand;
@@ -220,6 +223,7 @@ namespace TLMG.Client.ViewModels
             }
 
             _placeCardCommand.NotifyCanExecuteChanged();
+            _revealCardCommand.NotifyCanExecuteChanged();
             if (Board.CanPlaceBet && Board.MinimumBetValue <= Board.MaximumBetValue)
             {
                 BidAmount = Math.Max(Board.MinimumBetValue, Math.Min(BidAmount, Board.MaximumBetValue));
@@ -268,6 +272,7 @@ namespace TLMG.Client.ViewModels
             }
 
             _placeCardCommand.NotifyCanExecuteChanged();
+            _revealCardCommand.NotifyCanExecuteChanged();
             if (Board.CanPlaceBet && Board.MinimumBetValue <= Board.MaximumBetValue)
             {
                 BidAmount = Math.Max(Board.MinimumBetValue, Math.Min(BidAmount, Board.MaximumBetValue));
@@ -327,6 +332,16 @@ namespace TLMG.Client.ViewModels
         private void ExecuteDecreaseBet()
         {
             BidAmount--;
+        }
+
+        private bool CanExecuteRevealCard(MatchPlayerEntry player)
+        {
+            return player != null && player.PileCardCount > 0 && _matchConnection.IsMatchSubscribed && Board.CanRevealCard;
+        }
+
+        private void ExecuteRevealCard(MatchPlayerEntry player)
+        {
+            _matchConnection.RevealCard(player.UserId);
         }
 
         private void ExecutePlaceCard(HandCardEntry handCard)
