@@ -63,12 +63,34 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyMatchSubscriptionResult(this, operationSubscribeToMatchResult));
         }
 
-        /// <summary>Entrega el resultado de colocar una carta mediante el dispatcher de la interfaz.</summary>
-        /// <param name="operationPlaceCardResult">Aceptación o clave de error.</param>
         public void PlaceCardResult(OperationResult operationPlaceCardResult)
         {
-            _serverConnection.RunOnInterface(
-                () => _serverConnection.NotifyMatchPlaceCardResult(this, operationPlaceCardResult));
+            DispatchMatchActionResult(operationPlaceCardResult);
+        }
+
+        public void PlaceBetResult(OperationResult operationPlaceBetResult)
+        {
+            DispatchMatchActionResult(operationPlaceBetResult);
+        }
+
+        public void WithdrawFromBetResult(OperationResult operationWithdrawFromBetResult)
+        {
+            DispatchMatchActionResult(operationWithdrawFromBetResult);
+        }
+
+        public void RevealCardResult(OperationResult operationRevealCardResult)
+        {
+            DispatchMatchActionResult(operationRevealCardResult);
+        }
+
+        public void ChoosePunishmentCardResult(OperationResult operationChoosePunishmentCardResult)
+        {
+            DispatchMatchActionResult(operationChoosePunishmentCardResult);
+        }
+
+        private void DispatchMatchActionResult(OperationResult result)
+        {
+            _serverConnection.RunOnInterface(() => _serverConnection.NotifyMatchActionResult(this, result));
         }
 
         /// <summary>Entrega la vista privada de la partida mediante el dispatcher de la interfaz.</summary>

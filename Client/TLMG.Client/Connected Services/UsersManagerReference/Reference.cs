@@ -8,104 +8,126 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TLMG.Client.UsersManagerReference {
+namespace TLMG.Client.UsersManagerReference
+{
     using System.Runtime.Serialization;
     using System;
-    
-    
+
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="PlayerAccountRegistration", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class PlayerAccountRegistration : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class PlayerAccountRegistration : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string EmailField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool HasAcceptedTermsField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string PasswordField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Email {
-            get {
+        public string Email
+        {
+            get
+            {
                 return this.EmailField;
             }
-            set {
-                if ((object.ReferenceEquals(this.EmailField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.EmailField, value) != true))
+                {
                     this.EmailField = value;
                     this.RaisePropertyChanged("Email");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool HasAcceptedTerms {
-            get {
+        public bool HasAcceptedTerms
+        {
+            get
+            {
                 return this.HasAcceptedTermsField;
             }
-            set {
-                if ((this.HasAcceptedTermsField.Equals(value) != true)) {
+            set
+            {
+                if ((this.HasAcceptedTermsField.Equals(value) != true))
+                {
                     this.HasAcceptedTermsField = value;
                     this.RaisePropertyChanged("HasAcceptedTerms");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Nickname {
-            get {
+        public string Nickname
+        {
+            get
+            {
                 return this.NicknameField;
             }
-            set {
-                if ((object.ReferenceEquals(this.NicknameField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true))
+                {
                     this.NicknameField = value;
                     this.RaisePropertyChanged("Nickname");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Password {
-            get {
+        public string Password
+        {
+            get
+            {
                 return this.PasswordField;
             }
-            set {
-                if ((object.ReferenceEquals(this.PasswordField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.PasswordField, value) != true))
+                {
                     this.PasswordField = value;
                     this.RaisePropertyChanged("Password");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
@@ -120,2374 +142,3700 @@ namespace TLMG.Client.UsersManagerReference {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationDeclineFriendRequestResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationAcceptRoomInvitationResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationSendChatMessageResult))]
-    public partial class OperationResult : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class OperationResult : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string ErrorKeyField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsSuccessField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string ErrorKey {
-            get {
+        public string ErrorKey
+        {
+            get
+            {
                 return this.ErrorKeyField;
             }
-            set {
-                if ((object.ReferenceEquals(this.ErrorKeyField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.ErrorKeyField, value) != true))
+                {
                     this.ErrorKeyField = value;
                     this.RaisePropertyChanged("ErrorKey");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsSuccess {
-            get {
+        public bool IsSuccess
+        {
+            get
+            {
                 return this.IsSuccessField;
             }
-            set {
-                if ((this.IsSuccessField.Equals(value) != true)) {
+            set
+            {
+                if ((this.IsSuccessField.Equals(value) != true))
+                {
                     this.IsSuccessField = value;
                     this.RaisePropertyChanged("IsSuccess");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationLogInResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationLogInResult : TLMG.Client.UsersManagerReference.OperationResult {
-        
+    public partial class OperationLogInResult : TLMG.Client.UsersManagerReference.OperationResult
+    {
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string SessionTokenField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Nickname {
-            get {
+        public string Nickname
+        {
+            get
+            {
                 return this.NicknameField;
             }
-            set {
-                if ((object.ReferenceEquals(this.NicknameField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true))
+                {
                     this.NicknameField = value;
                     this.RaisePropertyChanged("Nickname");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string SessionToken {
-            get {
+        public string SessionToken
+        {
+            get
+            {
                 return this.SessionTokenField;
             }
-            set {
-                if ((object.ReferenceEquals(this.SessionTokenField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.SessionTokenField, value) != true))
+                {
                     this.SessionTokenField = value;
                     this.RaisePropertyChanged("SessionToken");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int UserId {
-            get {
+        public int UserId
+        {
+            get
+            {
                 return this.UserIdField;
             }
-            set {
-                if ((this.UserIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.UserIdField.Equals(value) != true))
+                {
                     this.UserIdField = value;
                     this.RaisePropertyChanged("UserId");
                 }
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationGetLeaderboardResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationGetLeaderboardResult : TLMG.Client.UsersManagerReference.OperationResult {
-        
+    public partial class OperationGetLeaderboardResult : TLMG.Client.UsersManagerReference.OperationResult
+    {
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.LeaderboardPlayer[] PlayersField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.LeaderboardPlayer[] Players {
-            get {
+        public TLMG.Client.UsersManagerReference.LeaderboardPlayer[] Players
+        {
+            get
+            {
                 return this.PlayersField;
             }
-            set {
-                if ((object.ReferenceEquals(this.PlayersField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.PlayersField, value) != true))
+                {
                     this.PlayersField = value;
                     this.RaisePropertyChanged("Players");
                 }
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationLobbyRoomResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationRequestMatchStartResult))]
-    public partial class OperationLobbyRoomResult : TLMG.Client.UsersManagerReference.OperationResult {
-        
+    public partial class OperationLobbyRoomResult : TLMG.Client.UsersManagerReference.OperationResult
+    {
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.LobbyRoom RoomField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.LobbyRoom Room {
-            get {
+        public TLMG.Client.UsersManagerReference.LobbyRoom Room
+        {
+            get
+            {
                 return this.RoomField;
             }
-            set {
-                if ((object.ReferenceEquals(this.RoomField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.RoomField, value) != true))
+                {
                     this.RoomField = value;
                     this.RaisePropertyChanged("Room");
                 }
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationRequestMatchStartResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationRequestMatchStartResult : TLMG.Client.UsersManagerReference.OperationLobbyRoomResult {
-        
+    public partial class OperationRequestMatchStartResult : TLMG.Client.UsersManagerReference.OperationLobbyRoomResult
+    {
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RetryAfterSecondsField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int RetryAfterSeconds {
-            get {
+        public int RetryAfterSeconds
+        {
+            get
+            {
                 return this.RetryAfterSecondsField;
             }
-            set {
-                if ((this.RetryAfterSecondsField.Equals(value) != true)) {
+            set
+            {
+                if ((this.RetryAfterSecondsField.Equals(value) != true))
+                {
                     this.RetryAfterSecondsField = value;
                     this.RaisePropertyChanged("RetryAfterSeconds");
                 }
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationSubscribeToFriendsResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationSubscribeToFriendsResult : TLMG.Client.UsersManagerReference.OperationResult {
-        
+    public partial class OperationSubscribeToFriendsResult : TLMG.Client.UsersManagerReference.OperationResult
+    {
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.Friend[] FriendsField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.FriendRequest[] PendingFriendRequestsField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.Friend[] Friends {
-            get {
+        public TLMG.Client.UsersManagerReference.Friend[] Friends
+        {
+            get
+            {
                 return this.FriendsField;
             }
-            set {
-                if ((object.ReferenceEquals(this.FriendsField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.FriendsField, value) != true))
+                {
                     this.FriendsField = value;
                     this.RaisePropertyChanged("Friends");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.FriendRequest[] PendingFriendRequests {
-            get {
+        public TLMG.Client.UsersManagerReference.FriendRequest[] PendingFriendRequests
+        {
+            get
+            {
                 return this.PendingFriendRequestsField;
             }
-            set {
-                if ((object.ReferenceEquals(this.PendingFriendRequestsField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.PendingFriendRequestsField, value) != true))
+                {
                     this.PendingFriendRequestsField = value;
                     this.RaisePropertyChanged("PendingFriendRequests");
                 }
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationSendFriendRequestResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationSendFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult {
-        
+    public partial class OperationSendFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult
+    {
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.Friend NewFriendField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.FriendRequest SentFriendRequestField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.Friend NewFriend {
-            get {
+        public TLMG.Client.UsersManagerReference.Friend NewFriend
+        {
+            get
+            {
                 return this.NewFriendField;
             }
-            set {
-                if ((object.ReferenceEquals(this.NewFriendField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.NewFriendField, value) != true))
+                {
                     this.NewFriendField = value;
                     this.RaisePropertyChanged("NewFriend");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.FriendRequest SentFriendRequest {
-            get {
+        public TLMG.Client.UsersManagerReference.FriendRequest SentFriendRequest
+        {
+            get
+            {
                 return this.SentFriendRequestField;
             }
-            set {
-                if ((object.ReferenceEquals(this.SentFriendRequestField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.SentFriendRequestField, value) != true))
+                {
                     this.SentFriendRequestField = value;
                     this.RaisePropertyChanged("SentFriendRequest");
                 }
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationAcceptFriendRequestResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationAcceptFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult {
-        
+    public partial class OperationAcceptFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult
+    {
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int FriendRequestIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.Friend NewFriendField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int FriendRequestId {
-            get {
+        public int FriendRequestId
+        {
+            get
+            {
                 return this.FriendRequestIdField;
             }
-            set {
-                if ((this.FriendRequestIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.FriendRequestIdField.Equals(value) != true))
+                {
                     this.FriendRequestIdField = value;
                     this.RaisePropertyChanged("FriendRequestId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.Friend NewFriend {
-            get {
+        public TLMG.Client.UsersManagerReference.Friend NewFriend
+        {
+            get
+            {
                 return this.NewFriendField;
             }
-            set {
-                if ((object.ReferenceEquals(this.NewFriendField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.NewFriendField, value) != true))
+                {
                     this.NewFriendField = value;
                     this.RaisePropertyChanged("NewFriend");
                 }
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationDeclineFriendRequestResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationDeclineFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult {
-        
+    public partial class OperationDeclineFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult
+    {
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int FriendRequestIdField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int FriendRequestId {
-            get {
+        public int FriendRequestId
+        {
+            get
+            {
                 return this.FriendRequestIdField;
             }
-            set {
-                if ((this.FriendRequestIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.FriendRequestIdField.Equals(value) != true))
+                {
                     this.FriendRequestIdField = value;
                     this.RaisePropertyChanged("FriendRequestId");
                 }
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationAcceptRoomInvitationResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationAcceptRoomInvitationResult : TLMG.Client.UsersManagerReference.OperationResult {
-        
+    public partial class OperationAcceptRoomInvitationResult : TLMG.Client.UsersManagerReference.OperationResult
+    {
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int RoomId {
-            get {
+        public int RoomId
+        {
+            get
+            {
                 return this.RoomIdField;
             }
-            set {
-                if ((this.RoomIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.RoomIdField.Equals(value) != true))
+                {
                     this.RoomIdField = value;
                     this.RaisePropertyChanged("RoomId");
                 }
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationSendChatMessageResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationSendChatMessageResult : TLMG.Client.UsersManagerReference.OperationResult {
-        
+    public partial class OperationSendChatMessageResult : TLMG.Client.UsersManagerReference.OperationResult
+    {
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Guid ClientMessageIdField;
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Guid ClientMessageId {
-            get {
+        public System.Guid ClientMessageId
+        {
+            get
+            {
                 return this.ClientMessageIdField;
             }
-            set {
-                if ((this.ClientMessageIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.ClientMessageIdField.Equals(value) != true))
+                {
                     this.ClientMessageIdField = value;
                     this.RaisePropertyChanged("ClientMessageId");
                 }
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="LeaderboardPlayer", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class LeaderboardPlayer : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class LeaderboardPlayer : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string ProfileImageField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int TotalGamesPlayedField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int TotalPointsField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int TotalWinsField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Nickname {
-            get {
+        public string Nickname
+        {
+            get
+            {
                 return this.NicknameField;
             }
-            set {
-                if ((object.ReferenceEquals(this.NicknameField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true))
+                {
                     this.NicknameField = value;
                     this.RaisePropertyChanged("Nickname");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string ProfileImage {
-            get {
+        public string ProfileImage
+        {
+            get
+            {
                 return this.ProfileImageField;
             }
-            set {
-                if ((object.ReferenceEquals(this.ProfileImageField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.ProfileImageField, value) != true))
+                {
                     this.ProfileImageField = value;
                     this.RaisePropertyChanged("ProfileImage");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int TotalGamesPlayed {
-            get {
+        public int TotalGamesPlayed
+        {
+            get
+            {
                 return this.TotalGamesPlayedField;
             }
-            set {
-                if ((this.TotalGamesPlayedField.Equals(value) != true)) {
+            set
+            {
+                if ((this.TotalGamesPlayedField.Equals(value) != true))
+                {
                     this.TotalGamesPlayedField = value;
                     this.RaisePropertyChanged("TotalGamesPlayed");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int TotalPoints {
-            get {
+        public int TotalPoints
+        {
+            get
+            {
                 return this.TotalPointsField;
             }
-            set {
-                if ((this.TotalPointsField.Equals(value) != true)) {
+            set
+            {
+                if ((this.TotalPointsField.Equals(value) != true))
+                {
                     this.TotalPointsField = value;
                     this.RaisePropertyChanged("TotalPoints");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int TotalWins {
-            get {
+        public int TotalWins
+        {
+            get
+            {
                 return this.TotalWinsField;
             }
-            set {
-                if ((this.TotalWinsField.Equals(value) != true)) {
+            set
+            {
+                if ((this.TotalWinsField.Equals(value) != true))
+                {
                     this.TotalWinsField = value;
                     this.RaisePropertyChanged("TotalWins");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="LobbyRoom", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class LobbyRoom : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class LobbyRoom : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int CardsPerPlayerCountField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<System.DateTime> CountdownEndsAtUtcField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private long CountdownIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool InGameField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<System.Guid> MatchIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<System.DateTime> MatchStartedAtUtcField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.LobbyPlayer[] PlayersField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.DateTime ServerTimeUtcField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private long VersionField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int CardsPerPlayerCount {
-            get {
+        public int CardsPerPlayerCount
+        {
+            get
+            {
                 return this.CardsPerPlayerCountField;
             }
-            set {
-                if ((this.CardsPerPlayerCountField.Equals(value) != true)) {
+            set
+            {
+                if ((this.CardsPerPlayerCountField.Equals(value) != true))
+                {
                     this.CardsPerPlayerCountField = value;
                     this.RaisePropertyChanged("CardsPerPlayerCount");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<System.DateTime> CountdownEndsAtUtc {
-            get {
+        public System.Nullable<System.DateTime> CountdownEndsAtUtc
+        {
+            get
+            {
                 return this.CountdownEndsAtUtcField;
             }
-            set {
-                if ((this.CountdownEndsAtUtcField.Equals(value) != true)) {
+            set
+            {
+                if ((this.CountdownEndsAtUtcField.Equals(value) != true))
+                {
                     this.CountdownEndsAtUtcField = value;
                     this.RaisePropertyChanged("CountdownEndsAtUtc");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public long CountdownId {
-            get {
+        public long CountdownId
+        {
+            get
+            {
                 return this.CountdownIdField;
             }
-            set {
-                if ((this.CountdownIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.CountdownIdField.Equals(value) != true))
+                {
                     this.CountdownIdField = value;
                     this.RaisePropertyChanged("CountdownId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool InGame {
-            get {
+        public bool InGame
+        {
+            get
+            {
                 return this.InGameField;
             }
-            set {
-                if ((this.InGameField.Equals(value) != true)) {
+            set
+            {
+                if ((this.InGameField.Equals(value) != true))
+                {
                     this.InGameField = value;
                     this.RaisePropertyChanged("InGame");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<System.Guid> MatchId {
-            get {
+        public System.Nullable<System.Guid> MatchId
+        {
+            get
+            {
                 return this.MatchIdField;
             }
-            set {
-                if ((this.MatchIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.MatchIdField.Equals(value) != true))
+                {
                     this.MatchIdField = value;
                     this.RaisePropertyChanged("MatchId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<System.DateTime> MatchStartedAtUtc {
-            get {
+        public System.Nullable<System.DateTime> MatchStartedAtUtc
+        {
+            get
+            {
                 return this.MatchStartedAtUtcField;
             }
-            set {
-                if ((this.MatchStartedAtUtcField.Equals(value) != true)) {
+            set
+            {
+                if ((this.MatchStartedAtUtcField.Equals(value) != true))
+                {
                     this.MatchStartedAtUtcField = value;
                     this.RaisePropertyChanged("MatchStartedAtUtc");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.LobbyPlayer[] Players {
-            get {
+        public TLMG.Client.UsersManagerReference.LobbyPlayer[] Players
+        {
+            get
+            {
                 return this.PlayersField;
             }
-            set {
-                if ((object.ReferenceEquals(this.PlayersField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.PlayersField, value) != true))
+                {
                     this.PlayersField = value;
                     this.RaisePropertyChanged("Players");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int RoomId {
-            get {
+        public int RoomId
+        {
+            get
+            {
                 return this.RoomIdField;
             }
-            set {
-                if ((this.RoomIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.RoomIdField.Equals(value) != true))
+                {
                     this.RoomIdField = value;
                     this.RaisePropertyChanged("RoomId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.DateTime ServerTimeUtc {
-            get {
+        public System.DateTime ServerTimeUtc
+        {
+            get
+            {
                 return this.ServerTimeUtcField;
             }
-            set {
-                if ((this.ServerTimeUtcField.Equals(value) != true)) {
+            set
+            {
+                if ((this.ServerTimeUtcField.Equals(value) != true))
+                {
                     this.ServerTimeUtcField = value;
                     this.RaisePropertyChanged("ServerTimeUtc");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public long Version {
-            get {
+        public long Version
+        {
+            get
+            {
                 return this.VersionField;
             }
-            set {
-                if ((this.VersionField.Equals(value) != true)) {
+            set
+            {
+                if ((this.VersionField.Equals(value) != true))
+                {
                     this.VersionField = value;
                     this.RaisePropertyChanged("Version");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="LobbyPlayer", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class LobbyPlayer : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class LobbyPlayer : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsReadyField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsReady {
-            get {
+        public bool IsReady
+        {
+            get
+            {
                 return this.IsReadyField;
             }
-            set {
-                if ((this.IsReadyField.Equals(value) != true)) {
+            set
+            {
+                if ((this.IsReadyField.Equals(value) != true))
+                {
                     this.IsReadyField = value;
                     this.RaisePropertyChanged("IsReady");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Nickname {
-            get {
+        public string Nickname
+        {
+            get
+            {
                 return this.NicknameField;
             }
-            set {
-                if ((object.ReferenceEquals(this.NicknameField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true))
+                {
                     this.NicknameField = value;
                     this.RaisePropertyChanged("Nickname");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int UserId {
-            get {
+        public int UserId
+        {
+            get
+            {
                 return this.UserIdField;
             }
-            set {
-                if ((this.UserIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.UserIdField.Equals(value) != true))
+                {
                     this.UserIdField = value;
                     this.RaisePropertyChanged("UserId");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="Friend", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class Friend : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class Friend : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsOnlineField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsOnline {
-            get {
+        public bool IsOnline
+        {
+            get
+            {
                 return this.IsOnlineField;
             }
-            set {
-                if ((this.IsOnlineField.Equals(value) != true)) {
+            set
+            {
+                if ((this.IsOnlineField.Equals(value) != true))
+                {
                     this.IsOnlineField = value;
                     this.RaisePropertyChanged("IsOnline");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Nickname {
-            get {
+        public string Nickname
+        {
+            get
+            {
                 return this.NicknameField;
             }
-            set {
-                if ((object.ReferenceEquals(this.NicknameField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true))
+                {
                     this.NicknameField = value;
                     this.RaisePropertyChanged("Nickname");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int UserId {
-            get {
+        public int UserId
+        {
+            get
+            {
                 return this.UserIdField;
             }
-            set {
-                if ((this.UserIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.UserIdField.Equals(value) != true))
+                {
                     this.UserIdField = value;
                     this.RaisePropertyChanged("UserId");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="FriendRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class FriendRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class FriendRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int FriendRequestIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsIncomingField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int FriendRequestId {
-            get {
+        public int FriendRequestId
+        {
+            get
+            {
                 return this.FriendRequestIdField;
             }
-            set {
-                if ((this.FriendRequestIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.FriendRequestIdField.Equals(value) != true))
+                {
                     this.FriendRequestIdField = value;
                     this.RaisePropertyChanged("FriendRequestId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsIncoming {
-            get {
+        public bool IsIncoming
+        {
+            get
+            {
                 return this.IsIncomingField;
             }
-            set {
-                if ((this.IsIncomingField.Equals(value) != true)) {
+            set
+            {
+                if ((this.IsIncomingField.Equals(value) != true))
+                {
                     this.IsIncomingField = value;
                     this.RaisePropertyChanged("IsIncoming");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Nickname {
-            get {
+        public string Nickname
+        {
+            get
+            {
                 return this.NicknameField;
             }
-            set {
-                if ((object.ReferenceEquals(this.NicknameField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true))
+                {
                     this.NicknameField = value;
                     this.RaisePropertyChanged("Nickname");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int UserId {
-            get {
+        public int UserId
+        {
+            get
+            {
                 return this.UserIdField;
             }
-            set {
-                if ((this.UserIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.UserIdField.Equals(value) != true))
+                {
                     this.UserIdField = value;
                     this.RaisePropertyChanged("UserId");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
-    public partial class SystemFault : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string SystemErrorMessageField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string SystemErrorMessage {
-            get {
-                return this.SystemErrorMessageField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.SystemErrorMessageField, value) != true)) {
-                    this.SystemErrorMessageField = value;
-                    this.RaisePropertyChanged("SystemErrorMessage");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationLogInRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationLogInRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class OperationLogInRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string EmailField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string PasswordField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Email {
-            get {
+        public string Email
+        {
+            get
+            {
                 return this.EmailField;
             }
-            set {
-                if ((object.ReferenceEquals(this.EmailField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.EmailField, value) != true))
+                {
                     this.EmailField = value;
                     this.RaisePropertyChanged("Email");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Password {
-            get {
+        public string Password
+        {
+            get
+            {
                 return this.PasswordField;
             }
-            set {
-                if ((object.ReferenceEquals(this.PasswordField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.PasswordField, value) != true))
+                {
                     this.PasswordField = value;
                     this.RaisePropertyChanged("Password");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class SystemFault : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string SystemErrorMessageField;
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
+                return this.extensionDataField;
+            }
+            set
+            {
+                this.extensionDataField = value;
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SystemErrorMessage
+        {
+            get
+            {
+                return this.SystemErrorMessageField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.SystemErrorMessageField, value) != true))
+                {
+                    this.SystemErrorMessageField = value;
+                    this.RaisePropertyChanged("SystemErrorMessage");
+                }
+            }
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationChangePlayerReadinessRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationChangePlayerReadinessRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class OperationChangePlayerReadinessRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsReadyField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsReady {
-            get {
+        public bool IsReady
+        {
+            get
+            {
                 return this.IsReadyField;
             }
-            set {
-                if ((this.IsReadyField.Equals(value) != true)) {
+            set
+            {
+                if ((this.IsReadyField.Equals(value) != true))
+                {
                     this.IsReadyField = value;
                     this.RaisePropertyChanged("IsReady");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int RoomId {
-            get {
+        public int RoomId
+        {
+            get
+            {
                 return this.RoomIdField;
             }
-            set {
-                if ((this.RoomIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.RoomIdField.Equals(value) != true))
+                {
                     this.RoomIdField = value;
                     this.RaisePropertyChanged("RoomId");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationChangeCardsPerPlayerRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationChangeCardsPerPlayerRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class OperationChangeCardsPerPlayerRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int CardsPerPlayerCountField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int CardsPerPlayerCount {
-            get {
+        public int CardsPerPlayerCount
+        {
+            get
+            {
                 return this.CardsPerPlayerCountField;
             }
-            set {
-                if ((this.CardsPerPlayerCountField.Equals(value) != true)) {
+            set
+            {
+                if ((this.CardsPerPlayerCountField.Equals(value) != true))
+                {
                     this.CardsPerPlayerCountField = value;
                     this.RaisePropertyChanged("CardsPerPlayerCount");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int RoomId {
-            get {
+        public int RoomId
+        {
+            get
+            {
                 return this.RoomIdField;
             }
-            set {
-                if ((this.RoomIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.RoomIdField.Equals(value) != true))
+                {
                     this.RoomIdField = value;
                     this.RaisePropertyChanged("RoomId");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationMatchStartRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationMatchStartRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class OperationMatchStartRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private long CountdownIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public long CountdownId {
-            get {
+        public long CountdownId
+        {
+            get
+            {
                 return this.CountdownIdField;
             }
-            set {
-                if ((this.CountdownIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.CountdownIdField.Equals(value) != true))
+                {
                     this.CountdownIdField = value;
                     this.RaisePropertyChanged("CountdownId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int RoomId {
-            get {
+        public int RoomId
+        {
+            get
+            {
                 return this.RoomIdField;
             }
-            set {
-                if ((this.RoomIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.RoomIdField.Equals(value) != true))
+                {
                     this.RoomIdField = value;
                     this.RaisePropertyChanged("RoomId");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="RoomInvitation", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class RoomInvitation : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class RoomInvitation : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int InvitationIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string InviterNicknameField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int InvitationId {
-            get {
+        public int InvitationId
+        {
+            get
+            {
                 return this.InvitationIdField;
             }
-            set {
-                if ((this.InvitationIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.InvitationIdField.Equals(value) != true))
+                {
                     this.InvitationIdField = value;
                     this.RaisePropertyChanged("InvitationId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string InviterNickname {
-            get {
+        public string InviterNickname
+        {
+            get
+            {
                 return this.InviterNicknameField;
             }
-            set {
-                if ((object.ReferenceEquals(this.InviterNicknameField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.InviterNicknameField, value) != true))
+                {
                     this.InviterNicknameField = value;
                     this.RaisePropertyChanged("InviterNickname");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationSendChatMessageRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class OperationSendChatMessageRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class OperationSendChatMessageRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Guid ClientMessageIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string TextField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Guid ClientMessageId {
-            get {
+        public System.Guid ClientMessageId
+        {
+            get
+            {
                 return this.ClientMessageIdField;
             }
-            set {
-                if ((this.ClientMessageIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.ClientMessageIdField.Equals(value) != true))
+                {
                     this.ClientMessageIdField = value;
                     this.RaisePropertyChanged("ClientMessageId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int RoomId {
-            get {
+        public int RoomId
+        {
+            get
+            {
                 return this.RoomIdField;
             }
-            set {
-                if ((this.RoomIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.RoomIdField.Equals(value) != true))
+                {
                     this.RoomIdField = value;
                     this.RaisePropertyChanged("RoomId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Text {
-            get {
+        public string Text
+        {
+            get
+            {
                 return this.TextField;
             }
-            set {
-                if ((object.ReferenceEquals(this.TextField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.TextField, value) != true))
+                {
                     this.TextField = value;
                     this.RaisePropertyChanged("Text");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="ChatMessage", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class ChatMessage : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class ChatMessage : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Guid ClientMessageIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string SenderNicknameField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int SenderUserIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.DateTime SentAtUtcField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string TextField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Guid ClientMessageId {
-            get {
+        public System.Guid ClientMessageId
+        {
+            get
+            {
                 return this.ClientMessageIdField;
             }
-            set {
-                if ((this.ClientMessageIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.ClientMessageIdField.Equals(value) != true))
+                {
                     this.ClientMessageIdField = value;
                     this.RaisePropertyChanged("ClientMessageId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int RoomId {
-            get {
+        public int RoomId
+        {
+            get
+            {
                 return this.RoomIdField;
             }
-            set {
-                if ((this.RoomIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.RoomIdField.Equals(value) != true))
+                {
                     this.RoomIdField = value;
                     this.RaisePropertyChanged("RoomId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string SenderNickname {
-            get {
+        public string SenderNickname
+        {
+            get
+            {
                 return this.SenderNicknameField;
             }
-            set {
-                if ((object.ReferenceEquals(this.SenderNicknameField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.SenderNicknameField, value) != true))
+                {
                     this.SenderNicknameField = value;
                     this.RaisePropertyChanged("SenderNickname");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int SenderUserId {
-            get {
+        public int SenderUserId
+        {
+            get
+            {
                 return this.SenderUserIdField;
             }
-            set {
-                if ((this.SenderUserIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.SenderUserIdField.Equals(value) != true))
+                {
                     this.SenderUserIdField = value;
                     this.RaisePropertyChanged("SenderUserId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.DateTime SentAtUtc {
-            get {
+        public System.DateTime SentAtUtc
+        {
+            get
+            {
                 return this.SentAtUtcField;
             }
-            set {
-                if ((this.SentAtUtcField.Equals(value) != true)) {
+            set
+            {
+                if ((this.SentAtUtcField.Equals(value) != true))
+                {
                     this.SentAtUtcField = value;
                     this.RaisePropertyChanged("SentAtUtc");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Text {
-            get {
+        public string Text
+        {
+            get
+            {
                 return this.TextField;
             }
-            set {
-                if ((object.ReferenceEquals(this.TextField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.TextField, value) != true))
+                {
                     this.TextField = value;
                     this.RaisePropertyChanged("Text");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchCardKind", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    public enum MatchCardKind : int {
-        
+    public enum MatchCardKind : int
+    {
+
         [System.Runtime.Serialization.EnumMemberAttribute()]
         Safe = 0,
-        
+
         [System.Runtime.Serialization.EnumMemberAttribute()]
         FatalCat = 1,
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class MatchView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class MatchView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int BetLeaderUserIdField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool CanChoosePunishmentCardField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool CanPlaceBetField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool CanPlaceCardField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool CanRevealCardField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool CanWithdrawFromBetField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int CardsOnTableField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.MatchChallengeView ChallengeField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int ChallengesToWinField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int CurrentBetField;
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Guid MatchIdField;
-        
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int MaximumBetValueField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int MinimumBetValueField;
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchCardKind[] OwnHandCardsField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchCardKind[] OwnPileCardsField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchRoundPhase PhaseField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PlayerInTurnUserIdField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchPlayerView[] PlayersField;
-        
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.MatchPunishmentView PunishmentField;
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoundNumberField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int VersionField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int WinnerUserIdField;
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Guid MatchId {
-            get {
+        public int BetLeaderUserId
+        {
+            get
+            {
+                return this.BetLeaderUserIdField;
+            }
+            set
+            {
+                if ((this.BetLeaderUserIdField.Equals(value) != true))
+                {
+                    this.BetLeaderUserIdField = value;
+                    this.RaisePropertyChanged("BetLeaderUserId");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool CanChoosePunishmentCard
+        {
+            get
+            {
+                return this.CanChoosePunishmentCardField;
+            }
+            set
+            {
+                if ((this.CanChoosePunishmentCardField.Equals(value) != true))
+                {
+                    this.CanChoosePunishmentCardField = value;
+                    this.RaisePropertyChanged("CanChoosePunishmentCard");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool CanPlaceBet
+        {
+            get
+            {
+                return this.CanPlaceBetField;
+            }
+            set
+            {
+                if ((this.CanPlaceBetField.Equals(value) != true))
+                {
+                    this.CanPlaceBetField = value;
+                    this.RaisePropertyChanged("CanPlaceBet");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool CanPlaceCard
+        {
+            get
+            {
+                return this.CanPlaceCardField;
+            }
+            set
+            {
+                if ((this.CanPlaceCardField.Equals(value) != true))
+                {
+                    this.CanPlaceCardField = value;
+                    this.RaisePropertyChanged("CanPlaceCard");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool CanRevealCard
+        {
+            get
+            {
+                return this.CanRevealCardField;
+            }
+            set
+            {
+                if ((this.CanRevealCardField.Equals(value) != true))
+                {
+                    this.CanRevealCardField = value;
+                    this.RaisePropertyChanged("CanRevealCard");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool CanWithdrawFromBet
+        {
+            get
+            {
+                return this.CanWithdrawFromBetField;
+            }
+            set
+            {
+                if ((this.CanWithdrawFromBetField.Equals(value) != true))
+                {
+                    this.CanWithdrawFromBetField = value;
+                    this.RaisePropertyChanged("CanWithdrawFromBet");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int CardsOnTable
+        {
+            get
+            {
+                return this.CardsOnTableField;
+            }
+            set
+            {
+                if ((this.CardsOnTableField.Equals(value) != true))
+                {
+                    this.CardsOnTableField = value;
+                    this.RaisePropertyChanged("CardsOnTable");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.MatchChallengeView Challenge
+        {
+            get
+            {
+                return this.ChallengeField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.ChallengeField, value) != true))
+                {
+                    this.ChallengeField = value;
+                    this.RaisePropertyChanged("Challenge");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int ChallengesToWin
+        {
+            get
+            {
+                return this.ChallengesToWinField;
+            }
+            set
+            {
+                if ((this.ChallengesToWinField.Equals(value) != true))
+                {
+                    this.ChallengesToWinField = value;
+                    this.RaisePropertyChanged("ChallengesToWin");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int CurrentBet
+        {
+            get
+            {
+                return this.CurrentBetField;
+            }
+            set
+            {
+                if ((this.CurrentBetField.Equals(value) != true))
+                {
+                    this.CurrentBetField = value;
+                    this.RaisePropertyChanged("CurrentBet");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Guid MatchId
+        {
+            get
+            {
                 return this.MatchIdField;
             }
-            set {
-                if ((this.MatchIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.MatchIdField.Equals(value) != true))
+                {
                     this.MatchIdField = value;
                     this.RaisePropertyChanged("MatchId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.MatchCardKind[] OwnHandCards {
-            get {
+        public int MaximumBetValue
+        {
+            get
+            {
+                return this.MaximumBetValueField;
+            }
+            set
+            {
+                if ((this.MaximumBetValueField.Equals(value) != true))
+                {
+                    this.MaximumBetValueField = value;
+                    this.RaisePropertyChanged("MaximumBetValue");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int MinimumBetValue
+        {
+            get
+            {
+                return this.MinimumBetValueField;
+            }
+            set
+            {
+                if ((this.MinimumBetValueField.Equals(value) != true))
+                {
+                    this.MinimumBetValueField = value;
+                    this.RaisePropertyChanged("MinimumBetValue");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.MatchCardKind[] OwnHandCards
+        {
+            get
+            {
                 return this.OwnHandCardsField;
             }
-            set {
-                if ((object.ReferenceEquals(this.OwnHandCardsField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.OwnHandCardsField, value) != true))
+                {
                     this.OwnHandCardsField = value;
                     this.RaisePropertyChanged("OwnHandCards");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.MatchCardKind[] OwnPileCards {
-            get {
+        public TLMG.Client.UsersManagerReference.MatchCardKind[] OwnPileCards
+        {
+            get
+            {
                 return this.OwnPileCardsField;
             }
-            set {
-                if ((object.ReferenceEquals(this.OwnPileCardsField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.OwnPileCardsField, value) != true))
+                {
                     this.OwnPileCardsField = value;
                     this.RaisePropertyChanged("OwnPileCards");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.MatchRoundPhase Phase {
-            get {
+        public TLMG.Client.UsersManagerReference.MatchRoundPhase Phase
+        {
+            get
+            {
                 return this.PhaseField;
             }
-            set {
-                if ((this.PhaseField.Equals(value) != true)) {
+            set
+            {
+                if ((this.PhaseField.Equals(value) != true))
+                {
                     this.PhaseField = value;
                     this.RaisePropertyChanged("Phase");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int PlayerInTurnUserId {
-            get {
+        public int PlayerInTurnUserId
+        {
+            get
+            {
                 return this.PlayerInTurnUserIdField;
             }
-            set {
-                if ((this.PlayerInTurnUserIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.PlayerInTurnUserIdField.Equals(value) != true))
+                {
                     this.PlayerInTurnUserIdField = value;
                     this.RaisePropertyChanged("PlayerInTurnUserId");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.MatchPlayerView[] Players {
-            get {
+        public TLMG.Client.UsersManagerReference.MatchPlayerView[] Players
+        {
+            get
+            {
                 return this.PlayersField;
             }
-            set {
-                if ((object.ReferenceEquals(this.PlayersField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.PlayersField, value) != true))
+                {
                     this.PlayersField = value;
                     this.RaisePropertyChanged("Players");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int RoundNumber {
-            get {
+        public TLMG.Client.UsersManagerReference.MatchPunishmentView Punishment
+        {
+            get
+            {
+                return this.PunishmentField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.PunishmentField, value) != true))
+                {
+                    this.PunishmentField = value;
+                    this.RaisePropertyChanged("Punishment");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int RoundNumber
+        {
+            get
+            {
                 return this.RoundNumberField;
             }
-            set {
-                if ((this.RoundNumberField.Equals(value) != true)) {
+            set
+            {
+                if ((this.RoundNumberField.Equals(value) != true))
+                {
                     this.RoundNumberField = value;
                     this.RaisePropertyChanged("RoundNumber");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int Version {
-            get {
+        public int Version
+        {
+            get
+            {
                 return this.VersionField;
             }
-            set {
-                if ((this.VersionField.Equals(value) != true)) {
+            set
+            {
+                if ((this.VersionField.Equals(value) != true))
+                {
                     this.VersionField = value;
                     this.RaisePropertyChanged("Version");
                 }
             }
         }
-        
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int WinnerUserId
+        {
+            get
+            {
+                return this.WinnerUserIdField;
+            }
+            set
+            {
+                if ((this.WinnerUserIdField.Equals(value) != true))
+                {
+                    this.WinnerUserIdField = value;
+                    this.RaisePropertyChanged("WinnerUserId");
+                }
+            }
+        }
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MatchChallengeView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class MatchChallengeView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int BettorUserIdField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.MatchChallengeOutcome OutcomeField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int PromisedCountField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int PunishedUserIdField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int PunishmentChooserUserIdField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.MatchPunishmentResolution PunishmentResolutionField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.MatchRevealedCardView[] RevealedCardsField;
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
+                return this.extensionDataField;
+            }
+            set
+            {
+                this.extensionDataField = value;
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int BettorUserId
+        {
+            get
+            {
+                return this.BettorUserIdField;
+            }
+            set
+            {
+                if ((this.BettorUserIdField.Equals(value) != true))
+                {
+                    this.BettorUserIdField = value;
+                    this.RaisePropertyChanged("BettorUserId");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.MatchChallengeOutcome Outcome
+        {
+            get
+            {
+                return this.OutcomeField;
+            }
+            set
+            {
+                if ((this.OutcomeField.Equals(value) != true))
+                {
+                    this.OutcomeField = value;
+                    this.RaisePropertyChanged("Outcome");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int PromisedCount
+        {
+            get
+            {
+                return this.PromisedCountField;
+            }
+            set
+            {
+                if ((this.PromisedCountField.Equals(value) != true))
+                {
+                    this.PromisedCountField = value;
+                    this.RaisePropertyChanged("PromisedCount");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int PunishedUserId
+        {
+            get
+            {
+                return this.PunishedUserIdField;
+            }
+            set
+            {
+                if ((this.PunishedUserIdField.Equals(value) != true))
+                {
+                    this.PunishedUserIdField = value;
+                    this.RaisePropertyChanged("PunishedUserId");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int PunishmentChooserUserId
+        {
+            get
+            {
+                return this.PunishmentChooserUserIdField;
+            }
+            set
+            {
+                if ((this.PunishmentChooserUserIdField.Equals(value) != true))
+                {
+                    this.PunishmentChooserUserIdField = value;
+                    this.RaisePropertyChanged("PunishmentChooserUserId");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.MatchPunishmentResolution PunishmentResolution
+        {
+            get
+            {
+                return this.PunishmentResolutionField;
+            }
+            set
+            {
+                if ((this.PunishmentResolutionField.Equals(value) != true))
+                {
+                    this.PunishmentResolutionField = value;
+                    this.RaisePropertyChanged("PunishmentResolution");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.MatchRevealedCardView[] RevealedCards
+        {
+            get
+            {
+                return this.RevealedCardsField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.RevealedCardsField, value) != true))
+                {
+                    this.RevealedCardsField = value;
+                    this.RaisePropertyChanged("RevealedCards");
+                }
+            }
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MatchPunishmentView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class MatchPunishmentView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int CardSlotCountField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int ChooserUserIdField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsBlindChoiceField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int PunishedUserIdField;
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
+                return this.extensionDataField;
+            }
+            set
+            {
+                this.extensionDataField = value;
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int CardSlotCount
+        {
+            get
+            {
+                return this.CardSlotCountField;
+            }
+            set
+            {
+                if ((this.CardSlotCountField.Equals(value) != true))
+                {
+                    this.CardSlotCountField = value;
+                    this.RaisePropertyChanged("CardSlotCount");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int ChooserUserId
+        {
+            get
+            {
+                return this.ChooserUserIdField;
+            }
+            set
+            {
+                if ((this.ChooserUserIdField.Equals(value) != true))
+                {
+                    this.ChooserUserIdField = value;
+                    this.RaisePropertyChanged("ChooserUserId");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsBlindChoice
+        {
+            get
+            {
+                return this.IsBlindChoiceField;
+            }
+            set
+            {
+                if ((this.IsBlindChoiceField.Equals(value) != true))
+                {
+                    this.IsBlindChoiceField = value;
+                    this.RaisePropertyChanged("IsBlindChoice");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int PunishedUserId
+        {
+            get
+            {
+                return this.PunishedUserIdField;
+            }
+            set
+            {
+                if ((this.PunishedUserIdField.Equals(value) != true))
+                {
+                    this.PunishedUserIdField = value;
+                    this.RaisePropertyChanged("PunishedUserId");
+                }
+            }
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchRoundPhase", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    public enum MatchRoundPhase : int {
-        
+    public enum MatchRoundPhase : int
+    {
+
         [System.Runtime.Serialization.EnumMemberAttribute()]
         PlacingCards = 0,
-        
+
         [System.Runtime.Serialization.EnumMemberAttribute()]
         Betting = 1,
-        
+
         [System.Runtime.Serialization.EnumMemberAttribute()]
         ChallengeReady = 2,
-        
+
         [System.Runtime.Serialization.EnumMemberAttribute()]
         PunishmentPending = 3,
-        
+
         [System.Runtime.Serialization.EnumMemberAttribute()]
         MatchFinished = 4,
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchPlayerView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
-    public partial class MatchPlayerView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
+    public partial class MatchPlayerView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int HandCardCountField;
-        
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool HasLeftMatchField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool HasWithdrawnFromBetField;
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsEliminatedField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
-        
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PileCardCountField;
-        
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.MatchCardKind[] RevealedPileCardsField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int SuccessfulChallengeCountField;
+
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
                 return this.extensionDataField;
             }
-            set {
+            set
+            {
                 this.extensionDataField = value;
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int HandCardCount {
-            get {
+        public int HandCardCount
+        {
+            get
+            {
                 return this.HandCardCountField;
             }
-            set {
-                if ((this.HandCardCountField.Equals(value) != true)) {
+            set
+            {
+                if ((this.HandCardCountField.Equals(value) != true))
+                {
                     this.HandCardCountField = value;
                     this.RaisePropertyChanged("HandCardCount");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsEliminated {
-            get {
+        public bool HasLeftMatch
+        {
+            get
+            {
+                return this.HasLeftMatchField;
+            }
+            set
+            {
+                if ((this.HasLeftMatchField.Equals(value) != true))
+                {
+                    this.HasLeftMatchField = value;
+                    this.RaisePropertyChanged("HasLeftMatch");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool HasWithdrawnFromBet
+        {
+            get
+            {
+                return this.HasWithdrawnFromBetField;
+            }
+            set
+            {
+                if ((this.HasWithdrawnFromBetField.Equals(value) != true))
+                {
+                    this.HasWithdrawnFromBetField = value;
+                    this.RaisePropertyChanged("HasWithdrawnFromBet");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsEliminated
+        {
+            get
+            {
                 return this.IsEliminatedField;
             }
-            set {
-                if ((this.IsEliminatedField.Equals(value) != true)) {
+            set
+            {
+                if ((this.IsEliminatedField.Equals(value) != true))
+                {
                     this.IsEliminatedField = value;
                     this.RaisePropertyChanged("IsEliminated");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Nickname {
-            get {
+        public string Nickname
+        {
+            get
+            {
                 return this.NicknameField;
             }
-            set {
-                if ((object.ReferenceEquals(this.NicknameField, value) != true)) {
+            set
+            {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true))
+                {
                     this.NicknameField = value;
                     this.RaisePropertyChanged("Nickname");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int PileCardCount {
-            get {
+        public int PileCardCount
+        {
+            get
+            {
                 return this.PileCardCountField;
             }
-            set {
-                if ((this.PileCardCountField.Equals(value) != true)) {
+            set
+            {
+                if ((this.PileCardCountField.Equals(value) != true))
+                {
                     this.PileCardCountField = value;
                     this.RaisePropertyChanged("PileCardCount");
                 }
             }
         }
-        
+
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int UserId {
-            get {
+        public TLMG.Client.UsersManagerReference.MatchCardKind[] RevealedPileCards
+        {
+            get
+            {
+                return this.RevealedPileCardsField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.RevealedPileCardsField, value) != true))
+                {
+                    this.RevealedPileCardsField = value;
+                    this.RaisePropertyChanged("RevealedPileCards");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int SuccessfulChallengeCount
+        {
+            get
+            {
+                return this.SuccessfulChallengeCountField;
+            }
+            set
+            {
+                if ((this.SuccessfulChallengeCountField.Equals(value) != true))
+                {
+                    this.SuccessfulChallengeCountField = value;
+                    this.RaisePropertyChanged("SuccessfulChallengeCount");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int UserId
+        {
+            get
+            {
                 return this.UserIdField;
             }
-            set {
-                if ((this.UserIdField.Equals(value) != true)) {
+            set
+            {
+                if ((this.UserIdField.Equals(value) != true))
+                {
                     this.UserIdField = value;
                     this.RaisePropertyChanged("UserId");
                 }
             }
         }
-        
+
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
+            if ((propertyChanged != null))
+            {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
     }
-    
+
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MatchChallengeOutcome", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    public enum MatchChallengeOutcome : int
+    {
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        InProgress = 0,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Succeeded = 1,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Failed = 2,
+    }
+
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MatchPunishmentResolution", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    public enum MatchPunishmentResolution : int
+    {
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        None = 0,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Pending = 1,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ChosenByChooser = 2,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ChosenAtRandom = 3,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SingleLifeNoChoice = 4,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Cancelled = 5,
+    }
+
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MatchRevealedCardView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class MatchRevealedCardView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.MatchCardKind CardField;
+
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int PileOwnerUserIdField;
+
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
+                return this.extensionDataField;
+            }
+            set
+            {
+                this.extensionDataField = value;
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.MatchCardKind Card
+        {
+            get
+            {
+                return this.CardField;
+            }
+            set
+            {
+                if ((this.CardField.Equals(value) != true))
+                {
+                    this.CardField = value;
+                    this.RaisePropertyChanged("Card");
+                }
+            }
+        }
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int PileOwnerUserId
+        {
+            get
+            {
+                return this.PileOwnerUserIdField;
+            }
+            set
+            {
+                if ((this.PileOwnerUserIdField.Equals(value) != true))
+                {
+                    this.PileOwnerUserIdField = value;
+                    this.RaisePropertyChanged("PileOwnerUserId");
+                }
+            }
+        }
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="UsersManagerReference.IUsersManager")]
-    public interface IUsersManager {
-        
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="TLMG.Client.UsersManagerReference.IUsersManager")]
+    public interface IUsersManager
+    {
+
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/RegisterPlayerAccount", ReplyAction="http://tempuri.org/IUsersManager/RegisterPlayerAccountResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/RegisterPlayerAccountSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationResult RegisterPlayerAccount(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/RegisterPlayerAccount", ReplyAction="http://tempuri.org/IUsersManager/RegisterPlayerAccountResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RegisterPlayerAccountAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/RequestAccountVerificationCode", ReplyAction="http://tempuri.org/IUsersManager/RequestAccountVerificationCodeResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/RequestAccountVerificationCodeSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationResult RequestAccountVerificationCode(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/RequestAccountVerificationCode", ReplyAction="http://tempuri.org/IUsersManager/RequestAccountVerificationCodeResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RequestAccountVerificationCodeAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistration", ReplyAction="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistrationResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistrationSystemFaultFaul" +
             "t", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationResult CompletePlayerAccountRegistration(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistration", ReplyAction="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistrationResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> CompletePlayerAccountRegistrationAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/ResendAccountVerificationCode", ReplyAction="http://tempuri.org/IUsersManager/ResendAccountVerificationCodeResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/ResendAccountVerificationCodeSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationResult ResendAccountVerificationCode(string email, string cultureCode);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/ResendAccountVerificationCode", ReplyAction="http://tempuri.org/IUsersManager/ResendAccountVerificationCodeResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> ResendAccountVerificationCodeAsync(string email, string cultureCode);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/LogIn", ReplyAction="http://tempuri.org/IUsersManager/LogInResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/LogInSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationLogInResult LogIn(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest);
-        
+
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/LogIn", ReplyAction="http://tempuri.org/IUsersManager/LogInResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationLogInResult> LogInAsync(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest);
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IUsersManagerChannel : TLMG.Client.UsersManagerReference.IUsersManager, System.ServiceModel.IClientChannel {
+    public interface IUsersManagerChannel : TLMG.Client.UsersManagerReference.IUsersManager, System.ServiceModel.IClientChannel
+    {
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class UsersManagerClient : System.ServiceModel.ClientBase<TLMG.Client.UsersManagerReference.IUsersManager>, TLMG.Client.UsersManagerReference.IUsersManager {
-        
-        public UsersManagerClient() {
+    public partial class UsersManagerClient : System.ServiceModel.ClientBase<TLMG.Client.UsersManagerReference.IUsersManager>, TLMG.Client.UsersManagerReference.IUsersManager
+    {
+
+        public UsersManagerClient()
+        {
         }
-        
-        public UsersManagerClient(string endpointConfigurationName) : 
-                base(endpointConfigurationName) {
+
+        public UsersManagerClient(string endpointConfigurationName) :
+                base(endpointConfigurationName)
+        {
         }
-        
-        public UsersManagerClient(string endpointConfigurationName, string remoteAddress) : 
-                base(endpointConfigurationName, remoteAddress) {
+
+        public UsersManagerClient(string endpointConfigurationName, string remoteAddress) :
+                base(endpointConfigurationName, remoteAddress)
+        {
         }
-        
-        public UsersManagerClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(endpointConfigurationName, remoteAddress) {
+
+        public UsersManagerClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
+                base(endpointConfigurationName, remoteAddress)
+        {
         }
-        
-        public UsersManagerClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(binding, remoteAddress) {
+
+        public UsersManagerClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+                base(binding, remoteAddress)
+        {
         }
-        
-        public TLMG.Client.UsersManagerReference.OperationResult RegisterPlayerAccount(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration) {
+
+        public TLMG.Client.UsersManagerReference.OperationResult RegisterPlayerAccount(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration)
+        {
             return base.Channel.RegisterPlayerAccount(playerAccountRegistration);
         }
-        
-        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RegisterPlayerAccountAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration) {
+
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RegisterPlayerAccountAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration)
+        {
             return base.Channel.RegisterPlayerAccountAsync(playerAccountRegistration);
         }
-        
-        public TLMG.Client.UsersManagerReference.OperationResult RequestAccountVerificationCode(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode) {
+
+        public TLMG.Client.UsersManagerReference.OperationResult RequestAccountVerificationCode(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode)
+        {
             return base.Channel.RequestAccountVerificationCode(playerAccountRegistration, cultureCode);
         }
-        
-        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RequestAccountVerificationCodeAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode) {
+
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RequestAccountVerificationCodeAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode)
+        {
             return base.Channel.RequestAccountVerificationCodeAsync(playerAccountRegistration, cultureCode);
         }
-        
-        public TLMG.Client.UsersManagerReference.OperationResult CompletePlayerAccountRegistration(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode) {
+
+        public TLMG.Client.UsersManagerReference.OperationResult CompletePlayerAccountRegistration(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode)
+        {
             return base.Channel.CompletePlayerAccountRegistration(playerAccountRegistration, verificationCode);
         }
-        
-        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> CompletePlayerAccountRegistrationAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode) {
+
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> CompletePlayerAccountRegistrationAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode)
+        {
             return base.Channel.CompletePlayerAccountRegistrationAsync(playerAccountRegistration, verificationCode);
         }
-        
-        public TLMG.Client.UsersManagerReference.OperationResult ResendAccountVerificationCode(string email, string cultureCode) {
+
+        public TLMG.Client.UsersManagerReference.OperationResult ResendAccountVerificationCode(string email, string cultureCode)
+        {
             return base.Channel.ResendAccountVerificationCode(email, cultureCode);
         }
-        
-        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> ResendAccountVerificationCodeAsync(string email, string cultureCode) {
+
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> ResendAccountVerificationCodeAsync(string email, string cultureCode)
+        {
             return base.Channel.ResendAccountVerificationCodeAsync(email, cultureCode);
         }
-        
-        public TLMG.Client.UsersManagerReference.OperationLogInResult LogIn(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest) {
+
+        public TLMG.Client.UsersManagerReference.OperationLogInResult LogIn(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest)
+        {
             return base.Channel.LogIn(operationLogInRequest);
         }
-        
-        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationLogInResult> LogInAsync(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest) {
+
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationLogInResult> LogInAsync(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest)
+        {
             return base.Channel.LogInAsync(operationLogInRequest);
         }
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="UsersManagerReference.ILeaderboardManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.ILeaderboardManagerCallback))]
-    public interface ILeaderboardManager {
-        
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="TLMG.Client.UsersManagerReference.ILeaderboardManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.ILeaderboardManagerCallback))]
+    public interface ILeaderboardManager
+    {
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILeaderboardManager/GetLeaderboard")]
         void GetLeaderboard();
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILeaderboardManager/GetLeaderboard")]
         System.Threading.Tasks.Task GetLeaderboardAsync();
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface ILeaderboardManagerCallback {
-        
+    public interface ILeaderboardManagerCallback
+    {
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILeaderboardManager/GetLeaderboardResult")]
         void GetLeaderboardResult(TLMG.Client.UsersManagerReference.OperationGetLeaderboardResult operationGetLeaderboardResult);
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface ILeaderboardManagerChannel : TLMG.Client.UsersManagerReference.ILeaderboardManager, System.ServiceModel.IClientChannel {
+    public interface ILeaderboardManagerChannel : TLMG.Client.UsersManagerReference.ILeaderboardManager, System.ServiceModel.IClientChannel
+    {
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class LeaderboardManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.ILeaderboardManager>, TLMG.Client.UsersManagerReference.ILeaderboardManager {
-        
-        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance) : 
-                base(callbackInstance) {
+    public partial class LeaderboardManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.ILeaderboardManager>, TLMG.Client.UsersManagerReference.ILeaderboardManager
+    {
+
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance) :
+                base(callbackInstance)
+        {
         }
-        
-        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
-                base(callbackInstance, endpointConfigurationName) {
+
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) :
+                base(callbackInstance, endpointConfigurationName)
+        {
         }
-        
-        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) :
+                base(callbackInstance, endpointConfigurationName, remoteAddress)
+        {
         }
-        
-        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
+                base(callbackInstance, endpointConfigurationName, remoteAddress)
+        {
         }
-        
-        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, binding, remoteAddress) {
+
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+                base(callbackInstance, binding, remoteAddress)
+        {
         }
-        
-        public void GetLeaderboard() {
+
+        public void GetLeaderboard()
+        {
             base.Channel.GetLeaderboard();
         }
-        
-        public System.Threading.Tasks.Task GetLeaderboardAsync() {
+
+        public System.Threading.Tasks.Task GetLeaderboardAsync()
+        {
             return base.Channel.GetLeaderboardAsync();
         }
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="UsersManagerReference.ILobbyManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.ILobbyManagerCallback))]
-    public interface ILobbyManager {
-        
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="TLMG.Client.UsersManagerReference.ILobbyManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.ILobbyManagerCallback))]
+    public interface ILobbyManager
+    {
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/CreateRoom")]
         void CreateRoom(string sessionToken);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/CreateRoom")]
         System.Threading.Tasks.Task CreateRoomAsync(string sessionToken);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/EnterLobby")]
         void EnterLobby(string sessionToken, int roomId);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/EnterLobby")]
         System.Threading.Tasks.Task EnterLobbyAsync(string sessionToken, int roomId);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/LeaveLobby")]
         void LeaveLobby(string sessionToken);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/LeaveLobby")]
         System.Threading.Tasks.Task LeaveLobbyAsync(string sessionToken);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangePlayerReadiness")]
         void ChangePlayerReadiness(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessRequest request);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangePlayerReadiness")]
         System.Threading.Tasks.Task ChangePlayerReadinessAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessRequest request);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayer")]
         void ChangeCardsPerPlayer(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayer")]
         System.Threading.Tasks.Task ChangeCardsPerPlayerAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/RequestMatchStart")]
         void RequestMatchStart(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/RequestMatchStart")]
         System.Threading.Tasks.Task RequestMatchStartAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request);
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface ILobbyManagerCallback {
-        
+    public interface ILobbyManagerCallback
+    {
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/CreateRoomResult")]
         void CreateRoomResult(TLMG.Client.UsersManagerReference.OperationLobbyRoomResult operationCreateRoomResult);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/EnterLobbyResult")]
         void EnterLobbyResult(TLMG.Client.UsersManagerReference.OperationLobbyRoomResult operationEnterLobbyResult);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/LeaveLobbyResult")]
         void LeaveLobbyResult(TLMG.Client.UsersManagerReference.OperationResult operationLeaveLobbyResult);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/OnLobbyRoomChanged")]
         void OnLobbyRoomChanged(TLMG.Client.UsersManagerReference.LobbyRoom lobbyRoom);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangePlayerReadinessResult")]
         void ChangePlayerReadinessResult(TLMG.Client.UsersManagerReference.OperationLobbyRoomResult result);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayerResult")]
         void ChangeCardsPerPlayerResult(TLMG.Client.UsersManagerReference.OperationLobbyRoomResult result);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/RequestMatchStartResult")]
         void RequestMatchStartResult(TLMG.Client.UsersManagerReference.OperationRequestMatchStartResult result);
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface ILobbyManagerChannel : TLMG.Client.UsersManagerReference.ILobbyManager, System.ServiceModel.IClientChannel {
+    public interface ILobbyManagerChannel : TLMG.Client.UsersManagerReference.ILobbyManager, System.ServiceModel.IClientChannel
+    {
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class LobbyManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.ILobbyManager>, TLMG.Client.UsersManagerReference.ILobbyManager {
-        
-        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance) : 
-                base(callbackInstance) {
+    public partial class LobbyManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.ILobbyManager>, TLMG.Client.UsersManagerReference.ILobbyManager
+    {
+
+        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance) :
+                base(callbackInstance)
+        {
         }
-        
-        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
-                base(callbackInstance, endpointConfigurationName) {
+
+        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) :
+                base(callbackInstance, endpointConfigurationName)
+        {
         }
-        
-        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+
+        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) :
+                base(callbackInstance, endpointConfigurationName, remoteAddress)
+        {
         }
-        
-        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+
+        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
+                base(callbackInstance, endpointConfigurationName, remoteAddress)
+        {
         }
-        
-        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, binding, remoteAddress) {
+
+        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+                base(callbackInstance, binding, remoteAddress)
+        {
         }
-        
-        public void CreateRoom(string sessionToken) {
+
+        public void CreateRoom(string sessionToken)
+        {
             base.Channel.CreateRoom(sessionToken);
         }
-        
-        public System.Threading.Tasks.Task CreateRoomAsync(string sessionToken) {
+
+        public System.Threading.Tasks.Task CreateRoomAsync(string sessionToken)
+        {
             return base.Channel.CreateRoomAsync(sessionToken);
         }
-        
-        public void EnterLobby(string sessionToken, int roomId) {
+
+        public void EnterLobby(string sessionToken, int roomId)
+        {
             base.Channel.EnterLobby(sessionToken, roomId);
         }
-        
-        public System.Threading.Tasks.Task EnterLobbyAsync(string sessionToken, int roomId) {
+
+        public System.Threading.Tasks.Task EnterLobbyAsync(string sessionToken, int roomId)
+        {
             return base.Channel.EnterLobbyAsync(sessionToken, roomId);
         }
-        
-        public void LeaveLobby(string sessionToken) {
+
+        public void LeaveLobby(string sessionToken)
+        {
             base.Channel.LeaveLobby(sessionToken);
         }
-        
-        public System.Threading.Tasks.Task LeaveLobbyAsync(string sessionToken) {
+
+        public System.Threading.Tasks.Task LeaveLobbyAsync(string sessionToken)
+        {
             return base.Channel.LeaveLobbyAsync(sessionToken);
         }
-        
-        public void ChangePlayerReadiness(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessRequest request) {
+
+        public void ChangePlayerReadiness(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessRequest request)
+        {
             base.Channel.ChangePlayerReadiness(sessionToken, request);
         }
-        
-        public System.Threading.Tasks.Task ChangePlayerReadinessAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessRequest request) {
+
+        public System.Threading.Tasks.Task ChangePlayerReadinessAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessRequest request)
+        {
             return base.Channel.ChangePlayerReadinessAsync(sessionToken, request);
         }
-        
-        public void ChangeCardsPerPlayer(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request) {
+
+        public void ChangeCardsPerPlayer(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request)
+        {
             base.Channel.ChangeCardsPerPlayer(sessionToken, request);
         }
-        
-        public System.Threading.Tasks.Task ChangeCardsPerPlayerAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request) {
+
+        public System.Threading.Tasks.Task ChangeCardsPerPlayerAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request)
+        {
             return base.Channel.ChangeCardsPerPlayerAsync(sessionToken, request);
         }
-        
-        public void RequestMatchStart(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request) {
+
+        public void RequestMatchStart(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request)
+        {
             base.Channel.RequestMatchStart(sessionToken, request);
         }
-        
-        public System.Threading.Tasks.Task RequestMatchStartAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request) {
+
+        public System.Threading.Tasks.Task RequestMatchStartAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request)
+        {
             return base.Channel.RequestMatchStartAsync(sessionToken, request);
         }
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="UsersManagerReference.IFriendsManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.IFriendsManagerCallback))]
-    public interface IFriendsManager {
-        
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="TLMG.Client.UsersManagerReference.IFriendsManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.IFriendsManagerCallback))]
+    public interface IFriendsManager
+    {
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/SubscribeToFriends")]
         void SubscribeToFriends(string sessionToken);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/SubscribeToFriends")]
         System.Threading.Tasks.Task SubscribeToFriendsAsync(string sessionToken);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/SendFriendRequest")]
         void SendFriendRequest(string sessionToken, string friendNickname);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/SendFriendRequest")]
         System.Threading.Tasks.Task SendFriendRequestAsync(string sessionToken, string friendNickname);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/AcceptFriendRequest")]
         void AcceptFriendRequest(string sessionToken, int friendRequestId);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/AcceptFriendRequest")]
         System.Threading.Tasks.Task AcceptFriendRequestAsync(string sessionToken, int friendRequestId);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/DeclineFriendRequest")]
         void DeclineFriendRequest(string sessionToken, int friendRequestId);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/DeclineFriendRequest")]
         System.Threading.Tasks.Task DeclineFriendRequestAsync(string sessionToken, int friendRequestId);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/InviteFriendToRoom")]
         void InviteFriendToRoom(string sessionToken, int friendUserId);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/InviteFriendToRoom")]
         System.Threading.Tasks.Task InviteFriendToRoomAsync(string sessionToken, int friendUserId);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/AcceptRoomInvitation")]
         void AcceptRoomInvitation(string sessionToken, int invitationId);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/AcceptRoomInvitation")]
         System.Threading.Tasks.Task AcceptRoomInvitationAsync(string sessionToken, int invitationId);
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IFriendsManagerCallback {
-        
+    public interface IFriendsManagerCallback
+    {
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/SubscribeToFriendsResult")]
         void SubscribeToFriendsResult(TLMG.Client.UsersManagerReference.OperationSubscribeToFriendsResult operationSubscribeToFriendsResult);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/SendFriendRequestResult")]
         void SendFriendRequestResult(TLMG.Client.UsersManagerReference.OperationSendFriendRequestResult operationSendFriendRequestResult);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/AcceptFriendRequestResult")]
         void AcceptFriendRequestResult(TLMG.Client.UsersManagerReference.OperationAcceptFriendRequestResult operationAcceptFriendRequestResult);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/DeclineFriendRequestResult")]
         void DeclineFriendRequestResult(TLMG.Client.UsersManagerReference.OperationDeclineFriendRequestResult operationDeclineFriendRequestResult);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/OnFriendPresenceChanged")]
         void OnFriendPresenceChanged(TLMG.Client.UsersManagerReference.Friend friend);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/OnFriendRequestReceived")]
         void OnFriendRequestReceived(TLMG.Client.UsersManagerReference.FriendRequest friendRequest);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/OnFriendAdded")]
         void OnFriendAdded(TLMG.Client.UsersManagerReference.Friend friend);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/InviteFriendToRoomResult")]
         void InviteFriendToRoomResult(TLMG.Client.UsersManagerReference.OperationResult operationInviteFriendToRoomResult);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/AcceptRoomInvitationResult")]
         void AcceptRoomInvitationResult(TLMG.Client.UsersManagerReference.OperationAcceptRoomInvitationResult operationAcceptRoomInvitationResult);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/OnRoomInvitationReceived")]
         void OnRoomInvitationReceived(TLMG.Client.UsersManagerReference.RoomInvitation roomInvitation);
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IFriendsManagerChannel : TLMG.Client.UsersManagerReference.IFriendsManager, System.ServiceModel.IClientChannel {
+    public interface IFriendsManagerChannel : TLMG.Client.UsersManagerReference.IFriendsManager, System.ServiceModel.IClientChannel
+    {
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class FriendsManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.IFriendsManager>, TLMG.Client.UsersManagerReference.IFriendsManager {
-        
-        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance) : 
-                base(callbackInstance) {
+    public partial class FriendsManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.IFriendsManager>, TLMG.Client.UsersManagerReference.IFriendsManager
+    {
+
+        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance) :
+                base(callbackInstance)
+        {
         }
-        
-        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
-                base(callbackInstance, endpointConfigurationName) {
+
+        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) :
+                base(callbackInstance, endpointConfigurationName)
+        {
         }
-        
-        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+
+        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) :
+                base(callbackInstance, endpointConfigurationName, remoteAddress)
+        {
         }
-        
-        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+
+        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
+                base(callbackInstance, endpointConfigurationName, remoteAddress)
+        {
         }
-        
-        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, binding, remoteAddress) {
+
+        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+                base(callbackInstance, binding, remoteAddress)
+        {
         }
-        
-        public void SubscribeToFriends(string sessionToken) {
+
+        public void SubscribeToFriends(string sessionToken)
+        {
             base.Channel.SubscribeToFriends(sessionToken);
         }
-        
-        public System.Threading.Tasks.Task SubscribeToFriendsAsync(string sessionToken) {
+
+        public System.Threading.Tasks.Task SubscribeToFriendsAsync(string sessionToken)
+        {
             return base.Channel.SubscribeToFriendsAsync(sessionToken);
         }
-        
-        public void SendFriendRequest(string sessionToken, string friendNickname) {
+
+        public void SendFriendRequest(string sessionToken, string friendNickname)
+        {
             base.Channel.SendFriendRequest(sessionToken, friendNickname);
         }
-        
-        public System.Threading.Tasks.Task SendFriendRequestAsync(string sessionToken, string friendNickname) {
+
+        public System.Threading.Tasks.Task SendFriendRequestAsync(string sessionToken, string friendNickname)
+        {
             return base.Channel.SendFriendRequestAsync(sessionToken, friendNickname);
         }
-        
-        public void AcceptFriendRequest(string sessionToken, int friendRequestId) {
+
+        public void AcceptFriendRequest(string sessionToken, int friendRequestId)
+        {
             base.Channel.AcceptFriendRequest(sessionToken, friendRequestId);
         }
-        
-        public System.Threading.Tasks.Task AcceptFriendRequestAsync(string sessionToken, int friendRequestId) {
+
+        public System.Threading.Tasks.Task AcceptFriendRequestAsync(string sessionToken, int friendRequestId)
+        {
             return base.Channel.AcceptFriendRequestAsync(sessionToken, friendRequestId);
         }
-        
-        public void DeclineFriendRequest(string sessionToken, int friendRequestId) {
+
+        public void DeclineFriendRequest(string sessionToken, int friendRequestId)
+        {
             base.Channel.DeclineFriendRequest(sessionToken, friendRequestId);
         }
-        
-        public System.Threading.Tasks.Task DeclineFriendRequestAsync(string sessionToken, int friendRequestId) {
+
+        public System.Threading.Tasks.Task DeclineFriendRequestAsync(string sessionToken, int friendRequestId)
+        {
             return base.Channel.DeclineFriendRequestAsync(sessionToken, friendRequestId);
         }
-        
-        public void InviteFriendToRoom(string sessionToken, int friendUserId) {
+
+        public void InviteFriendToRoom(string sessionToken, int friendUserId)
+        {
             base.Channel.InviteFriendToRoom(sessionToken, friendUserId);
         }
-        
-        public System.Threading.Tasks.Task InviteFriendToRoomAsync(string sessionToken, int friendUserId) {
+
+        public System.Threading.Tasks.Task InviteFriendToRoomAsync(string sessionToken, int friendUserId)
+        {
             return base.Channel.InviteFriendToRoomAsync(sessionToken, friendUserId);
         }
-        
-        public void AcceptRoomInvitation(string sessionToken, int invitationId) {
+
+        public void AcceptRoomInvitation(string sessionToken, int invitationId)
+        {
             base.Channel.AcceptRoomInvitation(sessionToken, invitationId);
         }
-        
-        public System.Threading.Tasks.Task AcceptRoomInvitationAsync(string sessionToken, int invitationId) {
+
+        public System.Threading.Tasks.Task AcceptRoomInvitationAsync(string sessionToken, int invitationId)
+        {
             return base.Channel.AcceptRoomInvitationAsync(sessionToken, invitationId);
         }
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="UsersManagerReference.IChatManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.IChatManagerCallback))]
-    public interface IChatManager {
-        
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="TLMG.Client.UsersManagerReference.IChatManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.IChatManagerCallback))]
+    public interface IChatManager
+    {
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SubscribeToChat")]
         void SubscribeToChat(string sessionToken);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SubscribeToChat")]
         System.Threading.Tasks.Task SubscribeToChatAsync(string sessionToken);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SendChatMessage")]
         void SendChatMessage(string sessionToken, TLMG.Client.UsersManagerReference.OperationSendChatMessageRequest request);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SendChatMessage")]
         System.Threading.Tasks.Task SendChatMessageAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationSendChatMessageRequest request);
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IChatManagerCallback {
-        
+    public interface IChatManagerCallback
+    {
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SubscribeToChatResult")]
         void SubscribeToChatResult(TLMG.Client.UsersManagerReference.OperationResult operationSubscribeToChatResult);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SendChatMessageResult")]
         void SendChatMessageResult(TLMG.Client.UsersManagerReference.OperationSendChatMessageResult operationSendChatMessageResult);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/OnChatMessageReceived")]
         void OnChatMessageReceived(TLMG.Client.UsersManagerReference.ChatMessage chatMessage);
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IChatManagerChannel : TLMG.Client.UsersManagerReference.IChatManager, System.ServiceModel.IClientChannel {
+    public interface IChatManagerChannel : TLMG.Client.UsersManagerReference.IChatManager, System.ServiceModel.IClientChannel
+    {
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class ChatManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.IChatManager>, TLMG.Client.UsersManagerReference.IChatManager {
-        
-        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance) : 
-                base(callbackInstance) {
+    public partial class ChatManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.IChatManager>, TLMG.Client.UsersManagerReference.IChatManager
+    {
+
+        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance) :
+                base(callbackInstance)
+        {
         }
-        
-        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
-                base(callbackInstance, endpointConfigurationName) {
+
+        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) :
+                base(callbackInstance, endpointConfigurationName)
+        {
         }
-        
-        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+
+        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) :
+                base(callbackInstance, endpointConfigurationName, remoteAddress)
+        {
         }
-        
-        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+
+        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
+                base(callbackInstance, endpointConfigurationName, remoteAddress)
+        {
         }
-        
-        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, binding, remoteAddress) {
+
+        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+                base(callbackInstance, binding, remoteAddress)
+        {
         }
-        
-        public void SubscribeToChat(string sessionToken) {
+
+        public void SubscribeToChat(string sessionToken)
+        {
             base.Channel.SubscribeToChat(sessionToken);
         }
-        
-        public System.Threading.Tasks.Task SubscribeToChatAsync(string sessionToken) {
+
+        public System.Threading.Tasks.Task SubscribeToChatAsync(string sessionToken)
+        {
             return base.Channel.SubscribeToChatAsync(sessionToken);
         }
-        
-        public void SendChatMessage(string sessionToken, TLMG.Client.UsersManagerReference.OperationSendChatMessageRequest request) {
+
+        public void SendChatMessage(string sessionToken, TLMG.Client.UsersManagerReference.OperationSendChatMessageRequest request)
+        {
             base.Channel.SendChatMessage(sessionToken, request);
         }
-        
-        public System.Threading.Tasks.Task SendChatMessageAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationSendChatMessageRequest request) {
+
+        public System.Threading.Tasks.Task SendChatMessageAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationSendChatMessageRequest request)
+        {
             return base.Channel.SendChatMessageAsync(sessionToken, request);
         }
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="UsersManagerReference.IMatchManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.IMatchManagerCallback))]
-    public interface IMatchManager {
-        
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="TLMG.Client.UsersManagerReference.IMatchManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.IMatchManagerCallback))]
+    public interface IMatchManager
+    {
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/SubscribeToMatch")]
         void SubscribeToMatch(string sessionToken, System.Guid matchId);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/SubscribeToMatch")]
         System.Threading.Tasks.Task SubscribeToMatchAsync(string sessionToken, System.Guid matchId);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceCard")]
         void PlaceCard(string sessionToken, TLMG.Client.UsersManagerReference.MatchCardKind cardKind);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceCard")]
         System.Threading.Tasks.Task PlaceCardAsync(string sessionToken, TLMG.Client.UsersManagerReference.MatchCardKind cardKind);
+
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceBet")]
+        void PlaceBet(string sessionToken, int betValue);
+
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceBet")]
+        System.Threading.Tasks.Task PlaceBetAsync(string sessionToken, int betValue);
+
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/WithdrawFromBet")]
+        void WithdrawFromBet(string sessionToken);
+
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/WithdrawFromBet")]
+        System.Threading.Tasks.Task WithdrawFromBetAsync(string sessionToken);
+
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/RevealCard")]
+        void RevealCard(string sessionToken, int pileOwnerUserId);
+
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/RevealCard")]
+        System.Threading.Tasks.Task RevealCardAsync(string sessionToken, int pileOwnerUserId);
+
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/ChoosePunishmentCard")]
+        void ChoosePunishmentCard(string sessionToken, int cardIndex);
+
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/ChoosePunishmentCard")]
+        System.Threading.Tasks.Task ChoosePunishmentCardAsync(string sessionToken, int cardIndex);
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IMatchManagerCallback {
-        
+    public interface IMatchManagerCallback
+    {
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/SubscribeToMatchResult")]
         void SubscribeToMatchResult(TLMG.Client.UsersManagerReference.OperationResult operationSubscribeToMatchResult);
-        
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceCardResult")]
         void PlaceCardResult(TLMG.Client.UsersManagerReference.OperationResult operationPlaceCardResult);
-        
+
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceBetResult")]
+        void PlaceBetResult(TLMG.Client.UsersManagerReference.OperationResult operationPlaceBetResult);
+
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/WithdrawFromBetResult")]
+        void WithdrawFromBetResult(TLMG.Client.UsersManagerReference.OperationResult operationWithdrawFromBetResult);
+
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/RevealCardResult")]
+        void RevealCardResult(TLMG.Client.UsersManagerReference.OperationResult operationRevealCardResult);
+
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/ChoosePunishmentCardResult")]
+        void ChoosePunishmentCardResult(TLMG.Client.UsersManagerReference.OperationResult operationChoosePunishmentCardResult);
+
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/OnMatchViewChanged")]
         void OnMatchViewChanged(TLMG.Client.UsersManagerReference.MatchView matchView);
     }
-    
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IMatchManagerChannel : TLMG.Client.UsersManagerReference.IMatchManager, System.ServiceModel.IClientChannel {
+    public interface IMatchManagerChannel : TLMG.Client.UsersManagerReference.IMatchManager, System.ServiceModel.IClientChannel
+    {
     }
-    
+
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class MatchManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.IMatchManager>, TLMG.Client.UsersManagerReference.IMatchManager {
-        
-        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance) : 
-                base(callbackInstance) {
+    public partial class MatchManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.IMatchManager>, TLMG.Client.UsersManagerReference.IMatchManager
+    {
+
+        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance) :
+                base(callbackInstance)
+        {
         }
-        
-        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
-                base(callbackInstance, endpointConfigurationName) {
+
+        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) :
+                base(callbackInstance, endpointConfigurationName)
+        {
         }
-        
-        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+
+        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) :
+                base(callbackInstance, endpointConfigurationName, remoteAddress)
+        {
         }
-        
-        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, endpointConfigurationName, remoteAddress) {
+
+        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
+                base(callbackInstance, endpointConfigurationName, remoteAddress)
+        {
         }
-        
-        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
-                base(callbackInstance, binding, remoteAddress) {
+
+        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+                base(callbackInstance, binding, remoteAddress)
+        {
         }
-        
-        public void SubscribeToMatch(string sessionToken, System.Guid matchId) {
+
+        public void SubscribeToMatch(string sessionToken, System.Guid matchId)
+        {
             base.Channel.SubscribeToMatch(sessionToken, matchId);
         }
-        
-        public System.Threading.Tasks.Task SubscribeToMatchAsync(string sessionToken, System.Guid matchId) {
+
+        public System.Threading.Tasks.Task SubscribeToMatchAsync(string sessionToken, System.Guid matchId)
+        {
             return base.Channel.SubscribeToMatchAsync(sessionToken, matchId);
         }
-        
-        public void PlaceCard(string sessionToken, TLMG.Client.UsersManagerReference.MatchCardKind cardKind) {
+
+        public void PlaceCard(string sessionToken, TLMG.Client.UsersManagerReference.MatchCardKind cardKind)
+        {
             base.Channel.PlaceCard(sessionToken, cardKind);
         }
-        
-        public System.Threading.Tasks.Task PlaceCardAsync(string sessionToken, TLMG.Client.UsersManagerReference.MatchCardKind cardKind) {
+
+        public System.Threading.Tasks.Task PlaceCardAsync(string sessionToken, TLMG.Client.UsersManagerReference.MatchCardKind cardKind)
+        {
             return base.Channel.PlaceCardAsync(sessionToken, cardKind);
+        }
+
+        public void PlaceBet(string sessionToken, int betValue)
+        {
+            base.Channel.PlaceBet(sessionToken, betValue);
+        }
+
+        public System.Threading.Tasks.Task PlaceBetAsync(string sessionToken, int betValue)
+        {
+            return base.Channel.PlaceBetAsync(sessionToken, betValue);
+        }
+
+        public void WithdrawFromBet(string sessionToken)
+        {
+            base.Channel.WithdrawFromBet(sessionToken);
+        }
+
+        public System.Threading.Tasks.Task WithdrawFromBetAsync(string sessionToken)
+        {
+            return base.Channel.WithdrawFromBetAsync(sessionToken);
+        }
+
+        public void RevealCard(string sessionToken, int pileOwnerUserId)
+        {
+            base.Channel.RevealCard(sessionToken, pileOwnerUserId);
+        }
+
+        public System.Threading.Tasks.Task RevealCardAsync(string sessionToken, int pileOwnerUserId)
+        {
+            return base.Channel.RevealCardAsync(sessionToken, pileOwnerUserId);
+        }
+
+        public void ChoosePunishmentCard(string sessionToken, int cardIndex)
+        {
+            base.Channel.ChoosePunishmentCard(sessionToken, cardIndex);
+        }
+
+        public System.Threading.Tasks.Task ChoosePunishmentCardAsync(string sessionToken, int cardIndex)
+        {
+            return base.Channel.ChoosePunishmentCardAsync(sessionToken, cardIndex);
         }
     }
 }

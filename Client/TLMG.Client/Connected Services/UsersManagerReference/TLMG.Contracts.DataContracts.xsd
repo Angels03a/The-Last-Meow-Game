@@ -265,17 +265,75 @@
   <xs:element name="MatchCardKind" nillable="true" type="tns:MatchCardKind" />
   <xs:complexType name="MatchView">
     <xs:sequence>
+      <xs:element minOccurs="0" name="BetLeaderUserId" type="xs:int" />
+      <xs:element minOccurs="0" name="CanChoosePunishmentCard" type="xs:boolean" />
+      <xs:element minOccurs="0" name="CanPlaceBet" type="xs:boolean" />
+      <xs:element minOccurs="0" name="CanPlaceCard" type="xs:boolean" />
+      <xs:element minOccurs="0" name="CanRevealCard" type="xs:boolean" />
+      <xs:element minOccurs="0" name="CanWithdrawFromBet" type="xs:boolean" />
+      <xs:element minOccurs="0" name="CardsOnTable" type="xs:int" />
+      <xs:element minOccurs="0" name="Challenge" nillable="true" type="tns:MatchChallengeView" />
+      <xs:element minOccurs="0" name="ChallengesToWin" type="xs:int" />
+      <xs:element minOccurs="0" name="CurrentBet" type="xs:int" />
       <xs:element minOccurs="0" name="MatchId" type="ser:guid" />
+      <xs:element minOccurs="0" name="MaximumBetValue" type="xs:int" />
+      <xs:element minOccurs="0" name="MinimumBetValue" type="xs:int" />
       <xs:element minOccurs="0" name="OwnHandCards" nillable="true" type="tns:ArrayOfMatchCardKind" />
       <xs:element minOccurs="0" name="OwnPileCards" nillable="true" type="tns:ArrayOfMatchCardKind" />
       <xs:element minOccurs="0" name="Phase" type="tns:MatchRoundPhase" />
       <xs:element minOccurs="0" name="PlayerInTurnUserId" type="xs:int" />
       <xs:element minOccurs="0" name="Players" nillable="true" type="tns:ArrayOfMatchPlayerView" />
+      <xs:element minOccurs="0" name="Punishment" nillable="true" type="tns:MatchPunishmentView" />
       <xs:element minOccurs="0" name="RoundNumber" type="xs:int" />
       <xs:element minOccurs="0" name="Version" type="xs:int" />
+      <xs:element minOccurs="0" name="WinnerUserId" type="xs:int" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="MatchView" nillable="true" type="tns:MatchView" />
+  <xs:complexType name="MatchChallengeView">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="BettorUserId" type="xs:int" />
+      <xs:element minOccurs="0" name="Outcome" type="tns:MatchChallengeOutcome" />
+      <xs:element minOccurs="0" name="PromisedCount" type="xs:int" />
+      <xs:element minOccurs="0" name="PunishedUserId" type="xs:int" />
+      <xs:element minOccurs="0" name="PunishmentChooserUserId" type="xs:int" />
+      <xs:element minOccurs="0" name="PunishmentResolution" type="tns:MatchPunishmentResolution" />
+      <xs:element minOccurs="0" name="RevealedCards" nillable="true" type="tns:ArrayOfMatchRevealedCardView" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MatchChallengeView" nillable="true" type="tns:MatchChallengeView" />
+  <xs:simpleType name="MatchChallengeOutcome">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="InProgress" />
+      <xs:enumeration value="Succeeded" />
+      <xs:enumeration value="Failed" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="MatchChallengeOutcome" nillable="true" type="tns:MatchChallengeOutcome" />
+  <xs:simpleType name="MatchPunishmentResolution">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Pending" />
+      <xs:enumeration value="ChosenByChooser" />
+      <xs:enumeration value="ChosenAtRandom" />
+      <xs:enumeration value="SingleLifeNoChoice" />
+      <xs:enumeration value="Cancelled" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="MatchPunishmentResolution" nillable="true" type="tns:MatchPunishmentResolution" />
+  <xs:complexType name="ArrayOfMatchRevealedCardView">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="MatchRevealedCardView" nillable="true" type="tns:MatchRevealedCardView" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfMatchRevealedCardView" nillable="true" type="tns:ArrayOfMatchRevealedCardView" />
+  <xs:complexType name="MatchRevealedCardView">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Card" type="tns:MatchCardKind" />
+      <xs:element minOccurs="0" name="PileOwnerUserId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MatchRevealedCardView" nillable="true" type="tns:MatchRevealedCardView" />
   <xs:complexType name="ArrayOfMatchCardKind">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="MatchCardKind" type="tns:MatchCardKind" />
@@ -301,11 +359,24 @@
   <xs:complexType name="MatchPlayerView">
     <xs:sequence>
       <xs:element minOccurs="0" name="HandCardCount" type="xs:int" />
+      <xs:element minOccurs="0" name="HasLeftMatch" type="xs:boolean" />
+      <xs:element minOccurs="0" name="HasWithdrawnFromBet" type="xs:boolean" />
       <xs:element minOccurs="0" name="IsEliminated" type="xs:boolean" />
       <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="PileCardCount" type="xs:int" />
+      <xs:element minOccurs="0" name="RevealedPileCards" nillable="true" type="tns:ArrayOfMatchCardKind" />
+      <xs:element minOccurs="0" name="SuccessfulChallengeCount" type="xs:int" />
       <xs:element minOccurs="0" name="UserId" type="xs:int" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="MatchPlayerView" nillable="true" type="tns:MatchPlayerView" />
+  <xs:complexType name="MatchPunishmentView">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CardSlotCount" type="xs:int" />
+      <xs:element minOccurs="0" name="ChooserUserId" type="xs:int" />
+      <xs:element minOccurs="0" name="IsBlindChoice" type="xs:boolean" />
+      <xs:element minOccurs="0" name="PunishedUserId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MatchPunishmentView" nillable="true" type="tns:MatchPunishmentView" />
 </xs:schema>

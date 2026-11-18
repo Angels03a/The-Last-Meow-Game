@@ -3,8 +3,7 @@
   <wsp:Policy wsu:Id="NetTcpBinding_IUsersManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
-        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1">
-        </msb:BinaryEncoding>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1"></msb:BinaryEncoding>
         <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
           <wsp:Policy>
             <sp:TransportToken>
@@ -16,28 +15,24 @@
             </sp:TransportToken>
             <sp:AlgorithmSuite>
               <wsp:Policy>
-                <sp:Basic256>
-                </sp:Basic256>
+                <sp:Basic256></sp:Basic256>
               </wsp:Policy>
             </sp:AlgorithmSuite>
             <sp:Layout>
               <wsp:Policy>
-                <sp:Strict>
-                </sp:Strict>
+                <sp:Strict></sp:Strict>
               </wsp:Policy>
             </sp:Layout>
           </wsp:Policy>
         </sp:TransportBinding>
-        <wsaw:UsingAddressing>
-        </wsaw:UsingAddressing>
+        <wsaw:UsingAddressing></wsaw:UsingAddressing>
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
   <wsp:Policy wsu:Id="NetTcpBinding_ILeaderboardManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
-        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1">
-        </msb:BinaryEncoding>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1"></msb:BinaryEncoding>
         <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
           <wsp:Policy>
             <sp:TransportToken>
@@ -49,28 +44,24 @@
             </sp:TransportToken>
             <sp:AlgorithmSuite>
               <wsp:Policy>
-                <sp:Basic256>
-                </sp:Basic256>
+                <sp:Basic256></sp:Basic256>
               </wsp:Policy>
             </sp:AlgorithmSuite>
             <sp:Layout>
               <wsp:Policy>
-                <sp:Strict>
-                </sp:Strict>
+                <sp:Strict></sp:Strict>
               </wsp:Policy>
             </sp:Layout>
           </wsp:Policy>
         </sp:TransportBinding>
-        <wsaw:UsingAddressing>
-        </wsaw:UsingAddressing>
+        <wsaw:UsingAddressing></wsaw:UsingAddressing>
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
   <wsp:Policy wsu:Id="NetTcpBinding_ILobbyManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
-        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1">
-        </msb:BinaryEncoding>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1"></msb:BinaryEncoding>
         <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
           <wsp:Policy>
             <sp:TransportToken>
@@ -82,28 +73,24 @@
             </sp:TransportToken>
             <sp:AlgorithmSuite>
               <wsp:Policy>
-                <sp:Basic256>
-                </sp:Basic256>
+                <sp:Basic256></sp:Basic256>
               </wsp:Policy>
             </sp:AlgorithmSuite>
             <sp:Layout>
               <wsp:Policy>
-                <sp:Strict>
-                </sp:Strict>
+                <sp:Strict></sp:Strict>
               </wsp:Policy>
             </sp:Layout>
           </wsp:Policy>
         </sp:TransportBinding>
-        <wsaw:UsingAddressing>
-        </wsaw:UsingAddressing>
+        <wsaw:UsingAddressing></wsaw:UsingAddressing>
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
   <wsp:Policy wsu:Id="NetTcpBinding_IFriendsManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
-        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1">
-        </msb:BinaryEncoding>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1"></msb:BinaryEncoding>
         <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
           <wsp:Policy>
             <sp:TransportToken>
@@ -115,28 +102,24 @@
             </sp:TransportToken>
             <sp:AlgorithmSuite>
               <wsp:Policy>
-                <sp:Basic256>
-                </sp:Basic256>
+                <sp:Basic256></sp:Basic256>
               </wsp:Policy>
             </sp:AlgorithmSuite>
             <sp:Layout>
               <wsp:Policy>
-                <sp:Strict>
-                </sp:Strict>
+                <sp:Strict></sp:Strict>
               </wsp:Policy>
             </sp:Layout>
           </wsp:Policy>
         </sp:TransportBinding>
-        <wsaw:UsingAddressing>
-        </wsaw:UsingAddressing>
+        <wsaw:UsingAddressing></wsaw:UsingAddressing>
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
   <wsp:Policy wsu:Id="NetTcpBinding_IChatManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
-        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1">
-        </msb:BinaryEncoding>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1"></msb:BinaryEncoding>
         <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
           <wsp:Policy>
             <sp:TransportToken>
@@ -148,28 +131,24 @@
             </sp:TransportToken>
             <sp:AlgorithmSuite>
               <wsp:Policy>
-                <sp:Basic256>
-                </sp:Basic256>
+                <sp:Basic256></sp:Basic256>
               </wsp:Policy>
             </sp:AlgorithmSuite>
             <sp:Layout>
               <wsp:Policy>
-                <sp:Strict>
-                </sp:Strict>
+                <sp:Strict></sp:Strict>
               </wsp:Policy>
             </sp:Layout>
           </wsp:Policy>
         </sp:TransportBinding>
-        <wsaw:UsingAddressing>
-        </wsaw:UsingAddressing>
+        <wsaw:UsingAddressing></wsaw:UsingAddressing>
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
   <wsp:Policy wsu:Id="NetTcpBinding_IMatchManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
-        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1">
-        </msb:BinaryEncoding>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1"></msb:BinaryEncoding>
         <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
           <wsp:Policy>
             <sp:TransportToken>
@@ -181,20 +160,17 @@
             </sp:TransportToken>
             <sp:AlgorithmSuite>
               <wsp:Policy>
-                <sp:Basic256>
-                </sp:Basic256>
+                <sp:Basic256></sp:Basic256>
               </wsp:Policy>
             </sp:AlgorithmSuite>
             <sp:Layout>
               <wsp:Policy>
-                <sp:Strict>
-                </sp:Strict>
+                <sp:Strict></sp:Strict>
               </wsp:Policy>
             </sp:Layout>
           </wsp:Policy>
         </sp:TransportBinding>
-        <wsaw:UsingAddressing>
-        </wsaw:UsingAddressing>
+        <wsaw:UsingAddressing></wsaw:UsingAddressing>
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
@@ -364,11 +340,35 @@
   <wsdl:message name="IMatchManager_PlaceCard_InputMessage">
     <wsdl:part name="parameters" element="tns:PlaceCard" />
   </wsdl:message>
+  <wsdl:message name="IMatchManager_PlaceBet_InputMessage">
+    <wsdl:part name="parameters" element="tns:PlaceBet" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_WithdrawFromBet_InputMessage">
+    <wsdl:part name="parameters" element="tns:WithdrawFromBet" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_RevealCard_InputMessage">
+    <wsdl:part name="parameters" element="tns:RevealCard" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_ChoosePunishmentCard_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChoosePunishmentCard" />
+  </wsdl:message>
   <wsdl:message name="IMatchManager_SubscribeToMatchResult_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:SubscribeToMatchResult" />
   </wsdl:message>
   <wsdl:message name="IMatchManager_PlaceCardResult_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:PlaceCardResult" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_PlaceBetResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:PlaceBetResult" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_WithdrawFromBetResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:WithdrawFromBetResult" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_RevealCardResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:RevealCardResult" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_ChoosePunishmentCardResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ChoosePunishmentCardResult" />
   </wsdl:message>
   <wsdl:message name="IMatchManager_OnMatchViewChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:OnMatchViewChanged" />
@@ -523,19 +523,42 @@
     <wsdl:operation name="PlaceCard">
       <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/PlaceCard" message="tns:IMatchManager_PlaceCard_InputMessage" />
     </wsdl:operation>
+    <wsdl:operation name="PlaceBet">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/PlaceBet" message="tns:IMatchManager_PlaceBet_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="WithdrawFromBet">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/WithdrawFromBet" message="tns:IMatchManager_WithdrawFromBet_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RevealCard">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/RevealCard" message="tns:IMatchManager_RevealCard_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChoosePunishmentCard">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/ChoosePunishmentCard" message="tns:IMatchManager_ChoosePunishmentCard_InputMessage" />
+    </wsdl:operation>
     <wsdl:operation name="SubscribeToMatchResult">
       <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/SubscribeToMatchResult" message="tns:IMatchManager_SubscribeToMatchResult_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation name="PlaceCardResult">
       <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/PlaceCardResult" message="tns:IMatchManager_PlaceCardResult_OutputCallbackMessage" />
     </wsdl:operation>
+    <wsdl:operation name="PlaceBetResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/PlaceBetResult" message="tns:IMatchManager_PlaceBetResult_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="WithdrawFromBetResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/WithdrawFromBetResult" message="tns:IMatchManager_WithdrawFromBetResult_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RevealCardResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/RevealCardResult" message="tns:IMatchManager_RevealCardResult_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChoosePunishmentCardResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/ChoosePunishmentCardResult" message="tns:IMatchManager_ChoosePunishmentCardResult_OutputCallbackMessage" />
+    </wsdl:operation>
     <wsdl:operation name="OnMatchViewChanged">
       <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/OnMatchViewChanged" message="tns:IMatchManager_OnMatchViewChanged_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetTcpBinding_IUsersManager" type="tns:IUsersManager">
-    <wsp:PolicyReference URI="#NetTcpBinding_IUsersManager_policy">
-    </wsp:PolicyReference>
+    <wsp:PolicyReference URI="#NetTcpBinding_IUsersManager_policy"></wsp:PolicyReference>
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="RegisterPlayerAccount">
       <soap12:operation soapAction="http://tempuri.org/IUsersManager/RegisterPlayerAccount" style="document" />
@@ -599,8 +622,7 @@
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="NetTcpBinding_ILeaderboardManager" type="tns:ILeaderboardManager">
-    <wsp:PolicyReference URI="#NetTcpBinding_ILeaderboardManager_policy">
-    </wsp:PolicyReference>
+    <wsp:PolicyReference URI="#NetTcpBinding_ILeaderboardManager_policy"></wsp:PolicyReference>
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="GetLeaderboard">
       <soap12:operation soapAction="http://tempuri.org/ILeaderboardManager/GetLeaderboard" style="document" />
@@ -616,8 +638,7 @@
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="NetTcpBinding_ILobbyManager" type="tns:ILobbyManager">
-    <wsp:PolicyReference URI="#NetTcpBinding_ILobbyManager_policy">
-    </wsp:PolicyReference>
+    <wsp:PolicyReference URI="#NetTcpBinding_ILobbyManager_policy"></wsp:PolicyReference>
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="CreateRoom">
       <soap12:operation soapAction="http://tempuri.org/ILobbyManager/CreateRoom" style="document" />
@@ -699,8 +720,7 @@
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="NetTcpBinding_IFriendsManager" type="tns:IFriendsManager">
-    <wsp:PolicyReference URI="#NetTcpBinding_IFriendsManager_policy">
-    </wsp:PolicyReference>
+    <wsp:PolicyReference URI="#NetTcpBinding_IFriendsManager_policy"></wsp:PolicyReference>
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="SubscribeToFriends">
       <soap12:operation soapAction="http://tempuri.org/IFriendshipManager/SubscribeToFriends" style="document" />
@@ -800,8 +820,7 @@
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="NetTcpBinding_IChatManager" type="tns:IChatManager">
-    <wsp:PolicyReference URI="#NetTcpBinding_IChatManager_policy">
-    </wsp:PolicyReference>
+    <wsp:PolicyReference URI="#NetTcpBinding_IChatManager_policy"></wsp:PolicyReference>
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="SubscribeToChat">
       <soap12:operation soapAction="http://tempuri.org/IChatManager/SubscribeToChat" style="document" />
@@ -835,8 +854,7 @@
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="NetTcpBinding_IMatchManager" type="tns:IMatchManager">
-    <wsp:PolicyReference URI="#NetTcpBinding_IMatchManager_policy">
-    </wsp:PolicyReference>
+    <wsp:PolicyReference URI="#NetTcpBinding_IMatchManager_policy"></wsp:PolicyReference>
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="SubscribeToMatch">
       <soap12:operation soapAction="http://tempuri.org/IMatchManager/SubscribeToMatch" style="document" />
@@ -846,6 +864,30 @@
     </wsdl:operation>
     <wsdl:operation name="PlaceCard">
       <soap12:operation soapAction="http://tempuri.org/IMatchManager/PlaceCard" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="PlaceBet">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/PlaceBet" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="WithdrawFromBet">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/WithdrawFromBet" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="RevealCard">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/RevealCard" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="ChoosePunishmentCard">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/ChoosePunishmentCard" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -862,6 +904,30 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="PlaceBetResult">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/PlaceBetResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="WithdrawFromBetResult">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/WithdrawFromBetResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RevealCardResult">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/RevealCardResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChoosePunishmentCardResult">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/ChoosePunishmentCardResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="OnMatchViewChanged">
       <soap12:operation soapAction="http://tempuri.org/IMatchManager/OnMatchViewChanged" style="document" />
       <wsdl:output>
@@ -874,54 +940,42 @@
       <soap12:address location="net.tcp://localhost:8081/AccountRegistrationService" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/AccountRegistrationService</wsa10:Address>
-        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
-        </Identity>
+
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_ILeaderboardManager" binding="tns:NetTcpBinding_ILeaderboardManager">
       <soap12:address location="net.tcp://localhost:8081/LeaderboardManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/LeaderboardManager</wsa10:Address>
-        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
-        </Identity>
+
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_ILobbyManager" binding="tns:NetTcpBinding_ILobbyManager">
       <soap12:address location="net.tcp://localhost:8081/LobbyManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/LobbyManager</wsa10:Address>
-        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
-        </Identity>
+
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_IFriendsManager" binding="tns:NetTcpBinding_IFriendsManager">
       <soap12:address location="net.tcp://localhost:8081/FriendsManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/FriendsManager</wsa10:Address>
-        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
-        </Identity>
+
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_IChatManager" binding="tns:NetTcpBinding_IChatManager">
       <soap12:address location="net.tcp://localhost:8081/ChatManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/ChatManager</wsa10:Address>
-        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
-        </Identity>
+
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_IMatchManager" binding="tns:NetTcpBinding_IMatchManager">
       <soap12:address location="net.tcp://localhost:8081/MatchManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/MatchManager</wsa10:Address>
-        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
-        </Identity>
+
       </wsa10:EndpointReference>
     </wsdl:port>
   </wsdl:service>

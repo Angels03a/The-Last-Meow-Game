@@ -76,11 +76,11 @@ namespace TLMG.Client.Communication
             }
         }
 
-        internal void NotifyMatchPlaceCardResult(ServerCallback callback, OperationResult placeCardResult)
+        internal void NotifyMatchActionResult(ServerCallback callback, OperationResult actionResult)
         {
-            if (IsCurrentMatchCallback(callback) && placeCardResult != null && !placeCardResult.IsSuccess)
+            if (IsCurrentMatchCallback(callback) && actionResult != null && !actionResult.IsSuccess)
             {
-                MatchErrorReceived?.Invoke(this, new ServerEventArgs<string>(placeCardResult.ErrorKey));
+                MatchErrorReceived?.Invoke(this, new ServerEventArgs<string>(actionResult.ErrorKey));
             }
         }
 
