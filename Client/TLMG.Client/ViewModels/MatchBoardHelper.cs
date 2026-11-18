@@ -81,7 +81,14 @@ namespace TLMG.Client.ViewModels
                 board.RoundNumber = matchView.RoundNumber;
                 board.PhaseLabelKey = FindPhaseLabelKey(matchView.Phase);
                 board.IsLocalPlayerTurn = isLocalPlayerTurn;
-                board.CanPlaceCards = isLocalPlayerTurn && matchView.Phase == MatchRoundPhase.PlacingCards;
+                board.CanPlaceCards = matchView.CanPlaceCard;
+                board.CanPlaceBet = matchView.CanPlaceBet;
+                board.CanWithdrawFromBet = matchView.CanWithdrawFromBet;
+                board.CurrentBet = matchView.CurrentBet;
+                board.MinimumBetValue = matchView.MinimumBetValue;
+                board.MaximumBetValue = matchView.MaximumBetValue;
+                board.BetLeaderName = players.FirstOrDefault(player => player.UserId == matchView.BetLeaderUserId)
+                    ?.Nickname ?? string.Empty;
                 board.Players = players.AsReadOnly();
                 board.LocalPlayer = players.FirstOrDefault(player => player.UserId == localUserId);
                 board.HandCards = CreateHandCards(matchView.OwnHandCards);

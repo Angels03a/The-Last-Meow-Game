@@ -34,5 +34,11 @@ namespace TLMG.Client.Communication
         /// <param name="cardKind">Tipo de la carta que se quiere colocar.</param>
         /// <returns>true si se envió; false si no hay suscripción vigente o falló el envío.</returns>
         bool PlaceCard(MatchCardKind cardKind);
+
+        /// <summary>Envía una apuesta para que el servidor la valide.</summary>
+        bool PlaceBet(int betValue);
+
+        /// <summary>Solicita retirarse de la apuesta en curso.</summary>
+        bool WithdrawFromBet();
     }
 }

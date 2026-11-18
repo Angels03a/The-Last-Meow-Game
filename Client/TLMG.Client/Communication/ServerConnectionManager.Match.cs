@@ -62,6 +62,32 @@ namespace TLMG.Client.Communication
             return wasCardSent;
         }
 
+        /// <inheritdoc />
+        public bool PlaceBet(int betValue)
+        {
+            bool wasSent = false;
+            if (_matchClient != null && IsMatchSubscribed)
+            {
+                wasSent = TrySendToMatchChannel(
+                    () => _matchClient.PlaceBet(_sessionToken, betValue), "apostar");
+            }
+
+            return wasSent;
+        }
+
+        /// <inheritdoc />
+        public bool WithdrawFromBet()
+        {
+            bool wasSent = false;
+            if (_matchClient != null && IsMatchSubscribed)
+            {
+                wasSent = TrySendToMatchChannel(
+                    () => _matchClient.WithdrawFromBet(_sessionToken), "retirarse de la apuesta");
+            }
+
+            return wasSent;
+        }
+
         internal void NotifyMatchSubscriptionResult(ServerCallback callback, OperationResult subscriptionResult)
         {
             if (IsCurrentMatchCallback(callback) && subscriptionResult != null)

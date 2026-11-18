@@ -23,6 +23,24 @@ namespace TLMG.Client.Models
         /// <summary>Indica si el jugador local puede pedir colocar una carta; el servidor decide si procede.</summary>
         public bool CanPlaceCards { get; set; }
 
+        /// <summary>Apuesta confirmada por el servidor.</summary>
+        public int CurrentBet { get; set; }
+
+        /// <summary>Límite inferior publicado para la siguiente apuesta.</summary>
+        public int MinimumBetValue { get; set; }
+
+        /// <summary>Límite superior publicado para la siguiente apuesta.</summary>
+        public int MaximumBetValue { get; set; }
+
+        /// <summary>Indica si el servidor permite apostar.</summary>
+        public bool CanPlaceBet { get; set; }
+
+        /// <summary>Indica si el servidor permite retirarse de la apuesta.</summary>
+        public bool CanWithdrawFromBet { get; set; }
+
+        /// <summary>Nombre del líder de la apuesta, cuando existe.</summary>
+        public string BetLeaderName { get; set; }
+
         /// <summary>Todos los jugadores, en su orden fijo de turnos.</summary>
         public IReadOnlyList<MatchPlayerEntry> Players { get; set; }
 

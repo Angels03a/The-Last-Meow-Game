@@ -12,12 +12,15 @@ namespace TLMG.Client.ViewModels
 {
     public class GameplayViewModel : ViewModelBase
     {
-        private const int NoBetAmount = 0;
         private const string ChatEmptyErrorKey = "Lobby_ChatEmptyError";
         private const string NotInMatchErrorKey = "Match_NotInMatchError";
 
         private readonly RelayCommand _sendChatCommand;
         private readonly RelayCommand<HandCardEntry> _placeCardCommand;
+        private readonly RelayCommand _placeBetCommand;
+        private readonly RelayCommand _withdrawBetCommand;
+        private readonly RelayCommand _increaseBetCommand;
+        private readonly RelayCommand _decreaseBetCommand;
         private readonly INavigationManager _navigation;
         private readonly ILobbyConnection _lobbyConnection;
         private readonly IMatchConnection _matchConnection;
@@ -25,6 +28,7 @@ namespace TLMG.Client.ViewModels
         private readonly MatchModeSettings _matchMode;
         private readonly ObservableCollection<ChatMessageEntry> _chatMessages;
 
+        private int _bidAmount;
         private MatchBoard _board;
         private bool _isMatchUnavailable;
         private string _selectedPlayerName;
@@ -49,6 +53,10 @@ namespace TLMG.Client.ViewModels
 
             _sendChatCommand = new RelayCommand(ExecuteSendChat, CanExecuteSendChat);
             _placeCardCommand = new RelayCommand<HandCardEntry>(ExecutePlaceCard, CanExecutePlaceCard);
+            _placeBetCommand = new RelayCommand(ExecutePlaceBet, CanExecutePlaceBet);
+            _withdrawBetCommand = new RelayCommand(ExecuteWithdrawBet, CanExecuteWithdrawBet);
+            _increaseBetCommand = new RelayCommand(ExecuteIncreaseBet, CanIncreaseBet);
+            _decreaseBetCommand = new RelayCommand(ExecuteDecreaseBet, CanDecreaseBet);
 
             ExitCommand = new RelayCommand(ExecuteExit);
             ReportPlayerCommand = new RelayCommand(ExecuteReportPlayer);
@@ -61,6 +69,10 @@ namespace TLMG.Client.ViewModels
 
         public event EventHandler KickVoteRequested;
         public ICommand PlaceCardCommand => _placeCardCommand;
+        public ICommand PlaceBetCommand => _placeBetCommand;
+        public ICommand WithdrawBetCommand => _withdrawBetCommand;
+        public ICommand IncreaseBetCommand => _increaseBetCommand;
+        public ICommand DecreaseBetCommand => _decreaseBetCommand;
         public ICommand SendChatCommand => _sendChatCommand;
         public ICommand ExitCommand { get; }
         public ICommand ReportPlayerCommand { get; }
@@ -103,12 +115,19 @@ namespace TLMG.Client.ViewModels
             private set { SetProperty(ref _board, value); }
         }
 
-        /// <summary>Las apuestas llegan en I2b; mientras tanto no hay apuesta ni se simula una.</summary>
-        public int BidAmount => NoBetAmount;
+        public int BidAmount
+        {
+            get { return _bidAmount; }
+            private set
+            {
+                if (SetProperty(ref _bidAmount, value))
+                {
+                    RefreshBetCommands();
+                }
+            }
+        }
 
-        /// <summary>Las apuestas llegan en I2b; mientras tanto no hay apuesta ni se simula una.</summary>
-        public int CurrentBidAmount => NoBetAmount;
-
+        public int CurrentBidAmount => Board.CurrentBet;
         public string SelectedPlayerName
         {
             get { return _selectedPlayerName; }
@@ -197,9 +216,20 @@ namespace TLMG.Client.ViewModels
                 OnPropertyChanged(nameof(CurrentRoundNumber));
                 OnPropertyChanged(nameof(PhaseLabelKey));
                 OnPropertyChanged(nameof(HasMatchView));
+                OnPropertyChanged(nameof(CurrentBidAmount));
             }
 
             _placeCardCommand.NotifyCanExecuteChanged();
+            if (Board.CanPlaceBet && Board.MinimumBetValue <= Board.MaximumBetValue)
+            {
+                BidAmount = Math.Max(Board.MinimumBetValue, Math.Min(BidAmount, Board.MaximumBetValue));
+            }
+            else
+            {
+                BidAmount = 0;
+            }
+
+            RefreshBetCommands();
         }
 
         private void OnMatchViewChanged(object sender, ServerEventArgs<MatchView> eventArgs)
@@ -234,9 +264,69 @@ namespace TLMG.Client.ViewModels
                 OnPropertyChanged(nameof(CurrentRoundNumber));
                 OnPropertyChanged(nameof(PhaseLabelKey));
                 OnPropertyChanged(nameof(HasMatchView));
+                OnPropertyChanged(nameof(CurrentBidAmount));
             }
 
             _placeCardCommand.NotifyCanExecuteChanged();
+            if (Board.CanPlaceBet && Board.MinimumBetValue <= Board.MaximumBetValue)
+            {
+                BidAmount = Math.Max(Board.MinimumBetValue, Math.Min(BidAmount, Board.MaximumBetValue));
+            }
+            else
+            {
+                BidAmount = 0;
+            }
+
+            RefreshBetCommands();
+        }
+
+        private void RefreshBetCommands()
+        {
+            _placeBetCommand.NotifyCanExecuteChanged();
+            _withdrawBetCommand.NotifyCanExecuteChanged();
+            _increaseBetCommand.NotifyCanExecuteChanged();
+            _decreaseBetCommand.NotifyCanExecuteChanged();
+        }
+
+        private bool CanExecutePlaceBet()
+        {
+            return _matchConnection.IsMatchSubscribed && Board.CanPlaceBet
+                && BidAmount >= Board.MinimumBetValue && BidAmount <= Board.MaximumBetValue;
+        }
+
+        private void ExecutePlaceBet()
+        {
+            _matchConnection.PlaceBet(BidAmount);
+        }
+
+        private bool CanExecuteWithdrawBet()
+        {
+            return _matchConnection.IsMatchSubscribed && Board.CanWithdrawFromBet;
+        }
+
+        private void ExecuteWithdrawBet()
+        {
+            _matchConnection.WithdrawFromBet();
+        }
+
+        private bool CanIncreaseBet()
+        {
+            return CanExecutePlaceBet() && BidAmount < Board.MaximumBetValue;
+        }
+
+        private void ExecuteIncreaseBet()
+        {
+            BidAmount++;
+        }
+
+        private bool CanDecreaseBet()
+        {
+            return CanExecutePlaceBet() && BidAmount > Board.MinimumBetValue;
+        }
+
+        private void ExecuteDecreaseBet()
+        {
+            BidAmount--;
         }
 
         private void ExecutePlaceCard(HandCardEntry handCard)

@@ -311,8 +311,8 @@
     <sys:String x:Key="Gameplay_CurrentBidLabel">Apuesta actual:</sys:String>
     <sys:String x:Key="Gameplay_TableHint">COLOCA CARTAS O APUESTA MÁS ALTO</sys:String>
     <sys:String x:Key="Gameplay_YourHandLabel">TU MANO:</sys:String>
-    <sys:String x:Key="Gameplay_ChallengeButton">⚔️ Retar</sys:String>
-    <sys:String x:Key="Gameplay_SurrenderButton">🏳️ Rendirse</sys:String>
+    <sys:String x:Key="Gameplay_ChallengeButton">Apostar</sys:String>
+    <sys:String x:Key="Gameplay_SurrenderButton">Retirarse</sys:String>
     <sys:String x:Key="Gameplay_ChatTitle">CHAT DE PARTIDA</sys:String>
     <sys:String x:Key="Gameplay_ChatPlaceholder">Chat...</sys:String>
     <sys:String x:Key="Gameplay_SendChatButton">→</sys:String>
@@ -406,4 +406,11 @@
     <sys:String x:Key="Gameplay_PhasePunishmentPendingLabel">Castigo pendiente</sys:String>
     <sys:String x:Key="Gameplay_PhaseMatchFinishedLabel">Partida terminada</sys:String>
     <sys:String x:Key="Gameplay_MatchUnavailableLabel">Se perdió la conexión con la partida.</sys:String>
+    <sys:String x:Key="Gameplay_BetLimitsLabel">Límites de apuesta</sys:String>
+    <sys:String x:Key="Gameplay_BetLeaderLabel">Líder de la apuesta</sys:String>
+    <sys:String x:Key="Match_NoBetInProgressError">No hay una apuesta en curso.</sys:String>
+    <sys:String x:Key="Match_TableEmptyError">No hay cartas en la mesa.</sys:String>
+    <sys:String x:Key="Match_EmptyHandBetError">Con la mano vacía solo puedes apostar una carta.</sys:String>
+    <sys:String x:Key="Match_BetValueNotValidError">El valor de la apuesta no es válido.</sys:String>
+    <sys:String x:Key="Match_NoCardPlacedError">Primero debes colocar una carta.</sys:String>
 </ResourceDictionary>

@@ -324,24 +324,32 @@
                     </Grid>
 
                     <StackPanel Grid.Column="3" Style="{StaticResource GameplayActionsPanelStyle}">
+                        <TextBlock Text="{DynamicResource Gameplay_BetLimitsLabel}" />
+                        <TextBlock>
+                            <Run Text="{Binding Board.MinimumBetValue}" />
+                            <Run Text="–" />
+                            <Run Text="{Binding Board.MaximumBetValue}" />
+                        </TextBlock>
+                        <TextBlock Text="{DynamicResource Gameplay_BetLeaderLabel}" />
+                        <TextBlock Text="{Binding Board.BetLeaderName}" />
                         <Border Style="{StaticResource GameplayBidSelectorBorderStyle}">
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="−"
                                         Style="{StaticResource GameplayBidStepButtonStyle}"
-                                        IsEnabled="False" />
+                                        Command="{Binding DecreaseBetCommand}" />
                                 <TextBlock Text="{Binding BidAmount}"
                                            Style="{StaticResource GameplayBidValueTextStyle}" />
                                 <Button Content="+"
                                         Style="{StaticResource GameplayBidStepButtonStyle}"
-                                        IsEnabled="False" />
+                                        Command="{Binding IncreaseBetCommand}" />
                             </StackPanel>
                         </Border>
                         <Button Content="{DynamicResource Gameplay_ChallengeButton}"
                                 Style="{StaticResource GameplayChallengeButtonStyle}"
-                                IsEnabled="False" />
+                                Command="{Binding PlaceBetCommand}" />
                         <Button Content="{DynamicResource Gameplay_SurrenderButton}"
                                 Style="{StaticResource GameplaySurrenderButtonStyle}"
-                                IsEnabled="False" />
+                                Command="{Binding WithdrawBetCommand}" />
                     </StackPanel>
                 </Grid>
             </Border>
