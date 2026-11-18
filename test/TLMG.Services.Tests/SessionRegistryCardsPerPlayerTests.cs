@@ -111,7 +111,7 @@ namespace TLMG.Services.Tests
         public void ChangeCardsPerPlayer_WithPlayerOutsideLobby_RejectsRequest()
         {
             LobbyScenario scenario = new LobbyScenario();
-            string outsiderToken = scenario.Registry.StartSession(9, "Outsider", out SessionEnd replaced);
+            string outsiderToken = scenario.Registry.StartRegisteredSession(9, "Outsider", out SessionEnd replaced);
             LobbyCaller outsiderCaller = new LobbyCaller(outsiderToken, "outsider");
 
             LobbyMembershipChange change = scenario.Registry.ChangeCardsPerPlayer(

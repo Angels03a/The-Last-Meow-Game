@@ -10,7 +10,7 @@ namespace TLMG.Services.Tests
     {
         private const string FailureMessage = "Fallo simulado del registro de sesiones.";
 
-        public string StartSession(int userId, string nickname, out SessionEnd replacedSession) =>
+        public string StartRegisteredSession(int userId, string nickname, out SessionEnd replacedSession) =>
             throw new InvalidOperationException(FailureMessage);
 
         public bool TryFindSessionByToken(string sessionToken, out PlayerSession playerSession) =>

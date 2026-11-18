@@ -44,7 +44,7 @@ namespace TLMG.Services.Accounts
 
                 if (errorKey == null)
                 {
-                    sessionToken = _sessionRegistry.StartSession(
+                    sessionToken = _sessionRegistry.StartRegisteredSession(
                         playerCredentials.UserId,
                         playerCredentials.Nickname,
                         out replacedSession);

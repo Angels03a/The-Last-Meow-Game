@@ -605,7 +605,8 @@ namespace TLMG.Services.Sessions
                 matchRecord.Version,
                 matchRecord.MatchState,
                 matchRecord.ParticipantNicknames,
-                matchRecord.LastChallenge);
+                matchRecord.LastChallenge,
+                matchRecord.AllParticipantsRegistered);
             MatchView matchView = MatchViewHelper.CreateMatchView(viewContext, userId);
             MatchViewDelivery viewDelivery = new MatchViewDelivery(callback, matchView);
 

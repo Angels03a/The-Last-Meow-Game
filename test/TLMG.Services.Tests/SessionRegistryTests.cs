@@ -70,7 +70,7 @@ namespace TLMG.Services.Tests
         public void StartSession_WithNewAccount_CreatesSession()
         {
             SessionRegistry registry = new SessionRegistry();
-            string token = registry.StartSession(1, PlayerNickname, out SessionEnd replacedSession);
+            string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
 
             bool found = registry.TryFindSessionByToken(token, out PlayerSession session);
 
@@ -81,8 +81,8 @@ namespace TLMG.Services.Tests
         public void StartSession_WithRepeatedAccount_InvalidatesPreviousToken()
         {
             SessionRegistry registry = new SessionRegistry();
-            string token = registry.StartSession(1, PlayerNickname, out SessionEnd replacedSession);
-            registry.StartSession(1, PlayerNickname, out replacedSession);
+            string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
+            registry.StartRegisteredSession(1, PlayerNickname, out replacedSession);
 
             bool found = registry.TryFindSessionByToken(token, out PlayerSession session);
 
@@ -93,7 +93,7 @@ namespace TLMG.Services.Tests
         public void EndSession_WithCurrentToken_RemovesSession()
         {
             SessionRegistry registry = new SessionRegistry();
-            string token = registry.StartSession(1, PlayerNickname, out SessionEnd replacedSession);
+            string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
             registry.EndSession(token, out SessionEnd endedSession);
 
             bool found = registry.TryFindSessionByToken(token, out PlayerSession session);
@@ -105,7 +105,7 @@ namespace TLMG.Services.Tests
         public void CreateRoom_WithSession_AddsCreator()
         {
             SessionRegistry registry = new SessionRegistry();
-            string token = registry.StartSession(1, PlayerNickname, out SessionEnd replacedSession);
+            string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
             LobbyCaller caller = new LobbyCaller(token, LobbyChannelId);
 
             LobbyMembershipChange change = registry.CreateRoom(caller, null);
@@ -117,7 +117,7 @@ namespace TLMG.Services.Tests
         public void CreateRoom_WithExistingMembership_RejectsSecondRoom()
         {
             SessionRegistry registry = new SessionRegistry();
-            string token = registry.StartSession(1, PlayerNickname, out SessionEnd replacedSession);
+            string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
             LobbyCaller firstCaller = new LobbyCaller(token, LobbyChannelId);
             LobbyCaller secondCaller = new LobbyCaller(token, SecondChannelId);
             registry.CreateRoom(firstCaller, null);
@@ -131,7 +131,7 @@ namespace TLMG.Services.Tests
         public void LeaveRoom_WithLastPlayer_DeletesRoom()
         {
             SessionRegistry registry = new SessionRegistry();
-            string token = registry.StartSession(1, PlayerNickname, out SessionEnd replacedSession);
+            string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
             LobbyCaller caller = new LobbyCaller(token, LobbyChannelId);
             registry.CreateRoom(caller, null);
 
@@ -144,7 +144,7 @@ namespace TLMG.Services.Tests
         public void LeaveRoom_WithNoMembership_ReturnsNotInRoom()
         {
             SessionRegistry registry = new SessionRegistry();
-            string token = registry.StartSession(1, PlayerNickname, out SessionEnd replacedSession);
+            string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
 
             LobbyMembershipChange change = registry.LeaveRoom(token, out _);
 
@@ -155,7 +155,7 @@ namespace TLMG.Services.Tests
         public void EnterRoom_WithoutAuthorization_RejectsEntry()
         {
             SessionRegistry registry = new SessionRegistry();
-            string token = registry.StartSession(1, PlayerNickname, out SessionEnd replacedSession);
+            string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
             LobbyCaller caller = new LobbyCaller(token, LobbyChannelId);
 
             LobbyMembershipChange change = registry.EnterRoom(caller, 1, null);
@@ -167,7 +167,7 @@ namespace TLMG.Services.Tests
         public void SubscribeFriendsChannel_WithNullFriendList_ThrowsNullReference()
         {
             SessionRegistry registry = new SessionRegistry();
-            string token = registry.StartSession(1, PlayerNickname, out SessionEnd replacedSession);
+            string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
 
             Action subscribe = () => registry.SubscribeFriendsChannel(token, FriendsChannelId, null, null);
 

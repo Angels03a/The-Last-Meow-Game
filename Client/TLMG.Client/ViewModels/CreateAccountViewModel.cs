@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 
 using TLMG.Client.Communication;
 using TLMG.Client.Navigation;
+using TLMG.Client.Models;
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
@@ -232,7 +233,8 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteBack()
         {
-            bool hasConfirmedAbandon = _dialogs.Confirm(ConfirmAbandonMessageKey, ConfirmAbandonTitleKey);
+            bool hasConfirmedAbandon = _dialogs.ConfirmWithResult(ConfirmAbandonMessageKey, ConfirmAbandonTitleKey)
+                == DialogResult.Yes;
 
             if (hasConfirmedAbandon)
             {

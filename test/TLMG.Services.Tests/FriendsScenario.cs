@@ -30,18 +30,18 @@ namespace TLMG.Services.Tests
             Repository.AddUser(BravoUserId, BravoNickname);
             Repository.AddUser(CharlieUserId, CharlieNickname);
             Service = new FriendsService(Repository, Registry);
-            AlphaToken = StartSession(AlphaUserId, AlphaNickname, AlphaCallback);
+            AlphaToken = StartRegisteredSession(AlphaUserId, AlphaNickname, AlphaCallback);
 
             if (isBravoOnline)
             {
-                BravoToken = StartSession(BravoUserId, BravoNickname, BravoCallback);
+                BravoToken = StartRegisteredSession(BravoUserId, BravoNickname, BravoCallback);
             }
             else
             {
-                BravoToken = Registry.StartSession(BravoUserId, BravoNickname, out SessionEnd replacedBravo);
+                BravoToken = Registry.StartRegisteredSession(BravoUserId, BravoNickname, out SessionEnd replacedBravo);
             }
 
-            CharlieToken = Registry.StartSession(CharlieUserId, CharlieNickname, out SessionEnd replacedCharlie);
+            CharlieToken = Registry.StartRegisteredSession(CharlieUserId, CharlieNickname, out SessionEnd replacedCharlie);
         }
 
         internal SessionRegistry Registry { get; } = new SessionRegistry();
@@ -69,9 +69,9 @@ namespace TLMG.Services.Tests
             }
         }
 
-        private string StartSession(int userId, string nickname, FriendsCallbackStub callback)
+        private string StartRegisteredSession(int userId, string nickname, FriendsCallbackStub callback)
         {
-            string token = Registry.StartSession(userId, nickname, out SessionEnd replacedSession);
+            string token = Registry.StartRegisteredSession(userId, nickname, out SessionEnd replacedSession);
             Registry.SubscribeFriendsChannel(token, "friends" + userId, callback, Array.Empty<int>());
 
             return token;

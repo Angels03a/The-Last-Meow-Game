@@ -1,4 +1,6 @@
 ﻿using System.Windows;
+using TLMG.Client.Models;
+using TLMG.Client.Views;
 
 namespace TLMG.Client.Navigation
 {
@@ -29,6 +31,19 @@ namespace TLMG.Client.Navigation
                 LanguageManager.FindText(MessageTitleKey),
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
+        }
+
+        /// <inheritdoc />
+        public DialogResult ConfirmWithResult(string messageKey, string titleKey)
+        {
+            GameDialogWindow window = new GameDialogWindow(GameDialogFactory.CreateConfirmation(messageKey, titleKey));
+            if (Application.Current?.MainWindow != null && Application.Current.MainWindow.IsVisible)
+            {
+                window.Owner = Application.Current.MainWindow;
+            }
+
+            window.ShowDialog();
+            return window.Result;
         }
 
         /// <inheritdoc />

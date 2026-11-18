@@ -184,7 +184,7 @@ namespace TLMG.Services.Tests
         public void ChangeCardsPerPlayer_WithPlayerOutsideLobby_ReturnsNotInRoomError()
         {
             LobbyScenario scenario = new LobbyScenario();
-            string outsiderToken = scenario.Registry.StartSession(9, "Outsider", out SessionEnd replaced);
+            string outsiderToken = scenario.Registry.StartRegisteredSession(9, "Outsider", out SessionEnd replaced);
             LobbyService service = new LobbyService(scenario.Registry);
             LobbyCaller outsiderCaller = new LobbyCaller(outsiderToken, "outsider");
 

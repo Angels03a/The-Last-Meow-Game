@@ -100,7 +100,7 @@ namespace TLMG.Services.Tests
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             SessionEnd replacedSession;
-            string outsiderToken = scenario.Registry.StartSession(OutsiderUserId, "Outsider", out replacedSession);
+            string outsiderToken = scenario.Registry.StartRegisteredSession(OutsiderUserId, "Outsider", out replacedSession);
             LobbyCaller caller = new LobbyCaller(outsiderToken, OutsiderChannelId);
 
             // Act

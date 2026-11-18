@@ -32,154 +32,42 @@
                 <TextBlock x:Name="lblWinnerTitle" 
                            Style="{StaticResource GameOverTitleTextStyle}" />
 
-                <Border Style="{StaticResource GameOverStandingsBorderStyle}">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource GameOver_FinalScoresTitle}"
-                                   Style="{StaticResource GameOverStandingsTitleTextStyle}" />
-
-                        <Border Style="{StaticResource GameOverRowFirstStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="32" />
-                                    <ColumnDefinition Width="36" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="40" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" 
-                                           Text="1" 
-                                           Style="{StaticResource GameOverRankFirstTextStyle}" />
-                                <Border Grid.Column="1" 
-                                        Style="{StaticResource PlayerAvatarCircleStyle}">
-                                    <TextBlock Text="🐯" 
-                                               Style="{StaticResource PlayerAvatarEmojiStyle}" />
-                                </Border>
-                                <StackPanel Grid.Column="2" 
-                                            Style="{StaticResource GameOverPlayerPanelStyle}">
-
-                                    <!--  FIXME: Los siguientes TextBlock están hardcodeados y deberían 
-                                    ser reemplazados con bindings dinámicos a los nombres de los jugadores. (BL-166). -->
-                                    
-                                    <TextBlock Text="NyanProwler" 
+                <TextBlock Text="{DynamicResource GameOver_StandingsUnavailable}"
+                           >
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource GameOverStandingsTitleTextStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasStandings}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <ItemsControl ItemsSource="{Binding Standings}" Margin="0,12,0,12">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource GameOverRowBorderStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Position}" Style="{StaticResource GameOverRankTextStyle}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Nickname}"
                                                Style="{StaticResource GameOverPlayerNameTextStyle}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="3" Style="{StaticResource GameOverWinsPanelStyle}">
-                                    <TextBlock Text="3" 
-                                               Style="{StaticResource GameOverWinsValueTextStyle}" />
-                                    <TextBlock Text="{DynamicResource GameOver_RoundsWonLabel}"
-                                               Style="{StaticResource GameOverWinsLabelTextStyle}" />
-                                </StackPanel>
-                                <TextBlock Grid.Column="4" 
-                                           Text="🏆" 
-                                           Style="{StaticResource GameOverTrophyEmojiStyle}" />
-                            </Grid>
-                        </Border>
-
-                        <Border Style="{StaticResource GameOverRowLocalStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="32" />
-                                    <ColumnDefinition Width="36" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="40" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" 
-                                           Text="2" 
-                                           Style="{StaticResource GameOverRankTextStyle}" />
-                                <Border Grid.Column="1" 
-                                        Style="{StaticResource PlayerAvatarCircleStyle}">
-                                    <TextBlock Text="🐱" 
-                                               Style="{StaticResource PlayerAvatarEmojiStyle}" />
-                                </Border>
-                                <StackPanel Grid.Column="2" 
-                                            Style="{StaticResource GameOverPlayerPanelStyle}">
-                                    <TextBlock Text="WhiskerKnight" 
-                                               Style="{StaticResource GameOverPlayerNameTextStyle}" />
-                                    <TextBlock Text="{DynamicResource GameOver_LocalPlayerLabel}"
-                                               Style="{StaticResource GameOverLocalTagTextStyle}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="3" 
-                                            Style="{StaticResource GameOverWinsPanelStyle}">
-                                    <TextBlock Text="2" 
-                                               Style="{StaticResource GameOverWinsValueTextStyle}" />
-                                    <TextBlock Text="{DynamicResource GameOver_RoundsWonLabel}"
-                                               Style="{StaticResource GameOverWinsLabelTextStyle}" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <Border Style="{StaticResource GameOverRowBorderStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="32" />
-                                    <ColumnDefinition Width="36" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="40" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" 
-                                           Text="3" 
-                                           Style="{StaticResource GameOverRankTextStyle}" />
-                                <Border Grid.Column="1" 
-                                        Style="{StaticResource PlayerAvatarCircleStyle}">
-                                    <TextBlock Text="🐱" 
-                                               Style="{StaticResource PlayerAvatarEmojiStyle}" />
-                                </Border>
-                                <StackPanel Grid.Column="2" 
-                                            Style="{StaticResource GameOverPlayerPanelStyle}">
-                                    <TextBlock Text="CatNapper9000" 
-                                               Style="{StaticResource GameOverPlayerNameTextStyle}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="3" 
-                                            Style="{StaticResource GameOverWinsPanelStyle}">
-                                    <TextBlock Text="1" 
-                                               Style="{StaticResource GameOverWinsValueTextStyle}" />
-                                    <TextBlock Text="{DynamicResource GameOver_RoundsWonLabel}"
-                                               Style="{StaticResource GameOverWinsLabelTextStyle}" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <Border Style="{StaticResource GameOverRowBorderStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="32" />
-                                    <ColumnDefinition Width="36" />
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="40" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" 
-                                           Text="4" 
-                                           Style="{StaticResource GameOverRankTextStyle}" />
-                                <Border Grid.Column="1" 
-                                        Style="{StaticResource PlayerAvatarCircleStyle}">
-                                    <TextBlock Text="🐱" 
-                                               Style="{StaticResource PlayerAvatarEmojiStyle}" />
-                                </Border>
-                                <StackPanel Grid.Column="2" 
-                                            Style="{StaticResource GameOverPlayerPanelStyle}">
-                                    <TextBlock Text="GraveyardPaws" 
-                                               Style="{StaticResource GameOverPlayerNameTextStyle}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="3" 
-                                            Style="{StaticResource GameOverWinsPanelStyle}">
-                                    <TextBlock Text="0" 
-                                               Style="{StaticResource GameOverWinsValueTextStyle}" />
-                                    <TextBlock Text="{DynamicResource GameOver_RoundsWonLabel}"
-                                               Style="{StaticResource GameOverWinsLabelTextStyle}" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </StackPanel>
-                </Border>
-
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Points}" Style="{StaticResource GameOverWinsValueTextStyle}" />
+                                        <TextBlock Text="{DynamicResource GameOver_PointsLabel}"
+                                                   Style="{StaticResource GameOverWinsLabelTextStyle}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
                 <StackPanel Style="{StaticResource ResultActionsPanelStyle}">
-                    <Button x:Name="btnRematch"
-                            Content="{DynamicResource GameOver_RematchButton}"
-                            Style="{StaticResource ResultPrimaryButtonStyle}"
-                            Command="{Binding ContinueCommand}" />
                     <Button x:Name="btnMainMenu"
                             Content="{DynamicResource GameOver_MainMenuButton}"
                             Style="{StaticResource ResultSecondaryButtonStyle}"
@@ -187,5 +75,7 @@
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
+        <local:NotificationPresenter HorizontalAlignment="Center" VerticalAlignment="Top" Margin="12,30,12,0"
+                                     Notification="{Binding Notification}" />
     </Grid>
 </local:LocalizableScreen>

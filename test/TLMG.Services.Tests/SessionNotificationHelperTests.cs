@@ -23,9 +23,9 @@ namespace TLMG.Services.Tests
         {
             // Arrange
             SessionRegistry registry = new SessionRegistry();
-            string token = registry.StartSession(PlayerUserId, PlayerNickname, out SessionEnd firstReplacedSession);
+            string token = registry.StartRegisteredSession(PlayerUserId, PlayerNickname, out SessionEnd firstReplacedSession);
             registry.SubscribeFriendsChannel(token, FriendsChannelId, new FriendsCallbackStub(), new int[0]);
-            registry.StartSession(PlayerUserId, PlayerNickname, out SessionEnd replacedSession);
+            registry.StartRegisteredSession(PlayerUserId, PlayerNickname, out SessionEnd replacedSession);
             IReadOnlyList<Action> notifications = null;
 
             // Act

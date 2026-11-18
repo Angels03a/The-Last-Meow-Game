@@ -11,31 +11,24 @@
 namespace TLMG.Client.UsersManagerReference
 {
     using System.Runtime.Serialization;
-    using System;
-
-
+    
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="PlayerAccountRegistration", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class PlayerAccountRegistration : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string EmailField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool HasAcceptedTermsField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string NicknameField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string PasswordField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -47,7 +40,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Email
         {
@@ -64,7 +57,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool HasAcceptedTerms
         {
@@ -81,7 +74,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Nickname
         {
@@ -98,7 +91,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Password
         {
@@ -115,9 +108,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -127,11 +120,10 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationLogInResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationGetLeaderboardResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationLobbyRoomResult))]
@@ -144,16 +136,13 @@ namespace TLMG.Client.UsersManagerReference
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationSendChatMessageResult))]
     public partial class OperationResult : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string ErrorKeyField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool IsSuccessField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -165,7 +154,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string ErrorKey
         {
@@ -182,7 +171,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool IsSuccess
         {
@@ -199,9 +188,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -211,23 +200,19 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationLogInResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationLogInResult : TLMG.Client.UsersManagerReference.OperationResult
     {
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string NicknameField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string SessionTokenField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int UserIdField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Nickname
         {
@@ -244,7 +229,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string SessionToken
         {
@@ -261,7 +246,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int UserId
         {
@@ -279,17 +264,15 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationGetLeaderboardResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationGetLeaderboardResult : TLMG.Client.UsersManagerReference.OperationResult
     {
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.LeaderboardPlayer[] PlayersField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.LeaderboardPlayer[] Players
         {
@@ -307,18 +290,16 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationLobbyRoomResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationRequestMatchStartResult))]
     public partial class OperationLobbyRoomResult : TLMG.Client.UsersManagerReference.OperationResult
     {
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.LobbyRoom RoomField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.LobbyRoom Room
         {
@@ -336,17 +317,15 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationRequestMatchStartResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationRequestMatchStartResult : TLMG.Client.UsersManagerReference.OperationLobbyRoomResult
     {
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int RetryAfterSecondsField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int RetryAfterSeconds
         {
@@ -364,20 +343,17 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationSubscribeToFriendsResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationSubscribeToFriendsResult : TLMG.Client.UsersManagerReference.OperationResult
     {
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.Friend[] FriendsField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.FriendRequest[] PendingFriendRequestsField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.Friend[] Friends
         {
@@ -394,7 +370,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.FriendRequest[] PendingFriendRequests
         {
@@ -412,20 +388,17 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationSendFriendRequestResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationSendFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult
     {
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.Friend NewFriendField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.FriendRequest SentFriendRequestField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.Friend NewFriend
         {
@@ -442,7 +415,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.FriendRequest SentFriendRequest
         {
@@ -460,20 +433,17 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationAcceptFriendRequestResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationAcceptFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult
     {
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int FriendRequestIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.Friend NewFriendField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int FriendRequestId
         {
@@ -490,7 +460,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.Friend NewFriend
         {
@@ -508,17 +478,15 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationDeclineFriendRequestResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationDeclineFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult
     {
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int FriendRequestIdField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int FriendRequestId
         {
@@ -536,17 +504,15 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationAcceptRoomInvitationResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationAcceptRoomInvitationResult : TLMG.Client.UsersManagerReference.OperationResult
     {
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int RoomIdField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int RoomId
         {
@@ -564,17 +530,15 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationSendChatMessageResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationSendChatMessageResult : TLMG.Client.UsersManagerReference.OperationResult
     {
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private System.Guid ClientMessageIdField;
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Guid ClientMessageId
         {
@@ -592,32 +556,25 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="LeaderboardPlayer", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class LeaderboardPlayer : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string NicknameField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string ProfileImageField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int TotalGamesPlayedField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int TotalPointsField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int TotalWinsField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -629,7 +586,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Nickname
         {
@@ -646,7 +603,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string ProfileImage
         {
@@ -663,7 +620,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int TotalGamesPlayed
         {
@@ -680,7 +637,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int TotalPoints
         {
@@ -697,7 +654,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int TotalWins
         {
@@ -714,9 +671,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -726,47 +683,35 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="LobbyRoom", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class LobbyRoom : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int CardsPerPlayerCountField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private System.Nullable<System.DateTime> CountdownEndsAtUtcField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private long CountdownIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool InGameField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private System.Nullable<System.Guid> MatchIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private System.Nullable<System.DateTime> MatchStartedAtUtcField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.LobbyPlayer[] PlayersField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int RoomIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private System.DateTime ServerTimeUtcField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private long VersionField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -778,7 +723,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int CardsPerPlayerCount
         {
@@ -795,7 +740,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Nullable<System.DateTime> CountdownEndsAtUtc
         {
@@ -812,7 +757,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public long CountdownId
         {
@@ -829,7 +774,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool InGame
         {
@@ -846,7 +791,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Nullable<System.Guid> MatchId
         {
@@ -863,7 +808,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Nullable<System.DateTime> MatchStartedAtUtc
         {
@@ -880,7 +825,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.LobbyPlayer[] Players
         {
@@ -897,7 +842,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int RoomId
         {
@@ -914,7 +859,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.DateTime ServerTimeUtc
         {
@@ -931,7 +876,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public long Version
         {
@@ -948,9 +893,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -960,26 +905,21 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="LobbyPlayer", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class LobbyPlayer : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool IsReadyField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string NicknameField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int UserIdField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -991,7 +931,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool IsReady
         {
@@ -1008,7 +948,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Nickname
         {
@@ -1025,7 +965,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int UserId
         {
@@ -1042,9 +982,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -1054,26 +994,21 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="Friend", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class Friend : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool IsOnlineField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string NicknameField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int UserIdField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -1085,7 +1020,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool IsOnline
         {
@@ -1102,7 +1037,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Nickname
         {
@@ -1119,7 +1054,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int UserId
         {
@@ -1136,9 +1071,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -1148,29 +1083,23 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="FriendRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class FriendRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int FriendRequestIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool IsIncomingField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string NicknameField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int UserIdField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -1182,7 +1111,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int FriendRequestId
         {
@@ -1199,7 +1128,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool IsIncoming
         {
@@ -1216,7 +1145,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Nickname
         {
@@ -1233,7 +1162,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int UserId
         {
@@ -1250,9 +1179,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -1262,23 +1191,19 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationLogInRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationLogInRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string EmailField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string PasswordField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -1290,7 +1215,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Email
         {
@@ -1307,7 +1232,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Password
         {
@@ -1324,9 +1249,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -1336,20 +1261,17 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class SystemFault : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string SystemErrorMessageField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -1361,7 +1283,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string SystemErrorMessage
         {
@@ -1378,9 +1300,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -1390,23 +1312,19 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationChangePlayerReadinessRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationChangePlayerReadinessRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool IsReadyField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int RoomIdField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -1418,7 +1336,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool IsReady
         {
@@ -1435,7 +1353,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int RoomId
         {
@@ -1452,9 +1370,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -1464,23 +1382,19 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationChangeCardsPerPlayerRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationChangeCardsPerPlayerRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int CardsPerPlayerCountField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int RoomIdField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -1492,7 +1406,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int CardsPerPlayerCount
         {
@@ -1509,7 +1423,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int RoomId
         {
@@ -1526,9 +1440,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -1538,23 +1452,19 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationMatchStartRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationMatchStartRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private long CountdownIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int RoomIdField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -1566,7 +1476,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public long CountdownId
         {
@@ -1583,7 +1493,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int RoomId
         {
@@ -1600,9 +1510,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -1612,23 +1522,19 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="RoomInvitation", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class RoomInvitation : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int InvitationIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string InviterNicknameField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -1640,7 +1546,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int InvitationId
         {
@@ -1657,7 +1563,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string InviterNickname
         {
@@ -1674,9 +1580,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -1686,26 +1592,21 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationSendChatMessageRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class OperationSendChatMessageRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private System.Guid ClientMessageIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int RoomIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string TextField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -1717,7 +1618,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Guid ClientMessageId
         {
@@ -1734,7 +1635,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int RoomId
         {
@@ -1751,7 +1652,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Text
         {
@@ -1768,9 +1669,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -1780,35 +1681,27 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="ChatMessage", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class ChatMessage : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private System.Guid ClientMessageIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int RoomIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string SenderNicknameField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int SenderUserIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private System.DateTime SentAtUtcField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string TextField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -1820,7 +1713,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Guid ClientMessageId
         {
@@ -1837,7 +1730,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int RoomId
         {
@@ -1854,7 +1747,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string SenderNickname
         {
@@ -1871,7 +1764,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int SenderUserId
         {
@@ -1888,7 +1781,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.DateTime SentAtUtc
         {
@@ -1905,7 +1798,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Text
         {
@@ -1922,9 +1815,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -1934,95 +1827,73 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchCardKind", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     public enum MatchCardKind : int
     {
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         Safe = 0,
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
         FatalCat = 1,
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class MatchView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int BetLeaderUserIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool CanChoosePunishmentCardField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool CanPlaceBetField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool CanPlaceCardField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool CanRevealCardField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool CanWithdrawFromBetField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int CardsOnTableField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.MatchChallengeView ChallengeField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int ChallengesToWinField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int CurrentBetField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
+        private TLMG.Client.UsersManagerReference.MatchStandingView[] FinalStandingsField;
+        
         private System.Guid MatchIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int MaximumBetValueField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int MinimumBetValueField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.MatchCardKind[] OwnHandCardsField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.MatchCardKind[] OwnPileCardsField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.MatchRoundPhase PhaseField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int PlayerInTurnUserIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.MatchPlayerView[] PlayersField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.MatchPunishmentView PunishmentField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int RoundNumberField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int VersionField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int WinnerUserIdField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -2034,7 +1905,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int BetLeaderUserId
         {
@@ -2051,7 +1922,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool CanChoosePunishmentCard
         {
@@ -2068,7 +1939,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool CanPlaceBet
         {
@@ -2085,7 +1956,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool CanPlaceCard
         {
@@ -2102,7 +1973,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool CanRevealCard
         {
@@ -2119,7 +1990,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool CanWithdrawFromBet
         {
@@ -2136,7 +2007,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int CardsOnTable
         {
@@ -2153,7 +2024,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.MatchChallengeView Challenge
         {
@@ -2170,7 +2041,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int ChallengesToWin
         {
@@ -2187,7 +2058,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int CurrentBet
         {
@@ -2204,7 +2075,24 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.MatchStandingView[] FinalStandings
+        {
+            get
+            {
+                return this.FinalStandingsField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.FinalStandingsField, value) != true))
+                {
+                    this.FinalStandingsField = value;
+                    this.RaisePropertyChanged("FinalStandings");
+                }
+            }
+        }
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Guid MatchId
         {
@@ -2221,7 +2109,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int MaximumBetValue
         {
@@ -2238,7 +2126,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int MinimumBetValue
         {
@@ -2255,7 +2143,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.MatchCardKind[] OwnHandCards
         {
@@ -2272,7 +2160,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.MatchCardKind[] OwnPileCards
         {
@@ -2289,7 +2177,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.MatchRoundPhase Phase
         {
@@ -2306,7 +2194,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int PlayerInTurnUserId
         {
@@ -2323,7 +2211,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.MatchPlayerView[] Players
         {
@@ -2340,7 +2228,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.MatchPunishmentView Punishment
         {
@@ -2357,7 +2245,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int RoundNumber
         {
@@ -2374,7 +2262,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int Version
         {
@@ -2391,7 +2279,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int WinnerUserId
         {
@@ -2408,9 +2296,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -2420,38 +2308,29 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchChallengeView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class MatchChallengeView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int BettorUserIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.MatchChallengeOutcome OutcomeField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int PromisedCountField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int PunishedUserIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int PunishmentChooserUserIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.MatchPunishmentResolution PunishmentResolutionField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private TLMG.Client.UsersManagerReference.MatchRevealedCardView[] RevealedCardsField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -2463,7 +2342,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int BettorUserId
         {
@@ -2480,7 +2359,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.MatchChallengeOutcome Outcome
         {
@@ -2497,7 +2376,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int PromisedCount
         {
@@ -2514,7 +2393,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int PunishedUserId
         {
@@ -2531,7 +2410,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int PunishmentChooserUserId
         {
@@ -2548,7 +2427,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.MatchPunishmentResolution PunishmentResolution
         {
@@ -2565,7 +2444,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.MatchRevealedCardView[] RevealedCards
         {
@@ -2582,9 +2461,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -2594,29 +2473,23 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchPunishmentView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
     public partial class MatchPunishmentView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int CardSlotCountField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int ChooserUserIdField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private bool IsBlindChoiceField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private int PunishedUserIdField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -2628,7 +2501,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int CardSlotCount
         {
@@ -2645,7 +2518,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int ChooserUserId
         {
@@ -2662,7 +2535,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public bool IsBlindChoice
         {
@@ -2679,7 +2552,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int PunishedUserId
         {
@@ -2696,9 +2569,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -2708,65 +2581,23 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MatchRoundPhase", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    public enum MatchRoundPhase : int
-    {
-
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        PlacingCards = 0,
-
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Betting = 1,
-
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        ChallengeReady = 2,
-
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        PunishmentPending = 3,
-
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        MatchFinished = 4,
-    }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MatchPlayerView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
-    public partial class MatchPlayerView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    [System.Runtime.Serialization.DataContractAttribute(Name="MatchStandingView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    public partial class MatchStandingView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int HandCardCountField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool HasLeftMatchField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool HasWithdrawnFromBetField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool IsEliminatedField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
         private string NicknameField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int PileCardCountField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private TLMG.Client.UsersManagerReference.MatchCardKind[] RevealedPileCardsField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int SuccessfulChallengeCountField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        
+        private int PointsField;
+        
+        private int PositionField;
+        
         private int UserIdField;
-
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -2778,75 +2609,7 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int HandCardCount
-        {
-            get
-            {
-                return this.HandCardCountField;
-            }
-            set
-            {
-                if ((this.HandCardCountField.Equals(value) != true))
-                {
-                    this.HandCardCountField = value;
-                    this.RaisePropertyChanged("HandCardCount");
-                }
-            }
-        }
-
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool HasLeftMatch
-        {
-            get
-            {
-                return this.HasLeftMatchField;
-            }
-            set
-            {
-                if ((this.HasLeftMatchField.Equals(value) != true))
-                {
-                    this.HasLeftMatchField = value;
-                    this.RaisePropertyChanged("HasLeftMatch");
-                }
-            }
-        }
-
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool HasWithdrawnFromBet
-        {
-            get
-            {
-                return this.HasWithdrawnFromBetField;
-            }
-            set
-            {
-                if ((this.HasWithdrawnFromBetField.Equals(value) != true))
-                {
-                    this.HasWithdrawnFromBetField = value;
-                    this.RaisePropertyChanged("HasWithdrawnFromBet");
-                }
-            }
-        }
-
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool IsEliminated
-        {
-            get
-            {
-                return this.IsEliminatedField;
-            }
-            set
-            {
-                if ((this.IsEliminatedField.Equals(value) != true))
-                {
-                    this.IsEliminatedField = value;
-                    this.RaisePropertyChanged("IsEliminated");
-                }
-            }
-        }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Nickname
         {
@@ -2863,58 +2626,41 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int PileCardCount
+        public int Points
         {
             get
             {
-                return this.PileCardCountField;
+                return this.PointsField;
             }
             set
             {
-                if ((this.PileCardCountField.Equals(value) != true))
+                if ((this.PointsField.Equals(value) != true))
                 {
-                    this.PileCardCountField = value;
-                    this.RaisePropertyChanged("PileCardCount");
+                    this.PointsField = value;
+                    this.RaisePropertyChanged("Points");
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TLMG.Client.UsersManagerReference.MatchCardKind[] RevealedPileCards
+        public int Position
         {
             get
             {
-                return this.RevealedPileCardsField;
+                return this.PositionField;
             }
             set
             {
-                if ((object.ReferenceEquals(this.RevealedPileCardsField, value) != true))
+                if ((this.PositionField.Equals(value) != true))
                 {
-                    this.RevealedPileCardsField = value;
-                    this.RaisePropertyChanged("RevealedPileCards");
+                    this.PositionField = value;
+                    this.RaisePropertyChanged("Position");
                 }
             }
         }
-
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int SuccessfulChallengeCount
-        {
-            get
-            {
-                return this.SuccessfulChallengeCountField;
-            }
-            set
-            {
-                if ((this.SuccessfulChallengeCountField.Equals(value) != true))
-                {
-                    this.SuccessfulChallengeCountField = value;
-                    this.RaisePropertyChanged("SuccessfulChallengeCount");
-                }
-            }
-        }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int UserId
         {
@@ -2931,9 +2677,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -2943,62 +2689,54 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MatchChallengeOutcome", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    public enum MatchChallengeOutcome : int
+    [System.Runtime.Serialization.DataContractAttribute(Name="MatchRoundPhase", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    public enum MatchRoundPhase : int
     {
-
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        InProgress = 0,
-
+        PlacingCards = 0,
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        Succeeded = 1,
-
+        Betting = 1,
+        
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        Failed = 2,
+        ChallengeReady = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        PunishmentPending = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        MatchFinished = 4,
     }
-
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MatchPunishmentResolution", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    public enum MatchPunishmentResolution : int
-    {
-
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        None = 0,
-
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Pending = 1,
-
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        ChosenByChooser = 2,
-
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        ChosenAtRandom = 3,
-
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        SingleLifeNoChoice = 4,
-
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Cancelled = 5,
-    }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MatchRevealedCardView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    [System.SerializableAttribute()]
-    public partial class MatchRevealedCardView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    [System.Runtime.Serialization.DataContractAttribute(Name="MatchPlayerView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    public partial class MatchPlayerView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
-
-        [System.NonSerializedAttribute()]
+        
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private TLMG.Client.UsersManagerReference.MatchCardKind CardField;
-
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int PileOwnerUserIdField;
-
+        
+        private int HandCardCountField;
+        
+        private bool HasLeftMatchField;
+        
+        private bool HasWithdrawnFromBetField;
+        
+        private bool IsEliminatedField;
+        
+        private string NicknameField;
+        
+        private int PileCardCountField;
+        
+        private TLMG.Client.UsersManagerReference.MatchCardKind[] RevealedPileCardsField;
+        
+        private int SuccessfulChallengeCountField;
+        
+        private int UserIdField;
+        
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
         {
             get
@@ -3010,7 +2748,235 @@ namespace TLMG.Client.UsersManagerReference
                 this.extensionDataField = value;
             }
         }
-
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int HandCardCount
+        {
+            get
+            {
+                return this.HandCardCountField;
+            }
+            set
+            {
+                if ((this.HandCardCountField.Equals(value) != true))
+                {
+                    this.HandCardCountField = value;
+                    this.RaisePropertyChanged("HandCardCount");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool HasLeftMatch
+        {
+            get
+            {
+                return this.HasLeftMatchField;
+            }
+            set
+            {
+                if ((this.HasLeftMatchField.Equals(value) != true))
+                {
+                    this.HasLeftMatchField = value;
+                    this.RaisePropertyChanged("HasLeftMatch");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool HasWithdrawnFromBet
+        {
+            get
+            {
+                return this.HasWithdrawnFromBetField;
+            }
+            set
+            {
+                if ((this.HasWithdrawnFromBetField.Equals(value) != true))
+                {
+                    this.HasWithdrawnFromBetField = value;
+                    this.RaisePropertyChanged("HasWithdrawnFromBet");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsEliminated
+        {
+            get
+            {
+                return this.IsEliminatedField;
+            }
+            set
+            {
+                if ((this.IsEliminatedField.Equals(value) != true))
+                {
+                    this.IsEliminatedField = value;
+                    this.RaisePropertyChanged("IsEliminated");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Nickname
+        {
+            get
+            {
+                return this.NicknameField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true))
+                {
+                    this.NicknameField = value;
+                    this.RaisePropertyChanged("Nickname");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int PileCardCount
+        {
+            get
+            {
+                return this.PileCardCountField;
+            }
+            set
+            {
+                if ((this.PileCardCountField.Equals(value) != true))
+                {
+                    this.PileCardCountField = value;
+                    this.RaisePropertyChanged("PileCardCount");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.MatchCardKind[] RevealedPileCards
+        {
+            get
+            {
+                return this.RevealedPileCardsField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.RevealedPileCardsField, value) != true))
+                {
+                    this.RevealedPileCardsField = value;
+                    this.RaisePropertyChanged("RevealedPileCards");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int SuccessfulChallengeCount
+        {
+            get
+            {
+                return this.SuccessfulChallengeCountField;
+            }
+            set
+            {
+                if ((this.SuccessfulChallengeCountField.Equals(value) != true))
+                {
+                    this.SuccessfulChallengeCountField = value;
+                    this.RaisePropertyChanged("SuccessfulChallengeCount");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int UserId
+        {
+            get
+            {
+                return this.UserIdField;
+            }
+            set
+            {
+                if ((this.UserIdField.Equals(value) != true))
+                {
+                    this.UserIdField = value;
+                    this.RaisePropertyChanged("UserId");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MatchChallengeOutcome", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    public enum MatchChallengeOutcome : int
+    {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        InProgress = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Succeeded = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Failed = 2,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MatchPunishmentResolution", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    public enum MatchPunishmentResolution : int
+    {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        None = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Pending = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ChosenByChooser = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ChosenAtRandom = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SingleLifeNoChoice = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Cancelled = 5,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MatchRevealedCardView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    public partial class MatchRevealedCardView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+        
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        private TLMG.Client.UsersManagerReference.MatchCardKind CardField;
+        
+        private int PileOwnerUserIdField;
+        
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
+                return this.extensionDataField;
+            }
+            set
+            {
+                this.extensionDataField = value;
+            }
+        }
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.MatchCardKind Card
         {
@@ -3027,7 +2993,7 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int PileOwnerUserId
         {
@@ -3044,9 +3010,9 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
-
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-
+        
         protected void RaisePropertyChanged(string propertyName)
         {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
@@ -3056,783 +3022,783 @@ namespace TLMG.Client.UsersManagerReference
             }
         }
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="TLMG.Client.UsersManagerReference.IUsersManager")]
     public interface IUsersManager
     {
-
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/RegisterPlayerAccount", ReplyAction="http://tempuri.org/IUsersManager/RegisterPlayerAccountResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/RegisterPlayerAccountSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationResult RegisterPlayerAccount(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration);
-
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/RegisterPlayerAccount", ReplyAction="http://tempuri.org/IUsersManager/RegisterPlayerAccountResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RegisterPlayerAccountAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration);
-
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/RequestAccountVerificationCode", ReplyAction="http://tempuri.org/IUsersManager/RequestAccountVerificationCodeResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/RequestAccountVerificationCodeSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationResult RequestAccountVerificationCode(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode);
-
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/RequestAccountVerificationCode", ReplyAction="http://tempuri.org/IUsersManager/RequestAccountVerificationCodeResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RequestAccountVerificationCodeAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode);
-
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistration", ReplyAction="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistrationResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistrationSystemFaultFaul" +
             "t", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationResult CompletePlayerAccountRegistration(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode);
-
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistration", ReplyAction="http://tempuri.org/IUsersManager/CompletePlayerAccountRegistrationResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> CompletePlayerAccountRegistrationAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode);
-
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/ResendAccountVerificationCode", ReplyAction="http://tempuri.org/IUsersManager/ResendAccountVerificationCodeResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/ResendAccountVerificationCodeSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationResult ResendAccountVerificationCode(string email, string cultureCode);
-
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/ResendAccountVerificationCode", ReplyAction="http://tempuri.org/IUsersManager/ResendAccountVerificationCodeResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> ResendAccountVerificationCodeAsync(string email, string cultureCode);
-
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/LogIn", ReplyAction="http://tempuri.org/IUsersManager/LogInResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/LogInSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationLogInResult LogIn(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest);
-
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/LogIn", ReplyAction="http://tempuri.org/IUsersManager/LogInResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationLogInResult> LogInAsync(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest);
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface IUsersManagerChannel : TLMG.Client.UsersManagerReference.IUsersManager, System.ServiceModel.IClientChannel
     {
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public partial class UsersManagerClient : System.ServiceModel.ClientBase<TLMG.Client.UsersManagerReference.IUsersManager>, TLMG.Client.UsersManagerReference.IUsersManager
     {
-
+        
         public UsersManagerClient()
         {
         }
-
-        public UsersManagerClient(string endpointConfigurationName) :
+        
+        public UsersManagerClient(string endpointConfigurationName) : 
                 base(endpointConfigurationName)
         {
         }
-
-        public UsersManagerClient(string endpointConfigurationName, string remoteAddress) :
+        
+        public UsersManagerClient(string endpointConfigurationName, string remoteAddress) : 
                 base(endpointConfigurationName, remoteAddress)
         {
         }
-
-        public UsersManagerClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public UsersManagerClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(endpointConfigurationName, remoteAddress)
         {
         }
-
-        public UsersManagerClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public UsersManagerClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(binding, remoteAddress)
         {
         }
-
+        
         public TLMG.Client.UsersManagerReference.OperationResult RegisterPlayerAccount(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration)
         {
             return base.Channel.RegisterPlayerAccount(playerAccountRegistration);
         }
-
+        
         public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RegisterPlayerAccountAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration)
         {
             return base.Channel.RegisterPlayerAccountAsync(playerAccountRegistration);
         }
-
+        
         public TLMG.Client.UsersManagerReference.OperationResult RequestAccountVerificationCode(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode)
         {
             return base.Channel.RequestAccountVerificationCode(playerAccountRegistration, cultureCode);
         }
-
+        
         public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RequestAccountVerificationCodeAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string cultureCode)
         {
             return base.Channel.RequestAccountVerificationCodeAsync(playerAccountRegistration, cultureCode);
         }
-
+        
         public TLMG.Client.UsersManagerReference.OperationResult CompletePlayerAccountRegistration(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode)
         {
             return base.Channel.CompletePlayerAccountRegistration(playerAccountRegistration, verificationCode);
         }
-
+        
         public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> CompletePlayerAccountRegistrationAsync(TLMG.Client.UsersManagerReference.PlayerAccountRegistration playerAccountRegistration, string verificationCode)
         {
             return base.Channel.CompletePlayerAccountRegistrationAsync(playerAccountRegistration, verificationCode);
         }
-
+        
         public TLMG.Client.UsersManagerReference.OperationResult ResendAccountVerificationCode(string email, string cultureCode)
         {
             return base.Channel.ResendAccountVerificationCode(email, cultureCode);
         }
-
+        
         public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> ResendAccountVerificationCodeAsync(string email, string cultureCode)
         {
             return base.Channel.ResendAccountVerificationCodeAsync(email, cultureCode);
         }
-
+        
         public TLMG.Client.UsersManagerReference.OperationLogInResult LogIn(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest)
         {
             return base.Channel.LogIn(operationLogInRequest);
         }
-
+        
         public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationLogInResult> LogInAsync(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest)
         {
             return base.Channel.LogInAsync(operationLogInRequest);
         }
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="TLMG.Client.UsersManagerReference.ILeaderboardManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.ILeaderboardManagerCallback))]
     public interface ILeaderboardManager
     {
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILeaderboardManager/GetLeaderboard")]
         void GetLeaderboard();
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILeaderboardManager/GetLeaderboard")]
         System.Threading.Tasks.Task GetLeaderboardAsync();
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface ILeaderboardManagerCallback
     {
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILeaderboardManager/GetLeaderboardResult")]
         void GetLeaderboardResult(TLMG.Client.UsersManagerReference.OperationGetLeaderboardResult operationGetLeaderboardResult);
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface ILeaderboardManagerChannel : TLMG.Client.UsersManagerReference.ILeaderboardManager, System.ServiceModel.IClientChannel
     {
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public partial class LeaderboardManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.ILeaderboardManager>, TLMG.Client.UsersManagerReference.ILeaderboardManager
     {
-
-        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance) :
+        
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance) : 
                 base(callbackInstance)
         {
         }
-
-        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) :
+        
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
                 base(callbackInstance, endpointConfigurationName)
         {
         }
-
-        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) :
+        
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress)
         {
         }
-
-        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress)
         {
         }
-
-        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public LeaderboardManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, binding, remoteAddress)
         {
         }
-
+        
         public void GetLeaderboard()
         {
             base.Channel.GetLeaderboard();
         }
-
+        
         public System.Threading.Tasks.Task GetLeaderboardAsync()
         {
             return base.Channel.GetLeaderboardAsync();
         }
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="TLMG.Client.UsersManagerReference.ILobbyManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.ILobbyManagerCallback))]
     public interface ILobbyManager
     {
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/CreateRoom")]
         void CreateRoom(string sessionToken);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/CreateRoom")]
         System.Threading.Tasks.Task CreateRoomAsync(string sessionToken);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/EnterLobby")]
         void EnterLobby(string sessionToken, int roomId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/EnterLobby")]
         System.Threading.Tasks.Task EnterLobbyAsync(string sessionToken, int roomId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/LeaveLobby")]
         void LeaveLobby(string sessionToken);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/LeaveLobby")]
         System.Threading.Tasks.Task LeaveLobbyAsync(string sessionToken);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangePlayerReadiness")]
         void ChangePlayerReadiness(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessRequest request);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangePlayerReadiness")]
         System.Threading.Tasks.Task ChangePlayerReadinessAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessRequest request);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayer")]
         void ChangeCardsPerPlayer(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayer")]
         System.Threading.Tasks.Task ChangeCardsPerPlayerAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/RequestMatchStart")]
         void RequestMatchStart(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/RequestMatchStart")]
         System.Threading.Tasks.Task RequestMatchStartAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request);
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface ILobbyManagerCallback
     {
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/CreateRoomResult")]
         void CreateRoomResult(TLMG.Client.UsersManagerReference.OperationLobbyRoomResult operationCreateRoomResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/EnterLobbyResult")]
         void EnterLobbyResult(TLMG.Client.UsersManagerReference.OperationLobbyRoomResult operationEnterLobbyResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/LeaveLobbyResult")]
         void LeaveLobbyResult(TLMG.Client.UsersManagerReference.OperationResult operationLeaveLobbyResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/OnLobbyRoomChanged")]
         void OnLobbyRoomChanged(TLMG.Client.UsersManagerReference.LobbyRoom lobbyRoom);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangePlayerReadinessResult")]
         void ChangePlayerReadinessResult(TLMG.Client.UsersManagerReference.OperationLobbyRoomResult result);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/ChangeCardsPerPlayerResult")]
         void ChangeCardsPerPlayerResult(TLMG.Client.UsersManagerReference.OperationLobbyRoomResult result);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/RequestMatchStartResult")]
         void RequestMatchStartResult(TLMG.Client.UsersManagerReference.OperationRequestMatchStartResult result);
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface ILobbyManagerChannel : TLMG.Client.UsersManagerReference.ILobbyManager, System.ServiceModel.IClientChannel
     {
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public partial class LobbyManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.ILobbyManager>, TLMG.Client.UsersManagerReference.ILobbyManager
     {
-
-        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance) :
+        
+        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance) : 
                 base(callbackInstance)
         {
         }
-
-        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) :
+        
+        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
                 base(callbackInstance, endpointConfigurationName)
         {
         }
-
-        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) :
+        
+        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress)
         {
         }
-
-        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress)
         {
         }
-
-        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public LobbyManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, binding, remoteAddress)
         {
         }
-
+        
         public void CreateRoom(string sessionToken)
         {
             base.Channel.CreateRoom(sessionToken);
         }
-
+        
         public System.Threading.Tasks.Task CreateRoomAsync(string sessionToken)
         {
             return base.Channel.CreateRoomAsync(sessionToken);
         }
-
+        
         public void EnterLobby(string sessionToken, int roomId)
         {
             base.Channel.EnterLobby(sessionToken, roomId);
         }
-
+        
         public System.Threading.Tasks.Task EnterLobbyAsync(string sessionToken, int roomId)
         {
             return base.Channel.EnterLobbyAsync(sessionToken, roomId);
         }
-
+        
         public void LeaveLobby(string sessionToken)
         {
             base.Channel.LeaveLobby(sessionToken);
         }
-
+        
         public System.Threading.Tasks.Task LeaveLobbyAsync(string sessionToken)
         {
             return base.Channel.LeaveLobbyAsync(sessionToken);
         }
-
+        
         public void ChangePlayerReadiness(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessRequest request)
         {
             base.Channel.ChangePlayerReadiness(sessionToken, request);
         }
-
+        
         public System.Threading.Tasks.Task ChangePlayerReadinessAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangePlayerReadinessRequest request)
         {
             return base.Channel.ChangePlayerReadinessAsync(sessionToken, request);
         }
-
+        
         public void ChangeCardsPerPlayer(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request)
         {
             base.Channel.ChangeCardsPerPlayer(sessionToken, request);
         }
-
+        
         public System.Threading.Tasks.Task ChangeCardsPerPlayerAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationChangeCardsPerPlayerRequest request)
         {
             return base.Channel.ChangeCardsPerPlayerAsync(sessionToken, request);
         }
-
+        
         public void RequestMatchStart(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request)
         {
             base.Channel.RequestMatchStart(sessionToken, request);
         }
-
+        
         public System.Threading.Tasks.Task RequestMatchStartAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request)
         {
             return base.Channel.RequestMatchStartAsync(sessionToken, request);
         }
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="TLMG.Client.UsersManagerReference.IFriendsManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.IFriendsManagerCallback))]
     public interface IFriendsManager
     {
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/SubscribeToFriends")]
         void SubscribeToFriends(string sessionToken);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/SubscribeToFriends")]
         System.Threading.Tasks.Task SubscribeToFriendsAsync(string sessionToken);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/SendFriendRequest")]
         void SendFriendRequest(string sessionToken, string friendNickname);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/SendFriendRequest")]
         System.Threading.Tasks.Task SendFriendRequestAsync(string sessionToken, string friendNickname);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/AcceptFriendRequest")]
         void AcceptFriendRequest(string sessionToken, int friendRequestId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/AcceptFriendRequest")]
         System.Threading.Tasks.Task AcceptFriendRequestAsync(string sessionToken, int friendRequestId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/DeclineFriendRequest")]
         void DeclineFriendRequest(string sessionToken, int friendRequestId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/DeclineFriendRequest")]
         System.Threading.Tasks.Task DeclineFriendRequestAsync(string sessionToken, int friendRequestId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/InviteFriendToRoom")]
         void InviteFriendToRoom(string sessionToken, int friendUserId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/InviteFriendToRoom")]
         System.Threading.Tasks.Task InviteFriendToRoomAsync(string sessionToken, int friendUserId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/AcceptRoomInvitation")]
         void AcceptRoomInvitation(string sessionToken, int invitationId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/AcceptRoomInvitation")]
         System.Threading.Tasks.Task AcceptRoomInvitationAsync(string sessionToken, int invitationId);
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface IFriendsManagerCallback
     {
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/SubscribeToFriendsResult")]
         void SubscribeToFriendsResult(TLMG.Client.UsersManagerReference.OperationSubscribeToFriendsResult operationSubscribeToFriendsResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/SendFriendRequestResult")]
         void SendFriendRequestResult(TLMG.Client.UsersManagerReference.OperationSendFriendRequestResult operationSendFriendRequestResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/AcceptFriendRequestResult")]
         void AcceptFriendRequestResult(TLMG.Client.UsersManagerReference.OperationAcceptFriendRequestResult operationAcceptFriendRequestResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/DeclineFriendRequestResult")]
         void DeclineFriendRequestResult(TLMG.Client.UsersManagerReference.OperationDeclineFriendRequestResult operationDeclineFriendRequestResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/OnFriendPresenceChanged")]
         void OnFriendPresenceChanged(TLMG.Client.UsersManagerReference.Friend friend);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/OnFriendRequestReceived")]
         void OnFriendRequestReceived(TLMG.Client.UsersManagerReference.FriendRequest friendRequest);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendshipManager/OnFriendAdded")]
         void OnFriendAdded(TLMG.Client.UsersManagerReference.Friend friend);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/InviteFriendToRoomResult")]
         void InviteFriendToRoomResult(TLMG.Client.UsersManagerReference.OperationResult operationInviteFriendToRoomResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/AcceptRoomInvitationResult")]
         void AcceptRoomInvitationResult(TLMG.Client.UsersManagerReference.OperationAcceptRoomInvitationResult operationAcceptRoomInvitationResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/OnRoomInvitationReceived")]
         void OnRoomInvitationReceived(TLMG.Client.UsersManagerReference.RoomInvitation roomInvitation);
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface IFriendsManagerChannel : TLMG.Client.UsersManagerReference.IFriendsManager, System.ServiceModel.IClientChannel
     {
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public partial class FriendsManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.IFriendsManager>, TLMG.Client.UsersManagerReference.IFriendsManager
     {
-
-        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance) :
+        
+        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance) : 
                 base(callbackInstance)
         {
         }
-
-        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) :
+        
+        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
                 base(callbackInstance, endpointConfigurationName)
         {
         }
-
-        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) :
+        
+        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress)
         {
         }
-
-        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress)
         {
         }
-
-        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public FriendsManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, binding, remoteAddress)
         {
         }
-
+        
         public void SubscribeToFriends(string sessionToken)
         {
             base.Channel.SubscribeToFriends(sessionToken);
         }
-
+        
         public System.Threading.Tasks.Task SubscribeToFriendsAsync(string sessionToken)
         {
             return base.Channel.SubscribeToFriendsAsync(sessionToken);
         }
-
+        
         public void SendFriendRequest(string sessionToken, string friendNickname)
         {
             base.Channel.SendFriendRequest(sessionToken, friendNickname);
         }
-
+        
         public System.Threading.Tasks.Task SendFriendRequestAsync(string sessionToken, string friendNickname)
         {
             return base.Channel.SendFriendRequestAsync(sessionToken, friendNickname);
         }
-
+        
         public void AcceptFriendRequest(string sessionToken, int friendRequestId)
         {
             base.Channel.AcceptFriendRequest(sessionToken, friendRequestId);
         }
-
+        
         public System.Threading.Tasks.Task AcceptFriendRequestAsync(string sessionToken, int friendRequestId)
         {
             return base.Channel.AcceptFriendRequestAsync(sessionToken, friendRequestId);
         }
-
+        
         public void DeclineFriendRequest(string sessionToken, int friendRequestId)
         {
             base.Channel.DeclineFriendRequest(sessionToken, friendRequestId);
         }
-
+        
         public System.Threading.Tasks.Task DeclineFriendRequestAsync(string sessionToken, int friendRequestId)
         {
             return base.Channel.DeclineFriendRequestAsync(sessionToken, friendRequestId);
         }
-
+        
         public void InviteFriendToRoom(string sessionToken, int friendUserId)
         {
             base.Channel.InviteFriendToRoom(sessionToken, friendUserId);
         }
-
+        
         public System.Threading.Tasks.Task InviteFriendToRoomAsync(string sessionToken, int friendUserId)
         {
             return base.Channel.InviteFriendToRoomAsync(sessionToken, friendUserId);
         }
-
+        
         public void AcceptRoomInvitation(string sessionToken, int invitationId)
         {
             base.Channel.AcceptRoomInvitation(sessionToken, invitationId);
         }
-
+        
         public System.Threading.Tasks.Task AcceptRoomInvitationAsync(string sessionToken, int invitationId)
         {
             return base.Channel.AcceptRoomInvitationAsync(sessionToken, invitationId);
         }
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="TLMG.Client.UsersManagerReference.IChatManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.IChatManagerCallback))]
     public interface IChatManager
     {
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SubscribeToChat")]
         void SubscribeToChat(string sessionToken);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SubscribeToChat")]
         System.Threading.Tasks.Task SubscribeToChatAsync(string sessionToken);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SendChatMessage")]
         void SendChatMessage(string sessionToken, TLMG.Client.UsersManagerReference.OperationSendChatMessageRequest request);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SendChatMessage")]
         System.Threading.Tasks.Task SendChatMessageAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationSendChatMessageRequest request);
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface IChatManagerCallback
     {
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SubscribeToChatResult")]
         void SubscribeToChatResult(TLMG.Client.UsersManagerReference.OperationResult operationSubscribeToChatResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SendChatMessageResult")]
         void SendChatMessageResult(TLMG.Client.UsersManagerReference.OperationSendChatMessageResult operationSendChatMessageResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/OnChatMessageReceived")]
         void OnChatMessageReceived(TLMG.Client.UsersManagerReference.ChatMessage chatMessage);
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface IChatManagerChannel : TLMG.Client.UsersManagerReference.IChatManager, System.ServiceModel.IClientChannel
     {
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public partial class ChatManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.IChatManager>, TLMG.Client.UsersManagerReference.IChatManager
     {
-
-        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance) :
+        
+        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance) : 
                 base(callbackInstance)
         {
         }
-
-        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) :
+        
+        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
                 base(callbackInstance, endpointConfigurationName)
         {
         }
-
-        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) :
+        
+        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress)
         {
         }
-
-        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress)
         {
         }
-
-        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public ChatManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, binding, remoteAddress)
         {
         }
-
+        
         public void SubscribeToChat(string sessionToken)
         {
             base.Channel.SubscribeToChat(sessionToken);
         }
-
+        
         public System.Threading.Tasks.Task SubscribeToChatAsync(string sessionToken)
         {
             return base.Channel.SubscribeToChatAsync(sessionToken);
         }
-
+        
         public void SendChatMessage(string sessionToken, TLMG.Client.UsersManagerReference.OperationSendChatMessageRequest request)
         {
             base.Channel.SendChatMessage(sessionToken, request);
         }
-
+        
         public System.Threading.Tasks.Task SendChatMessageAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationSendChatMessageRequest request)
         {
             return base.Channel.SendChatMessageAsync(sessionToken, request);
         }
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="TLMG.Client.UsersManagerReference.IMatchManager", CallbackContract=typeof(TLMG.Client.UsersManagerReference.IMatchManagerCallback))]
     public interface IMatchManager
     {
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/SubscribeToMatch")]
         void SubscribeToMatch(string sessionToken, System.Guid matchId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/SubscribeToMatch")]
         System.Threading.Tasks.Task SubscribeToMatchAsync(string sessionToken, System.Guid matchId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceCard")]
         void PlaceCard(string sessionToken, TLMG.Client.UsersManagerReference.MatchCardKind cardKind);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceCard")]
         System.Threading.Tasks.Task PlaceCardAsync(string sessionToken, TLMG.Client.UsersManagerReference.MatchCardKind cardKind);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceBet")]
         void PlaceBet(string sessionToken, int betValue);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceBet")]
         System.Threading.Tasks.Task PlaceBetAsync(string sessionToken, int betValue);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/WithdrawFromBet")]
         void WithdrawFromBet(string sessionToken);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/WithdrawFromBet")]
         System.Threading.Tasks.Task WithdrawFromBetAsync(string sessionToken);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/RevealCard")]
         void RevealCard(string sessionToken, int pileOwnerUserId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/RevealCard")]
         System.Threading.Tasks.Task RevealCardAsync(string sessionToken, int pileOwnerUserId);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/ChoosePunishmentCard")]
         void ChoosePunishmentCard(string sessionToken, int cardIndex);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/ChoosePunishmentCard")]
         System.Threading.Tasks.Task ChoosePunishmentCardAsync(string sessionToken, int cardIndex);
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface IMatchManagerCallback
     {
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/SubscribeToMatchResult")]
         void SubscribeToMatchResult(TLMG.Client.UsersManagerReference.OperationResult operationSubscribeToMatchResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceCardResult")]
         void PlaceCardResult(TLMG.Client.UsersManagerReference.OperationResult operationPlaceCardResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceBetResult")]
         void PlaceBetResult(TLMG.Client.UsersManagerReference.OperationResult operationPlaceBetResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/WithdrawFromBetResult")]
         void WithdrawFromBetResult(TLMG.Client.UsersManagerReference.OperationResult operationWithdrawFromBetResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/RevealCardResult")]
         void RevealCardResult(TLMG.Client.UsersManagerReference.OperationResult operationRevealCardResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/ChoosePunishmentCardResult")]
         void ChoosePunishmentCardResult(TLMG.Client.UsersManagerReference.OperationResult operationChoosePunishmentCardResult);
-
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/OnMatchViewChanged")]
         void OnMatchViewChanged(TLMG.Client.UsersManagerReference.MatchView matchView);
     }
-
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface IMatchManagerChannel : TLMG.Client.UsersManagerReference.IMatchManager, System.ServiceModel.IClientChannel
     {
     }
-
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public partial class MatchManagerClient : System.ServiceModel.DuplexClientBase<TLMG.Client.UsersManagerReference.IMatchManager>, TLMG.Client.UsersManagerReference.IMatchManager
     {
-
-        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance) :
+        
+        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance) : 
                 base(callbackInstance)
         {
         }
-
-        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) :
+        
+        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName) : 
                 base(callbackInstance, endpointConfigurationName)
         {
         }
-
-        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) :
+        
+        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, string remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress)
         {
         }
-
-        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, endpointConfigurationName, remoteAddress)
         {
         }
-
-        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) :
+        
+        public MatchManagerClient(System.ServiceModel.InstanceContext callbackInstance, System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(callbackInstance, binding, remoteAddress)
         {
         }
-
+        
         public void SubscribeToMatch(string sessionToken, System.Guid matchId)
         {
             base.Channel.SubscribeToMatch(sessionToken, matchId);
         }
-
+        
         public System.Threading.Tasks.Task SubscribeToMatchAsync(string sessionToken, System.Guid matchId)
         {
             return base.Channel.SubscribeToMatchAsync(sessionToken, matchId);
         }
-
+        
         public void PlaceCard(string sessionToken, TLMG.Client.UsersManagerReference.MatchCardKind cardKind)
         {
             base.Channel.PlaceCard(sessionToken, cardKind);
         }
-
+        
         public System.Threading.Tasks.Task PlaceCardAsync(string sessionToken, TLMG.Client.UsersManagerReference.MatchCardKind cardKind)
         {
             return base.Channel.PlaceCardAsync(sessionToken, cardKind);
         }
-
+        
         public void PlaceBet(string sessionToken, int betValue)
         {
             base.Channel.PlaceBet(sessionToken, betValue);
         }
-
+        
         public System.Threading.Tasks.Task PlaceBetAsync(string sessionToken, int betValue)
         {
             return base.Channel.PlaceBetAsync(sessionToken, betValue);
         }
-
+        
         public void WithdrawFromBet(string sessionToken)
         {
             base.Channel.WithdrawFromBet(sessionToken);
         }
-
+        
         public System.Threading.Tasks.Task WithdrawFromBetAsync(string sessionToken)
         {
             return base.Channel.WithdrawFromBetAsync(sessionToken);
         }
-
+        
         public void RevealCard(string sessionToken, int pileOwnerUserId)
         {
             base.Channel.RevealCard(sessionToken, pileOwnerUserId);
         }
-
+        
         public System.Threading.Tasks.Task RevealCardAsync(string sessionToken, int pileOwnerUserId)
         {
             return base.Channel.RevealCardAsync(sessionToken, pileOwnerUserId);
         }
-
+        
         public void ChoosePunishmentCard(string sessionToken, int cardIndex)
         {
             base.Channel.ChoosePunishmentCard(sessionToken, cardIndex);
         }
-
+        
         public System.Threading.Tasks.Task ChoosePunishmentCardAsync(string sessionToken, int cardIndex)
         {
             return base.Channel.ChoosePunishmentCardAsync(sessionToken, cardIndex);

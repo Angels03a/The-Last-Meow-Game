@@ -14,6 +14,7 @@ namespace TLMG.Services
 
         public void SubscribeToChat(string sessionToken)
         {
+            LogChannelOperation("Chat", "SubscribeToChat", sessionToken);
             IChatManagerCallback callback = GetChatCallback();
 
             ResultWithNotification<OperationResult> subscribeToChatResultWithNotification =
@@ -25,6 +26,7 @@ namespace TLMG.Services
 
         public void SendChatMessage(string sessionToken, OperationSendChatMessageRequest sendChatMessageRequest)
         {
+            LogChannelOperation("Chat", "SendChatMessage", sessionToken);
             IChatManagerCallback callback = GetChatCallback();
 
             ResultWithNotification<OperationSendChatMessageResult> sendChatMessageResultWithNotification =
@@ -60,10 +62,22 @@ namespace TLMG.Services
             {
                 IContextChannel chatChannel = OperationContext.Current.Channel;
                 _chatChannelId = chatChannel.SessionId;
-                chatChannel.Closed += OnChatChannelEnded;
-                chatChannel.Faulted += OnChatChannelEnded;
+                chatChannel.Closed += OnChatChannelClosed;
+                chatChannel.Faulted += OnChatChannelFaulted;
                 _isChatChannelObserved = true;
             }
+        }
+
+        private void OnChatChannelClosed(object sender, EventArgs eventArguments)
+        {
+            LogChannelEnd("Chat", "Closed", sender);
+            OnChatChannelEnded(sender, eventArguments);
+        }
+
+        private void OnChatChannelFaulted(object sender, EventArgs eventArguments)
+        {
+            LogChannelEnd("Chat", "Faulted", sender);
+            OnChatChannelEnded(sender, eventArguments);
         }
 
         private void OnChatChannelEnded(object sender, EventArgs eventArguments)

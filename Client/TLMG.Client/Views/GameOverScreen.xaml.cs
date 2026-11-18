@@ -21,7 +21,9 @@ namespace TLMG.Client.Views
         protected override void UpdateDynamicLabels()
         {
             string winnerTitleFormat = TryFindResource(WinnerTitleFormatKey) as string ?? DefaultFormat;
-            lblWinnerTitle.Text = string.Format(winnerTitleFormat, _viewModel.WinnerName.ToUpperInvariant());
+            lblWinnerTitle.Text = string.IsNullOrWhiteSpace(_viewModel.WinnerName)
+                ? TryFindResource("GameOver_NoWinnerAvailable") as string ?? string.Empty
+                : string.Format(winnerTitleFormat, _viewModel.WinnerName.ToUpperInvariant());
         }
 
     }

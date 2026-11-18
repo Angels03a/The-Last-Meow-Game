@@ -61,6 +61,10 @@ namespace TLMG.Contracts.DataContracts
         [DataMember]
         public int WinnerUserId { get; set; }
 
+        /// <summary>Clasificación pública final; null si no está disponible.</summary>
+        [DataMember]
+        public List<MatchStandingView> FinalStandings { get; set; }
+
         /// <summary>Cartas boca abajo en la mesa: la suma de las pilas.</summary>
         [DataMember]
         public int CardsOnTable { get; set; }

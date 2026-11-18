@@ -51,10 +51,10 @@ namespace TLMG.Services.Sessions
         }
 
         /// <inheritdoc />
-        public string StartSession(int userId, string nickname, out SessionEnd replacedSession)
+        public string StartRegisteredSession(int userId, string nickname, out SessionEnd replacedSession)
         {
             string sessionToken = SessionTokenHelper.GenerateSessionToken();
-            PlayerSession newSession = new PlayerSession(userId, nickname);
+            PlayerSession newSession = PlayerSession.CreateRegistered(userId, nickname);
             replacedSession = null;
 
             lock (_sessionsLock)

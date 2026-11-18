@@ -66,6 +66,9 @@ namespace TLMG.Services.Tests
             Assert.All(delivery.ViewDeliveries, item => Assert.Equal(
                 MatchChallengeOutcome.Succeeded, item.MatchView.Challenge.Outcome));
             Assert.All(delivery.ViewDeliveries, item => Assert.False(item.MatchView.CanPlaceCard));
+            Assert.All(delivery.ViewDeliveries, item => Assert.Equal(3, item.MatchView.FinalStandings.Count));
+            Assert.All(delivery.ViewDeliveries, item => Assert.Equal(scenario.UserIds[0],
+                item.MatchView.FinalStandings[0].UserId));
         }
 
         /// <summary>Verifica RevealCard_PartialReveal_ShowsTheRevealedCardToEveryoneAndKeepsTheChallengeOpen.</summary>

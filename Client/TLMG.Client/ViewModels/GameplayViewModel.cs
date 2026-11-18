@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using TLMG.Client.Communication;
@@ -31,6 +32,9 @@ namespace TLMG.Client.ViewModels
         private readonly ObservableCollection<ChatMessageEntry> _chatMessages;
 
         private int _bidAmount;
+        private Guid? _finishedMatchId;
+        private MatchView _previousChallengeView;
+        private GameNotification _notification;
         private MatchBoard _board;
         private bool _isMatchUnavailable;
         private string _selectedPlayerName;
@@ -88,6 +92,11 @@ namespace TLMG.Client.ViewModels
         public ICommand DemoGameOverCommand { get; }
         public ICommand DemoInactivityCommand { get; }
 
+        public GameNotification Notification
+        {
+            get { return _notification; }
+            private set { SetProperty(ref _notification, value); }
+        }
         public int CurrentRoundNumber => _board.RoundNumber;
         public string PhaseLabelKey => _board.PhaseLabelKey;
         public bool HasMatchView => _board.HasMatchView;
@@ -170,7 +179,16 @@ namespace TLMG.Client.ViewModels
             _matchConnection.MatchErrorReceived += OnMatchErrorReceived;
             _matchConnection.MatchAvailabilityChanged += OnMatchAvailabilityChanged;
             _sendChatCommand.NotifyCanExecuteChanged();
-            ShowBoardOf(_matchConnection.CurrentMatchView);
+            MatchView currentView = _matchConnection.CurrentMatchView;
+            if (IsCurrentMatch(currentView))
+            {
+                ShowBoardOf(currentView);
+                if (ShowFinishedMatch(currentView))
+                {
+                    return;
+                }
+            }
+
             SubscribeToMatchIfNeeded();
         }
 
@@ -182,6 +200,8 @@ namespace TLMG.Client.ViewModels
             _matchConnection.MatchErrorReceived -= OnMatchErrorReceived;
             _matchConnection.MatchAvailabilityChanged -= OnMatchAvailabilityChanged;
             _chatMessages.Clear();
+            _previousChallengeView = null;
+            Notification = null;
         }
 
         protected override void OnDisposed()
@@ -242,7 +262,58 @@ namespace TLMG.Client.ViewModels
 
         private void OnMatchViewChanged(object sender, ServerEventArgs<MatchView> eventArgs)
         {
-            ShowBoardOf(eventArgs.Payload);
+            MatchView view = eventArgs.Payload;
+            if (!IsCurrentMatch(view))
+            {
+                return;
+            }
+
+            MatchView previous = _previousChallengeView;
+            if (view?.Challenge != null && previous?.Challenge != null
+                && view.MatchId == previous.MatchId
+                && previous.Challenge.Outcome == MatchChallengeOutcome.InProgress
+                && (view.Challenge.Outcome == MatchChallengeOutcome.Succeeded
+                    || view.Challenge.Outcome == MatchChallengeOutcome.Failed)
+                && view.Challenge.BettorUserId == previous.Challenge.BettorUserId
+                && view.Challenge.PromisedCount == previous.Challenge.PromisedCount
+                && view.RoundNumber >= previous.RoundNumber && view.RoundNumber <= previous.RoundNumber + 1
+                && (view.Challenge.RevealedCards?.Length ?? 0) > (previous.Challenge.RevealedCards?.Length ?? 0))
+            {
+                string bettor = view.Players?.FirstOrDefault(
+                    player => player.UserId == view.Challenge.BettorUserId)?.Nickname ?? string.Empty;
+                bool succeeded = view.Challenge.Outcome == MatchChallengeOutcome.Succeeded;
+                Notification = GameNotificationFactory.CreatePublic(
+                    succeeded ? "Gameplay_NoticeSuccessTitle" : "Gameplay_NoticeFailedTitle",
+                    succeeded ? "Gameplay_NoticeSuccessBody" : "Gameplay_NoticeFailedBody",
+                    bettor, succeeded ? "✓" : "!", succeeded);
+            }
+            else if (view?.Challenge?.Outcome == MatchChallengeOutcome.InProgress || view?.MatchId != previous?.MatchId)
+            {
+                Notification = null;
+            }
+
+            _previousChallengeView = view;
+            ShowBoardOf(view);
+            ShowFinishedMatch(view);
+        }
+
+        private bool IsCurrentMatch(MatchView view)
+        {
+            LobbyRoom room = _lobbyConnection.CurrentRoom;
+            return view != null && room != null && room.MatchId.HasValue && view.MatchId == room.MatchId.Value;
+        }
+
+        private bool ShowFinishedMatch(MatchView view)
+        {
+            bool isFinished = view.Phase == MatchRoundPhase.MatchFinished && _finishedMatchId != view.MatchId;
+            if (isFinished)
+            {
+                _finishedMatchId = view.MatchId;
+                Notification = null;
+                _navigation.NavigateToWithoutHistory(ScreenId.GameOver, view);
+            }
+
+            return isFinished;
         }
 
         private void OnMatchErrorReceived(object sender, ServerEventArgs<string> eventArgs)
@@ -268,6 +339,8 @@ namespace TLMG.Client.ViewModels
             else
             {
                 IsMatchUnavailable = true;
+                _previousChallengeView = null;
+                Notification = null;
                 Board = MatchBoardHelper.CreateEmptyBoard();
                 OnPropertyChanged(nameof(CurrentRoundNumber));
                 OnPropertyChanged(nameof(PhaseLabelKey));

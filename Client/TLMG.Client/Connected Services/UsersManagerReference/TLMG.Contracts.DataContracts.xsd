@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
   <xs:complexType name="PlayerAccountRegistration">
     <xs:sequence>
@@ -275,6 +275,7 @@
       <xs:element minOccurs="0" name="Challenge" nillable="true" type="tns:MatchChallengeView" />
       <xs:element minOccurs="0" name="ChallengesToWin" type="xs:int" />
       <xs:element minOccurs="0" name="CurrentBet" type="xs:int" />
+      <xs:element minOccurs="0" name="FinalStandings" nillable="true" type="tns:ArrayOfMatchStandingView" />
       <xs:element minOccurs="0" name="MatchId" type="ser:guid" />
       <xs:element minOccurs="0" name="MaximumBetValue" type="xs:int" />
       <xs:element minOccurs="0" name="MinimumBetValue" type="xs:int" />
@@ -334,6 +335,21 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="MatchRevealedCardView" nillable="true" type="tns:MatchRevealedCardView" />
+  <xs:complexType name="ArrayOfMatchStandingView">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="MatchStandingView" nillable="true" type="tns:MatchStandingView" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfMatchStandingView" nillable="true" type="tns:ArrayOfMatchStandingView" />
+  <xs:complexType name="MatchStandingView">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Points" type="xs:int" />
+      <xs:element minOccurs="0" name="Position" type="xs:int" />
+      <xs:element minOccurs="0" name="UserId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MatchStandingView" nillable="true" type="tns:MatchStandingView" />
   <xs:complexType name="ArrayOfMatchCardKind">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="MatchCardKind" type="tns:MatchCardKind" />

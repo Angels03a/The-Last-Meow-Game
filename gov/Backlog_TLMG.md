@@ -888,6 +888,7 @@ Formato de entrada:
 - Nota (2026-10-29 22:53): se cierra como decisión adoptada: el Estándar §4.3 fija para TLMG.DataAccess las carpetas DatabaseModel y Repositories. Las interfaces (IPlayerRepository, IFriendshipRepository) viven en Repositories junto a sus implementaciones; no hay que mover nada ni queda implementación pendiente.
 
 ### BL-022 · Política de caídas y reconexión (servidor y clientes)
+- Nota (2026-11-18 12:55): evidencia reportada por el encargado: en prueba con tres clientes, Chat cerró aproximadamente diez minutos después de su última operación; después cerró Friends y se invalidaron sesiones. P1 de estabilidad WCF; revisar trazas por correlación y corregir el ciclo de vida en un incremento independiente.
 - Creado: 2026-10-20 16:25
 - Por qué: definir qué pasa si el servidor se reinicia, cae abruptamente o se apaga la PC, y si un cliente se cae con una sesión dúplex abierta (jugadores fantasma en lobby o partida, estado de la partida en memoria). Opciones a evaluar sin hilos propios: tiempos de inactividad de WCF y, en el cliente, `DispatcherTimer` para un latido (Estándar §11.4). Es una decisión de arquitectura: requiere ADR y alinear las reglas del juego sobre desconexión.
 - Depende de: BL-021; revisión del SAD y de las reglas del juego

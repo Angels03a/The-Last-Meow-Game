@@ -1,4 +1,6 @@
 using System.Linq;
+using System.IO;
+using System.Runtime.Serialization;
 
 using Xunit;
 
@@ -331,6 +333,99 @@ namespace TLMG.Services.Tests
             Assert.Equal(Second, challenge.PunishmentChooserUserId);
             Assert.Equal(First, challenge.PunishedUserId);
             Assert.Equal(MatchPunishmentResolution.Pending, challenge.PunishmentResolution);
+        }
+
+        /// <summary>La tabla se proyecta desde el motor solo con identidades verificadas.</summary>
+        [Fact]
+        public void CreateMatchView_WithRegisteredParticipants_ProjectsFinalStandings()
+        {
+            MatchState match = MatchStateScenarios.ReachMatchFinished();
+            MatchViewContext context = MatchStateScenarios.CreateContext(match, null, true);
+            MatchView view = MatchViewHelper.CreateMatchView(context, First);
+            FinalStandings expected = FinalStandings.CalculateFromMatch(match, new int[0]);
+
+            Assert.Equal(expected.Standings.Count, view.FinalStandings.Count);
+            Assert.Equal(First, view.WinnerUserId);
+            for (int index = 0; index < expected.Standings.Count; index++)
+            {
+                Assert.Equal(expected.Standings[index].PlayerId, view.FinalStandings[index].UserId);
+                Assert.Equal(expected.Standings[index].Position, view.FinalStandings[index].Position);
+                Assert.Equal(expected.Standings[index].Points, view.FinalStandings[index].Points);
+                Assert.False(string.IsNullOrWhiteSpace(view.FinalStandings[index].Nickname));
+            }
+        }
+
+        /// <summary>Una identidad no verificada no se trata como cuenta registrada.</summary>
+        [Fact]
+        public void CreateMatchView_WithUnknownIdentity_DoesNotPublishStandings()
+        {
+            MatchState match = MatchStateScenarios.ReachMatchFinished();
+            Assert.Null(ViewOf(match, First).FinalStandings);
+        }
+
+        /// <summary>Al quedar una persona activa, el motor asigna cero a quienes salieron.</summary>
+        [Fact]
+        public void CreateMatchView_LastActivePlayer_ProjectsWinnerAndDepartures()
+        {
+            MatchState match = MatchStateScenarios.CreateStarted();
+            match.RemovePlayer(Second, PlayerExit.Immediate(MatchStateScenarios.StartUtc), count => 0);
+            match.RemovePlayer(Third, PlayerExit.Immediate(MatchStateScenarios.StartUtc.AddSeconds(1)), count => 0);
+            MatchViewContext context = MatchStateScenarios.CreateContext(match, null, true);
+            MatchView view = MatchViewHelper.CreateMatchView(context, First);
+
+            Assert.Equal(First, view.WinnerUserId);
+            Assert.Equal(First, view.FinalStandings[0].UserId);
+            Assert.All(view.FinalStandings.Where(row => row.UserId != First), row => Assert.Equal(0, row.Points));
+        }
+
+        /// <summary>El contrato conserva la diferencia entre tabla ausente y tabla vacía.</summary>
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void MatchViewSerialization_PreservesUnavailableAndEmptyStandings(bool available)
+        {
+            MatchView source = new MatchView
+            {
+                FinalStandings = available ? new System.Collections.Generic.List<MatchStandingView>() : null
+            };
+            DataContractSerializer serializer = new DataContractSerializer(typeof(MatchView));
+            using (MemoryStream stream = new MemoryStream())
+            {
+                serializer.WriteObject(stream, source);
+                stream.Position = 0;
+                MatchView result = (MatchView)serializer.ReadObject(stream);
+                if (available)
+                {
+                    Assert.Empty(result.FinalStandings);
+                }
+                else
+                {
+                    Assert.Null(result.FinalStandings);
+                }
+            }
+        }
+
+        /// <summary>El resultado serializado solo contiene los datos públicos de las filas.</summary>
+        [Fact]
+        public void MatchStandingSerialization_ContainsOnlyPublicFields()
+        {
+            MatchStandingView standing = new MatchStandingView { UserId = First, Nickname = "Player", Position = 1, Points = 3 };
+            DataContractSerializer serializer = new DataContractSerializer(typeof(MatchStandingView));
+            using (MemoryStream stream = new MemoryStream())
+            {
+                serializer.WriteObject(stream, standing);
+                string xml = System.Text.Encoding.UTF8.GetString(stream.ToArray());
+                Assert.Contains("Nickname", xml);
+                Assert.Contains("Points", xml);
+                Assert.DoesNotContain("Token", xml);
+                Assert.DoesNotContain("Hand", xml);
+                stream.Position = 0;
+                MatchStandingView result = (MatchStandingView)serializer.ReadObject(stream);
+                Assert.Equal(standing.UserId, result.UserId);
+                Assert.Equal(standing.Position, result.Position);
+                Assert.Equal(standing.Points, result.Points);
+                Assert.Equal(standing.Nickname, result.Nickname);
+            }
         }
 
         private static MatchView ViewOf(MatchState matchState, int viewerUserId)

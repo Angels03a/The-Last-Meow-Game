@@ -38,6 +38,13 @@ namespace TLMG.Server
                 host = new ServiceHost(typeof(ServiceImplementation));
                 host.Open();
 
+                foreach (System.ServiceModel.Description.ServiceEndpoint endpoint in host.Description.Endpoints)
+                {
+                    _log.InfoFormat("WCF endpoint UTC={0:O} contrato={1} receiveTimeout={2} sendTimeout={3}",
+                        DateTime.UtcNow, endpoint.Contract.Name, endpoint.Binding.ReceiveTimeout,
+                        endpoint.Binding.SendTimeout);
+                }
+
                 _log.Info("El servidor está en ejecución. Presiona Enter para detenerlo.");
                 Console.ReadLine();
             }

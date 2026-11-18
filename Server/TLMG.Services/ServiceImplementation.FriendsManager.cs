@@ -13,6 +13,7 @@ namespace TLMG.Services
 
         public void SubscribeToFriends(string sessionToken)
         {
+            LogChannelOperation("Friends", "SubscribeToFriends", sessionToken);
             IFriendsManagerCallback callback = 
                 OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
             ObserveFriendsChannel();
@@ -28,6 +29,7 @@ namespace TLMG.Services
 
         public void InviteFriendToRoom(string sessionToken, int friendUserId)
         {
+            LogChannelOperation("Friends", "InviteFriendToRoom", sessionToken);
             IFriendsManagerCallback callback = 
                 OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
 
@@ -41,6 +43,7 @@ namespace TLMG.Services
 
         public void AcceptRoomInvitation(string sessionToken, int invitationId)
         {
+            LogChannelOperation("Friends", "AcceptRoomInvitation", sessionToken);
             IFriendsManagerCallback callback = 
                 OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
 
@@ -54,6 +57,7 @@ namespace TLMG.Services
 
         public void SendFriendRequest(string sessionToken, string friendNickname)
         {
+            LogChannelOperation("Friends", "SendFriendRequest", sessionToken);
             IFriendsManagerCallback callback =
                 OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
 
@@ -67,6 +71,7 @@ namespace TLMG.Services
 
         public void AcceptFriendRequest(string sessionToken, int friendRequestId)
         {
+            LogChannelOperation("Friends", "AcceptFriendRequest", sessionToken);
             IFriendsManagerCallback callback =
                 OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
 
@@ -80,6 +85,7 @@ namespace TLMG.Services
 
         public void DeclineFriendRequest(string sessionToken, int friendRequestId)
         {
+            LogChannelOperation("Friends", "DeclineFriendRequest", sessionToken);
             IFriendsManagerCallback callback =
                 OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
 
@@ -97,10 +103,22 @@ namespace TLMG.Services
             {
                 IContextChannel friendsChannel = OperationContext.Current.Channel;
                 _friendsChannelId = friendsChannel.SessionId;
-                friendsChannel.Closed += OnFriendsChannelEnded;
-                friendsChannel.Faulted += OnFriendsChannelEnded;
+                friendsChannel.Closed += OnFriendsChannelClosed;
+                friendsChannel.Faulted += OnFriendsChannelFaulted;
                 _isFriendsChannelObserved = true;
             }
+        }
+
+        private void OnFriendsChannelClosed(object sender, EventArgs eventArguments)
+        {
+            LogChannelEnd("Friends", "Closed", sender);
+            OnFriendsChannelEnded(sender, eventArguments);
+        }
+
+        private void OnFriendsChannelFaulted(object sender, EventArgs eventArguments)
+        {
+            LogChannelEnd("Friends", "Faulted", sender);
+            OnFriendsChannelEnded(sender, eventArguments);
         }
 
         private void OnFriendsChannelEnded(object sender, EventArgs eventArguments)

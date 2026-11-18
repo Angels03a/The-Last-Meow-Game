@@ -22,13 +22,15 @@ namespace TLMG.Services.Sessions
             int version,
             MatchState matchState,
             IReadOnlyDictionary<int, string> nicknamesByUserId,
-            MatchChallengeRecord lastChallenge)
+            MatchChallengeRecord lastChallenge,
+            bool allParticipantsRegistered = false)
         {
             MatchId = matchId;
             Version = version;
             MatchState = matchState;
             NicknamesByUserId = nicknamesByUserId;
             LastChallenge = lastChallenge;
+            AllParticipantsRegistered = allParticipantsRegistered;
         }
 
         /// <summary>Obtiene la partida de la vista.</summary>
@@ -42,6 +44,9 @@ namespace TLMG.Services.Sessions
 
         /// <summary>Obtiene los nicknames congelados al iniciar la partida.</summary>
         internal IReadOnlyDictionary<int, string> NicknamesByUserId { get; }
+
+        /// <summary>Indica si todas las identidades fueron verificadas como cuentas registradas.</summary>
+        internal bool AllParticipantsRegistered { get; }
 
         /// <summary>Obtiene el desenlace del último reto; null si no hay uno vigente.</summary>
         internal MatchChallengeRecord LastChallenge { get; }

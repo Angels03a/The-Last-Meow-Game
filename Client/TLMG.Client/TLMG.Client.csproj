@@ -88,6 +88,9 @@
     <Compile Include="Models\ChatMessageEntry.cs" />
     <Compile Include="Models\FriendEntry.cs" />
     <Compile Include="Models\FriendRequestEntry.cs" />
+    <Compile Include="Models\GameNotification.cs" />
+    <Compile Include="Models\GameDialog.cs" />
+    <Compile Include="Views\GameDialogWindow.xaml.cs"><DependentUpon>GameDialogWindow.xaml</DependentUpon></Compile>
     <Compile Include="Models\HandCardEntry.cs" />
     <Compile Include="Models\MatchBoard.cs" />
     <Compile Include="Models\MatchPlayerEntry.cs" />
@@ -146,6 +149,7 @@
     <Compile Include="Views\GameOverScreen.xaml.cs">
       <DependentUpon>GameOverScreen.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\NotificationPresenter.xaml.cs"><DependentUpon>NotificationPresenter.xaml</DependentUpon></Compile>
     <Compile Include="Views\GameplayScreen.xaml.cs">
       <DependentUpon>GameplayScreen.xaml</DependentUpon>
     </Compile>
@@ -239,6 +243,8 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\GameDialogWindow.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
+    <Page Include="Views\NotificationPresenter.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
     <Page Include="Views\GameplayScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

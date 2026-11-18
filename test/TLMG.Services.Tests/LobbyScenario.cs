@@ -19,14 +19,14 @@ namespace TLMG.Services.Tests
         internal LobbyScenario(SessionRegistry registry)
         {
             Registry = registry;
-            CreatorToken = Registry.StartSession(1, "Creator", out SessionEnd replaced);
+            CreatorToken = Registry.StartRegisteredSession(1, "Creator", out SessionEnd replaced);
             LobbyCaller creatorCaller = new LobbyCaller(CreatorToken, "creator");
             RoomId = Registry.CreateRoom(creatorCaller, null).RoomId;
         }
 
         internal string Authorize(int userId)
         {
-            string token = Registry.StartSession(userId, "Guest", out SessionEnd replaced);
+            string token = Registry.StartRegisteredSession(userId, "Guest", out SessionEnd replaced);
             Registry.SubscribeFriendsChannel(token, "friends" + userId, null, Array.Empty<int>());
             RoomInvitationCreation invitation = Registry.CreateRoomInvitation(CreatorToken, userId);
             Registry.AcceptRoomInvitation(token, invitation.InvitationId);

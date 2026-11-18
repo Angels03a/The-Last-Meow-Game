@@ -474,6 +474,9 @@
             </Border>
         </Grid>
 
+        <local:NotificationPresenter Grid.Column="0" Panel.ZIndex="20"
+                                     HorizontalAlignment="Center" VerticalAlignment="Top" Margin="12,100,12,0"
+                                     Notification="{Binding Notification}" />
         <Border Grid.Column="0" Panel.ZIndex="10" HorizontalAlignment="Center" VerticalAlignment="Center"
                 Style="{StaticResource ModalBorderStyle}"
                 Visibility="{Binding Board.HasPunishment, Converter={StaticResource BooleanToVisibilityConverter}}">

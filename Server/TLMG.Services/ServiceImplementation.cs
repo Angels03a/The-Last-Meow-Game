@@ -52,6 +52,24 @@ namespace TLMG.Services
             _matchService = matchService;
         }
 
+        private readonly Guid _diagnosticChannelId = Guid.NewGuid();
+
+        private void LogChannelOperation(string channelType, string operation, string sessionToken)
+        {
+            PlayerSession session;
+            bool hasSession = _sessionRegistry.TryFindSessionByToken(sessionToken, out session);
+            _log.InfoFormat("WCF operación UTC={0:O} canal={1} correlación={2} operación={3} sesión={4}",
+                DateTime.UtcNow, channelType, _diagnosticChannelId, operation,
+                hasSession ? session.DiagnosticId.ToString() : "no reconocida");
+        }
+
+        private void LogChannelEnd(string channelType, string eventName, object sender)
+        {
+            ICommunicationObject channel = sender as ICommunicationObject;
+            _log.WarnFormat("WCF fin UTC={0:O} canal={1} correlación={2} evento={3} estado={4}",
+                DateTime.UtcNow, channelType, _diagnosticChannelId, eventName, channel?.State);
+        }
+
         private void SafeNotifyAll(IReadOnlyList<Action> notifications)
         {
             foreach (Action notification in notifications)

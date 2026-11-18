@@ -256,7 +256,7 @@ namespace TLMG.Services.Tests
         {
             SessionEnd replacedSession;
 
-            return Registry.StartSession(userId, NicknamePrefix + userId, out replacedSession);
+            return Registry.StartRegisteredSession(userId, NicknamePrefix + userId, out replacedSession);
         }
 
         private void StartMatch()

@@ -139,6 +139,8 @@ namespace TLMG.Client.Communication
         internal void NotifyMatchViewReceived(ServerCallback callback, MatchView matchView)
         {
             bool isFreshView = IsCurrentMatchCallback(callback)
+                && matchView != null && CurrentRoom != null && CurrentRoom.MatchId.HasValue
+                && matchView.MatchId == CurrentRoom.MatchId.Value
                 && MatchViewVersionHelper.ShouldDisplay(CurrentMatchView, matchView);
 
             if (isFreshView)

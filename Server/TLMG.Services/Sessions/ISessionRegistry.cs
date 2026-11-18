@@ -21,7 +21,7 @@ namespace TLMG.Services.Sessions
         /// Lo que hay que avisar por la sesión anterior que se reemplazó; null si la cuenta no tenía otra.
         /// </param>
         /// <returns>El token de la sesión nueva; nunca es null.</returns>
-        string StartSession(int userId, string nickname, out SessionEnd replacedSession);
+        string StartRegisteredSession(int userId, string nickname, out SessionEnd replacedSession);
 
         /// <summary>Busca la sesión de un token.</summary>
         /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>

@@ -14,6 +14,7 @@ namespace TLMG.Services
 
         public void CreateRoom(string sessionToken)
         {
+            LogChannelOperation("Lobby", "CreateRoom", sessionToken);
             ILobbyManagerCallback callback = GetLobbyCallback();
 
             ResultWithNotification<OperationLobbyRoomResult> createRoomResult =
@@ -25,6 +26,7 @@ namespace TLMG.Services
 
         public void EnterLobby(string sessionToken, int roomId)
         {
+            LogChannelOperation("Lobby", "EnterLobby", sessionToken);
             ILobbyManagerCallback callback = GetLobbyCallback();
 
             ResultWithNotification<OperationLobbyRoomResult> enterLobbyResult =
@@ -36,6 +38,7 @@ namespace TLMG.Services
 
         public void LeaveLobby(string sessionToken)
         {
+            LogChannelOperation("Lobby", "LeaveLobby", sessionToken);
             ILobbyManagerCallback callback = GetLobbyCallback();
 
             ResultWithNotification<OperationResult> leaveLobbyResult =
@@ -49,6 +52,7 @@ namespace TLMG.Services
             string sessionToken,
             OperationChangePlayerReadinessRequest changePlayerReadinessRequest)
         {
+            LogChannelOperation("Lobby", "ChangePlayerReadiness", sessionToken);
             ILobbyManagerCallback callback = GetLobbyCallback();
 
             ResultWithNotification<OperationLobbyRoomResult> changePlayerReadinessResult =
@@ -60,6 +64,7 @@ namespace TLMG.Services
 
         public void RequestMatchStart(string sessionToken, OperationMatchStartRequest matchStartRequest)
         {
+            LogChannelOperation("Lobby", "RequestMatchStart", sessionToken);
             ILobbyManagerCallback callback = GetLobbyCallback();
 
             ResultWithNotification<OperationRequestMatchStartResult> requestMatchStartResult =
@@ -73,6 +78,7 @@ namespace TLMG.Services
             string sessionToken,
             OperationChangeCardsPerPlayerRequest changeCardsPerPlayerRequest)
         {
+            LogChannelOperation("Lobby", "ChangeCardsPerPlayer", sessionToken);
             ILobbyManagerCallback callback = GetLobbyCallback();
 
             ResultWithNotification<OperationLobbyRoomResult>
@@ -104,10 +110,22 @@ namespace TLMG.Services
             {
                 IContextChannel lobbyChannel = OperationContext.Current.Channel;
                 _lobbyChannelId = lobbyChannel.SessionId;
-                lobbyChannel.Closed += OnLobbyChannelEnded;
-                lobbyChannel.Faulted += OnLobbyChannelEnded;
+                lobbyChannel.Closed += OnLobbyChannelClosed;
+                lobbyChannel.Faulted += OnLobbyChannelFaulted;
                 _isLobbyChannelObserved = true;
             }
+        }
+
+        private void OnLobbyChannelClosed(object sender, EventArgs eventArguments)
+        {
+            LogChannelEnd("Lobby", "Closed", sender);
+            OnLobbyChannelEnded(sender, eventArguments);
+        }
+
+        private void OnLobbyChannelFaulted(object sender, EventArgs eventArguments)
+        {
+            LogChannelEnd("Lobby", "Faulted", sender);
+            OnLobbyChannelEnded(sender, eventArguments);
         }
 
         private void OnLobbyChannelEnded(object sender, EventArgs eventArguments)

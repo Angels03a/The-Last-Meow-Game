@@ -123,6 +123,7 @@ namespace TLMG.Services.Helpers
                 BetLeaderUserId = matchState.BetLeader?.PlayerId ?? NoUserId,
                 ChallengesToWin = matchState.ModeRules.SuccessfulChallengesToWin,
                 WinnerUserId = matchState.Winner?.PlayerId ?? NoUserId,
+                FinalStandings = CreateFinalStandings(context),
                 CardsOnTable = matchState.CardsOnTable,
                 Challenge = CreateChallengeView(context.LastChallenge),
                 Punishment = CreatePunishmentView(matchState)
@@ -130,6 +131,29 @@ namespace TLMG.Services.Helpers
             MatchActionAvailabilityHelper.ApplyAvailability(matchView, matchState, viewer);
 
             return matchView;
+        }
+
+        private static List<MatchStandingView> CreateFinalStandings(MatchViewContext context)
+        {
+            if (!context.AllParticipantsRegistered || context.MatchState.Phase != RoundPhase.MatchFinished)
+            {
+                return null;
+            }
+
+            FinalStandings result = FinalStandings.CalculateFromMatch(context.MatchState, new int[0]);
+            if (result.Status != FinalStandingsStatus.Calculated)
+            {
+                return null;
+            }
+
+            return result.Standings.Select(standing => new MatchStandingView
+            {
+                UserId = standing.PlayerId,
+                Nickname = context.NicknamesByUserId.TryGetValue(standing.PlayerId, out string nickname)
+                    ? nickname : string.Empty,
+                Position = standing.Position,
+                Points = standing.Points
+            }).ToList();
         }
 
         /// <summary>Convierte una fase del motor a la del contrato.</summary>

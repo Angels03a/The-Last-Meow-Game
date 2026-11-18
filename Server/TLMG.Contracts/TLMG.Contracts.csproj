@@ -53,6 +53,7 @@
     <Compile Include="DataContracts\MatchPunishmentView.cs" />
     <Compile Include="DataContracts\MatchRevealedCardView.cs" />
     <Compile Include="DataContracts\MatchPlayerView.cs" />
+    <Compile Include="DataContracts\MatchStandingView.cs" />
     <Compile Include="DataContracts\MatchRoundPhase.cs" />
     <Compile Include="DataContracts\MatchView.cs" />
     <Compile Include="DataContracts\OperationSendChatMessageResult.cs" />

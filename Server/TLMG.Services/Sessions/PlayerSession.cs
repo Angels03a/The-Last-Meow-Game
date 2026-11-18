@@ -14,6 +14,17 @@
             Nickname = nickname;
         }
 
+        internal static PlayerSession CreateRegistered(int userId, string nickname)
+        {
+            return new PlayerSession(userId, nickname) { IsRegistered = true };
+        }
+
+        /// <summary>Indica si la identidad procede de una cuenta autenticada.</summary>
+        internal bool IsRegistered { get; private set; }
+
+        /// <summary>Identificador aleatorio de diagnóstico para esta sesión.</summary>
+        public System.Guid DiagnosticId { get; } = System.Guid.NewGuid();
+
         /// <summary>Obtiene el identificador de la cuenta.</summary>
         public int UserId { get; }
 

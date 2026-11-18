@@ -98,6 +98,9 @@ namespace TLMG.Services.Tests
             MatchView survivorView = Assert.Single(deliveries).MatchView;
             Assert.Equal(MatchRoundPhase.MatchFinished, survivorView.Phase);
             Assert.Equal(survivorUserId, survivorView.WinnerUserId);
+            Assert.Equal(survivorUserId, survivorView.FinalStandings[0].UserId);
+            Assert.All(survivorView.FinalStandings.Where(row => row.UserId != survivorUserId),
+                row => Assert.Equal(0, row.Points));
             Assert.False(survivorView.CanPlaceCard);
         }
 
@@ -246,7 +249,7 @@ namespace TLMG.Services.Tests
             }
             else
             {
-                scenario.Registry.StartSession(userId, MatchPlayScenario.NicknamePrefix + userId, out sessionEnd);
+                scenario.Registry.StartRegisteredSession(userId, MatchPlayScenario.NicknamePrefix + userId, out sessionEnd);
                 change = sessionEnd.RoomDeparture;
             }
 

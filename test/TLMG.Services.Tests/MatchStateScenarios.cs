@@ -31,7 +31,8 @@ namespace TLMG.Services.Tests
             return new MatchState(modeRules, new List<int> { FirstPlayerId, SecondPlayerId, ThirdPlayerId });
         }
 
-        internal static MatchViewContext CreateContext(MatchState matchState, MatchChallengeRecord lastChallenge)
+        internal static MatchViewContext CreateContext(MatchState matchState, MatchChallengeRecord lastChallenge,
+            bool allParticipantsRegistered = false)
         {
             Dictionary<int, string> nicknames = new Dictionary<int, string>
             {
@@ -40,7 +41,7 @@ namespace TLMG.Services.Tests
                 { ThirdPlayerId, NicknamePrefix + ThirdPlayerId }
             };
 
-            return new MatchViewContext(Guid.NewGuid(), 1, matchState, nicknames, lastChallenge);
+            return new MatchViewContext(Guid.NewGuid(), 1, matchState, nicknames, lastChallenge, allParticipantsRegistered);
         }
 
         /// <summary>Cada jugador coloca una carta en su turno; la del segundo la elige la prueba.</summary>

@@ -23,7 +23,7 @@ namespace TLMG.Services.Tests
             StartSubscribedSession(registry, oldCallback, OldFriendsChannelId);
 
             // Act
-            registry.StartSession(PlayerUserId, PlayerNickname, out SessionEnd replacedSession);
+            registry.StartRegisteredSession(PlayerUserId, PlayerNickname, out SessionEnd replacedSession);
 
             // Assert
             Assert.Same(oldCallback, replacedSession.FriendsCallback);
@@ -35,10 +35,10 @@ namespace TLMG.Services.Tests
         {
             // Arrange
             SessionRegistry registry = new SessionRegistry();
-            registry.StartSession(PlayerUserId, PlayerNickname, out SessionEnd firstReplacedSession);
+            registry.StartRegisteredSession(PlayerUserId, PlayerNickname, out SessionEnd firstReplacedSession);
 
             // Act
-            registry.StartSession(PlayerUserId, PlayerNickname, out SessionEnd replacedSession);
+            registry.StartRegisteredSession(PlayerUserId, PlayerNickname, out SessionEnd replacedSession);
 
             // Assert
             Assert.Null(replacedSession.FriendsCallback);
@@ -100,7 +100,7 @@ namespace TLMG.Services.Tests
             FriendsCallbackStub callback,
             string channelId)
         {
-            string token = registry.StartSession(PlayerUserId, PlayerNickname, out SessionEnd replacedSession);
+            string token = registry.StartRegisteredSession(PlayerUserId, PlayerNickname, out SessionEnd replacedSession);
             registry.SubscribeFriendsChannel(token, channelId, callback, new int[0]);
 
             return token;

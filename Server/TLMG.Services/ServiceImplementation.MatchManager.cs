@@ -15,6 +15,7 @@ namespace TLMG.Services
 
         public void SubscribeToMatch(string sessionToken, Guid matchId)
         {
+            LogChannelOperation("Match", "SubscribeToMatch", sessionToken);
             IMatchManagerCallback callback = GetMatchCallback();
 
             ResultWithNotification<OperationResult> subscribeToMatchResult =
@@ -26,6 +27,7 @@ namespace TLMG.Services
 
         public void PlaceCard(string sessionToken, MatchCardKind cardKind)
         {
+            LogChannelOperation("Match", "PlaceCard", sessionToken);
             IMatchManagerCallback callback = GetMatchCallback();
 
             ResultWithNotification<OperationResult> placeCardResult =
@@ -37,6 +39,7 @@ namespace TLMG.Services
 
         public void PlaceBet(string sessionToken, int betValue)
         {
+            LogChannelOperation("Match", "PlaceBet", sessionToken);
             IMatchManagerCallback callback = GetMatchCallback();
 
             ResultWithNotification<OperationResult> placeBetResult =
@@ -48,6 +51,7 @@ namespace TLMG.Services
 
         public void WithdrawFromBet(string sessionToken)
         {
+            LogChannelOperation("Match", "WithdrawFromBet", sessionToken);
             IMatchManagerCallback callback = GetMatchCallback();
 
             ResultWithNotification<OperationResult> withdrawFromBetResult =
@@ -59,6 +63,7 @@ namespace TLMG.Services
 
         public void RevealCard(string sessionToken, int pileOwnerUserId)
         {
+            LogChannelOperation("Match", "RevealCard", sessionToken);
             IMatchManagerCallback callback = GetMatchCallback();
 
             ResultWithNotification<OperationResult> revealCardResult =
@@ -70,6 +75,7 @@ namespace TLMG.Services
 
         public void ChoosePunishmentCard(string sessionToken, int cardIndex)
         {
+            LogChannelOperation("Match", "ChoosePunishmentCard", sessionToken);
             IMatchManagerCallback callback = GetMatchCallback();
 
             ResultWithNotification<OperationResult> choosePunishmentCardResult =
@@ -104,13 +110,25 @@ namespace TLMG.Services
                 IContextChannel matchChannel = OperationContext.Current.Channel;
                 _matchChannelId = matchChannel.SessionId;
                 _matchCallback = OperationContext.Current.GetCallbackChannel<IMatchManagerCallback>();
-                matchChannel.Closed += OnMatchChannelEnded;
-                matchChannel.Faulted += OnMatchChannelEnded;
+                matchChannel.Closed += OnMatchChannelClosed;
+                matchChannel.Faulted += OnMatchChannelFaulted;
                 _isMatchChannelObserved = true;
             }
         }
 
         /// <summary>El cierre o fallo del canal solo quita su callback; no abandona ni finaliza la partida.</summary>
+        private void OnMatchChannelClosed(object sender, EventArgs eventArguments)
+        {
+            LogChannelEnd("Match", "Closed", sender);
+            OnMatchChannelEnded(sender, eventArguments);
+        }
+
+        private void OnMatchChannelFaulted(object sender, EventArgs eventArguments)
+        {
+            LogChannelEnd("Match", "Faulted", sender);
+            OnMatchChannelEnded(sender, eventArguments);
+        }
+
         private void OnMatchChannelEnded(object sender, EventArgs eventArguments)
         {
             _matchService.RemoveMatchChannel(_matchChannelId, _matchCallback);

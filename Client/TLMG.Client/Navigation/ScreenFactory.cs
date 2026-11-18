@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows;
 
@@ -6,6 +6,7 @@ using log4net;
 
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
+using TLMG.Client.UsersManagerReference;
 using TLMG.Client.ViewModels;
 using TLMG.Client.Views;
 
@@ -123,7 +124,7 @@ namespace TLMG.Client.Navigation
                     screenEntry = new ScreenEntry(new ModerationScreen(moderationViewModel), moderationViewModel);
                     break;
                 case ScreenId.GameOver:
-                    GameOverViewModel gameOverViewModel = new GameOverViewModel(_navigation);
+                    GameOverViewModel gameOverViewModel = new GameOverViewModel(_navigation, parameter as MatchView);
                     screenEntry = new ScreenEntry(new GameOverScreen(gameOverViewModel), gameOverViewModel);
                     break;
                 case ScreenId.RoundResult:

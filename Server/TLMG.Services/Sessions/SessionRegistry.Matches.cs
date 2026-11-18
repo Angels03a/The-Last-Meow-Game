@@ -205,7 +205,8 @@ namespace TLMG.Services.Sessions
                 matchState,
                 participantUserIds,
                 cardsPerPlayerCount,
-                CopyNicknamesInLock(participantUserIds));
+                CopyNicknamesInLock(participantUserIds),
+                participantUserIds.All(userId => _sessionsByToken[_tokensByUserId[userId]].IsRegistered));
 
             return matchRecord;
         }
@@ -248,7 +249,8 @@ namespace TLMG.Services.Sessions
                 MatchState matchState,
                 IReadOnlyList<int> participantUserIds,
                 int cardsPerPlayerCount,
-                IReadOnlyDictionary<int, string> participantNicknames)
+                IReadOnlyDictionary<int, string> participantNicknames,
+                bool allParticipantsRegistered)
             {
                 MatchId = matchId;
                 RoomId = roomId;
@@ -256,6 +258,7 @@ namespace TLMG.Services.Sessions
                 ParticipantUserIds = participantUserIds;
                 CardsPerPlayerCount = cardsPerPlayerCount;
                 ParticipantNicknames = participantNicknames;
+                AllParticipantsRegistered = allParticipantsRegistered;
                 Version = InitialMatchVersion;
             }
 
@@ -276,6 +279,9 @@ namespace TLMG.Services.Sessions
 
             /// <summary>Nicknames de los participantes al autorizar; las vistas los usan aunque salgan.</summary>
             public IReadOnlyDictionary<int, string> ParticipantNicknames { get; }
+
+            /// <summary>Indica si todas las identidades congeladas eran cuentas registradas.</summary>
+            public bool AllParticipantsRegistered { get; }
 
             /// <summary>Versión de la partida; sube con cada acción aceptada y solo bajo _sessionsLock.</summary>
             public int Version { get; set; }
