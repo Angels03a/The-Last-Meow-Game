@@ -309,7 +309,7 @@
     <sys:String x:Key="Gameplay_ExitButton">🚪 Exit</sys:String>
     <sys:String x:Key="Gameplay_ModerationHint">Right-click player for report, block, or kick</sys:String>
     <sys:String x:Key="Gameplay_CurrentBidLabel">Current Bid:</sys:String>
-    <sys:String x:Key="Gameplay_TableHint">PLACE CARDS OR BID HIGHER</sys:String>
+    <sys:String x:Key="Gameplay_TableHint">PLACE A CARD OR OPEN A BET</sys:String>
     <sys:String x:Key="Gameplay_YourHandLabel">YOUR HAND:</sys:String>
     <sys:String x:Key="Gameplay_ChallengeButton">Bet</sys:String>
     <sys:String x:Key="Gameplay_SurrenderButton">Withdraw</sys:String>
@@ -413,4 +413,5 @@
     <sys:String x:Key="Match_EmptyHandBetError">With an empty hand you can only bet one card.</sys:String>
     <sys:String x:Key="Match_BetValueNotValidError">The bet value is invalid.</sys:String>
     <sys:String x:Key="Match_NoCardPlacedError">Place a card first.</sys:String>
+    <sys:String x:Key="Gameplay_TableHintBetting">RAISE THE BET OR WITHDRAW</sys:String>
 </ResourceDictionary>

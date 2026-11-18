@@ -309,7 +309,7 @@
     <sys:String x:Key="Gameplay_ExitButton">🚪 Salir</sys:String>
     <sys:String x:Key="Gameplay_ModerationHint">Clic derecho en un jugador para reportar, bloquear, o expulsar</sys:String>
     <sys:String x:Key="Gameplay_CurrentBidLabel">Apuesta actual:</sys:String>
-    <sys:String x:Key="Gameplay_TableHint">COLOCA CARTAS O APUESTA MÁS ALTO</sys:String>
+    <sys:String x:Key="Gameplay_TableHint">COLOCA UNA CARTA O ABRE UNA APUESTA</sys:String>
     <sys:String x:Key="Gameplay_YourHandLabel">TU MANO:</sys:String>
     <sys:String x:Key="Gameplay_ChallengeButton">Apostar</sys:String>
     <sys:String x:Key="Gameplay_SurrenderButton">Retirarse</sys:String>
@@ -413,4 +413,5 @@
     <sys:String x:Key="Match_EmptyHandBetError">Con la mano vacía solo puedes apostar una carta.</sys:String>
     <sys:String x:Key="Match_BetValueNotValidError">El valor de la apuesta no es válido.</sys:String>
     <sys:String x:Key="Match_NoCardPlacedError">Primero debes colocar una carta.</sys:String>
+    <sys:String x:Key="Gameplay_TableHintBetting">SUBE LA APUESTA O RETÍRATE</sys:String>
 </ResourceDictionary>

@@ -154,8 +154,27 @@
                 <Grid Style="{StaticResource GameplayTableAreaGridStyle}">
                     <Ellipse Style="{StaticResource GameplayTableEllipseStyle}" />
 
-                    <TextBlock Text="{DynamicResource Gameplay_TableHint}"
-                               Style="{StaticResource GameplayTableHintTextStyle}" />
+                    <TextBlock Visibility="{Binding HasMatchView, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource GameplayTableHintTextStyle}">
+                                <Setter Property="Text" Value="{DynamicResource Gameplay_TableHint}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding PhaseLabelKey}" Value="Gameplay_PhaseBiddingLabel">
+                                        <Setter Property="Text" Value="{DynamicResource Gameplay_TableHintBetting}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding PhaseLabelKey}" Value="Gameplay_PhaseChallengeReadyLabel">
+                                        <Setter Property="Text" Value="{DynamicResource Gameplay_PhaseChallengeReadyLabel}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding PhaseLabelKey}" Value="Gameplay_PhasePunishmentPendingLabel">
+                                        <Setter Property="Text" Value="{DynamicResource Gameplay_PhasePunishmentPendingLabel}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding PhaseLabelKey}" Value="Gameplay_PhaseMatchFinishedLabel">
+                                        <Setter Property="Text" Value="{DynamicResource Gameplay_PhaseMatchFinishedLabel}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
 
                     <StackPanel Style="{StaticResource GameplayCenterCardsPanelStyle}">
                         <Border Style="{StaticResource GameplayCenterCardFirstStyle}">
@@ -324,14 +343,23 @@
                     </Grid>
 
                     <StackPanel Grid.Column="3" Style="{StaticResource GameplayActionsPanelStyle}">
-                        <TextBlock Text="{DynamicResource Gameplay_BetLimitsLabel}" />
-                        <TextBlock>
-                            <Run Text="{Binding Board.MinimumBetValue}" />
-                            <Run Text="–" />
-                            <Run Text="{Binding Board.MaximumBetValue}" />
-                        </TextBlock>
-                        <TextBlock Text="{DynamicResource Gameplay_BetLeaderLabel}" />
-                        <TextBlock Text="{Binding Board.BetLeaderName}" />
+                        <StackPanel Margin="0,0,12,0" VerticalAlignment="Center">
+                            <StackPanel Visibility="{Binding Board.CanPlaceBet,
+                                        Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="{DynamicResource Gameplay_BetLimitsLabel}"
+                                           Style="{StaticResource GameplayCurrentBidLabelStyle}" />
+                                <TextBlock Style="{StaticResource GameplayCurrentBidLabelStyle}">
+                                    <Run Text="{Binding Board.MinimumBetValue}" />
+                                    <Run Text="–" />
+                                    <Run Text="{Binding Board.MaximumBetValue}" />
+                                </TextBlock>
+                            </StackPanel>
+                            <TextBlock Text="{DynamicResource Gameplay_BetLeaderLabel}"
+                                       Style="{StaticResource GameplayCurrentBidLabelStyle}" />
+                            <TextBlock Text="{Binding Board.BetLeaderName}"
+                                       Style="{StaticResource GameplayCurrentBidLabelStyle}"
+                                       TextTrimming="CharacterEllipsis" MaxWidth="140" />
+                        </StackPanel>
                         <Border Style="{StaticResource GameplayBidSelectorBorderStyle}">
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="−"
