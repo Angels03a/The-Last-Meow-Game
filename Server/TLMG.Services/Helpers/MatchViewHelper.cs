@@ -57,6 +57,34 @@ namespace TLMG.Services.Helpers
                 { BetActionStatus.MatchFinished, MatchErrorKeys.MatchFinished }
             };
 
+        private static readonly HashSet<ChallengeRevealStatus> _acceptedRevealStatuses =
+            new HashSet<ChallengeRevealStatus>
+            {
+                ChallengeRevealStatus.Revealed,
+                ChallengeRevealStatus.ChallengeSucceeded,
+                ChallengeRevealStatus.ChallengeFailed
+            };
+
+        private static readonly Dictionary<ChallengeRevealStatus, string> _errorKeysByRevealStatus =
+            new Dictionary<ChallengeRevealStatus, string>
+            {
+                { ChallengeRevealStatus.PlayerNotInMatch, MatchErrorKeys.NotInMatch },
+                { ChallengeRevealStatus.NoChallengeInProgress, MatchErrorKeys.NoChallenge },
+                { ChallengeRevealStatus.NotTheBettor, MatchErrorKeys.NotTheBettor },
+                { ChallengeRevealStatus.PileOwnerNotInMatch, MatchErrorKeys.PileOwnerNotInMatch },
+                { ChallengeRevealStatus.OwnPileFirst, MatchErrorKeys.OwnPileFirst },
+                { ChallengeRevealStatus.PileFullyRevealed, MatchErrorKeys.PileEmpty }
+            };
+
+        private static readonly Dictionary<PunishmentStatus, string> _errorKeysByPunishmentStatus =
+            new Dictionary<PunishmentStatus, string>
+            {
+                { PunishmentStatus.PlayerNotInMatch, MatchErrorKeys.NotInMatch },
+                { PunishmentStatus.NoPunishmentPending, MatchErrorKeys.NoPunishmentPending },
+                { PunishmentStatus.NotTheChooser, MatchErrorKeys.NotTheChooser },
+                { PunishmentStatus.CardIndexNotValid, MatchErrorKeys.CardIndexNotValid }
+            };
+
         private static readonly Dictionary<CardPlacementStatus, string> _errorKeysByPlacementStatus =
             new Dictionary<CardPlacementStatus, string>
             {
@@ -147,6 +175,44 @@ namespace TLMG.Services.Helpers
                 errorKey = null;
             }
             else if (!_errorKeysByBetStatus.TryGetValue(betStatus, out errorKey))
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
+
+            return errorKey;
+        }
+
+        /// <summary>Traduce el estado devuelto por el motor al voltear una carta del reto.</summary>
+        /// <param name="revealStatus">Resultado del motor.</param>
+        /// <returns>null si la carta se volteó (aunque el reto termine); la clave de error si se rechazó.</returns>
+        internal static string ConvertToErrorKey(ChallengeRevealStatus revealStatus)
+        {
+            string errorKey;
+
+            if (_acceptedRevealStatuses.Contains(revealStatus))
+            {
+                errorKey = null;
+            }
+            else if (!_errorKeysByRevealStatus.TryGetValue(revealStatus, out errorKey))
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
+
+            return errorKey;
+        }
+
+        /// <summary>Traduce el estado devuelto por el motor al elegir la carta del castigo.</summary>
+        /// <param name="punishmentStatus">Resultado del motor.</param>
+        /// <returns>null si la carta se eliminó; la clave de error en cualquier otro caso.</returns>
+        internal static string ConvertToErrorKey(PunishmentStatus punishmentStatus)
+        {
+            string errorKey;
+
+            if (punishmentStatus == PunishmentStatus.CardRemoved)
+            {
+                errorKey = null;
+            }
+            else if (!_errorKeysByPunishmentStatus.TryGetValue(punishmentStatus, out errorKey))
             {
                 errorKey = ErrorKeys.Common.Unexpected;
             }

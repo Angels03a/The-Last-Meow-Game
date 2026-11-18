@@ -47,5 +47,29 @@ namespace TLMG.Services.Match
 
         /// <summary>Para abrir una apuesta hay que haber colocado antes una carta propia en la ronda.</summary>
         public const string NoCardPlaced = "Match_NoCardPlacedError";
+
+        /// <summary>No hay un reto listo para voltear cartas.</summary>
+        public const string NoChallenge = "Match_NoChallengeError";
+
+        /// <summary>Solo el apostador con la apuesta más alta voltea cartas.</summary>
+        public const string NotTheBettor = "Match_NotTheBettorError";
+
+        /// <summary>El dueño de la pila elegida ya no está en la partida.</summary>
+        public const string PileOwnerNotInMatch = "Match_PileOwnerNotInMatchError";
+
+        /// <summary>Primero hay que voltear la pila propia.</summary>
+        public const string OwnPileFirst = "Match_OwnPileFirstError";
+
+        /// <summary>La pila elegida no tiene cartas por voltear.</summary>
+        public const string PileEmpty = "Match_PileEmptyError";
+
+        /// <summary>No hay un castigo pendiente.</summary>
+        public const string NoPunishmentPending = "Match_NoPunishmentPendingError";
+
+        /// <summary>Solo quien debe elegir puede elegir la carta del castigo.</summary>
+        public const string NotTheChooser = "Match_NotTheChooserError";
+
+        /// <summary>El lugar o la posición de la carta elegida no existe.</summary>
+        public const string CardIndexNotValid = "Match_CardIndexNotValidError";
     }
 }

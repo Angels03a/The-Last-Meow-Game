@@ -42,6 +42,11 @@
     <Compile Include="MatchCallbackStub.cs" />
     <Compile Include="MatchPlayScenario.cs" />
     <Compile Include="ScriptedRandom.cs" />
+    <Compile Include="SessionRegistryMatchDeadlineTests.cs" />
+    <Compile Include="MatchChallengeErrorKeyTests.cs" />
+    <Compile Include="MatchServiceChallengeTests.cs" />
+    <Compile Include="SessionRegistryMatchChallengeTests.cs" />
+    <Compile Include="SessionRegistryMatchPunishmentTests.cs" />
     <Compile Include="MatchBetErrorKeyTests.cs" />
     <Compile Include="MatchServiceBettingTests.cs" />
     <Compile Include="SessionRegistryMatchBettingTests.cs" />

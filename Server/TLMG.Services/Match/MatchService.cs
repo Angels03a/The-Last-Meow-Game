@@ -83,6 +83,30 @@ namespace TLMG.Services.Match
             return withdrawFromBetResult;
         }
 
+        /// <summary>Voltea una carta del reto y prepara la vista de cada suscrito.</summary>
+        /// <param name="caller">Token y canal de partida de quien pide.</param>
+        /// <param name="pileOwnerUserId">Dueño de la pila de la que se voltea.</param>
+        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
+        public ResultWithNotification<OperationResult> RevealCard(LobbyCaller caller, int pileOwnerUserId)
+        {
+            MatchDelivery matchDelivery = _sessionRegistry.RevealCard(caller, pileOwnerUserId);
+            ResultWithNotification<OperationResult> revealCardResult = CreateResult(matchDelivery);
+
+            return revealCardResult;
+        }
+
+        /// <summary>Elige la carta del castigo y prepara la vista de cada suscrito.</summary>
+        /// <param name="caller">Token y canal de partida de quien pide.</param>
+        /// <param name="cardIndex">Lugar mostrado (a ciegas) o posición en la mano (castigo propio).</param>
+        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
+        public ResultWithNotification<OperationResult> ChoosePunishmentCard(LobbyCaller caller, int cardIndex)
+        {
+            MatchDelivery matchDelivery = _sessionRegistry.ChoosePunishmentCard(caller, cardIndex);
+            ResultWithNotification<OperationResult> choosePunishmentCardResult = CreateResult(matchDelivery);
+
+            return choosePunishmentCardResult;
+        }
+
         /// <summary>Quita la suscripción de un canal de partida cerrado o fallido, sin tocar la partida.</summary>
         /// <param name="channelId">Canal que se cerró o falló.</param>
         /// <param name="closedCallback">Callback que tenía ese canal.</param>

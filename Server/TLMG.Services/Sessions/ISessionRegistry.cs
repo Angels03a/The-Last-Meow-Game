@@ -214,6 +214,24 @@ namespace TLMG.Services.Sessions
         MatchDelivery WithdrawFromBet(LobbyCaller caller);
 
         /// <summary>
+        /// Autoriza y voltea la carta de arriba de la pila elegida durante el reto del jugador. El desenlace del reto
+        /// (cartas volteadas, éxito o fallo y castigo) se anota en el registro de la partida.
+        /// </summary>
+        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
+        /// <param name="pileOwnerUserId">Cuenta del dueño de la pila de la que se voltea.</param>
+        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        MatchDelivery RevealCard(LobbyCaller caller, int pileOwnerUserId);
+
+        /// <summary>
+        /// Autoriza y elimina la carta elegida del castigo. En el castigo a ciegas traduce el lugar mostrado al índice
+        /// real con la permutación del servidor; el cliente nunca conoce esa correspondencia.
+        /// </summary>
+        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
+        /// <param name="cardIndex">Lugar mostrado (a ciegas) o posición en la mano (castigo propio).</param>
+        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        MatchDelivery ChoosePunishmentCard(LobbyCaller caller, int cardIndex);
+
+        /// <summary>
         /// Quita solo el callback de partida del canal que se cerró o falló, si sigue siendo el registrado. No
         /// modifica la partida ni la sala.
         /// </summary>

@@ -102,6 +102,12 @@ namespace TLMG.Services.Tests
         public MatchDelivery WithdrawFromBet(LobbyCaller caller) =>
             throw new InvalidOperationException(FailureMessage);
 
+        public MatchDelivery RevealCard(LobbyCaller caller, int pileOwnerUserId) =>
+            throw new InvalidOperationException(FailureMessage);
+
+        public MatchDelivery ChoosePunishmentCard(LobbyCaller caller, int cardIndex) =>
+            throw new InvalidOperationException(FailureMessage);
+
         public bool RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback) =>
             throw new InvalidOperationException(FailureMessage);
     }

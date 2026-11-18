@@ -17,6 +17,10 @@ namespace TLMG.Services.Tests
 
         internal List<OperationResult> WithdrawFromBetResults { get; } = new List<OperationResult>();
 
+        internal List<OperationResult> RevealCardResults { get; } = new List<OperationResult>();
+
+        internal List<OperationResult> ChoosePunishmentCardResults { get; } = new List<OperationResult>();
+
         internal List<MatchView> Views { get; } = new List<MatchView>();
 
         internal MatchView LastView => Views.LastOrDefault();
@@ -39,6 +43,16 @@ namespace TLMG.Services.Tests
         public void WithdrawFromBetResult(OperationResult operationWithdrawFromBetResult)
         {
             WithdrawFromBetResults.Add(operationWithdrawFromBetResult);
+        }
+
+        public void RevealCardResult(OperationResult operationRevealCardResult)
+        {
+            RevealCardResults.Add(operationRevealCardResult);
+        }
+
+        public void ChoosePunishmentCardResult(OperationResult operationChoosePunishmentCardResult)
+        {
+            ChoosePunishmentCardResults.Add(operationChoosePunishmentCardResult);
         }
 
         public void OnMatchViewChanged(MatchView matchView)

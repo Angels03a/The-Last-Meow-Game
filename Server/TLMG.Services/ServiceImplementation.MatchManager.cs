@@ -57,6 +57,28 @@ namespace TLMG.Services
             SafeNotifyAll(withdrawFromBetResult.Notifications);
         }
 
+        public void RevealCard(string sessionToken, int pileOwnerUserId)
+        {
+            IMatchManagerCallback callback = GetMatchCallback();
+
+            ResultWithNotification<OperationResult> revealCardResult =
+                _matchService.RevealCard(CreateMatchCaller(sessionToken), pileOwnerUserId);
+
+            SafeNotify(() => callback.RevealCardResult(revealCardResult.OperationResult));
+            SafeNotifyAll(revealCardResult.Notifications);
+        }
+
+        public void ChoosePunishmentCard(string sessionToken, int cardIndex)
+        {
+            IMatchManagerCallback callback = GetMatchCallback();
+
+            ResultWithNotification<OperationResult> choosePunishmentCardResult =
+                _matchService.ChoosePunishmentCard(CreateMatchCaller(sessionToken), cardIndex);
+
+            SafeNotify(() => callback.ChoosePunishmentCardResult(choosePunishmentCardResult.OperationResult));
+            SafeNotifyAll(choosePunishmentCardResult.Notifications);
+        }
+
         private IMatchManagerCallback GetMatchCallback()
         {
             ObserveMatchChannel();

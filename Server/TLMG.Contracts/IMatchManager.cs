@@ -44,5 +44,25 @@ namespace TLMG.Contracts
         /// <param name="sessionToken">Token vigente del jugador registrado.</param>
         [OperationContract(IsOneWay = true)]
         void WithdrawFromBet(string sessionToken);
+
+        /// <summary>
+        /// Voltea la carta de arriba de la pila elegida durante el reto del jugador. Primero hay que voltear la pila
+        /// propia y después se elige una pila ajena antes de cada volteo. La revelación se detiene al cumplir la
+        /// apuesta o al voltear un Gato con Maullido Fatal.
+        /// </summary>
+        /// <param name="sessionToken">Token vigente del jugador registrado.</param>
+        /// <param name="pileOwnerUserId">Cuenta del dueño de la pila de la que se voltea.</param>
+        [OperationContract(IsOneWay = true)]
+        void RevealCard(string sessionToken, int pileOwnerUserId);
+
+        /// <summary>
+        /// Elige la carta que pierde el jugador castigado. Si el castigo es a ciegas, el índice es el lugar que se
+        /// muestra (de 0 a CardSlotCount - 1) y el servidor lo traduce; si el castigado elige viendo su mano, es la
+        /// posición de la carta en OwnHandCards.
+        /// </summary>
+        /// <param name="sessionToken">Token vigente del jugador registrado.</param>
+        /// <param name="cardIndex">Lugar o posición de la carta que se elimina.</param>
+        [OperationContract(IsOneWay = true)]
+        void ChoosePunishmentCard(string sessionToken, int cardIndex);
     }
 }

@@ -102,6 +102,38 @@ namespace TLMG.Services.Sessions
         }
 
         /// <summary>
+        /// Autoriza y voltea la carta de arriba de la pila elegida. Anota cada carta volteada y, al terminar el reto,
+        /// su resultado y el castigo resultante, porque el motor pasa de inmediato a la siguiente ronda o termina.
+        /// </summary>
+        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
+        /// <param name="pileOwnerUserId">Cuenta del dueño de la pila de la que se voltea.</param>
+        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        public MatchDelivery RevealCard(LobbyCaller caller, int pileOwnerUserId)
+        {
+            MatchAction revealAction = (matchRecord, userId, nowUtc) =>
+                RevealCardInEngineInLock(matchRecord, userId, pileOwnerUserId, nowUtc);
+            MatchDelivery matchDelivery = RunMatchAction(caller, revealAction);
+
+            return matchDelivery;
+        }
+
+        /// <summary>
+        /// Autoriza y elimina la carta elegida del castigo; en el castigo a ciegas traduce el lugar con la
+        /// permutación del servidor. Si el plazo ya venció, la acción lo aplica primero y la elección se rechaza.
+        /// </summary>
+        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
+        /// <param name="cardIndex">Lugar mostrado (a ciegas) o posición en la mano (castigo propio).</param>
+        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        public MatchDelivery ChoosePunishmentCard(LobbyCaller caller, int cardIndex)
+        {
+            MatchAction chooseAction = (matchRecord, userId, nowUtc) =>
+                ChoosePunishmentCardInEngineInLock(matchRecord, userId, cardIndex, nowUtc);
+            MatchDelivery matchDelivery = RunMatchAction(caller, chooseAction);
+
+            return matchDelivery;
+        }
+
+        /// <summary>
         /// Único camino de las acciones de juego: autoriza, revisa los plazos vencidos con la hora real y aplica la
         /// acción al motor, todo bajo _sessionsLock. Si el estado cambió (por la acción o por un plazo vencido) sube
         /// la versión una sola vez y arma una vista por cada suscrito; el rechazo de la acción no deshace un plazo
@@ -388,6 +420,156 @@ namespace TLMG.Services.Sessions
             {
                 matchRecord.LastChallenge =
                     MatchChallengeRecord.Begin(matchState.BetLeader.PlayerId, matchState.CurrentBet);
+            }
+
+            return errorKey;
+        }
+
+        private string RevealCardInEngineInLock(
+            MatchRecord matchRecord,
+            int userId,
+            int pileOwnerUserId,
+            DateTime nowUtc)
+        {
+            ChallengeRevealStatus revealStatus = matchRecord.MatchState.RevealCard(userId, pileOwnerUserId, nowUtc);
+            string errorKey = MatchViewHelper.ConvertToErrorKey(revealStatus);
+
+            if (errorKey == null && matchRecord.LastChallenge != null)
+            {
+                RecordRevealInLock(matchRecord, revealStatus);
+            }
+
+            return errorKey;
+        }
+
+        /// <summary>Anota la carta volteada y, si el reto terminó, su resultado y el castigo que dejó.</summary>
+        private void RecordRevealInLock(MatchRecord matchRecord, ChallengeRevealStatus revealStatus)
+        {
+            ChallengeResolution resolution = matchRecord.MatchState.Resolution;
+            MatchChallengeRecord challenge = matchRecord.LastChallenge;
+            challenge.RecordReveal(
+                resolution.LastRevealedPlayerId.Value,
+                MatchViewHelper.ConvertToContractCard(resolution.LastRevealedCard.Value));
+
+            if (revealStatus == ChallengeRevealStatus.ChallengeSucceeded)
+            {
+                challenge.MarkSucceeded();
+            }
+            else if (revealStatus == ChallengeRevealStatus.ChallengeFailed)
+            {
+                RecordFailedChallengeInLock(matchRecord, challenge);
+            }
+        }
+
+        /// <summary>
+        /// Anota el castigo de un reto fallido. Con una sola vida el motor ya eliminó la carta sin pedir elección; en
+        /// otro caso queda pendiente y, si es a ciegas, el servidor baraja los lugares.
+        /// </summary>
+        private void RecordFailedChallengeInLock(MatchRecord matchRecord, MatchChallengeRecord challenge)
+        {
+            MatchState matchState = matchRecord.MatchState;
+            PendingPunishment pendingPunishment = matchState.PendingPunishment;
+
+            if (pendingPunishment != null)
+            {
+                challenge.MarkFailed(
+                    pendingPunishment.ChooserPlayerId,
+                    pendingPunishment.PunishedPlayerId,
+                    MatchPunishmentResolution.Pending);
+                matchRecord.BlindSlotOrder = null;
+
+                if (pendingPunishment.IsBlindChoice)
+                {
+                    int punishedCardCount = FindHandCardCount(matchState, pendingPunishment.PunishedPlayerId);
+                    matchRecord.BlindSlotOrder = CreateBlindSlotOrder(punishedCardCount);
+                }
+            }
+            else
+            {
+                PendingPunishment appliedPunishment = matchState.LastPunishment;
+                challenge.MarkFailed(
+                    appliedPunishment.ChooserPlayerId,
+                    appliedPunishment.PunishedPlayerId,
+                    MatchPunishmentResolution.SingleLifeNoChoice);
+                matchRecord.BlindSlotOrder = null;
+            }
+        }
+
+        private static int FindHandCardCount(MatchState matchState, int playerId)
+        {
+            return matchState.Players.First(player => player.PlayerId == playerId).HandCards.Count;
+        }
+
+        /// <summary>
+        /// Baraja los lugares del castigo a ciegas (Fisher-Yates con el azar inyectado): el lugar mostrado al cliente
+        /// es la posición en el arreglo y el valor es el índice real de la carta en la mano del castigado.
+        /// </summary>
+        private int[] CreateBlindSlotOrder(int cardCount)
+        {
+            int[] slotOrder = Enumerable.Range(0, cardCount).ToArray();
+
+            for (int slotNumber = cardCount - 1; slotNumber > 0; slotNumber--)
+            {
+                int swapNumber = _pickRandomIndex(slotNumber + 1);
+                int swappedIndex = slotOrder[slotNumber];
+                slotOrder[slotNumber] = slotOrder[swapNumber];
+                slotOrder[swapNumber] = swappedIndex;
+            }
+
+            return slotOrder;
+        }
+
+        private string ChoosePunishmentCardInEngineInLock(
+            MatchRecord matchRecord,
+            int userId,
+            int cardIndex,
+            DateTime nowUtc)
+        {
+            int engineIndex = cardIndex;
+            string errorKey = null;
+
+            if (IsBlindChooser(matchRecord, userId))
+            {
+                errorKey = TranslateBlindSlot(matchRecord.BlindSlotOrder, cardIndex, out engineIndex);
+            }
+
+            if (errorKey == null)
+            {
+                PunishmentStatus punishmentStatus =
+                    matchRecord.MatchState.ChoosePunishmentCard(userId, engineIndex, nowUtc);
+                errorKey = MatchViewHelper.ConvertToErrorKey(punishmentStatus);
+            }
+
+            if (errorKey == null)
+            {
+                matchRecord.LastChallenge?.ResolvePunishment(MatchPunishmentResolution.ChosenByChooser);
+                DiscardEndedBlindSlots(matchRecord);
+            }
+
+            return errorKey;
+        }
+
+        /// <summary>Indica si el jugador es quien elige a ciegas y hay una permutación vigente que traducir.</summary>
+        private static bool IsBlindChooser(MatchRecord matchRecord, int userId)
+        {
+            PendingPunishment pendingPunishment = matchRecord.MatchState.PendingPunishment;
+            bool hasBlindSlots = pendingPunishment != null && matchRecord.BlindSlotOrder != null;
+
+            return hasBlindSlots && pendingPunishment.ChooserPlayerId == userId;
+        }
+
+        private static string TranslateBlindSlot(int[] blindSlotOrder, int slot, out int engineIndex)
+        {
+            string errorKey = null;
+            engineIndex = slot;
+
+            if (slot < 0 || slot >= blindSlotOrder.Length)
+            {
+                errorKey = MatchErrorKeys.CardIndexNotValid;
+            }
+            else
+            {
+                engineIndex = blindSlotOrder[slot];
             }
 
             return errorKey;

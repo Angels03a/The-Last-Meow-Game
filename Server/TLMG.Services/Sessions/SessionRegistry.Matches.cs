@@ -84,6 +84,8 @@ namespace TLMG.Services.Sessions
                 matchRecord.LastChallenge.ResolvePunishment(MatchPunishmentResolution.ChosenAtRandom);
             }
 
+            DiscardEndedBlindSlots(matchRecord);
+
             return wasExpired;
         }
 
@@ -110,6 +112,7 @@ namespace TLMG.Services.Sessions
                     _pickRandomIndex);
                 hasChanged = hasChanged || HasExitChangedMatch(exitStatus);
                 UpdateChallengeAfterExit(matchRecord, exitStatus);
+                DiscardEndedBlindSlots(matchRecord);
 
                 if (hasChanged)
                 {
@@ -119,6 +122,15 @@ namespace TLMG.Services.Sessions
             }
 
             return viewDeliveries;
+        }
+
+        /// <summary>Olvida la permutación del castigo a ciegas en cuanto ya no hay un castigo pendiente.</summary>
+        private static void DiscardEndedBlindSlots(MatchRecord matchRecord)
+        {
+            if (matchRecord.MatchState.PendingPunishment == null)
+            {
+                matchRecord.BlindSlotOrder = null;
+            }
         }
 
         private static bool HasExitChangedMatch(PlayerExitStatus exitStatus)
@@ -273,6 +285,12 @@ namespace TLMG.Services.Sessions
             /// o se coloca la siguiente carta. Solo cambia bajo _sessionsLock.
             /// </summary>
             public MatchChallengeRecord LastChallenge { get; set; }
+
+            /// <summary>
+            /// Mientras hay un castigo a ciegas, la permutación lugar → índice real de la mano del castigado, hecha por
+            /// el servidor; null si no hay castigo a ciegas pendiente. Nunca sale del registro.
+            /// </summary>
+            public int[] BlindSlotOrder { get; set; }
         }
     }
 }

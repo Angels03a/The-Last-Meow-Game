@@ -133,6 +133,57 @@ namespace TLMG.Services.Tests
             return Registry.WithdrawFromBet(MatchCallerOf(userId));
         }
 
+        internal MatchDelivery Reveal(int userId, int pileOwnerUserId)
+        {
+            return Registry.RevealCard(MatchCallerOf(userId), pileOwnerUserId);
+        }
+
+        internal MatchDelivery Choose(int userId, int cardIndex)
+        {
+            return Registry.ChoosePunishmentCard(MatchCallerOf(userId), cardIndex);
+        }
+
+        /// <summary>
+        /// Lleva la ronda hasta el reto listo: el primer jugador coloca una carta segura, el segundo la carta indicada
+        /// y el tercero una segura; el primero apuesta y los otros dos se retiran.
+        /// </summary>
+        internal void ReachChallengeReady(MatchCardKind secondPlayerCard, int betValue)
+        {
+            Place(UserIds[0], MatchCardKind.Safe);
+            Place(UserIds[1], secondPlayerCard);
+            Place(UserIds[2], MatchCardKind.Safe);
+            PlaceBet(UserIds[0], betValue);
+            Withdraw(UserIds[1]);
+            Withdraw(UserIds[2]);
+        }
+
+        /// <summary>El primer jugador cumple un reto de una carta con su propia pila: gana la ronda.</summary>
+        internal void WinRoundWithABetOfOne()
+        {
+            ReachChallengeReady(MatchCardKind.Safe, 1);
+            Reveal(UserIds[0], UserIds[0]);
+        }
+
+        /// <summary>El primer jugador falla contra el Gato del segundo: castigo a ciegas, elige el segundo.</summary>
+        internal void ReachBlindPunishment()
+        {
+            ReachChallengeReady(MatchCardKind.FatalCat, 2);
+            Reveal(UserIds[0], UserIds[0]);
+            Reveal(UserIds[0], UserIds[1]);
+        }
+
+        /// <summary>El primer jugador falla con su propio Gato: castigo propio, elige él viendo su mano.</summary>
+        internal void ReachOwnPunishment()
+        {
+            Place(UserIds[0], MatchCardKind.FatalCat);
+            Place(UserIds[1], MatchCardKind.Safe);
+            Place(UserIds[2], MatchCardKind.Safe);
+            PlaceBet(UserIds[0], 1);
+            Withdraw(UserIds[1]);
+            Withdraw(UserIds[2]);
+            Reveal(UserIds[0], UserIds[0]);
+        }
+
         /// <summary>Cada jugador coloca una carta segura en su turno, empezando por el creador.</summary>
         internal void PlaceOneSafeCardEach()
         {

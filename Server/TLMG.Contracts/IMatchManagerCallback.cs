@@ -28,6 +28,16 @@ namespace TLMG.Contracts
         [OperationContract(IsOneWay = true)]
         void WithdrawFromBetResult(OperationResult operationWithdrawFromBetResult);
 
+        /// <summary>Entrega el resultado de voltear una carta a quien lo pidió.</summary>
+        /// <param name="operationRevealCardResult">Aceptación o clave de error.</param>
+        [OperationContract(IsOneWay = true)]
+        void RevealCardResult(OperationResult operationRevealCardResult);
+
+        /// <summary>Entrega el resultado de elegir la carta del castigo a quien lo pidió.</summary>
+        /// <param name="operationChoosePunishmentCardResult">Aceptación o clave de error.</param>
+        [OperationContract(IsOneWay = true)]
+        void ChoosePunishmentCardResult(OperationResult operationChoosePunishmentCardResult);
+
         /// <summary>Entrega a cada suscrito su propia vista de la partida, con su versión.</summary>
         /// <param name="matchView">Vista privada del destinatario.</param>
         [OperationContract(IsOneWay = true)]
