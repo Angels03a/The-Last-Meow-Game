@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using TLMG.Contracts;
 using TLMG.Domain.Constants;
@@ -8,6 +9,9 @@ namespace TLMG.Services.Sessions
     public partial class SessionRegistry
     {
         private const int EmptyCount = 0;
+
+        private static readonly IReadOnlyList<ILobbyManagerCallback> _noLobbyCallbacks =
+            new List<ILobbyManagerCallback>().AsReadOnly();
 
         private readonly Dictionary<int, List<LobbyMember>> _membersByRoomId =
             new Dictionary<int, List<LobbyMember>>();
@@ -47,8 +51,11 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        public LobbyMembershipChange LeaveRoom(string sessionToken)
+        public LobbyMembershipChange LeaveRoom(
+            string sessionToken,
+            out IReadOnlyList<MatchViewDelivery> matchViewDeliveries)
         {
+            matchViewDeliveries = _noMatchViewDeliveries;
             LobbyMembershipChange lobbyMembershipChange =
                 LobbyMembershipChange.CreateRejected(LobbyChangeStatus.InvalidSession, LobbyMembershipChange.NoUserId);
 
@@ -60,7 +67,10 @@ namespace TLMG.Services.Sessions
 
                     if (_sessionsByToken.TryGetValue(sessionToken, out playerSession))
                     {
-                        lobbyMembershipChange = RemoveUserFromRoom(playerSession.UserId);
+                        lobbyMembershipChange = RemoveUserFromRoom(
+                            playerSession.UserId,
+                            RoomExitCause.Voluntary,
+                            out matchViewDeliveries);
                     }
                 }
             }
@@ -81,7 +91,7 @@ namespace TLMG.Services.Sessions
 
                     if (_userIdsByChannelId.TryGetValue(channelId, out userId))
                     {
-                        lobbyMembershipChange = RemoveUserFromRoom(userId);
+                        lobbyMembershipChange = RemoveUserFromRoom(userId, RoomExitCause.LobbyChannelClosed, out _);
                     }
                 }
             }
@@ -199,52 +209,91 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        private LobbyMembershipChange RemoveUserFromRoom(int userId)
+        /// <summary>
+        /// Saca al jugador de su sala por la causa indicada. Solo la salida voluntaria lo saca también del motor de
+        /// partida; las demás causas dejan la partida intacta hasta que exista la ventana de reconexión (C2).
+        /// </summary>
+        /// <param name="userId">Jugador que sale.</param>
+        /// <param name="exitCause">Causa de la salida.</param>
+        /// <param name="matchViewDeliveries">Vistas para los demás suscritos de la partida; vacía si no hay.</param>
+        private LobbyMembershipChange RemoveUserFromRoom(
+            int userId,
+            RoomExitCause exitCause,
+            out IReadOnlyList<MatchViewDelivery> matchViewDeliveries)
         {
             LobbyMembershipChange lobbyMembershipChange;
+            matchViewDeliveries = _noMatchViewDeliveries;
             RemoveChatChannelOfUserInLock(userId);
             RemoveMatchChannelOfUserInLock(userId);
             int roomId;
 
-            if (!_roomIdsByUserId.TryGetValue(userId, out roomId))
+            if (_roomIdsByUserId.TryGetValue(userId, out roomId))
             {
-                lobbyMembershipChange = LobbyMembershipChange.CreateRejected(LobbyChangeStatus.NotInRoom, userId);
+                Guid? matchId = _startsByRoomId[roomId].MatchId;
+
+                if (matchId.HasValue && exitCause == RoomExitCause.Voluntary)
+                {
+                    matchViewDeliveries = ApplyVoluntaryMatchExitInLock(userId, matchId.Value);
+                }
+
+                lobbyMembershipChange = RemoveMemberFromRoomInLock(userId, roomId, exitCause, matchId.HasValue);
             }
             else
             {
-                List<LobbyMember> members = _membersByRoomId[roomId];
-                LobbyMember leavingMember = members.Find(member => member.UserId == userId);
-                members.Remove(leavingMember);
-                _roomIdsByUserId.Remove(userId);
-                _userIdsByChannelId.Remove(leavingMember.ChannelId);
-                _startsByRoomId[roomId].ReadyUserIds.Remove(userId);
-
-                if (members.Count > EmptyCount)
-                {
-                    RefreshLobbyCountdownInLock(roomId);
-                    lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
-                        userId,
-                        roomId,
-                        CreateRoomSnapshot(roomId, members),
-                        CopyCallbacks(members));
-                }
-                else
-                {
-                    ReleaseMatchOfRemovedRoomInLock(_startsByRoomId[roomId]);
-                    _membersByRoomId.Remove(roomId);
-                    _startsByRoomId.Remove(roomId);
-                    RemoveRoomEntryAuthorizations(roomId);
-                    RemoveInvitationsOfRoom(roomId);
-                    lobbyMembershipChange = LobbyMembershipChange.CreateApplied(userId, roomId, null);
-                }
+                lobbyMembershipChange = LobbyMembershipChange.CreateRejected(LobbyChangeStatus.NotInRoom, userId);
             }
 
             return lobbyMembershipChange;
         }
 
-        private SessionEnd RemoveSessionStateOfUser(PlayerSession endedSession)
+        private LobbyMembershipChange RemoveMemberFromRoomInLock(
+            int userId,
+            int roomId,
+            RoomExitCause exitCause,
+            bool leftAuthorizedMatch)
         {
-            LobbyMembershipChange roomDeparture = RemoveUserFromRoom(endedSession.UserId);
+            LobbyMembershipChange lobbyMembershipChange;
+
+            List<LobbyMember> members = _membersByRoomId[roomId];
+            LobbyMember leavingMember = members.Find(member => member.UserId == userId);
+            members.Remove(leavingMember);
+            _roomIdsByUserId.Remove(userId);
+            _userIdsByChannelId.Remove(leavingMember.ChannelId);
+            _startsByRoomId[roomId].ReadyUserIds.Remove(userId);
+
+            if (members.Count > EmptyCount)
+            {
+                RefreshLobbyCountdownInLock(roomId);
+                lobbyMembershipChange = LobbyMembershipChange.CreateDeparture(
+                    userId,
+                    roomId,
+                    CreateRoomSnapshot(roomId, members),
+                    CopyCallbacks(members),
+                    exitCause,
+                    leftAuthorizedMatch);
+            }
+            else
+            {
+                ReleaseMatchOfRemovedRoomInLock(_startsByRoomId[roomId]);
+                _membersByRoomId.Remove(roomId);
+                _startsByRoomId.Remove(roomId);
+                RemoveRoomEntryAuthorizations(roomId);
+                RemoveInvitationsOfRoom(roomId);
+                lobbyMembershipChange = LobbyMembershipChange.CreateDeparture(
+                    userId,
+                    roomId,
+                    null,
+                    _noLobbyCallbacks,
+                    exitCause,
+                    leftAuthorizedMatch);
+            }
+
+            return lobbyMembershipChange;
+        }
+
+        private SessionEnd RemoveSessionStateOfUser(PlayerSession endedSession, RoomExitCause exitCause)
+        {
+            LobbyMembershipChange roomDeparture = RemoveUserFromRoom(endedSession.UserId, exitCause, out _);
             _authorizedRoomIdsByUserId.Remove(endedSession.UserId);
             IReadOnlyList<IFriendsManagerCallback> presenceRecipients =
                 FindPresenceRecipientsOfUser(endedSession.UserId);

@@ -93,10 +93,14 @@ namespace TLMG.Services.Lobby
 
         public ResultWithNotification<OperationResult> LeaveLobby(string sessionToken)
         {
-            LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.LeaveRoom(sessionToken);
+            IReadOnlyList<MatchViewDelivery> matchViewDeliveries;
+            LobbyMembershipChange lobbyMembershipChange =
+                _sessionRegistry.LeaveRoom(sessionToken, out matchViewDeliveries);
             OperationResult operationLeaveLobbyResult = new OperationResult();
-            IReadOnlyList<Action> lobbyChangeNotifications =
-                SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange);
+            List<Action> lobbyChangeNotifications = new List<Action>(
+                SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange));
+            lobbyChangeNotifications.AddRange(
+                SessionNotificationHelper.CreateMatchViewNotifications(matchViewDeliveries));
 
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
@@ -105,6 +109,7 @@ namespace TLMG.Services.Lobby
                     "El jugador {0} salió de la sala {1}.",
                     lobbyMembershipChange.UserId,
                     lobbyMembershipChange.RoomId);
+                LogMatchExit(lobbyMembershipChange);
             }
             else if (lobbyMembershipChange.Status == LobbyChangeStatus.NotInRoom)
             {
@@ -124,6 +129,17 @@ namespace TLMG.Services.Lobby
             return leaveLobbyResult;
         }
 
+        private static void LogMatchExit(LobbyMembershipChange lobbyMembershipChange)
+        {
+            if (lobbyMembershipChange.LeftAuthorizedMatch)
+            {
+                _log.InfoFormat(
+                    "El jugador {0} salió voluntariamente de la partida de la sala {1}.",
+                    lobbyMembershipChange.UserId,
+                    lobbyMembershipChange.RoomId);
+            }
+        }
+
         public IReadOnlyList<Action> LeaveLobbyByChannel(string channelId)
         {
             LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.LeaveRoomByChannel(channelId);
@@ -136,6 +152,7 @@ namespace TLMG.Services.Lobby
                     "El jugador {0} salió de la sala {1} porque su canal de lobby terminó.",
                     lobbyMembershipChange.UserId,
                     lobbyMembershipChange.RoomId);
+                SessionNotificationHelper.LogMatchLeftUntouched(lobbyMembershipChange);
             }
 
             return lobbyChangeNotifications;

@@ -26,16 +26,24 @@ namespace TLMG.Services.Tests
         private readonly Dictionary<int, string> _tokensByUserId = new Dictionary<int, string>();
         private readonly Dictionary<int, MatchCallbackStub> _callbacksByUserId =
             new Dictionary<int, MatchCallbackStub>();
+        private readonly Dictionary<int, LobbyCallbackStub> _lobbyCallbacksByUserId =
+            new Dictionary<int, LobbyCallbackStub>();
 
         internal MatchPlayScenario(int playerCount)
-            : this(playerCount, FirstUserId, new ManualUtcClock(), null)
+            : this(playerCount, FirstUserId, new ManualUtcClock(), new ScriptedRandom(), null)
         {
         }
 
-        private MatchPlayScenario(int playerCount, int firstUserId, ManualUtcClock clock, SessionRegistry registry)
+        private MatchPlayScenario(
+            int playerCount,
+            int firstUserId,
+            ManualUtcClock clock,
+            ScriptedRandom randomSource,
+            SessionRegistry registry)
         {
             Clock = clock;
-            Registry = registry ?? new SessionRegistry(clock.ReadUtcNow);
+            RandomSource = randomSource;
+            Registry = registry ?? new SessionRegistry(clock.ReadUtcNow, randomSource.PickIndex);
             UserIds = Enumerable.Range(firstUserId, playerCount).ToList().AsReadOnly();
             CreateRoomWithAllPlayers();
             StartMatch();
@@ -44,6 +52,8 @@ namespace TLMG.Services.Tests
         internal SessionRegistry Registry { get; }
 
         internal ManualUtcClock Clock { get; }
+
+        internal ScriptedRandom RandomSource { get; }
 
         internal IReadOnlyList<int> UserIds { get; }
 
@@ -56,7 +66,7 @@ namespace TLMG.Services.Tests
         /// <summary>Crea otra partida en el mismo registro, con jugadores de otros ids.</summary>
         internal MatchPlayScenario CreateAnotherMatch(int playerCount, int firstUserId)
         {
-            return new MatchPlayScenario(playerCount, firstUserId, Clock, Registry);
+            return new MatchPlayScenario(playerCount, firstUserId, Clock, RandomSource, Registry);
         }
 
         internal string TokenOf(int userId)
@@ -72,6 +82,19 @@ namespace TLMG.Services.Tests
             {
                 callback = new MatchCallbackStub();
                 _callbacksByUserId[userId] = callback;
+            }
+
+            return callback;
+        }
+
+        internal LobbyCallbackStub LobbyCallbackOf(int userId)
+        {
+            LobbyCallbackStub callback;
+
+            if (!_lobbyCallbacksByUserId.TryGetValue(userId, out callback))
+            {
+                callback = new LobbyCallbackStub();
+                _lobbyCallbacksByUserId[userId] = callback;
             }
 
             return callback;
@@ -134,7 +157,7 @@ namespace TLMG.Services.Tests
         {
             foreach (int userId in UserIds)
             {
-                Registry.LeaveRoom(TokenOf(userId));
+                Registry.LeaveRoom(TokenOf(userId), out _);
             }
         }
 
@@ -146,7 +169,7 @@ namespace TLMG.Services.Tests
         private void CreateRoomWithAllPlayers()
         {
             _tokensByUserId[CreatorUserId] = StartSessionOf(CreatorUserId);
-            RoomId = Registry.CreateRoom(LobbyCallerOf(CreatorUserId), null).RoomId;
+            RoomId = Registry.CreateRoom(LobbyCallerOf(CreatorUserId), LobbyCallbackOf(CreatorUserId)).RoomId;
 
             foreach (int userId in UserIds.Skip(1))
             {
@@ -155,7 +178,7 @@ namespace TLMG.Services.Tests
                 Registry.SubscribeFriendsChannel(token, FriendsChannelPrefix + userId, null, Array.Empty<int>());
                 RoomInvitationCreation invitation = Registry.CreateRoomInvitation(TokenOf(CreatorUserId), userId);
                 Registry.AcceptRoomInvitation(token, invitation.InvitationId);
-                Registry.EnterRoom(LobbyCallerOf(userId), RoomId, null);
+                Registry.EnterRoom(LobbyCallerOf(userId), RoomId, LobbyCallbackOf(userId));
             }
         }
 

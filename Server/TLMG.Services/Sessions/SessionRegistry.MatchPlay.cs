@@ -17,8 +17,14 @@ namespace TLMG.Services.Sessions
         private readonly Dictionary<string, int> _matchUserIdsByChannelId = new Dictionary<string, int>();
 
         /// <summary>
+        /// Acción de partida que se aplica al motor bajo _sessionsLock, ya autorizada y con los plazos revisados.
+        /// Devuelve null si el motor la aceptó o la ErrorKey del rechazo.
+        /// </summary>
+        private delegate string MatchAction(MatchRecord matchRecord, int userId, DateTime nowUtc);
+
+        /// <summary>
         /// Autoriza y registra la suscripción del jugador a una partida y arma su vista; todo bajo _sessionsLock.
-        /// Reemplaza la suscripción anterior del jugador.
+        /// Reemplaza la suscripción anterior del jugador. Antes de armar la vista revisa los plazos vencidos.
         /// </summary>
         /// <param name="caller">Token de cuenta registrada y canal de partida.</param>
         /// <param name="matchId">Partida solicitada por el cliente.</param>
@@ -37,15 +43,7 @@ namespace TLMG.Services.Sessions
 
                 if (errorKey == null)
                 {
-                    // Primero se prepara todo lo que puede fallar; después solo se sustituye la suscripción.
-                    MatchViewDelivery viewDelivery =
-                        CreateViewDeliveryInLock(matchRecord, playerSession.UserId, callback);
-                    List<MatchViewDelivery> viewDeliveries = new List<MatchViewDelivery> { viewDelivery };
-                    matchDelivery = MatchDelivery.CreateAccepted(viewDeliveries.AsReadOnly());
-                    RemoveMatchChannelOfUserInLock(playerSession.UserId);
-                    _matchChannelsByUserId[playerSession.UserId] =
-                        new MatchChannel(caller.SessionToken, caller.ChannelId, matchId, callback);
-                    _matchUserIdsByChannelId[caller.ChannelId] = playerSession.UserId;
+                    matchDelivery = SubscribeInLock(caller, playerSession.UserId, matchRecord, callback);
                 }
                 else
                 {
@@ -65,6 +63,21 @@ namespace TLMG.Services.Sessions
         /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
         public MatchDelivery PlaceCard(LobbyCaller caller, MatchCardKind card)
         {
+            MatchAction placeCardAction =
+                (matchRecord, userId, nowUtc) => PlaceCardInEngineInLock(matchRecord, userId, card);
+            MatchDelivery matchDelivery = RunMatchAction(caller, placeCardAction);
+
+            return matchDelivery;
+        }
+
+        /// <summary>
+        /// Único camino de las acciones de juego: autoriza, revisa los plazos vencidos con la hora real y aplica la
+        /// acción al motor, todo bajo _sessionsLock. Si el estado cambió (por la acción o por un plazo vencido) sube
+        /// la versión una sola vez y arma una vista por cada suscrito; el rechazo de la acción no deshace un plazo
+        /// vencido, así que sus vistas viajan igual.
+        /// </summary>
+        private MatchDelivery RunMatchAction(LobbyCaller caller, MatchAction matchAction)
+        {
             MatchDelivery matchDelivery;
 
             lock (_sessionsLock)
@@ -75,13 +88,7 @@ namespace TLMG.Services.Sessions
 
                 if (errorKey == null)
                 {
-                    errorKey = PlaceCardInEngineInLock(matchRecord, playerSession.UserId, card);
-                }
-
-                if (errorKey == null)
-                {
-                    matchRecord.Version++;
-                    matchDelivery = MatchDelivery.CreateAccepted(CreateViewDeliveriesInLock(matchRecord));
+                    matchDelivery = ApplyMatchActionInLock(matchRecord, playerSession.UserId, matchAction);
                 }
                 else
                 {
@@ -90,6 +97,63 @@ namespace TLMG.Services.Sessions
             }
 
             return matchDelivery;
+        }
+
+        private MatchDelivery ApplyMatchActionInLock(MatchRecord matchRecord, int userId, MatchAction matchAction)
+        {
+            DateTime nowUtc = _readUtcNow();
+            bool hasExpired = ExpireMatchDeadlinesInLock(matchRecord, nowUtc);
+            string errorKey = matchAction(matchRecord, userId, nowUtc);
+            IReadOnlyList<MatchViewDelivery> viewDeliveries = _noMatchViewDeliveries;
+
+            if (hasExpired || errorKey == null)
+            {
+                matchRecord.Version++;
+                viewDeliveries = CreateViewDeliveriesInLock(matchRecord);
+            }
+
+            MatchDelivery matchDelivery;
+
+            if (errorKey == null)
+            {
+                matchDelivery = MatchDelivery.CreateAccepted(viewDeliveries);
+            }
+            else
+            {
+                matchDelivery = MatchDelivery.CreateRejected(errorKey, viewDeliveries);
+            }
+
+            return matchDelivery;
+        }
+
+        private MatchDelivery SubscribeInLock(
+            LobbyCaller caller,
+            int userId,
+            MatchRecord matchRecord,
+            IMatchManagerCallback callback)
+        {
+            bool hasExpired = ExpireMatchDeadlinesInLock(matchRecord, _readUtcNow());
+
+            if (hasExpired)
+            {
+                matchRecord.Version++;
+            }
+
+            // Primero se prepara todo lo que puede fallar; después solo se sustituye la suscripción.
+            MatchViewDelivery ownViewDelivery = CreateViewDeliveryInLock(matchRecord, userId, callback);
+            RemoveMatchChannelOfUserInLock(userId);
+            _matchChannelsByUserId[userId] =
+                new MatchChannel(caller.SessionToken, caller.ChannelId, matchRecord.MatchId, callback);
+            _matchUserIdsByChannelId[caller.ChannelId] = userId;
+            IReadOnlyList<MatchViewDelivery> viewDeliveries = new List<MatchViewDelivery> { ownViewDelivery }
+                .AsReadOnly();
+
+            if (hasExpired)
+            {
+                viewDeliveries = CreateViewDeliveriesInLock(matchRecord);
+            }
+
+            return MatchDelivery.CreateAccepted(viewDeliveries);
         }
 
         /// <summary>
@@ -249,6 +313,11 @@ namespace TLMG.Services.Sessions
             {
                 CardPlacementStatus placementStatus = matchRecord.MatchState.PlaceCard(userId, engineCard);
                 errorKey = MatchViewHelper.ConvertToErrorKey(placementStatus);
+
+                if (errorKey == null)
+                {
+                    matchRecord.LastChallenge = null;
+                }
             }
 
             return errorKey;
@@ -279,12 +348,13 @@ namespace TLMG.Services.Sessions
             int userId,
             IMatchManagerCallback callback)
         {
-            MatchView matchView = MatchViewHelper.CreateMatchView(
+            MatchViewContext viewContext = new MatchViewContext(
                 matchRecord.MatchId,
                 matchRecord.Version,
                 matchRecord.MatchState,
                 matchRecord.ParticipantNicknames,
-                userId);
+                matchRecord.LastChallenge);
+            MatchView matchView = MatchViewHelper.CreateMatchView(viewContext, userId);
             MatchViewDelivery viewDelivery = new MatchViewDelivery(callback, matchView);
 
             return viewDelivery;

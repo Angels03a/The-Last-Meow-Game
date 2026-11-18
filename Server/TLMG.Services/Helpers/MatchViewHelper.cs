@@ -5,6 +5,7 @@ using System.Linq;
 using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Engine;
 using TLMG.Services.Match;
+using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Helpers
 {
@@ -14,6 +15,8 @@ namespace TLMG.Services.Helpers
     /// </summary>
     internal static class MatchViewHelper
     {
+        private const int NoUserId = 0;
+
         private static readonly Dictionary<CardKind, MatchCardKind> _contractCardsByEngineCard =
             new Dictionary<CardKind, MatchCardKind>
             {
@@ -51,34 +54,36 @@ namespace TLMG.Services.Helpers
             };
 
         /// <summary>
-        /// Arma la vista de un destinatario: lo visible para todos y, solo del propio destinatario, su mano y su pila.
-        /// Requiere que el llamador tenga serializado el acceso al MatchState (bajo _sessionsLock).
+        /// Arma la vista de un destinatario: lo visible para todos y, solo del propio destinatario, su mano, su pila y
+        /// las acciones que puede hacer. Requiere que el llamador tenga serializado el acceso al MatchState (bajo
+        /// _sessionsLock). Nunca incluye los tipos de cartas ocultas de otro jugador (Regla No. 2).
         /// </summary>
-        /// <param name="matchId">Partida de la vista.</param>
-        /// <param name="version">Versión de la partida al armar la vista.</param>
-        /// <param name="matchState">Estado del motor; solo se lee.</param>
-        /// <param name="nicknamesByUserId">Nicknames congelados al iniciar la partida.</param>
+        /// <param name="context">Estado del motor y datos que el registro guarda fuera de él.</param>
         /// <param name="viewerUserId">Jugador que recibirá la vista.</param>
         /// <returns>Una vista nueva, sin referencias al motor.</returns>
-        internal static MatchView CreateMatchView(
-            Guid matchId,
-            int version,
-            MatchState matchState,
-            IReadOnlyDictionary<int, string> nicknamesByUserId,
-            int viewerUserId)
+        internal static MatchView CreateMatchView(MatchViewContext context, int viewerUserId)
         {
+            MatchState matchState = context.MatchState;
             MatchPlayer viewer = matchState.Players.FirstOrDefault(player => player.PlayerId == viewerUserId);
             MatchView matchView = new MatchView
             {
-                MatchId = matchId,
-                Version = version,
+                MatchId = context.MatchId,
+                Version = context.Version,
                 RoundNumber = matchState.RoundNumber,
                 Phase = ConvertToContractPhase(matchState.Phase),
-                PlayerInTurnUserId = matchState.PlayerInTurn.PlayerId,
-                Players = CreatePlayerViews(matchState, nicknamesByUserId),
+                PlayerInTurnUserId = FindPlayerInTurnUserId(matchState),
+                Players = CreatePlayerViews(matchState, context.NicknamesByUserId),
                 OwnHandCards = ConvertToContractCards(viewer?.HandCards),
-                OwnPileCards = ConvertToContractCards(viewer?.PileCards)
+                OwnPileCards = ConvertToContractCards(viewer?.PileCards),
+                CurrentBet = matchState.CurrentBet,
+                BetLeaderUserId = matchState.BetLeader?.PlayerId ?? NoUserId,
+                ChallengesToWin = matchState.ModeRules.SuccessfulChallengesToWin,
+                WinnerUserId = matchState.Winner?.PlayerId ?? NoUserId,
+                CardsOnTable = matchState.CardsOnTable,
+                Challenge = CreateChallengeView(context.LastChallenge),
+                Punishment = CreatePunishmentView(matchState)
             };
+            MatchActionAvailabilityHelper.ApplyAvailability(matchView, matchState, viewer);
 
             return matchView;
         }
@@ -147,11 +152,96 @@ namespace TLMG.Services.Helpers
                     Nickname = nicknamesByUserId[player.PlayerId],
                     HandCardCount = player.HandCards.Count,
                     PileCardCount = player.PileCards.Count,
-                    IsEliminated = player.IsEliminated
+                    IsEliminated = player.IsEliminated,
+                    SuccessfulChallengeCount = player.SuccessfulChallengeCount,
+                    HasWithdrawnFromBet = player.HasWithdrawnFromBet,
+                    HasLeftMatch = player.HasLeftMatch,
+                    RevealedPileCards = ConvertToContractCards(FindRevealedPileCards(player))
                 });
             }
 
             return playerViews;
+        }
+
+        /// <summary>
+        /// Jugador al que se le muestra el turno: quien tiene el turno; quien debe elegir mientras hay un castigo
+        /// pendiente; nadie cuando la partida terminó (el motor ya no da significado al turno).
+        /// </summary>
+        private static int FindPlayerInTurnUserId(MatchState matchState)
+        {
+            int playerInTurnUserId = matchState.PlayerInTurn.PlayerId;
+
+            if (matchState.Phase == RoundPhase.PunishmentPending)
+            {
+                playerInTurnUserId = matchState.PendingPunishment.ChooserPlayerId;
+            }
+            else if (matchState.Phase == RoundPhase.MatchFinished)
+            {
+                playerInTurnUserId = NoUserId;
+            }
+
+            return playerInTurnUserId;
+        }
+
+        /// <summary>Cartas volteadas de la pila de un jugador, de arriba hacia abajo; información pública.</summary>
+        private static IReadOnlyList<CardKind> FindRevealedPileCards(MatchPlayer player)
+        {
+            IReadOnlyList<CardKind> revealedCards = player.PileCards
+                .Reverse()
+                .Take(player.RevealedCardCount)
+                .ToList()
+                .AsReadOnly();
+
+            return revealedCards;
+        }
+
+        private static MatchChallengeView CreateChallengeView(MatchChallengeRecord challengeRecord)
+        {
+            MatchChallengeView challengeView = null;
+
+            if (challengeRecord != null)
+            {
+                challengeView = new MatchChallengeView
+                {
+                    BettorUserId = challengeRecord.BettorUserId,
+                    PromisedCount = challengeRecord.PromisedCount,
+                    Outcome = challengeRecord.Outcome,
+                    RevealedCards = challengeRecord.RevealedCards
+                        .Select(card => new MatchRevealedCardView
+                        {
+                            PileOwnerUserId = card.PileOwnerUserId,
+                            Card = card.Card
+                        })
+                        .ToList(),
+                    PunishedUserId = challengeRecord.PunishedUserId,
+                    PunishmentChooserUserId = challengeRecord.PunishmentChooserUserId,
+                    PunishmentResolution = challengeRecord.PunishmentResolution
+                };
+            }
+
+            return challengeView;
+        }
+
+        /// <summary>Castigo pendiente sin ninguna carta: quién elige, a quién castigan y entre cuántas.</summary>
+        private static MatchPunishmentView CreatePunishmentView(MatchState matchState)
+        {
+            MatchPunishmentView punishmentView = null;
+            PendingPunishment pendingPunishment = matchState.PendingPunishment;
+
+            if (pendingPunishment != null)
+            {
+                MatchPlayer punishedPlayer = matchState.Players
+                    .First(player => player.PlayerId == pendingPunishment.PunishedPlayerId);
+                punishmentView = new MatchPunishmentView
+                {
+                    ChooserUserId = pendingPunishment.ChooserPlayerId,
+                    PunishedUserId = pendingPunishment.PunishedPlayerId,
+                    IsBlindChoice = pendingPunishment.IsBlindChoice,
+                    CardSlotCount = punishedPlayer.HandCards.Count
+                };
+            }
+
+            return punishmentView;
         }
 
         private static List<MatchCardKind> ConvertToContractCards(IReadOnlyList<CardKind> engineCards)

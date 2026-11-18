@@ -44,5 +44,61 @@ namespace TLMG.Contracts.DataContracts
         /// </summary>
         [DataMember]
         public List<MatchCardKind> OwnPileCards { get; set; }
+
+        /// <summary>Apuesta actual en cartas a voltear; 0 si no hay apuesta.</summary>
+        [DataMember]
+        public int CurrentBet { get; set; }
+
+        /// <summary>Cuenta de quien tiene la apuesta más alta; 0 si no hay apuesta.</summary>
+        [DataMember]
+        public int BetLeaderUserId { get; set; }
+
+        /// <summary>Retos exitosos que se necesitan para ganar la partida.</summary>
+        [DataMember]
+        public int ChallengesToWin { get; set; }
+
+        /// <summary>Cuenta del ganador; 0 mientras la partida sigue.</summary>
+        [DataMember]
+        public int WinnerUserId { get; set; }
+
+        /// <summary>Cartas boca abajo en la mesa: la suma de las pilas.</summary>
+        [DataMember]
+        public int CardsOnTable { get; set; }
+
+        /// <summary>Desenlace del último reto, público; null si no hay uno vigente.</summary>
+        [DataMember]
+        public MatchChallengeView Challenge { get; set; }
+
+        /// <summary>Castigo pendiente, público; null si no hay ninguno.</summary>
+        [DataMember]
+        public MatchPunishmentView Punishment { get; set; }
+
+        /// <summary>Indica si el destinatario puede colocar una carta ahora.</summary>
+        [DataMember]
+        public bool CanPlaceCard { get; set; }
+
+        /// <summary>Indica si el destinatario puede abrir o subir una apuesta ahora.</summary>
+        [DataMember]
+        public bool CanPlaceBet { get; set; }
+
+        /// <summary>Menor apuesta que el destinatario puede declarar; solo vale si CanPlaceBet.</summary>
+        [DataMember]
+        public int MinimumBetValue { get; set; }
+
+        /// <summary>Mayor apuesta que el destinatario puede declarar; solo vale si CanPlaceBet.</summary>
+        [DataMember]
+        public int MaximumBetValue { get; set; }
+
+        /// <summary>Indica si el destinatario puede retirarse de la apuesta ahora.</summary>
+        [DataMember]
+        public bool CanWithdrawFromBet { get; set; }
+
+        /// <summary>Indica si el destinatario puede elegir una pila para voltear ahora.</summary>
+        [DataMember]
+        public bool CanRevealCard { get; set; }
+
+        /// <summary>Indica si el destinatario debe elegir ahora la carta que se pierde.</summary>
+        [DataMember]
+        public bool CanChoosePunishmentCard { get; set; }
     }
 }

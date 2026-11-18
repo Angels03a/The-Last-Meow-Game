@@ -83,6 +83,43 @@ namespace TLMG.Services.Helpers
         }
 
         /// <summary>
+        /// Deja constancia de que una salida involuntaria no modificó la partida: el motor solo se toca con la salida
+        /// voluntaria hasta que exista la ventana de reconexión de 15 s (C2).
+        /// </summary>
+        /// <param name="roomDeparture">Salida de sala ya aplicada, con su causa.</param>
+        internal static void LogMatchLeftUntouched(LobbyMembershipChange roomDeparture)
+        {
+            bool leftWithoutTouchingMatch = roomDeparture.LeftAuthorizedMatch
+                && roomDeparture.ExitCause != RoomExitCause.Voluntary;
+
+            if (leftWithoutTouchingMatch)
+            {
+                _log.WarnFormat(
+                    "El jugador {0} dejó una partida en curso por la causa {1}; el motor de partida no se modificó.",
+                    roomDeparture.UserId,
+                    roomDeparture.ExitCause);
+            }
+        }
+
+        /// <summary>Crea un aviso OnMatchViewChanged por cada vista, con la vista de cada destinatario.</summary>
+        /// <param name="viewDeliveries">Vistas ya armadas bajo el candado, cada una con su callback.</param>
+        /// <returns>Los avisos, sin enviar, en el orden de las vistas.</returns>
+        internal static IReadOnlyList<Action> CreateMatchViewNotifications(
+            IReadOnlyList<MatchViewDelivery> viewDeliveries)
+        {
+            List<Action> notifications = new List<Action>();
+
+            foreach (MatchViewDelivery viewDelivery in viewDeliveries)
+            {
+                notifications.Add(() => viewDelivery.Callback.OnMatchViewChanged(viewDelivery.MatchView));
+            }
+
+            IReadOnlyList<Action> readOnlyNotifications = notifications.AsReadOnly();
+
+            return readOnlyNotifications;
+        }
+
+        /// <summary>
         /// Crea los avisos OnLobbyRoomChanged de un cambio de sala, uno por cada destinatario del cambio. Si el cambio
         /// no trae sala (rechazado o sala vacía), no hay avisos.
         /// </summary>

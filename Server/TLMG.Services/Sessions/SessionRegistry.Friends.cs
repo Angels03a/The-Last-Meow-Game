@@ -55,7 +55,9 @@ namespace TLMG.Services.Sessions
                     // Es seguro: al reemplazar la sesión, el canal viejo ya no está en este mapa.
                     if (_userIdsByFriendsChannelId.TryGetValue(channelId, out userId))
                     {
-                        sessionEnd = EndSessionInLock(_sessionsByToken[_tokensByUserId[userId]]);
+                        sessionEnd = EndSessionInLock(
+                            _sessionsByToken[_tokensByUserId[userId]],
+                            RoomExitCause.SessionEnded);
                     }
                 }
             }

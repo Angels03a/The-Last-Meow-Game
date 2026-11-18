@@ -61,7 +61,7 @@ namespace TLMG.Services.Tests
         {
             SessionRegistry registry = new SessionRegistry();
 
-            LobbyMembershipChange actual = registry.LeaveRoom(token);
+            LobbyMembershipChange actual = registry.LeaveRoom(token, out _);
 
             Assert.Equal(LobbyChangeStatus.InvalidSession, actual.Status);
         }
@@ -135,7 +135,7 @@ namespace TLMG.Services.Tests
             LobbyCaller caller = new LobbyCaller(token, LobbyChannelId);
             registry.CreateRoom(caller, null);
 
-            LobbyMembershipChange change = registry.LeaveRoom(token);
+            LobbyMembershipChange change = registry.LeaveRoom(token, out _);
 
             Assert.Null(change.Room);
         }
@@ -146,7 +146,7 @@ namespace TLMG.Services.Tests
             SessionRegistry registry = new SessionRegistry();
             string token = registry.StartSession(1, PlayerNickname, out SessionEnd replacedSession);
 
-            LobbyMembershipChange change = registry.LeaveRoom(token);
+            LobbyMembershipChange change = registry.LeaveRoom(token, out _);
 
             Assert.Equal(LobbyChangeStatus.NotInRoom, change.Status);
         }
@@ -193,7 +193,7 @@ namespace TLMG.Services.Tests
             string token = lobby.Authorize(2);
             LobbyCaller caller = new LobbyCaller(token, GuestChannelId);
             lobby.Registry.EnterRoom(caller, lobby.RoomId, null);
-            lobby.Registry.LeaveRoom(token);
+            lobby.Registry.LeaveRoom(token, out _);
 
             LobbyMembershipChange change = lobby.Registry.EnterRoom(caller, lobby.RoomId, null);
 
@@ -221,7 +221,7 @@ namespace TLMG.Services.Tests
             LobbyCaller caller = new LobbyCaller(token, GuestChannelId);
             lobby.Registry.EnterRoom(caller, lobby.RoomId, null);
 
-            LobbyMembershipChange change = lobby.Registry.LeaveRoom(lobby.CreatorToken);
+            LobbyMembershipChange change = lobby.Registry.LeaveRoom(lobby.CreatorToken, out _);
 
             Assert.Single(change.Room.Players);
         }

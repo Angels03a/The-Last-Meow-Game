@@ -108,6 +108,10 @@
     <Compile Include="Sessions\SessionRegistry.Matches.cs" />
     <Compile Include="Sessions\SessionRegistry.MatchPlay.cs" />
     <Compile Include="Sessions\MatchChannel.cs" />
+    <Compile Include="Sessions\MatchChallengeRecord.cs" />
+    <Compile Include="Sessions\MatchViewContext.cs" />
+    <Compile Include="Sessions\RoomExitCause.cs" />
+    <Compile Include="Helpers\MatchActionAvailabilityHelper.cs" />
     <Compile Include="Sessions\MatchDelivery.cs" />
     <Compile Include="Sessions\MatchViewDelivery.cs" />
     <Compile Include="Match\MatchErrorKeys.cs" />

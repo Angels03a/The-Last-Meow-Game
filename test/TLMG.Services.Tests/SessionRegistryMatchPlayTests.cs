@@ -106,18 +106,21 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchPlayScenario.CardsPerPlayerCount, guestView.OwnHandCards.Count);
         }
 
-        /// <summary>Verifica MatchPlayerView_Properties_NeverExposeCardKinds.</summary>
+        /// <summary>Verifica MatchPlayerView_Properties_OnlyRevealedPileCardsCarryCardKinds.</summary>
         [Fact]
-        public void MatchPlayerView_Properties_NeverExposeCardKinds()
+        public void MatchPlayerView_Properties_OnlyRevealedPileCardsCarryCardKinds()
         {
             // Arrange
             PropertyInfo[] properties = typeof(MatchPlayerView).GetProperties();
 
             // Act
-            bool exposesCards = properties.Any(property => property.PropertyType.IsGenericType);
+            string[] propertiesWithCards = properties
+                .Where(property => property.PropertyType.IsGenericType)
+                .Select(property => property.Name)
+                .ToArray();
 
-            // Assert
-            Assert.False(exposesCards);
+            // Assert: las cartas volteadas son públicas; ninguna otra propiedad del jugador lleva tipos de carta.
+            Assert.Equal(new[] { nameof(MatchPlayerView.RevealedPileCards) }, propertiesWithCards);
         }
 
         /// <summary>Verifica SubscribeToMatch_TwiceSequentially_KeepsOneSubscriptionAndSameVersion.</summary>
@@ -489,7 +492,7 @@ namespace TLMG.Services.Tests
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             int leavingUserId = scenario.UserIds[1];
-            scenario.Registry.LeaveRoom(scenario.TokenOf(leavingUserId));
+            scenario.Registry.LeaveRoom(scenario.TokenOf(leavingUserId), out _);
 
             // Act
             MatchDelivery placement = scenario.Place(scenario.CreatorUserId, MatchCardKind.Safe);

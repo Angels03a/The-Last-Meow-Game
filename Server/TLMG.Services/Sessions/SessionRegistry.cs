@@ -19,6 +19,7 @@ namespace TLMG.Services.Sessions
 
         private readonly object _sessionsLock = new object();
         private readonly Func<DateTime> _readUtcNow;
+        private readonly Func<int, int> _pickRandomIndex;
         private readonly Dictionary<string, PlayerSession> _sessionsByToken =
             new Dictionary<string, PlayerSession>();
         private readonly Dictionary<int, string> _tokensByUserId = new Dictionary<int, string>();
@@ -29,13 +30,24 @@ namespace TLMG.Services.Sessions
         }
 
         /// <summary>
-        /// Crea el registro con la fuente de hora UTC indicada; permite a las pruebas vencer la cuenta regresiva sin
-        /// esperar. El servidor usa el constructor sin parámetros.
+        /// Crea el registro con la fuente de hora UTC indicada y el azar del sistema. El generador solo se usa bajo
+        /// _sessionsLock, así que una sola instancia de Random es suficiente.
         /// </summary>
         /// <param name="readUtcNow">Devuelve la hora UTC actual; se lee solo bajo _sessionsLock.</param>
-        internal SessionRegistry(Func<DateTime> readUtcNow)
+        internal SessionRegistry(Func<DateTime> readUtcNow) : this(readUtcNow, new Random().Next)
+        {
+        }
+
+        /// <summary>
+        /// Crea el registro con la fuente de hora UTC y el azar indicados; permite a las pruebas vencer la cuenta
+        /// regresiva y el plazo del castigo sin esperar. El servidor usa el constructor sin parámetros.
+        /// </summary>
+        /// <param name="readUtcNow">Devuelve la hora UTC actual; se lee solo bajo _sessionsLock.</param>
+        /// <param name="pickRandomIndex">Devuelve un índice al azar entre 0 y la cantidad dada, sin incluirla.</param>
+        internal SessionRegistry(Func<DateTime> readUtcNow, Func<int, int> pickRandomIndex)
         {
             _readUtcNow = readUtcNow;
+            _pickRandomIndex = pickRandomIndex;
         }
 
         /// <inheritdoc />
@@ -51,7 +63,9 @@ namespace TLMG.Services.Sessions
 
                 if (_tokensByUserId.TryGetValue(userId, out previousToken))
                 {
-                    replacedSession = EndSessionInLock(_sessionsByToken[previousToken]);
+                    replacedSession = EndSessionInLock(
+                        _sessionsByToken[previousToken],
+                        RoomExitCause.SessionReplaced);
                 }
 
                 _sessionsByToken[sessionToken] = newSession;
@@ -99,7 +113,7 @@ namespace TLMG.Services.Sessions
 
                     if (_sessionsByToken.TryGetValue(sessionToken, out endedSession))
                     {
-                        sessionEnd = EndSessionInLock(endedSession);
+                        sessionEnd = EndSessionInLock(endedSession, RoomExitCause.SessionEnded);
                     }
                 }
             }
@@ -117,20 +131,24 @@ namespace TLMG.Services.Sessions
 
         private static void LogDepartureOfEndedSession(SessionEnd sessionEnd)
         {
-            if (sessionEnd.RoomDeparture.RoomId != LobbyMembershipChange.NoRoomId)
+            LobbyMembershipChange roomDeparture = sessionEnd.RoomDeparture;
+
+            if (roomDeparture.RoomId != LobbyMembershipChange.NoRoomId)
             {
                 _log.InfoFormat(
-                    "El jugador {0} salió de la sala {1} porque su sesión terminó.",
+                    "El jugador {0} salió de la sala {1} por la causa {2}.",
                     sessionEnd.UserId,
-                    sessionEnd.RoomDeparture.RoomId);
+                    roomDeparture.RoomId,
+                    roomDeparture.ExitCause);
+                SessionNotificationHelper.LogMatchLeftUntouched(roomDeparture);
             }
         }
 
-        private SessionEnd EndSessionInLock(PlayerSession endedSession)
+        private SessionEnd EndSessionInLock(PlayerSession endedSession, RoomExitCause exitCause)
         {
             _sessionsByToken.Remove(_tokensByUserId[endedSession.UserId]);
             _tokensByUserId.Remove(endedSession.UserId);
-            SessionEnd sessionEnd = RemoveSessionStateOfUser(endedSession);
+            SessionEnd sessionEnd = RemoveSessionStateOfUser(endedSession, exitCause);
 
             return sessionEnd;
         }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Engine;
 
 namespace TLMG.Services.Sessions
@@ -16,6 +17,9 @@ namespace TLMG.Services.Sessions
 
         /// <summary>Versión de la primera vista de una partida; una versión mayor siempre es más reciente.</summary>
         private const int InitialMatchVersion = 1;
+
+        private static readonly IReadOnlyList<MatchViewDelivery> _noMatchViewDeliveries =
+            new List<MatchViewDelivery>().AsReadOnly();
 
         /// <summary>
         /// Copia el estado básico de una partida si el usuario estaba entre sus participantes al iniciarla; el
@@ -56,6 +60,119 @@ namespace TLMG.Services.Sessions
             if (removedStart.MatchId.HasValue)
             {
                 _matchesById.Remove(removedStart.MatchId.Value);
+            }
+        }
+
+        /// <summary>
+        /// Revisa los plazos de la partida con la hora real y aplica los que ya vencieron. Hoy el único plazo es el de
+        /// 10 s del castigo (ValidationRules.PunishmentChoiceSeconds): si venció, el motor elimina una carta al azar,
+        /// con la misma probabilidad para cada carta del castigado. Es el ÚNICO punto que revisa plazos: se llama al
+        /// inicio de cada operación de partida, de SubscribeToMatch y de la salida voluntaria; el servidor no usa
+        /// temporizadores (D-54), así que un plazo vencido se aplica en cuanto llega la siguiente operación. El latido
+        /// de I4 (BL-058) solo tendrá que llamar a esta función. Requiere _sessionsLock.
+        /// </summary>
+        /// <param name="matchRecord">Partida cuyos plazos se revisan.</param>
+        /// <param name="nowUtc">Hora UTC real, leída una sola vez por operación.</param>
+        /// <returns>true si venció un plazo y el estado de la partida cambió; en caso contrario, false.</returns>
+        private bool ExpireMatchDeadlinesInLock(MatchRecord matchRecord, DateTime nowUtc)
+        {
+            PunishmentStatus punishmentStatus = matchRecord.MatchState.ExpirePunishment(nowUtc, _pickRandomIndex);
+            bool wasExpired = punishmentStatus == PunishmentStatus.CardRemoved;
+
+            if (wasExpired && matchRecord.LastChallenge != null)
+            {
+                matchRecord.LastChallenge.ResolvePunishment(MatchPunishmentResolution.ChosenAtRandom);
+            }
+
+            return wasExpired;
+        }
+
+        /// <summary>
+        /// Saca al jugador del motor de partida por una salida voluntaria inmediata (Reglas No. 3 y 4.0.6): sale por
+        /// completo, la ronda en curso se reinicia y la apuesta se anula; un castigo se cancela o se resuelve al
+        /// azar según quién salga; si queda un solo jugador activo, gana. Requiere _sessionsLock.
+        /// </summary>
+        /// <param name="userId">Jugador que sale.</param>
+        /// <param name="matchId">Partida de la sala que deja.</param>
+        /// <returns>Una vista por cada suscrito si el estado cambió; vacía en otro caso.</returns>
+        private IReadOnlyList<MatchViewDelivery> ApplyVoluntaryMatchExitInLock(int userId, Guid matchId)
+        {
+            IReadOnlyList<MatchViewDelivery> viewDeliveries = _noMatchViewDeliveries;
+            MatchRecord matchRecord;
+
+            if (_matchesById.TryGetValue(matchId, out matchRecord))
+            {
+                DateTime nowUtc = _readUtcNow();
+                bool hasChanged = ExpireMatchDeadlinesInLock(matchRecord, nowUtc);
+                PlayerExitStatus exitStatus = matchRecord.MatchState.RemovePlayer(
+                    userId,
+                    PlayerExit.Immediate(nowUtc),
+                    _pickRandomIndex);
+                hasChanged = hasChanged || HasExitChangedMatch(exitStatus);
+                UpdateChallengeAfterExit(matchRecord, exitStatus);
+
+                if (hasChanged)
+                {
+                    matchRecord.Version++;
+                    viewDeliveries = CreateViewDeliveriesInLock(matchRecord);
+                }
+            }
+
+            return viewDeliveries;
+        }
+
+        private static bool HasExitChangedMatch(PlayerExitStatus exitStatus)
+        {
+            bool hasChanged = true;
+
+            switch (exitStatus)
+            {
+                case PlayerExitStatus.EliminatedPlayerLeft:
+                case PlayerExitStatus.MatchAlreadyFinished:
+                case PlayerExitStatus.PlayerNotInMatch:
+                case PlayerExitStatus.PlayerAlreadyLeft:
+                    hasChanged = false;
+                    break;
+            }
+
+            return hasChanged;
+        }
+
+        /// <summary>
+        /// Ajusta el desenlace del último reto a lo que hizo la salida: un reto en curso desaparece con la ronda y un
+        /// castigo pendiente se anota como cancelado o resuelto al azar.
+        /// </summary>
+        private static void UpdateChallengeAfterExit(MatchRecord matchRecord, PlayerExitStatus exitStatus)
+        {
+            MatchChallengeRecord challenge = matchRecord.LastChallenge;
+            bool endsRound = exitStatus == PlayerExitStatus.RoundRestarted
+                || exitStatus == PlayerExitStatus.MatchFinished;
+
+            if (challenge != null)
+            {
+                if (challenge.Outcome == MatchChallengeOutcome.InProgress && endsRound)
+                {
+                    matchRecord.LastChallenge = null;
+                }
+                else if (challenge.PunishmentResolution == MatchPunishmentResolution.Pending)
+                {
+                    ResolvePendingPunishmentAfterExit(challenge, exitStatus);
+                }
+            }
+        }
+
+        private static void ResolvePendingPunishmentAfterExit(
+            MatchChallengeRecord challenge,
+            PlayerExitStatus exitStatus)
+        {
+            if (exitStatus == PlayerExitStatus.PunishmentResolvedAtRandom)
+            {
+                challenge.ResolvePunishment(MatchPunishmentResolution.ChosenAtRandom);
+            }
+            else if (exitStatus == PlayerExitStatus.PunishmentCancelled
+                || exitStatus == PlayerExitStatus.MatchFinished)
+            {
+                challenge.ResolvePunishment(MatchPunishmentResolution.Cancelled);
             }
         }
 
@@ -150,6 +267,12 @@ namespace TLMG.Services.Sessions
 
             /// <summary>Versión de la partida; sube con cada acción aceptada y solo bajo _sessionsLock.</summary>
             public int Version { get; set; }
+
+            /// <summary>
+            /// Desenlace del último reto; null hasta que haya uno y otra vez null cuando se abre la siguiente apuesta
+            /// o se coloca la siguiente carta. Solo cambia bajo _sessionsLock.
+            /// </summary>
+            public MatchChallengeRecord LastChallenge { get; set; }
         }
     }
 }

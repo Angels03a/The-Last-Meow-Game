@@ -3,7 +3,8 @@ using System.Collections.Generic;
 namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Resultado de una operación de partida: la clave de error si se rechazó o las vistas por entregar si se aceptó.
+    /// Resultado de una operación de partida: la clave de error si se rechazó y las vistas por entregar si la
+    /// partida cambió.
     /// Es inmutable y ya no toca estado compartido.
     /// </summary>
     public sealed class MatchDelivery
@@ -29,6 +30,19 @@ namespace TLMG.Services.Sessions
         public static MatchDelivery CreateRejected(string errorKey)
         {
             MatchDelivery matchDelivery = new MatchDelivery(errorKey, _noViewDeliveries);
+
+            return matchDelivery;
+        }
+
+        /// <summary>
+        /// Crea el resultado de una operación rechazada que aun así cambió la partida, porque antes venció un plazo.
+        /// </summary>
+        /// <param name="errorKey">Clave de error para quien la pidió.</param>
+        /// <param name="viewDeliveries">Vistas del cambio previo; la lista no debe modificarse después.</param>
+        /// <returns>El resultado, con la clave de error y las vistas.</returns>
+        public static MatchDelivery CreateRejected(string errorKey, IReadOnlyList<MatchViewDelivery> viewDeliveries)
+        {
+            MatchDelivery matchDelivery = new MatchDelivery(errorKey, viewDeliveries);
 
             return matchDelivery;
         }

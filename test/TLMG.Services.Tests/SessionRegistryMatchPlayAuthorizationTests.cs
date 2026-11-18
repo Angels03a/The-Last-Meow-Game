@@ -151,7 +151,7 @@ namespace TLMG.Services.Tests
             // Arrange: sigue siendo participante histórico, pero ya no está en la sala de la partida.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             int leavingUserId = scenario.UserIds[1];
-            scenario.Registry.LeaveRoom(scenario.TokenOf(leavingUserId));
+            scenario.Registry.LeaveRoom(scenario.TokenOf(leavingUserId), out _);
 
             // Act
             MatchDelivery delivery = scenario.Subscribe(leavingUserId);
@@ -253,7 +253,7 @@ namespace TLMG.Services.Tests
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
-            scenario.Registry.LeaveRoom(scenario.TokenOf(scenario.CreatorUserId));
+            scenario.Registry.LeaveRoom(scenario.TokenOf(scenario.CreatorUserId), out _);
 
             // Act
             MatchDelivery delivery = scenario.Place(scenario.CreatorUserId, MatchCardKind.Safe);

@@ -64,10 +64,16 @@ namespace TLMG.Services.Sessions
         /// </returns>
         LobbyMembershipChange EnterRoom(LobbyCaller caller, int roomId, ILobbyManagerCallback lobbyCallback);
 
-        /// <summary>Saca al jugador de su sala; la elimina si queda vacía.</summary>
+        /// <summary>
+        /// Saca al jugador de su sala por su propia decisión (Salir); la elimina si queda vacía. Si la sala tenía una
+        /// partida, también lo saca del motor de partida bajo el mismo candado.
+        /// </summary>
         /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
+        /// <param name="matchViewDeliveries">
+        /// Vistas que hay que entregar a los demás suscritos de la partida; vacía si la partida no cambió.
+        /// </param>
         /// <returns>Applied, InvalidSession o NotInRoom; nunca es null.</returns>
-        LobbyMembershipChange LeaveRoom(string sessionToken);
+        LobbyMembershipChange LeaveRoom(string sessionToken, out IReadOnlyList<MatchViewDelivery> matchViewDeliveries);
 
         /// <summary>Saca de su sala al jugador cuyo canal de lobby terminó; la elimina si queda vacía.</summary>
         /// <param name="channelId">Identificador del canal de lobby que terminó.</param>

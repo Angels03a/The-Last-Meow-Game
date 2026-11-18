@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
@@ -27,5 +28,24 @@ namespace TLMG.Contracts.DataContracts
         /// <summary>Indica si el jugador quedó eliminado.</summary>
         [DataMember]
         public bool IsEliminated { get; set; }
+
+        /// <summary>Retos exitosos del jugador; nunca se reinician durante la partida.</summary>
+        [DataMember]
+        public int SuccessfulChallengeCount { get; set; }
+
+        /// <summary>Indica si el jugador se retiró de la apuesta en curso.</summary>
+        [DataMember]
+        public bool HasWithdrawnFromBet { get; set; }
+
+        /// <summary>Indica si el jugador salió de la partida por completo.</summary>
+        [DataMember]
+        public bool HasLeftMatch { get; set; }
+
+        /// <summary>
+        /// Cartas de su pila ya volteadas en el reto en curso, de la de arriba hacia abajo; es información pública.
+        /// Vacía fuera de un reto.
+        /// </summary>
+        [DataMember]
+        public List<MatchCardKind> RevealedPileCards { get; set; }
     }
 }

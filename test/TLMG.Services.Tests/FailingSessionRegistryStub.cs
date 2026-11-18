@@ -33,7 +33,9 @@ namespace TLMG.Services.Tests
             ILobbyManagerCallback lobbyCallback) =>
             throw new InvalidOperationException(FailureMessage);
 
-        public LobbyMembershipChange LeaveRoom(string sessionToken) =>
+        public LobbyMembershipChange LeaveRoom(
+            string sessionToken,
+            out IReadOnlyList<MatchViewDelivery> matchViewDeliveries) =>
             throw new InvalidOperationException(FailureMessage);
 
         public LobbyMembershipChange LeaveRoomByChannel(string channelId) =>

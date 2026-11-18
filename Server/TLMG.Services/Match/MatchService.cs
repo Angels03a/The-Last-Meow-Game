@@ -5,6 +5,7 @@ using log4net;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using TLMG.Services.Helpers;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Match
@@ -80,7 +81,7 @@ namespace TLMG.Services.Match
             LogMatchRejection(matchDelivery.ErrorKey);
 
             ResultWithNotification<OperationResult> matchResult = new ResultWithNotification<OperationResult>(
-                operationResult, CreateViewNotifications(matchDelivery.ViewDeliveries));
+                operationResult, SessionNotificationHelper.CreateMatchViewNotifications(matchDelivery.ViewDeliveries));
 
             return matchResult;
         }
@@ -91,21 +92,6 @@ namespace TLMG.Services.Match
             {
                 _log.WarnFormat("Se rechazó una operación de partida: {0}.", errorKey);
             }
-        }
-
-        private static IReadOnlyList<Action> CreateViewNotifications(
-            IReadOnlyList<MatchViewDelivery> viewDeliveries)
-        {
-            List<Action> notifications = new List<Action>();
-
-            foreach (MatchViewDelivery viewDelivery in viewDeliveries)
-            {
-                notifications.Add(() => viewDelivery.Callback.OnMatchViewChanged(viewDelivery.MatchView));
-            }
-
-            IReadOnlyList<Action> readOnlyNotifications = notifications.AsReadOnly();
-
-            return readOnlyNotifications;
         }
     }
 }

@@ -176,7 +176,7 @@ namespace TLMG.Services.Tests
             LobbyMembershipChange change = start.RequestStartAfterCountdown();
 
             // Act
-            start.Scenario.Registry.LeaveRoom(start.TokenOf(FirstGuestUserId));
+            start.Scenario.Registry.LeaveRoom(start.TokenOf(FirstGuestUserId), out _);
 
             // Assert
             Assert.Equal(start.UserIdsInJoinOrder, start.FindMatch(change, CreatorUserId).ParticipantUserIds);
@@ -332,7 +332,7 @@ namespace TLMG.Services.Tests
             {
                 foreach (int userId in UserIdsInJoinOrder.Skip(1))
                 {
-                    Scenario.Registry.LeaveRoom(TokenOf(userId));
+                    Scenario.Registry.LeaveRoom(TokenOf(userId), out _);
                 }
             }
 
@@ -343,7 +343,7 @@ namespace TLMG.Services.Tests
 
                 foreach (int userId in UserIdsInJoinOrder)
                 {
-                    lastDeparture = Scenario.Registry.LeaveRoom(TokenOf(userId));
+                    lastDeparture = Scenario.Registry.LeaveRoom(TokenOf(userId), out _);
                 }
 
                 return lastDeparture;

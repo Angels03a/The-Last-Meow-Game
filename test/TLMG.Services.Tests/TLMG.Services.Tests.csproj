@@ -41,6 +41,11 @@
     <Compile Include="ManualUtcClock.cs" />
     <Compile Include="MatchCallbackStub.cs" />
     <Compile Include="MatchPlayScenario.cs" />
+    <Compile Include="ScriptedRandom.cs" />
+    <Compile Include="MatchChallengeRecordTests.cs" />
+    <Compile Include="MatchStateScenarios.cs" />
+    <Compile Include="MatchViewVisibilityTests.cs" />
+    <Compile Include="SessionRegistryMatchExitTests.cs" />
     <Compile Include="MatchServiceTests.cs" />
     <Compile Include="MatchViewHelperTests.cs" />
     <Compile Include="SessionRegistryMatchPlayAuthorizationTests.cs" />

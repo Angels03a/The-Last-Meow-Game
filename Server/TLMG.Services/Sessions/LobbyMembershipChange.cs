@@ -23,13 +23,17 @@ namespace TLMG.Services.Sessions
             int userId,
             int roomId,
             LobbyRoomSnapshot room,
-            IReadOnlyList<ILobbyManagerCallback> recipientCallbacks)
+            IReadOnlyList<ILobbyManagerCallback> recipientCallbacks,
+            RoomExitCause exitCause,
+            bool leftAuthorizedMatch)
         {
             Status = status;
             UserId = userId;
             RoomId = roomId;
             Room = room;
             RecipientCallbacks = recipientCallbacks;
+            ExitCause = exitCause;
+            LeftAuthorizedMatch = leftAuthorizedMatch;
         }
 
         /// <summary>Obtiene qué ocurrió con el intento de cambio.</summary>
@@ -47,6 +51,12 @@ namespace TLMG.Services.Sessions
         /// <summary>Obtiene los callbacks destinatarios del cambio; nunca es null.</summary>
         public IReadOnlyList<ILobbyManagerCallback> RecipientCallbacks { get; }
 
+        /// <summary>Obtiene la causa de la salida; None si el cambio no fue una salida.</summary>
+        public RoomExitCause ExitCause { get; }
+
+        /// <summary>Obtiene si el jugador dejó una sala que ya tenía una partida autorizada.</summary>
+        public bool LeftAuthorizedMatch { get; }
+
         /// <summary>Crea un resultado de cambio rechazado.</summary>
         /// <param name="status">Motivo del rechazo.</param>
         /// <param name="userId">Id de la cuenta, o NoUserId si el token no era válido.</param>
@@ -54,7 +64,8 @@ namespace TLMG.Services.Sessions
         public static LobbyMembershipChange CreateRejected(LobbyChangeStatus status, int userId)
         {
             LobbyMembershipChange lobbyMembershipChange =
-                new LobbyMembershipChange(status, userId, NoRoomId, null, _noCallbacks);
+                new LobbyMembershipChange(
+                    status, userId, NoRoomId, null, _noCallbacks, RoomExitCause.None, false);
 
             return lobbyMembershipChange;
         }
@@ -86,7 +97,30 @@ namespace TLMG.Services.Sessions
             IReadOnlyList<ILobbyManagerCallback> recipientCallbacks)
         {
             LobbyMembershipChange lobbyMembershipChange =
-                new LobbyMembershipChange(LobbyChangeStatus.Applied, userId, roomId, room, recipientCallbacks);
+                new LobbyMembershipChange(
+                    LobbyChangeStatus.Applied, userId, roomId, room, recipientCallbacks, RoomExitCause.None, false);
+
+            return lobbyMembershipChange;
+        }
+
+        /// <summary>Crea el cambio de una salida de sala, con su causa.</summary>
+        /// <param name="userId">Jugador que salió.</param>
+        /// <param name="roomId">Sala que dejó.</param>
+        /// <param name="room">Sala que queda; null si quedó vacía.</param>
+        /// <param name="recipientCallbacks">Callbacks de lobby de quienes siguen en la sala.</param>
+        /// <param name="exitCause">Causa de la salida.</param>
+        /// <param name="leftAuthorizedMatch">Indica si la sala ya tenía una partida autorizada.</param>
+        /// <returns>El cambio aplicado.</returns>
+        public static LobbyMembershipChange CreateDeparture(
+            int userId,
+            int roomId,
+            LobbyRoomSnapshot room,
+            IReadOnlyList<ILobbyManagerCallback> recipientCallbacks,
+            RoomExitCause exitCause,
+            bool leftAuthorizedMatch)
+        {
+            LobbyMembershipChange lobbyMembershipChange = new LobbyMembershipChange(
+                LobbyChangeStatus.Applied, userId, roomId, room, recipientCallbacks, exitCause, leftAuthorizedMatch);
 
             return lobbyMembershipChange;
         }
