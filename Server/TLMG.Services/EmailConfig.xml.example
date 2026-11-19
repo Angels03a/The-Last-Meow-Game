@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EmailConfig>
+  <SmtpServer>smtp.example.invalid</SmtpServer>
+  <SmtpPort>587</SmtpPort>
+  <SenderEmail>sender@example.invalid</SenderEmail>
+  <AppPassword>REEMPLAZAR_EN_CONFIGURACION_LOCAL</AppPassword>
+</EmailConfig>
