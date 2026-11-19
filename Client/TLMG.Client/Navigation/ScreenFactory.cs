@@ -124,7 +124,7 @@ namespace TLMG.Client.Navigation
                     screenEntry = new ScreenEntry(new ModerationScreen(moderationViewModel), moderationViewModel);
                     break;
                 case ScreenId.GameOver:
-                    GameOverViewModel gameOverViewModel = new GameOverViewModel(_navigation, parameter as MatchView);
+                    GameOverViewModel gameOverViewModel = new GameOverViewModel(_navigation, _lobbyConnection, _dialogs, parameter as MatchView);
                     screenEntry = new ScreenEntry(new GameOverScreen(gameOverViewModel), gameOverViewModel);
                     break;
                 case ScreenId.RoundResult:

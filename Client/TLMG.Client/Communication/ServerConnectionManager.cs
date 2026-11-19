@@ -22,6 +22,9 @@ namespace TLMG.Client.Communication
         private ServerCallback _lobbyCallback;
         private string _sessionToken;
         private int? _enteringRoomId;
+        private int _pendingLeaveRequests;
+        private int? _finishedLeaveRoomId;
+        private Guid? _finishedLeaveMatchId;
 
         public ServerConnectionManager(Dispatcher interfaceDispatcher)
         {
@@ -62,6 +65,8 @@ namespace TLMG.Client.Communication
         public event EventHandler<ServerEventArgs<OperationLobbyRoomResult>> EnterLobbyResultReceived;
 
         public event EventHandler<ServerEventArgs<LobbyRoom>> LobbyRoomChanged;
+
+        public event EventHandler<ServerEventArgs<OperationResult>> FinishedMatchLeaveResultReceived;
 
         public event EventHandler ConnectionLost;
 
@@ -114,6 +119,9 @@ namespace TLMG.Client.Communication
             _lobbyClient = null;
             _lobbyChannel = null;
             _lobbyCallback = null;
+            _pendingLeaveRequests = 0;
+            _finishedLeaveRoomId = null;
+            _finishedLeaveMatchId = null;
             _sessionToken = null;
             PlayerUserId = NoUserId;
             PlayerNickname = null;
@@ -198,15 +206,36 @@ namespace TLMG.Client.Communication
         public bool LeaveLobby()
         {
             bool wasRequestLeaveLobbySent = false;
+            if (_finishedLeaveRoomId.HasValue)
+            {
+                return false;
+            }
+
             ClearCurrentRoom();
 
             if (OpenLobbyChannel())
             {
+                _pendingLeaveRequests++;
                 wasRequestLeaveLobbySent = TrySend(() => _lobbyClient.LeaveLobby(_sessionToken),
                     "salir de una sala");
             }
 
             return wasRequestLeaveLobbySent;
+        }
+
+        public bool LeaveFinishedMatch(Guid matchId)
+        {
+            bool wasSent = false;
+            if (CurrentRoom != null && CurrentRoom.MatchId == matchId && _pendingLeaveRequests == 0
+                && OpenLobbyChannel())
+            {
+                _finishedLeaveRoomId = CurrentRoom.RoomId;
+                _finishedLeaveMatchId = matchId;
+                _pendingLeaveRequests++;
+                wasSent = TrySend(() => _lobbyClient.LeaveLobby(_sessionToken), "salir de la partida terminada");
+            }
+
+            return wasSent;
         }
 
         internal void RunOnInterface(Action action)
@@ -388,7 +417,35 @@ namespace TLMG.Client.Communication
 
         internal void NotifyLeaveLobbyResultReceived(OperationResult operationLeaveLobbyResult)
         {
-            if (!operationLeaveLobbyResult.IsSuccess)
+            bool isFinishedLeave = _finishedLeaveRoomId.HasValue && _pendingLeaveRequests == 1;
+            if (_pendingLeaveRequests > 0)
+            {
+                _pendingLeaveRequests--;
+            }
+
+            if (isFinishedLeave)
+            {
+                bool isSameRoom = CurrentRoom != null && CurrentRoom.RoomId == _finishedLeaveRoomId.Value
+                    && CurrentRoom.MatchId == _finishedLeaveMatchId;
+                _finishedLeaveRoomId = null;
+                _finishedLeaveMatchId = null;
+                if (operationLeaveLobbyResult != null && operationLeaveLobbyResult.IsSuccess && isSameRoom)
+                {
+                    ClearCurrentRoom();
+                }
+                else if (operationLeaveLobbyResult == null || !isSameRoom)
+                {
+                    operationLeaveLobbyResult = new OperationResult
+                    {
+                        IsSuccess = false,
+                        ErrorKey = "Common_UnexpectedError"
+                    };
+                }
+
+                FinishedMatchLeaveResultReceived?.Invoke(
+                    this, new ServerEventArgs<OperationResult>(operationLeaveLobbyResult));
+            }
+            else if (operationLeaveLobbyResult != null && !operationLeaveLobbyResult.IsSuccess)
             {
                 _log.WarnFormat(
                     "El servidor rechazó la salida de la sala. ErrorKey: {0}.",

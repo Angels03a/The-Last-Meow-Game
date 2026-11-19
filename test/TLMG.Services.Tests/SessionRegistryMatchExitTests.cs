@@ -225,6 +225,29 @@ namespace TLMG.Services.Tests
             Assert.Equal(SecondRound, scenario.CallbackOf(remainingUserId).LastView.RoundNumber);
         }
 
+        /// <summary>Salir tras la victoria no cambia el ganador ni los puntos de la tabla final.</summary>
+        [Fact]
+        public void LeaveRoom_AfterMatchFinished_PreservesFinalStandings()
+        {
+            MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            scenario.WinRoundWithABetOfOne();
+            scenario.WinRoundWithABetOfOne();
+            MatchView before = scenario.ReadViewAs(scenario.UserIds[1]);
+
+            IReadOnlyList<MatchViewDelivery> deliveries;
+            LobbyMembershipChange departure = scenario.Registry.LeaveRoom(
+                scenario.TokenOf(scenario.UserIds[0]), out deliveries);
+            MatchView after = scenario.ReadViewAs(scenario.UserIds[1]);
+
+            Assert.Equal(LobbyChangeStatus.Applied, departure.Status);
+            Assert.Empty(deliveries);
+            Assert.Equal(before.WinnerUserId, after.WinnerUserId);
+            Assert.Equal(before.Version, after.Version);
+            Assert.Equal(before.FinalStandings.Select(row => (row.UserId, row.Position, row.Points)),
+                after.FinalStandings.Select(row => (row.UserId, row.Position, row.Points)));
+        }
+
         private static IReadOnlyList<MatchViewDelivery> LeaveVoluntarily(MatchPlayScenario scenario, int userId)
         {
             IReadOnlyList<MatchViewDelivery> deliveries;

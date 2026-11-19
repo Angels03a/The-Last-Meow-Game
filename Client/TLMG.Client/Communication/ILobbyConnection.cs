@@ -16,6 +16,9 @@ namespace TLMG.Client.Communication
         /// <summary>Se dispara con el resultado de crear una sala.</summary>
         event EventHandler<ServerEventArgs<OperationLobbyRoomResult>> CreateRoomResultReceived;
 
+        /// <summary>Se dispara al recibir la respuesta de salida tras finalizar la partida.</summary>
+        event EventHandler<ServerEventArgs<OperationResult>> FinishedMatchLeaveResultReceived;
+
         /// <summary>Se dispara cuando cambia la sala del jugador (jugadores, listos o cartas por jugador).</summary>
         event EventHandler<ServerEventArgs<LobbyRoom>> LobbyRoomChanged;
 
@@ -65,6 +68,11 @@ namespace TLMG.Client.Communication
         /// <summary>Sale de la sala actual y la libera en el cliente sin esperar la respuesta.</summary>
         /// <returns>true si se envió; false si no hay sesión registrada o falló el canal o el envío.</returns>
         bool LeaveLobby();
+
+        /// <summary>Solicita salir de la sala de una partida terminada sin anticipar la respuesta.</summary>
+        /// <param name="matchId">Partida terminada a la que pertenece la sala.</param>
+        /// <returns>true si se envió la solicitud.</returns>
+        bool LeaveFinishedMatch(Guid matchId);
 
         /// <summary>Pide el estado Listo deseado; el resultado llega por ReadinessResultReceived.</summary>
         /// <param name="isReadyToStartMatch">Estado Listo deseado.</param>

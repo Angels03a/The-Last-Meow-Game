@@ -182,6 +182,7 @@ namespace TLMG.Client.ViewModels
             MatchView currentView = _matchConnection.CurrentMatchView;
             if (IsCurrentMatch(currentView))
             {
+                _previousChallengeView = currentView;
                 ShowBoardOf(currentView);
                 if (ShowFinishedMatch(currentView))
                 {
@@ -269,6 +270,11 @@ namespace TLMG.Client.ViewModels
             }
 
             MatchView previous = _previousChallengeView;
+            if (previous != null && previous.MatchId == view.MatchId && view.Version <= previous.Version)
+            {
+                return;
+            }
+
             if (view?.Challenge != null && previous?.Challenge != null
                 && view.MatchId == previous.MatchId
                 && previous.Challenge.Outcome == MatchChallengeOutcome.InProgress
