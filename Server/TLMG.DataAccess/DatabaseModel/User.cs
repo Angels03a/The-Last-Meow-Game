@@ -34,6 +34,7 @@ namespace TLMG.DataAccess.DatabaseModel
         public string state { get; set; }
         public string profile_image { get; set; }
         public Nullable<System.DateTime> last_time { get; set; }
+        public System.DateTime password_changed_at { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Ban_Record> Ban_Record { get; set; }

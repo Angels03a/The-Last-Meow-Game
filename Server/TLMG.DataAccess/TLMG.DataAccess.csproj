@@ -103,6 +103,7 @@
     <Compile Include="Repositories\ChatInputOutcome.cs" />
     <Compile Include="Repositories\ChatMessageRepository.cs" />
     <Compile Include="Repositories\FriendshipRepository.cs" />
+    <Compile Include="Repositories\PasswordRepository.cs" />
     <Compile Include="Repositories\PlayerProfileRepository.cs" />
     <Compile Include="Repositories\PlayerRepository.cs" />
     <Compile Include="Repositories\VerificationCodeRepository.cs" />
@@ -112,6 +113,7 @@
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>TLMGModel.Designer.cs</LastGenOutput>
     </EntityDeploy>
+    <None Include="App.Config" />
     <None Include="DatabaseModel\TLMGModel.edmx.diagram">
       <DependentUpon>TLMGModel.edmx</DependentUpon>
     </None>

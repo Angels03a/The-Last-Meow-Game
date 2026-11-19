@@ -138,6 +138,7 @@
           <Property Name="state" Type="varchar" MaxLength="30" Nullable="false" />
           <Property Name="profile_image" Type="varchar" MaxLength="255" />
           <Property Name="last_time" Type="datetime2" Precision="3" />
+          <Property Name="password_changed_at" Type="datetime2" Precision="3" Nullable="false" />
         </EntityType>
         <EntityType Name="Verification_Code">
           <Key>
@@ -636,6 +637,7 @@ advertencia 6002: La tabla o vista 'TLMG_DB.dbo.vw_Leaderboard' no tiene definid
           <NavigationProperty Name="Player" Relationship="Self.FK_Player_User" FromRole="User" ToRole="Player" />
           <NavigationProperty Name="Verification_Code" Relationship="Self.FK_VerificationCode_User" FromRole="User" ToRole="Verification_Code" />
           <NavigationProperty Name="Message" Relationship="TLMG_DBModel.FK_Message_User" FromRole="User" ToRole="Message" />
+          <Property Name="password_changed_at" Type="DateTime" Nullable="false" Precision="3" />
         </EntityType>
         <EntityType Name="Verification_Code">
           <Key>
@@ -1098,6 +1100,7 @@ advertencia 6002: La tabla o vista 'TLMG_DB.dbo.vw_Leaderboard' no tiene definid
           <EntitySetMapping Name="User">
             <EntityTypeMapping TypeName="TLMG_DBModel.User">
               <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="password_changed_at" ColumnName="password_changed_at" />
                 <ScalarProperty Name="id_user" ColumnName="id_user" />
                 <ScalarProperty Name="email" ColumnName="email" />
                 <ScalarProperty Name="password_hash" ColumnName="password_hash" />

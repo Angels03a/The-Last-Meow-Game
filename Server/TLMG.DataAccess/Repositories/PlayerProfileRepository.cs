@@ -34,7 +34,8 @@ namespace TLMG.DataAccess.Repositories
                                                                        Status = PlayerProfileLookupStatus.Found,
                                                                        Nickname = user.nickname,
                                                                        Email = user.email,
-                                                                       AvatarKey = user.profile_image
+                                                                       AvatarKey = user.profile_image,
+                                                                       PasswordChangedAtUtc = user.password_changed_at
                                                                    };
 
                     profileLookup = profileQuery.FirstOrDefault();
