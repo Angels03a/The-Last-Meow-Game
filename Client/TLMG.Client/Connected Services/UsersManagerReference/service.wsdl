@@ -165,6 +165,39 @@
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
+  <wsp:Policy wsu:Id="NetTcpBinding_IPasswordManager_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1">
+        </msb:BinaryEncoding>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <msf:WindowsTransportSecurity xmlns:msf="http://schemas.microsoft.com/ws/2006/05/framing/policy">
+                  <msf:ProtectionLevel>EncryptAndSign</msf:ProtectionLevel>
+                </msf:WindowsTransportSecurity>
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256>
+                </sp:Basic256>
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict>
+                </sp:Strict>
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+        <wsaw:UsingAddressing>
+        </wsaw:UsingAddressing>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
   <wsdl:types>
     <xsd:schema targetNamespace="http://tempuri.org/Imports">
       <xsd:import namespace="http://tempuri.org/" />
@@ -343,6 +376,42 @@
   <wsdl:message name="IChatManager_OnChatMessageReceived_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:OnChatMessageReceived" />
   </wsdl:message>
+  <wsdl:message name="IPasswordManager_ChangePassword_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChangePassword" />
+  </wsdl:message>
+  <wsdl:message name="IPasswordManager_ChangePassword_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ChangePasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IPasswordManager_ChangePassword_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q8="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q8:SystemFault" />
+  </wsdl:message>
+  <wsdl:message name="IPasswordManager_RequestPasswordResetCode_InputMessage">
+    <wsdl:part name="parameters" element="tns:RequestPasswordResetCode" />
+  </wsdl:message>
+  <wsdl:message name="IPasswordManager_RequestPasswordResetCode_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RequestPasswordResetCodeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IPasswordManager_RequestPasswordResetCode_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q9="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q9:SystemFault" />
+  </wsdl:message>
+  <wsdl:message name="IPasswordManager_VerifyPasswordResetCode_InputMessage">
+    <wsdl:part name="parameters" element="tns:VerifyPasswordResetCode" />
+  </wsdl:message>
+  <wsdl:message name="IPasswordManager_VerifyPasswordResetCode_OutputMessage">
+    <wsdl:part name="parameters" element="tns:VerifyPasswordResetCodeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IPasswordManager_VerifyPasswordResetCode_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q10="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q10:SystemFault" />
+  </wsdl:message>
+  <wsdl:message name="IPasswordManager_ResetPassword_InputMessage">
+    <wsdl:part name="parameters" element="tns:ResetPassword" />
+  </wsdl:message>
+  <wsdl:message name="IPasswordManager_ResetPassword_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ResetPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="IPasswordManager_ResetPassword_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q11="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q11:SystemFault" />
+  </wsdl:message>
   <wsdl:portType name="IUsersManager">
     <wsdl:operation name="RegisterPlayerAccount">
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/RegisterPlayerAccount" message="tns:IUsersManager_RegisterPlayerAccount_InputMessage" />
@@ -494,6 +563,28 @@
     </wsdl:operation>
     <wsdl:operation name="OnChatMessageReceived">
       <wsdl:output wsaw:Action="http://tempuri.org/IChatManager/OnChatMessageReceived" message="tns:IChatManager_OnChatMessageReceived_OutputCallbackMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="IPasswordManager">
+    <wsdl:operation name="ChangePassword">
+      <wsdl:input wsaw:Action="http://tempuri.org/IPasswordManager/ChangePassword" message="tns:IPasswordManager_ChangePassword_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IPasswordManager/ChangePasswordResponse" message="tns:IPasswordManager_ChangePassword_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IPasswordManager/ChangePasswordSystemFaultFault" name="SystemFaultFault" message="tns:IPasswordManager_ChangePassword_SystemFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RequestPasswordResetCode">
+      <wsdl:input wsaw:Action="http://tempuri.org/IPasswordManager/RequestPasswordResetCode" message="tns:IPasswordManager_RequestPasswordResetCode_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IPasswordManager/RequestPasswordResetCodeResponse" message="tns:IPasswordManager_RequestPasswordResetCode_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IPasswordManager/RequestPasswordResetCodeSystemFaultFault" name="SystemFaultFault" message="tns:IPasswordManager_RequestPasswordResetCode_SystemFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="VerifyPasswordResetCode">
+      <wsdl:input wsaw:Action="http://tempuri.org/IPasswordManager/VerifyPasswordResetCode" message="tns:IPasswordManager_VerifyPasswordResetCode_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IPasswordManager/VerifyPasswordResetCodeResponse" message="tns:IPasswordManager_VerifyPasswordResetCode_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IPasswordManager/VerifyPasswordResetCodeSystemFaultFault" name="SystemFaultFault" message="tns:IPasswordManager_VerifyPasswordResetCode_SystemFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ResetPassword">
+      <wsdl:input wsaw:Action="http://tempuri.org/IPasswordManager/ResetPassword" message="tns:IPasswordManager_ResetPassword_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IPasswordManager/ResetPasswordResponse" message="tns:IPasswordManager_ResetPassword_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IPasswordManager/ResetPasswordSystemFaultFault" name="SystemFaultFault" message="tns:IPasswordManager_ResetPassword_SystemFaultFault_FaultMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetTcpBinding_IUsersManager" type="tns:IUsersManager">
@@ -821,6 +912,59 @@
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
+  <wsdl:binding name="NetTcpBinding_IPasswordManager" type="tns:IPasswordManager">
+    <wsp:PolicyReference URI="#NetTcpBinding_IPasswordManager_policy">
+    </wsp:PolicyReference>
+    <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
+    <wsdl:operation name="ChangePassword">
+      <soap12:operation soapAction="http://tempuri.org/IPasswordManager/ChangePassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="RequestPasswordResetCode">
+      <soap12:operation soapAction="http://tempuri.org/IPasswordManager/RequestPasswordResetCode" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="VerifyPasswordResetCode">
+      <soap12:operation soapAction="http://tempuri.org/IPasswordManager/VerifyPasswordResetCode" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="ResetPassword">
+      <soap12:operation soapAction="http://tempuri.org/IPasswordManager/ResetPassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
   <wsdl:service name="ServiceImplementation">
     <wsdl:port name="NetTcpBinding_IUsersManager" binding="tns:NetTcpBinding_IUsersManager">
       <soap12:address location="net.tcp://localhost:8081/AccountRegistrationService" />
@@ -862,6 +1006,15 @@
       <soap12:address location="net.tcp://localhost:8081/ChatManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/ChatManager</wsa10:Address>
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Upn>STELLARLOQ\armas</Upn>
+        </Identity>
+      </wsa10:EndpointReference>
+    </wsdl:port>
+    <wsdl:port name="NetTcpBinding_IPasswordManager" binding="tns:NetTcpBinding_IPasswordManager">
+      <soap12:address location="net.tcp://localhost:8081/PasswordManager" />
+      <wsa10:EndpointReference>
+        <wsa10:Address>net.tcp://localhost:8081/PasswordManager</wsa10:Address>
         <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
           <Upn>STELLARLOQ\armas</Upn>
         </Identity>

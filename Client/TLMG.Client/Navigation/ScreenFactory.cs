@@ -29,6 +29,8 @@ namespace TLMG.Client.Navigation
         private readonly ILobbyConnection _lobbyConnection;
         private readonly ILeaderboardConnection _leaderboardConnection;
         private readonly IProfileConnection _profileConnection;
+        private readonly IPasswordConnection _passwordConnection;
+        private VerificationNavigationParameter _activeRecoveryParameter;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="ScreenFactory"/>.
@@ -46,7 +48,8 @@ namespace TLMG.Client.Navigation
             IFriendsConnection friendsConnection,
             ILobbyConnection lobbyConnection,
             ILeaderboardConnection leaderboardConnection,
-            IProfileConnection profileConnection)
+            IProfileConnection profileConnection,
+            IPasswordConnection passwordConnection)
         {
             _navigation = navigation;
             _dialogs = dialogs;
@@ -55,9 +58,9 @@ namespace TLMG.Client.Navigation
             _lobbyConnection = lobbyConnection;
             _leaderboardConnection = leaderboardConnection;
             _profileConnection = profileConnection;
+            _passwordConnection = passwordConnection;
         }
 
-        /// <inheritdoc />
         public ScreenEntry Create(ScreenId screenId, object parameter)
         {
             ScreenEntry screenEntry;
@@ -92,7 +95,7 @@ namespace TLMG.Client.Navigation
                     screenEntry = BuildProfileEntry();
                     break;
                 case ScreenId.NewPassword:
-                    screenEntry = BuildNewPasswordEntry();
+                    screenEntry = BuildNewPasswordEntry(parameter);
                     break;
                 case ScreenId.ChangePassword:
                     screenEntry = BuildChangePasswordEntry();
@@ -151,6 +154,15 @@ namespace TLMG.Client.Navigation
             return legacyScreens;
         }
 
+        private ScreenEntry BuildForgotPasswordEntry()
+        {
+            ForgotPasswordViewModel forgotPasswordViewModel =
+                new ForgotPasswordViewModel(_navigation, _passwordConnection);
+            ForgotPasswordScreen forgotPasswordScreen = new ForgotPasswordScreen(forgotPasswordViewModel);
+
+            return new ScreenEntry(forgotPasswordScreen, forgotPasswordViewModel);
+        }
+
         private ScreenEntry BuildCreateAccountEntry()
         {
             CreateAccountViewModel createAccountViewModel = new CreateAccountViewModel(
@@ -197,10 +209,21 @@ namespace TLMG.Client.Navigation
             return new ScreenEntry(howToPlayScreen, howToPlayViewModel);
         }
 
-        private ScreenEntry BuildNewPasswordEntry()
+        private ScreenEntry BuildNewPasswordEntry(object parameter)
         {
-            NewPasswordViewModel newPasswordViewModel = new NewPasswordViewModel(_navigation);
-            NewPasswordScreen newPasswordScreen = new NewPasswordScreen(newPasswordViewModel);
+            NewPasswordNavigationParameter newPasswordParameter = parameter as NewPasswordNavigationParameter;
+            NewPasswordScreen newPasswordScreen = null;
+            NewPasswordViewModel newPasswordViewModel = null;
+
+            if (newPasswordParameter == null)
+            {
+                _log.Warn("Se pidió la nueva contraseña sin correo ni código; no se cambió de pantalla.");
+            }
+            else
+            {
+                newPasswordViewModel = new NewPasswordViewModel(_navigation, _passwordConnection, newPasswordParameter);
+                newPasswordScreen = new NewPasswordScreen(newPasswordViewModel);
+            }
 
             return new ScreenEntry(newPasswordScreen, newPasswordViewModel);
         }
@@ -209,8 +232,8 @@ namespace TLMG.Client.Navigation
         {
             ChangePasswordViewModel changePasswordViewModel = new ChangePasswordViewModel(
                 _navigation,
-                _dialogs,
-                _accountsConnection);
+                _passwordConnection,
+                _profileConnection);
             ChangePasswordScreen changePasswordScreen = new ChangePasswordScreen(changePasswordViewModel);
 
             return new ScreenEntry(changePasswordScreen, changePasswordViewModel);
@@ -230,14 +253,6 @@ namespace TLMG.Client.Navigation
             OptionsScreen optionsScreen = new OptionsScreen(optionsViewModel);
 
             return new ScreenEntry(optionsScreen, optionsViewModel);
-        }
-
-        private ScreenEntry BuildForgotPasswordEntry()
-        {
-            ForgotPasswordViewModel forgotPasswordViewModel = new ForgotPasswordViewModel(_navigation);
-            ForgotPasswordScreen forgotPasswordScreen = new ForgotPasswordScreen(forgotPasswordViewModel);
-
-            return new ScreenEntry(forgotPasswordScreen, forgotPasswordViewModel);
         }
 
         private ScreenEntry BuildMainMenuEntry()
@@ -268,7 +283,10 @@ namespace TLMG.Client.Navigation
             }
             else if (verificationParameter.VerificationFlow == VerificationFlow.AccountRegistration)
             {
-                verificationViewModel = new VerificationViewModel(_accountsConnection, verificationParameter);
+                verificationViewModel = new VerificationViewModel(
+                    _accountsConnection,
+                    _passwordConnection,
+                    verificationParameter);
                 verificationScreen = new VerificationScreen(
                     verificationViewModel,
                     FinishAccountRegistration,
@@ -276,7 +294,11 @@ namespace TLMG.Client.Navigation
             }
             else if (verificationParameter.VerificationFlow == VerificationFlow.PasswordRecovery)
             {
-                verificationViewModel = new VerificationViewModel(_accountsConnection, verificationParameter);
+                _activeRecoveryParameter = verificationParameter;
+                verificationViewModel = new VerificationViewModel(
+                    _accountsConnection,
+                    _passwordConnection,
+                    verificationParameter);
                 verificationScreen = new VerificationScreen(
                     verificationViewModel,
                     ContinueToNewPassword,
@@ -306,7 +328,11 @@ namespace TLMG.Client.Navigation
 
         private void ContinueToNewPassword()
         {
-            _navigation.NavigateTo(ScreenId.NewPassword);
+            NewPasswordNavigationParameter newPasswordParameter = new NewPasswordNavigationParameter(
+                _activeRecoveryParameter.TargetEmail,
+                _activeRecoveryParameter.VerifiedCode);
+
+            _navigation.NavigateTo(ScreenId.NewPassword, newPasswordParameter);
         }
 
         private void ReturnToForgotPassword()

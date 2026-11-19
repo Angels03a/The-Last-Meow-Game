@@ -1,4 +1,6 @@
-﻿using TLMG.Client.ViewModels;
+﻿using System.Windows;
+
+using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
@@ -7,6 +9,8 @@ namespace TLMG.Client.Views
     /// </summary>
     public partial class ChangePasswordScreen : LocalizableScreen
     {
+        private readonly ChangePasswordViewModel _viewModel;
+
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="ChangePasswordScreen"/> con su ViewModel.
         /// </summary>
@@ -14,7 +18,16 @@ namespace TLMG.Client.Views
         public ChangePasswordScreen(ChangePasswordViewModel changePasswordViewModel)
         {
             InitializeComponent();
+
+            _viewModel = changePasswordViewModel;
             DataContext = changePasswordViewModel;
+
+            Loaded += OnScreenLoaded;
+        }
+
+        private void OnScreenLoaded(object sender, RoutedEventArgs e)
+        {
+            _viewModel.Activate();
         }
     }
 }

@@ -49,6 +49,7 @@
           <xs:element minOccurs="0" name="AvatarKey" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="PasswordChangedAtUtc" type="xs:dateTime" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -276,4 +277,20 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ChatMessage" nillable="true" type="tns:ChatMessage" />
+  <xs:complexType name="OperationChangePasswordRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CurrentPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="NewPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SessionToken" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationChangePasswordRequest" nillable="true" type="tns:OperationChangePasswordRequest" />
+  <xs:complexType name="OperationResetPasswordRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="NewPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="VerificationCode" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationResetPasswordRequest" nillable="true" type="tns:OperationResetPasswordRequest" />
 </xs:schema>

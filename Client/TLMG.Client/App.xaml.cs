@@ -60,6 +60,7 @@ namespace TLMG.Client
                 ServerConnection,
                 ServerConnection,
                 ServerConnection,
+                ServerConnection,
                 ServerConnection);
             Navigation = navigationManager;
             DispatcherUnhandledException += OnDispatcherUnhandledException;

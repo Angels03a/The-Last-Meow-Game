@@ -15,7 +15,6 @@ namespace TLMG.Client.ViewModels
     /// </summary>
     public class ProfileViewModel : ViewModelBase
     {
-        private const int DaysSincePasswordChange = 45;
         private const string LastPasswordChangeFormatKey = "Profile_LastPasswordChange";
 
         private readonly INavigationManager _navigationManager;
@@ -29,6 +28,7 @@ namespace TLMG.Client.ViewModels
         private string _email;
         private string _editingNickname;
         private string _lastPasswordChangeLabel;
+        private int _daysSincePasswordChange;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="ProfileViewModel"/>.
@@ -154,7 +154,7 @@ namespace TLMG.Client.ViewModels
         private void UpdateLastPasswordChangeLabel()
         {
             string passwordFormat = LanguageManager.FindText(LastPasswordChangeFormatKey);
-            LastPasswordChangeLabel = string.Format(passwordFormat, DaysSincePasswordChange);
+            LastPasswordChangeLabel = string.Format(passwordFormat, _daysSincePasswordChange);
         }
 
         private void LoadProfile()
@@ -167,6 +167,8 @@ namespace TLMG.Client.ViewModels
                 DisplayNickname = profileResult.Nickname;
                 Email = profileResult.Email;
                 ApplyAvatar(profileResult.AvatarKey);
+                _daysSincePasswordChange = (DateTime.UtcNow - profileResult.PasswordChangedAtUtc).Days;
+                UpdateLastPasswordChangeLabel();
             }
             else
             {

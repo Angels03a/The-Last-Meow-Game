@@ -65,6 +65,7 @@
     <Compile Include="Communication\IFriendsConnection.cs" />
     <Compile Include="Communication\ILeaderboardConnection.cs" />
     <Compile Include="Communication\ILobbyConnection.cs" />
+    <Compile Include="Communication\IPasswordConnection.cs" />
     <Compile Include="Communication\IProfileConnection.cs" />
     <Compile Include="Communication\LeaderboardCallback.cs" />
     <Compile Include="Communication\LobbyCountdown.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Communication\ServerConnectionManager.FriendRequests.cs" />
     <Compile Include="Communication\ServerConnectionManager.Leaderboard.cs" />
     <Compile Include="Communication\ServerConnectionManager.Lobby.cs" />
+    <Compile Include="Communication\ServerConnectionManager.Password.cs" />
     <Compile Include="Communication\ServerConnectionManager.Profile.cs" />
     <Compile Include="Communication\ServerConnectionManager.Readiness.cs" />
     <Compile Include="Communication\ServerConnectionManager.Chat.cs" />
@@ -101,6 +103,7 @@
     <Compile Include="Navigation\IScreenFactory.cs" />
     <Compile Include="Navigation\ModerationNavigationParameter.cs" />
     <Compile Include="Navigation\NavigationManager.cs" />
+    <Compile Include="Navigation\NewPasswordNavigationParameter.cs" />
     <Compile Include="Navigation\ScreenEntry.cs" />
     <Compile Include="Navigation\ScreenFactory.cs" />
     <Compile Include="Navigation\ScreenId.cs" />

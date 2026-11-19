@@ -248,6 +248,9 @@ namespace TLMG.Client.UsersManagerReference {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.DateTime PasswordChangedAtUtcField;
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string AvatarKey {
             get {
@@ -283,6 +286,19 @@ namespace TLMG.Client.UsersManagerReference {
                 if ((object.ReferenceEquals(this.NicknameField, value) != true)) {
                     this.NicknameField = value;
                     this.RaisePropertyChanged("Nickname");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime PasswordChangedAtUtc {
+            get {
+                return this.PasswordChangedAtUtcField;
+            }
+            set {
+                if ((this.PasswordChangedAtUtcField.Equals(value) != true)) {
+                    this.PasswordChangedAtUtcField = value;
+                    this.RaisePropertyChanged("PasswordChangedAtUtc");
                 }
             }
         }
@@ -1718,6 +1734,160 @@ namespace TLMG.Client.UsersManagerReference {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OperationChangePasswordRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class OperationChangePasswordRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string CurrentPasswordField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string NewPasswordField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string SessionTokenField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string CurrentPassword {
+            get {
+                return this.CurrentPasswordField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.CurrentPasswordField, value) != true)) {
+                    this.CurrentPasswordField = value;
+                    this.RaisePropertyChanged("CurrentPassword");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string NewPassword {
+            get {
+                return this.NewPasswordField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NewPasswordField, value) != true)) {
+                    this.NewPasswordField = value;
+                    this.RaisePropertyChanged("NewPassword");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SessionToken {
+            get {
+                return this.SessionTokenField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.SessionTokenField, value) != true)) {
+                    this.SessionTokenField = value;
+                    this.RaisePropertyChanged("SessionToken");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OperationResetPasswordRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class OperationResetPasswordRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string EmailField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string NewPasswordField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string VerificationCodeField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Email {
+            get {
+                return this.EmailField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.EmailField, value) != true)) {
+                    this.EmailField = value;
+                    this.RaisePropertyChanged("Email");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string NewPassword {
+            get {
+                return this.NewPasswordField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NewPasswordField, value) != true)) {
+                    this.NewPasswordField = value;
+                    this.RaisePropertyChanged("NewPassword");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string VerificationCode {
+            get {
+                return this.VerificationCodeField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.VerificationCodeField, value) != true)) {
+                    this.VerificationCodeField = value;
+                    this.RaisePropertyChanged("VerificationCode");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="UsersManagerReference.IUsersManager")]
     public interface IUsersManager {
@@ -2279,6 +2449,99 @@ namespace TLMG.Client.UsersManagerReference {
         
         public System.Threading.Tasks.Task SendChatMessageAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationSendChatMessageRequest request) {
             return base.Channel.SendChatMessageAsync(sessionToken, request);
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="UsersManagerReference.IPasswordManager")]
+    public interface IPasswordManager {
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IPasswordManager/ChangePassword", ReplyAction="http://tempuri.org/IPasswordManager/ChangePasswordResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IPasswordManager/ChangePasswordSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+        TLMG.Client.UsersManagerReference.OperationResult ChangePassword(TLMG.Client.UsersManagerReference.OperationChangePasswordRequest changePasswordRequest);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IPasswordManager/ChangePassword", ReplyAction="http://tempuri.org/IPasswordManager/ChangePasswordResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> ChangePasswordAsync(TLMG.Client.UsersManagerReference.OperationChangePasswordRequest changePasswordRequest);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IPasswordManager/RequestPasswordResetCode", ReplyAction="http://tempuri.org/IPasswordManager/RequestPasswordResetCodeResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IPasswordManager/RequestPasswordResetCodeSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+        TLMG.Client.UsersManagerReference.OperationResult RequestPasswordResetCode(string email, string cultureCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IPasswordManager/RequestPasswordResetCode", ReplyAction="http://tempuri.org/IPasswordManager/RequestPasswordResetCodeResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RequestPasswordResetCodeAsync(string email, string cultureCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IPasswordManager/VerifyPasswordResetCode", ReplyAction="http://tempuri.org/IPasswordManager/VerifyPasswordResetCodeResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IPasswordManager/VerifyPasswordResetCodeSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+        TLMG.Client.UsersManagerReference.OperationResult VerifyPasswordResetCode(string email, string verificationCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IPasswordManager/VerifyPasswordResetCode", ReplyAction="http://tempuri.org/IPasswordManager/VerifyPasswordResetCodeResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> VerifyPasswordResetCodeAsync(string email, string verificationCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IPasswordManager/ResetPassword", ReplyAction="http://tempuri.org/IPasswordManager/ResetPasswordResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IPasswordManager/ResetPasswordSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+        TLMG.Client.UsersManagerReference.OperationResult ResetPassword(TLMG.Client.UsersManagerReference.OperationResetPasswordRequest resetPasswordRequest);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IPasswordManager/ResetPassword", ReplyAction="http://tempuri.org/IPasswordManager/ResetPasswordResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> ResetPasswordAsync(TLMG.Client.UsersManagerReference.OperationResetPasswordRequest resetPasswordRequest);
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    public interface IPasswordManagerChannel : TLMG.Client.UsersManagerReference.IPasswordManager, System.ServiceModel.IClientChannel {
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    public partial class PasswordManagerClient : System.ServiceModel.ClientBase<TLMG.Client.UsersManagerReference.IPasswordManager>, TLMG.Client.UsersManagerReference.IPasswordManager {
+        
+        public PasswordManagerClient() {
+        }
+        
+        public PasswordManagerClient(string endpointConfigurationName) : 
+                base(endpointConfigurationName) {
+        }
+        
+        public PasswordManagerClient(string endpointConfigurationName, string remoteAddress) : 
+                base(endpointConfigurationName, remoteAddress) {
+        }
+        
+        public PasswordManagerClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
+                base(endpointConfigurationName, remoteAddress) {
+        }
+        
+        public PasswordManagerClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+                base(binding, remoteAddress) {
+        }
+        
+        public TLMG.Client.UsersManagerReference.OperationResult ChangePassword(TLMG.Client.UsersManagerReference.OperationChangePasswordRequest changePasswordRequest) {
+            return base.Channel.ChangePassword(changePasswordRequest);
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> ChangePasswordAsync(TLMG.Client.UsersManagerReference.OperationChangePasswordRequest changePasswordRequest) {
+            return base.Channel.ChangePasswordAsync(changePasswordRequest);
+        }
+        
+        public TLMG.Client.UsersManagerReference.OperationResult RequestPasswordResetCode(string email, string cultureCode) {
+            return base.Channel.RequestPasswordResetCode(email, cultureCode);
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> RequestPasswordResetCodeAsync(string email, string cultureCode) {
+            return base.Channel.RequestPasswordResetCodeAsync(email, cultureCode);
+        }
+        
+        public TLMG.Client.UsersManagerReference.OperationResult VerifyPasswordResetCode(string email, string verificationCode) {
+            return base.Channel.VerifyPasswordResetCode(email, verificationCode);
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> VerifyPasswordResetCodeAsync(string email, string verificationCode) {
+            return base.Channel.VerifyPasswordResetCodeAsync(email, verificationCode);
+        }
+        
+        public TLMG.Client.UsersManagerReference.OperationResult ResetPassword(TLMG.Client.UsersManagerReference.OperationResetPasswordRequest resetPasswordRequest) {
+            return base.Channel.ResetPassword(resetPasswordRequest);
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> ResetPasswordAsync(TLMG.Client.UsersManagerReference.OperationResetPasswordRequest resetPasswordRequest) {
+            return base.Channel.ResetPasswordAsync(resetPasswordRequest);
         }
     }
 }
