@@ -20,5 +20,7 @@ namespace TLMG.Services
         public FriendsService FriendsService { get; set; }
         public LeaderboardService LeaderboardService { get; set; }
         public LobbyService LobbyService { get; set; }
+        public PasswordChangeService PasswordChangeService { get; set; }
+        public PasswordRecoveryService PasswordRecoveryService { get; set; }
     }
 }

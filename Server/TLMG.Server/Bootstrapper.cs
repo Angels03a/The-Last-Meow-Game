@@ -47,6 +47,17 @@ namespace TLMG.Server
 
             LobbyService lobbyService = new LobbyService(sessionRegistry);
 
+            IPasswordRepository passwordRepository = new PasswordRepository();
+
+            PasswordResetDispatcher resetDispatcher =
+                new PasswordResetDispatcher(verificationCodeStore, emailUtility, playerRepository);
+
+            PasswordChangeService passwordChangeService =
+                new PasswordChangeService(passwordRepository, passwordHasher, sessionRegistry);
+
+            PasswordRecoveryService passwordRecoveryService =
+                new PasswordRecoveryService(passwordRepository, passwordHasher, resetDispatcher);
+
             ServiceDependencies dependencies = new ServiceDependencies
             {
                 SessionRegistry = sessionRegistry,
@@ -56,7 +67,9 @@ namespace TLMG.Server
                 ChatService = chatService,
                 FriendsService = friendsService,
                 LeaderboardService = leaderboardService,
-                LobbyService = lobbyService
+                LobbyService = lobbyService,
+                PasswordChangeService = passwordChangeService,
+                PasswordRecoveryService = passwordRecoveryService
             };
 
             ServiceImplementation.ConfigureDependencies(dependencies);

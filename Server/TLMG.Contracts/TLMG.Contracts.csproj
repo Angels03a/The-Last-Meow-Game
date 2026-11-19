@@ -39,8 +39,10 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataContracts\OperationChangePasswordRequest.cs" />
     <Compile Include="DataContracts\OperationLobbyRoomResult.cs" />
     <Compile Include="DataContracts\OperationPlayerProfileResult.cs" />
+    <Compile Include="DataContracts\OperationResetPasswordRequest.cs" />
     <Compile Include="DataContracts\OperationResult.cs" />
     <Compile Include="DataContracts\OperationUpdatePlayerProfileRequest.cs" />
     <Compile Include="DataContracts\SystemFault.cs" />
@@ -77,6 +79,7 @@
     <Compile Include="ILeaderboardManagerCallback.cs" />
     <Compile Include="ILobbyManager.cs" />
     <Compile Include="ILobbyManagerCallback.cs" />
+    <Compile Include="IPasswordManager.cs" />
     <Compile Include="IRoomInvitationManager.cs" />
     <Compile Include="IRoomInvitationManagerCallback.cs" />
     <Compile Include="IUsersManager.cs" />
