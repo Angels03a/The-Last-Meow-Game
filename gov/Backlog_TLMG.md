@@ -192,6 +192,8 @@ Formato de entrada:
 - Nota (2026-11-10 12:00): avance de infraestructura. Fase 4b (8c4e9be): ViewModelBase hereda de ObservableObject y los comandos son ICommand creados con el RelayCommand del toolkit, sin generadores (§7.1, D-50); el paquete se instaló en 6eb2fec. Fase 5 (cefa0a3): LoginViewModel y CreateAccountViewModel dependen de IAccountsConnection (D-60, D-70). El resto de las pantallas sigue pendiente.
 - Nota (2026-11-11 23:55): avance (b6dec93). En origin/dev-LS_Angel hay 12 pantallas migradas. Once reciben el ViewModel por constructor desde ScreenFactory (B3): Login y CreateAccount (384ef1a), MainMenu (c6a081a), ForgotPassword (7d882b1), Friends (93fa788), Lobby (0fc59c2), Options (f4b2ff6), Profile (e74e10b), NewPassword (da8518b), HowToPlay (09d5647) y Leaderboard (b6dec93). La duodécima, Verification, está en la fábrica (db51858) pero su ViewModel se crea dentro de la vista (VerificationScreen.xaml.cs:61). Gameplay tiene GameplayViewModel creado dentro de la vista (GameplayScreen.xaml.cs:32) y se migra en mvvm-resto. En la rama mvvm-resto, sin integrar: Gameplay, GameOver, RoundResult y Moderation (04a7d13) y MatchClosed (2d4bafb); con ellas serían 17. Fuera de la migración por decisión: FugitiveKitten, Loading y ChangePassword (BL-169) y MainWindow (BL-142).
 - Nota (2026-11-15 00:32): revisado sobre 8aa6844. La fábrica de Verification avanzó: ScreenFactory.BuildVerificationEntry crea el VerificationViewModel y se lo pasa a la vista para los flujos AccountRegistration y PasswordRecovery (ScreenFactory.cs:242-270), con lo que Verification cumple B3, lo que la nota del 2026-11-11 23:55 dejaba pendiente (VerificationScreen.xaml.cs:61). GameplayViewModel también se crea en la fábrica (ScreenFactory.cs:101). No cambia el estado.
+- Nota (2026-11-18): Avance local FK-01 sin commit: FugitiveKitten se compone con ViewModel y ScreenEntry; el estado de presentación y el comando pasan al ViewModel y las animaciones permanecen en la vista. La migración general no se cierra.
+
 
 ### BL-043 · Limpieza de estilo del diagnóstico (no incluida en BL-027)
 - Creado: 2026-10-25 00:49
@@ -554,18 +556,24 @@ Formato de entrada:
 - Por qué: el clic sobre el gatito no hace nada. Falta enviar el intento solo cuando el gatito está visible, recibir la ruta, el color y el resultado por callback con Dispatcher.BeginInvoke, y mostrar "lo atrapaste" o "lo atrapó otro" comparando el ganador que decide el servidor (QAS-04) con el jugador local, con el nickname real en lugar del de muestra.
 - Depende de: BL-116, BL-041; BL-108 (canal por separado en ServerConnectionManager)
 - Estado: Pendiente
+- Nota (2026-11-18): FK-01 solo expone CatchKittenCommand deshabilitado y un estado de presentación; no envía intentos ni recibe ganador o color del servidor. El nombre de muestra se limita a la previsualización BL-122.
+
 
 ### BL-118 · Navegación al iniciar la partida según la modalidad
 - Creado: 2026-11-07 04:28
 - Por qué: con 8 cartas se debe abrir FugitiveKittenScreen y con 4 y 6, LoadingScreen; tras el resultado, pasar a la partida a los 2.8 s. Hoy MainWindow.NavigateToAuthorizedMatch abre GameplayScreen directamente.
 - Depende de: BL-046, BL-117
 - Estado: Pendiente
+- Nota (2026-11-18): FK-01 no modifica la navegación de modalidades ni agrega transición automática; F8 sigue como acceso explícito de previsualización.
+
 
 ### BL-119 · Reproducción de la ruta de 15 s del gatito en la pantalla
 - Creado: 2026-11-07 04:28
 - Por qué: la pantalla solo muestra los 6 estados fijos. Falta recorrer los tramos con DispatcherTimer (movimiento, cambio de pose cada 100 ms, volteo según la dirección, brillo 300 ms antes de cada salida, contador en vivo y cierre a los 15 s). La ruta de muestra local se retira cuando llegue la del servidor.
 - Depende de: aprobación del encargado; BL-117 para la ruta real
 - Estado: Pendiente
+- Nota (2026-11-18): FK-01 conserva las seis escenas y tiempos fijos de previsualización; no implementa la ruta dinámica de 15 s.
+
 
 ### BL-120 · Sprites finales y colores del gatito
 - Creado: 2026-11-07 04:28
@@ -585,6 +593,8 @@ Formato de entrada:
 - Depende de: BL-118, BL-119
 - Estado: Pendiente
 - Nota (2026-11-11 23:55): avance. El acceso F8 salió de MainMenuScreen: ahora es un KeyBinding en MainMenuScreen.xaml hacia MainMenuViewModel.NavigateToFugitiveKittenCommand (MainMenuViewModel.cs:100-101 conserva los TODO de BL-122 y BL-118) y ScreenId.FugitiveKitten está en la fábrica (c6a081a). Siguen pendientes las teclas internas de la pantalla; FugitiveKittenScreen.xaml.cs:452 aún usa MainWindow.
+- Nota (2026-11-18): FK-01 conserva F8 y las teclas 1–6, C y Esc para previsualización explícita; fuera de ella las teclas de demostración no cambian el estado. Siguen pendientes su retirada y la integración real.
+
 
 ### BL-131 · SetDigit de VerificationViewModel notifica el cambio con un nombre de propiedad equivocado
 - Creado: 2026-11-10 11:40

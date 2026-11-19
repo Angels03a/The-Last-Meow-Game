@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.ComponentModel;
+using TLMG.Client.Models;
+using TLMG.Client.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -10,7 +13,6 @@ using System.Windows.Shapes;
 
 namespace TLMG.Client.Views
 {
-    // TODO: Mover el estado visible a FugitiveKittenViewModel con CatchKittenCommand. (BL-041).
     // TODO: Reproducir la ruta de 15 s en lugar de los estados congelados. (BL-119).
     /// <summary>
     /// Pantalla del minijuego El Gatito Fugitivo (solo modalidad de 8 cartas). Hoy es una cáscara visual que
@@ -18,14 +20,7 @@ namespace TLMG.Client.Views
     /// </summary>
     public partial class FugitiveKittenScreen : LocalizableScreen
     {
-        private const int FugitiveKittenWindowSeconds = 15;
         private const int UrgentCountdownSeconds = 3;
-        private const int IntroFrameElapsedMilliseconds = 750;
-        private const int RunningFrameElapsedMilliseconds = 1350;
-        private const int HiddenFrameElapsedMilliseconds = 4500;
-        private const int CaughtFrameElapsedMilliseconds = 1350;
-        private const int CaughtByOtherFrameElapsedMilliseconds = 5350;
-        private const int EscapedFrameElapsedMilliseconds = 15000;
 
         private const int DoorGlowLeadMilliseconds = 300;
         private const int CounterBeatMilliseconds = 1000;
@@ -69,9 +64,6 @@ namespace TLMG.Client.Views
         private const int SceneWidth = 1280;
         private const int SceneHeight = 720;
 
-        // TODO: Recibir el nickname del ganador decidido por el servidor. (BL-117).
-        private const string SampleWinnerNickname = "N_Stella";
-
         private const string CaughtByOtherFormatKey = "FugitiveKitten_CaughtByOtherFormat";
         private const string OtherExtraLifeFormatKey = "FugitiveKitten_OtherExtraLifeFormat";
         private const string NicknamePlaceholderFormat = "{0}";
@@ -105,23 +97,22 @@ namespace TLMG.Client.Views
                 { Key.NumPad6, KittenSceneState.Escaped }
             };
 
-        // TODO: Usar el color que elige el servidor en lugar del ciclo con la tecla C. (BL-117).
-        private static readonly KittenColor[] _kittenColors =
-            { KittenColor.Orange, KittenColor.White, KittenColor.Gray };
-
-        private int _kittenColorIndex;
+        private readonly FugitiveKittenViewModel _viewModel;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="FugitiveKittenScreen"/> en el estado Arranque.
         /// </summary>
-        public FugitiveKittenScreen()
+        public FugitiveKittenScreen(FugitiveKittenViewModel viewModel)
         {
             InitializeComponent();
+            _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+            DataContext = _viewModel;
             Loaded += OnFugitiveKittenScreenLoaded;
+            Unloaded += OnFugitiveKittenScreenUnloaded;
             KeyDown += OnFugitiveKittenScreenKeyDown;
             DrawStars();
-            ApplyKittenColor(_kittenColors[_kittenColorIndex]);
-            ShowSceneState(KittenSceneState.Intro);
+            ApplyKittenColor(_viewModel.KittenColor);
+            ShowSceneState(_viewModel.SceneState);
         }
 
         /// <inheritdoc />
@@ -135,7 +126,7 @@ namespace TLMG.Client.Views
         {
             string messageFormat = TryFindResource(formatKey) as string ?? NicknamePlaceholderFormat;
 
-            return string.Format(CultureInfo.CurrentCulture, messageFormat, SampleWinnerNickname);
+            return string.Format(CultureInfo.CurrentCulture, messageFormat, _viewModel.WinnerNickname);
         }
 
         private void DrawStars()
@@ -169,12 +160,6 @@ namespace TLMG.Client.Views
             string brushKey = string.Format(CultureInfo.InvariantCulture, brushKeyFormat, kittenColor);
 
             return (Brush)FindResource(brushKey);
-        }
-
-        private void ShowNextKittenColor()
-        {
-            _kittenColorIndex = (_kittenColorIndex + 1) % _kittenColors.Length;
-            ApplyKittenColor(_kittenColors[_kittenColorIndex]);
         }
 
         // TODO: Enviar el intento de atrape solo al hacer clic sobre el gatito visible. (BL-117).
@@ -239,20 +224,20 @@ namespace TLMG.Client.Views
         {
             lblGetReady.Visibility = Visibility.Visible;
             AnimateDoorGlow(pnlDoorTopLeftGlow, pnlDoorTopLeftHoleGlow, IntroFrameGlowLevel);
-            ShowCountdown(IntroFrameElapsedMilliseconds);
+            ShowCountdown();
         }
 
         private void ShowRunningFrame()
         {
             pnlKitten.Visibility = Visibility.Visible;
-            ShowCountdown(RunningFrameElapsedMilliseconds);
+            ShowCountdown();
         }
 
         private void ShowHiddenFrame()
         {
             grdHidingMessage.Visibility = Visibility.Visible;
             AnimateDoorGlow(pnlDoorBottomLeftGlow, pnlDoorBottomLeftHoleGlow, HiddenFrameGlowLevel);
-            ShowCountdown(HiddenFrameElapsedMilliseconds);
+            ShowCountdown();
         }
 
         private void ShowCaughtFrame()
@@ -260,7 +245,7 @@ namespace TLMG.Client.Views
             ShowResultPanel(pnlCaughtResult, TimeSpan.Zero);
             rectCaughtOverlay.Visibility = Visibility.Visible;
             brdResultPanel.BorderBrush = (Brush)FindResource(CaughtPanelBorderBrushKey);
-            ShowCountdown(CaughtFrameElapsedMilliseconds);
+            ShowCountdown();
         }
 
         private void ShowCaughtByOtherFrame()
@@ -268,7 +253,7 @@ namespace TLMG.Client.Views
             ShowResultPanel(pnlCaughtByOtherResult, TimeSpan.FromMilliseconds(CaughtByOtherPanelDelayMilliseconds));
             AnimateKittenVanish();
             AnimateCatchPuff();
-            ShowCountdown(CaughtByOtherFrameElapsedMilliseconds);
+            ShowCountdown();
         }
 
         private void ShowEscapedFrame()
@@ -277,7 +262,7 @@ namespace TLMG.Client.Views
             pnlDoorBottomLeft.Visibility = Visibility.Collapsed;
             pnlClosedDoor.Visibility = Visibility.Visible;
             AnimateDoorShut();
-            ShowCountdown(EscapedFrameElapsedMilliseconds);
+            ShowCountdown();
         }
 
         // TODO: Pasar a la partida 2.8 s después de mostrar el resultado. (BL-118).
@@ -301,11 +286,9 @@ namespace TLMG.Client.Views
             brdResultPanel.BeginAnimation(OpacityProperty, fadeInAnimation);
         }
 
-        private void ShowCountdown(int elapsedMilliseconds)
+        private void ShowCountdown()
         {
-            TimeSpan remainingTime = TimeSpan.FromSeconds(FugitiveKittenWindowSeconds)
-                - TimeSpan.FromMilliseconds(elapsedMilliseconds);
-            int remainingSeconds = (int)Math.Ceiling(remainingTime.TotalSeconds);
+            int remainingSeconds = _viewModel.RemainingSeconds;
             string countdownBrushKey = remainingSeconds <= UrgentCountdownSeconds
                 ? UrgentCountdownBrushKey
                 : CountdownBrushKey;
@@ -434,46 +417,64 @@ namespace TLMG.Client.Views
 
         private void OnFugitiveKittenScreenLoaded(object sender, RoutedEventArgs e)
         {
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            ApplyKittenColor(_viewModel.KittenColor);
+            ShowSceneState(_viewModel.SceneState);
             Focus();
+        }
+
+        private void OnFugitiveKittenScreenUnloaded(object sender, RoutedEventArgs eventArgs)
+        {
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            StopOpacityAnimations();
+        }
+
+        private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
+        {
+            if (eventArgs.PropertyName == nameof(FugitiveKittenViewModel.SceneState))
+            {
+                ShowSceneState(_viewModel.SceneState);
+            }
+            else if (eventArgs.PropertyName == nameof(FugitiveKittenViewModel.KittenColor))
+            {
+                ApplyKittenColor(_viewModel.KittenColor);
+            }
+            else if (eventArgs.PropertyName == nameof(FugitiveKittenViewModel.WinnerNickname))
+            {
+                UpdateDynamicLabels();
+            }
+            else if (eventArgs.PropertyName == nameof(FugitiveKittenViewModel.RemainingSeconds))
+            {
+                ShowCountdown();
+            }
         }
 
         private void OnFugitiveKittenScreenKeyDown(object sender, KeyEventArgs e)
         {
+            if (!_viewModel.IsPreview)
+            {
+                return;
+            }
+
             if (_sceneStateKeys.TryGetValue(e.Key, out KittenSceneState sceneState))
             {
-                ShowSceneState(sceneState);
+                bool isSameScene = sceneState == _viewModel.SceneState;
+                _viewModel.SelectPreviewScene(sceneState);
+                if (isSameScene)
+                {
+                    ShowSceneState(sceneState);
+                }
             }
             else if (e.Key == Key.C)
             {
-                ShowNextKittenColor();
+                _viewModel.CyclePreviewColor();
             }
             else if (e.Key == Key.Escape)
             {
-                ((MainWindow)Application.Current.MainWindow).GoBack();
+                _viewModel.BackCommand.Execute(null);
             }
         }
 
-        /// <summary>
-        /// Estados fijos del prototipo de Figma que la pantalla puede mostrar.
-        /// </summary>
-        private enum KittenSceneState
-        {
-            Intro,
-            Running,
-            Hidden,
-            Caught,
-            CaughtByOther,
-            Escaped
-        }
-
-        /// <summary>
-        /// Colores del gatito; el servidor elegirá uno y todos los jugadores verán el mismo.
-        /// </summary>
-        private enum KittenColor
-        {
-            White,
-            Orange,
-            Gray
-        }
     }
 }

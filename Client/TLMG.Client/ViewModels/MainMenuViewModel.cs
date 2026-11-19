@@ -101,7 +101,7 @@ namespace TLMG.Client.ViewModels
         // TODO: Abrir FugitiveKittenScreen al iniciar una partida de 8 cartas, no desde el menú. (BL-118).
         private void ExecuteNavigateToFugitiveKitten()
         {
-            _navigationManager.NavigateTo(ScreenId.FugitiveKitten);
+            _navigationManager.NavigateTo(ScreenId.FugitiveKitten, true);
         }
 
         private void ExecuteLogOut()

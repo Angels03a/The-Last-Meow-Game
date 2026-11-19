@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Windows;
 
 using log4net;
 
@@ -20,8 +18,6 @@ namespace TLMG.Client.Navigation
         private const string AccountCreatedMessageKey = "CreateAccount_SuccessMessage";
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(ScreenFactory));
-
-        private static readonly Dictionary<ScreenId, Func<FrameworkElement>> _legacyScreens = CreateLegacyScreenMap();
 
         private readonly INavigationManager _navigation;
         private readonly IDialogManager _dialogs;
@@ -137,27 +133,23 @@ namespace TLMG.Client.Navigation
                     RoundResultViewModel roundResultViewModel = new RoundResultViewModel(_navigation);
                     screenEntry = new ScreenEntry(new RoundResultScreen(roundResultViewModel), roundResultViewModel);
                     break;
+                case ScreenId.FugitiveKitten:
+                    FugitiveKittenViewModel kittenViewModel = new FugitiveKittenViewModel(
+                        _navigation, parameter is bool isPreview && isPreview);
+                    screenEntry = new ScreenEntry(new FugitiveKittenScreen(kittenViewModel), kittenViewModel);
+                    break;
                 case ScreenId.MatchClosed:
                     MatchClosedViewModel matchClosedViewModel = new MatchClosedViewModel(_navigation);
                     screenEntry = new ScreenEntry(new MatchClosedScreen(matchClosedViewModel), matchClosedViewModel);
                     break;
                 default:
-                    screenEntry = CreateLegacyScreen(screenId);
+                    _log.WarnFormat("No hay una pantalla registrada para el destino {0}; no se cambió de pantalla.",
+                        screenId);
+                    screenEntry = new ScreenEntry(null, null);
                     break;
             }
 
             return screenEntry;
-        }
-
-        private static Dictionary<ScreenId, Func<FrameworkElement>> CreateLegacyScreenMap()
-        {
-            Dictionary<ScreenId, Func<FrameworkElement>> legacyScreens =
-                new Dictionary<ScreenId, Func<FrameworkElement>>
-                {
-                    { ScreenId.FugitiveKitten, () => new FugitiveKittenScreen() }
-                };
-
-            return legacyScreens;
         }
 
         private ScreenEntry BuildCreateAccountEntry()
@@ -323,23 +315,5 @@ namespace TLMG.Client.Navigation
             _navigation.NavigateToWithoutHistory(ScreenId.ForgotPassword);
         }
 
-        private ScreenEntry CreateLegacyScreen(ScreenId screenId)
-        {
-            FrameworkElement legacyView = null;
-            Func<FrameworkElement> createLegacyView;
-
-            if (_legacyScreens.TryGetValue(screenId, out createLegacyView))
-            {
-                legacyView = createLegacyView();
-            }
-            else
-            {
-                _log.WarnFormat(
-                    "No hay una pantalla registrada para el destino {0}; no se cambió de pantalla.",
-                    screenId);
-            }
-
-            return new ScreenEntry(legacyView, null);
-        }
     }
 }

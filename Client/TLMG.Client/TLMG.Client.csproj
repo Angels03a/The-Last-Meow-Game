@@ -92,6 +92,9 @@
     <Compile Include="Models\FriendEntry.cs" />
     <Compile Include="Models\FriendRequestEntry.cs" />
     <Compile Include="Models\GameNotification.cs" />
+    <Compile Include="Models\KittenSceneState.cs" />
+    <Compile Include="Models\KittenColor.cs" />
+    <Compile Include="ViewModels\FugitiveKittenViewModel.cs" />
     <Compile Include="Models\GameDialog.cs" />
     <Compile Include="Views\GameDialogWindow.xaml.cs"><DependentUpon>GameDialogWindow.xaml</DependentUpon></Compile>
     <Compile Include="Models\HandCardEntry.cs" />
