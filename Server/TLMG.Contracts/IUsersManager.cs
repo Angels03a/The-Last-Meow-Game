@@ -65,6 +65,10 @@ namespace TLMG.Contracts
         [OperationContract]
         OperationResult CheckSession(string sessionToken);
 
+        /// <summary>Consulta las referencias recuperables de la cuenta autenticada.</summary>
+        [OperationContract]
+        OperationRecoveryContextResult GetRecoveryContext(string sessionToken);
+
         /// <summary>Returns the profile of the session owner so the screen shows server data, not client state.</summary>
         /// <param name="sessionToken">Token issued at log in that identifies the player.</param>
         /// <returns>The profile data or the error key so the client can translate it.</returns>

@@ -26,6 +26,7 @@ namespace TLMG.Services
 
         public void EnterLobby(string sessionToken, int roomId)
         {
+            SafeNotifyAll(_sessionRegistry.EvaluateConnectionDeadlines());
             LogChannelOperation("Lobby", "EnterLobby", sessionToken);
             ILobbyManagerCallback callback = GetLobbyCallback();
 

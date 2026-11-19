@@ -11,6 +11,12 @@ namespace TLMG.Client.Communication
         private const string RegistrationConnectionErrorKey = "CreateAccount_NetworkError";
         private const string RegistrationUnexpectedErrorKey = "CreateAccount_DataModelError";
 
+        public OperationRecoveryContextResult GetRecoveryContext()
+        {
+            return SendUsersManagerRequest(client => client.GetRecoveryContext(_sessionToken),
+                "consultar el contexto recuperable", LogInConnectionErrorKey, LogInUnexpectedErrorKey);
+        }
+
         public LogOutResult LogOut()
         {
             LogOutResult result = SendUsersManagerRequest(

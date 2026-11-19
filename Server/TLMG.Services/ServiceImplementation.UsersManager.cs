@@ -122,6 +122,13 @@ namespace TLMG.Services
             return operationResult;
         }
 
+        public OperationRecoveryContextResult GetRecoveryContext(string sessionToken)
+        {
+            var result = _sessionRegistry.GetRecoveryContext(sessionToken);
+            SafeNotifyAll(result.Notifications);
+            return result.OperationResult;
+        }
+
         public OperationResult CheckSession(string sessionToken)
         {
             SafeNotifyAll(_sessionRegistry.EvaluateConnectionDeadlines());

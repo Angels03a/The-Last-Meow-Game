@@ -63,6 +63,53 @@ namespace TLMG.Services.Sessions
             }
         }
 
+        public ResultWithNotification<OperationRecoveryContextResult> GetRecoveryContext(string sessionToken)
+        {
+            var result = new OperationRecoveryContextResult
+            {
+                ErrorKey = TLMG.Domain.Constants.ErrorKeys.Common.InvalidSession
+            };
+            var notifications = new List<Action>();
+
+            lock (_sessionsLock)
+            {
+                DateTime nowUtc = _readUtcNow();
+                if (!string.IsNullOrEmpty(sessionToken) && _sessionsByToken.ContainsKey(sessionToken))
+                {
+                    EvaluateHeartbeatDeadlinesInLock(nowUtc, notifications, true);
+                }
+
+                if (!string.IsNullOrEmpty(sessionToken)
+                    && _sessionsByToken.TryGetValue(sessionToken, out PlayerSession session) && session.IsRegistered)
+                {
+                    session.LastActivityUtc = nowUtc;
+                    result.IsSuccess = true;
+                    result.ErrorKey = null;
+                    MatchRecord match = FindRecoverableMatchInLock(session.UserId);
+                    if (match != null)
+                    {
+                        result.RoomId = match.RoomId;
+                        result.MatchId = match.MatchId;
+                    }
+                }
+            }
+
+            return new ResultWithNotification<OperationRecoveryContextResult>(result, notifications.AsReadOnly());
+        }
+
+        private MatchRecord FindRecoverableMatchInLock(int userId)
+        {
+            if (_roomIdsByUserId.TryGetValue(userId, out int roomId)
+                && _startsByRoomId[roomId].MatchId is Guid matchId
+                && _matchesById.TryGetValue(matchId, out MatchRecord match)
+                && match.MatchState.Players.Any(player => player.PlayerId == userId && !player.HasLeftMatch))
+            {
+                return match;
+            }
+
+            return null;
+        }
+
         private bool HasActiveParticipationInLock(int userId)
         {
             return _roomIdsByUserId.TryGetValue(userId, out int roomId)

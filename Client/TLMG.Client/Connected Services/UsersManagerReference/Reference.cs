@@ -134,6 +134,7 @@ namespace TLMG.Client.UsersManagerReference
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationLogInResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.LogOutResult))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationRecoveryContextResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationPlayerProfileResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationGetLeaderboardResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationLobbyRoomResult))]
@@ -288,6 +289,54 @@ namespace TLMG.Client.UsersManagerReference
     [System.SerializableAttribute()]
     public partial class LogOutResult : TLMG.Client.UsersManagerReference.OperationResult
     {
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OperationRecoveryContextResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class OperationRecoveryContextResult : TLMG.Client.UsersManagerReference.OperationResult
+    {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<System.Guid> MatchIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<int> RoomIdField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<System.Guid> MatchId
+        {
+            get
+            {
+                return this.MatchIdField;
+            }
+            set
+            {
+                if ((this.MatchIdField.Equals(value) != true))
+                {
+                    this.MatchIdField = value;
+                    this.RaisePropertyChanged("MatchId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> RoomId
+        {
+            get
+            {
+                return this.RoomIdField;
+            }
+            set
+            {
+                if ((this.RoomIdField.Equals(value) != true))
+                {
+                    this.RoomIdField = value;
+                    this.RaisePropertyChanged("RoomId");
+                }
+            }
+        }
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -3819,6 +3868,12 @@ namespace TLMG.Client.UsersManagerReference
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/CheckSession", ReplyAction="http://tempuri.org/IUsersManager/CheckSessionResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> CheckSessionAsync(string sessionToken);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/GetRecoveryContext", ReplyAction="http://tempuri.org/IUsersManager/GetRecoveryContextResponse")]
+        TLMG.Client.UsersManagerReference.OperationRecoveryContextResult GetRecoveryContext(string sessionToken);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/GetRecoveryContext", ReplyAction="http://tempuri.org/IUsersManager/GetRecoveryContextResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationRecoveryContextResult> GetRecoveryContextAsync(string sessionToken);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/GetPlayerProfile", ReplyAction="http://tempuri.org/IUsersManager/GetPlayerProfileResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/GetPlayerProfileSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationPlayerProfileResult GetPlayerProfile(string sessionToken);
@@ -3936,6 +3991,16 @@ namespace TLMG.Client.UsersManagerReference
         public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> CheckSessionAsync(string sessionToken)
         {
             return base.Channel.CheckSessionAsync(sessionToken);
+        }
+        
+        public TLMG.Client.UsersManagerReference.OperationRecoveryContextResult GetRecoveryContext(string sessionToken)
+        {
+            return base.Channel.GetRecoveryContext(sessionToken);
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationRecoveryContextResult> GetRecoveryContextAsync(string sessionToken)
+        {
+            return base.Channel.GetRecoveryContextAsync(sessionToken);
         }
         
         public TLMG.Client.UsersManagerReference.OperationPlayerProfileResult GetPlayerProfile(string sessionToken)

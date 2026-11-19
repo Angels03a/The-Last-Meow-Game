@@ -44,6 +44,8 @@ namespace TLMG.Services.Sessions
 
         IReadOnlyList<Action> EvaluateConnectionDeadlines(bool force = true);
 
+        ResultWithNotification<OperationRecoveryContextResult> GetRecoveryContext(string sessionToken);
+
         IReadOnlyList<Action> ProcessHeartbeat(string token, string channelId, HeartbeatChannel channel,
             int sequence, int confirmedSequence, Action<int, string> echo);
 

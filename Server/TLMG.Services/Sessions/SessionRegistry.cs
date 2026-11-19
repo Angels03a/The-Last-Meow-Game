@@ -183,8 +183,7 @@ namespace TLMG.Services.Sessions
 
             DateTime nowUtc = _readUtcNow();
             bool changed = ExpireMatchDeadlinesInLock(match, nowUtc);
-            if (!match.MatchState.Players.Any(player => player.PlayerId == userId && player.IsInPlay)
-                || match.MatchState.Phase == TLMG.Domain.Engine.RoundPhase.MatchFinished)
+            if (FindRecoverableMatchInLock(userId) == null)
             {
                 if (changed)
                 {

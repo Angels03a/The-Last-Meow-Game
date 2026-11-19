@@ -59,6 +59,27 @@ namespace TLMG.Services.Tests
             Assert.Equal(TimeSpan.FromMilliseconds(900), scenario.Clock.NowUtc - resumed.StartedAtUtc);
         }
 
+        [Fact]
+        public void RecoveryContext_IsStableWhileKittenIsRunningPausedAndResolved()
+        {
+            var scenario = new MatchPlayScenario(3, 8);
+            scenario.SubscribeAll();
+            int userId = scenario.CreatorUserId;
+            string token = scenario.TokenOf(userId);
+            var registry = scenario.Registry;
+            Assert.Equal(scenario.MatchId, registry.GetRecoveryContext(token).OperationResult.MatchId);
+            scenario.Clock.Advance(TimeSpan.FromMilliseconds(900));
+            scenario.CloseMatchChannelOf(userId);
+            Assert.NotNull(registry.FindFugitiveKitten(scenario.MatchId, userId).PausedAtUtc);
+            Assert.Equal(scenario.MatchId, registry.GetRecoveryContext(token).OperationResult.MatchId);
+            scenario.Subscribe(userId);
+            registry.TryCatchFugitiveKitten(scenario.MatchCallerOf(userId));
+            var caught = registry.FindFugitiveKitten(scenario.MatchId, userId);
+            Assert.Equal(FugitiveKittenOutcome.Caught, caught.Outcome);
+            Assert.Equal(scenario.MatchId, registry.GetRecoveryContext(token).OperationResult.MatchId);
+            Assert.Equal(caught.Version, registry.FindFugitiveKitten(scenario.MatchId, userId).Version);
+        }
+
         [Theory]
         [InlineData(899, false)]
         [InlineData(900, true)]

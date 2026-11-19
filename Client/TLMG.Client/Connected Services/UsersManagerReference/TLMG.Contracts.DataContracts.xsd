@@ -50,6 +50,17 @@
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="LogOutResult" nillable="true" type="tns:LogOutResult" />
+  <xs:complexType name="OperationRecoveryContextResult">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:OperationResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="MatchId" nillable="true" type="ser:guid" />
+          <xs:element minOccurs="0" name="RoomId" nillable="true" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="OperationRecoveryContextResult" nillable="true" type="tns:OperationRecoveryContextResult" />
   <xs:complexType name="OperationPlayerProfileResult">
     <xs:complexContent mixed="false">
       <xs:extension base="tns:OperationResult">

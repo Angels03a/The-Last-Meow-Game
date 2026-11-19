@@ -391,6 +391,130 @@ namespace TLMG.Services.Tests
             });
         }
 
+        [Theory]
+        [InlineData(14, true)]
+        [InlineData(15, false)]
+        [InlineData(16, false)]
+        public void GetRecoveryContext_AfterLogin_UsesOriginalGrace(int seconds, bool canRecover)
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            int userId = scenario.CreatorUserId;
+            string previous = scenario.TokenOf(userId);
+            Assert.True(scenario.CloseMatchChannelOf(userId));
+            scenario.Clock.Advance(TimeSpan.FromSeconds(seconds));
+
+            string token = scenario.Registry.StartRegisteredSession(userId, "Replacement", out _);
+            var result = scenario.Registry.GetRecoveryContext(token).OperationResult;
+
+            Assert.True(result.IsSuccess);
+            Assert.Equal(canRecover ? (int?)scenario.RoomId : null, result.RoomId);
+            Assert.Equal(canRecover ? (Guid?)scenario.MatchId : null, result.MatchId);
+            Assert.False(scenario.Registry.GetRecoveryContext(previous).OperationResult.IsSuccess);
+        }
+
+        [Fact]
+        public void GetRecoveryContext_SameToken_DoesNotRecoverOrExtendTheSeat()
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            int userId = scenario.CreatorUserId;
+            string token = scenario.TokenOf(userId);
+            scenario.CloseMatchChannelOf(userId);
+            scenario.Clock.Advance(TimeSpan.FromSeconds(14));
+
+            Assert.Equal(scenario.MatchId, scenario.Registry.GetRecoveryContext(token).OperationResult.MatchId);
+            Assert.Empty(scenario.Registry.GetRecoveryContext(token).Notifications);
+            scenario.Clock.Advance(TimeSpan.FromSeconds(1));
+
+            var expired = scenario.Registry.GetRecoveryContext(token).OperationResult;
+            Assert.True(expired.IsSuccess);
+            Assert.Null(expired.RoomId);
+            Assert.Null(expired.MatchId);
+            Assert.NotNull(scenario.Subscribe(userId).ErrorKey);
+        }
+
+        [Fact]
+        public void GetRecoveryContext_UnrelatedOrInvalidToken_ReceivesNoReferences()
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            string unrelated = scenario.Registry.StartRegisteredSession(90, "Unrelated", out _);
+
+            var unrelatedResult = scenario.Registry.GetRecoveryContext(unrelated).OperationResult;
+            Assert.True(unrelatedResult.IsSuccess);
+            Assert.Null(unrelatedResult.RoomId);
+            Assert.Null(unrelatedResult.MatchId);
+            var invalid = new SessionRegistry().GetRecoveryContext(scenario.TokenOf(scenario.CreatorUserId))
+                .OperationResult;
+            Assert.False(invalid.IsSuccess);
+            Assert.Equal("Common_InvalidSessionError", invalid.ErrorKey);
+            Assert.Null(invalid.MatchId);
+        }
+
+        [Theory]
+        [InlineData(4)]
+        [InlineData(6)]
+        [InlineData(8)]
+        public void GetRecoveryContext_ThenRebind_ReturnsCurrentPrivateView(int cards)
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount, cards);
+            scenario.SubscribeAll();
+            int userId = scenario.CreatorUserId;
+            scenario.CloseMatchChannelOf(userId);
+            string token = scenario.Registry.StartRegisteredSession(userId, "Replacement", out _);
+            var result = scenario.Registry.GetRecoveryContext(token).OperationResult;
+
+            var room = scenario.Registry.EnterRoom(new LobbyCaller(token, "recovered-lobby"),
+                result.RoomId.Value, scenario.LobbyCallbackOf(userId));
+            var callback = new MatchCallbackStub();
+            var delivery = scenario.Registry.SubscribeToMatch(new LobbyCaller(token, "recovered-match"),
+                room.Room.Start.MatchId.Value, callback);
+
+            Assert.Null(delivery.ErrorKey);
+            MatchView view = delivery.ViewDeliveries.Single(item => item.Callback == callback).MatchView;
+            Assert.Equal(cards, view.OwnHandCards.Count);
+            Assert.Empty(view.OwnPileCards);
+            Assert.All(view.Players, player => Assert.Empty(player.RevealedPileCards));
+        }
+
+        [Fact]
+        public void GetRecoveryContext_MatchFinishesBeforeSubscribe_ReturnsTerminalView()
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            int userId = scenario.CreatorUserId;
+            string token = scenario.Registry.StartRegisteredSession(userId, "Replacement", out _);
+            var context = scenario.Registry.GetRecoveryContext(token).OperationResult;
+            foreach (int other in scenario.UserIds.Where(id => id != userId))
+            {
+                scenario.Registry.LeaveRoom(scenario.TokenOf(other), out _);
+            }
+
+            var delivery = scenario.Registry.SubscribeToMatch(new LobbyCaller(token, "terminal-match"),
+                context.MatchId.Value, new MatchCallbackStub());
+
+            Assert.Null(delivery.ErrorKey);
+            MatchView view = Assert.Single(delivery.ViewDeliveries).MatchView;
+            Assert.Equal(MatchRoundPhase.MatchFinished, view.Phase);
+            Assert.Equal(userId, view.WinnerUserId);
+        }
+
+        [Fact]
+        public void GetRecoveryContext_BeforeMatch_DoesNotRestorePreviousLobbyOnLogin()
+        {
+            var registry = new SessionRegistry();
+            string token = registry.StartRegisteredSession(1, "Player", out _);
+            registry.CreateRoom(new LobbyCaller(token, "initial-lobby"), new LobbyCallbackStub());
+            registry.LeaveRoomByChannel("initial-lobby");
+
+            string replacement = registry.StartRegisteredSession(1, "Player", out _);
+            var result = registry.GetRecoveryContext(replacement).OperationResult;
+
+            Assert.True(result.IsSuccess);
+            Assert.Null(result.RoomId);
+            Assert.Null(result.MatchId);
+        }
+
         /// <summary>Verifica LeaveLobby_WhileInMatch_DeliversLobbyAndMatchNoticesSeparately.</summary>
         [Fact]
         public void LeaveLobby_WhileInMatch_DeliversLobbyAndMatchNoticesSeparately()

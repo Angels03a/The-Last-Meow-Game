@@ -238,6 +238,12 @@
   <wsdl:message name="IUsersManager_CheckSession_OutputMessage">
     <wsdl:part name="parameters" element="tns:CheckSessionResponse" />
   </wsdl:message>
+  <wsdl:message name="IUsersManager_GetRecoveryContext_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetRecoveryContext" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_GetRecoveryContext_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetRecoveryContextResponse" />
+  </wsdl:message>
   <wsdl:message name="IUsersManager_GetPlayerProfile_InputMessage">
     <wsdl:part name="parameters" element="tns:GetPlayerProfile" />
   </wsdl:message>
@@ -472,6 +478,10 @@
     <wsdl:operation name="CheckSession">
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/CheckSession" message="tns:IUsersManager_CheckSession_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/CheckSessionResponse" message="tns:IUsersManager_CheckSession_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecoveryContext">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/GetRecoveryContext" message="tns:IUsersManager_GetRecoveryContext_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/GetRecoveryContextResponse" message="tns:IUsersManager_GetRecoveryContext_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation name="GetPlayerProfile">
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/GetPlayerProfile" message="tns:IUsersManager_GetPlayerProfile_InputMessage" />
@@ -751,6 +761,15 @@
     </wsdl:operation>
     <wsdl:operation name="CheckSession">
       <soap12:operation soapAction="http://tempuri.org/IUsersManager/CheckSession" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecoveryContext">
+      <soap12:operation soapAction="http://tempuri.org/IUsersManager/GetRecoveryContext" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

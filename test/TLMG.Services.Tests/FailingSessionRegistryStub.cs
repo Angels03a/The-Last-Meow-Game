@@ -22,6 +22,9 @@ namespace TLMG.Services.Tests
         public bool TryLogOut(string sessionToken, out SessionEnd sessionEnd, out bool hasActiveParticipation) =>
             throw new InvalidOperationException(FailureMessage);
 
+        public ResultWithNotification<OperationRecoveryContextResult> GetRecoveryContext(string sessionToken) =>
+            throw new InvalidOperationException(FailureMessage);
+
         public IReadOnlyList<Action> EvaluateConnectionDeadlines(bool force = true) => Array.Empty<Action>();
 
         public IReadOnlyList<Action> ProcessHeartbeat(string token, string channelId, HeartbeatChannel channel,

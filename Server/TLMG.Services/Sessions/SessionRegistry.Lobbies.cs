@@ -196,7 +196,10 @@ namespace TLMG.Services.Sessions
                 lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.InvalidSession);
             }
             else if (_roomIdsByUserId.TryGetValue(playerSession.UserId, out int currentRoomId)
-                && currentRoomId == roomId && _startsByRoomId[roomId].MatchId.HasValue
+                && currentRoomId == roomId && FindRecoverableMatchInLock(playerSession.UserId) is MatchRecord match
+                && (match.MatchState.Phase == TLMG.Domain.Engine.RoundPhase.MatchFinished
+                    || !match.Disconnections.TryGetValue(playerSession.UserId, out var exit)
+                    || _readUtcNow() < exit.EffectiveAtUtc)
                 && !_userIdsByChannelId.ContainsKey(caller.ChannelId)
                 && _membersByRoomId[roomId].Any(member => member.UserId == playerSession.UserId && member.ChannelId == null))
             {

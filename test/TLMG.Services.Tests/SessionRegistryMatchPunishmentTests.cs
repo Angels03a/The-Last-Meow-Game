@@ -333,6 +333,25 @@ namespace TLMG.Services.Tests
             }
         }
 
+        [Fact]
+        public void GetRecoveryContext_EliminatedPlayerCanReturnAsSpectatorAfterLogin()
+        {
+            var scenario = StartEliminationOfTheFirstPlayer();
+            int userId = scenario.CreatorUserId;
+            Assert.True(scenario.CloseMatchChannelOf(userId));
+            string replacement = scenario.Registry.StartRegisteredSession(userId, "Spectator", out _);
+            var context = scenario.Registry.GetRecoveryContext(replacement).OperationResult;
+
+            Assert.Equal(scenario.MatchId, context.MatchId);
+            var delivery = scenario.Registry.SubscribeToMatch(new LobbyCaller(replacement, "spectator"),
+                context.MatchId.Value, new MatchCallbackStub());
+            var view = Assert.Single(delivery.ViewDeliveries).MatchView;
+            Assert.True(view.Players.Single(player => player.UserId == userId).IsEliminated);
+            Assert.Empty(view.OwnHandCards);
+            Assert.Empty(view.OwnPileCards);
+            Assert.False(view.CanPlaceCard);
+        }
+
         private static MatchPlayScenario StartEliminationOfTheFirstPlayer()
         {
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);

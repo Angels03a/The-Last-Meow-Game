@@ -44,6 +44,9 @@ namespace TLMG.Client.Communication
         /// </summary>
         LogOutResult LogOut();
 
+        /// <summary>Consulta la sala y partida recuperables con la sesión actual.</summary>
+        OperationRecoveryContextResult GetRecoveryContext();
+
         OperationResult RequestAccountVerificationCode(
             PlayerAccountRegistration playerAccountRegistration,
             string cultureCode);
