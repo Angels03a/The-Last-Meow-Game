@@ -17,9 +17,9 @@ namespace TLMG.Client.Models
         public int Rank { get; set; }
 
         /// <summary>
-        /// Obtiene o establece la ruta de la imagen de avatar del jugador.
+        /// Obtiene o establece el emoji del avatar del jugador.
         /// </summary>
-        public string AvatarImagePath { get; set; } = string.Empty;
+        public string AvatarEmoji { get; set; } = string.Empty;
 
         /// <summary>
         /// Obtiene o establece el nombre o nickname del jugador.

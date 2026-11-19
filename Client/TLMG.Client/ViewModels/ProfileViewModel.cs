@@ -1,37 +1,44 @@
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Windows.Input;
-
-using CommunityToolkit.Mvvm.Input;
-
+using TLMG.Client.Communication;
+using TLMG.Client.Models;
 using TLMG.Client.Navigation;
+using TLMG.Client.UsersManagerReference;
+using TLMG.Client.Views;
 
 namespace TLMG.Client.ViewModels
 {
     /// <summary>
-    /// Gestiona el estado de edición, la validación del nickname y la navegación de la pantalla de perfil. Los datos
-    /// del perfil siguen siendo de muestra: el servidor aún no los entrega (BL-103).
+    /// Gestiona el estado de edición, la validación y el guardado del perfil del jugador. El nickname, el correo
+    /// y el avatar vienen del servidor; las estadísticas siguen siendo de muestra (BL-103).
     /// </summary>
     public class ProfileViewModel : ViewModelBase
     {
         private const int DaysSincePasswordChange = 45;
-        private const string ProfileScreenResourcePrefix = "CreateAccount"; 
         private const string LastPasswordChangeFormatKey = "Profile_LastPasswordChange";
+
+        private readonly INavigationManager _navigationManager;
+        private readonly IProfileConnection _profileConnection;
 
         private bool _isEditingAvatar;
         private bool _isEditingNickname;
-        private string _currentAvatar = "🐱";
-        private string _displayNickname = "WhiskerKnight";
+        private string _currentAvatarKey = AvatarCatalog.DefaultAvatarKey;
+        private string _currentAvatar = AvatarCatalog.FindEmoji(AvatarCatalog.DefaultAvatarKey);
+        private string _displayNickname;
+        private string _email;
         private string _editingNickname;
         private string _lastPasswordChangeLabel;
-        private readonly INavigationManager _navigationManager;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="ProfileViewModel"/>.
         /// </summary>
         /// <param name="navigationManager">Administrador de navegación.</param>
-        public ProfileViewModel(INavigationManager navigationManager)
+        /// <param name="profileConnection">Conexión con el servidor para leer y guardar el perfil.</param>
+        public ProfileViewModel(INavigationManager navigationManager, IProfileConnection profileConnection)
         {
             _navigationManager = navigationManager;
+            _profileConnection = profileConnection;
             NicknameError = new StatusMessage();
 
             BackCommand = new RelayCommand(ExecuteBack);
@@ -48,7 +55,7 @@ namespace TLMG.Client.ViewModels
         /// <summary>Comando para alternar entre el estado de lectura y edición de avatar.</summary>
         public ICommand ToggleAvatarEditModeCommand { get; }
 
-        /// <summary>Comando para cambiar el avatar actual; el parámetro es el texto del avatar elegido.</summary>
+        /// <summary>Comando para cambiar el avatar; el parámetro es la clave del avatar elegido.</summary>
         public ICommand SelectAvatarCommand { get; }
 
         /// <summary>Comando para entrar al modo de edición de nickname.</summary>
@@ -74,7 +81,7 @@ namespace TLMG.Client.ViewModels
             private set { SetProperty(ref _isEditingNickname, value); }
         }
 
-        /// <summary>Obtiene el avatar seleccionado.</summary>
+        /// <summary>Obtiene el emoji del avatar seleccionado.</summary>
         public string CurrentAvatar
         {
             get { return _currentAvatar; }
@@ -88,6 +95,13 @@ namespace TLMG.Client.ViewModels
             private set { SetProperty(ref _displayNickname, value); }
         }
 
+        /// <summary>Obtiene el correo de la cuenta.</summary>
+        public string Email
+        {
+            get { return _email; }
+            private set { SetProperty(ref _email, value); }
+        }
+
         /// <summary>Obtiene o establece el nickname en edición.</summary>
         public string EditingNickname
         {
@@ -95,7 +109,7 @@ namespace TLMG.Client.ViewModels
             set { SetProperty(ref _editingNickname, value); }
         }
 
-        /// <summary>Mensaje de error de validación del nickname.</summary>
+        /// <summary>Mensaje de error del perfil.</summary>
         public StatusMessage NicknameError { get; }
 
         /// <summary>Obtiene el texto localizado del último cambio de contraseña.</summary>
@@ -106,8 +120,7 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
-        /// Empieza a escuchar el cambio de idioma para refrescar el texto del último cambio de contraseña. La vista
-        /// lo llama al cargarse.
+        /// Carga el perfil del servidor y empieza a escuchar el cambio de idioma. La vista lo llama al cargarse.
         /// </summary>
         public void Activate()
         {
@@ -115,6 +128,7 @@ namespace TLMG.Client.ViewModels
 
             LanguageManager.LanguageChanged += OnLanguageChanged;
             UpdateLastPasswordChangeLabel();
+            LoadProfile();
         }
 
         /// <summary>Deja de escuchar el cambio de idioma. La vista lo llama al descargarse.</summary>
@@ -143,6 +157,23 @@ namespace TLMG.Client.ViewModels
             LastPasswordChangeLabel = string.Format(passwordFormat, DaysSincePasswordChange);
         }
 
+        private void LoadProfile()
+        {
+            OperationPlayerProfileResult profileResult = _profileConnection.GetPlayerProfile();
+
+            if (profileResult.IsSuccess)
+            {
+                NicknameError.Hide();
+                DisplayNickname = profileResult.Nickname;
+                Email = profileResult.Email;
+                ApplyAvatar(profileResult.AvatarKey);
+            }
+            else
+            {
+                ShowProfileError(profileResult.ErrorKey);
+            }
+        }
+
         private void ExecuteBack()
         {
             _navigationManager.GoBack();
@@ -153,12 +184,22 @@ namespace TLMG.Client.ViewModels
             IsEditingAvatar = !IsEditingAvatar;
         }
 
-        private void ExecuteSelectAvatar(string avatarText)
+        private void ExecuteSelectAvatar(string avatarKey)
         {
-            if (!string.IsNullOrEmpty(avatarText))
+            if (!string.IsNullOrEmpty(avatarKey))
             {
-                CurrentAvatar = avatarText;
-                IsEditingAvatar = false;
+                string errorKey = SaveProfile(DisplayNickname, avatarKey);
+
+                if (errorKey == null)
+                {
+                    NicknameError.Hide();
+                    ApplyAvatar(avatarKey);
+                    IsEditingAvatar = false;
+                }
+                else
+                {
+                    ShowProfileError(errorKey);
+                }
             }
         }
 
@@ -171,9 +212,14 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteSaveNickname()
         {
-            string nicknameErrorKey = ValidationHelper.GetNicknameValidationErrorKey(EditingNickname);
+            string errorKey = ValidationHelper.GetNicknameValidationErrorKey(EditingNickname);
 
-            if (nicknameErrorKey == null)
+            if (errorKey == null)
+            {
+                errorKey = SaveProfile(EditingNickname, _currentAvatarKey);
+            }
+
+            if (errorKey == null)
             {
                 NicknameError.Hide();
                 DisplayNickname = EditingNickname;
@@ -181,13 +227,45 @@ namespace TLMG.Client.ViewModels
             }
             else
             {
-                NicknameError.ShowError(LanguageManager.FindText(nicknameErrorKey));
+                ShowProfileError(errorKey);
             }
         }
 
         private void ExecuteChangePassword()
         {
-            // TODO: Navegar a ChangePasswordScreen cuando esté implementada. (BL-046).
+            _navigationManager.NavigateTo(ScreenId.ChangePassword);
+        }
+
+        private string SaveProfile(string nickname, string avatarKey)
+        {
+            string errorKey = null;
+            OperationResult updateResult = _profileConnection.UpdatePlayerProfile(nickname, avatarKey);
+
+            if (!updateResult.IsSuccess)
+            {
+                errorKey = updateResult.ErrorKey;
+            }
+
+            return errorKey;
+        }
+
+        private void ApplyAvatar(string avatarKey)
+        {
+            _currentAvatarKey = avatarKey;
+            CurrentAvatar = AvatarCatalog.FindEmoji(avatarKey);
+        }
+
+        private void ShowProfileError(string errorKey)
+        {
+            NicknameError.ShowError(LanguageManager.FindText(errorKey));
+        }
+
+        private ScreenEntry BuildProfileEntry()
+        {
+            ProfileViewModel profileViewModel = new ProfileViewModel(_navigationManager, _profileConnection);
+            ProfileScreen profileScreen = new ProfileScreen(profileViewModel);
+
+            return new ScreenEntry(profileScreen, profileViewModel);
         }
     }
 }

@@ -1,7 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<EmailConfig>
-	<SmtpServer>smtp.gmail.com</SmtpServer>
-	<SmtpPort>587</SmtpPort>
-	<SenderEmail>tu_correo_emisor@gmail.com</SenderEmail>
-	<AppPassword>tu_contraseña_de_aplicacion</AppPassword>
-</EmailConfig>

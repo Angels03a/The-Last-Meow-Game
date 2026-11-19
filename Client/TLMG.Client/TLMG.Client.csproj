@@ -68,11 +68,13 @@
     <Compile Include="Communication\IMatchConnection.cs" />
     <Compile Include="Communication\MatchViewVersionHelper.cs" />
     <Compile Include="Communication\ServerConnectionManager.Match.cs" />
+    <Compile Include="Communication\IProfileConnection.cs" />
     <Compile Include="Communication\LobbyCountdown.cs" />
     <Compile Include="Communication\ServerConnectionManager.Accounts.cs" />
     <Compile Include="Communication\ServerConnectionManager.FriendRequests.cs" />
     <Compile Include="Communication\ServerConnectionManager.Leaderboard.cs" />
     <Compile Include="Communication\ServerConnectionManager.Lobby.cs" />
+    <Compile Include="Communication\ServerConnectionManager.Profile.cs" />
     <Compile Include="Communication\ServerConnectionManager.Readiness.cs" />
     <Compile Include="Communication\ServerConnectionManager.Chat.cs" />
     <Compile Include="Communication\ChatEntryHelper.cs" />
@@ -85,6 +87,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="Models\AvatarCatalog.cs" />
     <Compile Include="Models\ChatMessageEntry.cs" />
     <Compile Include="Models\FriendEntry.cs" />
     <Compile Include="Models\FriendRequestEntry.cs" />
@@ -113,6 +116,7 @@
     <Compile Include="Navigation\ScreenId.cs" />
     <Compile Include="Navigation\VerificationFlow.cs" />
     <Compile Include="Navigation\VerificationNavigationParameter.cs" />
+    <Compile Include="ViewModels\ChangePasswordViewModel.cs" />
     <Compile Include="ViewModels\CreateAccountViewModel.cs" />
     <Compile Include="ViewModels\ForgotPasswordViewModel.cs" />
     <Compile Include="ViewModels\FriendsViewModel.cs" />
@@ -341,6 +345,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Connected Services\UsersManagerReference\TLMG.Client.UsersManagerReference.OperationLogInResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\UsersManagerReference\TLMG.Client.UsersManagerReference.OperationPlayerProfileResult.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Connected Services\UsersManagerReference\TLMG.Client.UsersManagerReference.OperationResult.datasource">

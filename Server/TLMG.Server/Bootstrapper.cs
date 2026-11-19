@@ -12,54 +12,57 @@ using TLMG.Services.Utilities;
 
 namespace TLMG.Server
 {
-    /// <summary>
-    /// Composition Root: Construye el grafo de dependencias completo y lo inyecta 
-    /// en la capa WCF antes de abrir el ServiceHost.
-    /// </summary>
     public static class Bootstrapper
     {
         public static void Initialize()
         {
             IPlayerRepository playerRepository = new PlayerRepository();
+            IPlayerProfileRepository playerProfileRepository = new PlayerProfileRepository();
             IFriendshipRepository friendshipRepository = new FriendshipRepository();
             IVerificationCodeRepository verificationCodeRepository = new VerificationCodeRepository();
 
             IPasswordHasher passwordHasher = new PasswordHasher();
-            ISessionRegistry sessionRegistry = new SessionRegistry();
+            SessionRegistry sessionRegistry = new SessionRegistry();
+
             VerificationCodeStore verificationCodeStore = new VerificationCodeStore(verificationCodeRepository);
+
             EmailUtility emailUtility = new EmailUtility();
+
             AccountVerificationDispatcher verificationDispatcher =
                 new AccountVerificationDispatcher(verificationCodeStore, emailUtility);
 
             PlayerAccountRegistrationService registrationService =
-                new PlayerAccountRegistrationService(
-                    playerRepository,
-                    passwordHasher,
-                    verificationDispatcher);
+                new PlayerAccountRegistrationService(playerRepository, passwordHasher, verificationDispatcher);
 
             PlayerLogInService logInService =
                 new PlayerLogInService(playerRepository, passwordHasher, sessionRegistry);
 
+            PlayerProfileService profileService =
+                new PlayerProfileService(playerProfileRepository, sessionRegistry);
+
             ChatService chatService = new ChatService(sessionRegistry, new ChatMessageRepository());
 
-            FriendsService friendsService =
-                new FriendsService(friendshipRepository, sessionRegistry);
+            FriendsService friendsService = new FriendsService(friendshipRepository, sessionRegistry);
 
             LeaderboardService leaderboardService = new LeaderboardService(playerRepository);
 
             LobbyService lobbyService = new LobbyService(sessionRegistry);
 
             MatchService matchService = new MatchService(sessionRegistry);
+            ServiceDependencies dependencies = new ServiceDependencies
+            {
+                SessionRegistry = sessionRegistry,
+                RegistrationService = registrationService,
+                LogInService = logInService,
+                ProfileService = profileService,
+                ChatService = chatService,
+                FriendsService = friendsService,
+                LeaderboardService = leaderboardService,
+                LobbyService = lobbyService,
+                MatchService = matchService
+            };
 
-            ServiceImplementation.ConfigureDependencies(
-                sessionRegistry,
-                registrationService,
-                logInService,
-                chatService,
-                friendsService,
-                leaderboardService,
-                lobbyService,
-                matchService);
+            ServiceImplementation.ConfigureDependencies(dependencies);
         }
     }
 }

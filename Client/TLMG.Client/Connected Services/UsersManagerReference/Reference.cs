@@ -125,6 +125,7 @@ namespace TLMG.Client.UsersManagerReference
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationLogInResult))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationPlayerProfileResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationGetLeaderboardResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationLobbyRoomResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationRequestMatchStartResult))]
@@ -260,6 +261,70 @@ namespace TLMG.Client.UsersManagerReference
                 {
                     this.UserIdField = value;
                     this.RaisePropertyChanged("UserId");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OperationPlayerProfileResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    public partial class OperationPlayerProfileResult : TLMG.Client.UsersManagerReference.OperationResult
+    {
+        
+        private string AvatarKeyField;
+        
+        private string EmailField;
+        
+        private string NicknameField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string AvatarKey
+        {
+            get
+            {
+                return this.AvatarKeyField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.AvatarKeyField, value) != true))
+                {
+                    this.AvatarKeyField = value;
+                    this.RaisePropertyChanged("AvatarKey");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Email
+        {
+            get
+            {
+                return this.EmailField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.EmailField, value) != true))
+                {
+                    this.EmailField = value;
+                    this.RaisePropertyChanged("Email");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Nickname
+        {
+            get
+            {
+                return this.NicknameField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true))
+                {
+                    this.NicknameField = value;
+                    this.RaisePropertyChanged("Nickname");
                 }
             }
         }
@@ -1246,6 +1311,95 @@ namespace TLMG.Client.UsersManagerReference
                 {
                     this.PasswordField = value;
                     this.RaisePropertyChanged("Password");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OperationUpdatePlayerProfileRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    public partial class OperationUpdatePlayerProfileRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+        
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        private string AvatarKeyField;
+        
+        private string NicknameField;
+        
+        private string SessionTokenField;
+        
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
+                return this.extensionDataField;
+            }
+            set
+            {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string AvatarKey
+        {
+            get
+            {
+                return this.AvatarKeyField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.AvatarKeyField, value) != true))
+                {
+                    this.AvatarKeyField = value;
+                    this.RaisePropertyChanged("AvatarKey");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Nickname
+        {
+            get
+            {
+                return this.NicknameField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.NicknameField, value) != true))
+                {
+                    this.NicknameField = value;
+                    this.RaisePropertyChanged("Nickname");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SessionToken
+        {
+            get
+            {
+                return this.SessionTokenField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.SessionTokenField, value) != true))
+                {
+                    this.SessionTokenField = value;
+                    this.RaisePropertyChanged("SessionToken");
                 }
             }
         }
@@ -3063,6 +3217,20 @@ namespace TLMG.Client.UsersManagerReference
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/LogIn", ReplyAction="http://tempuri.org/IUsersManager/LogInResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationLogInResult> LogInAsync(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/GetPlayerProfile", ReplyAction="http://tempuri.org/IUsersManager/GetPlayerProfileResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/GetPlayerProfileSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+        TLMG.Client.UsersManagerReference.OperationPlayerProfileResult GetPlayerProfile(string sessionToken);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/GetPlayerProfile", ReplyAction="http://tempuri.org/IUsersManager/GetPlayerProfileResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationPlayerProfileResult> GetPlayerProfileAsync(string sessionToken);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/UpdatePlayerProfile", ReplyAction="http://tempuri.org/IUsersManager/UpdatePlayerProfileResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/UpdatePlayerProfileSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+        TLMG.Client.UsersManagerReference.OperationResult UpdatePlayerProfile(TLMG.Client.UsersManagerReference.OperationUpdatePlayerProfileRequest updateProfileRequest);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/UpdatePlayerProfile", ReplyAction="http://tempuri.org/IUsersManager/UpdatePlayerProfileResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> UpdatePlayerProfileAsync(TLMG.Client.UsersManagerReference.OperationUpdatePlayerProfileRequest updateProfileRequest);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -3147,6 +3315,26 @@ namespace TLMG.Client.UsersManagerReference
         public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationLogInResult> LogInAsync(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest)
         {
             return base.Channel.LogInAsync(operationLogInRequest);
+        }
+        
+        public TLMG.Client.UsersManagerReference.OperationPlayerProfileResult GetPlayerProfile(string sessionToken)
+        {
+            return base.Channel.GetPlayerProfile(sessionToken);
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationPlayerProfileResult> GetPlayerProfileAsync(string sessionToken)
+        {
+            return base.Channel.GetPlayerProfileAsync(sessionToken);
+        }
+        
+        public TLMG.Client.UsersManagerReference.OperationResult UpdatePlayerProfile(TLMG.Client.UsersManagerReference.OperationUpdatePlayerProfileRequest updateProfileRequest)
+        {
+            return base.Channel.UpdatePlayerProfile(updateProfileRequest);
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> UpdatePlayerProfileAsync(TLMG.Client.UsersManagerReference.OperationUpdatePlayerProfileRequest updateProfileRequest)
+        {
+            return base.Channel.UpdatePlayerProfileAsync(updateProfileRequest);
         }
     }
     

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tns="http://tempuri.org/" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" name="ServiceImplementation" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="ServiceImplementation" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsp:Policy wsu:Id="NetTcpBinding_IUsersManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
@@ -226,6 +226,24 @@
   <wsdl:message name="IUsersManager_LogIn_SystemFaultFault_FaultMessage">
     <wsdl:part xmlns:q5="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q5:SystemFault" />
   </wsdl:message>
+  <wsdl:message name="IUsersManager_GetPlayerProfile_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetPlayerProfile" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_GetPlayerProfile_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetPlayerProfileResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_GetPlayerProfile_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q6="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q6:SystemFault" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_UpdatePlayerProfile_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdatePlayerProfile" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_UpdatePlayerProfile_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdatePlayerProfileResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_UpdatePlayerProfile_SystemFaultFault_FaultMessage">
+    <wsdl:part xmlns:q7="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q7:SystemFault" />
+  </wsdl:message>
   <wsdl:message name="ILeaderboardManager_GetLeaderboard_InputMessage">
     <wsdl:part name="parameters" element="tns:GetLeaderboard" />
   </wsdl:message>
@@ -398,6 +416,16 @@
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/LogIn" message="tns:IUsersManager_LogIn_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/LogInResponse" message="tns:IUsersManager_LogIn_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/LogInSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_LogIn_SystemFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPlayerProfile">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/GetPlayerProfile" message="tns:IUsersManager_GetPlayerProfile_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/GetPlayerProfileResponse" message="tns:IUsersManager_GetPlayerProfile_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/GetPlayerProfileSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_GetPlayerProfile_SystemFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePlayerProfile">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/UpdatePlayerProfile" message="tns:IUsersManager_UpdatePlayerProfile_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/UpdatePlayerProfileResponse" message="tns:IUsersManager_UpdatePlayerProfile_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/UpdatePlayerProfileSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_UpdatePlayerProfile_SystemFaultFault_FaultMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="ILeaderboardManager">
@@ -610,6 +638,30 @@
     </wsdl:operation>
     <wsdl:operation name="LogIn">
       <soap12:operation soapAction="http://tempuri.org/IUsersManager/LogIn" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetPlayerProfile">
+      <soap12:operation soapAction="http://tempuri.org/IUsersManager/GetPlayerProfile" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="SystemFaultFault">
+        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePlayerProfile">
+      <soap12:operation soapAction="http://tempuri.org/IUsersManager/UpdatePlayerProfile" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -940,42 +992,54 @@
       <soap12:address location="net.tcp://localhost:8081/AccountRegistrationService" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/AccountRegistrationService</wsa10:Address>
-
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Upn>ANGEL\luisi</Upn>
+        </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_ILeaderboardManager" binding="tns:NetTcpBinding_ILeaderboardManager">
       <soap12:address location="net.tcp://localhost:8081/LeaderboardManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/LeaderboardManager</wsa10:Address>
-
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Upn>ANGEL\luisi</Upn>
+        </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_ILobbyManager" binding="tns:NetTcpBinding_ILobbyManager">
       <soap12:address location="net.tcp://localhost:8081/LobbyManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/LobbyManager</wsa10:Address>
-
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Upn>ANGEL\luisi</Upn>
+        </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_IFriendsManager" binding="tns:NetTcpBinding_IFriendsManager">
       <soap12:address location="net.tcp://localhost:8081/FriendsManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/FriendsManager</wsa10:Address>
-
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Upn>ANGEL\luisi</Upn>
+        </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_IChatManager" binding="tns:NetTcpBinding_IChatManager">
       <soap12:address location="net.tcp://localhost:8081/ChatManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/ChatManager</wsa10:Address>
-
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Upn>ANGEL\luisi</Upn>
+        </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_IMatchManager" binding="tns:NetTcpBinding_IMatchManager">
       <soap12:address location="net.tcp://localhost:8081/MatchManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/MatchManager</wsa10:Address>
-
+        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
+          <Upn>ANGEL\luisi</Upn>
+        </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
   </wsdl:service>

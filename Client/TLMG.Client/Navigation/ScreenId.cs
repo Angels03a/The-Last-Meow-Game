@@ -11,6 +11,7 @@
         Verification,
         ForgotPassword,
         NewPassword,
+        ChangePassword,
         MainMenu,
         Options,
         Profile,

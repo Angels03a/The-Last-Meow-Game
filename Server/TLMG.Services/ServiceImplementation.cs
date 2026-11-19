@@ -1,7 +1,10 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ServiceModel;
+
+using log4net;
+
+using TLMG.Contracts.DataContracts;
 using TLMG.Services.Accounts;
 using TLMG.Services.Chat;
 using TLMG.Services.Friends;
@@ -22,34 +25,34 @@ namespace TLMG.Services
         private static ISessionRegistry _sessionRegistry;
         private static PlayerAccountRegistrationService _playerAccountRegistrationService;
         private static PlayerLogInService _playerLogInService;
+        private static PlayerProfileService _playerProfileService;
         private static ChatService _chatService;
         private static FriendsService _friendsService;
         private static LeaderboardService _leaderboardService;
         private static LobbyService _lobbyService;
         private static MatchService _matchService;
 
-        /// <summary>
-        /// Recibe el grafo de objetos ya construido desde el Composition Root.
-        /// WCF se vuelve ciego respecto a la base de datos y la encriptación.
-        /// </summary>
-        public static void ConfigureDependencies(
-            ISessionRegistry sessionRegistry,
-            PlayerAccountRegistrationService registrationService,
-            PlayerLogInService logInService,
-            ChatService chatService,
-            FriendsService friendsService,
-            LeaderboardService leaderboardService,
-            LobbyService lobbyService,
-            MatchService matchService)
+        public static void ConfigureDependencies(ServiceDependencies serviceDependencies)
         {
-            _sessionRegistry = sessionRegistry;
-            _playerAccountRegistrationService = registrationService;
-            _playerLogInService = logInService;
-            _chatService = chatService;
-            _friendsService = friendsService;
-            _leaderboardService = leaderboardService;
-            _lobbyService = lobbyService;
-            _matchService = matchService;
+            _sessionRegistry = serviceDependencies.SessionRegistry;
+            _playerAccountRegistrationService = serviceDependencies.RegistrationService;
+            _playerLogInService = serviceDependencies.LogInService;
+            _playerProfileService = serviceDependencies.ProfileService;
+            _chatService = serviceDependencies.ChatService;
+            _friendsService = serviceDependencies.FriendsService;
+            _leaderboardService = serviceDependencies.LeaderboardService;
+            _lobbyService = serviceDependencies.LobbyService;
+            _matchService = serviceDependencies.MatchService;
+        }
+
+        private static TResult CreateFailedOperationResult<TResult>(string errorKey)
+            where TResult : OperationResult, new()
+        {
+            TResult failedResult = new TResult();
+            failedResult.IsSuccess = false;
+            failedResult.ErrorKey = errorKey;
+
+            return failedResult;
         }
 
         private readonly Guid _diagnosticChannelId = Guid.NewGuid();

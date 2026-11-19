@@ -1,7 +1,6 @@
-using System;
-
 using Xunit;
 
+using TLMG.Domain.Constants;
 using TLMG.Domain.Entities;
 using TLMG.Domain.Validators;
 
@@ -106,18 +105,18 @@ namespace TLMG.Domain.Tests
             Assert.Equal(expected, errorKey);
         }
 
-        /// <summary>Verifica ValidateAccountPlayerRegistration_WithNullObject_ThrowsNullReference.</summary>
+        /// <summary>Un registro nulo se rechaza con la clave de campos incompletos.</summary>
         [Fact]
-        public void ValidateAccountPlayerRegistration_WithNullObject_ThrowsNullReference()
+        public void ValidateAccountPlayerRegistration_WithNullObject_ReturnsIncompleteFields()
         {
             // Arrange
             PlayerRegistration registration = null;
 
             // Act
-            Action validate = () => PlayerAccountRegistrationValidator.ValidateAccountPlayerRegistration(registration);
+            string errorKey = PlayerAccountRegistrationValidator.ValidateAccountPlayerRegistration(registration);
 
             // Assert
-            Assert.Throws<NullReferenceException>(validate);
+            Assert.Equal(ErrorKeys.CreateAccount.IncompleteFields, errorKey);
         }
 
     }

@@ -20,6 +20,7 @@ namespace TLMG.Client
         private static readonly ILog _log = LogManager.GetLogger(typeof(App));
         private IDialogManager _dialogs;
 
+
         /// <summary>
         /// Inicializa una nueva instancia de la aplicación y configura el idioma inicial.
         /// </summary>
@@ -55,6 +56,7 @@ namespace TLMG.Client
             navigationManager.ScreenFactory = new ScreenFactory(
                 navigationManager,
                 _dialogs,
+                ServerConnection,
                 ServerConnection,
                 ServerConnection,
                 ServerConnection,

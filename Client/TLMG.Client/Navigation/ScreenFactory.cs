@@ -30,6 +30,7 @@ namespace TLMG.Client.Navigation
         private readonly ILobbyConnection _lobbyConnection;
         private readonly IMatchConnection _matchConnection;
         private readonly ILeaderboardConnection _leaderboardConnection;
+        private readonly IProfileConnection _profileConnection;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="ScreenFactory"/>.
@@ -48,7 +49,8 @@ namespace TLMG.Client.Navigation
             IFriendsConnection friendsConnection,
             ILobbyConnection lobbyConnection,
             IMatchConnection matchConnection,
-            ILeaderboardConnection leaderboardConnection)
+            ILeaderboardConnection leaderboardConnection,
+            IProfileConnection profileConnection)
         {
             _navigation = navigation;
             _dialogs = dialogs;
@@ -57,6 +59,7 @@ namespace TLMG.Client.Navigation
             _lobbyConnection = lobbyConnection;
             _matchConnection = matchConnection;
             _leaderboardConnection = leaderboardConnection;
+            _profileConnection = profileConnection;
         }
 
         /// <inheritdoc />
@@ -95,6 +98,9 @@ namespace TLMG.Client.Navigation
                     break;
                 case ScreenId.NewPassword:
                     screenEntry = BuildNewPasswordEntry();
+                    break;
+                case ScreenId.ChangePassword:
+                    screenEntry = BuildChangePasswordEntry();
                     break;
                 case ScreenId.HowToPlay:
                     screenEntry = BuildHowToPlayEntry();
@@ -208,9 +214,20 @@ namespace TLMG.Client.Navigation
             return new ScreenEntry(newPasswordScreen, newPasswordViewModel);
         }
 
+        private ScreenEntry BuildChangePasswordEntry()
+        {
+            ChangePasswordViewModel changePasswordViewModel = new ChangePasswordViewModel(
+                _navigation,
+                _dialogs,
+                _accountsConnection);
+            ChangePasswordScreen changePasswordScreen = new ChangePasswordScreen(changePasswordViewModel);
+
+            return new ScreenEntry(changePasswordScreen, changePasswordViewModel);
+        }
+
         private ScreenEntry BuildProfileEntry()
         {
-            ProfileViewModel profileViewModel = new ProfileViewModel(_navigation);
+            ProfileViewModel profileViewModel = new ProfileViewModel(_navigation, _profileConnection);
             ProfileScreen profileScreen = new ProfileScreen(profileViewModel);
 
             return new ScreenEntry(profileScreen, profileViewModel);
