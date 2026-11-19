@@ -84,5 +84,12 @@ namespace TLMG.Services
         {
             _sessionRegistry.RemoveChatChannel(_chatChannelId);
         }
+        void IChatManager.ChatHeartbeat(string sessionToken, int sequence, int confirmedSequence)
+        {
+            var callback = OperationContext.Current.GetCallbackChannel<IChatManagerCallback>();
+            SafeNotifyAll(_sessionRegistry.ProcessHeartbeat(sessionToken, _chatChannelId, HeartbeatChannel.Chat,
+                sequence, confirmedSequence, callback.ChatHeartbeatEcho));
+        }
+
     }
 }

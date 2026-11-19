@@ -131,6 +131,9 @@
     <sys:String x:Key="Common_Rank">RANGO</sys:String>
     <sys:String x:Key="Common_BackButton">← Regresar</sys:String>
     <sys:String x:Key="Common_ConnectionLostError">Se perdió la conexión con el servidor. Inicia sesión de nuevo.</sys:String>
+    <sys:String x:Key="Common_LogOutActiveMatchError">Sal de la partida antes de cerrar sesión.</sys:String>
+    <sys:String x:Key="MainMenu_LogOutUnconfirmed">No se pudo confirmar el cierre de sesión con el servidor.</sys:String>
+    <sys:String x:Key="Match_ReconnectionPending">Esperando a que un jugador vuelva a conectarse.</sys:String>
     <sys:String x:Key="Common_InvalidSessionError">Tu sesión ya no es válida. Inicia sesión de nuevo.</sys:String>
     <sys:String x:Key="Common_UnexpectedError">Ocurrió un error inesperado. Inténtalo de nuevo.</sys:String>
     <sys:String x:Key="Common_RoomFullError">La sala ya está llena.</sys:String>
@@ -441,6 +444,7 @@
     <sys:String x:Key="GameOver_VictoryNoticeTitle" xml:space="preserve">¡Partida terminada!</sys:String>
     <sys:String x:Key="GameOver_VictoryNoticeBody" xml:space="preserve"> ganó la partida.</sys:String>
     <sys:String x:Key="GameOver_StandingsUnavailable" xml:space="preserve">Clasificación no disponible.</sys:String>
+    <sys:String x:Key="GameOver_CollectiveAbandonment">La partida terminó por abandono colectivo.</sys:String>
     <sys:String x:Key="GameOver_NoWinnerAvailable" xml:space="preserve">Información del ganador no disponible.</sys:String>
     <sys:String x:Key="Dialog_Yes">Sí</sys:String>
     <sys:String x:Key="Dialog_No">No</sys:String>

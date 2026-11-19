@@ -1,4 +1,4 @@
-﻿using System.ServiceModel;
+using System.ServiceModel;
 
 namespace TLMG.Contracts
 {
@@ -9,5 +9,7 @@ namespace TLMG.Contracts
     [ServiceContract(CallbackContract = typeof(IFriendsManagerCallback))]
     public interface IFriendsManager : IFriendshipManager, IRoomInvitationManager
     {
+        [OperationContract(IsOneWay = true)]
+        void FriendsHeartbeat(string sessionToken, int sequence, int confirmedSequence);
     }
 }

@@ -243,7 +243,7 @@ namespace TLMG.Client.Navigation
 
         private ScreenEntry BuildMainMenuEntry()
         {
-            MainMenuViewModel mainMenuViewModel = new MainMenuViewModel(_accountsConnection, _navigation);
+            MainMenuViewModel mainMenuViewModel = new MainMenuViewModel(_accountsConnection, _navigation, _dialogs);
             MainMenuScreen mainMenuScreen = new MainMenuScreen(mainMenuViewModel);
 
             return new ScreenEntry(mainMenuScreen, mainMenuViewModel);

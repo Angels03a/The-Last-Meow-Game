@@ -25,11 +25,11 @@ namespace TLMG.Client.Communication
         {
             bool wasSendFriendRequestSent = false;
 
-            if (HasRegisteredSession)
+            if (_friendsClient != null && HasRegisteredSession)
             {
                 wasSendFriendRequestSent = TrySend(
                     () => _friendsClient.SendFriendRequest(_sessionToken, friendNickname),
-                    "enviar una solicitud de amistad");
+                    "enviar una solicitud de amistad", CloseFriendsChannel);
             }
 
             return wasSendFriendRequestSent;
@@ -40,11 +40,11 @@ namespace TLMG.Client.Communication
         {
             bool wasAcceptFriendRequestSent = false;
 
-            if (HasRegisteredSession)
+            if (_friendsClient != null && HasRegisteredSession)
             {
                 wasAcceptFriendRequestSent = TrySend(
                     () => _friendsClient.AcceptFriendRequest(_sessionToken, friendRequestId),
-                    "aceptar una solicitud de amistad");
+                    "aceptar una solicitud de amistad", CloseFriendsChannel);
             }
 
             return wasAcceptFriendRequestSent;
@@ -55,11 +55,11 @@ namespace TLMG.Client.Communication
         {
             bool wasDeclineFriendRequestSent = false;
 
-            if (HasRegisteredSession)
+            if (_friendsClient != null && HasRegisteredSession)
             {
                 wasDeclineFriendRequestSent = TrySend(
                     () => _friendsClient.DeclineFriendRequest(_sessionToken, friendRequestId),
-                    "rechazar una solicitud de amistad");
+                    "rechazar una solicitud de amistad", CloseFriendsChannel);
             }
 
             return wasDeclineFriendRequestSent;

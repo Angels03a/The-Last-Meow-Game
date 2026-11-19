@@ -152,7 +152,14 @@ namespace TLMG.Client.ViewModels
         }
         private void ApplyView(MatchView view)
         {
-            if (view == null || view.MatchId != _matchId || view.FugitiveKitten == null || _resultAt.HasValue) return;
+            if (view == null || view.MatchId != _matchId || _navigated) return;
+            if (view.Phase == MatchRoundPhase.MatchFinished)
+            {
+                _navigated = true;
+                _navigation.NavigateToWithoutHistory(ScreenId.GameOver, view);
+                return;
+            }
+            if (view.FugitiveKitten == null || _resultAt.HasValue) return;
             _kitten = view.FugitiveKitten;
             _serverAtReceipt = _kitten.ServerTimeUtc.Add(_match.CurrentMatchViewAge);
             _elapsedAtReceipt = _elapsed.Elapsed;
@@ -197,7 +204,8 @@ namespace TLMG.Client.ViewModels
                 }
                 return;
             }
-            DateTime estimatedServerUtc = _serverAtReceipt.Add(_elapsed.Elapsed - _elapsedAtReceipt);
+            DateTime estimatedServerUtc = _kitten.PausedAtUtc
+                ?? _serverAtReceipt.Add(_elapsed.Elapsed - _elapsedAtReceipt);
             double milliseconds = (estimatedServerUtc - _kitten.StartedAtUtc).TotalMilliseconds;
             RemainingSeconds = Math.Max(0, (int)Math.Ceiling((_kitten.ExpiresAtUtc - estimatedServerUtc).TotalSeconds));
             KittenSegmentView segment = _kitten.Segments?.FirstOrDefault(item =>
@@ -212,7 +220,7 @@ namespace TLMG.Client.ViewModels
                 else if (segment.Kind == "Start") SceneState = KittenSceneState.Intro;
                 else if (segment.Kind == "Escape") SceneState = KittenSceneState.Leaving;
                 else SceneState = KittenSceneState.Hidden;
-                IsCatchAvailable = segment.IsCatchable;
+                IsCatchAvailable = segment.IsCatchable && !_kitten.PausedAtUtc.HasValue;
                 GlowPoint = !segment.IsCatchable && (segment.Kind == "Hide" || segment.Kind == "Tunnel")
                     && segment.EndMilliseconds - milliseconds <= 300 ? segment.Destination : null;
             }
@@ -226,7 +234,7 @@ namespace TLMG.Client.ViewModels
             {
                 _deadlinePending = false;
             }
-            if (milliseconds >= (_kitten.ExpiresAtUtc - _kitten.StartedAtUtc).TotalMilliseconds
+            if ((_kitten.PausedAtUtc.HasValue || IsWaiting)
                 && IsConnected && !_deadlinePending && _elapsed.ElapsedMilliseconds >= _nextDeadlineCheck)
             {
                 _deadlinePending = _match.CheckFugitiveKittenDeadline();

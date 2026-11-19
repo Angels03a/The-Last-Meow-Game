@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ServiceModel;
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
@@ -130,5 +130,12 @@ namespace TLMG.Services
         {
             SafeNotifyAll(_friendsService.EndSessionByFriendsChannel(_friendsChannelId));
         }
+        void IFriendsManager.FriendsHeartbeat(string sessionToken, int sequence, int confirmedSequence)
+        {
+            var callback = OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
+            SafeNotifyAll(_sessionRegistry.ProcessHeartbeat(sessionToken, _friendsChannelId, HeartbeatChannel.Friends,
+                sequence, confirmedSequence, callback.FriendsHeartbeatEcho));
+        }
+
     }
 }

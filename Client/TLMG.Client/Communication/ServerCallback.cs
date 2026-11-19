@@ -16,6 +16,22 @@ namespace TLMG.Client.Communication
     {
         private readonly ServerConnectionManager _serverConnection;
 
+        internal long? HeartbeatDue { get; set; }
+        internal long LastHeartbeatEchoAt { get; set; }
+        internal int HeartbeatSequence { get; set; }
+        internal int PendingHeartbeat { get; set; }
+        internal int ConfirmedHeartbeat { get; set; }
+
+        public void FriendsHeartbeatEcho(int sequence, string errorKey) => HeartbeatEcho(sequence, errorKey);
+        public void LobbyHeartbeatEcho(int sequence, string errorKey) => HeartbeatEcho(sequence, errorKey);
+        public void ChatHeartbeatEcho(int sequence, string errorKey) => HeartbeatEcho(sequence, errorKey);
+        public void MatchHeartbeatEcho(int sequence, string errorKey) => HeartbeatEcho(sequence, errorKey);
+
+        private void HeartbeatEcho(int sequence, string errorKey)
+        {
+            _serverConnection.RunOnInterface(() => _serverConnection.NotifyHeartbeatEcho(this, sequence, errorKey));
+        }
+
         /// <summary>Crea el receptor de callbacks de un manager.</summary>
         /// <param name="serverConnection">Manager cuyos eventos se disparan con lo que llega del servidor.</param>
         internal ServerCallback(ServerConnectionManager serverConnection)

@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using TLMG.Contracts;
 using TLMG.Domain.Constants;
@@ -91,12 +92,33 @@ namespace TLMG.Services.Sessions
 
                     if (_userIdsByChannelId.TryGetValue(channelId, out userId))
                     {
-                        lobbyMembershipChange = RemoveUserFromRoom(userId, RoomExitCause.LobbyChannelClosed, out _);
+                        if (!DetachStartedLobbyChannelInLock(userId))
+                        {
+                            lobbyMembershipChange = RemoveUserFromRoom(userId, RoomExitCause.LobbyChannelClosed, out _);
+                        }
                     }
                 }
             }
 
             return lobbyMembershipChange;
+        }
+
+        private bool DetachStartedLobbyChannelInLock(int userId)
+        {
+            if (!_roomIdsByUserId.TryGetValue(userId, out int roomId) || !_startsByRoomId[roomId].MatchId.HasValue)
+            {
+                return false;
+            }
+
+            List<LobbyMember> members = _membersByRoomId[roomId];
+            int index = members.FindIndex(member => member.UserId == userId);
+            if (members[index].ChannelId != null)
+            {
+                _userIdsByChannelId.Remove(members[index].ChannelId);
+                members[index] = new LobbyMember(userId, null, null);
+            }
+
+            return true;
         }
 
         private static LobbyMembershipChange CreateRejectedWithoutUser(LobbyChangeStatus lobbyChangeStatus)
@@ -172,6 +194,19 @@ namespace TLMG.Services.Sessions
             if (!_sessionsByToken.TryGetValue(caller.SessionToken, out playerSession))
             {
                 lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.InvalidSession);
+            }
+            else if (_roomIdsByUserId.TryGetValue(playerSession.UserId, out int currentRoomId)
+                && currentRoomId == roomId && _startsByRoomId[roomId].MatchId.HasValue
+                && !_userIdsByChannelId.ContainsKey(caller.ChannelId)
+                && _membersByRoomId[roomId].Any(member => member.UserId == playerSession.UserId && member.ChannelId == null))
+            {
+                members = _membersByRoomId[roomId];
+                int memberIndex = members.FindIndex(member => member.UserId == playerSession.UserId);
+                members[memberIndex] = new LobbyMember(playerSession.UserId, caller.ChannelId, lobbyCallback);
+                _userIdsByChannelId.Add(caller.ChannelId, playerSession.UserId);
+                TrackLinkInLock(playerSession, HeartbeatChannel.Lobby, caller.ChannelId);
+                lobbyMembershipChange = LobbyMembershipChange.CreateApplied(playerSession.UserId, roomId,
+                    CreateRoomSnapshot(roomId, members), _noLobbyCallbacks);
             }
             else if (IsUserOrChannelInRoom(playerSession.UserId, caller.ChannelId))
             {
@@ -258,7 +293,10 @@ namespace TLMG.Services.Sessions
             LobbyMember leavingMember = members.Find(member => member.UserId == userId);
             members.Remove(leavingMember);
             _roomIdsByUserId.Remove(userId);
-            _userIdsByChannelId.Remove(leavingMember.ChannelId);
+            if (leavingMember.ChannelId != null)
+            {
+                _userIdsByChannelId.Remove(leavingMember.ChannelId);
+            }
             _startsByRoomId[roomId].ReadyUserIds.Remove(userId);
 
             if (members.Count > EmptyCount)
@@ -340,6 +378,7 @@ namespace TLMG.Services.Sessions
             members.Add(member);
             _roomIdsByUserId[member.UserId] = roomId;
             _userIdsByChannelId[member.ChannelId] = member.UserId;
+            TrackLinkInLock(_sessionsByToken[_tokensByUserId[member.UserId]], HeartbeatChannel.Lobby, member.ChannelId);
             RefreshLobbyCountdownInLock(roomId);
         }
 
@@ -404,7 +443,10 @@ namespace TLMG.Services.Sessions
 
             foreach (LobbyMember member in members)
             {
-                callbacks.Add(member.Callback);
+                if (member.Callback != null)
+                {
+                    callbacks.Add(member.Callback);
+                }
             }
 
             IReadOnlyList<ILobbyManagerCallback> readOnlyCallbacks = callbacks.AsReadOnly();

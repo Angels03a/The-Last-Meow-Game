@@ -30,6 +30,8 @@ namespace TLMG.Client.ViewModels
             _lobbyConnection.FinishedMatchLeaveResultReceived += OnFinishedMatchLeaveResultReceived;
             WinnerName = result?.Players?.FirstOrDefault(player => player.UserId == result.WinnerUserId)?.Nickname
                 ?? string.Empty;
+            EndedByCollectiveAbandonment = result != null && result.Phase == MatchRoundPhase.MatchFinished
+                && result.WinnerUserId == 0;
             Standings = result?.FinalStandings;
             HasStandings = Standings != null;
             if (!string.IsNullOrWhiteSpace(WinnerName))
@@ -104,6 +106,8 @@ namespace TLMG.Client.ViewModels
 
         /// <summary>Valor de demostración del resultado.</summary>
         public string WinnerName { get; }
+
+        public bool EndedByCollectiveAbandonment { get; }
 
         /// <summary>Filas finales entregadas por el servidor; null si no están disponibles.</summary>
         public MatchStandingView[] Standings { get; }

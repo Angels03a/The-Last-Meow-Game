@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ServiceModel;
 
@@ -59,6 +59,7 @@ namespace TLMG.Services
 
         private void LogChannelOperation(string channelType, string operation, string sessionToken)
         {
+            SafeNotifyAll(_sessionRegistry.EvaluateConnectionDeadlines(false));
             PlayerSession session;
             bool hasSession = _sessionRegistry.TryFindSessionByToken(sessionToken, out session);
             _log.InfoFormat("WCF operación UTC={0:O} canal={1} correlación={2} operación={3} sesión={4}",

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ServiceModel;
 
 using TLMG.Contracts;
@@ -137,5 +137,12 @@ namespace TLMG.Services
         {
             SafeNotifyAll(_lobbyService.LeaveLobbyByChannel(_lobbyChannelId));
         }
+        void ILobbyManager.LobbyHeartbeat(string sessionToken, int sequence, int confirmedSequence)
+        {
+            var callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
+            SafeNotifyAll(_sessionRegistry.ProcessHeartbeat(sessionToken, _lobbyChannelId, HeartbeatChannel.Lobby,
+                sequence, confirmedSequence, callback.LobbyHeartbeatEcho));
+        }
+
     }
 }

@@ -40,7 +40,7 @@ namespace TLMG.Client.Communication
                 };
                 wasMessageSent = TrySend(
                     () => _chatClient.SendChatMessage(_sessionToken, chatRequest),
-                    "enviar un mensaje de chat");
+                    "enviar un mensaje de chat", CloseChatChannel);
             }
 
             return wasMessageSent;
@@ -93,10 +93,10 @@ namespace TLMG.Client.Communication
                 _chatCallback = new ServerCallback(this);
                 _chatClient = new ChatManagerClient(new InstanceContext(_chatCallback));
                 WatchChannel(_chatClient.InnerChannel);
-                bool wasChannelOpened = TrySend(_chatClient.Open, "abrir el canal de chat");
+                bool wasChannelOpened = TrySend(_chatClient.Open, "abrir el canal de chat", CloseChatChannel);
                 if (wasChannelOpened)
                 {
-                    TrySend(() => _chatClient.SubscribeToChat(_sessionToken), "suscribirse al chat");
+                    TrySend(() => _chatClient.SubscribeToChat(_sessionToken), "suscribirse al chat", CloseChatChannel);
                 }
             }
         }

@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="ServiceImplementation" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" name="ServiceImplementation" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsp:Policy wsu:Id="NetTcpBinding_IUsersManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
-        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1"></msb:BinaryEncoding>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1" />
         <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
           <wsp:Policy>
             <sp:TransportToken>
@@ -15,24 +15,24 @@
             </sp:TransportToken>
             <sp:AlgorithmSuite>
               <wsp:Policy>
-                <sp:Basic256></sp:Basic256>
+                <sp:Basic256 />
               </wsp:Policy>
             </sp:AlgorithmSuite>
             <sp:Layout>
               <wsp:Policy>
-                <sp:Strict></sp:Strict>
+                <sp:Strict />
               </wsp:Policy>
             </sp:Layout>
           </wsp:Policy>
         </sp:TransportBinding>
-        <wsaw:UsingAddressing></wsaw:UsingAddressing>
+        <wsaw:UsingAddressing />
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
   <wsp:Policy wsu:Id="NetTcpBinding_ILeaderboardManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
-        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1"></msb:BinaryEncoding>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1" />
         <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
           <wsp:Policy>
             <sp:TransportToken>
@@ -44,24 +44,24 @@
             </sp:TransportToken>
             <sp:AlgorithmSuite>
               <wsp:Policy>
-                <sp:Basic256></sp:Basic256>
+                <sp:Basic256 />
               </wsp:Policy>
             </sp:AlgorithmSuite>
             <sp:Layout>
               <wsp:Policy>
-                <sp:Strict></sp:Strict>
+                <sp:Strict />
               </wsp:Policy>
             </sp:Layout>
           </wsp:Policy>
         </sp:TransportBinding>
-        <wsaw:UsingAddressing></wsaw:UsingAddressing>
+        <wsaw:UsingAddressing />
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
   <wsp:Policy wsu:Id="NetTcpBinding_ILobbyManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
-        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1"></msb:BinaryEncoding>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1" />
         <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
           <wsp:Policy>
             <sp:TransportToken>
@@ -73,24 +73,24 @@
             </sp:TransportToken>
             <sp:AlgorithmSuite>
               <wsp:Policy>
-                <sp:Basic256></sp:Basic256>
+                <sp:Basic256 />
               </wsp:Policy>
             </sp:AlgorithmSuite>
             <sp:Layout>
               <wsp:Policy>
-                <sp:Strict></sp:Strict>
+                <sp:Strict />
               </wsp:Policy>
             </sp:Layout>
           </wsp:Policy>
         </sp:TransportBinding>
-        <wsaw:UsingAddressing></wsaw:UsingAddressing>
+        <wsaw:UsingAddressing />
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
   <wsp:Policy wsu:Id="NetTcpBinding_IFriendsManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
-        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1"></msb:BinaryEncoding>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1" />
         <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
           <wsp:Policy>
             <sp:TransportToken>
@@ -102,24 +102,24 @@
             </sp:TransportToken>
             <sp:AlgorithmSuite>
               <wsp:Policy>
-                <sp:Basic256></sp:Basic256>
+                <sp:Basic256 />
               </wsp:Policy>
             </sp:AlgorithmSuite>
             <sp:Layout>
               <wsp:Policy>
-                <sp:Strict></sp:Strict>
+                <sp:Strict />
               </wsp:Policy>
             </sp:Layout>
           </wsp:Policy>
         </sp:TransportBinding>
-        <wsaw:UsingAddressing></wsaw:UsingAddressing>
+        <wsaw:UsingAddressing />
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
   <wsp:Policy wsu:Id="NetTcpBinding_IChatManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
-        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1"></msb:BinaryEncoding>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1" />
         <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
           <wsp:Policy>
             <sp:TransportToken>
@@ -131,24 +131,24 @@
             </sp:TransportToken>
             <sp:AlgorithmSuite>
               <wsp:Policy>
-                <sp:Basic256></sp:Basic256>
+                <sp:Basic256 />
               </wsp:Policy>
             </sp:AlgorithmSuite>
             <sp:Layout>
               <wsp:Policy>
-                <sp:Strict></sp:Strict>
+                <sp:Strict />
               </wsp:Policy>
             </sp:Layout>
           </wsp:Policy>
         </sp:TransportBinding>
-        <wsaw:UsingAddressing></wsaw:UsingAddressing>
+        <wsaw:UsingAddressing />
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
   <wsp:Policy wsu:Id="NetTcpBinding_IMatchManager_policy">
     <wsp:ExactlyOne>
       <wsp:All>
-        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1"></msb:BinaryEncoding>
+        <msb:BinaryEncoding xmlns:msb="http://schemas.microsoft.com/ws/06/2004/mspolicy/netbinary1" />
         <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
           <wsp:Policy>
             <sp:TransportToken>
@@ -160,17 +160,17 @@
             </sp:TransportToken>
             <sp:AlgorithmSuite>
               <wsp:Policy>
-                <sp:Basic256></sp:Basic256>
+                <sp:Basic256 />
               </wsp:Policy>
             </sp:AlgorithmSuite>
             <sp:Layout>
               <wsp:Policy>
-                <sp:Strict></sp:Strict>
+                <sp:Strict />
               </wsp:Policy>
             </sp:Layout>
           </wsp:Policy>
         </sp:TransportBinding>
-        <wsaw:UsingAddressing></wsaw:UsingAddressing>
+        <wsaw:UsingAddressing />
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
@@ -188,7 +188,7 @@
     <wsdl:part name="parameters" element="tns:RegisterPlayerAccountResponse" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_RegisterPlayerAccount_SystemFaultFault_FaultMessage">
-    <wsdl:part xmlns:q1="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q1:SystemFault" />
+    <wsdl:part name="detail" xmlns:q1="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" element="q1:SystemFault" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_RequestAccountVerificationCode_InputMessage">
     <wsdl:part name="parameters" element="tns:RequestAccountVerificationCode" />
@@ -197,7 +197,7 @@
     <wsdl:part name="parameters" element="tns:RequestAccountVerificationCodeResponse" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_RequestAccountVerificationCode_SystemFaultFault_FaultMessage">
-    <wsdl:part xmlns:q2="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q2:SystemFault" />
+    <wsdl:part name="detail" xmlns:q2="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" element="q2:SystemFault" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_CompletePlayerAccountRegistration_InputMessage">
     <wsdl:part name="parameters" element="tns:CompletePlayerAccountRegistration" />
@@ -206,7 +206,7 @@
     <wsdl:part name="parameters" element="tns:CompletePlayerAccountRegistrationResponse" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_CompletePlayerAccountRegistration_SystemFaultFault_FaultMessage">
-    <wsdl:part xmlns:q3="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q3:SystemFault" />
+    <wsdl:part name="detail" xmlns:q3="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" element="q3:SystemFault" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_ResendAccountVerificationCode_InputMessage">
     <wsdl:part name="parameters" element="tns:ResendAccountVerificationCode" />
@@ -215,7 +215,7 @@
     <wsdl:part name="parameters" element="tns:ResendAccountVerificationCodeResponse" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_ResendAccountVerificationCode_SystemFaultFault_FaultMessage">
-    <wsdl:part xmlns:q4="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q4:SystemFault" />
+    <wsdl:part name="detail" xmlns:q4="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" element="q4:SystemFault" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_LogIn_InputMessage">
     <wsdl:part name="parameters" element="tns:LogIn" />
@@ -224,7 +224,19 @@
     <wsdl:part name="parameters" element="tns:LogInResponse" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_LogIn_SystemFaultFault_FaultMessage">
-    <wsdl:part xmlns:q5="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q5:SystemFault" />
+    <wsdl:part name="detail" xmlns:q5="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" element="q5:SystemFault" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_LogOut_InputMessage">
+    <wsdl:part name="parameters" element="tns:LogOut" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_LogOut_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LogOutResponse" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_CheckSession_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckSession" />
+  </wsdl:message>
+  <wsdl:message name="IUsersManager_CheckSession_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckSessionResponse" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_GetPlayerProfile_InputMessage">
     <wsdl:part name="parameters" element="tns:GetPlayerProfile" />
@@ -233,7 +245,7 @@
     <wsdl:part name="parameters" element="tns:GetPlayerProfileResponse" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_GetPlayerProfile_SystemFaultFault_FaultMessage">
-    <wsdl:part xmlns:q6="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q6:SystemFault" />
+    <wsdl:part name="detail" xmlns:q6="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" element="q6:SystemFault" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_UpdatePlayerProfile_InputMessage">
     <wsdl:part name="parameters" element="tns:UpdatePlayerProfile" />
@@ -242,7 +254,7 @@
     <wsdl:part name="parameters" element="tns:UpdatePlayerProfileResponse" />
   </wsdl:message>
   <wsdl:message name="IUsersManager_UpdatePlayerProfile_SystemFaultFault_FaultMessage">
-    <wsdl:part xmlns:q7="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" name="detail" element="q7:SystemFault" />
+    <wsdl:part name="detail" xmlns:q7="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" element="q7:SystemFault" />
   </wsdl:message>
   <wsdl:message name="ILeaderboardManager_GetLeaderboard_InputMessage">
     <wsdl:part name="parameters" element="tns:GetLeaderboard" />
@@ -268,6 +280,9 @@
   <wsdl:message name="ILobbyManager_RequestMatchStart_InputMessage">
     <wsdl:part name="parameters" element="tns:RequestMatchStart" />
   </wsdl:message>
+  <wsdl:message name="ILobbyManager_LobbyHeartbeat_InputMessage">
+    <wsdl:part name="parameters" element="tns:LobbyHeartbeat" />
+  </wsdl:message>
   <wsdl:message name="ILobbyManager_CreateRoomResult_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:CreateRoomResult" />
   </wsdl:message>
@@ -288,6 +303,9 @@
   </wsdl:message>
   <wsdl:message name="ILobbyManager_RequestMatchStartResult_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:RequestMatchStartResult" />
+  </wsdl:message>
+  <wsdl:message name="ILobbyManager_LobbyHeartbeatEcho_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:LobbyHeartbeatEcho" />
   </wsdl:message>
   <wsdl:message name="IFriendsManager_SubscribeToFriends_InputMessage">
     <wsdl:part name="parameters" element="tns:SubscribeToFriends" />
@@ -337,11 +355,20 @@
   <wsdl:message name="IFriendsManager_OnRoomInvitationReceived_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:OnRoomInvitationReceived" />
   </wsdl:message>
+  <wsdl:message name="IFriendsManager_FriendsHeartbeat_InputMessage">
+    <wsdl:part name="parameters" element="tns:FriendsHeartbeat" />
+  </wsdl:message>
+  <wsdl:message name="IFriendsManager_FriendsHeartbeatEcho_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:FriendsHeartbeatEcho" />
+  </wsdl:message>
   <wsdl:message name="IChatManager_SubscribeToChat_InputMessage">
     <wsdl:part name="parameters" element="tns:SubscribeToChat" />
   </wsdl:message>
   <wsdl:message name="IChatManager_SendChatMessage_InputMessage">
     <wsdl:part name="parameters" element="tns:SendChatMessage" />
+  </wsdl:message>
+  <wsdl:message name="IChatManager_ChatHeartbeat_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChatHeartbeat" />
   </wsdl:message>
   <wsdl:message name="IChatManager_SubscribeToChatResult_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:SubscribeToChatResult" />
@@ -351,6 +378,9 @@
   </wsdl:message>
   <wsdl:message name="IChatManager_OnChatMessageReceived_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:OnChatMessageReceived" />
+  </wsdl:message>
+  <wsdl:message name="IChatManager_ChatHeartbeatEcho_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:ChatHeartbeatEcho" />
   </wsdl:message>
   <wsdl:message name="IMatchManager_SubscribeToMatch_InputMessage">
     <wsdl:part name="parameters" element="tns:SubscribeToMatch" />
@@ -375,6 +405,9 @@
   </wsdl:message>
   <wsdl:message name="IMatchManager_ChoosePunishmentCard_InputMessage">
     <wsdl:part name="parameters" element="tns:ChoosePunishmentCard" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_MatchHeartbeat_InputMessage">
+    <wsdl:part name="parameters" element="tns:MatchHeartbeat" />
   </wsdl:message>
   <wsdl:message name="IMatchManager_TryCatchFugitiveKittenResult_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:TryCatchFugitiveKittenResult" />
@@ -403,6 +436,9 @@
   <wsdl:message name="IMatchManager_OnMatchViewChanged_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:OnMatchViewChanged" />
   </wsdl:message>
+  <wsdl:message name="IMatchManager_MatchHeartbeatEcho_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:MatchHeartbeatEcho" />
+  </wsdl:message>
   <wsdl:portType name="IUsersManager">
     <wsdl:operation name="RegisterPlayerAccount">
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/RegisterPlayerAccount" message="tns:IUsersManager_RegisterPlayerAccount_InputMessage" />
@@ -428,6 +464,14 @@
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/LogIn" message="tns:IUsersManager_LogIn_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/LogInResponse" message="tns:IUsersManager_LogIn_OutputMessage" />
       <wsdl:fault wsaw:Action="http://tempuri.org/IUsersManager/LogInSystemFaultFault" name="SystemFaultFault" message="tns:IUsersManager_LogIn_SystemFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LogOut">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/LogOut" message="tns:IUsersManager_LogOut_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/LogOutResponse" message="tns:IUsersManager_LogOut_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckSession">
+      <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/CheckSession" message="tns:IUsersManager_CheckSession_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IUsersManager/CheckSessionResponse" message="tns:IUsersManager_CheckSession_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation name="GetPlayerProfile">
       <wsdl:input wsaw:Action="http://tempuri.org/IUsersManager/GetPlayerProfile" message="tns:IUsersManager_GetPlayerProfile_InputMessage" />
@@ -467,6 +511,9 @@
     <wsdl:operation name="RequestMatchStart">
       <wsdl:input wsaw:Action="http://tempuri.org/ILobbyManager/RequestMatchStart" message="tns:ILobbyManager_RequestMatchStart_InputMessage" />
     </wsdl:operation>
+    <wsdl:operation name="LobbyHeartbeat">
+      <wsdl:input wsaw:Action="http://tempuri.org/ILobbyManager/LobbyHeartbeat" message="tns:ILobbyManager_LobbyHeartbeat_InputMessage" />
+    </wsdl:operation>
     <wsdl:operation name="CreateRoomResult">
       <wsdl:output wsaw:Action="http://tempuri.org/ILobbyManager/CreateRoomResult" message="tns:ILobbyManager_CreateRoomResult_OutputCallbackMessage" />
     </wsdl:operation>
@@ -487,6 +534,9 @@
     </wsdl:operation>
     <wsdl:operation name="RequestMatchStartResult">
       <wsdl:output wsaw:Action="http://tempuri.org/ILobbyManager/RequestMatchStartResult" message="tns:ILobbyManager_RequestMatchStartResult_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LobbyHeartbeatEcho">
+      <wsdl:output wsaw:Action="http://tempuri.org/ILobbyManager/LobbyHeartbeatEcho" message="tns:ILobbyManager_LobbyHeartbeatEcho_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="IFriendsManager">
@@ -538,6 +588,12 @@
     <wsdl:operation name="OnRoomInvitationReceived">
       <wsdl:output wsaw:Action="http://tempuri.org/IRoomInvitationManager/OnRoomInvitationReceived" message="tns:IFriendsManager_OnRoomInvitationReceived_OutputCallbackMessage" />
     </wsdl:operation>
+    <wsdl:operation name="FriendsHeartbeat">
+      <wsdl:input wsaw:Action="http://tempuri.org/IFriendsManager/FriendsHeartbeat" message="tns:IFriendsManager_FriendsHeartbeat_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="FriendsHeartbeatEcho">
+      <wsdl:output wsaw:Action="http://tempuri.org/IFriendsManager/FriendsHeartbeatEcho" message="tns:IFriendsManager_FriendsHeartbeatEcho_OutputCallbackMessage" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="IChatManager">
     <wsdl:operation name="SubscribeToChat">
@@ -545,6 +601,9 @@
     </wsdl:operation>
     <wsdl:operation name="SendChatMessage">
       <wsdl:input wsaw:Action="http://tempuri.org/IChatManager/SendChatMessage" message="tns:IChatManager_SendChatMessage_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChatHeartbeat">
+      <wsdl:input wsaw:Action="http://tempuri.org/IChatManager/ChatHeartbeat" message="tns:IChatManager_ChatHeartbeat_InputMessage" />
     </wsdl:operation>
     <wsdl:operation name="SubscribeToChatResult">
       <wsdl:output wsaw:Action="http://tempuri.org/IChatManager/SubscribeToChatResult" message="tns:IChatManager_SubscribeToChatResult_OutputCallbackMessage" />
@@ -554,6 +613,9 @@
     </wsdl:operation>
     <wsdl:operation name="OnChatMessageReceived">
       <wsdl:output wsaw:Action="http://tempuri.org/IChatManager/OnChatMessageReceived" message="tns:IChatManager_OnChatMessageReceived_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChatHeartbeatEcho">
+      <wsdl:output wsaw:Action="http://tempuri.org/IChatManager/ChatHeartbeatEcho" message="tns:IChatManager_ChatHeartbeatEcho_OutputCallbackMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="IMatchManager">
@@ -580,6 +642,9 @@
     </wsdl:operation>
     <wsdl:operation name="ChoosePunishmentCard">
       <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/ChoosePunishmentCard" message="tns:IMatchManager_ChoosePunishmentCard_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="MatchHeartbeat">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/MatchHeartbeat" message="tns:IMatchManager_MatchHeartbeat_InputMessage" />
     </wsdl:operation>
     <wsdl:operation name="TryCatchFugitiveKittenResult">
       <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/TryCatchFugitiveKittenResult" message="tns:IMatchManager_TryCatchFugitiveKittenResult_OutputCallbackMessage" />
@@ -608,9 +673,12 @@
     <wsdl:operation name="OnMatchViewChanged">
       <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/OnMatchViewChanged" message="tns:IMatchManager_OnMatchViewChanged_OutputCallbackMessage" />
     </wsdl:operation>
+    <wsdl:operation name="MatchHeartbeatEcho">
+      <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/MatchHeartbeatEcho" message="tns:IMatchManager_MatchHeartbeatEcho_OutputCallbackMessage" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="NetTcpBinding_IUsersManager" type="tns:IUsersManager">
-    <wsp:PolicyReference URI="#NetTcpBinding_IUsersManager_policy"></wsp:PolicyReference>
+    <wsp:PolicyReference URI="#NetTcpBinding_IUsersManager_policy" />
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="RegisterPlayerAccount">
       <soap12:operation soapAction="http://tempuri.org/IUsersManager/RegisterPlayerAccount" style="document" />
@@ -621,7 +689,7 @@
         <soap12:body use="literal" />
       </wsdl:output>
       <wsdl:fault name="SystemFaultFault">
-        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+        <soap12:fault name="SystemFaultFault" use="literal" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="RequestAccountVerificationCode">
@@ -633,7 +701,7 @@
         <soap12:body use="literal" />
       </wsdl:output>
       <wsdl:fault name="SystemFaultFault">
-        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+        <soap12:fault name="SystemFaultFault" use="literal" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="CompletePlayerAccountRegistration">
@@ -645,7 +713,7 @@
         <soap12:body use="literal" />
       </wsdl:output>
       <wsdl:fault name="SystemFaultFault">
-        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+        <soap12:fault name="SystemFaultFault" use="literal" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="ResendAccountVerificationCode">
@@ -657,7 +725,7 @@
         <soap12:body use="literal" />
       </wsdl:output>
       <wsdl:fault name="SystemFaultFault">
-        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+        <soap12:fault name="SystemFaultFault" use="literal" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="LogIn">
@@ -669,8 +737,26 @@
         <soap12:body use="literal" />
       </wsdl:output>
       <wsdl:fault name="SystemFaultFault">
-        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+        <soap12:fault name="SystemFaultFault" use="literal" />
       </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="LogOut">
+      <soap12:operation soapAction="http://tempuri.org/IUsersManager/LogOut" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckSession">
+      <soap12:operation soapAction="http://tempuri.org/IUsersManager/CheckSession" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="GetPlayerProfile">
       <soap12:operation soapAction="http://tempuri.org/IUsersManager/GetPlayerProfile" style="document" />
@@ -681,7 +767,7 @@
         <soap12:body use="literal" />
       </wsdl:output>
       <wsdl:fault name="SystemFaultFault">
-        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+        <soap12:fault name="SystemFaultFault" use="literal" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="UpdatePlayerProfile">
@@ -693,12 +779,12 @@
         <soap12:body use="literal" />
       </wsdl:output>
       <wsdl:fault name="SystemFaultFault">
-        <soap12:fault use="literal" name="SystemFaultFault" namespace="" />
+        <soap12:fault name="SystemFaultFault" use="literal" />
       </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="NetTcpBinding_ILeaderboardManager" type="tns:ILeaderboardManager">
-    <wsp:PolicyReference URI="#NetTcpBinding_ILeaderboardManager_policy"></wsp:PolicyReference>
+    <wsp:PolicyReference URI="#NetTcpBinding_ILeaderboardManager_policy" />
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="GetLeaderboard">
       <soap12:operation soapAction="http://tempuri.org/ILeaderboardManager/GetLeaderboard" style="document" />
@@ -714,7 +800,7 @@
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="NetTcpBinding_ILobbyManager" type="tns:ILobbyManager">
-    <wsp:PolicyReference URI="#NetTcpBinding_ILobbyManager_policy"></wsp:PolicyReference>
+    <wsp:PolicyReference URI="#NetTcpBinding_ILobbyManager_policy" />
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="CreateRoom">
       <soap12:operation soapAction="http://tempuri.org/ILobbyManager/CreateRoom" style="document" />
@@ -748,6 +834,12 @@
     </wsdl:operation>
     <wsdl:operation name="RequestMatchStart">
       <soap12:operation soapAction="http://tempuri.org/ILobbyManager/RequestMatchStart" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="LobbyHeartbeat">
+      <soap12:operation soapAction="http://tempuri.org/ILobbyManager/LobbyHeartbeat" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -794,9 +886,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="LobbyHeartbeatEcho">
+      <soap12:operation soapAction="http://tempuri.org/ILobbyManager/LobbyHeartbeatEcho" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="NetTcpBinding_IFriendsManager" type="tns:IFriendsManager">
-    <wsp:PolicyReference URI="#NetTcpBinding_IFriendsManager_policy"></wsp:PolicyReference>
+    <wsp:PolicyReference URI="#NetTcpBinding_IFriendsManager_policy" />
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="SubscribeToFriends">
       <soap12:operation soapAction="http://tempuri.org/IFriendshipManager/SubscribeToFriends" style="document" />
@@ -894,9 +992,21 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="FriendsHeartbeat">
+      <soap12:operation soapAction="http://tempuri.org/IFriendsManager/FriendsHeartbeat" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="FriendsHeartbeatEcho">
+      <soap12:operation soapAction="http://tempuri.org/IFriendsManager/FriendsHeartbeatEcho" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="NetTcpBinding_IChatManager" type="tns:IChatManager">
-    <wsp:PolicyReference URI="#NetTcpBinding_IChatManager_policy"></wsp:PolicyReference>
+    <wsp:PolicyReference URI="#NetTcpBinding_IChatManager_policy" />
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="SubscribeToChat">
       <soap12:operation soapAction="http://tempuri.org/IChatManager/SubscribeToChat" style="document" />
@@ -906,6 +1016,12 @@
     </wsdl:operation>
     <wsdl:operation name="SendChatMessage">
       <soap12:operation soapAction="http://tempuri.org/IChatManager/SendChatMessage" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="ChatHeartbeat">
+      <soap12:operation soapAction="http://tempuri.org/IChatManager/ChatHeartbeat" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -928,9 +1044,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ChatHeartbeatEcho">
+      <soap12:operation soapAction="http://tempuri.org/IChatManager/ChatHeartbeatEcho" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="NetTcpBinding_IMatchManager" type="tns:IMatchManager">
-    <wsp:PolicyReference URI="#NetTcpBinding_IMatchManager_policy"></wsp:PolicyReference>
+    <wsp:PolicyReference URI="#NetTcpBinding_IMatchManager_policy" />
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
     <wsdl:operation name="SubscribeToMatch">
       <soap12:operation soapAction="http://tempuri.org/IMatchManager/SubscribeToMatch" style="document" />
@@ -976,6 +1098,12 @@
     </wsdl:operation>
     <wsdl:operation name="ChoosePunishmentCard">
       <soap12:operation soapAction="http://tempuri.org/IMatchManager/ChoosePunishmentCard" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="MatchHeartbeat">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/MatchHeartbeat" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -1034,60 +1162,48 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="MatchHeartbeatEcho">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/MatchHeartbeatEcho" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="ServiceImplementation">
     <wsdl:port name="NetTcpBinding_IUsersManager" binding="tns:NetTcpBinding_IUsersManager">
       <soap12:address location="net.tcp://localhost:8081/AccountRegistrationService" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/AccountRegistrationService</wsa10:Address>
-        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
-        </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_ILeaderboardManager" binding="tns:NetTcpBinding_ILeaderboardManager">
       <soap12:address location="net.tcp://localhost:8081/LeaderboardManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/LeaderboardManager</wsa10:Address>
-        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
-        </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_ILobbyManager" binding="tns:NetTcpBinding_ILobbyManager">
       <soap12:address location="net.tcp://localhost:8081/LobbyManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/LobbyManager</wsa10:Address>
-        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
-        </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_IFriendsManager" binding="tns:NetTcpBinding_IFriendsManager">
       <soap12:address location="net.tcp://localhost:8081/FriendsManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/FriendsManager</wsa10:Address>
-        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
-        </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_IChatManager" binding="tns:NetTcpBinding_IChatManager">
       <soap12:address location="net.tcp://localhost:8081/ChatManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/ChatManager</wsa10:Address>
-        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
-        </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
     <wsdl:port name="NetTcpBinding_IMatchManager" binding="tns:NetTcpBinding_IMatchManager">
       <soap12:address location="net.tcp://localhost:8081/MatchManager" />
       <wsa10:EndpointReference>
         <wsa10:Address>net.tcp://localhost:8081/MatchManager</wsa10:Address>
-        <Identity xmlns="http://schemas.xmlsoap.org/ws/2006/02/addressingidentity">
-          <Upn>ANGEL\luisi</Upn>
-        </Identity>
       </wsa10:EndpointReference>
     </wsdl:port>
   </wsdl:service>

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 using Xunit;
 
@@ -41,6 +42,59 @@ namespace TLMG.Domain.Tests
         private static readonly DateTime _secondDisconnectionUtc = _startUtc.AddSeconds(SecondDisconnectionSeconds);
         private static readonly int[] _noGuests = new int[0];
         private static readonly Func<int, int> _pickFirstCard = cardCount => FirstCardIndex;
+
+        [Theory]
+        [InlineData(false, 3)]
+        [InlineData(true, 0)]
+        public void CalculateFromMatch_WithCollectiveAbandonment_PreservesEliminatedPlayers(bool isGuest,
+            int expectedFirstPoints)
+        {
+            MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
+            EliminateOnOwnCat(match, PlayerCId);
+            EliminateOnOwnCat(match, PlayerDId);
+            var exits = new Dictionary<int, PlayerExit>
+            {
+                [PlayerBId] = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc),
+                [PlayerAId] = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc)
+            };
+
+            PlayerExitStatus status = match.RemoveSimultaneousPlayers(exits, _pickFirstCard);
+            FinalStandings result = FinalStandings.CalculateFromMatch(match, isGuest ? new[] { PlayerDId } : _noGuests);
+
+            Assert.Equal(PlayerExitStatus.MatchFinished, status);
+            Assert.True(match.EndedByCollectiveAbandonment);
+            Assert.Null(match.Winner);
+            AssertStandings(result, new[] { PlayerDId, PlayerCId, PlayerAId, PlayerBId },
+                new[] { expectedFirstPoints, 2, 0, 0 });
+        }
+
+        [Fact]
+        public void CalculateFromMatch_WhenAllPlayersAbandon_ReturnsZeroPoints()
+        {
+            MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
+            var exits = new[] { PlayerCId, PlayerBId, PlayerAId }.ToDictionary(id => id,
+                id => new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc));
+
+            match.RemoveSimultaneousPlayers(exits, _pickFirstCard);
+
+            AssertStandings(FinalStandings.CalculateFromMatch(match, _noGuests),
+                new[] { PlayerAId, PlayerBId, PlayerCId }, new[] { 0, 0, 0 });
+        }
+
+        [Fact]
+        public void RemoveSimultaneousPlayers_WithOneSurvivor_DeclaresWinner()
+        {
+            MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
+            var exits = new[] { PlayerCId, PlayerBId }.ToDictionary(id => id,
+                id => new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc));
+
+            PlayerExitStatus status = match.RemoveSimultaneousPlayers(exits, _pickFirstCard);
+
+            Assert.Equal(PlayerExitStatus.MatchFinished, status);
+            Assert.Equal(PlayerAId, match.Winner.PlayerId);
+            Assert.False(match.EndedByCollectiveAbandonment);
+        }
+
 
         /// <summary>Verifica CalculateFromMatch_ScenarioE61AfterBetLeaderLeft_PutsHimLastWithZero.</summary>
         [Fact]

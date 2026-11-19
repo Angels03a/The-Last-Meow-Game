@@ -166,7 +166,11 @@ namespace TLMG.Services.Sessions
         {
             DateTime nowUtc = _readUtcNow();
             bool hasExpired = ExpireMatchDeadlinesInLock(matchRecord, nowUtc);
-            string errorKey = matchRecord.Kitten != null && !matchRecord.Kitten.IsResolved
+            string errorKey = matchRecord.Disconnections.Count != 0
+                && matchRecord.MatchState.Phase != RoundPhase.MatchFinished
+                && matchRecord.MatchState.PendingPunishment?.ChooserPlayerId != userId
+                ? "Match_ReconnectionPending"
+                : matchRecord.Kitten != null && !matchRecord.Kitten.IsResolved
                 ? MatchErrorKeys.FugitiveKittenInProgress
                 : matchAction(matchRecord, userId, nowUtc);
             IReadOnlyList<MatchViewDelivery> viewDeliveries = _noMatchViewDeliveries;
@@ -197,11 +201,40 @@ namespace TLMG.Services.Sessions
             MatchRecord matchRecord,
             IMatchManagerCallback callback)
         {
-            bool hasExpired = ExpireMatchDeadlinesInLock(matchRecord, _readUtcNow());
+            DateTime nowUtc = _readUtcNow();
+            bool hasExpired = ExpireMatchDeadlinesInLock(matchRecord, nowUtc);
+            if (matchRecord.MatchState.Players.Any(player => player.PlayerId == userId && player.HasLeftMatch))
+            {
+                if (hasExpired)
+                {
+                    matchRecord.Version++;
+                }
+                return MatchDelivery.CreateRejected(MatchErrorKeys.NotInMatch,
+                    hasExpired ? CreateViewDeliveriesInLock(matchRecord) : _noMatchViewDeliveries);
+            }
+
+            matchRecord.AwaitingFirstLink.Remove(userId);
+            if (matchRecord.Disconnections.Remove(userId))
+            {
+                if (matchRecord.MatchState.Phase != RoundPhase.MatchFinished
+                    && matchRecord.MatchState.ResumePunishment(userId, nowUtc, _pickRandomIndex)
+                        == PunishmentStatus.CardRemoved)
+                {
+                    matchRecord.LastChallenge?.ResolvePunishment(MatchPunishmentResolution.ChosenAtRandom);
+                    DiscardEndedBlindSlots(matchRecord);
+                }
+                hasExpired = true;
+            }
 
             if (hasExpired)
             {
                 matchRecord.Version++;
+            }
+
+            if (UpdateKittenClockInLock(matchRecord, nowUtc) && !hasExpired)
+            {
+                matchRecord.Version++;
+                hasExpired = true;
             }
 
             // Primero se prepara todo lo que puede fallar; después solo se sustituye la suscripción.
@@ -210,6 +243,7 @@ namespace TLMG.Services.Sessions
             _matchChannelsByUserId[userId] =
                 new MatchChannel(caller.SessionToken, caller.ChannelId, matchRecord.MatchId, callback);
             _matchUserIdsByChannelId[caller.ChannelId] = userId;
+            TrackLinkInLock(_sessionsByToken[caller.SessionToken], HeartbeatChannel.Match, caller.ChannelId);
             IReadOnlyList<MatchViewDelivery> viewDeliveries = new List<MatchViewDelivery> { ownViewDelivery }
                 .AsReadOnly();
 
@@ -231,11 +265,18 @@ namespace TLMG.Services.Sessions
         /// <returns>true si se quitó la suscripción; en caso contrario, false.</returns>
         public bool RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback)
         {
+            return RemoveMatchChannel(channelId, closedCallback, out _);
+        }
+
+        public bool RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback,
+            out IReadOnlyList<MatchViewDelivery> deliveries)
+        {
             bool wasRemoved = false;
+            deliveries = _noMatchViewDeliveries;
 
             lock (_sessionsLock)
             {
-                int userId;
+                int userId = 0;
 
                 if (!string.IsNullOrEmpty(channelId) && _matchUserIdsByChannelId.TryGetValue(channelId, out userId))
                 {
@@ -244,7 +285,19 @@ namespace TLMG.Services.Sessions
 
                 if (wasRemoved)
                 {
-                    RemoveMatchChannelOfUserInLock(_matchUserIdsByChannelId[channelId]);
+                    MatchChannel channel = _matchChannelsByUserId[userId];
+                    RemoveMatchChannelOfUserInLock(userId);
+                    if (_matchesById.TryGetValue(channel.MatchId, out MatchRecord match))
+                    {
+                        DateTime nowUtc = _readUtcNow();
+                        bool changed = ExpireMatchDeadlinesInLock(match, nowUtc);
+                        changed |= OpenMatchGraceInLock(match, userId, nowUtc);
+                        if (changed)
+                        {
+                            match.Version++;
+                            deliveries = CreateViewDeliveriesInLock(match);
+                        }
+                    }
                 }
             }
 
@@ -610,6 +663,13 @@ namespace TLMG.Services.Sessions
                 matchRecord.LastChallenge,
                 matchRecord.AllParticipantsRegistered);
             MatchView matchView = MatchViewHelper.CreateMatchView(viewContext, userId);
+            if (matchRecord.Disconnections.Count != 0)
+            {
+                matchView.CanPlaceCard = false;
+                matchView.CanPlaceBet = false;
+                matchView.CanWithdrawFromBet = false;
+                matchView.CanRevealCard = false;
+            }
             matchView.FugitiveKitten = CreateFugitiveKittenViewInLock(matchRecord, _readUtcNow());
             MatchViewDelivery viewDelivery = new MatchViewDelivery(callback, matchView);
 

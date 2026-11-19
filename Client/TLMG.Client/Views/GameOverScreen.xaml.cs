@@ -20,6 +20,12 @@ namespace TLMG.Client.Views
 
         protected override void UpdateDynamicLabels()
         {
+            if (_viewModel.EndedByCollectiveAbandonment)
+            {
+                lblWinnerTitle.Text = TryFindResource("GameOver_CollectiveAbandonment") as string ?? string.Empty;
+                return;
+            }
+
             string winnerTitleFormat = TryFindResource(WinnerTitleFormatKey) as string ?? DefaultFormat;
             lblWinnerTitle.Text = string.IsNullOrWhiteSpace(_viewModel.WinnerName)
                 ? TryFindResource("GameOver_NoWinnerAvailable") as string ?? string.Empty

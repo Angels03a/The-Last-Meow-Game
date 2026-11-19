@@ -120,8 +120,12 @@ namespace TLMG.Services.Tests
             scenario.SubscribeAll();
             int closingUserId = scenario.UserIds[GuestIndex];
             int viewsBefore = scenario.CallbackOf(closingUserId).Views.Count;
-            service.RemoveMatchChannel(
+            var pauseNotifications = service.RemoveMatchChannel(
                 MatchPlayScenario.MatchChannelPrefix + closingUserId, scenario.CallbackOf(closingUserId));
+            foreach (Action notification in pauseNotifications)
+            {
+                notification();
+            }
 
             // Act
             ResultWithNotification<OperationResult> result =
@@ -130,7 +134,9 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.Equal(viewsBefore, scenario.CallbackOf(closingUserId).Views.Count);
-            Assert.Equal(MinimumPlayerCount - OneView, result.Notifications.Count);
+            Assert.Equal(MinimumPlayerCount - OneView, pauseNotifications.Count);
+            Assert.False(result.OperationResult.IsSuccess);
+            Assert.Empty(result.Notifications);
         }
 
         private static void RunNotifications(ResultWithNotification<OperationResult> result)

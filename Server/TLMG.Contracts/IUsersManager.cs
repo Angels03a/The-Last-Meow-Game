@@ -1,4 +1,4 @@
-﻿using System.ServiceModel;
+using System.ServiceModel;
 using TLMG.Contracts.DataContracts;
 
 namespace TLMG.Contracts
@@ -57,6 +57,13 @@ namespace TLMG.Contracts
         [OperationContract]
         [FaultContract(typeof(SystemFault))]
         OperationLogInResult LogIn(OperationLogInRequest operationLogInRequest);
+
+        /// <summary>Revokes a session when the player has no active match participation.</summary>
+        [OperationContract]
+        LogOutResult LogOut(string sessionToken);
+
+        [OperationContract]
+        OperationResult CheckSession(string sessionToken);
 
         /// <summary>Returns the profile of the session owner so the screen shows server data, not client state.</summary>
         /// <param name="sessionToken">Token issued at log in that identifies the player.</param>

@@ -133,6 +133,7 @@ namespace TLMG.Client.UsersManagerReference
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
     [System.SerializableAttribute()]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationLogInResult))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.LogOutResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationPlayerProfileResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationGetLeaderboardResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationLobbyRoomResult))]
@@ -279,6 +280,14 @@ namespace TLMG.Client.UsersManagerReference
                 }
             }
         }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="LogOutResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class LogOutResult : TLMG.Client.UsersManagerReference.OperationResult
+    {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -2815,6 +2824,9 @@ namespace TLMG.Client.UsersManagerReference
         private System.DateTime ExpiresAtUtcField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<System.DateTime> PausedAtUtcField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.FugitiveKittenResult ResultField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -2874,6 +2886,23 @@ namespace TLMG.Client.UsersManagerReference
                 {
                     this.ExpiresAtUtcField = value;
                     this.RaisePropertyChanged("ExpiresAtUtc");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<System.DateTime> PausedAtUtc
+        {
+            get
+            {
+                return this.PausedAtUtcField;
+            }
+            set
+            {
+                if ((this.PausedAtUtcField.Equals(value) != true))
+                {
+                    this.PausedAtUtcField = value;
+                    this.RaisePropertyChanged("PausedAtUtc");
                 }
             }
         }
@@ -3778,6 +3807,18 @@ namespace TLMG.Client.UsersManagerReference
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/LogIn", ReplyAction="http://tempuri.org/IUsersManager/LogInResponse")]
         System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationLogInResult> LogInAsync(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/LogOut", ReplyAction="http://tempuri.org/IUsersManager/LogOutResponse")]
+        TLMG.Client.UsersManagerReference.LogOutResult LogOut(string sessionToken);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/LogOut", ReplyAction="http://tempuri.org/IUsersManager/LogOutResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.LogOutResult> LogOutAsync(string sessionToken);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/CheckSession", ReplyAction="http://tempuri.org/IUsersManager/CheckSessionResponse")]
+        TLMG.Client.UsersManagerReference.OperationResult CheckSession(string sessionToken);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/CheckSession", ReplyAction="http://tempuri.org/IUsersManager/CheckSessionResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> CheckSessionAsync(string sessionToken);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IUsersManager/GetPlayerProfile", ReplyAction="http://tempuri.org/IUsersManager/GetPlayerProfileResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/IUsersManager/GetPlayerProfileSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
         TLMG.Client.UsersManagerReference.OperationPlayerProfileResult GetPlayerProfile(string sessionToken);
@@ -3875,6 +3916,26 @@ namespace TLMG.Client.UsersManagerReference
         public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationLogInResult> LogInAsync(TLMG.Client.UsersManagerReference.OperationLogInRequest operationLogInRequest)
         {
             return base.Channel.LogInAsync(operationLogInRequest);
+        }
+        
+        public TLMG.Client.UsersManagerReference.LogOutResult LogOut(string sessionToken)
+        {
+            return base.Channel.LogOut(sessionToken);
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.LogOutResult> LogOutAsync(string sessionToken)
+        {
+            return base.Channel.LogOutAsync(sessionToken);
+        }
+        
+        public TLMG.Client.UsersManagerReference.OperationResult CheckSession(string sessionToken)
+        {
+            return base.Channel.CheckSession(sessionToken);
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> CheckSessionAsync(string sessionToken)
+        {
+            return base.Channel.CheckSessionAsync(sessionToken);
         }
         
         public TLMG.Client.UsersManagerReference.OperationPlayerProfileResult GetPlayerProfile(string sessionToken)
@@ -4004,6 +4065,12 @@ namespace TLMG.Client.UsersManagerReference
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/RequestMatchStart")]
         System.Threading.Tasks.Task RequestMatchStartAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationMatchStartRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/LobbyHeartbeat")]
+        void LobbyHeartbeat(string sessionToken, int sequence, int confirmedSequence);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/LobbyHeartbeat")]
+        System.Threading.Tasks.Task LobbyHeartbeatAsync(string sessionToken, int sequence, int confirmedSequence);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4030,6 +4097,9 @@ namespace TLMG.Client.UsersManagerReference
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/RequestMatchStartResult")]
         void RequestMatchStartResult(TLMG.Client.UsersManagerReference.OperationRequestMatchStartResult result);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILobbyManager/LobbyHeartbeatEcho")]
+        void LobbyHeartbeatEcho(int sequence, string errorKey);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4126,6 +4196,16 @@ namespace TLMG.Client.UsersManagerReference
         {
             return base.Channel.RequestMatchStartAsync(sessionToken, request);
         }
+        
+        public void LobbyHeartbeat(string sessionToken, int sequence, int confirmedSequence)
+        {
+            base.Channel.LobbyHeartbeat(sessionToken, sequence, confirmedSequence);
+        }
+        
+        public System.Threading.Tasks.Task LobbyHeartbeatAsync(string sessionToken, int sequence, int confirmedSequence)
+        {
+            return base.Channel.LobbyHeartbeatAsync(sessionToken, sequence, confirmedSequence);
+        }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4168,6 +4248,12 @@ namespace TLMG.Client.UsersManagerReference
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/AcceptRoomInvitation")]
         System.Threading.Tasks.Task AcceptRoomInvitationAsync(string sessionToken, int invitationId);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/FriendsHeartbeat")]
+        void FriendsHeartbeat(string sessionToken, int sequence, int confirmedSequence);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/FriendsHeartbeat")]
+        System.Threading.Tasks.Task FriendsHeartbeatAsync(string sessionToken, int sequence, int confirmedSequence);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4203,6 +4289,9 @@ namespace TLMG.Client.UsersManagerReference
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IRoomInvitationManager/OnRoomInvitationReceived")]
         void OnRoomInvitationReceived(TLMG.Client.UsersManagerReference.RoomInvitation roomInvitation);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IFriendsManager/FriendsHeartbeatEcho")]
+        void FriendsHeartbeatEcho(int sequence, string errorKey);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4299,6 +4388,16 @@ namespace TLMG.Client.UsersManagerReference
         {
             return base.Channel.AcceptRoomInvitationAsync(sessionToken, invitationId);
         }
+        
+        public void FriendsHeartbeat(string sessionToken, int sequence, int confirmedSequence)
+        {
+            base.Channel.FriendsHeartbeat(sessionToken, sequence, confirmedSequence);
+        }
+        
+        public System.Threading.Tasks.Task FriendsHeartbeatAsync(string sessionToken, int sequence, int confirmedSequence)
+        {
+            return base.Channel.FriendsHeartbeatAsync(sessionToken, sequence, confirmedSequence);
+        }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4317,6 +4416,12 @@ namespace TLMG.Client.UsersManagerReference
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/SendChatMessage")]
         System.Threading.Tasks.Task SendChatMessageAsync(string sessionToken, TLMG.Client.UsersManagerReference.OperationSendChatMessageRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/ChatHeartbeat")]
+        void ChatHeartbeat(string sessionToken, int sequence, int confirmedSequence);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/ChatHeartbeat")]
+        System.Threading.Tasks.Task ChatHeartbeatAsync(string sessionToken, int sequence, int confirmedSequence);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4331,6 +4436,9 @@ namespace TLMG.Client.UsersManagerReference
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/OnChatMessageReceived")]
         void OnChatMessageReceived(TLMG.Client.UsersManagerReference.ChatMessage chatMessage);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IChatManager/ChatHeartbeatEcho")]
+        void ChatHeartbeatEcho(int sequence, string errorKey);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4387,6 +4495,16 @@ namespace TLMG.Client.UsersManagerReference
         {
             return base.Channel.SendChatMessageAsync(sessionToken, request);
         }
+        
+        public void ChatHeartbeat(string sessionToken, int sequence, int confirmedSequence)
+        {
+            base.Channel.ChatHeartbeat(sessionToken, sequence, confirmedSequence);
+        }
+        
+        public System.Threading.Tasks.Task ChatHeartbeatAsync(string sessionToken, int sequence, int confirmedSequence)
+        {
+            return base.Channel.ChatHeartbeatAsync(sessionToken, sequence, confirmedSequence);
+        }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4441,6 +4559,12 @@ namespace TLMG.Client.UsersManagerReference
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/ChoosePunishmentCard")]
         System.Threading.Tasks.Task ChoosePunishmentCardAsync(string sessionToken, int cardIndex);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/MatchHeartbeat")]
+        void MatchHeartbeat(string sessionToken, int sequence, int confirmedSequence);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/MatchHeartbeat")]
+        System.Threading.Tasks.Task MatchHeartbeatAsync(string sessionToken, int sequence, int confirmedSequence);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4473,6 +4597,9 @@ namespace TLMG.Client.UsersManagerReference
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/OnMatchViewChanged")]
         void OnMatchViewChanged(TLMG.Client.UsersManagerReference.MatchView matchView);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/MatchHeartbeatEcho")]
+        void MatchHeartbeatEcho(int sequence, string errorKey);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4588,6 +4715,16 @@ namespace TLMG.Client.UsersManagerReference
         public System.Threading.Tasks.Task ChoosePunishmentCardAsync(string sessionToken, int cardIndex)
         {
             return base.Channel.ChoosePunishmentCardAsync(sessionToken, cardIndex);
+        }
+        
+        public void MatchHeartbeat(string sessionToken, int sequence, int confirmedSequence)
+        {
+            base.Channel.MatchHeartbeat(sessionToken, sequence, confirmedSequence);
+        }
+        
+        public System.Threading.Tasks.Task MatchHeartbeatAsync(string sessionToken, int sequence, int confirmedSequence)
+        {
+            return base.Channel.MatchHeartbeatAsync(sessionToken, sequence, confirmedSequence);
         }
     }
 }

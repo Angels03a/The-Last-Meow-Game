@@ -11,9 +11,30 @@ namespace TLMG.Client.Communication
         private const string RegistrationConnectionErrorKey = "CreateAccount_NetworkError";
         private const string RegistrationUnexpectedErrorKey = "CreateAccount_DataModelError";
 
-        public void LogOut()
+        public LogOutResult LogOut()
         {
-            Disconnect();
+            LogOutResult result = SendUsersManagerRequest(
+                client => client.LogOut(_sessionToken), "cerrar sesión",
+                "MainMenu_LogOutUnconfirmed", "MainMenu_LogOutUnconfirmed");
+
+            if (!result.IsSuccess && result.ErrorKey == "MainMenu_LogOutUnconfirmed")
+            {
+                OperationResult validity = SendUsersManagerRequest(
+                    client => client.CheckSession(_sessionToken), "comprobar el cierre de sesión",
+                    "MainMenu_LogOutUnconfirmed", "MainMenu_LogOutUnconfirmed");
+                if (validity.ErrorKey == "Common_InvalidSessionError")
+                {
+                    result = new LogOutResult { IsSuccess = true };
+                }
+            }
+
+            if (result.IsSuccess || result.ErrorKey == "Common_InvalidSessionError")
+            {
+                Disconnect();
+                result = new LogOutResult { IsSuccess = true };
+            }
+
+            return result;
         }
 
         public OperationLogInResult LogIn(string email, string password)

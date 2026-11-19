@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace TLMG.Domain.Engine
@@ -48,6 +49,71 @@ namespace TLMG.Domain.Engine
 
             return exitStatus;
         }
+
+        /// <summary>Aplica las bajas de un mismo instante antes de evaluar al último jugador activo.</summary>
+        public PlayerExitStatus RemoveSimultaneousPlayers(IReadOnlyDictionary<int, PlayerExit> exits,
+            Func<int, int> chooseRandomCardIndex)
+        {
+            if (exits == null)
+            {
+                throw new ArgumentNullException(nameof(exits));
+            }
+
+            if (chooseRandomCardIndex == null)
+            {
+                throw new ArgumentNullException(nameof(chooseRandomCardIndex));
+            }
+
+            if (exits.Count < 2 || exits.Values.Any(exit => exit == null)
+                || exits.Values.Select(exit => exit.EffectiveAtUtc).Distinct().Count() != 1)
+            {
+                throw new ArgumentException("Las bajas deben tener la misma hora efectiva.", nameof(exits));
+            }
+
+            foreach (int playerId in exits.Keys)
+            {
+                PlayerExitStatus status = ValidateExit(playerId);
+                if (status != PlayerExitStatus.RoundRestarted)
+                {
+                    return status;
+                }
+            }
+
+            MatchPlayer[] leavingPlayers = _players.Where(player => exits.ContainsKey(player.PlayerId)).ToArray();
+            int remaining = _players.Count(player => player.IsInPlay) - leavingPlayers.Length;
+            MatchPlayer affectedPlayer = leavingPlayers[0];
+            int? randomCardIndex = null;
+
+            if (remaining > LastSurvivorCount && PendingPunishment != null)
+            {
+                affectedPlayer = leavingPlayers.FirstOrDefault(player =>
+                    player.PlayerId == PendingPunishment.PunishedPlayerId)
+                    ?? leavingPlayers.FirstOrDefault(IsActiveChooserOnly) ?? affectedPlayer;
+                if (IsActiveChooserOnly(affectedPlayer))
+                {
+                    randomCardIndex = PickRandomCardIndex(chooseRandomCardIndex);
+                }
+            }
+
+            foreach (MatchPlayer player in leavingPlayers)
+            {
+                player.Exit = exits[player.PlayerId];
+            }
+
+            if (remaining == 0)
+            {
+                PendingPunishment = null;
+                DiscardRoundInProgress();
+                Phase = RoundPhase.MatchFinished;
+                return PlayerExitStatus.MatchFinished;
+            }
+
+            return ApplyExit(affectedPlayer, randomCardIndex);
+        }
+
+        /// <summary>Indica que todos los activos restantes abandonaron en el mismo instante.</summary>
+        public bool EndedByCollectiveAbandonment => Phase == RoundPhase.MatchFinished && Winner == null;
+
 
         /// <summary>Aplica la salida ya registrada: victoria del último, reinicio o efecto en el castigo.</summary>
         private PlayerExitStatus ApplyExit(MatchPlayer leavingPlayer, int? randomCardIndex)

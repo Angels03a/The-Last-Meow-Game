@@ -19,6 +19,15 @@ namespace TLMG.Services.Tests
         public bool EndSession(string sessionToken, out SessionEnd sessionEnd) =>
             throw new InvalidOperationException(FailureMessage);
 
+        public bool TryLogOut(string sessionToken, out SessionEnd sessionEnd, out bool hasActiveParticipation) =>
+            throw new InvalidOperationException(FailureMessage);
+
+        public IReadOnlyList<Action> EvaluateConnectionDeadlines(bool force = true) => Array.Empty<Action>();
+
+        public IReadOnlyList<Action> ProcessHeartbeat(string token, string channelId, HeartbeatChannel channel,
+            int sequence, int confirmedSequence, Action<int, string> echo) =>
+            throw new InvalidOperationException(FailureMessage);
+
         public bool TryEndSessionByFriendsChannel(string channelId, out SessionEnd sessionEnd) =>
             throw new InvalidOperationException(FailureMessage);
 
@@ -112,7 +121,8 @@ namespace TLMG.Services.Tests
         public MatchDelivery ChoosePunishmentCard(LobbyCaller caller, int cardIndex) =>
             throw new InvalidOperationException(FailureMessage);
 
-        public bool RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback) =>
+        public bool RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback,
+            out IReadOnlyList<MatchViewDelivery> deliveries) =>
             throw new InvalidOperationException(FailureMessage);
     }
 }

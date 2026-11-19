@@ -45,5 +45,6 @@ namespace TLMG.Services.Tests
         {
             CallCount++;
         }
+        public void LobbyHeartbeatEcho(int sequence, string errorKey) { }
     }
 }

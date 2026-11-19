@@ -34,6 +34,31 @@ namespace TLMG.Services.Tests
             }
         }
 
+        [Fact]
+        public void Pause_WaitsForInitialLinksAndFreezesElapsedTimeDuringOverlappingLosses()
+        {
+            var scenario = new MatchPlayScenario(3, 8);
+            scenario.Subscribe(scenario.CreatorUserId);
+            scenario.Clock.Advance(TimeSpan.FromSeconds(3));
+            Assert.True(scenario.Registry.FindFugitiveKitten(scenario.MatchId, scenario.CreatorUserId)
+                .PausedAtUtc.HasValue);
+
+            scenario.SubscribeAll();
+            scenario.Clock.Advance(TimeSpan.FromMilliseconds(900));
+            Assert.True(scenario.CloseMatchChannelOf(scenario.UserIds[1]));
+            scenario.Clock.Advance(TimeSpan.FromSeconds(2));
+            Assert.True(scenario.CloseMatchChannelOf(scenario.UserIds[2]));
+            scenario.Clock.Advance(TimeSpan.FromSeconds(2));
+            scenario.Subscribe(scenario.UserIds[1]);
+            Assert.True(scenario.Registry.FindFugitiveKitten(scenario.MatchId, scenario.CreatorUserId)
+                .PausedAtUtc.HasValue);
+            scenario.Subscribe(scenario.UserIds[2]);
+
+            var resumed = scenario.Registry.FindFugitiveKitten(scenario.MatchId, scenario.CreatorUserId);
+            Assert.Null(resumed.PausedAtUtc);
+            Assert.Equal(TimeSpan.FromMilliseconds(900), scenario.Clock.NowUtc - resumed.StartedAtUtc);
+        }
+
         [Theory]
         [InlineData(899, false)]
         [InlineData(900, true)]
@@ -52,7 +77,7 @@ namespace TLMG.Services.Tests
             Assert.Null(delivery.ErrorKey);
             Assert.Equal(catches, state.Outcome == FugitiveKittenOutcome.Caught);
             Assert.Equal(catches ? scenario.CreatorUserId : (int?)null, state.WinnerUserId);
-            Assert.Equal(catches || milliseconds >= 15000 ? 2 : 1, state.Version);
+            Assert.Equal(catches || milliseconds >= 15000 ? 3 : 2, state.Version);
             Assert.Equal(catches || milliseconds >= 15000 ? 3 : 0, delivery.ViewDeliveries.Count);
         }
 
@@ -66,7 +91,7 @@ namespace TLMG.Services.Tests
             MatchDelivery second = scenario.Registry.TryCatchFugitiveKitten(scenario.MatchCallerOf(scenario.UserIds[1]));
             FugitiveKittenSnapshot state = scenario.Registry.FindFugitiveKitten(scenario.MatchId, scenario.CreatorUserId);
             Assert.Equal(scenario.UserIds[0], state.WinnerUserId);
-            Assert.Equal(2, state.Version);
+            Assert.Equal(3, state.Version);
             Assert.Empty(second.ViewDeliveries);
             FieldInfo matchesField = typeof(SessionRegistry).GetField("_matchesById",
                 BindingFlags.Instance | BindingFlags.NonPublic);
@@ -99,7 +124,7 @@ namespace TLMG.Services.Tests
                 scenario.MatchCallerOf(scenario.CreatorUserId));
             MatchViewDelivery ownView = Assert.Single(recovered.ViewDeliveries);
             Assert.Same(scenario.CallbackOf(scenario.CreatorUserId), ownView.Callback);
-            Assert.Equal(2, ownView.MatchView.Version);
+            Assert.Equal(3, ownView.MatchView.Version);
             Assert.Equal(FugitiveKittenResult.Escaped, ownView.MatchView.FugitiveKitten.Result);
             Assert.Null(scenario.Place(scenario.CreatorUserId, MatchCardKind.Safe).ErrorKey);
         }
@@ -115,10 +140,10 @@ namespace TLMG.Services.Tests
             MatchDelivery recovered = scenario.Registry.CheckFugitiveKittenDeadline(scenario.MatchCallerOf(requester));
             MatchViewDelivery view = Assert.Single(recovered.ViewDeliveries);
             Assert.Same(scenario.CallbackOf(requester), view.Callback);
-            Assert.Equal(2, view.MatchView.Version);
+            Assert.Equal(3, view.MatchView.Version);
             Assert.Equal(FugitiveKittenResult.Caught, view.MatchView.FugitiveKitten.Result);
             Assert.Equal(scenario.CreatorUserId, view.MatchView.FugitiveKitten.WinnerUserId);
-            Assert.Equal(2, scenario.Registry.FindFugitiveKitten(scenario.MatchId, requester).Version);
+            Assert.Equal(3, scenario.Registry.FindFugitiveKitten(scenario.MatchId, requester).Version);
         }
 
         [Fact]
@@ -162,7 +187,7 @@ namespace TLMG.Services.Tests
             scenario.Clock.Advance(TimeSpan.FromMilliseconds(900));
             MatchDelivery result = scenario.Registry.TryCatchFugitiveKitten(MatchPlayScenario.CallerWithToken("invalid"));
             Assert.NotNull(result.ErrorKey);
-            Assert.Equal(1, scenario.Registry.FindFugitiveKitten(scenario.MatchId, scenario.CreatorUserId).Version);
+            Assert.Equal(2, scenario.Registry.FindFugitiveKitten(scenario.MatchId, scenario.CreatorUserId).Version);
         }
     }
 }

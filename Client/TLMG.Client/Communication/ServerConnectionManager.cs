@@ -70,7 +70,7 @@ namespace TLMG.Client.Communication
 
         public event EventHandler ConnectionLost;
 
-        public bool HasRegisteredSession => _friendsClient != null && !string.IsNullOrEmpty(_sessionToken);
+        public bool HasRegisteredSession => !string.IsNullOrEmpty(_sessionToken);
 
         public LobbyRoom CurrentRoom { get; private set; }
 
@@ -93,6 +93,10 @@ namespace TLMG.Client.Communication
                 PlayerUserId = operationLogInResult.UserId;
                 PlayerNickname = operationLogInResult.Nickname;
                 wasRegisterSessionStarted = TryOpenFriendsChannel();
+                if (wasRegisterSessionStarted)
+                {
+                    StartHeartbeat();
+                }
 
                 if (!wasRegisterSessionStarted)
                 {
@@ -109,6 +113,7 @@ namespace TLMG.Client.Communication
 
         public void Disconnect()
         {
+            StopHeartbeat();
             UnwatchChannel(_friendsChannel);
             UnwatchChannel(_lobbyChannel);
             CloseClientSafely(_friendsClient);
@@ -134,10 +139,10 @@ namespace TLMG.Client.Communication
         {
             bool wasRequestFriendListSent = false;
 
-            if (HasRegisteredSession)
+            if (_friendsClient != null && HasRegisteredSession)
             {
                 wasRequestFriendListSent = TrySend(() => _friendsClient.SubscribeToFriends(_sessionToken),
-                    "pedir la lista de amigos");
+                    "pedir la lista de amigos", CloseFriendsChannel);
             }
 
             return wasRequestFriendListSent;
@@ -147,11 +152,11 @@ namespace TLMG.Client.Communication
         {
             bool wasInviteFriendToRoomSent = false;
 
-            if (HasRegisteredSession)
+            if (_friendsClient != null && HasRegisteredSession)
             {
                 wasInviteFriendToRoomSent = TrySend(
                     () => _friendsClient.InviteFriendToRoom(_sessionToken, friendUserId),
-                    "invitar a un amigo a la sala");
+                    "invitar a un amigo a la sala", CloseFriendsChannel);
             }
 
             return wasInviteFriendToRoomSent;
@@ -161,11 +166,11 @@ namespace TLMG.Client.Communication
         {
             bool wasAcceptRoomInvitationSent = false;
 
-            if (HasRegisteredSession)
+            if (_friendsClient != null && HasRegisteredSession)
             {
                 wasAcceptRoomInvitationSent = TrySend(
                     () => _friendsClient.AcceptRoomInvitation(_sessionToken, invitationId),
-                    "aceptar una invitación a la sala");
+                    "aceptar una invitación a la sala", CloseFriendsChannel);
             }
 
             return wasAcceptRoomInvitationSent;
@@ -602,7 +607,7 @@ namespace TLMG.Client.Communication
             return wasLobbyChannelOpened;
         }
 
-        private bool TrySend(Action sendOperation, string operationDescription)
+        private bool TrySend(Action sendOperation, string operationDescription, Action onFailure = null)
         {
             bool wasSent = false;
 
@@ -614,12 +619,12 @@ namespace TLMG.Client.Communication
             catch (CommunicationException ex)
             {
                 _log.Error(string.Format("Error de comunicación al {0}.", operationDescription), ex);
-                DisconnectAndNotifyConnectionLost();
+                (onFailure ?? DisconnectAndNotifyConnectionLost).Invoke();
             }
             catch (TimeoutException ex)
             {
                 _log.Error(string.Format("Se agotó el tiempo al {0}.", operationDescription), ex);
-                DisconnectAndNotifyConnectionLost();
+                (onFailure ?? DisconnectAndNotifyConnectionLost).Invoke();
             }
 
             return wasSent;
@@ -651,7 +656,24 @@ namespace TLMG.Client.Communication
             bool isCurrentChannel = isFriendsChannel || ReferenceEquals(channel, _lobbyChannel);
             bool isChatChannel = _chatClient != null && ReferenceEquals(channel, _chatClient.InnerChannel);
 
-            if (isCurrentChannel || isChatChannel)
+            if (isChatChannel)
+            {
+                CloseChatChannel();
+            }
+            else if (isFriendsChannel)
+            {
+                CloseFriendsChannel();
+            }
+            else if (isCurrentChannel && CurrentRoom?.MatchId.HasValue == true)
+            {
+                var client = _lobbyClient;
+                UnwatchChannel(_lobbyChannel);
+                _lobbyClient = null;
+                _lobbyCallback = null;
+                _lobbyChannel = null;
+                CloseClientSafely(client);
+            }
+            else if (isCurrentChannel)
             {
                 CommunicationState channelState = ((ICommunicationObject)channel).State;
                 _log.WarnFormat(
@@ -659,6 +681,16 @@ namespace TLMG.Client.Communication
                     channelState);
                 DisconnectAndNotifyConnectionLost();
             }
+        }
+
+        private void CloseFriendsChannel()
+        {
+            var client = _friendsClient;
+            UnwatchChannel(_friendsChannel);
+            _friendsClient = null;
+            _friendsChannel = null;
+            _friendsCallback = null;
+            CloseClientSafely(client);
         }
 
         private void DisconnectAndNotifyConnectionLost()

@@ -42,7 +42,7 @@ namespace TLMG.Client.Communication
         /// Cierra la sesión: libera los canales y limpia el estado del jugador. Es seguro llamarlo sin sesión, por
         /// ejemplo con un invitado.
         /// </summary>
-        void LogOut();
+        LogOutResult LogOut();
 
         OperationResult RequestAccountVerificationCode(
             PlayerAccountRegistration playerAccountRegistration,

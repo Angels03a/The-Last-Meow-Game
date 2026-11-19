@@ -50,5 +50,7 @@ namespace TLMG.Contracts
         /// <param name="matchView">Vista privada del destinatario.</param>
         [OperationContract(IsOneWay = true)]
         void OnMatchViewChanged(MatchView matchView);
+        [OperationContract(IsOneWay = true)]
+        void MatchHeartbeatEcho(int sequence, string errorKey);
     }
 }

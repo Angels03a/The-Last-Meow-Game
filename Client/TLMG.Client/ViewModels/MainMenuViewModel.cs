@@ -16,16 +16,18 @@ namespace TLMG.Client.ViewModels
     {
         private readonly IAccountsConnection _accountsConnection;
         private readonly INavigationManager _navigationManager;
+        private readonly IDialogManager _dialogs;
 
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="MainMenuViewModel"/>.
         /// </summary>
         /// <param name="accountsConnection">Área de cuentas de la conexión con el servidor.</param>
         /// <param name="navigationManager">Administrador de navegación.</param>
-        public MainMenuViewModel(IAccountsConnection accountsConnection, INavigationManager navigationManager)
+        public MainMenuViewModel(IAccountsConnection accountsConnection, INavigationManager navigationManager, IDialogManager dialogs)
         {
             _accountsConnection = accountsConnection;
             _navigationManager = navigationManager;
+            _dialogs = dialogs;
 
             // TODO: Mostrar lo que se decida para el invitado, que no tiene nickname; hoy queda vacío. (BL-089).
             PlayerNickname = _accountsConnection.PlayerNickname ?? string.Empty;
@@ -95,7 +97,12 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteLogOut()
         {
-            _accountsConnection.LogOut();
+            var result = _accountsConnection.LogOut();
+            if (!result.IsSuccess)
+            {
+                _dialogs.ShowError(result.ErrorKey);
+                return;
+            }
             _navigationManager.NavigateToWithoutHistory(ScreenId.Login);
             _navigationManager.ClearHistory();
         }

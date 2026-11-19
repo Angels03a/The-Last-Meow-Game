@@ -40,6 +40,7 @@ namespace TLMG.Services.Sessions
                         _chatChannelsByUserId[playerSession.UserId] =
                             new ChatChannel(caller.SessionToken, caller.ChannelId, callback);
                         _chatUserIdsByChannelId[caller.ChannelId] = playerSession.UserId;
+                        TrackLinkInLock(playerSession, HeartbeatChannel.Chat, caller.ChannelId);
                     }
                 }
             }

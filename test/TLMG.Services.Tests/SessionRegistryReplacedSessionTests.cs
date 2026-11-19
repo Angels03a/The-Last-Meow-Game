@@ -61,9 +61,9 @@ namespace TLMG.Services.Tests
             Assert.True(registry.TryFindSessionByToken(newToken, out PlayerSession currentSession));
         }
 
-        /// <summary>Verifica TryEndSessionByFriendsChannel_WithCurrentChannel_EndsSession.</summary>
+        /// <summary>Verifica TryEndSessionByFriendsChannel_WithCurrentChannel_PreservesSession.</summary>
         [Fact]
-        public void TryEndSessionByFriendsChannel_WithCurrentChannel_EndsSession()
+        public void TryEndSessionByFriendsChannel_WithCurrentChannel_PreservesSession()
         {
             // Arrange
             SessionRegistry registry = new SessionRegistry();
@@ -74,7 +74,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(wasEnded);
-            Assert.False(registry.TryFindSessionByToken(token, out PlayerSession endedSession));
+            Assert.True(registry.TryFindSessionByToken(token, out PlayerSession endedSession));
         }
 
         /// <summary>Verifica TryEndSessionByFriendsChannel_WithUnknownChannel_ReturnsFalse.</summary>

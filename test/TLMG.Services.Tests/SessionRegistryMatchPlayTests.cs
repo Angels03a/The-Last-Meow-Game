@@ -439,6 +439,7 @@ namespace TLMG.Services.Tests
             // Assert
             Assert.True(wasRemoved);
             MatchDelivery placement = scenario.Place(scenario.CreatorUserId, MatchCardKind.Safe);
+            Assert.Equal("Match_ReconnectionPending", placement.ErrorKey);
             Assert.DoesNotContain(scenario.CallbackOf(closingUserId), MatchPlayScenario.RecipientsOf(placement));
             Assert.Equal(MatchErrorKeys.NotSubscribed, scenario.Place(closingUserId, MatchCardKind.Safe).ErrorKey);
         }
@@ -462,7 +463,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(before.PlayerInTurnUserId, after.PlayerInTurnUserId);
             Assert.Equal(before.RoundNumber, after.RoundNumber);
             Assert.Equal(before.ParticipantUserIds, after.ParticipantUserIds);
-            Assert.Equal(SecondVersion, scenario.ReadVersionAs(closingUserId));
+            Assert.Equal(SecondVersion + 2, scenario.ReadVersionAs(closingUserId));
         }
 
         /// <summary>Verifica RemoveMatchChannel_WithUnknownOrEmptyChannel_ReturnsFalse.</summary>

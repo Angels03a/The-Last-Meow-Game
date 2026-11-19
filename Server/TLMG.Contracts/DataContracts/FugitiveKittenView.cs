@@ -11,6 +11,7 @@ namespace TLMG.Contracts.DataContracts
         /// <summary>Hora UTC del servidor al construir esta vista.</summary>
         [DataMember] public DateTime ServerTimeUtc { get; set; }
         [DataMember] public DateTime StartedAtUtc { get; set; }
+        [DataMember] public DateTime? PausedAtUtc { get; set; }
         [DataMember] public DateTime ExpiresAtUtc { get; set; }
         [DataMember] public string Color { get; set; }
         [DataMember] public FugitiveKittenResult Result { get; set; }

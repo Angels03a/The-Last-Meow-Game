@@ -73,11 +73,17 @@ namespace TLMG.Domain.Engine
         /// <exception cref="ArgumentOutOfRangeException">La posición o los contados están fuera de rango.</exception>
         public static int CalculatePoints(int position, int countedPlayerCount, MatchModeRules modeRules)
         {
+            return CalculatePoints(position, countedPlayerCount, modeRules, position == FirstPosition);
+        }
+
+        private static int CalculatePoints(int position, int countedPlayerCount, MatchModeRules modeRules,
+            bool isWinner)
+        {
             ValidatePointsArguments(position, countedPlayerCount, modeRules);
             int basePoints = Math.Max(ValidationRules.MinimumBasePoints, countedPlayerCount - BasePointsOffset);
             int bonusPoints = modeRules.NonWinnerBonusPoints;
 
-            if (position == FirstPosition)
+            if (isWinner)
             {
                 bonusPoints = modeRules.WinnerBonusPoints;
             }
@@ -95,7 +101,11 @@ namespace TLMG.Domain.Engine
         /// </summary>
         private static List<MatchPlayer> OrderPlayersByPosition(MatchState match)
         {
-            List<MatchPlayer> playersByPosition = new List<MatchPlayer> { match.Winner };
+            List<MatchPlayer> playersByPosition = new List<MatchPlayer>();
+            if (match.Winner != null)
+            {
+                playersByPosition.Add(match.Winner);
+            }
 
             playersByPosition.AddRange(match.Players
                 .Where(player => player.IsInPlay && !ReferenceEquals(player, match.Winner))
@@ -128,7 +138,8 @@ namespace TLMG.Domain.Engine
 
                 if (!player.HasLeftMatch && !guestIds.Contains(player.PlayerId))
                 {
-                    points = CalculatePoints(position, countedPlayerCount, match.ModeRules);
+                    points = CalculatePoints(position, countedPlayerCount, match.ModeRules,
+                        ReferenceEquals(player, match.Winner));
                 }
 
                 standings.Add(new PlayerStanding(player.PlayerId, position, points));

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 using TLMG.Contracts;
 
@@ -36,6 +36,8 @@ namespace TLMG.Services.Sessions
 
         /// <summary>Obtiene el id de la cuenta del jugador cuya sesión terminó.</summary>
         public int UserId { get; }
+
+        internal IReadOnlyList<MatchViewDelivery> MatchViews { get; set; }
 
         /// <summary>Obtiene el nickname del jugador.</summary>
         public string Nickname { get; }

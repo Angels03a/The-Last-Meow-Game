@@ -11,6 +11,8 @@ namespace TLMG.Services.Sessions
     /// </summary>
     public interface ISessionRegistry
     {
+
+
         /// <summary>
         /// Inicia una sesión y reemplaza la anterior de la misma cuenta, si existe; la sesión anterior
         /// pierde también su sala, su callback y sus autorizaciones de entrada.
@@ -36,6 +38,14 @@ namespace TLMG.Services.Sessions
         /// <param name="sessionEnd">Lo que hay que avisar por la sesión cerrada; null si no había sesión.</param>
         /// <returns>true si había una sesión vigente y se cerró; en caso contrario, false.</returns>
         bool EndSession(string sessionToken, out SessionEnd sessionEnd);
+
+        /// <summary>Revoca el token solo si el jugador no tiene participación activa.</summary>
+        bool TryLogOut(string sessionToken, out SessionEnd sessionEnd, out bool hasActiveParticipation);
+
+        IReadOnlyList<Action> EvaluateConnectionDeadlines(bool force = true);
+
+        IReadOnlyList<Action> ProcessHeartbeat(string token, string channelId, HeartbeatChannel channel,
+            int sequence, int confirmedSequence, Action<int, string> echo);
 
         /// <summary>
         /// Termina la sesión del jugador cuyo canal de amigos se cerró o falló; si el canal ya no es el registrado
@@ -242,6 +252,7 @@ namespace TLMG.Services.Sessions
         /// <param name="channelId">Canal que se cerró o falló.</param>
         /// <param name="closedCallback">Callback que tenía ese canal; se compara por referencia.</param>
         /// <returns>true si se quitó la suscripción; en caso contrario, false.</returns>
-        bool RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback);
+        bool RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback,
+            out IReadOnlyList<MatchViewDelivery> deliveries);
     }
 }

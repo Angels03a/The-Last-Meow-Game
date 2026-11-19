@@ -305,7 +305,7 @@ namespace TLMG.Services.Sessions
 
             foreach (LobbyMember lobbyMember in lobbyMembers)
             {
-                if (lobbyMember.UserId != excludedUserId)
+                if (lobbyMember.UserId != excludedUserId && lobbyMember.Callback != null)
                 {
                     callbacks.Add(lobbyMember.Callback);
                 }

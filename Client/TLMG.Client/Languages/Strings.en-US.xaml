@@ -131,6 +131,9 @@
     <sys:String x:Key="Common_Rank">RANK</sys:String>
     <sys:String x:Key="Common_BackButton">← Back</sys:String>
     <sys:String x:Key="Common_ConnectionLostError">The connection to the server was lost. Please log in again.</sys:String>
+    <sys:String x:Key="Common_LogOutActiveMatchError">Leave the match before logging out.</sys:String>
+    <sys:String x:Key="MainMenu_LogOutUnconfirmed">The server did not confirm that you logged out.</sys:String>
+    <sys:String x:Key="Match_ReconnectionPending">Waiting for a player to reconnect.</sys:String>
     <sys:String x:Key="Common_InvalidSessionError">Your session is no longer valid. Please log in again.</sys:String>
     <sys:String x:Key="Common_UnexpectedError">An unexpected error occurred. Please try again.</sys:String>
     <sys:String x:Key="Common_RoomFullError">The room is already full.</sys:String>
@@ -441,6 +444,7 @@
     <sys:String x:Key="GameOver_VictoryNoticeTitle" xml:space="preserve">Match finished!</sys:String>
     <sys:String x:Key="GameOver_VictoryNoticeBody" xml:space="preserve"> won the match.</sys:String>
     <sys:String x:Key="GameOver_StandingsUnavailable" xml:space="preserve">Standings are unavailable.</sys:String>
+    <sys:String x:Key="GameOver_CollectiveAbandonment">The match ended because all remaining players left.</sys:String>
     <sys:String x:Key="GameOver_NoWinnerAvailable" xml:space="preserve">Winner information is unavailable.</sys:String>
     <sys:String x:Key="Dialog_Yes">Yes</sys:String>
     <sys:String x:Key="Dialog_No">No</sys:String>

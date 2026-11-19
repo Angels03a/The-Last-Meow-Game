@@ -1,4 +1,6 @@
-﻿namespace TLMG.Services.Sessions
+using System.Collections.Generic;
+
+namespace TLMG.Services.Sessions
 {
     /// <summary>
     /// Identidad de un jugador con la sesión iniciada; no incluye el token. Solo el registro de sesiones puede
@@ -22,6 +24,11 @@
 
         /// <summary>Indica si la identidad procede de una cuenta autenticada.</summary>
         internal bool IsRegistered { get; private set; }
+
+        internal System.DateTime LastActivityUtc { get; set; }
+
+        internal Dictionary<HeartbeatChannel, LinkHealth> Links { get; } =
+            new Dictionary<HeartbeatChannel, LinkHealth>();
 
         /// <summary>Identificador aleatorio de diagnóstico para esta sesión.</summary>
         public System.Guid DiagnosticId { get; } = System.Guid.NewGuid();

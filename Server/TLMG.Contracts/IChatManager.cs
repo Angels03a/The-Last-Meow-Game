@@ -21,5 +21,7 @@ namespace TLMG.Contracts
         /// <param name="request">Room, correlation identifier and text.</param>
         [OperationContract(IsOneWay = true)]
         void SendChatMessage(string sessionToken, OperationSendChatMessageRequest request);
+        [OperationContract(IsOneWay = true)]
+        void ChatHeartbeat(string sessionToken, int sequence, int confirmedSequence);
     }
 }

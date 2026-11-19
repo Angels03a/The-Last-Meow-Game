@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ServiceModel;
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
@@ -122,8 +122,39 @@ namespace TLMG.Services
             return operationResult;
         }
 
+        public OperationResult CheckSession(string sessionToken)
+        {
+            SafeNotifyAll(_sessionRegistry.EvaluateConnectionDeadlines());
+            bool isValid = _sessionRegistry.TryFindSessionByToken(sessionToken, out _);
+            return new OperationResult
+            {
+                IsSuccess = isValid,
+                ErrorKey = isValid ? null : ErrorKeys.Common.InvalidSession
+            };
+        }
+
+        public LogOutResult LogOut(string sessionToken)
+        {
+            SafeNotifyAll(_sessionRegistry.EvaluateConnectionDeadlines());
+            bool wasRevoked = _sessionRegistry.TryLogOut(sessionToken, out SessionEnd sessionEnd,
+                out bool hasActiveParticipation);
+            if (wasRevoked)
+            {
+                SafeNotifyAll(Helpers.SessionNotificationHelper.CreateSessionEndNotifications(sessionEnd));
+            }
+
+            return new LogOutResult
+            {
+                IsSuccess = wasRevoked,
+                ErrorKey = wasRevoked ? null : hasActiveParticipation
+                    ? ErrorKeys.Common.LogOutActiveMatch
+                    : ErrorKeys.Common.InvalidSession
+            };
+        }
+
         public OperationLogInResult LogIn(OperationLogInRequest operationLogInRequest)
         {
+            SafeNotifyAll(_sessionRegistry.EvaluateConnectionDeadlines());
             OperationLogInResult result;
 
             try

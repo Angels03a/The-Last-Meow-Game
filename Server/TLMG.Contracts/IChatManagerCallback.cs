@@ -20,5 +20,7 @@ namespace TLMG.Contracts
         /// <param name="chatMessage">Mensaje aceptado por el servidor.</param>
         [OperationContract(IsOneWay = true)]
         void OnChatMessageReceived(ChatMessage chatMessage);
+        [OperationContract(IsOneWay = true)]
+        void ChatHeartbeatEcho(int sequence, string errorKey);
     }
 }

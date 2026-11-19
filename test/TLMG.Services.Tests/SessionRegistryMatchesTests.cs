@@ -198,6 +198,39 @@ namespace TLMG.Services.Tests
             Assert.Null(start.FindMatch(change, CreatorUserId));
         }
 
+        [Fact]
+        public void TryLogOut_WithActiveParticipation_PreservesSessionAndMatch()
+        {
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            LobbyMembershipChange change = start.RequestStartAfterCountdown();
+            string token = start.TokenOf(CreatorUserId);
+
+            bool loggedOut = start.Scenario.Registry.TryLogOut(token, out SessionEnd sessionEnd,
+                out bool hasActiveParticipation);
+
+            Assert.False(loggedOut);
+            Assert.True(hasActiveParticipation);
+            Assert.Null(sessionEnd);
+            Assert.True(start.Scenario.Registry.TryFindSessionByToken(token, out _));
+            Assert.NotNull(start.FindMatch(change, CreatorUserId));
+        }
+
+        [Fact]
+        public void TryLogOut_WithoutMatch_RevokesSession()
+        {
+            var registry = new SessionRegistry();
+            string token = registry.StartRegisteredSession(CreatorUserId, "Creator", out _);
+
+            bool loggedOut = registry.TryLogOut(token, out SessionEnd sessionEnd,
+                out bool hasActiveParticipation);
+
+            Assert.True(loggedOut);
+            Assert.False(hasActiveParticipation);
+            Assert.NotNull(sessionEnd);
+            Assert.False(registry.TryFindSessionByToken(token, out _));
+        }
+
+
         /// <summary>Verifica EndSession_OfLastRoomMember_ReleasesMatch.</summary>
         [Fact]
         public void EndSession_OfLastRoomMember_ReleasesMatch()

@@ -1,9 +1,11 @@
-﻿namespace TLMG.Domain.Constants
+namespace TLMG.Domain.Constants
 {
     public static class ErrorKeys
     {
         public static class Common
         {
+            public const string LogOutActiveMatch = "Common_LogOutActiveMatchError";
+
             public const string InvalidSession = "Common_InvalidSessionError";
             public const string Unexpected = "Common_UnexpectedError";
             public const string RoomFull = "Common_RoomFullError";

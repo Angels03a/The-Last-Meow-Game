@@ -21,7 +21,7 @@ namespace TLMG.Services.Tests
         internal const string MatchChannelPrefix = "match";
         internal const string NicknamePrefix = "Player";
         private const int CountdownSeconds = 3;
-        private const string FriendsChannelPrefix = "friends";
+        internal const string FriendsChannelPrefix = "friends";
 
         private readonly int _cardsPerPlayer;
 

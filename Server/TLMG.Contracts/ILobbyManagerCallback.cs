@@ -1,4 +1,4 @@
-﻿using System.ServiceModel;
+using System.ServiceModel;
 
 using TLMG.Contracts.DataContracts;
 
@@ -48,5 +48,7 @@ namespace TLMG.Contracts
         /// <param name="result">The current room, the retry delay or the error key.</param>
         [OperationContract(IsOneWay = true)]
         void RequestMatchStartResult(OperationRequestMatchStartResult result);
+        [OperationContract(IsOneWay = true)]
+        void LobbyHeartbeatEcho(int sequence, string errorKey);
     }
 }

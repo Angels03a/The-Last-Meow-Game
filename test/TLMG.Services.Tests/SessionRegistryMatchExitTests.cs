@@ -177,9 +177,7 @@ namespace TLMG.Services.Tests
         /// <summary>Verifica LeaveRoom_ByInvoluntaryCause_KeepsCauseAndLeavesEngineUntouched.</summary>
         /// <param name="exitCause">Causa involuntaria de la salida.</param>
         [Theory]
-        [InlineData(RoomExitCause.LobbyChannelClosed)]
         [InlineData(RoomExitCause.SessionEnded)]
-        [InlineData(RoomExitCause.SessionReplaced)]
         public void LeaveRoom_ByInvoluntaryCause_KeepsCauseAndLeavesEngineUntouched(RoomExitCause exitCause)
         {
             // Arrange
@@ -199,6 +197,198 @@ namespace TLMG.Services.Tests
             Assert.Equal(before.Version, after.Version);
             Assert.Equal(before.RoundNumber, after.RoundNumber);
             Assert.False(after.Players.Single(player => player.UserId == leavingUserId).HasLeftMatch);
+        }
+
+        [Fact]
+        public void MatchChannelLoss_WithAllDeadlinesEqual_EndsWithoutWinnerThroughRegistry()
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            foreach (int userId in scenario.UserIds)
+            {
+                Assert.True(scenario.CloseMatchChannelOf(userId));
+            }
+
+            scenario.Clock.Advance(TimeSpan.FromSeconds(15));
+            MatchDelivery recovery = scenario.Subscribe(scenario.CreatorUserId);
+
+            Assert.NotNull(recovery.ErrorKey);
+            MatchSnapshot match = scenario.Registry.FindMatchOfParticipant(scenario.MatchId, scenario.CreatorUserId);
+            Assert.NotNull(match);
+            Assert.Equal(TLMG.Domain.Engine.RoundPhase.MatchFinished, match.Phase);
+            foreach (int userId in scenario.UserIds)
+            {
+                Assert.NotNull(scenario.Subscribe(userId).ErrorKey);
+            }
+            Assert.Empty(recovery.ViewDeliveries);
+        }
+
+        [Fact]
+        public void MatchChannelLoss_BeforeDeadline_CanRecoverWithoutRestartingRound()
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            int userId = scenario.CreatorUserId;
+            int originalRound = scenario.ReadViewAs(userId).RoundNumber;
+            Assert.True(scenario.CloseMatchChannelOf(userId));
+
+            scenario.Clock.Advance(TimeSpan.FromSeconds(14));
+            MatchView recovered = scenario.ReadViewAs(userId);
+
+            Assert.Equal(originalRound, recovered.RoundNumber);
+        }
+
+        [Fact]
+        public void MissingFirstLink_RejectedAtOriginalDeadlineDespiteLateEvaluation()
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.Subscribe(scenario.CreatorUserId);
+            scenario.Clock.Advance(TimeSpan.FromSeconds(25));
+
+            MatchDelivery recovery = scenario.Subscribe(scenario.UserIds[1]);
+            MatchSnapshot state = scenario.Registry.FindMatchOfParticipant(scenario.MatchId, scenario.CreatorUserId);
+
+            Assert.NotNull(recovery.ErrorKey);
+            Assert.Equal(TLMG.Domain.Engine.RoundPhase.MatchFinished, state.Phase);
+        }
+
+        [Fact]
+        public void LobbyChannelLoss_AfterAuthorization_KeepsMatchLinkAndAllowsLobbyRebind()
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            int userId = scenario.CreatorUserId;
+            var original = new LobbyCaller(scenario.TokenOf(userId), MatchPlayScenario.LobbyChannelPrefix + userId);
+            var rebound = new LobbyCaller(scenario.TokenOf(userId), original.ChannelId + "-new");
+
+            scenario.Registry.LeaveRoomByChannel(original.ChannelId);
+            scenario.Registry.EnterRoom(rebound, scenario.RoomId, scenario.LobbyCallbackOf(userId));
+            scenario.Registry.LeaveRoomByChannel(original.ChannelId);
+
+            Assert.Null(scenario.Place(userId, MatchCardKind.Safe).ErrorKey);
+            Assert.Null(scenario.Subscribe(userId).ErrorKey);
+        }
+
+        [Fact]
+        public void ReplacementDuringGrace_InvalidatesOldTokenAndPreservesRound()
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            int userId = scenario.CreatorUserId;
+            int round = scenario.ReadViewAs(userId).RoundNumber;
+            Assert.True(scenario.CloseMatchChannelOf(userId));
+            Assert.False(scenario.Registry.TryLogOut(scenario.TokenOf(userId), out _, out bool hasParticipation));
+            Assert.True(hasParticipation);
+
+            scenario.Clock.Advance(TimeSpan.FromSeconds(14));
+            string replacement = scenario.Registry.StartRegisteredSession(userId, "Replacement", out _);
+            var callback = new MatchCallbackStub();
+            MatchDelivery recovered = scenario.Registry.SubscribeToMatch(new LobbyCaller(replacement, "replacement"),
+                scenario.MatchId, callback);
+
+            Assert.NotNull(scenario.Subscribe(userId).ErrorKey);
+            Assert.False(scenario.CloseMatchChannelOf(userId));
+            Assert.Null(recovered.ErrorKey);
+            Assert.Equal(round, recovered.ViewDeliveries.Single(delivery => delivery.Callback == callback)
+                .MatchView.RoundNumber);
+        }
+
+        [Fact]
+        public void Heartbeat_FriendsAliveDoesNotExtendSilentMatchGrace()
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            int userId = scenario.CreatorUserId;
+            string token = scenario.TokenOf(userId);
+            string friendsLink = MatchPlayScenario.FriendsChannelPrefix + userId;
+            scenario.Registry.SubscribeFriendsChannel(token, friendsLink, new FriendsCallbackStub(), Array.Empty<int>());
+            int echoes = 0;
+            for (int sequence = 1; sequence <= 9; sequence++)
+            {
+                var notices = scenario.Registry.ProcessHeartbeat(token, friendsLink, HeartbeatChannel.Friends,
+                    sequence, sequence - 1, (_, error) => { Assert.Null(error); echoes++; });
+                foreach (Action notification in notices)
+                {
+                    notification();
+                }
+
+                scenario.Clock.Advance(TimeSpan.FromSeconds(3));
+            }
+
+            Assert.Equal(9, echoes);
+            Assert.NotNull(scenario.Subscribe(userId).ErrorKey);
+            Assert.True(scenario.Registry.TryFindSessionByToken(token, out _));
+            Assert.Equal(TLMG.Domain.Engine.RoundPhase.MatchFinished,
+                scenario.Registry.FindMatchOfParticipant(scenario.MatchId, userId).Phase);
+        }
+
+        [Fact]
+        public void Heartbeat_DuplicateAndExcessivePulse_DoNotEchoOrChangeMatchVersion()
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            var caller = scenario.MatchCallerOf(scenario.CreatorUserId);
+            int version = scenario.ReadVersionAs(scenario.CreatorUserId);
+            Action<int, string> echo = (_, error) => Assert.Null(error);
+
+            Assert.Single(scenario.Registry.ProcessHeartbeat(caller.SessionToken, caller.ChannelId,
+                HeartbeatChannel.Match, 1, 0, echo));
+            Assert.Empty(scenario.Registry.ProcessHeartbeat(caller.SessionToken, caller.ChannelId,
+                HeartbeatChannel.Match, 1, 0, echo));
+            Assert.Empty(scenario.Registry.ProcessHeartbeat(caller.SessionToken, caller.ChannelId,
+                HeartbeatChannel.Match, 2, 1, echo));
+            Assert.Equal(version, scenario.ReadVersionAs(scenario.CreatorUserId));
+        }
+
+        [Fact]
+        public void EvaluateConnectionDeadlines_ExpiresOrphanAtThirtySeconds()
+        {
+            var clock = new ManualUtcClock();
+            var registry = new SessionRegistry(clock.ReadUtcNow);
+            string token = registry.StartRegisteredSession(1, "Orphan", out _);
+
+            clock.Advance(TimeSpan.FromSeconds(29));
+            registry.EvaluateConnectionDeadlines();
+            clock.Advance(TimeSpan.FromSeconds(1));
+            registry.EvaluateConnectionDeadlines();
+
+            Assert.False(registry.TryFindSessionByToken(token, out _));
+        }
+
+        [Fact]
+        public void Heartbeat_FromReplacedFriendsLink_DoesNotAcknowledgeNewLink()
+        {
+            var clock = new ManualUtcClock();
+            var registry = new SessionRegistry(clock.ReadUtcNow);
+            string token = registry.StartRegisteredSession(1, "Player", out _);
+            var callback = new FriendsCallbackStub();
+            registry.SubscribeFriendsChannel(token, "previous", callback, Array.Empty<int>());
+            Action<int, string> echo = (_, error) => Assert.Null(error);
+            Assert.Single(registry.ProcessHeartbeat(token, "previous", HeartbeatChannel.Friends, 1, 0, echo));
+            registry.SubscribeFriendsChannel(token, "current", callback, Array.Empty<int>());
+
+            Assert.Empty(registry.ProcessHeartbeat(token, "previous", HeartbeatChannel.Friends, 2, 1, echo));
+            Assert.Empty(registry.ProcessHeartbeat(token, "current", HeartbeatChannel.Friends, 2, 1, echo));
+            Assert.Single(registry.ProcessHeartbeat(token, "current", HeartbeatChannel.Friends, 1, 0, echo));
+        }
+
+        [Fact]
+        public void ReplacingHealthyMatchLink_PublishesPauseOnlyToRemainingLinks()
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            int replacedUserId = scenario.CreatorUserId;
+            int previousVersion = scenario.ReadVersionAs(replacedUserId);
+
+            scenario.Registry.StartRegisteredSession(replacedUserId, "Replacement", out SessionEnd replaced);
+
+            Assert.Equal(MinimumPlayerCount - 1, replaced.MatchViews.Count);
+            Assert.DoesNotContain(replaced.MatchViews, delivery => delivery.Callback == scenario.CallbackOf(replacedUserId));
+            Assert.All(replaced.MatchViews, delivery =>
+            {
+                Assert.Equal(previousVersion + 1, delivery.MatchView.Version);
+                Assert.False(delivery.MatchView.CanPlaceCard);
+            });
         }
 
         /// <summary>Verifica LeaveLobby_WhileInMatch_DeliversLobbyAndMatchNoticesSeparately.</summary>

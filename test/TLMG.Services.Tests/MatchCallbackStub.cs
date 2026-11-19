@@ -63,5 +63,6 @@ namespace TLMG.Services.Tests
         {
             Views.Add(matchView);
         }
+        public void MatchHeartbeatEcho(int sequence, string errorKey) { }
     }
 }

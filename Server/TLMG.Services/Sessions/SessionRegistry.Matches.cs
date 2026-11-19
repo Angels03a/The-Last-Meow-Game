@@ -63,6 +63,16 @@ namespace TLMG.Services.Sessions
             }
         }
 
+        private bool HasActiveParticipationInLock(int userId)
+        {
+            return _roomIdsByUserId.TryGetValue(userId, out int roomId)
+                && _startsByRoomId[roomId].MatchId is Guid matchId
+                && _matchesById.TryGetValue(matchId, out MatchRecord match)
+                && match.MatchState.Phase != RoundPhase.MatchFinished
+                && match.MatchState.Players.Any(player => player.PlayerId == userId && player.IsInPlay);
+        }
+
+
         /// <summary>
         /// Revisa los plazos de la partida con la hora real y aplica los que ya vencieron. Hoy el único plazo es el de
         /// 10 s del castigo (ValidationRules.PunishmentChoiceSeconds): si venció, el motor elimina una carta al azar,
@@ -74,7 +84,73 @@ namespace TLMG.Services.Sessions
         /// <param name="matchRecord">Partida cuyos plazos se revisan.</param>
         /// <param name="nowUtc">Hora UTC real, leída una sola vez por operación.</param>
         /// <returns>true si venció un plazo y el estado de la partida cambió; en caso contrario, false.</returns>
-        private bool ExpireMatchDeadlinesInLock(MatchRecord matchRecord, DateTime nowUtc)
+        private const int ReconnectGraceSeconds = 15;
+        private const int FirstMatchLinkSeconds = 9;
+
+        private bool ExpireMatchDeadlinesInLock(MatchRecord match, DateTime nowUtc)
+        {
+            bool changed = false;
+            if (match.AwaitingFirstLink.Count != 0 && match.FirstLinkDeadlineUtc <= nowUtc)
+            {
+                changed |= ExpireGameDeadlinesInLock(match, match.FirstLinkDeadlineUtc);
+                foreach (int userId in match.AwaitingFirstLink)
+                {
+                    changed |= OpenMatchGraceInLock(match, userId, match.FirstLinkDeadlineUtc);
+                }
+                match.AwaitingFirstLink.Clear();
+            }
+
+            var expired = match.Disconnections.Where(entry => entry.Value.EffectiveAtUtc <= nowUtc)
+                .GroupBy(entry => entry.Value.EffectiveAtUtc).OrderBy(group => group.Key).ToArray();
+            foreach (var group in expired)
+            {
+                changed |= ExpireGameDeadlinesInLock(match, group.Key);
+                var exits = group.Where(entry => match.MatchState.Players.Any(player =>
+                    player.PlayerId == entry.Key && player.IsInPlay)).ToDictionary(entry => entry.Key, entry => entry.Value);
+                foreach (var entry in group)
+                {
+                    match.Disconnections.Remove(entry.Key);
+                }
+
+                if (exits.Count != 0 && match.MatchState.Phase != RoundPhase.MatchFinished)
+                {
+                    PlayerExitStatus status = exits.Count == 1
+                        ? match.MatchState.RemovePlayer(exits.Keys.Single(), exits.Values.Single(), _pickRandomIndex)
+                        : match.MatchState.RemoveSimultaneousPlayers(exits, _pickRandomIndex);
+                    UpdateChallengeAfterExit(match, status);
+                    DiscardEndedBlindSlots(match);
+                }
+                UpdateKittenClockInLock(match, group.Key);
+                changed = true;
+            }
+
+            return ExpireGameDeadlinesInLock(match, nowUtc) || changed;
+        }
+
+        private static bool OpenMatchGraceInLock(MatchRecord match, int userId, DateTime nowUtc)
+        {
+
+            if (match.MatchState.Phase == RoundPhase.MatchFinished
+                || match.Disconnections.ContainsKey(userId)
+                || !match.MatchState.Players.Any(player => player.PlayerId == userId && player.IsInPlay))
+            {
+                return false;
+            }
+
+            match.Disconnections.Add(userId, new PlayerExit(nowUtc, nowUtc.AddSeconds(ReconnectGraceSeconds)));
+            match.MatchState.SuspendPunishment(userId, nowUtc);
+            UpdateKittenClockInLock(match, nowUtc);
+            return true;
+        }
+
+        private static bool UpdateKittenClockInLock(MatchRecord match, DateTime nowUtc)
+        {
+            return match.Kitten != null && match.MatchState.Phase != RoundPhase.MatchFinished
+                && match.Kitten.SetPaused(match.AwaitingFirstLink.Count != 0 || match.Disconnections.Count != 0,
+                    nowUtc);
+        }
+
+        private bool ExpireGameDeadlinesInLock(MatchRecord matchRecord, DateTime nowUtc)
         {
             PunishmentStatus punishmentStatus = matchRecord.MatchState.ExpirePunishment(nowUtc, _pickRandomIndex);
             bool wasExpired = punishmentStatus == PunishmentStatus.CardRemoved;
@@ -115,6 +191,9 @@ namespace TLMG.Services.Sessions
                     userId,
                     PlayerExit.Immediate(nowUtc),
                     _pickRandomIndex);
+                matchRecord.AwaitingFirstLink.Remove(userId);
+                hasChanged |= matchRecord.Disconnections.Remove(userId);
+                hasChanged |= UpdateKittenClockInLock(matchRecord, nowUtc);
                 hasChanged = hasChanged || HasExitChangedMatch(exitStatus);
                 UpdateChallengeAfterExit(matchRecord, exitStatus);
                 DiscardEndedBlindSlots(matchRecord);
@@ -267,6 +346,9 @@ namespace TLMG.Services.Sessions
                 ParticipantNicknames = participantNicknames;
                 AllParticipantsRegistered = allParticipantsRegistered;
                 Version = InitialMatchVersion;
+                FirstLinkDeadlineUtc = nowUtc.AddSeconds(FirstMatchLinkSeconds);
+                AwaitingFirstLink = new HashSet<int>(participantUserIds);
+
                 if (matchState.ModeRules.AllowsExtraLife)
                 {
                     Kitten = new FugitiveKittenState(nowUtc);
@@ -295,6 +377,12 @@ namespace TLMG.Services.Sessions
             public bool AllParticipantsRegistered { get; }
 
             public FugitiveKittenState Kitten { get; }
+
+            public Dictionary<int, PlayerExit> Disconnections { get; } = new Dictionary<int, PlayerExit>();
+
+            public DateTime FirstLinkDeadlineUtc { get; }
+
+            public HashSet<int> AwaitingFirstLink { get; }
 
             /// <summary>Versión de la partida; sube con cada acción aceptada y solo bajo _sessionsLock.</summary>
             public int Version { get; set; }

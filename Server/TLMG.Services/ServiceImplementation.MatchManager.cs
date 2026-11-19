@@ -15,6 +15,7 @@ namespace TLMG.Services
 
         public void SubscribeToMatch(string sessionToken, Guid matchId)
         {
+            SafeNotifyAll(_sessionRegistry.EvaluateConnectionDeadlines());
             LogChannelOperation("Match", "SubscribeToMatch", sessionToken);
             IMatchManagerCallback callback = GetMatchCallback();
 
@@ -149,7 +150,14 @@ namespace TLMG.Services
 
         private void OnMatchChannelEnded(object sender, EventArgs eventArguments)
         {
-            _matchService.RemoveMatchChannel(_matchChannelId, _matchCallback);
+            SafeNotifyAll(_matchService.RemoveMatchChannel(_matchChannelId, _matchCallback));
         }
+        void IMatchManager.MatchHeartbeat(string sessionToken, int sequence, int confirmedSequence)
+        {
+            var callback = OperationContext.Current.GetCallbackChannel<IMatchManagerCallback>();
+            SafeNotifyAll(_sessionRegistry.ProcessHeartbeat(sessionToken, _matchChannelId, HeartbeatChannel.Match,
+                sequence, confirmedSequence, callback.MatchHeartbeatEcho));
+        }
+
     }
 }

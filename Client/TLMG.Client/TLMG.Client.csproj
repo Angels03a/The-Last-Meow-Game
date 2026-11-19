@@ -71,6 +71,7 @@
     <Compile Include="Communication\IProfileConnection.cs" />
     <Compile Include="Communication\LobbyCountdown.cs" />
     <Compile Include="Communication\ServerConnectionManager.Accounts.cs" />
+    <Compile Include="Communication\ServerConnectionManager.Heartbeat.cs" />
     <Compile Include="Communication\ServerConnectionManager.FriendRequests.cs" />
     <Compile Include="Communication\ServerConnectionManager.Leaderboard.cs" />
     <Compile Include="Communication\ServerConnectionManager.Lobby.cs" />

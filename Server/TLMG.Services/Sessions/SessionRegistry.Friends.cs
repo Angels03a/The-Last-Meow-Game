@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 using TLMG.Contracts;
 using TLMG.Domain.Constants;
@@ -55,9 +55,11 @@ namespace TLMG.Services.Sessions
                     // Es seguro: al reemplazar la sesión, el canal viejo ya no está en este mapa.
                     if (_userIdsByFriendsChannelId.TryGetValue(channelId, out userId))
                     {
-                        sessionEnd = EndSessionInLock(
-                            _sessionsByToken[_tokensByUserId[userId]],
-                            RoomExitCause.SessionEnded);
+                        PlayerSession session = _sessionsByToken[_tokensByUserId[userId]];
+                        sessionEnd = new SessionEnd(userId, session.Nickname,
+                            LobbyMembershipChange.CreateRejected(LobbyChangeStatus.NotInRoom, userId),
+                            _friendsChannelsByUserId[userId].Callback, FindPresenceRecipientsOfUser(userId));
+                        RemoveFriendsChannelOfUser(userId);
                     }
                 }
             }
@@ -67,7 +69,7 @@ namespace TLMG.Services.Sessions
             if (wasEnded)
             {
                 _log.InfoFormat(
-                    "Sesión cerrada para el jugador {0} porque su canal de amigos terminó.",
+                    "Canal de amigos desvinculado para el jugador {0}.",
                     sessionEnd.UserId);
                 LogDepartureOfEndedSession(sessionEnd);
             }
@@ -225,6 +227,7 @@ namespace TLMG.Services.Sessions
                     friendsCallback,
                     new List<int>(friendUserIds).AsReadOnly());
                 _userIdsByFriendsChannelId[channelId] = playerSession.UserId;
+                TrackLinkInLock(playerSession, HeartbeatChannel.Friends, channelId);
                 friendsSubscription = FriendsSubscription.CreateApplied(
                     playerSession.UserId,
                     playerSession.Nickname,

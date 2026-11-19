@@ -78,6 +78,7 @@
     <Compile Include="DataContracts\OperationDeclineFriendRequestResult.cs" />
     <Compile Include="DataContracts\OperationGetLeaderboardResult.cs" />
     <Compile Include="DataContracts\OperationLogInRequest.cs" />
+    <Compile Include="DataContracts\LogOutResult.cs" />
     <Compile Include="DataContracts\OperationLogInResult.cs" />
     <Compile Include="DataContracts\OperationSendFriendRequestResult.cs" />
     <Compile Include="DataContracts\OperationSubscribeToFriendsResult.cs" />

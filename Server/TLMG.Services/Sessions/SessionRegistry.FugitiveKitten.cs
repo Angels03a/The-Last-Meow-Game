@@ -13,6 +13,7 @@ namespace TLMG.Services.Sessions
     {
         internal DateTime StartedAtUtc { get; set; }
         internal DateTime ExpiresAtUtc { get; set; }
+        internal DateTime? PausedAtUtc { get; set; }
         internal FugitiveKittenRoute Route { get; set; }
         internal string Color { get; set; }
         internal FugitiveKittenOutcome Outcome { get; set; }
@@ -27,13 +28,36 @@ namespace TLMG.Services.Sessions
             internal FugitiveKittenState(DateTime startedAtUtc)
             {
                 StartedAtUtc = startedAtUtc;
+                PausedAtUtc = startedAtUtc;
                 ExpiresAtUtc = startedAtUtc.AddMilliseconds(FugitiveKittenRoute.WindowMilliseconds);
                 Route = new FugitiveKittenRoute();
                 Color = "Orange";
             }
 
-            internal DateTime StartedAtUtc { get; }
-            internal DateTime ExpiresAtUtc { get; }
+            internal DateTime StartedAtUtc { get; private set; }
+            internal DateTime ExpiresAtUtc { get; private set; }
+            internal DateTime? PausedAtUtc { get; private set; }
+
+            internal bool SetPaused(bool paused, DateTime nowUtc)
+            {
+                if (IsResolved || paused == PausedAtUtc.HasValue)
+                {
+                    return false;
+                }
+
+                if (paused)
+                {
+                    PausedAtUtc = nowUtc;
+                }
+                else
+                {
+                    TimeSpan pausedDuration = nowUtc - PausedAtUtc.Value;
+                    StartedAtUtc += pausedDuration;
+                    ExpiresAtUtc += pausedDuration;
+                    PausedAtUtc = null;
+                }
+                return true;
+            }
             internal FugitiveKittenRoute Route { get; }
             internal string Color { get; }
             internal FugitiveKittenOutcome Outcome { get; private set; }
@@ -42,7 +66,7 @@ namespace TLMG.Services.Sessions
 
             internal bool Expire(DateTime nowUtc)
             {
-                bool expired = !IsResolved && nowUtc >= ExpiresAtUtc;
+                bool expired = !IsResolved && !PausedAtUtc.HasValue && nowUtc >= ExpiresAtUtc;
                 if (expired)
                 {
                     Outcome = FugitiveKittenOutcome.Escaped;
@@ -86,7 +110,8 @@ namespace TLMG.Services.Sessions
                     DateTime nowUtc = _readUtcNow();
                     bool changed = ExpireMatchDeadlinesInLock(match, nowUtc);
                     FugitiveKittenState kitten = match.Kitten;
-                    if (tryCatch && kitten != null && !kitten.IsResolved
+                    if (tryCatch && kitten != null && !kitten.IsResolved && !kitten.PausedAtUtc.HasValue
+                        && match.MatchState.Phase != RoundPhase.MatchFinished
                         && kitten.Route.CanCatchAt(nowUtc - kitten.StartedAtUtc))
                     {
                         ExtraLifeStatus status = match.MatchState.GrantExtraLife(session.UserId);
@@ -135,6 +160,7 @@ namespace TLMG.Services.Sessions
                 {
                     ServerTimeUtc = nowUtc,
                     StartedAtUtc = kitten.StartedAtUtc,
+                    PausedAtUtc = kitten.PausedAtUtc,
                     ExpiresAtUtc = kitten.ExpiresAtUtc,
                     Color = kitten.Color,
                     Result = (FugitiveKittenResult)kitten.Outcome,
@@ -168,6 +194,7 @@ namespace TLMG.Services.Sessions
                     snapshot = new FugitiveKittenSnapshot
                     {
                         StartedAtUtc = kitten.StartedAtUtc,
+                        PausedAtUtc = kitten.PausedAtUtc,
                         ExpiresAtUtc = kitten.ExpiresAtUtc,
                         Route = kitten.Route,
                         Color = kitten.Color,

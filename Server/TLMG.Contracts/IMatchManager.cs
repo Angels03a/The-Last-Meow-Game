@@ -72,5 +72,7 @@ namespace TLMG.Contracts
         /// <param name="cardIndex">Lugar o posición de la carta que se elimina.</param>
         [OperationContract(IsOneWay = true)]
         void ChoosePunishmentCard(string sessionToken, int cardIndex);
+        [OperationContract(IsOneWay = true)]
+        void MatchHeartbeat(string sessionToken, int sequence, int confirmedSequence);
     }
 }

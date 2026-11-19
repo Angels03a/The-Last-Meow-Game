@@ -63,5 +63,6 @@ namespace TLMG.Services.Tests
         {
             AddedFriends.Add(friend);
         }
+        public void FriendsHeartbeatEcho(int sequence, string errorKey) { }
     }
 }

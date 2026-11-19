@@ -1,4 +1,4 @@
-﻿using System.ServiceModel;
+using System.ServiceModel;
 
 using TLMG.Contracts.DataContracts;
 
@@ -47,5 +47,7 @@ namespace TLMG.Contracts
         /// <param name="request">Room and observed countdown generation; null is rejected.</param>
         [OperationContract(IsOneWay = true)]
         void RequestMatchStart(string sessionToken, OperationMatchStartRequest request);
+        [OperationContract(IsOneWay = true)]
+        void LobbyHeartbeat(string sessionToken, int sequence, int confirmedSequence);
     }
 }

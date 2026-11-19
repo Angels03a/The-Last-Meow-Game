@@ -277,6 +277,8 @@ Formato de entrada:
 - Nota (2026-11-10 12:04): el caso «login exitoso con SubscribeToFriends fallido» ya listado arriba tiene ahora un punto concreto en el cliente: ServerConnectionManager.LogIn (cefa0a3) llama a StartRegisteredSession y, si el canal de amigos falla justo después de un login correcto, muestra Login_NetworkError y descarta el token, pero el servidor ya emitió la sesión y puede dejarla viva hasta que se venza. Se registra aquí por ser equivalente y no como entrada nueva. Depende de la Fase 8.
 - Nota (2026-11-17 11:49): reconexión del canal de partida (I2a, dff94a9). Sin reconexión hasta I4: si el canal de partida falla, ServerConnectionManager.Match.cs lo limpia sin desconectar la sesión, y el jugador sigue en la sesión y en la sala pero sin tablero jugable (Gameplay muestra Gameplay_MatchUnavailableLabel). No hay reintentos ni latido. En el servidor, perder el canal de partida solo quita su callback (SessionRegistry.RemoveMatchChannel) y no saca al jugador de la sala. La auditoría AUD-002 (ventana de reconexión) no tiene entrada en este archivo; la ventana de gracia sigue pendiente aquí (ADR-04). Sin cambio de estado.
 
+- Pendiente de 1C: reconciliar el cliente si el servidor revoca el token en LogOut pero la respuesta se pierde antes de llegar.
+
 ### BL-060 · Retirar o reemplazar el script de demostración de amistades
 - Creado: 2026-10-29 13:05
 - Por qué: `database/seed/TLMG_Seed_FriendshipDemo.sql` (D-59) existe solo para revisar el lobby mientras las solicitudes reales no estén implementadas. No es parte del esquema y no debe llegar a una instalación real. Se elimina, o se sustituye por datos de prueba más completos, cuando exista BL-062.

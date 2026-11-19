@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ServiceModel;
 
@@ -40,6 +40,10 @@ namespace TLMG.Services.Helpers
             if (sessionEnd != null)
             {
                 notifications.AddRange(CreateRoomNotifications(sessionEnd.RoomDeparture));
+                if (sessionEnd.MatchViews != null)
+                {
+                    notifications.AddRange(CreateMatchViewNotifications(sessionEnd.MatchViews));
+                }
                 notifications.AddRange(CreatePresenceNotifications(
                     sessionEnd.PresenceRecipientCallbacks,
                     sessionEnd.UserId,

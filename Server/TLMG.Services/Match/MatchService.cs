@@ -122,12 +122,13 @@ namespace TLMG.Services.Match
         /// <summary>Quita la suscripción de un canal de partida cerrado o fallido, sin tocar la partida.</summary>
         /// <param name="channelId">Canal que se cerró o falló.</param>
         /// <param name="closedCallback">Callback que tenía ese canal.</param>
-        public void RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback)
+        public IReadOnlyList<Action> RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback)
         {
-            if (_sessionRegistry.RemoveMatchChannel(channelId, closedCallback))
+            if (_sessionRegistry.RemoveMatchChannel(channelId, closedCallback, out var deliveries))
             {
                 _log.InfoFormat("Se quitó la suscripción del canal de partida {0}.", channelId);
             }
+            return SessionNotificationHelper.CreateMatchViewNotifications(deliveries);
         }
 
         private static ResultWithNotification<OperationResult> CreateResult(MatchDelivery matchDelivery)

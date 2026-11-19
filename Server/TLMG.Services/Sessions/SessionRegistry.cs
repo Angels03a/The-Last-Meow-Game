@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using log4net;
 
@@ -63,11 +64,13 @@ namespace TLMG.Services.Sessions
 
                 if (_tokensByUserId.TryGetValue(userId, out previousToken))
                 {
-                    replacedSession = EndSessionInLock(
-                        _sessionsByToken[previousToken],
-                        RoomExitCause.SessionReplaced);
+                    PlayerSession previous = _sessionsByToken[previousToken];
+                    replacedSession = PreserveMatchOnReplacementInLock(previous, out var matchViews)
+                        ?? EndSessionInLock(previous, RoomExitCause.SessionReplaced);
+                    replacedSession.MatchViews = matchViews;
                 }
 
+                newSession.LastActivityUtc = _readUtcNow();
                 _sessionsByToken[sessionToken] = newSession;
                 _tokensByUserId[userId] = sessionToken;
             }
@@ -94,6 +97,10 @@ namespace TLMG.Services.Sessions
                 lock (_sessionsLock)
                 {
                     wasFound = _sessionsByToken.TryGetValue(sessionToken, out playerSession);
+                    if (wasFound)
+                    {
+                        playerSession.LastActivityUtc = _readUtcNow();
+                    }
                 }
             }
 
@@ -103,6 +110,18 @@ namespace TLMG.Services.Sessions
         /// <inheritdoc />
         public bool EndSession(string sessionToken, out SessionEnd sessionEnd)
         {
+            return EndSession(sessionToken, false, out sessionEnd, out _);
+        }
+
+        public bool TryLogOut(string sessionToken, out SessionEnd sessionEnd, out bool hasActiveParticipation)
+        {
+            return EndSession(sessionToken, true, out sessionEnd, out hasActiveParticipation);
+        }
+
+        private bool EndSession(string sessionToken, bool protectParticipation, out SessionEnd sessionEnd,
+            out bool hasActiveParticipation)
+        {
+            hasActiveParticipation = false;
             sessionEnd = null;
 
             if (!string.IsNullOrEmpty(sessionToken))
@@ -113,7 +132,13 @@ namespace TLMG.Services.Sessions
 
                     if (_sessionsByToken.TryGetValue(sessionToken, out endedSession))
                     {
-                        sessionEnd = EndSessionInLock(endedSession, RoomExitCause.SessionEnded);
+                        hasActiveParticipation = protectParticipation &&
+                            HasActiveParticipationInLock(endedSession.UserId);
+
+                        if (!hasActiveParticipation)
+                        {
+                            sessionEnd = EndSessionInLock(endedSession, RoomExitCause.SessionEnded);
+                        }
                     }
                 }
             }
@@ -142,6 +167,55 @@ namespace TLMG.Services.Sessions
                     roomDeparture.ExitCause);
                 SessionNotificationHelper.LogMatchLeftUntouched(roomDeparture);
             }
+        }
+
+        private SessionEnd PreserveMatchOnReplacementInLock(PlayerSession previous,
+            out IReadOnlyList<MatchViewDelivery> matchViews)
+        {
+            matchViews = _noMatchViewDeliveries;
+            int userId = previous.UserId;
+            if (!_roomIdsByUserId.TryGetValue(userId, out int roomId)
+                || !(_startsByRoomId[roomId].MatchId is Guid matchId)
+                || !_matchesById.TryGetValue(matchId, out MatchRecord match))
+            {
+                return null;
+            }
+
+            DateTime nowUtc = _readUtcNow();
+            bool changed = ExpireMatchDeadlinesInLock(match, nowUtc);
+            if (!match.MatchState.Players.Any(player => player.PlayerId == userId && player.IsInPlay)
+                || match.MatchState.Phase == TLMG.Domain.Engine.RoundPhase.MatchFinished)
+            {
+                if (changed)
+                {
+                    match.Version++;
+                    matchViews = CreateViewDeliveriesInLock(match);
+                }
+                return null;
+            }
+
+            if (_matchChannelsByUserId.ContainsKey(userId))
+            {
+                changed |= OpenMatchGraceInLock(match, userId, nowUtc);
+            }
+
+            RemoveMatchChannelOfUserInLock(userId);
+            if (changed)
+            {
+                match.Version++;
+                matchViews = CreateViewDeliveriesInLock(match);
+            }
+            RemoveChatChannelOfUserInLock(userId);
+            DetachStartedLobbyChannelInLock(userId);
+            var recipients = FindPresenceRecipientsOfUser(userId);
+            _friendsChannelsByUserId.TryGetValue(userId, out FriendsChannel friendsChannel);
+            RemoveFriendsChannelOfUser(userId);
+            RemoveInvitationsOfUser(userId);
+            _authorizedRoomIdsByUserId.Remove(userId);
+            _sessionsByToken.Remove(_tokensByUserId[userId]);
+            return new SessionEnd(userId, previous.Nickname,
+                LobbyMembershipChange.CreateRejected(LobbyChangeStatus.NotInRoom, userId),
+                FindCallbackOfChannel(friendsChannel), recipients);
         }
 
         private SessionEnd EndSessionInLock(PlayerSession endedSession, RoomExitCause exitCause)
