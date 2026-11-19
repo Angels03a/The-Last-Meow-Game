@@ -50,6 +50,8 @@
     <Compile Include="Engine\ChallengeResolution.cs" />
     <Compile Include="Engine\ChallengeRevealStatus.cs" />
     <Compile Include="Engine\ExtraLifeStatus.cs" />
+    <Compile Include="Engine\FugitiveKittenRoute.cs" />
+    <Compile Include="Engine\KittenRouteSegment.cs" />
     <Compile Include="Engine\FinalStandings.cs" />
     <Compile Include="Engine\FinalStandingsStatus.cs" />
     <Compile Include="Engine\MatchModeRules.cs" />

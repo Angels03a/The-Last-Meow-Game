@@ -58,6 +58,9 @@
     <Compile Include="DataContracts\MatchStandingView.cs" />
     <Compile Include="DataContracts\MatchRoundPhase.cs" />
     <Compile Include="DataContracts\MatchView.cs" />
+    <Compile Include="DataContracts\FugitiveKittenView.cs" />
+    <Compile Include="DataContracts\FugitiveKittenResult.cs" />
+    <Compile Include="DataContracts\KittenSegmentView.cs" />
     <Compile Include="DataContracts\OperationSendChatMessageResult.cs" />
     <Compile Include="DataContracts\OperationSendChatMessageRequest.cs" />
     <Compile Include="DataContracts\ChatMessage.cs" />

@@ -17,6 +17,12 @@ namespace TLMG.Client.Communication
         /// <summary>Se dispara con la ErrorKey de una suscripción o de una carta que el servidor rechazó.</summary>
         event EventHandler<ServerEventArgs<string>> MatchErrorReceived;
 
+        /// <summary>Resultado individual del intento de atrape.</summary>
+        event EventHandler<ServerEventArgs<OperationResult>> FugitiveKittenCatchResultReceived;
+
+        /// <summary>Resultado individual de la comprobación del plazo.</summary>
+        event EventHandler<ServerEventArgs<OperationResult>> FugitiveKittenDeadlineResultReceived;
+
         /// <summary>Se dispara cuando la partida pasa a estar disponible o deja de estarlo.</summary>
         event EventHandler MatchAvailabilityChanged;
 
@@ -26,9 +32,18 @@ namespace TLMG.Client.Communication
         /// <summary>Obtiene la última vista aceptada, o null si todavía no llega ninguna.</summary>
         MatchView CurrentMatchView { get; }
 
+        /// <summary>Tiempo transcurrido desde que se recibió la vista vigente.</summary>
+        TimeSpan CurrentMatchViewAge { get; }
+
         /// <summary>Pide suscribirse a la partida de la sala; el resultado y la vista llegan por evento.</summary>
         /// <returns>true si se envió; false si no hay sesión registrada, partida autorizada o falló el envío.</returns>
         bool SubscribeToCurrentMatch();
+
+        /// <summary>Envía un intento de atrapar al gatito.</summary>
+        bool TryCatchFugitiveKitten();
+
+        /// <summary>Solicita comprobar el vencimiento del gatito.</summary>
+        bool CheckFugitiveKittenDeadline();
 
         /// <summary>Pide colocar una carta de la mano; el servidor decide y responde por evento.</summary>
         /// <param name="cardKind">Tipo de la carta que se quiere colocar.</param>

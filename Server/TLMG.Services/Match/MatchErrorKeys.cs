@@ -12,6 +12,9 @@ namespace TLMG.Services.Match
         /// <summary>El canal no está suscrito a la partida.</summary>
         public const string NotSubscribed = "Match_NotSubscribedError";
 
+        /// <summary>El minijuego previo a la partida todavía no termina.</summary>
+        public const string FugitiveKittenInProgress = "Match_FugitiveKittenInProgressError";
+
         /// <summary>No es el turno del jugador.</summary>
         public const string NotYourTurn = "Match_NotYourTurnError";
 

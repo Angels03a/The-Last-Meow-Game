@@ -84,6 +84,11 @@ namespace TLMG.Services.Sessions
                 matchRecord.LastChallenge.ResolvePunishment(MatchPunishmentResolution.ChosenAtRandom);
             }
 
+            if (matchRecord.Kitten != null && matchRecord.Kitten.Expire(nowUtc))
+            {
+                wasExpired = true;
+            }
+
             DiscardEndedBlindSlots(matchRecord);
 
             return wasExpired;
@@ -192,7 +197,7 @@ namespace TLMG.Services.Sessions
         /// Prepara la partida de la sala sin publicarla: modalidad de la sala y participantes congelados en el orden
         /// de ingreso. Requiere _sessionsLock; puede lanzar si el motor rechaza la configuración.
         /// </summary>
-        private MatchRecord CreateMatchRecordInLock(Guid matchId, int roomId)
+        private MatchRecord CreateMatchRecordInLock(Guid matchId, int roomId, DateTime nowUtc)
         {
             int cardsPerPlayerCount = _startsByRoomId[roomId].CardsPerPlayerCount;
             MatchModeRules modeRules = MatchModeRules.CreateFromCardsPerPlayerCount(cardsPerPlayerCount);
@@ -206,7 +211,8 @@ namespace TLMG.Services.Sessions
                 participantUserIds,
                 cardsPerPlayerCount,
                 CopyNicknamesInLock(participantUserIds),
-                participantUserIds.All(userId => _sessionsByToken[_tokensByUserId[userId]].IsRegistered));
+                participantUserIds.All(userId => _sessionsByToken[_tokensByUserId[userId]].IsRegistered),
+                nowUtc);
 
             return matchRecord;
         }
@@ -250,7 +256,8 @@ namespace TLMG.Services.Sessions
                 IReadOnlyList<int> participantUserIds,
                 int cardsPerPlayerCount,
                 IReadOnlyDictionary<int, string> participantNicknames,
-                bool allParticipantsRegistered)
+                bool allParticipantsRegistered,
+                DateTime nowUtc)
             {
                 MatchId = matchId;
                 RoomId = roomId;
@@ -260,6 +267,10 @@ namespace TLMG.Services.Sessions
                 ParticipantNicknames = participantNicknames;
                 AllParticipantsRegistered = allParticipantsRegistered;
                 Version = InitialMatchVersion;
+                if (matchState.ModeRules.AllowsExtraLife)
+                {
+                    Kitten = new FugitiveKittenState(nowUtc);
+                }
             }
 
             /// <summary>Identificador de la partida, el mismo que recibe la sala.</summary>
@@ -282,6 +293,8 @@ namespace TLMG.Services.Sessions
 
             /// <summary>Indica si todas las identidades congeladas eran cuentas registradas.</summary>
             public bool AllParticipantsRegistered { get; }
+
+            public FugitiveKittenState Kitten { get; }
 
             /// <summary>Versión de la partida; sube con cada acción aceptada y solo bajo _sessionsLock.</summary>
             public int Version { get; set; }

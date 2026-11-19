@@ -36,7 +36,6 @@ namespace TLMG.Client.ViewModels
             NavigateToHowToPlayCommand = new RelayCommand(ExecuteNavigateToHowToPlay);
             NavigateToLeaderboardCommand = new RelayCommand(ExecuteNavigateToLeaderboard);
             NavigateToOptionsCommand = new RelayCommand(ExecuteNavigateToOptions);
-            NavigateToFugitiveKittenCommand = new RelayCommand(ExecuteNavigateToFugitiveKitten);
             LogOutCommand = new RelayCommand(ExecuteLogOut);
         }
 
@@ -57,9 +56,6 @@ namespace TLMG.Client.ViewModels
 
         /// <summary>Comando para navegar a las opciones.</summary>
         public ICommand NavigateToOptionsCommand { get; }
-
-        /// <summary>Comando del acceso temporal con F8 a la pantalla del Gatito Fugitivo.</summary>
-        public ICommand NavigateToFugitiveKittenCommand { get; }
 
         /// <summary>Comando para cerrar sesión.</summary>
         public ICommand LogOutCommand { get; }
@@ -95,13 +91,6 @@ namespace TLMG.Client.ViewModels
         private void ExecuteNavigateToOptions()
         {
             _navigationManager.NavigateTo(ScreenId.Options);
-        }
-
-        // TODO: Retirar el acceso temporal con F8 a FugitiveKittenScreen. (BL-122).
-        // TODO: Abrir FugitiveKittenScreen al iniciar una partida de 8 cartas, no desde el menú. (BL-118).
-        private void ExecuteNavigateToFugitiveKitten()
-        {
-            _navigationManager.NavigateTo(ScreenId.FugitiveKitten, true);
         }
 
         private void ExecuteLogOut()

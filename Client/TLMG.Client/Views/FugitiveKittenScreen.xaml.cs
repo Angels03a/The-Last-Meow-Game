@@ -13,10 +13,8 @@ using System.Windows.Shapes;
 
 namespace TLMG.Client.Views
 {
-    // TODO: Reproducir la ruta de 15 s en lugar de los estados congelados. (BL-119).
     /// <summary>
-    /// Pantalla del minijuego El Gatito Fugitivo (solo modalidad de 8 cartas). Hoy es una cáscara visual que
-    /// muestra los seis estados fijos del prototipo; no se comunica con el servidor ni decide resultados.
+    /// Pantalla del minijuego El Gatito Fugitivo. Las decisiones llegan del servidor a través del ViewModel.
     /// </summary>
     public partial class FugitiveKittenScreen : LocalizableScreen
     {
@@ -79,24 +77,6 @@ namespace TLMG.Client.Views
         private const string KittenStripeBrushKeyFormat = "Brush_FugitiveKitten{0}Stripe";
         private const string KittenCreamBrushKeyFormat = "Brush_FugitiveKitten{0}Cream";
 
-        // TODO: Retirar las teclas temporales 1 a 6, C y Esc de esta pantalla. (BL-122).
-        private static readonly Dictionary<Key, KittenSceneState> _sceneStateKeys =
-            new Dictionary<Key, KittenSceneState>
-            {
-                { Key.D1, KittenSceneState.Intro },
-                { Key.D2, KittenSceneState.Running },
-                { Key.D3, KittenSceneState.Hidden },
-                { Key.D4, KittenSceneState.Caught },
-                { Key.D5, KittenSceneState.CaughtByOther },
-                { Key.D6, KittenSceneState.Escaped },
-                { Key.NumPad1, KittenSceneState.Intro },
-                { Key.NumPad2, KittenSceneState.Running },
-                { Key.NumPad3, KittenSceneState.Hidden },
-                { Key.NumPad4, KittenSceneState.Caught },
-                { Key.NumPad5, KittenSceneState.CaughtByOther },
-                { Key.NumPad6, KittenSceneState.Escaped }
-            };
-
         private readonly FugitiveKittenViewModel _viewModel;
 
         /// <summary>
@@ -109,7 +89,6 @@ namespace TLMG.Client.Views
             DataContext = _viewModel;
             Loaded += OnFugitiveKittenScreenLoaded;
             Unloaded += OnFugitiveKittenScreenUnloaded;
-            KeyDown += OnFugitiveKittenScreenKeyDown;
             DrawStars();
             ApplyKittenColor(_viewModel.KittenColor);
             ShowSceneState(_viewModel.SceneState);
@@ -162,8 +141,7 @@ namespace TLMG.Client.Views
             return (Brush)FindResource(brushKey);
         }
 
-        // TODO: Enviar el intento de atrape solo al hacer clic sobre el gatito visible. (BL-117).
-        private void ShowSceneState(KittenSceneState sceneState)
+            private void ShowSceneState(KittenSceneState sceneState)
         {
             ResetScene();
 
@@ -174,6 +152,9 @@ namespace TLMG.Client.Views
                     break;
                 case KittenSceneState.Hidden:
                     ShowHiddenFrame();
+                    break;
+                case KittenSceneState.Leaving:
+                    ShowCountdown();
                     break;
                 case KittenSceneState.Caught:
                     ShowCaughtFrame();
@@ -265,7 +246,6 @@ namespace TLMG.Client.Views
             ShowCountdown();
         }
 
-        // TODO: Pasar a la partida 2.8 s después de mostrar el resultado. (BL-118).
         private void ShowResultPanel(StackPanel resultContent, TimeSpan fadeInDelay)
         {
             pnlStage.Opacity = DimmedStageOpacity;
@@ -419,6 +399,9 @@ namespace TLMG.Client.Views
         {
             _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            _viewModel.Activate();
+            UpdatePosition();
+            UpdateConnection();
             ApplyKittenColor(_viewModel.KittenColor);
             ShowSceneState(_viewModel.SceneState);
             Focus();
@@ -427,6 +410,7 @@ namespace TLMG.Client.Views
         private void OnFugitiveKittenScreenUnloaded(object sender, RoutedEventArgs eventArgs)
         {
             _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _viewModel.Deactivate();
             StopOpacityAnimations();
         }
 
@@ -448,33 +432,74 @@ namespace TLMG.Client.Views
             {
                 ShowCountdown();
             }
+            else if (eventArgs.PropertyName == nameof(FugitiveKittenViewModel.Progress)
+                || eventArgs.PropertyName == nameof(FugitiveKittenViewModel.Origin)
+                || eventArgs.PropertyName == nameof(FugitiveKittenViewModel.Destination))
+            {
+                UpdatePosition();
+            }
+            else if (eventArgs.PropertyName == nameof(FugitiveKittenViewModel.IsConnected)
+                || eventArgs.PropertyName == nameof(FugitiveKittenViewModel.IsWaiting))
+            {
+                UpdateConnection();
+            }
+            else if (eventArgs.PropertyName == nameof(FugitiveKittenViewModel.AlternatePose))
+            {
+                UpdatePosition();
+            }
+            else if (eventArgs.PropertyName == nameof(FugitiveKittenViewModel.GlowPoint))
+            {
+                UpdateGlow();
+            }
         }
 
-        private void OnFugitiveKittenScreenKeyDown(object sender, KeyEventArgs e)
+        private void UpdateConnection()
         {
-            if (!_viewModel.IsPreview)
-            {
-                return;
-            }
+            lblConnection.Visibility = _viewModel.IsConnected ? Visibility.Collapsed : Visibility.Visible;
+            lblWaiting.Visibility = _viewModel.IsConnected && _viewModel.IsWaiting
+                ? Visibility.Visible : Visibility.Collapsed;
+            if (_viewModel.IsWaiting) pnlKitten.Visibility = Visibility.Collapsed;
+        }
 
-            if (_sceneStateKeys.TryGetValue(e.Key, out KittenSceneState sceneState))
+        private void UpdateGlow()
+        {
+            pnlDoorTopLeftGlow.BeginAnimation(OpacityProperty, null);
+            pnlDoorTopRightGlow.BeginAnimation(OpacityProperty, null);
+            pnlDoorBottomLeftGlow.BeginAnimation(OpacityProperty, null);
+            pnlDoorBottomRightGlow.BeginAnimation(OpacityProperty, null);
+            pnlDoorTopLeftGlow.Opacity = _viewModel.GlowPoint == "P1" ? 1 : 0;
+            pnlDoorTopRightGlow.Opacity = _viewModel.GlowPoint == "P2" ? 1 : 0;
+            pnlDoorBottomLeftGlow.Opacity = _viewModel.GlowPoint == "P3" ? 1 : 0;
+            pnlDoorBottomRightGlow.Opacity = _viewModel.GlowPoint == "P4" ? 1 : 0;
+            pnlBoxTopGlow.Opacity = _viewModel.GlowPoint == "E1" ? 1 : 0;
+            pnlBoxBottomGlow.Opacity = _viewModel.GlowPoint == "E2" ? 1 : 0;
+        }
+
+        private static Point GetPosition(string point)
+        {
+            switch (point)
             {
-                bool isSameScene = sceneState == _viewModel.SceneState;
-                _viewModel.SelectPreviewScene(sceneState);
-                if (isSameScene)
-                {
-                    ShowSceneState(sceneState);
-                }
-            }
-            else if (e.Key == Key.C)
-            {
-                _viewModel.CyclePreviewColor();
-            }
-            else if (e.Key == Key.Escape)
-            {
-                _viewModel.BackCommand.Execute(null);
+                case "P1": return new Point(82, 326);
+                case "P2": return new Point(1102, 326);
+                case "P3": return new Point(82, 536);
+                case "P4": return new Point(1102, 536);
+                case "E1": return new Point(592, 326);
+                case "E2": return new Point(592, 536);
+                default: return new Point(82, 326);
             }
         }
 
+        private void UpdatePosition()
+        {
+            Point origin = GetPosition(_viewModel.Origin);
+            Point destination = GetPosition(_viewModel.Destination);
+            Canvas.SetLeft(pnlKitten, origin.X + (destination.X - origin.X) * _viewModel.Progress);
+            Canvas.SetTop(pnlKitten, origin.Y + (destination.Y - origin.Y) * _viewModel.Progress);
+            pnlKitten.RenderTransformOrigin = new Point(0.5, 0.5);
+            pnlKitten.RenderTransform = new ScaleTransform(destination.X < origin.X ? -1 : 1, 1);
+            bool firstPose = _viewModel.AlternatePose;
+            ((UIElement)pnlKitten.Children[0]).Visibility = firstPose ? Visibility.Visible : Visibility.Collapsed;
+            ((UIElement)pnlKitten.Children[1]).Visibility = firstPose ? Visibility.Collapsed : Visibility.Visible;
+        }
     }
 }

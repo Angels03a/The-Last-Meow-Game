@@ -11,22 +11,29 @@
 namespace TLMG.Client.UsersManagerReference
 {
     using System.Runtime.Serialization;
+    using System;
     
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="PlayerAccountRegistration", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class PlayerAccountRegistration : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string EmailField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool HasAcceptedTermsField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string PasswordField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -124,6 +131,7 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationLogInResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationPlayerProfileResult))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationGetLeaderboardResult))]
@@ -138,10 +146,13 @@ namespace TLMG.Client.UsersManagerReference
     public partial class OperationResult : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string ErrorKeyField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsSuccessField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -205,13 +216,17 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationLogInResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationLogInResult : TLMG.Client.UsersManagerReference.OperationResult
     {
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string SessionTokenField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -269,13 +284,17 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationPlayerProfileResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationPlayerProfileResult : TLMG.Client.UsersManagerReference.OperationResult
     {
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string AvatarKeyField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string EmailField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -333,9 +352,11 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationGetLeaderboardResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationGetLeaderboardResult : TLMG.Client.UsersManagerReference.OperationResult
     {
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.LeaderboardPlayer[] PlayersField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -359,10 +380,12 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationLobbyRoomResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TLMG.Client.UsersManagerReference.OperationRequestMatchStartResult))]
     public partial class OperationLobbyRoomResult : TLMG.Client.UsersManagerReference.OperationResult
     {
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.LobbyRoom RoomField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -386,9 +409,11 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationRequestMatchStartResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationRequestMatchStartResult : TLMG.Client.UsersManagerReference.OperationLobbyRoomResult
     {
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RetryAfterSecondsField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -412,11 +437,14 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationSubscribeToFriendsResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationSubscribeToFriendsResult : TLMG.Client.UsersManagerReference.OperationResult
     {
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.Friend[] FriendsField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.FriendRequest[] PendingFriendRequestsField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -457,11 +485,14 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationSendFriendRequestResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationSendFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult
     {
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.Friend NewFriendField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.FriendRequest SentFriendRequestField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -502,11 +533,14 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationAcceptFriendRequestResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationAcceptFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult
     {
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int FriendRequestIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.Friend NewFriendField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -547,9 +581,11 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationDeclineFriendRequestResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationDeclineFriendRequestResult : TLMG.Client.UsersManagerReference.OperationResult
     {
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int FriendRequestIdField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -573,9 +609,11 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationAcceptRoomInvitationResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationAcceptRoomInvitationResult : TLMG.Client.UsersManagerReference.OperationResult
     {
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -599,9 +637,11 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationSendChatMessageResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationSendChatMessageResult : TLMG.Client.UsersManagerReference.OperationResult
     {
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Guid ClientMessageIdField;
         
         [System.Runtime.Serialization.DataMemberAttribute()]
@@ -625,19 +665,26 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="LeaderboardPlayer", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class LeaderboardPlayer : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string ProfileImageField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int TotalGamesPlayedField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int TotalPointsField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int TotalWinsField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -752,29 +799,41 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="LobbyRoom", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class LobbyRoom : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int CardsPerPlayerCountField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<System.DateTime> CountdownEndsAtUtcField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private long CountdownIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool InGameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<System.Guid> MatchIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<System.DateTime> MatchStartedAtUtcField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.LobbyPlayer[] PlayersField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.DateTime ServerTimeUtcField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private long VersionField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -974,15 +1033,20 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="LobbyPlayer", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class LobbyPlayer : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsReadyField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -1063,15 +1127,20 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="Friend", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class Friend : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsOnlineField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -1152,17 +1221,23 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="FriendRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class FriendRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int FriendRequestIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsIncomingField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -1259,14 +1334,72 @@ namespace TLMG.Client.UsersManagerReference
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class SystemFault : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string SystemErrorMessageField;
+        
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
+                return this.extensionDataField;
+            }
+            set
+            {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string SystemErrorMessage
+        {
+            get
+            {
+                return this.SystemErrorMessageField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.SystemErrorMessageField, value) != true))
+                {
+                    this.SystemErrorMessageField = value;
+                    this.RaisePropertyChanged("SystemErrorMessage");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationLogInRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationLogInRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string EmailField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string PasswordField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -1330,15 +1463,20 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationUpdatePlayerProfileRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationUpdatePlayerProfileRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string AvatarKeyField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string SessionTokenField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -1418,65 +1556,18 @@ namespace TLMG.Client.UsersManagerReference
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
-    public partial class SystemFault : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
-    {
-        
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        private string SystemErrorMessageField;
-        
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
-        {
-            get
-            {
-                return this.extensionDataField;
-            }
-            set
-            {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string SystemErrorMessage
-        {
-            get
-            {
-                return this.SystemErrorMessageField;
-            }
-            set
-            {
-                if ((object.ReferenceEquals(this.SystemErrorMessageField, value) != true))
-                {
-                    this.SystemErrorMessageField = value;
-                    this.RaisePropertyChanged("SystemErrorMessage");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName)
-        {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null))
-            {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationChangePlayerReadinessRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationChangePlayerReadinessRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsReadyField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -1540,13 +1631,17 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationChangeCardsPerPlayerRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationChangeCardsPerPlayerRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int CardsPerPlayerCountField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -1610,13 +1705,17 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationMatchStartRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationMatchStartRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private long CountdownIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -1680,13 +1779,17 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="RoomInvitation", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class RoomInvitation : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int InvitationIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string InviterNicknameField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -1750,15 +1853,20 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="OperationSendChatMessageRequest", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class OperationSendChatMessageRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Guid ClientMessageIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string TextField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -1839,21 +1947,29 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="ChatMessage", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class ChatMessage : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Guid ClientMessageIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoomIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string SenderNicknameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int SenderUserIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.DateTime SentAtUtcField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string TextField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -1997,55 +2113,83 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class MatchView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int BetLeaderUserIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool CanChoosePunishmentCardField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool CanPlaceBetField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool CanPlaceCardField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool CanRevealCardField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool CanWithdrawFromBetField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int CardsOnTableField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchChallengeView ChallengeField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int ChallengesToWinField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int CurrentBetField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchStandingView[] FinalStandingsField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.FugitiveKittenView FugitiveKittenField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Guid MatchIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int MaximumBetValueField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int MinimumBetValueField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchCardKind[] OwnHandCardsField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchCardKind[] OwnPileCardsField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchRoundPhase PhaseField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PlayerInTurnUserIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchPlayerView[] PlayersField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchPunishmentView PunishmentField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoundNumberField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int VersionField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int WinnerUserIdField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -2243,6 +2387,23 @@ namespace TLMG.Client.UsersManagerReference
                 {
                     this.FinalStandingsField = value;
                     this.RaisePropertyChanged("FinalStandings");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.FugitiveKittenView FugitiveKitten
+        {
+            get
+            {
+                return this.FugitiveKittenField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.FugitiveKittenField, value) != true))
+                {
+                    this.FugitiveKittenField = value;
+                    this.RaisePropertyChanged("FugitiveKitten");
                 }
             }
         }
@@ -2466,23 +2627,32 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchChallengeView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class MatchChallengeView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int BettorUserIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchChallengeOutcome OutcomeField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PromisedCountField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PunishedUserIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PunishmentChooserUserIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchPunishmentResolution PunishmentResolutionField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchRevealedCardView[] RevealedCardsField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -2630,18 +2800,218 @@ namespace TLMG.Client.UsersManagerReference
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FugitiveKittenView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class FugitiveKittenView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ColorField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.DateTime ExpiresAtUtcField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.FugitiveKittenResult ResultField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TLMG.Client.UsersManagerReference.KittenSegmentView[] SegmentsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.DateTime ServerTimeUtcField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.DateTime StartedAtUtcField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string WinnerNicknameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<int> WinnerUserIdField;
+        
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
+                return this.extensionDataField;
+            }
+            set
+            {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Color
+        {
+            get
+            {
+                return this.ColorField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.ColorField, value) != true))
+                {
+                    this.ColorField = value;
+                    this.RaisePropertyChanged("Color");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime ExpiresAtUtc
+        {
+            get
+            {
+                return this.ExpiresAtUtcField;
+            }
+            set
+            {
+                if ((this.ExpiresAtUtcField.Equals(value) != true))
+                {
+                    this.ExpiresAtUtcField = value;
+                    this.RaisePropertyChanged("ExpiresAtUtc");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.FugitiveKittenResult Result
+        {
+            get
+            {
+                return this.ResultField;
+            }
+            set
+            {
+                if ((this.ResultField.Equals(value) != true))
+                {
+                    this.ResultField = value;
+                    this.RaisePropertyChanged("Result");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TLMG.Client.UsersManagerReference.KittenSegmentView[] Segments
+        {
+            get
+            {
+                return this.SegmentsField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.SegmentsField, value) != true))
+                {
+                    this.SegmentsField = value;
+                    this.RaisePropertyChanged("Segments");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime ServerTimeUtc
+        {
+            get
+            {
+                return this.ServerTimeUtcField;
+            }
+            set
+            {
+                if ((this.ServerTimeUtcField.Equals(value) != true))
+                {
+                    this.ServerTimeUtcField = value;
+                    this.RaisePropertyChanged("ServerTimeUtc");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime StartedAtUtc
+        {
+            get
+            {
+                return this.StartedAtUtcField;
+            }
+            set
+            {
+                if ((this.StartedAtUtcField.Equals(value) != true))
+                {
+                    this.StartedAtUtcField = value;
+                    this.RaisePropertyChanged("StartedAtUtc");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string WinnerNickname
+        {
+            get
+            {
+                return this.WinnerNicknameField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.WinnerNicknameField, value) != true))
+                {
+                    this.WinnerNicknameField = value;
+                    this.RaisePropertyChanged("WinnerNickname");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> WinnerUserId
+        {
+            get
+            {
+                return this.WinnerUserIdField;
+            }
+            set
+            {
+                if ((this.WinnerUserIdField.Equals(value) != true))
+                {
+                    this.WinnerUserIdField = value;
+                    this.RaisePropertyChanged("WinnerUserId");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchPunishmentView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class MatchPunishmentView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int CardSlotCountField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int ChooserUserIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsBlindChoiceField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PunishedUserIdField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -2739,17 +3109,23 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchStandingView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class MatchStandingView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PointsField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PositionField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -2868,27 +3244,38 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchPlayerView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class MatchPlayerView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int HandCardCountField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool HasLeftMatchField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool HasWithdrawnFromBetField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool IsEliminatedField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PileCardCountField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchCardKind[] RevealedPileCardsField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int SuccessfulChallengeCountField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -3110,13 +3497,17 @@ namespace TLMG.Client.UsersManagerReference
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MatchRevealedCardView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
     public partial class MatchRevealedCardView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
     {
         
+        [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.MatchCardKind CardField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int PileOwnerUserIdField;
         
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData
@@ -3161,6 +3552,175 @@ namespace TLMG.Client.UsersManagerReference
                 {
                     this.PileOwnerUserIdField = value;
                     this.RaisePropertyChanged("PileOwnerUserId");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null))
+            {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FugitiveKittenResult", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    public enum FugitiveKittenResult : int
+    {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        InProgress = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Caught = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Escaped = 2,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="KittenSegmentView", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+    [System.SerializableAttribute()]
+    public partial class KittenSegmentView : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged
+    {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string DestinationField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int EndMillisecondsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsCatchableField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string KindField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string OriginField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int StartMillisecondsField;
+        
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData
+        {
+            get
+            {
+                return this.extensionDataField;
+            }
+            set
+            {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Destination
+        {
+            get
+            {
+                return this.DestinationField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.DestinationField, value) != true))
+                {
+                    this.DestinationField = value;
+                    this.RaisePropertyChanged("Destination");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int EndMilliseconds
+        {
+            get
+            {
+                return this.EndMillisecondsField;
+            }
+            set
+            {
+                if ((this.EndMillisecondsField.Equals(value) != true))
+                {
+                    this.EndMillisecondsField = value;
+                    this.RaisePropertyChanged("EndMilliseconds");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsCatchable
+        {
+            get
+            {
+                return this.IsCatchableField;
+            }
+            set
+            {
+                if ((this.IsCatchableField.Equals(value) != true))
+                {
+                    this.IsCatchableField = value;
+                    this.RaisePropertyChanged("IsCatchable");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Kind
+        {
+            get
+            {
+                return this.KindField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.KindField, value) != true))
+                {
+                    this.KindField = value;
+                    this.RaisePropertyChanged("Kind");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Origin
+        {
+            get
+            {
+                return this.OriginField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.OriginField, value) != true))
+                {
+                    this.OriginField = value;
+                    this.RaisePropertyChanged("Origin");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int StartMilliseconds
+        {
+            get
+            {
+                return this.StartMillisecondsField;
+            }
+            set
+            {
+                if ((this.StartMillisecondsField.Equals(value) != true))
+                {
+                    this.StartMillisecondsField = value;
+                    this.RaisePropertyChanged("StartMilliseconds");
                 }
             }
         }
@@ -3840,6 +4400,18 @@ namespace TLMG.Client.UsersManagerReference
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/SubscribeToMatch")]
         System.Threading.Tasks.Task SubscribeToMatchAsync(string sessionToken, System.Guid matchId);
         
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/TryCatchFugitiveKitten")]
+        void TryCatchFugitiveKitten(string sessionToken);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/TryCatchFugitiveKitten")]
+        System.Threading.Tasks.Task TryCatchFugitiveKittenAsync(string sessionToken);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/CheckFugitiveKittenDeadline")]
+        void CheckFugitiveKittenDeadline(string sessionToken);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/CheckFugitiveKittenDeadline")]
+        System.Threading.Tasks.Task CheckFugitiveKittenDeadlineAsync(string sessionToken);
+        
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/PlaceCard")]
         void PlaceCard(string sessionToken, TLMG.Client.UsersManagerReference.MatchCardKind cardKind);
         
@@ -3874,6 +4446,12 @@ namespace TLMG.Client.UsersManagerReference
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public interface IMatchManagerCallback
     {
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/TryCatchFugitiveKittenResult")]
+        void TryCatchFugitiveKittenResult(TLMG.Client.UsersManagerReference.OperationResult result);
+        
+        [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/CheckFugitiveKittenDeadlineResult")]
+        void CheckFugitiveKittenDeadlineResult(TLMG.Client.UsersManagerReference.OperationResult result);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IMatchManager/SubscribeToMatchResult")]
         void SubscribeToMatchResult(TLMG.Client.UsersManagerReference.OperationResult operationSubscribeToMatchResult);
@@ -3940,6 +4518,26 @@ namespace TLMG.Client.UsersManagerReference
         public System.Threading.Tasks.Task SubscribeToMatchAsync(string sessionToken, System.Guid matchId)
         {
             return base.Channel.SubscribeToMatchAsync(sessionToken, matchId);
+        }
+        
+        public void TryCatchFugitiveKitten(string sessionToken)
+        {
+            base.Channel.TryCatchFugitiveKitten(sessionToken);
+        }
+        
+        public System.Threading.Tasks.Task TryCatchFugitiveKittenAsync(string sessionToken)
+        {
+            return base.Channel.TryCatchFugitiveKittenAsync(sessionToken);
+        }
+        
+        public void CheckFugitiveKittenDeadline(string sessionToken)
+        {
+            base.Channel.CheckFugitiveKittenDeadline(sessionToken);
+        }
+        
+        public System.Threading.Tasks.Task CheckFugitiveKittenDeadlineAsync(string sessionToken)
+        {
+            return base.Channel.CheckFugitiveKittenDeadlineAsync(sessionToken);
         }
         
         public void PlaceCard(string sessionToken, TLMG.Client.UsersManagerReference.MatchCardKind cardKind)

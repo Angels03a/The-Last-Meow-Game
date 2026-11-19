@@ -296,6 +296,7 @@
       <xs:element minOccurs="0" name="ChallengesToWin" type="xs:int" />
       <xs:element minOccurs="0" name="CurrentBet" type="xs:int" />
       <xs:element minOccurs="0" name="FinalStandings" nillable="true" type="tns:ArrayOfMatchStandingView" />
+      <xs:element minOccurs="0" name="FugitiveKitten" nillable="true" type="tns:FugitiveKittenView" />
       <xs:element minOccurs="0" name="MatchId" type="ser:guid" />
       <xs:element minOccurs="0" name="MaximumBetValue" type="xs:int" />
       <xs:element minOccurs="0" name="MinimumBetValue" type="xs:int" />
@@ -370,6 +371,44 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="MatchStandingView" nillable="true" type="tns:MatchStandingView" />
+  <xs:complexType name="FugitiveKittenView">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Color" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ExpiresAtUtc" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="Result" type="tns:FugitiveKittenResult" />
+      <xs:element minOccurs="0" name="Segments" nillable="true" type="tns:ArrayOfKittenSegmentView" />
+      <xs:element minOccurs="0" name="ServerTimeUtc" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="StartedAtUtc" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="WinnerNickname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="WinnerUserId" nillable="true" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="FugitiveKittenView" nillable="true" type="tns:FugitiveKittenView" />
+  <xs:simpleType name="FugitiveKittenResult">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="InProgress" />
+      <xs:enumeration value="Caught" />
+      <xs:enumeration value="Escaped" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="FugitiveKittenResult" nillable="true" type="tns:FugitiveKittenResult" />
+  <xs:complexType name="ArrayOfKittenSegmentView">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="KittenSegmentView" nillable="true" type="tns:KittenSegmentView" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfKittenSegmentView" nillable="true" type="tns:ArrayOfKittenSegmentView" />
+  <xs:complexType name="KittenSegmentView">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Destination" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="EndMilliseconds" type="xs:int" />
+      <xs:element minOccurs="0" name="IsCatchable" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Kind" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Origin" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="StartMilliseconds" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="KittenSegmentView" nillable="true" type="tns:KittenSegmentView" />
   <xs:complexType name="ArrayOfMatchCardKind">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="MatchCardKind" type="tns:MatchCardKind" />

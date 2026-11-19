@@ -466,4 +466,7 @@
     <sys:String x:Key="Profile_AvatarNotValidError">El avatar seleccionado no es válido.</sys:String>
     <sys:String x:Key="Profile_NetworkError">Error de red. Por favor, inténtalo de nuevo más tarde.</sys:String>
     <sys:String x:Key="Profile_DataModelError">No se pudo actualizar el perfil. Inténtalo de nuevo más tarde.</sys:String>
+    <sys:String x:Key="Match_FugitiveKittenInProgressError">La partida comenzará cuando termine el minijuego.</sys:String>
+    <sys:String x:Key="FugitiveKitten_Unavailable">Conexión de partida no disponible.</sys:String>
+    <sys:String x:Key="FugitiveKitten_Waiting">Esperando el resultado del servidor…</sys:String>
 </ResourceDictionary>

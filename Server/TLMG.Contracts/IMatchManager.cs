@@ -18,6 +18,14 @@ namespace TLMG.Contracts
         [OperationContract(IsOneWay = true)]
         void SubscribeToMatch(string sessionToken, Guid matchId);
 
+        /// <summary>Solicita un intento de atrapar al gatito.</summary>
+        [OperationContract(IsOneWay = true)]
+        void TryCatchFugitiveKitten(string sessionToken);
+
+        /// <summary>Solicita comprobar el vencimiento del minijuego.</summary>
+        [OperationContract(IsOneWay = true)]
+        void CheckFugitiveKittenDeadline(string sessionToken);
+
         /// <summary>
         /// Coloca una carta de la mano del jugador en su pila de la partida suscrita. El resultado solo informa la
         /// aceptación o el rechazo; el nuevo estado llega como vista privada a cada jugador suscrito.

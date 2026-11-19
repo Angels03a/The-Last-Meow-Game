@@ -181,6 +181,7 @@ Formato de entrada:
 - Nota (2026-11-07 04:28): el dominio alojará las constantes de tiempo del Gatito Fugitivo (arranque, medio carril, oculto y tolerancia de 150 ms) y el catálogo de rutas, con el escape calculado como la ventana menos los demás tramos (etapa 1 de la decisión del 2026-11-06).
 - Nota (2026-11-15 00:32): revisado sobre 8aa6844. Avance de la etapa 2: el rango agregó a TLMG.Domain.Repositories las interfaces y tipos del chat (IChatMessageRepository, ChatMessageRecord, ChatMessageSaveStatus y ChatMessageScope; d64acfa) y de los códigos de verificación (IVerificationCodeRepository, PendingRegistrationRecord, VerificationCodeRecord y VerificationCodeValidationResult; 0429cb1). Sigue sin Engine (no existe Server/TLMG.Domain/Engine/): la etapa 3 y el motor de reglas están pendientes. Un detalle por revisar: VerificationCodeValidationResult.Status es una cadena que PlayerAccountRegistrationService.cs:221-250 compara con «Valid», «Invalid», «TooManyAttempts», «Expired» y «NoActiveCode», sin enum ni constantes.
 - Nota (2026-11-18): Engine ya existe con modalidades, apuestas, retos, castigos, salidas y clasificación (603b6fc, 3af8ea2, d35fcf7, 4189e02, 3b928cc y 257b5b1). Sigue pendiente el catálogo y las constantes del Gatito Fugitivo añadidos al alcance de esta entrada; no se concluye que todas las reglas estén implementadas.
+- Nota (2026-11-18): Avance local FK-02 sin commit: catálogo inicial de ruta y tolerancia en Domain; falta integrarlo con Services, contratos y cliente. No se cierra la entrada.
 
 
 ### BL-041 · Migrar las pantallas a MVVM con CommunityToolkit.Mvvm (D-39, D-50)
@@ -557,6 +558,11 @@ Formato de entrada:
 - Depende de: BL-116, BL-041; BL-108 (canal por separado en ServerConnectionManager)
 - Estado: Pendiente
 - Nota (2026-11-18): FK-01 solo expone CatchKittenCommand deshabilitado y un estado de presentación; no envía intentos ni recibe ganador o color del servidor. El nombre de muestra se limita a la previsualización BL-122.
+- Nota (2026-11-18): FK-02 en curso: arbitraje y barrera internos en Services; falta publicar estado y operaciones mediante WCF y conectarlos al cliente.
+- Nota (2026-11-18): avance local etapa 3: DTO y operaciones del servidor; proxy y conexión del cliente pendientes de regeneración e integración.
+- Nota (2026-11-18): avance local etapa 3B: proxy y metadatos generados con svcutil; canal y callbacks conectados. Falta integración visual y prueba WCF de partida.
+- Nota (2026-11-18): FK-02 integra el ViewModel y el canal de partida; pendiente validar WCF real con clientes.
+- Nota (2026-11-18): ajuste temporal local: la vista incluye hora de servidor y el cliente proyecta su antigüedad; pendiente validar latencia real.
 
 
 ### BL-118 · Navegación al iniciar la partida según la modalidad
@@ -565,6 +571,7 @@ Formato de entrada:
 - Depende de: BL-046, BL-117
 - Estado: Pendiente
 - Nota (2026-11-18): FK-01 no modifica la navegación de modalidades ni agrega transición automática; F8 sigue como acceso explícito de previsualización.
+- Nota (2026-11-18): FK-02 navega por modalidad y presenta el resultado antes de Gameplay; pendiente prueba real.
 
 
 ### BL-119 · Reproducción de la ruta de 15 s del gatito en la pantalla
@@ -573,6 +580,7 @@ Formato de entrada:
 - Depende de: aprobación del encargado; BL-117 para la ruta real
 - Estado: Pendiente
 - Nota (2026-11-18): FK-01 conserva las seis escenas y tiempos fijos de previsualización; no implementa la ruta dinámica de 15 s.
+- Nota (2026-11-18): FK-02 reproduce los segmentos recibidos; quedan pendientes revisión visual y sincronización real.
 
 
 ### BL-120 · Sprites finales y colores del gatito
@@ -594,6 +602,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-11 23:55): avance. El acceso F8 salió de MainMenuScreen: ahora es un KeyBinding en MainMenuScreen.xaml hacia MainMenuViewModel.NavigateToFugitiveKittenCommand (MainMenuViewModel.cs:100-101 conserva los TODO de BL-122 y BL-118) y ScreenId.FugitiveKitten está en la fábrica (c6a081a). Siguen pendientes las teclas internas de la pantalla; FugitiveKittenScreen.xaml.cs:452 aún usa MainWindow.
 - Nota (2026-11-18): FK-01 conserva F8 y las teclas 1–6, C y Esc para previsualización explícita; fuera de ella las teclas de demostración no cambian el estado. Siguen pendientes su retirada y la integración real.
+- Nota (2026-11-18): FK-02 retiró F8 y las teclas de previsualización; falta confirmar la ruta real en prueba manual.
 
 
 ### BL-131 · SetDigit de VerificationViewModel notifica el cambio con un nombre de propiedad equivocado

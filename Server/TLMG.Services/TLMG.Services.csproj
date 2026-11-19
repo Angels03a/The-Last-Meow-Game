@@ -110,6 +110,7 @@
     <Compile Include="Sessions\SessionRegistry.Friends.cs" />
     <Compile Include="Sessions\SessionRegistry.Lobbies.cs" />
     <Compile Include="Sessions\SessionRegistry.Matches.cs" />
+    <Compile Include="Sessions\SessionRegistry.FugitiveKitten.cs" />
     <Compile Include="Sessions\SessionRegistry.MatchPlay.cs" />
     <Compile Include="Sessions\MatchChannel.cs" />
     <Compile Include="Sessions\MatchChallengeRecord.cs" />

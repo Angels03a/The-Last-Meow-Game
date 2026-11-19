@@ -30,6 +30,10 @@ namespace TLMG.Services.Tests
             SubscribeResults.Add(operationSubscribeToMatchResult);
         }
 
+        public void TryCatchFugitiveKittenResult(OperationResult result) { }
+
+        public void CheckFugitiveKittenDeadlineResult(OperationResult result) { }
+
         public void PlaceCardResult(OperationResult operationPlaceCardResult)
         {
             PlaceCardResults.Add(operationPlaceCardResult);

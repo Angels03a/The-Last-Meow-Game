@@ -63,6 +63,18 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyMatchSubscriptionResult(this, operationSubscribeToMatchResult));
         }
 
+        /// <summary>Entrega el resultado individual del intento.</summary>
+        public void TryCatchFugitiveKittenResult(OperationResult result)
+        {
+            _serverConnection.RunOnInterface(() => _serverConnection.NotifyFugitiveKittenResult(this, result, true));
+        }
+
+        /// <summary>Entrega el resultado individual de la comprobación de vencimiento.</summary>
+        public void CheckFugitiveKittenDeadlineResult(OperationResult result)
+        {
+            _serverConnection.RunOnInterface(() => _serverConnection.NotifyFugitiveKittenResult(this, result, false));
+        }
+
         public void PlaceCardResult(OperationResult operationPlaceCardResult)
         {
             DispatchMatchActionResult(operationPlaceCardResult);

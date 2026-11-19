@@ -58,6 +58,7 @@
     <Compile Include="MatchViewHelperTests.cs" />
     <Compile Include="SessionRegistryMatchPlayAuthorizationTests.cs" />
     <Compile Include="SessionRegistryMatchPlayTests.cs" />
+    <Compile Include="SessionRegistryFugitiveKittenTests.cs" />
     <Compile Include="PasswordHasherTests.cs" />
     <Compile Include="PlayerAccountRegistrationServiceTests.cs" />
     <Compile Include="PlayerLogInServiceTests.cs" />

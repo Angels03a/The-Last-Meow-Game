@@ -166,7 +166,9 @@ namespace TLMG.Services.Sessions
         {
             DateTime nowUtc = _readUtcNow();
             bool hasExpired = ExpireMatchDeadlinesInLock(matchRecord, nowUtc);
-            string errorKey = matchAction(matchRecord, userId, nowUtc);
+            string errorKey = matchRecord.Kitten != null && !matchRecord.Kitten.IsResolved
+                ? MatchErrorKeys.FugitiveKittenInProgress
+                : matchAction(matchRecord, userId, nowUtc);
             IReadOnlyList<MatchViewDelivery> viewDeliveries = _noMatchViewDeliveries;
 
             if (hasExpired || errorKey == null)
@@ -595,7 +597,7 @@ namespace TLMG.Services.Sessions
             return readOnlyViewDeliveries;
         }
 
-        private static MatchViewDelivery CreateViewDeliveryInLock(
+        private MatchViewDelivery CreateViewDeliveryInLock(
             MatchRecord matchRecord,
             int userId,
             IMatchManagerCallback callback)
@@ -608,6 +610,7 @@ namespace TLMG.Services.Sessions
                 matchRecord.LastChallenge,
                 matchRecord.AllParticipantsRegistered);
             MatchView matchView = MatchViewHelper.CreateMatchView(viewContext, userId);
+            matchView.FugitiveKitten = CreateFugitiveKittenViewInLock(matchRecord, _readUtcNow());
             MatchViewDelivery viewDelivery = new MatchViewDelivery(callback, matchView);
 
             return viewDelivery;

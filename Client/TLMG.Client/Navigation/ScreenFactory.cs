@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 using log4net;
 
@@ -135,7 +135,7 @@ namespace TLMG.Client.Navigation
                     break;
                 case ScreenId.FugitiveKitten:
                     FugitiveKittenViewModel kittenViewModel = new FugitiveKittenViewModel(
-                        _navigation, parameter is bool isPreview && isPreview);
+                        _navigation, _matchConnection, _lobbyConnection, (Guid)parameter);
                     screenEntry = new ScreenEntry(new FugitiveKittenScreen(kittenViewModel), kittenViewModel);
                     break;
                 case ScreenId.MatchClosed:

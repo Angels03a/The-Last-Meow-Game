@@ -25,6 +25,24 @@ namespace TLMG.Services
             SafeNotifyAll(subscribeToMatchResult.Notifications);
         }
 
+        public void TryCatchFugitiveKitten(string sessionToken)
+        {
+            IMatchManagerCallback callback = GetMatchCallback();
+            ResultWithNotification<OperationResult> result =
+                _matchService.TryCatchFugitiveKitten(CreateMatchCaller(sessionToken));
+            SafeNotify(() => callback.TryCatchFugitiveKittenResult(result.OperationResult));
+            SafeNotifyAll(result.Notifications);
+        }
+
+        public void CheckFugitiveKittenDeadline(string sessionToken)
+        {
+            IMatchManagerCallback callback = GetMatchCallback();
+            ResultWithNotification<OperationResult> result =
+                _matchService.CheckFugitiveKittenDeadline(CreateMatchCaller(sessionToken));
+            SafeNotify(() => callback.CheckFugitiveKittenDeadlineResult(result.OperationResult));
+            SafeNotifyAll(result.Notifications);
+        }
+
         public void PlaceCard(string sessionToken, MatchCardKind cardKind)
         {
             LogChannelOperation("Match", "PlaceCard", sessionToken);

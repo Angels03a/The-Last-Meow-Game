@@ -5,7 +5,7 @@ using TLMG.Client.ViewModels;
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Vista del menú principal. Solo toma el foco al cargarse para que el acceso temporal con F8 responda; el
+    /// Vista del menú principal. Solo toma el foco al cargarse; el
     /// nickname y la navegación viven en <see cref="MainMenuViewModel"/>.
     /// </summary>
     public partial class MainMenuScreen : LocalizableScreen

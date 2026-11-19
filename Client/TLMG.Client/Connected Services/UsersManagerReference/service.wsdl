@@ -355,6 +355,12 @@
   <wsdl:message name="IMatchManager_SubscribeToMatch_InputMessage">
     <wsdl:part name="parameters" element="tns:SubscribeToMatch" />
   </wsdl:message>
+  <wsdl:message name="IMatchManager_TryCatchFugitiveKitten_InputMessage">
+    <wsdl:part name="parameters" element="tns:TryCatchFugitiveKitten" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_CheckFugitiveKittenDeadline_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckFugitiveKittenDeadline" />
+  </wsdl:message>
   <wsdl:message name="IMatchManager_PlaceCard_InputMessage">
     <wsdl:part name="parameters" element="tns:PlaceCard" />
   </wsdl:message>
@@ -369,6 +375,12 @@
   </wsdl:message>
   <wsdl:message name="IMatchManager_ChoosePunishmentCard_InputMessage">
     <wsdl:part name="parameters" element="tns:ChoosePunishmentCard" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_TryCatchFugitiveKittenResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:TryCatchFugitiveKittenResult" />
+  </wsdl:message>
+  <wsdl:message name="IMatchManager_CheckFugitiveKittenDeadlineResult_OutputCallbackMessage">
+    <wsdl:part name="parameters" element="tns:CheckFugitiveKittenDeadlineResult" />
   </wsdl:message>
   <wsdl:message name="IMatchManager_SubscribeToMatchResult_OutputCallbackMessage">
     <wsdl:part name="parameters" element="tns:SubscribeToMatchResult" />
@@ -548,6 +560,12 @@
     <wsdl:operation name="SubscribeToMatch">
       <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/SubscribeToMatch" message="tns:IMatchManager_SubscribeToMatch_InputMessage" />
     </wsdl:operation>
+    <wsdl:operation name="TryCatchFugitiveKitten">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/TryCatchFugitiveKitten" message="tns:IMatchManager_TryCatchFugitiveKitten_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckFugitiveKittenDeadline">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/CheckFugitiveKittenDeadline" message="tns:IMatchManager_CheckFugitiveKittenDeadline_InputMessage" />
+    </wsdl:operation>
     <wsdl:operation name="PlaceCard">
       <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/PlaceCard" message="tns:IMatchManager_PlaceCard_InputMessage" />
     </wsdl:operation>
@@ -562,6 +580,12 @@
     </wsdl:operation>
     <wsdl:operation name="ChoosePunishmentCard">
       <wsdl:input wsaw:Action="http://tempuri.org/IMatchManager/ChoosePunishmentCard" message="tns:IMatchManager_ChoosePunishmentCard_InputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="TryCatchFugitiveKittenResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/TryCatchFugitiveKittenResult" message="tns:IMatchManager_TryCatchFugitiveKittenResult_OutputCallbackMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckFugitiveKittenDeadlineResult">
+      <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/CheckFugitiveKittenDeadlineResult" message="tns:IMatchManager_CheckFugitiveKittenDeadlineResult_OutputCallbackMessage" />
     </wsdl:operation>
     <wsdl:operation name="SubscribeToMatchResult">
       <wsdl:output wsaw:Action="http://tempuri.org/IMatchManager/SubscribeToMatchResult" message="tns:IMatchManager_SubscribeToMatchResult_OutputCallbackMessage" />
@@ -914,6 +938,18 @@
         <soap12:body use="literal" />
       </wsdl:input>
     </wsdl:operation>
+    <wsdl:operation name="TryCatchFugitiveKitten">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/TryCatchFugitiveKitten" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="CheckFugitiveKittenDeadline">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/CheckFugitiveKittenDeadline" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
     <wsdl:operation name="PlaceCard">
       <soap12:operation soapAction="http://tempuri.org/IMatchManager/PlaceCard" style="document" />
       <wsdl:input>
@@ -943,6 +979,18 @@
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="TryCatchFugitiveKittenResult">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/TryCatchFugitiveKittenResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckFugitiveKittenDeadlineResult">
+      <soap12:operation soapAction="http://tempuri.org/IMatchManager/CheckFugitiveKittenDeadlineResult" style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="SubscribeToMatchResult">
       <soap12:operation soapAction="http://tempuri.org/IMatchManager/SubscribeToMatchResult" style="document" />

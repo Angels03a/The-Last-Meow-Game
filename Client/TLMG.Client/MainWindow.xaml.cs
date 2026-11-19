@@ -137,17 +137,26 @@ namespace TLMG.Client
             LobbyRoom room = eventArguments.Payload;
             bool hasMatch = room != null && room.MatchId.HasValue;
             bool isAuthorized = hasMatch && room.InGame;
+            bool isKnownMode = hasMatch && (room.CardsPerPlayerCount == 4 || room.CardsPerPlayerCount == 6
+                || room.CardsPerPlayerCount == 8);
 
-            if (isAuthorized && _enteredMatchIds.Add(room.MatchId.Value))
+            if (isAuthorized && isKnownMode && _enteredMatchIds.Add(room.MatchId.Value))
             {
-                NavigateToAuthorizedMatch();
+                NavigateToAuthorizedMatch(room);
             }
         }
 
-        private void NavigateToAuthorizedMatch()
+        private void NavigateToAuthorizedMatch(LobbyRoom room)
         {
             Navigation.ClearHistory();
-            Navigation.NavigateToWithoutHistory(ScreenId.Gameplay);
+            if (room.CardsPerPlayerCount == 8)
+            {
+                Navigation.NavigateToWithoutHistory(ScreenId.FugitiveKitten, room.MatchId.Value);
+            }
+            else if (room.CardsPerPlayerCount == 4 || room.CardsPerPlayerCount == 6)
+            {
+                Navigation.NavigateToWithoutHistory(ScreenId.Gameplay);
+            }
         }
 
         private void OnChatErrorReceived(object sender, ServerEventArgs<string> eventArguments)

@@ -178,7 +178,7 @@ namespace TLMG.Services.Sessions
             {
                 List<LobbyMember> lobbyMembers = _membersByRoomId[roomId];
                 Guid matchId = Guid.NewGuid();
-                MatchRecord matchRecord = CreateMatchRecordInLock(matchId, roomId);
+                MatchRecord matchRecord = CreateMatchRecordInLock(matchId, roomId, nowUtc);
                 LobbyStartState authorizedStart = CreateAuthorizedStart(lobbyStartState, matchId, nowUtc);
                 lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
                     userId,

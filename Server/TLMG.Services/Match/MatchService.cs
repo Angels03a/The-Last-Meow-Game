@@ -48,6 +48,18 @@ namespace TLMG.Services.Match
             return subscribeToMatchResult;
         }
 
+        /// <summary>Valida un intento de atrapar al gatito.</summary>
+        public ResultWithNotification<OperationResult> TryCatchFugitiveKitten(LobbyCaller caller)
+        {
+            return CreateResult(_sessionRegistry.TryCatchFugitiveKitten(caller));
+        }
+
+        /// <summary>Comprueba el vencimiento del minijuego.</summary>
+        public ResultWithNotification<OperationResult> CheckFugitiveKittenDeadline(LobbyCaller caller)
+        {
+            return CreateResult(_sessionRegistry.CheckFugitiveKittenDeadline(caller));
+        }
+
         /// <summary>Coloca una carta del jugador y prepara la vista de cada suscrito.</summary>
         /// <param name="caller">Token y canal de partida de quien pide.</param>
         /// <param name="card">Tipo de carta que se quiere colocar.</param>

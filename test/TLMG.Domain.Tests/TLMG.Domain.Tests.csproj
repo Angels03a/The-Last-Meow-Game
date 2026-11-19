@@ -27,6 +27,7 @@
     <Compile Include="ChatValidatorTests.cs" />
     <Compile Include="FinalStandingsExitTests.cs" />
     <Compile Include="FinalStandingsTests.cs" />
+    <Compile Include="FugitiveKittenRouteTests.cs" />
     <Compile Include="FriendNicknameValidatorTests.cs" />
     <Compile Include="MatchModeRulesTests.cs" />
     <Compile Include="MatchStateBettingTests.cs" />

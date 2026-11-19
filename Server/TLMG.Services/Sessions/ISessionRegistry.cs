@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using TLMG.Contracts;
@@ -194,6 +194,10 @@ namespace TLMG.Services.Sessions
         /// <param name="card">Tipo de carta que se quiere colocar.</param>
         /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
         MatchDelivery PlaceCard(LobbyCaller caller, MatchCardKind card);
+
+        MatchDelivery TryCatchFugitiveKitten(LobbyCaller caller);
+
+        MatchDelivery CheckFugitiveKittenDeadline(LobbyCaller caller);
 
         /// <summary>
         /// Autoriza y abre o sube una apuesta en la partida a la que está suscrito el canal; la fase decide cuál de las

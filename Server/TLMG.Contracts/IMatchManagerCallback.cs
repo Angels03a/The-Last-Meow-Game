@@ -8,6 +8,14 @@ namespace TLMG.Contracts
     [ServiceContract]
     public interface IMatchManagerCallback
     {
+        /// <summary>Entrega el resultado individual del intento.</summary>
+        [OperationContract(IsOneWay = true)]
+        void TryCatchFugitiveKittenResult(OperationResult result);
+
+        /// <summary>Entrega el resultado individual de la comprobación.</summary>
+        [OperationContract(IsOneWay = true)]
+        void CheckFugitiveKittenDeadlineResult(OperationResult result);
+
         /// <summary>Entrega el resultado de la suscripción; la vista llega después por OnMatchViewChanged.</summary>
         /// <param name="operationSubscribeToMatchResult">Aceptación o clave de error.</param>
         [OperationContract(IsOneWay = true)]

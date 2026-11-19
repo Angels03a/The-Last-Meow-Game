@@ -160,6 +160,10 @@
                     <StackPanel Canvas.Top="22" Width="1280">
                         <TextBlock Text="{DynamicResource FugitiveKitten_Title}"
                                    Style="{StaticResource FugitiveKittenHeaderTitleTextStyle}" />
+                        <TextBlock x:Name="lblWaiting" Text="{DynamicResource FugitiveKitten_Waiting}"
+                                   HorizontalAlignment="Center" Foreground="White" Visibility="Collapsed" />
+                        <TextBlock x:Name="lblConnection" Text="{DynamicResource FugitiveKitten_Unavailable}"
+                                   HorizontalAlignment="Center" Foreground="White" Visibility="Collapsed" />
                         <TextBlock x:Name="lblCountdown" Style="{StaticResource FugitiveKittenCountdownTextStyle}" />
                         <TextBlock x:Name="lblCatchHint" Text="{DynamicResource FugitiveKitten_CatchHint}"
                                    Style="{StaticResource FugitiveKittenCatchHintTextStyle}" />

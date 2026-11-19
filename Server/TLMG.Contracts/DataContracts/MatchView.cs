@@ -19,6 +19,10 @@ namespace TLMG.Contracts.DataContracts
         [DataMember]
         public int Version { get; set; }
 
+        /// <summary>Minijuego público; null en las modalidades de cuatro y seis cartas.</summary>
+        [DataMember]
+        public FugitiveKittenView FugitiveKitten { get; set; }
+
         /// <summary>Ronda en curso.</summary>
         [DataMember]
         public int RoundNumber { get; set; }

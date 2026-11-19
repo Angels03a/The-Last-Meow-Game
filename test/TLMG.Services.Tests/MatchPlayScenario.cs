@@ -23,6 +23,8 @@ namespace TLMG.Services.Tests
         private const int CountdownSeconds = 3;
         private const string FriendsChannelPrefix = "friends";
 
+        private readonly int _cardsPerPlayer;
+
         private readonly Dictionary<int, string> _tokensByUserId = new Dictionary<int, string>();
         private readonly Dictionary<int, MatchCallbackStub> _callbacksByUserId =
             new Dictionary<int, MatchCallbackStub>();
@@ -30,7 +32,12 @@ namespace TLMG.Services.Tests
             new Dictionary<int, LobbyCallbackStub>();
 
         internal MatchPlayScenario(int playerCount)
-            : this(playerCount, FirstUserId, new ManualUtcClock(), new ScriptedRandom(), null)
+            : this(playerCount, FirstUserId, new ManualUtcClock(), new ScriptedRandom(), null, CardsPerPlayerCount)
+        {
+        }
+
+        internal MatchPlayScenario(int playerCount, int cardsPerPlayer)
+            : this(playerCount, FirstUserId, new ManualUtcClock(), new ScriptedRandom(), null, cardsPerPlayer)
         {
         }
 
@@ -39,8 +46,10 @@ namespace TLMG.Services.Tests
             int firstUserId,
             ManualUtcClock clock,
             ScriptedRandom randomSource,
-            SessionRegistry registry)
+            SessionRegistry registry,
+            int cardsPerPlayer)
         {
+            _cardsPerPlayer = cardsPerPlayer;
             Clock = clock;
             RandomSource = randomSource;
             Registry = registry ?? new SessionRegistry(clock.ReadUtcNow, randomSource.PickIndex);
@@ -66,7 +75,7 @@ namespace TLMG.Services.Tests
         /// <summary>Crea otra partida en el mismo registro, con jugadores de otros ids.</summary>
         internal MatchPlayScenario CreateAnotherMatch(int playerCount, int firstUserId)
         {
-            return new MatchPlayScenario(playerCount, firstUserId, Clock, RandomSource, Registry);
+            return new MatchPlayScenario(playerCount, firstUserId, Clock, RandomSource, Registry, CardsPerPlayerCount);
         }
 
         internal string TokenOf(int userId)
@@ -261,7 +270,7 @@ namespace TLMG.Services.Tests
 
         private void StartMatch()
         {
-            Registry.ChangeCardsPerPlayer(LobbyCallerOf(CreatorUserId), RoomId, CardsPerPlayerCount);
+            Registry.ChangeCardsPerPlayer(LobbyCallerOf(CreatorUserId), RoomId, _cardsPerPlayer);
 
             foreach (int userId in UserIds)
             {

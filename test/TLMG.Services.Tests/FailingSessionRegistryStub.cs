@@ -93,6 +93,10 @@ namespace TLMG.Services.Tests
         public MatchDelivery SubscribeToMatch(LobbyCaller caller, Guid matchId, IMatchManagerCallback callback) =>
             throw new InvalidOperationException(FailureMessage);
 
+        public MatchDelivery TryCatchFugitiveKitten(LobbyCaller caller) { throw new System.NotImplementedException(); }
+
+        public MatchDelivery CheckFugitiveKittenDeadline(LobbyCaller caller) { throw new System.NotImplementedException(); }
+
         public MatchDelivery PlaceCard(LobbyCaller caller, MatchCardKind card) =>
             throw new InvalidOperationException(FailureMessage);
 
