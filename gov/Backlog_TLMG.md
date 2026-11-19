@@ -170,19 +170,7 @@ Formato de entrada:
 - Nota (2026-11-11 14:08): se integran los proyectos de pruebas en la solución del servidor y se agregan el SDK y el adaptador de Visual Studio. MSBuild compiló la solución sin errores y VSTest descubrió y ejecutó 178 pruebas correctas. Pendiente de confirmar mediante commit; la meta de 300 pruebas sigue abierta.
 - Nota (2026-11-15 00:32): dato del encargado (2026-11-15): 248 pruebas en verde, 104 en TLMG.Domain.Tests y 144 en TLMG.Services.Tests; el cliente sigue con 0. Conteo estático sobre 8aa6844 (no se pudo ejecutar en Linux): 2 [Fact] + 102 [InlineData] en Domain y 68 [Fact] + 76 [InlineData] en Services, que da 104 y 144 y coincide. test/ no tiene TLMG.Client.Tests (BL-164). Faltan 52 pruebas para el mínimo de 300 (Estándar §15.1). El rango actualizó stubs y pruebas a los contratos nuevos (c78a54f). No cierra la entrada.
 - Nota (2026-11-18): La infraestructura xUnit y los proyectos Domain y Services existen; en la integración se ejecutaron 483 y 384 pruebas, respectivamente. No se reejecutaron en esta revisión. Quedan las pruebas del catálogo del Gatito Fugitivo incorporadas al alcance de esta entrada (BL-116) y las del cliente (BL-164).
-
-
-### BL-040 · Crear TLMG.Domain (motor de reglas puro)
-- Creado: 2026-10-25 00:49
-- Por qué: Estándar §4.2 y gov/CLAUDE.md §13; no existe. Base para llegar al mínimo de pruebas sin infraestructura.
-- Depende de: Reglas de The Last Meow en docs/ (BL-026); BL-039
-- Estado: Pendiente
-- Nota (2026-11-06 13:30): decisión del encargado: Domain amplio (entidades, Validators, Repositories, Engine; Estándar §4.3), sin "Managers" (§3.14). Etapa 1: constantes, entidades y validadores. Etapa 2: interfaces de repositorio (DataAccess referencia a Domain; revisar cómo Services obtiene los repositorios, D-51). Etapa 3: motor de reglas.
-- Nota (2026-11-07 04:28): el dominio alojará las constantes de tiempo del Gatito Fugitivo (arranque, medio carril, oculto y tolerancia de 150 ms) y el catálogo de rutas, con el escape calculado como la ventana menos los demás tramos (etapa 1 de la decisión del 2026-11-06).
-- Nota (2026-11-15 00:32): revisado sobre 8aa6844. Avance de la etapa 2: el rango agregó a TLMG.Domain.Repositories las interfaces y tipos del chat (IChatMessageRepository, ChatMessageRecord, ChatMessageSaveStatus y ChatMessageScope; d64acfa) y de los códigos de verificación (IVerificationCodeRepository, PendingRegistrationRecord, VerificationCodeRecord y VerificationCodeValidationResult; 0429cb1). Sigue sin Engine (no existe Server/TLMG.Domain/Engine/): la etapa 3 y el motor de reglas están pendientes. Un detalle por revisar: VerificationCodeValidationResult.Status es una cadena que PlayerAccountRegistrationService.cs:221-250 compara con «Valid», «Invalid», «TooManyAttempts», «Expired» y «NoActiveCode», sin enum ni constantes.
-- Nota (2026-11-18): Engine ya existe con modalidades, apuestas, retos, castigos, salidas y clasificación (603b6fc, 3af8ea2, d35fcf7, 4189e02, 3b928cc y 257b5b1). Sigue pendiente el catálogo y las constantes del Gatito Fugitivo añadidos al alcance de esta entrada; no se concluye que todas las reglas estén implementadas.
-- Nota (2026-11-18): Avance local FK-02 sin commit: catálogo inicial de ruta y tolerancia en Domain; falta integrarlo con Services, contratos y cliente. No se cierra la entrada.
-
+- Nota (2026-11-18): d12839b agrega pruebas de continuidad, duración y tolerancia de la ruta; faltan pruebas explícitas de extremos distintos en túneles y del mismo escondite. BL-164 conserva las pruebas del cliente.
 
 ### BL-041 · Migrar las pantallas a MVVM con CommunityToolkit.Mvvm (D-39, D-50)
 - Creado: 2026-10-25 00:49
@@ -194,7 +182,7 @@ Formato de entrada:
 - Nota (2026-11-11 23:55): avance (b6dec93). En origin/dev-LS_Angel hay 12 pantallas migradas. Once reciben el ViewModel por constructor desde ScreenFactory (B3): Login y CreateAccount (384ef1a), MainMenu (c6a081a), ForgotPassword (7d882b1), Friends (93fa788), Lobby (0fc59c2), Options (f4b2ff6), Profile (e74e10b), NewPassword (da8518b), HowToPlay (09d5647) y Leaderboard (b6dec93). La duodécima, Verification, está en la fábrica (db51858) pero su ViewModel se crea dentro de la vista (VerificationScreen.xaml.cs:61). Gameplay tiene GameplayViewModel creado dentro de la vista (GameplayScreen.xaml.cs:32) y se migra en mvvm-resto. En la rama mvvm-resto, sin integrar: Gameplay, GameOver, RoundResult y Moderation (04a7d13) y MatchClosed (2d4bafb); con ellas serían 17. Fuera de la migración por decisión: FugitiveKitten, Loading y ChangePassword (BL-169) y MainWindow (BL-142).
 - Nota (2026-11-15 00:32): revisado sobre 8aa6844. La fábrica de Verification avanzó: ScreenFactory.BuildVerificationEntry crea el VerificationViewModel y se lo pasa a la vista para los flujos AccountRegistration y PasswordRecovery (ScreenFactory.cs:242-270), con lo que Verification cumple B3, lo que la nota del 2026-11-11 23:55 dejaba pendiente (VerificationScreen.xaml.cs:61). GameplayViewModel también se crea en la fábrica (ScreenFactory.cs:101). No cambia el estado.
 - Nota (2026-11-18): Avance local FK-01 sin commit: FugitiveKitten se compone con ViewModel y ScreenEntry; el estado de presentación y el comando pasan al ViewModel y las animaciones permanecen en la vista. La migración general no se cierra.
-
+- Nota (2026-11-18): FugitiveKitten se migró a MVVM en 8c6d1d0 y se conectó al canal de partida en d12839b; la migración general sigue pendiente.
 
 ### BL-043 · Limpieza de estilo del diagnóstico (no incluida en BL-027)
 - Creado: 2026-10-25 00:49
@@ -545,26 +533,6 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-15 00:32): revisado sobre 8aa6844; sin cambio en el rango. El código ya cumple la recomendación: los validadores viven en TLMG.Domain.Validators desde b098001 (anterior al rango) y Server/TLMG.Services/Helpers ya no tiene validadores. Falta corregir el Estándar, cuyo §16.1 (docs/Estandar.md:4295) sigue ubicando PlayerAccountRegistrationValidationHelper en TLMG.Services.Helpers.
 
-### BL-116 · Contrato IMatchManager del Gatito Fugitivo y sus DTO
-- Creado: 2026-11-07 04:28
-- Por qué: no existe ningún contrato de partida. Faltan la operación de un solo sentido TryCatchFugitiveKitten(sessionToken), los callbacks OnFugitiveKittenStarted y OnFugitiveKittenResolved, los DTO sin sufijo Data (D-56): FugitiveKittenRoute, KittenSegment y el resultado (nombre por decidir), su archivo ServiceImplementation.MatchManager.cs, el endpoint en el host y la regeneración del proxy.
-- Depende de: BL-040; BL-109 (los resultados heredan de OperationResult; regenerar el proxy una sola vez); BL-113
-- Estado: Pendiente
-- Nota (2026-11-17 11:49): avance de I2a. Ya existe el contrato IMatchManager con SubscribeToMatch(sessionToken, matchId) y PlaceCard(sessionToken, cardKind), su callback IMatchManagerCallback (SubscribeToMatchResult, PlaceCardResult y OnMatchViewChanged), los DTO MatchView y MatchPlayerView, los enums MatchCardKind y MatchRoundPhase, ServiceImplementation.MatchManager.cs y el endpoint MatchManager del host. Evidencia: bb46e5b (partida en memoria), 52060b4 (contrato y servidor), bf24d95 y c8d5677 (proxy, con ReferenceAllAssemblies restaurado) y dff94a9 (cliente). El «Por qué» («no existe ningún contrato de partida») quedó desactualizado para ese alcance. Siguen pendientes la operación TryCatchFugitiveKitten con sus callbacks y DTO, y las operaciones posteriores a I2a (apuesta, revelado, castigo y salida). I2a quedó funcionalmente completa para su alcance; la evidencia manual y lo no verificado están en BL-182. Sin cambio de estado.
-
-### BL-117 · Envío del intento de atrape y recepción del resultado del Gatito Fugitivo
-- Creado: 2026-11-07 04:28
-- Por qué: el clic sobre el gatito no hace nada. Falta enviar el intento solo cuando el gatito está visible, recibir la ruta, el color y el resultado por callback con Dispatcher.BeginInvoke, y mostrar "lo atrapaste" o "lo atrapó otro" comparando el ganador que decide el servidor (QAS-04) con el jugador local, con el nickname real en lugar del de muestra.
-- Depende de: BL-116, BL-041; BL-108 (canal por separado en ServerConnectionManager)
-- Estado: Pendiente
-- Nota (2026-11-18): FK-01 solo expone CatchKittenCommand deshabilitado y un estado de presentación; no envía intentos ni recibe ganador o color del servidor. El nombre de muestra se limita a la previsualización BL-122.
-- Nota (2026-11-18): FK-02 en curso: arbitraje y barrera internos en Services; falta publicar estado y operaciones mediante WCF y conectarlos al cliente.
-- Nota (2026-11-18): avance local etapa 3: DTO y operaciones del servidor; proxy y conexión del cliente pendientes de regeneración e integración.
-- Nota (2026-11-18): avance local etapa 3B: proxy y metadatos generados con svcutil; canal y callbacks conectados. Falta integración visual y prueba WCF de partida.
-- Nota (2026-11-18): FK-02 integra el ViewModel y el canal de partida; pendiente validar WCF real con clientes.
-- Nota (2026-11-18): ajuste temporal local: la vista incluye hora de servidor y el cliente proyecta su antigüedad; pendiente validar latencia real.
-
-
 ### BL-118 · Navegación al iniciar la partida según la modalidad
 - Creado: 2026-11-07 04:28
 - Por qué: con 8 cartas se debe abrir FugitiveKittenScreen y con 4 y 6, LoadingScreen; tras el resultado, pasar a la partida a los 2.8 s. Hoy MainWindow.NavigateToAuthorizedMatch abre GameplayScreen directamente.
@@ -572,7 +540,7 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-18): FK-01 no modifica la navegación de modalidades ni agrega transición automática; F8 sigue como acceso explícito de previsualización.
 - Nota (2026-11-18): FK-02 navega por modalidad y presenta el resultado antes de Gameplay; pendiente prueba real.
-
+- Nota (2026-11-18): d12839b conserva Gameplay directo para cuatro y seis cartas; LoadingScreen sigue sin demostrarse y la entrada permanece pendiente.
 
 ### BL-119 · Reproducción de la ruta de 15 s del gatito en la pantalla
 - Creado: 2026-11-07 04:28
@@ -594,23 +562,6 @@ Formato de entrada:
 - Por qué: hoy se usa Georgia Bold en lugar de Cinzel (sin peso Black) y la fuente por defecto en lugar de Outfit; WPF no tiene espaciado entre letras en TextBlock. Agregar las fuentes es una dependencia nueva (licencia y archivos) y se decide aparte.
 - Depende de: decisión del encargado (§19.1)
 - Estado: Pendiente
-
-### BL-122 · Retirar los accesos temporales de FugitiveKittenScreen
-- Creado: 2026-11-07 04:28
-- Por qué: la tecla F8 en MainMenuScreen, las teclas 1 a 6 (estados), C (colores) y Esc (GoBack) dentro de la pantalla, los estados congelados y el nickname de muestra existen solo para revisar la interfaz y no deben llegar a la entrega.
-- Depende de: BL-118, BL-119
-- Estado: Pendiente
-- Nota (2026-11-11 23:55): avance. El acceso F8 salió de MainMenuScreen: ahora es un KeyBinding en MainMenuScreen.xaml hacia MainMenuViewModel.NavigateToFugitiveKittenCommand (MainMenuViewModel.cs:100-101 conserva los TODO de BL-122 y BL-118) y ScreenId.FugitiveKitten está en la fábrica (c6a081a). Siguen pendientes las teclas internas de la pantalla; FugitiveKittenScreen.xaml.cs:452 aún usa MainWindow.
-- Nota (2026-11-18): FK-01 conserva F8 y las teclas 1–6, C y Esc para previsualización explícita; fuera de ella las teclas de demostración no cambian el estado. Siguen pendientes su retirada y la integración real.
-- Nota (2026-11-18): FK-02 retiró F8 y las teclas de previsualización; falta confirmar la ruta real en prueba manual.
-
-
-### BL-131 · SetDigit de VerificationViewModel notifica el cambio con un nombre de propiedad equivocado
-- Creado: 2026-11-10 11:40
-- Por qué: SetDigit llama a SetProperty sin el nombre de la propiedad y [CallerMemberName] lo completa con «SetDigit»; el evento PropertyChanged no sale como Digit1 a Digit6 y la vista no se entera de los cambios hechos desde el ViewModel (por ejemplo, ClearDigits). Ya ocurría con la base anterior; no lo introdujo la Fase 4b. Hay que pasar el nombre de la propiedad a SetDigit y de ahí a SetProperty.
-- Depende de: Fase 7
-- Estado: Pendiente
-- Nota (2026-11-18): corrección local sin commit: cada dígito pasa su nombre a SetProperty. Cliente Debug compilado; comprobación ejecutable aislada aprobó PropertyChanged de los seis dígitos, valores repetidos, ClearDigits y CanExecute. Pendiente hasta el commit.
 
 ### BL-133 · Probar a mano los botones y el CanExecute de los 12 ViewModels, y el login y el registro
 - Creado: 2026-11-10 11:44
@@ -872,7 +823,65 @@ Formato de entrada:
 - Depende de: nada
 - Estado: Pendiente
 
+### BL-184 · Validación manual multicliente de FugitiveKitten (FK-02)
+- Creado: 2026-11-18 23:48
+- Por qué: d12839b integra el minijuego, pero falta probar con tres clientes reales el atrape simultáneo, el escape, el resultado y su recuperación, la suscripción tardía, la latencia visual, el cambio de idioma y la transición a Gameplay; también comprobar las modalidades de cuatro y seis cartas. La evidencia WCF y WPF aislada no es E2E.
+- Depende de: nada para la prueba básica; BL-058 para validar estabilidad prolongada y BL-118 y BL-119 para sus requisitos específicos.
+- Estado: Pendiente
+
 ## Finalizados
+
+### BL-040 · Crear TLMG.Domain (motor de reglas puro)
+- Creado: 2026-10-25 00:49
+- Por qué: Estándar §4.2 y gov/CLAUDE.md §13; no existe. Base para llegar al mínimo de pruebas sin infraestructura.
+- Depende de: Reglas de The Last Meow en docs/ (BL-026); BL-039
+- Estado: Finalizado el 2026-11-18 · commit d12839b
+- Nota (2026-11-06 13:30): decisión del encargado: Domain amplio (entidades, Validators, Repositories, Engine; Estándar §4.3), sin "Managers" (§3.14). Etapa 1: constantes, entidades y validadores. Etapa 2: interfaces de repositorio (DataAccess referencia a Domain; revisar cómo Services obtiene los repositorios, D-51). Etapa 3: motor de reglas.
+- Nota (2026-11-07 04:28): el dominio alojará las constantes de tiempo del Gatito Fugitivo (arranque, medio carril, oculto y tolerancia de 150 ms) y el catálogo de rutas, con el escape calculado como la ventana menos los demás tramos (etapa 1 de la decisión del 2026-11-06).
+- Nota (2026-11-15 00:32): revisado sobre 8aa6844. Avance de la etapa 2: el rango agregó a TLMG.Domain.Repositories las interfaces y tipos del chat (IChatMessageRepository, ChatMessageRecord, ChatMessageSaveStatus y ChatMessageScope; d64acfa) y de los códigos de verificación (IVerificationCodeRepository, PendingRegistrationRecord, VerificationCodeRecord y VerificationCodeValidationResult; 0429cb1). Sigue sin Engine (no existe Server/TLMG.Domain/Engine/): la etapa 3 y el motor de reglas están pendientes. Un detalle por revisar: VerificationCodeValidationResult.Status es una cadena que PlayerAccountRegistrationService.cs:221-250 compara con «Valid», «Invalid», «TooManyAttempts», «Expired» y «NoActiveCode», sin enum ni constantes.
+- Nota (2026-11-18): Engine ya existe con modalidades, apuestas, retos, castigos, salidas y clasificación (603b6fc, 3af8ea2, d35fcf7, 4189e02, 3b928cc y 257b5b1). Sigue pendiente el catálogo y las constantes del Gatito Fugitivo añadidos al alcance de esta entrada; no se concluye que todas las reglas estén implementadas.
+- Nota (2026-11-18): Avance local FK-02 sin commit: catálogo inicial de ruta y tolerancia en Domain; falta integrarlo con Services, contratos y cliente. No se cierra la entrada.
+- Nota (2026-11-18): El motor Domain y el catálogo aprobado, con sus duraciones y tolerancia, están implementados; el catálogo se integró en d12839b.
+
+### BL-116 · Contrato IMatchManager del Gatito Fugitivo y sus DTO
+- Creado: 2026-11-07 04:28
+- Por qué: no existe ningún contrato de partida. Faltan la operación de un solo sentido TryCatchFugitiveKitten(sessionToken), los callbacks OnFugitiveKittenStarted y OnFugitiveKittenResolved, los DTO sin sufijo Data (D-56): FugitiveKittenRoute, KittenSegment y el resultado (nombre por decidir), su archivo ServiceImplementation.MatchManager.cs, el endpoint en el host y la regeneración del proxy.
+- Depende de: BL-040; BL-109 (los resultados heredan de OperationResult; regenerar el proxy una sola vez); BL-113
+- Estado: Finalizado el 2026-11-18 · commit d12839b
+- Nota (2026-11-17 11:49): avance de I2a. Ya existe el contrato IMatchManager con SubscribeToMatch(sessionToken, matchId) y PlaceCard(sessionToken, cardKind), su callback IMatchManagerCallback (SubscribeToMatchResult, PlaceCardResult y OnMatchViewChanged), los DTO MatchView y MatchPlayerView, los enums MatchCardKind y MatchRoundPhase, ServiceImplementation.MatchManager.cs y el endpoint MatchManager del host. Evidencia: bb46e5b (partida en memoria), 52060b4 (contrato y servidor), bf24d95 y c8d5677 (proxy, con ReferenceAllAssemblies restaurado) y dff94a9 (cliente). El «Por qué» («no existe ningún contrato de partida») quedó desactualizado para ese alcance. Siguen pendientes la operación TryCatchFugitiveKitten con sus callbacks y DTO, y las operaciones posteriores a I2a (apuesta, revelado, castigo y salida). I2a quedó funcionalmente completa para su alcance; la evidencia manual y lo no verificado están en BL-182. Sin cambio de estado.
+- Nota (2026-11-18): d12839b implementa el DTO incluido en MatchView, las operaciones y el proxy regenerado. La alternativa aprobada usa OnMatchViewChanged en lugar de callbacks de inicio y resolución separados.
+
+### BL-117 · Envío del intento de atrape y recepción del resultado del Gatito Fugitivo
+- Creado: 2026-11-07 04:28
+- Por qué: el clic sobre el gatito no hace nada. Falta enviar el intento solo cuando el gatito está visible, recibir la ruta, el color y el resultado por callback con Dispatcher.BeginInvoke, y mostrar "lo atrapaste" o "lo atrapó otro" comparando el ganador que decide el servidor (QAS-04) con el jugador local, con el nickname real en lugar del de muestra.
+- Depende de: BL-116, BL-041; BL-108 (canal por separado en ServerConnectionManager)
+- Estado: Finalizado el 2026-11-18 · commit d12839b
+- Nota (2026-11-18): FK-01 solo expone CatchKittenCommand deshabilitado y un estado de presentación; no envía intentos ni recibe ganador o color del servidor. El nombre de muestra se limita a la previsualización BL-122.
+- Nota (2026-11-18): FK-02 en curso: arbitraje y barrera internos en Services; falta publicar estado y operaciones mediante WCF y conectarlos al cliente.
+- Nota (2026-11-18): avance local etapa 3: DTO y operaciones del servidor; proxy y conexión del cliente pendientes de regeneración e integración.
+- Nota (2026-11-18): avance local etapa 3B: proxy y metadatos generados con svcutil; canal y callbacks conectados. Falta integración visual y prueba WCF de partida.
+- Nota (2026-11-18): FK-02 integra el ViewModel y el canal de partida; pendiente validar WCF real con clientes.
+- Nota (2026-11-18): ajuste temporal local: la vista incluye hora de servidor y el cliente proyecta su antigüedad; pendiente validar latencia real.
+- Nota (2026-11-18): d12839b conecta el intento y el resultado autoritativo, incluyendo nickname real y recuperación de la vista. La prueba multicliente queda en BL-184.
+
+### BL-122 · Retirar los accesos temporales de FugitiveKittenScreen
+- Creado: 2026-11-07 04:28
+- Por qué: la tecla F8 en MainMenuScreen, las teclas 1 a 6 (estados), C (colores) y Esc (GoBack) dentro de la pantalla, los estados congelados y el nickname de muestra existen solo para revisar la interfaz y no deben llegar a la entrega.
+- Depende de: BL-118, BL-119
+- Estado: Finalizado el 2026-11-18 · commit d12839b
+- Nota (2026-11-11 23:55): avance. El acceso F8 salió de MainMenuScreen: ahora es un KeyBinding en MainMenuScreen.xaml hacia MainMenuViewModel.NavigateToFugitiveKittenCommand (MainMenuViewModel.cs:100-101 conserva los TODO de BL-122 y BL-118) y ScreenId.FugitiveKitten está en la fábrica (c6a081a). Siguen pendientes las teclas internas de la pantalla; FugitiveKittenScreen.xaml.cs:452 aún usa MainWindow.
+- Nota (2026-11-18): FK-01 conserva F8 y las teclas 1–6, C y Esc para previsualización explícita; fuera de ella las teclas de demostración no cambian el estado. Siguen pendientes su retirada y la integración real.
+- Nota (2026-11-18): FK-02 retiró F8 y las teclas de previsualización; falta confirmar la ruta real en prueba manual.
+- Nota (2026-11-18): d12839b retira F8, las teclas 1–6, C y Esc y el nickname de muestra; la revisión visual queda en BL-184.
+
+### BL-131 · SetDigit de VerificationViewModel notifica el cambio con un nombre de propiedad equivocado
+- Creado: 2026-11-10 11:40
+- Por qué: SetDigit llama a SetProperty sin el nombre de la propiedad y [CallerMemberName] lo completa con «SetDigit»; el evento PropertyChanged no sale como Digit1 a Digit6 y la vista no se entera de los cambios hechos desde el ViewModel (por ejemplo, ClearDigits). Ya ocurría con la base anterior; no lo introdujo la Fase 4b. Hay que pasar el nombre de la propiedad a SetDigit y de ahí a SetProperty.
+- Depende de: Fase 7
+- Estado: Finalizado el 2026-11-18 · commit adc0991
+- Nota (2026-11-18): corrección local sin commit: cada dígito pasa su nombre a SetProperty. Cliente Debug compilado; comprobación ejecutable aislada aprobó PropertyChanged de los seis dígitos, valores repetidos, ClearDigits y CanExecute. Pendiente hasta el commit.
+- Nota (2026-11-18): adc0991 implementa la corrección de los seis nombres de propiedad; la nota previa documenta la comprobación aislada.
+
 
 ### BL-055 · Nombre del helper de validación de correo
 - Creado: 2026-10-25 19:32
