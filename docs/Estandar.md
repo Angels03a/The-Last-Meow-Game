@@ -282,21 +282,17 @@ public class ResolvedorDeRonda
 }
 ```
 
-* Documentación interna y comentarios. Se deberá escribir en español, como comentarios por línea, commits, este mismo estándar, ya que es el idioma principal del equipo, lo que facilita la comunicación interna y revisión. Sin embargo, se adoptan etiquetas en comentarios como FIXME o TODO, términos, ejemplos de código en inglés.
+* **Comentarios.** Todos los comentarios del código se escriben en inglés: comentarios de línea, comentarios XML (`///`) y tokens especiales (`TODO`, `FIXME`, `HACK`, `UNDONE`). Los comentarios explican el porqué y no el cómo.  
+* **Documentación del proyecto y commits.** Este estándar, la documentación en `docs/` y los mensajes de commit se escriben en español, por ser el idioma principal del equipo.  
+  Ejemplo correcto  
+  // FIXME: The player score is not capped at the maximum allowed.   
+  playerScore \+= earnedScore;  
+  Ejemplo incorrecto  
+  // FIXME: No limita el puntaje del jugador al máximo permitido.  
+  playerScore \+= earnedScore;
 
-Ejemplo correcto
 
-```c#
-// FIXME: No limita el puntaje del jugador al máximo permitido.
-playerScore += earnedScore;
-```
 
-Ejemplo incorrecto
-
-```c#
-// Checks that the player does not exceed the maximum allowed score.
-playerScore = Math.Min(playerScore, MaxPlayerScore);
-```
 
 2. # Objetivos del estándar {#objetivos-del-estándar}
 
@@ -485,13 +481,13 @@ private static readonly ILog _log = LogManager.GetLogger(typeof(LoginScreen));
 Ejemplo incorrecto
 
 ```c#
-private const int max_login_attempts = 3;          // Viola PascalCase.
+private const int max_login_attempts = 3;          // Violates PascalCase. 
 
-public static readonly TimeSpan defaultTimeout = TimeSpan.FromSeconds(30); // Debería ser PascalCase.
+public static readonly TimeSpan defaultTimeout = TimeSpan.FromSeconds(30); // Should be PascalCase. 
 
-private static readonly string defaultLanguageCode = "es-MX"; // Falta el prefijo _.
+private static readonly string defaultLanguageCode = "es-MX"; // Missing the _ prefix. 
 
-private const TimeSpan MatchTimeout = TimeSpan.FromSeconds(30); // TimeSpan no puede ser const.
+private const TimeSpan MatchTimeout = TimeSpan.FromSeconds(30); // TimeSpan cannot be const. 
 ```
 
 5. ## Booleanos {#booleanos}
@@ -816,7 +812,7 @@ Ejemplo de clase con responsabilidad única:
 
 ```c#
 /// <summary>
-/// Administra el estado y el flujo de la sesión actual de juego.
+/// Manages the state and flow of the current game session. 
 /// </summary>
 public class GameSession
 {
@@ -910,6 +906,8 @@ public class PlayerCardStorage : IPlayerHand
 {
 }
 ```
+
+Excepción: una clase puede implementar varias interfaces de rol además de su interfaz principal (por ejemplo, SessionRegistry implementa ISessionRegistry e ISessionIdentityProvider). En ese caso el nombre de la clase corresponde a la interfaz principal. 
 
 11. ## Enumeraciones (enums) {#enumeraciones-(enums)}
 
@@ -1114,6 +1112,16 @@ Los nombres de las clases deberán reflejar de forma explícita su responsabilid
 | Request | DTO con los datos de entrada de una operación del contrato (S17.1; D-56)  | OperationRegisterPlayerAccountRequest  |
 | Result | DTO con el resultado de una operación del contrato (S17.1) | OperationRegisterPlayerAccountResult |
 | Registry | Estado compartido en memoria entre las sesiones del servidor; su acceso se protege conforme a S11.1  | SessionRegistry |
+| Validator | Clase estática de TLMG.Domain.Validators que valida formato o reglas en memoria y devuelve null o un ErrorKey. No accede a datos, sesión ni red, y no lanza excepciones por entrada inválida  | PlayerProfileValidator  |
+| Dispatcher  | Coordina generar, guardar y enviar algo (por ejemplo, un código por correo). No decide reglas  | PasswordResetDispatcher  |
+| Store | Guarda o transforma registros de verificación sobre un repositorio  | VerificationCodeStore  |
+| Hasher | Calcula y verifica hashes  | PasswordHasher  |
+| Catalog | Lista cerrada de valores válidos  | AvatarCatalog  |
+| Provider | Interfaz estrecha de lectura sobre un componente grande  | ISessionIdentityProvider  |
+| Connection | Interfaz de la capa Comunicación del cliente, una por área (D-70)  | IProfileConnection  |
+| Lookup / Status / Record | …Status es el enum del resultado de una operación; …Lookup es la clase con Status y los datos; …Record son datos tal como se guardan  | PasswordHashLookup, PasswordChangeStatus, PendingRegistrationRecord  |
+| NavigationParameter | Datos que viajan entre pantallas  | VerificationNavigationParameter  |
+| Behavior | Comportamiento adjunto de WPF  | PasswordBindingBehavior  |
 | Factory | Crea objetos de otra capa para que quien los usa no conozca su construcción | ScreenFactory |
 
 Manager nunca se usa para persistencia; para eso Repository.
@@ -1238,7 +1246,7 @@ public partial class ServiceImplementation : IUsersManager
     {
         using (var context = new TLMGContext())
         {
-            // Lógica de registro dentro de ServiceImplementation.
+            // Registration logic inside ServiceImplementation. 
         }
     }
 }
@@ -1264,7 +1272,7 @@ namespace TLMG.Domain
         public RoundResult Resolve(RoundState state)
         {
             RoundResult result = new RoundResult();
-            // Aquí solo se aplican reglas, en memoria.
+           // Only rules are applied here, in memory. 
             return result;
         }
     }
@@ -1283,7 +1291,7 @@ namespace TLMG.Domain
     {
         public void Resolve(IMatchManagerCallback callback, PlayerRepository repository)
         {
-            // Reglas mezcladas con notificación y persistencia.
+           // Rules mixed with notification and persistence. 
         }
     }
 }
@@ -1310,14 +1318,16 @@ En cada proyecto, el namespace raíz es el nombre del proyecto y cada carpeta ag
 | Images | Imágenes (ver S4.4) | Sin namespace (recurso) |
 | Connected Services | Proxy generado por svcutil.exe | Generado; no se edita a mano |
 | Models | Modelos de presentación del cliente (por ejemplo, PlayerRankEntry) | TLMG.Client.Models |
+| Navigation | Administrador de navegación, fábrica de pantallas, ScreenId y parámetros de navegación  | TLMG.Client.Navigation  |
+| Behaviors | Comportamientos adjuntos de WPF  | TLMG.Client.Behaviors |
 
 **Servidor (cada proyecto con prefijo TLMG.):**
 
 | Proyecto | Carpetas | Namespaces |
 | :---- | :---- | :---- |
-| TLMG.Domain | raíz (Entidades), Validators (Validaciones y Helpers de dominio), Repositories (Interfaces de repositorios), Engine (Motor de reglas)  | TLMG.Domain, TLMG.Domain.Validators, TLMG.Domain.Repositories, TLMG.Domain.Engine  |
+| TLMG.Domain | Constants (ErrorKeys, ValidationRules y catálogos), Entities (datos puros del dominio, no las entidades de EF), Validators (validaciones del dominio), Repositories (interfaces y resultados de repositorio), Engine (motor de reglas)  | TLMG.Domain.Constants, TLMG.Domain.Entities, TLMG.Domain.Validators, TLMG.Domain.Repositories, TLMG.Domain.Engine  |
 | TLMG.Contracts | raíz (interfaces WCF), DataContracts (DTO) | TLMG.Contracts, TLMG.Contracts.DataContracts |
-| TLMG.Services | raíz (ServiceImplementation parcial), Accounts, Friends, Leaderboard, Lobby, Sessions, Factories  | TLMG.Services, TLMG.Services.Accounts, TLMG.Services.Friends, TLMG.Services.Lobby, TLMG.Services.Sessions  TLMG.Services.Leaderboard. TLMG.Services.Factories |
+| TLMG.Services | raíz (ServiceImplementation parcial), Accounts, Chat, Friends, Leaderboard, Lobby, Sessions, Helpers, Utilities, Factories  | LMG.Services, TLMG.Services.Accounts, TLMG.Services.Chat, TLMG.Services.Friends, TLMG.Services.Leaderboard, TLMG.Services.Lobby, TLMG.Services.Sessions, TLMG.Services.Helpers, TLMG.Services.Utilities, TLMG.Services.Factories  |
 | TLMG.DataAccess | DatabaseModel (EF), Repositories | TLMG.DataAccess.DatabaseModel, TLMG.DataAccess.Repositories |
 | TLMG.Server | raíz (arranque y configuración) | TLMG.Server |
 
@@ -1565,7 +1575,7 @@ public class LoginViewModel : ObservableObject
 
     private void ExecuteLogin()
     {
-        // Aquí se validan los datos y se llama al servidor.
+        // The data is validated and the server is called here. 
     }
 }
 ```
@@ -1621,7 +1631,7 @@ private void BtnLogIn_Click(object sender, RoutedEventArgs e)
 {
     string email = txtEmail.Text;
     string password = pwdPassword.Password;
-    // Aquí se valida y se llama al servidor.
+   // The data is validated and the server is called here.
 }
 ```
 
@@ -1687,7 +1697,7 @@ Convenciones:
 
 * Cada cultura soportada tendrá su propio archivo ResourceDictionary, ubicado en la carpeta Languages/, nombrado Strings.{cultura}.xaml (ej. Strings.es-MX.xaml, Strings.en-US.xaml).
 
-  * La clave de cada recurso sigue el formato NombrePantalla\_NombreControl\[Rol\], en PascalCase y en inglés (D-21). NombreControl nombra el propósito del texto; si el control tiene x:Name, normalmente coincide con él sin su prefijo de tipo; cuando un mismo control muestra varios textos asignados desde código (mensajes de error, estados), cada clave nombra su mensaje o estado (por ejemplo, Login\_InvalidCredentialsError). La relación entre cada clave y su x:Name queda registrada en el diccionario de internacionalización del proyecto. Rol es un sufijo opcional que describe para qué se usa el texto y se elige de esta lista cerrada: Button, Label, Title, Subtitle, Hint, Placeholder, Error, Message, Tab, Format. El sufijo nunca es la clase del control (TextBlock, Border, etc.), ya que la clave identifica el texto, no el control.
+  * La clave de cada recurso sigue el formato NombrePantalla\_NombreControl\[Rol\], en PascalCase y en inglés (D-21). NombreControl nombra el propósito del texto; si el control tiene x:Name, normalmente coincide con él sin su prefijo de tipo; cuando un mismo control muestra varios textos asignados desde código (mensajes de error, estados), cada clave nombra su mensaje o estado (por ejemplo, Login\_InvalidCredentialsError). La relación entre cada clave y su x:Name queda registrada en el diccionario de internacionalización del proyecto. Rol es un sufijo opcional que describe para qué se usa el texto y se elige de esta lista cerrada: Button, Label, Title, Subtitle, Hint, Placeholder, Error, Message, Tab, Format, Status, Description, Instructions, Header. Excepción: cuando varias claves forman una lista o un conjunto (por ejemplo, las pistas de contraseña), el rol puede ir antes del detalle (CreateAccount\_HintLength). El sufijo nunca es la clase del control (TextBlock, Border, etc.), ya que la clave identifica el texto, no el control.
 
   * Excepción: pueden escribirse directamente en el XAML, sin clave de recurso, (1) los glifos e íconos decorativos (emojis, símbolos) que no transmiten texto y no cambian entre culturas, y (2) los nombres de los idiomas en el selector, escritos en su propia lengua ("Español", "English"), porque deben reconocerse sin importar el idioma activo. Si un glifo comunica algo que el usuario necesita entender y no lleva texto al lado, la excepción no aplica: debe acompañarse de un texto localizado.
 
@@ -1727,7 +1737,7 @@ using System.Windows;
 namespace TLMG.Client
 {
     /// <summary>
-    /// Gestiona la cultura y los diccionarios de recursos de idioma de la aplicación.
+    /// Manages the culture and the language resource dictionaries of the application. 
     /// </summary>
     public static class LanguageManager
     {
@@ -1739,14 +1749,14 @@ namespace TLMG.Client
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>
-        /// Se produce después de cambiar el idioma de la aplicación.
+        /// Raised after the application language changes. 
         /// </summary>
         public static event EventHandler LanguageChanged;
 
         /// <summary>
-        /// Cambia el idioma de la aplicación reemplazando el diccionario correspondiente en los recursos globales.
+        /// Changes the application language by replacing the matching dictionary in the global resources. 
         /// </summary>
-        /// <param name="cultureCode">Código de la cultura a aplicar (por ejemplo, "es-MX" o "en-US").</param>
+        /// <param name="cultureCode">Culture code to apply (for example, "es-MX" or "en-US").</param> 
         public static void ChangeLanguage(string cultureCode)
         {
             if (Application.Current == null)
@@ -2325,6 +2335,8 @@ public class GameTag : Attribute
 
 Errores entre servidor y cliente (D-45). Del servidor al cliente, una validación o una regla de juego que falla no lanza excepción: se responde con un ErrorKey, que el cliente traduce a su idioma con el diccionario activo. FaultException se usa solo para fallos inesperados y lleva un mensaje genérico, sin detalle técnico. El detalle (excepción y traza de pila) va solo al log del servidor. Del cliente al servidor, el servidor valida de nuevo todo lo que recibe y responde de forma controlada. Al jugador nunca se le muestra qué falló por dentro.
 
+Quién captura qué. Los repositorios capturan SqlException y EntityException y devuelven un resultado controlado (un enum …Status o un …Lookup); un fallo de datos nunca se trata como “no existe”. Los servicios no capturan excepciones: las dejan propagar. ServiceImplementation captura únicamente OutOfMemoryException en las operaciones request-reply y la convierte en FaultException\<SystemFault\>. Las excepciones de comunicación, tiempo de espera y canal liberado se capturan solo al notificar por callback (SafeNotify) y en la capa Comunicación del cliente. 
+
 Las excepciones deben reservarse exclusivamente para fallos inesperados en tiempo de ejecución o condiciones excepcionales del sistema. Para la validación de formularios de usuario y entradas de datos comunes, no se deben lanzar excepciones; en su lugar, se deben utilizar valores de retorno controlados (como claves de error localizadas, objetos de resultado o null) para comunicar errores de entrada sin afectar el flujo de ejecución. Por su parte, los errores de programación (como violaciones de precondiciones o argumentos inválidos en métodos internos) deben señalarse mediante excepciones de la familia ArgumentException. Para consultar el modelo de centralización de validaciones de entrada, véase la sección 16 (Validación de entrada y seguridad).
 
 Ejemplo correcto (validación de nickname sin lanzar excepción)
@@ -2805,6 +2817,8 @@ Cabe señalar que dos de estos temporizadores miden 15 segundos con alcance dist
 
 Excepción: los valores de diseño visual escritos directamente en el código de la interfaz (márgenes, rellenos, tamaños; por ejemplo new Thickness(0, 0, 0, 16)) no se consideran números mágicos. La excepción no aplica a valores de negocio, tiempos ni límites, que siempre van como constantes con nombre.
 
+Alcance de las constantes. Una constante que usa una sola clase se declara en esa clase, lo más cerca posible de su uso. Una constante de negocio que usan varias clases o proyectos se centraliza en TLMG.Domain.Constants: ValidationRules para las reglas de validación y ErrorKeys para las claves de error, agrupadas en clases anidadas por pantalla o área. Cada valor de ErrorKeys debe coincidir con una clave de ambos diccionarios de idioma (S7.3). 
+
 5. ## Límite de operadores por expresión {#límite-de-operadores-por-expresión}
 
 Una expresión condicional no deberá contener más de tres operadores lógicos o de comparación en la misma condición; cuando se supere ese límite, la condición deberá extraerse a una variable booleana con nombre descriptivo.
@@ -3249,27 +3263,27 @@ El comentario deberá colocarse en una línea separada del código, no al final 
 Ejemplo correcto
 
 ```c#
-// Reinicia el temporizador de la ventana de gracia.
+// Restarts the grace window timer. 
 _graceSecondsLeft = PlayerReconnectGraceSeconds;
 ```
 
 Ejemplo incorrecto (comentario al final de la línea de código)
 
 ```c#
-_graceSecondsLeft = PlayerReconnectGraceSeconds; // Reinicia el temporizador de la ventana de gracia
+_graceSecondsLeft = PlayerReconnectGraceSeconds; // Restarts the grace window timer 
 ```
 
 Ejemplo correcto
 
 ```c#
-// Calcula el puntaje final aplicando el multiplicador de la ronda.
+// Calculates the final score by applying the round multiplier. 
 int finalScore = baseScore * roundMultiplier;
 ```
 
 Ejemplo incorrecto (sin mayúscula inicial, sin punto final y sin espacio tras //)
 
 ```c#
-//calcula el puntaje final aplicando el multiplicador de la ronda
+//calculates the final score by applying the round multiplier 
 int finalScore = baseScore * roundMultiplier;
 ```
 
@@ -3279,9 +3293,9 @@ Ejemplo correcto
 
 ```c#
 /// <summary>
-/// Suma puntos al jugador y actualiza su puntaje.
+/// Adds points to the player and updates the player's score. 
 /// </summary>
-/// <param name="scoreAmount">Cantidad de puntos a sumar.</param>
+/// <param name="scoreAmount">Amount of points to add.</param>
 public void AddScore(int scoreAmount)
 {
 }
@@ -3304,7 +3318,7 @@ Ejemplo correcto
 
 ```c#
 /// <summary>
-/// Calcula el puntaje final de la ronda.
+/// Adds points to the player and updates the player's score. 
 /// </summary>
 public int CalculateScore(int baseScore)
 {
@@ -3317,7 +3331,7 @@ Ejemplo incorrecto (el comentario no precede inmediatamente al miembro que descr
 
 ```c#
 /// <summary>
-/// Calcula el puntaje final de la ronda.
+///Calculates the final score of the round. 
 /// </summary>
 private int _roundNumber;
 
@@ -3333,7 +3347,7 @@ El contenido del comentario de documentación deberá ser XML bien formado; si n
 Ejemplo correcto
 
 ```c#
-/// <summary>Suma puntos al jugador</summary>
+/// <summary>Amount of points to add.</summary>
 public void AddScore(int amount)
 {
 }
@@ -3353,7 +3367,7 @@ Todo miembro documentado deberá incluir, como mínimo, la etiqueta \<summary\>,
 Ejemplo correcto
 
 ```c#
-/// <summary>Representa la mano de cartas del jugador.</summary>
+<summary>Represents the player's hand of cards.</summary> 
 public class PlayerHand
 {
 }
@@ -3367,36 +3381,14 @@ public class PlayerHand
 }
 ```
 
-Excepciones (D-36):
-
-1. Un miembro que sobrescribe (override) o implementa un miembro ya documentado en su clase base o interfaz puede llevar únicamente /// \<inheritdoc /\> en lugar de \<summary\>.  
-2. El constructor sin parámetros de una clase XAML cuyo cuerpo solo llama a InitializeComponent() no requiere comentario de documentación.
-
-Ejemplo correcto
-
-```c#
-/// <inheritdoc />
-protected override void UpdateDynamicLabels()
-{
-}
-```
-
-Ejemplo incorrecto
-
-```c#
-protected override void UpdateDynamicLabels()
-{
-}
-```
-
 Cuando un método documentado tenga parámetros, cada uno deberá describirse mediante una etiqueta \<param\> independiente, cuyo atributo name debe coincidir exactamente con el nombre del parámetro en la firma del método; si un parámetro no se documenta, o el nombre no coincide, el compilador emite una advertencia.
 
 Ejemplo correcto
 
 ```c#
-/// <summary>Suma puntos a un jugador específico.</summary>
-/// <param name="target">Jugador que recibirá los puntos.</param>
-/// <param name="amount">Cantidad de puntos a sumar.</param>
+/// <summary>Adds points to a specific player.</summary> 
+/// <param name="target">Player who will receive the points.</param>
+/// <param name="amount">Amount of points to add.</param>
 public void AddScore(Player target, int amount)
 {
 }
@@ -3405,9 +3397,9 @@ public void AddScore(Player target, int amount)
 Ejemplo incorrecto (el nombre en `<param>` no coincide con la firma del método)
 
 ```c#
-/// <summary>Suma puntos a un jugador específico.</summary>
-/// <param name="player">Jugador que recibirá los puntos.</param>
-/// <param name="amount">Cantidad de puntos a sumar.</param>
+/// <summary>Adds points to a specific player.</summary>
+/// <param name="player">Player who will receive the points.</param>
+/// <param name="amount">Amount of points to add.</param>
 public void AddScore(Player target, int amount)
 {
 }
@@ -3418,8 +3410,8 @@ Cuando un método documentado devuelva un valor, deberá describirse mediante la
 Ejemplo correcto
 
 ```c#
-/// <summary>Indica si la sala puede iniciar la partida.</summary>
-/// <returns><c>true</c> si la sala tiene el mínimo de jugadores; en caso contrario, <c>false</c>.</returns>
+/// <summary>Indicates whether the room can start the match.</summary> 
+/// <returns><c>true</c> if the room has the minimum number of players; otherwise, <c>false</c>.</returns> 
 public bool CanStartMatch()
 {
     bool canStart = _playerCount >= MinimumPlayers;
@@ -3445,7 +3437,7 @@ El comentario especial deberá iniciar con uno de los cuatro tokens reconocidos:
 Ejemplo correcto (TODO)
 
 ```c#
-// TODO: Agregar el reintento de envío del código. (BL-012).
+// TODO: Add the retry for sending the code. (BL-012). 
 public void SendVerificationCode(int playerId)
 {
 }
@@ -3454,7 +3446,7 @@ public void SendVerificationCode(int playerId)
 Ejemplo correcto (FIXME)
 
 ```c#
-// FIXME: No limita el puntaje del jugador al máximo permitido. (BL-013).
+// FIXME: The player score is not capped at the maximum allowed. (BL-013). 
 playerScore += earnedScore;
 ```
 
@@ -4104,7 +4096,7 @@ public class PlayerRepositoryTests
 Ejemplo incorrecto (dependencia de base de datos real, pero tratada como prueba unitaria)
 
 ```c#
-// La clase vive en TLMG.Services.Tests, el proyecto de pruebas unitarias.
+// The class lives in TLMG.Services.Tests, the unit test project. 
 public class PlayerRepositoryTests
 {
     [Fact]
@@ -4112,7 +4104,7 @@ public class PlayerRepositoryTests
     {
         PlayerRepository repository = new PlayerRepository();
 
-        repository.CreatePlayer("TestPlayer", "test@example.com", "hash"); // Accede a la base de datos real.
+        repository.CreatePlayer("TestPlayer", "test@example.com", "hash"); // Accesses the real database. 
 
         Assert.True(repository.PlayerExistsByNickname("TestPlayer"));
     }
@@ -4146,7 +4138,7 @@ Ejemplo incorrecto (prueba de lógica pura con una espera innecesaria)
 [Fact]
 public void AddCard_WhenCalled_IncreasesCardCount()
 {
-    System.Threading.Thread.Sleep(SleepMilliseconds); // Espera innecesaria: PlayerHand no depende de nada externo.
+    System.Threading.Thread.Sleep(SleepMilliseconds); // Unnecessary wait: PlayerHand does not depend on anything external. 
     PlayerHand hand = new PlayerHand();
 
     hand.AddCard(new Card());
@@ -4336,7 +4328,7 @@ Los DTO se serializan con el serializador de contratos de datos de WCF, por lo q
 
 La aplicación cliente tiene una ventana principal, MainWindow, que muestra una pantalla a la vez. Toda pantalla hereda de LocalizableScreen (S4.3) y se muestra con MainWindow.ShowScreen(UserControl newScreen, bool saveInHistory \= true): reemplaza la pantalla visible y, cuando saveInHistory es true, la guarda en el historial para poder volver a ella.
 
-La forma en que un ViewModel solicita una navegación sin referenciar la vista no está decidida.
+Los ViewModels solicitan la navegación mediante INavigationManager, indicando un ScreenId y, si hace falta, un parámetro de navegación (…NavigationParameter). ScreenFactory crea cada vista con su ViewModel y sus dependencias, y NavigationManager administra el historial y libera los ViewModels descartados. Ningún ViewModel referencia una vista. 
 
 2. ## Mensajes y retroalimentación al jugador {#mensajes-y-retroalimentación-al-jugador}
 
@@ -4373,7 +4365,7 @@ Respaldo: D-50 para CommunityToolkit.Mvvm;  la versión de Entity Framework y de
 
     2. ## Documentación de decisiones de arquitectura {#documentación-de-decisiones-de-arquitectura}
 
-Este Estándar recoge lo que está decidido (decisiones D-xx de las bitácoras y ADR del SAD). La siguiente tabla lista las decisiones en que se apoya y la sección donde se citan. Si una decisión resumida aquí contradice a su bitácora o al SAD, gana la bitácora o el SAD.
+Este Estándar recoge lo que está decidido (decisiones D-xx de las bitácoras y ADR del SAD). La siguiente tabla lista las decisiones en que se apoya y la sección donde se citan. Si una decisión resumida aquí contradice a su bitácora o al SAD, gana la bitácora o el SAD.e
 
 | Decisión | Qué fija | Se cita en |
 | :---- | :---- | :---- |
