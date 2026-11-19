@@ -1,10 +1,10 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Windows.Input;
 using System.Windows.Threading;
-
-using CommunityToolkit.Mvvm.Input;
-
+using TLMG.Client.Communication;
 using TLMG.Client.Navigation;
+using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
@@ -37,6 +37,8 @@ namespace TLMG.Client.ViewModels
         private const int SuccessRedirectDelayMilliseconds = 500;
 
         private readonly INavigationManager _navigationManager;
+        private readonly IPasswordConnection _passwordConnection;
+        private readonly NewPasswordNavigationParameter _navigationParameter;
         private readonly RelayCommand _setPasswordCommand;
         private readonly RelayCommand _backCommand;
 
@@ -52,9 +54,12 @@ namespace TLMG.Client.ViewModels
         /// Inicializa una nueva instancia de la clase <see cref="NewPasswordViewModel"/>.
         /// </summary>
         /// <param name="navigationManager">Administrador de navegación.</param>
-        public NewPasswordViewModel(INavigationManager navigationManager)
+        public NewPasswordViewModel(INavigationManager navigationManager, IPasswordConnection passwordConnection,
+            NewPasswordNavigationParameter navigationParameter)
         {
             _navigationManager = navigationManager;
+            _passwordConnection = passwordConnection;
+            _navigationParameter = navigationParameter;
 
             PasswordError = new StatusMessage();
             ConfirmPasswordError = new StatusMessage();
@@ -173,12 +178,24 @@ namespace TLMG.Client.ViewModels
             return canSetPassword;
         }
 
-        // TODO: Enviar la nueva contraseña al servidor; hoy solo se valida. (BL-007).
         private void AcceptPassword()
         {
             IsBusy = true;
-            FormMessage.ShowSuccess(LanguageManager.FindText(SuccessMessageKey));
-            StartRedirectTimer();
+            OperationResult resetResult = _passwordConnection.ResetPassword(
+                _navigationParameter.Email,
+                _navigationParameter.VerifiedCode,
+                NewPassword);
+
+            if (resetResult.IsSuccess)
+            {
+                FormMessage.ShowSuccess(LanguageManager.FindText(SuccessMessageKey));
+                StartRedirectTimer();
+            }
+            else
+            {
+                IsBusy = false;
+                FormMessage.ShowError(LanguageManager.FindText(resetResult.ErrorKey));
+            }
         }
 
         private void ExecuteBack()

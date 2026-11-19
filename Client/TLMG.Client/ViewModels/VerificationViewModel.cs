@@ -26,6 +26,7 @@ namespace TLMG.Client.ViewModels
         private const string UnexpectedErrorKey = "CreateAccount_DataModelError";
 
         private readonly IAccountsConnection _accountsConnection;
+        private readonly IPasswordConnection _passwordConnection;
         private readonly VerificationNavigationParameter _navigationParameter;
         private readonly RelayCommand _verifyCodeCommand;
         private readonly RelayCommand _resendCodeCommand;
@@ -47,15 +48,17 @@ namespace TLMG.Client.ViewModels
         private string _verificationErrorKey;
 
         public VerificationViewModel()
-            : this(null, null)
+            : this(null, null, null)
         {
         }
 
         public VerificationViewModel(
             IAccountsConnection accountsConnection,
+            IPasswordConnection passwordConnection,
             VerificationNavigationParameter navigationParameter)
         {
             _accountsConnection = accountsConnection;
+            _passwordConnection = passwordConnection;
             _navigationParameter = navigationParameter;
 
             _remainingSecondsUntilExpiry = VerificationCodeExpirySeconds;
@@ -237,6 +240,10 @@ namespace TLMG.Client.ViewModels
             {
                 VerifyRegistrationCode(enteredCode);
             }
+            else if (_navigationParameter.VerificationFlow == VerificationFlow.PasswordRecovery)
+            {
+                VerifyRecoveryCode(enteredCode);
+            }
         }
 
         private void VerifyRegistrationCode(string enteredCode)
@@ -249,32 +256,7 @@ namespace TLMG.Client.ViewModels
                     enteredCode);
 
             IsBusy = false;
-
-            if (registrationResult.IsSuccess)
-            {
-                StopCountdown();
-                MessagesChanged?.Invoke(this, EventArgs.Empty);
-                VerificationSucceeded?.Invoke(this, EventArgs.Empty);
-            }
-            else if (registrationResult.ErrorKey == IncorrectCodeErrorKey)
-            {
-                RecordFailedAttempt();
-            }
-            else if (registrationResult.ErrorKey == AttemptsExhaustedErrorKey)
-            {
-                ExhaustVerificationAttempts();
-            }
-            else if (registrationResult.ErrorKey == ExpiredCodeErrorKey)
-            {
-                StopCountdown();
-                LockForm(ExpiredCodeErrorKey);
-                MessagesChanged?.Invoke(this, EventArgs.Empty);
-            }
-            else
-            {
-                FormErrorKey = registrationResult.ErrorKey ?? UnexpectedErrorKey;
-                MessagesChanged?.Invoke(this, EventArgs.Empty);
-            }
+            HandleVerificationResult(registrationResult);
         }
 
         private bool CanExecuteVerifyCode()
@@ -445,6 +427,53 @@ namespace TLMG.Client.ViewModels
             int seconds = _remainingSecondsUntilExpiry % SecondsPerMinute;
 
             ExpirationText = string.Format(TimerFormat, minutes, seconds);
+        }
+
+        private void VerifyRecoveryCode(string enteredCode)
+        {
+            IsBusy = true;
+
+            OperationResult recoveryResult = _passwordConnection.VerifyPasswordResetCode(
+                _navigationParameter.TargetEmail,
+                enteredCode);
+
+            IsBusy = false;
+
+            if (recoveryResult.IsSuccess)
+            {
+                _navigationParameter.VerifiedCode = enteredCode;
+            }
+
+            HandleVerificationResult(recoveryResult);
+        }
+
+        private void HandleVerificationResult(OperationResult verificationResult)
+        {
+            if (verificationResult.IsSuccess)
+            {
+                StopCountdown();
+                MessagesChanged?.Invoke(this, EventArgs.Empty);
+                VerificationSucceeded?.Invoke(this, EventArgs.Empty);
+            }
+            else if (verificationResult.ErrorKey == IncorrectCodeErrorKey)
+            {
+                RecordFailedAttempt();
+            }
+            else if (verificationResult.ErrorKey == AttemptsExhaustedErrorKey)
+            {
+                ExhaustVerificationAttempts();
+            }
+            else if (verificationResult.ErrorKey == ExpiredCodeErrorKey)
+            {
+                StopCountdown();
+                LockForm(ExpiredCodeErrorKey);
+                MessagesChanged?.Invoke(this, EventArgs.Empty);
+            }
+            else
+            {
+                FormErrorKey = verificationResult.ErrorKey ?? UnexpectedErrorKey;
+                MessagesChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
     }
 }
