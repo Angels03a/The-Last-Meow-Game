@@ -591,6 +591,7 @@ Formato de entrada:
 - Por qué: SetDigit llama a SetProperty sin el nombre de la propiedad y [CallerMemberName] lo completa con «SetDigit»; el evento PropertyChanged no sale como Digit1 a Digit6 y la vista no se entera de los cambios hechos desde el ViewModel (por ejemplo, ClearDigits). Ya ocurría con la base anterior; no lo introdujo la Fase 4b. Hay que pasar el nombre de la propiedad a SetDigit y de ahí a SetProperty.
 - Depende de: Fase 7
 - Estado: Pendiente
+- Nota (2026-11-18): corrección local sin commit: cada dígito pasa su nombre a SetProperty. Cliente Debug compilado; comprobación ejecutable aislada aprobó PropertyChanged de los seis dígitos, valores repetidos, ClearDigits y CanExecute. Pendiente hasta el commit.
 
 ### BL-133 · Probar a mano los botones y el CanExecute de los 12 ViewModels, y el login y el registro
 - Creado: 2026-11-10 11:44

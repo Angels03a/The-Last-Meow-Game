@@ -93,37 +93,37 @@ namespace TLMG.Client.ViewModels
         public string Digit1
         {
             get { return _digit1; }
-            set { SetDigit(ref _digit1, value); }
+            set { SetDigit(ref _digit1, value, nameof(Digit1)); }
         }
 
         public string Digit2
         {
             get { return _digit2; }
-            set { SetDigit(ref _digit2, value); }
+            set { SetDigit(ref _digit2, value, nameof(Digit2)); }
         }
 
         public string Digit3
         {
             get { return _digit3; }
-            set { SetDigit(ref _digit3, value); }
+            set { SetDigit(ref _digit3, value, nameof(Digit3)); }
         }
 
         public string Digit4
         {
             get { return _digit4; }
-            set { SetDigit(ref _digit4, value); }
+            set { SetDigit(ref _digit4, value, nameof(Digit4)); }
         }
 
         public string Digit5
         {
             get { return _digit5; }
-            set { SetDigit(ref _digit5, value); }
+            set { SetDigit(ref _digit5, value, nameof(Digit5)); }
         }
 
         public string Digit6
         {
             get { return _digit6; }
-            set { SetDigit(ref _digit6, value); }
+            set { SetDigit(ref _digit6, value, nameof(Digit6)); }
         }
 
         public int FailedAttempts
@@ -388,9 +388,9 @@ namespace TLMG.Client.ViewModels
             CountdownStateChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        private void SetDigit(ref string digitField, string newValue)
+        private void SetDigit(ref string digitField, string newValue, string propertyName)
         {
-            if (SetProperty(ref digitField, newValue))
+            if (SetProperty(ref digitField, newValue, propertyName))
             {
                 _verifyCodeCommand.NotifyCanExecuteChanged();
             }
