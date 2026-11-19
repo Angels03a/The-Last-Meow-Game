@@ -38,6 +38,7 @@ namespace TLMG.Services.Accounts
                     profileResult.Nickname = profileLookup.Nickname;
                     profileResult.Email = profileLookup.Email;
                     profileResult.AvatarKey = AvatarCatalog.NormalizeKey(profileLookup.AvatarKey);
+                    profileResult.PasswordChangedAtUtc = profileLookup.PasswordChangedAtUtc;
                 }
             }
 
