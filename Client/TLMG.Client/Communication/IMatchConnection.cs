@@ -11,6 +11,11 @@ namespace TLMG.Client.Communication
     /// </summary>
     public interface IMatchConnection
     {
+        event EventHandler RecoveryStateChanged;
+        bool IsMatchRecoveryPending { get; }
+        bool IsMatchRecoveryExhausted { get; }
+        void RetryMatchRecovery();
+
         /// <summary>Se dispara con cada vista privada nueva; una vista con versión igual o menor se descarta.</summary>
         event EventHandler<ServerEventArgs<MatchView>> MatchViewChanged;
 
@@ -28,6 +33,8 @@ namespace TLMG.Client.Communication
 
         /// <summary>Obtiene si el servidor aceptó la suscripción actual a la partida.</summary>
         bool IsMatchSubscribed { get; }
+
+        bool CanSendGameplayAction { get; }
 
         /// <summary>Obtiene la última vista aceptada, o null si todavía no llega ninguna.</summary>
         MatchView CurrentMatchView { get; }

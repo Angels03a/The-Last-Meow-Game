@@ -245,5 +245,7 @@
                 </Canvas>
             </Canvas>
         </Viewbox>
+        <ContentControl Content="{Binding}" ContentTemplate="{StaticResource MatchRecoveryBannerTemplate}"
+                        HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="16,0,16,20" />
     </Grid>
 </local:LocalizableScreen>

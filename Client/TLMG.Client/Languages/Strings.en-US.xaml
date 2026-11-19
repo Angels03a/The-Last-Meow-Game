@@ -473,4 +473,13 @@
     <sys:String x:Key="Match_FugitiveKittenInProgressError">The match will begin when the minigame ends.</sys:String>
     <sys:String x:Key="FugitiveKitten_Unavailable">Match connection unavailable.</sys:String>
     <sys:String x:Key="FugitiveKitten_Waiting">Waiting for the server result…</sys:String>
+    <sys:String x:Key="Recovery_Connecting">Reconnecting. Trying to restore communication with the server.</sys:String>
+    <sys:String x:Key="Recovery_LocalExhausted">Connection could not be restored. Your participation is still unconfirmed.</sys:String>
+    <sys:String x:Key="Recovery_Retry">Retry connection</sys:String>
+    <sys:String x:Key="Recovery_Paused">Match paused</sys:String>
+    <sys:String x:Key="Recovery_PlayerSeconds">Waiting for {0} ({1} s)</sys:String>
+    <sys:String x:Key="Recovery_PlayerAwaitingServer">{0}: waiting for the server to resolve the match</sys:String>
+    <sys:String x:Key="Recovery_UnknownPlayer">player</sys:String>
+    <sys:String x:Key="Recovery_WaitingInitialLinks">Waiting for all players to connect.</sys:String>
+    <sys:String x:Key="Recovery_RetryChat">Reconnect chat</sys:String>
 </ResourceDictionary>

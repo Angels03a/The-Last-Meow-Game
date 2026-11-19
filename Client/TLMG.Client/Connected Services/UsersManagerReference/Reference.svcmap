@@ -26,6 +26,7 @@
     <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="478c2ff8-6d79-4a2f-9803-07bde1f18e14" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
     <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="8595f56a-f5a0-47bc-af82-2494988a7e64" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
     <MetadataFile FileName="TLMG.Contracts.DataContracts.xsd" MetadataType="Schema" ID="fca37d93-802f-4fa8-bb3a-512651026362" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
+    <MetadataFile FileName="service2.xsd" MetadataType="Schema" ID="9073c9c5-10bf-49ca-bdf9-feaf0e680517" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

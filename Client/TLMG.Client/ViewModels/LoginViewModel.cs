@@ -56,6 +56,7 @@ namespace TLMG.Client.ViewModels
             _playAsGuestCommand = new RelayCommand(ExecutePlayAsGuest, CanExecutePlayAsGuest);
             _forgotPasswordCommand = new RelayCommand(ExecuteForgotPassword, CanExecuteForgotPassword);
             _createAccountCommand = new RelayCommand(ExecuteCreateAccount, CanExecuteCreateAccount);
+            RetryRecoveryCommand = new RelayCommand(_accountsConnection.RetryMatchRecovery);
             ChangeToEnglishCommand = new RelayCommand(ExecuteChangeToEnglish);
             ChangeToSpanishCommand = new RelayCommand(ExecuteChangeToSpanish);
 
@@ -71,6 +72,12 @@ namespace TLMG.Client.ViewModels
         /// Mensaje general del formulario (éxito o error).
         /// </summary>
         public StatusMessage FormMessage { get; }
+
+        public ICommand RetryRecoveryCommand { get; }
+
+        public bool CanRetryRecovery => _accountsConnection.IsMatchRecoveryExhausted;
+
+        private bool IsRecoveryActive => _accountsConnection.IsMatchRecoveryPending || CanRetryRecovery;
 
         /// <summary>Comando para intentar el inicio de sesión.</summary>
         public ICommand LogInCommand => _logInCommand;
@@ -168,6 +175,7 @@ namespace TLMG.Client.ViewModels
             Deactivate();
 
             LanguageManager.LanguageChanged += OnLanguageChanged;
+            _accountsConnection.RecoveryStateChanged += OnRecoveryStateChanged;
             UpdateActiveLanguage();
         }
 
@@ -177,6 +185,7 @@ namespace TLMG.Client.ViewModels
         public void Deactivate()
         {
             LanguageManager.LanguageChanged -= OnLanguageChanged;
+            _accountsConnection.RecoveryStateChanged -= OnRecoveryStateChanged;
         }
 
         /// <summary>
@@ -217,6 +226,10 @@ namespace TLMG.Client.ViewModels
         private void OnLanguageChanged(object sender, EventArgs eventArgs)
         {
             UpdateActiveLanguage();
+            if (IsRecoveryActive)
+            {
+                OnRecoveryStateChanged(sender, eventArgs);
+            }
         }
 
         private void UpdateActiveLanguage()
@@ -238,7 +251,7 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecuteLogIn()
         {
-            bool canLogIn = !IsBusy;
+            bool canLogIn = !IsBusy && !IsRecoveryActive;
             return canLogIn;
         }
 
@@ -289,7 +302,26 @@ namespace TLMG.Client.ViewModels
         {
             string successText = LanguageManager.FindText(SuccessMessageKey);
             FormMessage.ShowSuccess(successText);
-            StartRedirectTimer();
+            if (IsRecoveryActive)
+            {
+                OnRecoveryStateChanged(this, EventArgs.Empty);
+            }
+            else
+            {
+                StartRedirectTimer();
+            }
+        }
+
+        private void OnRecoveryStateChanged(object sender, EventArgs args)
+        {
+            OnPropertyChanged(nameof(CanRetryRecovery));
+            NotifyCommandsCanExecuteChanged();
+            if (IsRecoveryActive)
+            {
+                StopRedirectTimer();
+                FormMessage.ShowSuccess(LanguageManager.FindText(CanRetryRecovery
+                    ? "Recovery_LocalExhausted" : "Recovery_Connecting"));
+            }
         }
 
         private void ShowServerError(string errorKey)
@@ -323,7 +355,10 @@ namespace TLMG.Client.ViewModels
         private void OnRedirectTimerTick(object sender, EventArgs eventArgs)
         {
             StopRedirectTimer();
-            _navigationManager.NavigateToWithoutHistory(ScreenId.MainMenu);
+            if (!IsRecoveryActive)
+            {
+                _navigationManager.NavigateToWithoutHistory(ScreenId.MainMenu);
+            }
         }
 
         private void ExecuteTogglePasswordVisibility()
@@ -338,7 +373,7 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecutePlayAsGuest()
         {
-            bool canPlayAsGuest = !IsBusy;
+            bool canPlayAsGuest = !IsBusy && !IsRecoveryActive;
             return canPlayAsGuest;
         }
 
@@ -349,7 +384,7 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecuteForgotPassword()
         {
-            bool canForgotPassword = !IsBusy;
+            bool canForgotPassword = !IsBusy && !IsRecoveryActive;
             return canForgotPassword;
         }
 
@@ -360,7 +395,7 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecuteCreateAccount()
         {
-            bool canCreateAccount = !IsBusy;
+            bool canCreateAccount = !IsBusy && !IsRecoveryActive;
             return canCreateAccount;
         }
 

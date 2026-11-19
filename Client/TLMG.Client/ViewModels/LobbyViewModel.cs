@@ -74,6 +74,7 @@ namespace TLMG.Client.ViewModels
             _toggleReadyCommand = new RelayCommand(ExecuteToggleReady, CanExecuteToggleReady);
             CancelCountdownCommand = new RelayCommand(ExecuteCancelCountdown);
             _sendChatCommand = new RelayCommand(ExecuteSendChat, CanExecuteSendChat);
+            RetryChatCommand = new RelayCommand(_lobbyConnection.RetryChatConnection);
         }
 
         public ICommand LeaveLobbyCommand { get; }
@@ -87,6 +88,9 @@ namespace TLMG.Client.ViewModels
         public ICommand CancelCountdownCommand { get; }
 
         public ICommand SendChatCommand => _sendChatCommand;
+        public ICommand RetryChatCommand { get; }
+        public bool IsChatUnavailable => _lobbyConnection.HasRegisteredSession
+            && _lobbyConnection.CurrentRoom != null && !_lobbyConnection.IsChatSubscribed;
 
         public ObservableCollection<LobbyPlayerEntry> Players
         {
@@ -403,6 +407,7 @@ namespace TLMG.Client.ViewModels
 
         private void OnChatAvailabilityChanged(object sender, EventArgs eventArgs)
         {
+            OnPropertyChanged(nameof(IsChatUnavailable));
             ApplyChatAvailability();
         }
 

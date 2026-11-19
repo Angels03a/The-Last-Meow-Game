@@ -55,6 +55,8 @@ namespace TLMG.Client.Communication
         /// <summary>Obtiene si el servidor aceptó la suscripción al chat de la sala.</summary>
         bool IsChatSubscribed { get; }
 
+        void RetryChatConnection();
+
         /// <summary>Obtiene si la foto del servidor mantiene una cuenta regresiva activa.</summary>
         bool IsCountdownVisible { get; }
 

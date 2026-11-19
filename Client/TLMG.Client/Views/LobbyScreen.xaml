@@ -342,6 +342,10 @@
                         <TextBlock Grid.ColumnSpan="3"
                                    Text="{DynamicResource Lobby_GuestCannotChatError}"
                                    Style="{StaticResource LobbyGuestChatNoticeTextStyle}" />
+                        <Button Grid.Column="0" Panel.ZIndex="1" HorizontalAlignment="Left"
+                                Content="{DynamicResource Recovery_RetryChat}" Command="{Binding RetryChatCommand}"
+                                Style="{StaticResource ActionPrimarySmallButtonStyle}"
+                                Visibility="{Binding IsChatUnavailable, Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <TextBox x:Name="txtChatInput"
                                  Grid.Column="0"
                                  Style="{StaticResource FieldStyle}"

@@ -29,6 +29,8 @@ namespace TLMG.Client.Navigation
         /// </summary>
         public IScreenFactory ScreenFactory { get; set; }
 
+        internal object CurrentView => _currentEntry?.View;
+
         public void NavigateTo(ScreenId screenId)
         {
             NavigateTo(screenId, null);

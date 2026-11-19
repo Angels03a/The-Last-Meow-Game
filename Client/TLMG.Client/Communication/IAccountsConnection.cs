@@ -1,3 +1,4 @@
+using System;
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
@@ -11,6 +12,11 @@ namespace TLMG.Client.Communication
     /// </summary>
     public interface IAccountsConnection
     {
+        event EventHandler RecoveryStateChanged;
+        bool IsMatchRecoveryPending { get; }
+        bool IsMatchRecoveryExhausted { get; }
+        void RetryMatchRecovery();
+
         /// <summary>
         /// Obtiene el nickname del jugador en sesión, o null si no hay sesión registrada (por ejemplo, un invitado).
         /// Solo sirve para mostrar.

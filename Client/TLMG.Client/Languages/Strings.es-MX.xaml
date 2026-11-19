@@ -473,4 +473,13 @@
     <sys:String x:Key="Match_FugitiveKittenInProgressError">La partida comenzará cuando termine el minijuego.</sys:String>
     <sys:String x:Key="FugitiveKitten_Unavailable">Conexión de partida no disponible.</sys:String>
     <sys:String x:Key="FugitiveKitten_Waiting">Esperando el resultado del servidor…</sys:String>
+    <sys:String x:Key="Recovery_Connecting">Recuperando conexión. Intentando restablecer la comunicación con el servidor.</sys:String>
+    <sys:String x:Key="Recovery_LocalExhausted">No se pudo restablecer la conexión. Tu participación sigue sin confirmarse.</sys:String>
+    <sys:String x:Key="Recovery_Retry">Reintentar conexión</sys:String>
+    <sys:String x:Key="Recovery_Paused">Partida suspendida</sys:String>
+    <sys:String x:Key="Recovery_PlayerSeconds">Esperando a {0} ({1} s)</sys:String>
+    <sys:String x:Key="Recovery_PlayerAwaitingServer">{0}: esperando la resolución del servidor</sys:String>
+    <sys:String x:Key="Recovery_UnknownPlayer">jugador</sys:String>
+    <sys:String x:Key="Recovery_WaitingInitialLinks">Esperando a que todos los jugadores se vinculen.</sys:String>
+    <sys:String x:Key="Recovery_RetryChat">Reconectar chat</sys:String>
 </ResourceDictionary>

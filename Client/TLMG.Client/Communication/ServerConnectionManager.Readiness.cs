@@ -32,7 +32,7 @@ namespace TLMG.Client.Communication
                     };
                 wasChangePlayerReadinessSent = TrySend(
                     () => _lobbyClient.ChangePlayerReadiness(_sessionToken, changePlayerReadinessRequest),
-                    "cambiar el estado Listo");
+                    "cambiar el estado Listo", CloseLobbyChannel);
             }
 
             return wasChangePlayerReadinessSent;
@@ -82,7 +82,7 @@ namespace TLMG.Client.Communication
                     };
                     TrySend(
                         () => _lobbyClient.RequestMatchStart(_sessionToken, requestMatchStartResult),
-                        "solicitar el inicio autorizado de partida");
+                        "solicitar el inicio autorizado de partida", CloseLobbyChannel);
                 }
             }
         }
@@ -99,14 +99,20 @@ namespace TLMG.Client.Communication
             return isNewer;
         }
 
-        private void ApplyRoomSnapshot(LobbyRoom lobbyRoom)
+        private void ApplyRoomSnapshot(LobbyRoom lobbyRoom, bool publish = true)
         {
             if (IsNewerRoomSnapshot(lobbyRoom))
             {
+                if (!IsSameRoom(CurrentRoom, lobbyRoom))
+                {
+                    _chatRecoveryAttempts = 0;
+                }
                 CurrentRoom = lobbyRoom;
                 Countdown.ApplyRoom(lobbyRoom);
-                OpenChatForCurrentRoom();
-                LobbyRoomChanged?.Invoke(this, new ServerEventArgs<LobbyRoom>(lobbyRoom));
+                if (publish)
+                {
+                    LobbyRoomChanged?.Invoke(this, new ServerEventArgs<LobbyRoom>(lobbyRoom));
+                }
             }
         }
     }

@@ -515,6 +515,28 @@ namespace TLMG.Services.Tests
             Assert.Null(result.MatchId);
         }
 
+        [Fact]
+        public void MatchView_ProjectsIndependentGraceDeadlinesWithServerTime()
+        {
+            var scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            var started = scenario.Clock.NowUtc;
+            scenario.CloseMatchChannelOf(scenario.UserIds[1]);
+            scenario.Clock.Advance(TimeSpan.FromSeconds(4));
+            scenario.CloseMatchChannelOf(scenario.UserIds[2]);
+
+            MatchView view = scenario.ReadViewAs(scenario.CreatorUserId);
+
+            Assert.Equal(started.AddSeconds(4), view.ServerTimeUtc);
+            Assert.Equal(started.AddSeconds(15), view.ReconnectDeadlinesUtc[scenario.UserIds[1]]);
+            Assert.Equal(started.AddSeconds(19), view.ReconnectDeadlinesUtc[scenario.UserIds[2]]);
+            Assert.False(view.IsWaitingForInitialLinks);
+            Assert.False(view.CanPlaceCard);
+            Assert.DoesNotContain(scenario.CreatorUserId, view.ReconnectDeadlinesUtc.Keys);
+            scenario.Clock.Advance(TimeSpan.FromSeconds(1));
+            Assert.Equal(view.Version, scenario.ReadViewAs(scenario.CreatorUserId).Version);
+        }
+
         /// <summary>Verifica LeaveLobby_WhileInMatch_DeliversLobbyAndMatchNoticesSeparately.</summary>
         [Fact]
         public void LeaveLobby_WhileInMatch_DeliversLobbyAndMatchNoticesSeparately()

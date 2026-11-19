@@ -663,6 +663,17 @@ namespace TLMG.Services.Sessions
                 matchRecord.LastChallenge,
                 matchRecord.AllParticipantsRegistered);
             MatchView matchView = MatchViewHelper.CreateMatchView(viewContext, userId);
+            DateTime nowUtc = _readUtcNow();
+            matchView.ServerTimeUtc = nowUtc;
+            if (matchView.Phase != MatchRoundPhase.MatchFinished)
+            {
+                matchView.ReconnectDeadlinesUtc = matchRecord.Disconnections
+                    .ToDictionary(entry => entry.Key, entry => entry.Value.EffectiveAtUtc);
+                matchView.IsWaitingForInitialLinks = matchRecord.Kitten != null
+                    && !matchRecord.Kitten.IsResolved && matchRecord.AwaitingFirstLink.Count != 0
+                    && matchRecord.Disconnections.Count == 0;
+            }
+
             if (matchRecord.Disconnections.Count != 0)
             {
                 matchView.CanPlaceCard = false;
@@ -670,7 +681,7 @@ namespace TLMG.Services.Sessions
                 matchView.CanWithdrawFromBet = false;
                 matchView.CanRevealCard = false;
             }
-            matchView.FugitiveKitten = CreateFugitiveKittenViewInLock(matchRecord, _readUtcNow());
+            matchView.FugitiveKitten = CreateFugitiveKittenViewInLock(matchRecord, nowUtc);
             MatchViewDelivery viewDelivery = new MatchViewDelivery(callback, matchView);
 
             return viewDelivery;

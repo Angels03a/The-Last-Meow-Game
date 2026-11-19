@@ -39,7 +39,7 @@ namespace TLMG.Client.Communication
                     };
                 wasChangeCardsPerPlayerSent = TrySend(
                     () => _lobbyClient.ChangeCardsPerPlayer(_sessionToken, changeCardsPerPlayerRequest),
-                    "cambiar las cartas por jugador");
+                    "cambiar las cartas por jugador", CloseLobbyChannel);
             }
 
             return wasChangeCardsPerPlayerSent;

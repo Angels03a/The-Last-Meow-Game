@@ -51,9 +51,15 @@ namespace TLMG.Client.Communication
             if (IsCurrentChatCallback(callback) && chatResult != null)
             {
                 IsChatSubscribed = chatResult.IsSuccess;
+                _chatSubscriptionUntil = null;
+                if (IsChatSubscribed)
+                {
+                    _chatRecoveryAttempts = 0;
+                }
                 ChatAvailabilityChanged?.Invoke(this, EventArgs.Empty);
                 if (!chatResult.IsSuccess)
                 {
+                    CloseChatChannel();
                     ChatErrorReceived?.Invoke(this, new ServerEventArgs<string>(chatResult.ErrorKey));
                 }
             }
@@ -85,6 +91,14 @@ namespace TLMG.Client.Communication
             return hasCurrentRoom;
         }
 
+        public void RetryChatConnection()
+        {
+            if (_chatClient == null && HasRegisteredSession && CurrentRoom != null)
+            {
+                _chatRecoveryAttempts = 0;
+            }
+        }
+
         private void OpenChatForCurrentRoom()
         {
             bool needsChatChannel = _chatClient == null && HasRegisteredSession;
@@ -93,10 +107,12 @@ namespace TLMG.Client.Communication
                 _chatCallback = new ServerCallback(this);
                 _chatClient = new ChatManagerClient(new InstanceContext(_chatCallback));
                 WatchChannel(_chatClient.InnerChannel);
-                bool wasChannelOpened = TrySend(_chatClient.Open, "abrir el canal de chat", CloseChatChannel);
+                bool wasChannelOpened = TrySend(() => OpenConnection(_chatClient), "abrir el canal de chat", CloseChatChannel);
                 if (wasChannelOpened)
                 {
-                    TrySend(() => _chatClient.SubscribeToChat(_sessionToken), "suscribirse al chat", CloseChatChannel);
+                    _chatSubscriptionUntil = _heartbeatClock.ElapsedMilliseconds + RecoveryReplyMilliseconds;
+                    TrySend(() => SendConnectionRequest(_chatClient.InnerChannel,
+                        () => _chatClient.SubscribeToChat(_sessionToken)), "suscribirse al chat", CloseChatChannel);
                 }
             }
         }
@@ -107,10 +123,11 @@ namespace TLMG.Client.Communication
             _chatClient = null;
             _chatCallback = null;
             IsChatSubscribed = false;
+            _chatSubscriptionUntil = null;
             if (previousClient != null)
             {
                 UnwatchChannel(previousClient.InnerChannel);
-                CloseClientSafely(previousClient);
+                previousClient.Abort();
             }
             ChatAvailabilityChanged?.Invoke(this, EventArgs.Empty);
         }

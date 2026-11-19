@@ -19,6 +19,18 @@ namespace TLMG.Contracts.DataContracts
         [DataMember]
         public int Version { get; set; }
 
+        /// <summary>Hora del servidor cuando se construyó esta vista.</summary>
+        [DataMember]
+        public DateTime ServerTimeUtc { get; set; }
+
+        /// <summary>Plazos UTC de los jugadores que suspenden la partida por desconexión.</summary>
+        [DataMember]
+        public Dictionary<int, DateTime> ReconnectDeadlinesUtc { get; set; }
+
+        /// <summary>El minijuego espera las primeras vinculaciones antes de iniciar su reloj.</summary>
+        [DataMember]
+        public bool IsWaitingForInitialLinks { get; set; }
+
         /// <summary>Minijuego público; null en las modalidades de cuatro y seis cartas.</summary>
         [DataMember]
         public FugitiveKittenView FugitiveKitten { get; set; }

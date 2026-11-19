@@ -2215,6 +2215,9 @@ namespace TLMG.Client.UsersManagerReference
         private TLMG.Client.UsersManagerReference.FugitiveKittenView FugitiveKittenField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsWaitingForInitialLinksField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Guid MatchIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -2242,7 +2245,13 @@ namespace TLMG.Client.UsersManagerReference
         private TLMG.Client.UsersManagerReference.MatchPunishmentView PunishmentField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.Dictionary<int, System.DateTime> ReconnectDeadlinesUtcField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int RoundNumberField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.DateTime ServerTimeUtcField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int VersionField;
@@ -2467,6 +2476,23 @@ namespace TLMG.Client.UsersManagerReference
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsWaitingForInitialLinks
+        {
+            get
+            {
+                return this.IsWaitingForInitialLinksField;
+            }
+            set
+            {
+                if ((this.IsWaitingForInitialLinksField.Equals(value) != true))
+                {
+                    this.IsWaitingForInitialLinksField = value;
+                    this.RaisePropertyChanged("IsWaitingForInitialLinks");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public System.Guid MatchId
         {
             get
@@ -2620,6 +2646,23 @@ namespace TLMG.Client.UsersManagerReference
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.Dictionary<int, System.DateTime> ReconnectDeadlinesUtc
+        {
+            get
+            {
+                return this.ReconnectDeadlinesUtcField;
+            }
+            set
+            {
+                if ((object.ReferenceEquals(this.ReconnectDeadlinesUtcField, value) != true))
+                {
+                    this.ReconnectDeadlinesUtcField = value;
+                    this.RaisePropertyChanged("ReconnectDeadlinesUtc");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public int RoundNumber
         {
             get
@@ -2632,6 +2675,23 @@ namespace TLMG.Client.UsersManagerReference
                 {
                     this.RoundNumberField = value;
                     this.RaisePropertyChanged("RoundNumber");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.DateTime ServerTimeUtc
+        {
+            get
+            {
+                return this.ServerTimeUtcField;
+            }
+            set
+            {
+                if ((this.ServerTimeUtcField.Equals(value) != true))
+                {
+                    this.ServerTimeUtcField = value;
+                    this.RaisePropertyChanged("ServerTimeUtc");
                 }
             }
         }

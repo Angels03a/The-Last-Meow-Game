@@ -45,6 +45,7 @@ namespace TLMG.Client.ViewModels
         private bool _navigated;
         private long _nextDeadlineCheck;
         private long? _resultAt;
+        private string _recoveryMessage = string.Empty;
 
         public FugitiveKittenViewModel(INavigationManager navigation, IMatchConnection match, ILobbyConnection lobby,
             Guid matchId)
@@ -54,11 +55,19 @@ namespace TLMG.Client.ViewModels
             _lobby = lobby ?? throw new ArgumentNullException(nameof(lobby));
             _matchId = matchId;
             _catchCommand = new RelayCommand(ExecuteCatchKitten, CanCatchKitten);
+            RetryRecoveryCommand = new RelayCommand(_match.RetryMatchRecovery);
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(TickMilliseconds) };
             _timer.Tick += OnTimerTick;
         }
 
         public ICommand CatchKittenCommand => _catchCommand;
+        public ICommand RetryRecoveryCommand { get; }
+        public bool CanRetryRecovery => _match.IsMatchRecoveryExhausted;
+        public string RecoveryMessage
+        {
+            get => _recoveryMessage;
+            private set => SetProperty(ref _recoveryMessage, value);
+        }
         public bool IsCatchAvailable
         {
             get => _isCatchAvailable;
@@ -106,10 +115,15 @@ namespace TLMG.Client.ViewModels
                 _deadlinePending = false;
                 _match.MatchViewChanged += OnMatchViewChanged;
                 _match.MatchAvailabilityChanged += OnAvailabilityChanged;
+                _match.RecoveryStateChanged += UpdateRecoveryDisplay;
                 _match.FugitiveKittenCatchResultReceived += OnCatchResult;
                 _match.FugitiveKittenDeadlineResultReceived += OnDeadlineResult;
                 IsConnected = _match.IsMatchSubscribed;
-                ApplyView(_match.CurrentMatchView);
+                if (IsConnected)
+                {
+                    ApplyView(_match.CurrentMatchView);
+                }
+                UpdateRecoveryDisplay(this, EventArgs.Empty);
                 if (!_match.IsMatchSubscribed && !_match.SubscribeToCurrentMatch()) IsConnected = false;
                 _timer.Start();
             }
@@ -123,6 +137,7 @@ namespace TLMG.Client.ViewModels
                 _timer.Stop();
                 _match.MatchViewChanged -= OnMatchViewChanged;
                 _match.MatchAvailabilityChanged -= OnAvailabilityChanged;
+                _match.RecoveryStateChanged -= UpdateRecoveryDisplay;
                 _match.FugitiveKittenCatchResultReceived -= OnCatchResult;
                 _match.FugitiveKittenDeadlineResultReceived -= OnDeadlineResult;
             }
@@ -139,7 +154,13 @@ namespace TLMG.Client.ViewModels
         private void OnAvailabilityChanged(object sender, EventArgs args)
         {
             IsConnected = _match.IsMatchSubscribed;
-            if (!IsConnected) { _catchPending = false; _deadlinePending = false; }
+            if (!IsConnected)
+            {
+                _catchPending = false;
+                _deadlinePending = false;
+                IsCatchAvailable = false;
+            }
+            UpdateRecoveryDisplay(this, EventArgs.Empty);
         }
         private void OnCatchResult(object sender, ServerEventArgs<OperationResult> args)
         {
@@ -160,6 +181,10 @@ namespace TLMG.Client.ViewModels
                 return;
             }
             if (view.FugitiveKitten == null || _resultAt.HasValue) return;
+            if (!IsConnected && _match.IsMatchRecoveryPending && view.FugitiveKitten.Result != FugitiveKittenResult.InProgress)
+            {
+                return;
+            }
             _kitten = view.FugitiveKitten;
             _serverAtReceipt = _kitten.ServerTimeUtc.Add(_match.CurrentMatchViewAge);
             _elapsedAtReceipt = _elapsed.Elapsed;
@@ -189,12 +214,22 @@ namespace TLMG.Client.ViewModels
 
         private void OnTimerTick(object sender, EventArgs args)
         {
-            AlternatePose = !AlternatePose;
+            UpdateRecoveryDisplay(this, EventArgs.Empty);
+            if (IsConnected && _kitten?.PausedAtUtc == null)
+            {
+                AlternatePose = !AlternatePose;
+            }
             UpdatePresentation();
         }
+        private void UpdateRecoveryDisplay(object sender, EventArgs args)
+        {
+            RecoveryMessage = MatchRecoveryText.Describe(_match);
+            OnPropertyChanged(nameof(CanRetryRecovery));
+        }
+
         private void UpdatePresentation()
         {
-            if (_kitten == null) return;
+            if (_kitten == null || !IsConnected) return;
             if (_resultAt.HasValue)
             {
                 if (!_navigated && _elapsed.ElapsedMilliseconds - _resultAt.Value >= ResultMilliseconds)

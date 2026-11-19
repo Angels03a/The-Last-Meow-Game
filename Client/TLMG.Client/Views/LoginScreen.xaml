@@ -141,6 +141,11 @@
                         Style="{StaticResource AuthenticationSecondaryButtonStyle}"
                         Command="{Binding PlayAsGuestCommand}" />
 
+                    <Button Content="{DynamicResource Recovery_Retry}"
+                            Style="{StaticResource AuthenticationSecondaryButtonStyle}"
+                            Command="{Binding RetryRecoveryCommand}"
+                            Visibility="{Binding CanRetryRecovery, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
                     <TextBlock DataContext="{Binding FormMessage}"
                            Text="{Binding Text}"
                            Style="{StaticResource StatusMessageTextStyle}" />

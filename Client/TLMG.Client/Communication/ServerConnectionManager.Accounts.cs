@@ -14,7 +14,7 @@ namespace TLMG.Client.Communication
         public OperationRecoveryContextResult GetRecoveryContext()
         {
             return SendUsersManagerRequest(client => client.GetRecoveryContext(_sessionToken),
-                "consultar el contexto recuperable", LogInConnectionErrorKey, LogInUnexpectedErrorKey);
+                "consultar el contexto recuperable", LogInConnectionErrorKey, LogInUnexpectedErrorKey, true);
         }
 
         public LogOutResult LogOut()
@@ -98,7 +98,7 @@ namespace TLMG.Client.Communication
             Func<UsersManagerClient, ResultType> sendRequest,
             string requestDescription,
             string connectionErrorKey,
-            string unexpectedErrorKey)
+            string unexpectedErrorKey, bool recoveryRequest = false)
             where ResultType : OperationResult, new()
         {
             UsersManagerClient usersClient = null;
@@ -107,7 +107,18 @@ namespace TLMG.Client.Communication
             try
             {
                 usersClient = new UsersManagerClient();
-                sendUsersManagerResult = sendRequest(usersClient);
+                if (recoveryRequest)
+                {
+                    OpenConnection(usersClient);
+                    var channel = usersClient.InnerChannel;
+                    ResultType result = null;
+                    SendConnectionRequest(channel, () => result = sendRequest(usersClient));
+                    sendUsersManagerResult = result;
+                }
+                else
+                {
+                    sendUsersManagerResult = sendRequest(usersClient);
+                }
             }
             catch (FaultException<SystemFault> systemFault)
             {
@@ -138,7 +149,14 @@ namespace TLMG.Client.Communication
             }
             finally
             {
-                CloseClientSafely(usersClient);
+                if (recoveryRequest)
+                {
+                    usersClient?.Abort();
+                }
+                else
+                {
+                    CloseClientSafely(usersClient);
+                }
             }
 
             if (sendUsersManagerResult == null)

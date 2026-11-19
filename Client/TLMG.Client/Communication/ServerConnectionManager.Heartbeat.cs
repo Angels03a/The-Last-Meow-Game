@@ -41,6 +41,14 @@ namespace TLMG.Client.Communication
                 return;
             }
 
+            if (AdvanceConnectionRecovery(_heartbeatClock.ElapsedMilliseconds))
+            {
+                long now = _heartbeatClock.ElapsedMilliseconds;
+                _nextHeartbeatSendAt = now + HeartbeatIntervalMilliseconds / 6;
+                _nextRecoveryStepAt = now + HeartbeatIntervalMilliseconds / 3;
+                return;
+            }
+
             // At most one synchronous send per Dispatcher tick.
             if (PulseLink(_friendsCallback, _friendsChannel, 0, (token, sequence, confirmed) => _friendsClient.FriendsHeartbeat(token, sequence, confirmed),
                 CloseFriendsChannel)) return;
@@ -127,7 +135,7 @@ namespace TLMG.Client.Communication
             }
 
             callback.PendingHeartbeat = 0;
-            if (errorKey == "Common_InvalidSessionError")
+            if (errorKey == InvalidSessionErrorKey)
             {
                 DisconnectAndNotifyConnectionLost();
             }

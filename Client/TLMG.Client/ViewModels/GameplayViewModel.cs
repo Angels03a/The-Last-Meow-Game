@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.Input;
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
@@ -37,6 +38,8 @@ namespace TLMG.Client.ViewModels
         private GameNotification _notification;
         private MatchBoard _board;
         private bool _isMatchUnavailable;
+        private readonly DispatcherTimer _recoveryDisplayTimer;
+        private string _recoveryMessage = string.Empty;
         private string _selectedPlayerName;
         private string _chatInput;
 
@@ -50,6 +53,9 @@ namespace TLMG.Client.ViewModels
             _lobbyConnection = lobbyConnection;
             _matchConnection = matchConnection;
             _dialogs = dialogs;
+            RetryRecoveryCommand = new RelayCommand(_matchConnection.RetryMatchRecovery);
+            _recoveryDisplayTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+            _recoveryDisplayTimer.Tick += UpdateRecoveryDisplay;
 
             _matchMode = MatchModeSettings.FromCardsPerPlayer(ReadCardsPerPlayer(lobbyConnection));
             _board = MatchBoardHelper.CreateEmptyBoard();
@@ -58,6 +64,7 @@ namespace TLMG.Client.ViewModels
             _chatMessages = new ObservableCollection<ChatMessageEntry>();
 
             _sendChatCommand = new RelayCommand(ExecuteSendChat, CanExecuteSendChat);
+            RetryChatCommand = new RelayCommand(_lobbyConnection.RetryChatConnection);
             _placeCardCommand = new RelayCommand<HandCardEntry>(ExecutePlaceCard, CanExecutePlaceCard);
             _choosePunishmentCommand = new RelayCommand<HandCardEntry>(ExecuteChoosePunishment, CanChoosePunishment);
             _revealCardCommand = new RelayCommand<MatchPlayerEntry>(ExecuteRevealCard, CanExecuteRevealCard);
@@ -84,6 +91,9 @@ namespace TLMG.Client.ViewModels
         public ICommand IncreaseBetCommand => _increaseBetCommand;
         public ICommand DecreaseBetCommand => _decreaseBetCommand;
         public ICommand SendChatCommand => _sendChatCommand;
+        public ICommand RetryChatCommand { get; }
+        public bool IsChatUnavailable => _lobbyConnection.HasRegisteredSession
+            && _lobbyConnection.CurrentRoom != null && !_lobbyConnection.IsChatSubscribed;
         public ICommand ExitCommand { get; }
         public ICommand ReportPlayerCommand { get; }
         public ICommand KickPlayerCommand { get; }
@@ -100,6 +110,13 @@ namespace TLMG.Client.ViewModels
         public int CurrentRoundNumber => _board.RoundNumber;
         public string PhaseLabelKey => _board.PhaseLabelKey;
         public bool HasMatchView => _board.HasMatchView;
+        public ICommand RetryRecoveryCommand { get; }
+        public bool CanRetryRecovery => _matchConnection.IsMatchRecoveryExhausted;
+        public string RecoveryMessage
+        {
+            get => _recoveryMessage;
+            private set => SetProperty(ref _recoveryMessage, value);
+        }
 
         /// <summary>Obtiene si la partida dejó de estar disponible y el tablero ya no se muestra actualizado.</summary>
         public bool IsMatchUnavailable
@@ -178,6 +195,9 @@ namespace TLMG.Client.ViewModels
             _matchConnection.MatchViewChanged += OnMatchViewChanged;
             _matchConnection.MatchErrorReceived += OnMatchErrorReceived;
             _matchConnection.MatchAvailabilityChanged += OnMatchAvailabilityChanged;
+            _matchConnection.RecoveryStateChanged += OnRecoveryStateChanged;
+            _recoveryDisplayTimer.Start();
+            UpdateRecoveryDisplay(this, EventArgs.Empty);
             _sendChatCommand.NotifyCanExecuteChanged();
             MatchView currentView = _matchConnection.CurrentMatchView;
             if (IsCurrentMatch(currentView))
@@ -200,6 +220,8 @@ namespace TLMG.Client.ViewModels
             _matchConnection.MatchViewChanged -= OnMatchViewChanged;
             _matchConnection.MatchErrorReceived -= OnMatchErrorReceived;
             _matchConnection.MatchAvailabilityChanged -= OnMatchAvailabilityChanged;
+            _matchConnection.RecoveryStateChanged -= OnRecoveryStateChanged;
+            _recoveryDisplayTimer.Stop();
             _chatMessages.Clear();
             _previousChallengeView = null;
             Notification = null;
@@ -208,6 +230,7 @@ namespace TLMG.Client.ViewModels
         protected override void OnDisposed()
         {
             Deactivate();
+            _recoveryDisplayTimer.Tick -= UpdateRecoveryDisplay;
             base.OnDisposed();
         }
 
@@ -232,6 +255,21 @@ namespace TLMG.Client.ViewModels
             {
                 _dialogs.ShowError(NotInMatchErrorKey);
             }
+        }
+
+        private void OnRecoveryStateChanged(object sender, EventArgs args)
+        {
+            UpdateRecoveryDisplay(sender, args);
+            _placeCardCommand.NotifyCanExecuteChanged();
+            _choosePunishmentCommand.NotifyCanExecuteChanged();
+            _revealCardCommand.NotifyCanExecuteChanged();
+            RefreshBetCommands();
+        }
+
+        private void UpdateRecoveryDisplay(object sender, EventArgs args)
+        {
+            RecoveryMessage = IsRealMatchAuthorized() ? MatchRecoveryText.Describe(_matchConnection) : string.Empty;
+            OnPropertyChanged(nameof(CanRetryRecovery));
         }
 
         private void ShowBoardOf(MatchView matchView)
@@ -300,6 +338,7 @@ namespace TLMG.Client.ViewModels
 
             _previousChallengeView = view;
             ShowBoardOf(view);
+            UpdateRecoveryDisplay(this, EventArgs.Empty);
             ShowFinishedMatch(view);
         }
 
@@ -324,7 +363,10 @@ namespace TLMG.Client.ViewModels
 
         private void OnMatchErrorReceived(object sender, ServerEventArgs<string> eventArgs)
         {
-            _dialogs.ShowError(eventArgs.Payload);
+            if (!_matchConnection.IsMatchRecoveryPending && !_matchConnection.IsMatchRecoveryExhausted)
+            {
+                _dialogs.ShowError(eventArgs.Payload);
+            }
         }
 
         private bool IsRealMatchAuthorized()
@@ -341,17 +383,19 @@ namespace TLMG.Client.ViewModels
             if (_matchConnection.IsMatchSubscribed)
             {
                 IsMatchUnavailable = false;
+                _previousChallengeView = _matchConnection.CurrentMatchView;
+                ShowBoardOf(_previousChallengeView);
             }
             else
             {
                 IsMatchUnavailable = true;
                 _previousChallengeView = null;
                 Notification = null;
-                Board = MatchBoardHelper.CreateEmptyBoard();
-                OnPropertyChanged(nameof(CurrentRoundNumber));
-                OnPropertyChanged(nameof(PhaseLabelKey));
-                OnPropertyChanged(nameof(HasMatchView));
-                OnPropertyChanged(nameof(CurrentBidAmount));
+                if (!IsCurrentMatch(_matchConnection.CurrentMatchView))
+                {
+                    Board = MatchBoardHelper.CreateEmptyBoard();
+                    OnPropertyChanged(nameof(HasMatchView));
+                }
             }
 
             _placeCardCommand.NotifyCanExecuteChanged();
@@ -379,7 +423,7 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecutePlaceBet()
         {
-            return _matchConnection.IsMatchSubscribed && Board.CanPlaceBet
+            return _matchConnection.CanSendGameplayAction && Board.CanPlaceBet
                 && BidAmount >= Board.MinimumBetValue && BidAmount <= Board.MaximumBetValue;
         }
 
@@ -390,7 +434,7 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecuteWithdrawBet()
         {
-            return _matchConnection.IsMatchSubscribed && Board.CanWithdrawFromBet;
+            return _matchConnection.CanSendGameplayAction && Board.CanWithdrawFromBet;
         }
 
         private void ExecuteWithdrawBet()
@@ -420,7 +464,7 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecuteRevealCard(MatchPlayerEntry player)
         {
-            return player != null && player.PileCardCount > 0 && _matchConnection.IsMatchSubscribed && Board.CanRevealCard;
+            return player != null && player.PileCardCount > 0 && _matchConnection.CanSendGameplayAction && Board.CanRevealCard;
         }
 
         private void ExecuteRevealCard(MatchPlayerEntry player)
@@ -430,7 +474,7 @@ namespace TLMG.Client.ViewModels
 
         private bool CanChoosePunishment(HandCardEntry card)
         {
-            return card != null && _matchConnection.IsMatchSubscribed && Board.CanChoosePunishment;
+            return card != null && _matchConnection.CanSendGameplayAction && Board.CanChoosePunishment;
         }
 
         private void ExecuteChoosePunishment(HandCardEntry card)
@@ -445,7 +489,7 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecutePlaceCard(HandCardEntry handCard)
         {
-            bool canPlaceCard = handCard != null && _board.CanPlaceCards && _matchConnection.IsMatchSubscribed;
+            bool canPlaceCard = handCard != null && _board.CanPlaceCards && _matchConnection.CanSendGameplayAction;
 
             return canPlaceCard;
         }
@@ -478,6 +522,7 @@ namespace TLMG.Client.ViewModels
 
         private void OnChatAvailabilityChanged(object sender, EventArgs eventArgs)
         {
+            OnPropertyChanged(nameof(IsChatUnavailable));
             _sendChatCommand.NotifyCanExecuteChanged();
         }
 

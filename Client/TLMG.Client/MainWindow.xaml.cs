@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using log4net;
@@ -21,6 +22,7 @@ namespace TLMG.Client
         private static readonly ILog _log = LogManager.GetLogger(typeof(MainWindow));
 
         private readonly HashSet<Guid> _enteredMatchIds = new HashSet<Guid>();
+        private Guid? _displayedMatchId;
 
         public MainWindow(MainWindowViewModel mainWindowViewModel)
         {
@@ -31,6 +33,8 @@ namespace TLMG.Client
             ServerConnection.AcceptInvitationResultReceived += OnAcceptInvitationResultReceived;
             ServerConnection.EnterLobbyResultReceived += OnEnterLobbyResultReceived;
             ServerConnection.LobbyRoomChanged += OnAuthorizedRoomChanged;
+            ServerConnection.MatchRecoveryReady += OnMatchRecoveryReady;
+            ServerConnection.MatchContextEnded += OnMatchContextEnded;
             ServerConnection.ChatErrorReceived += OnChatErrorReceived;
             Closed += OnMainWindowClosed;
             LoadingScreen loadingScreen = new LoadingScreen();
@@ -61,6 +65,8 @@ namespace TLMG.Client
         {
             ServerConnection.ChatErrorReceived -= OnChatErrorReceived;
             ServerConnection.LobbyRoomChanged -= OnAuthorizedRoomChanged;
+            ServerConnection.MatchRecoveryReady -= OnMatchRecoveryReady;
+            ServerConnection.MatchContextEnded -= OnMatchContextEnded;
             ServerConnection.ConnectionLost -= OnServerConnectionLost;
             ServerConnection.RoomInvitationReceived -= OnRoomInvitationReceived;
             ServerConnection.AcceptInvitationResultReceived -= OnAcceptInvitationResultReceived;
@@ -71,11 +77,16 @@ namespace TLMG.Client
         {
             LoadingScreen loadingScreen = (LoadingScreen)sender;
             loadingScreen.LoadingCompleted -= OnLoadingCompleted;
-            Navigation.NavigateToWithoutHistory(ScreenId.Login);
+            if (ReferenceEquals(Navigation.CurrentView, loadingScreen))
+            {
+                Navigation.NavigateToWithoutHistory(ScreenId.Login);
+            }
         }
 
         private void OnServerConnectionLost(object sender, EventArgs eventArguments)
         {
+            _enteredMatchIds.Clear();
+            _displayedMatchId = null;
             Navigation.NavigateToWithoutHistory(ScreenId.Login);
             Navigation.ClearHistory();
             MessageBox.Show(TryFindResource(ConnectionLostMessageKey) as string);
@@ -140,7 +151,8 @@ namespace TLMG.Client
             bool isKnownMode = hasMatch && (room.CardsPerPlayerCount == 4 || room.CardsPerPlayerCount == 6
                 || room.CardsPerPlayerCount == 8);
 
-            if (isAuthorized && isKnownMode && _enteredMatchIds.Add(room.MatchId.Value))
+            if (!ServerConnection.IsMatchRecoveryPending && !ServerConnection.IsMatchRecoveryExhausted
+                && isAuthorized && isKnownMode && _enteredMatchIds.Add(room.MatchId.Value))
             {
                 NavigateToAuthorizedMatch(room);
             }
@@ -148,12 +160,57 @@ namespace TLMG.Client
 
         private void NavigateToAuthorizedMatch(LobbyRoom room)
         {
+            _displayedMatchId = room.MatchId;
             Navigation.ClearHistory();
             if (room.CardsPerPlayerCount == 8)
             {
                 Navigation.NavigateToWithoutHistory(ScreenId.FugitiveKitten, room.MatchId.Value);
             }
             else if (room.CardsPerPlayerCount == 4 || room.CardsPerPlayerCount == 6)
+            {
+                Navigation.NavigateToWithoutHistory(ScreenId.Gameplay);
+            }
+        }
+
+        private void OnMatchContextEnded(object sender, EventArgs args)
+        {
+            _displayedMatchId = null;
+            Navigation.ClearHistory();
+            Navigation.NavigateToWithoutHistory(ScreenId.MainMenu);
+        }
+
+        private void OnMatchRecoveryReady(object sender, ServerEventArgs<MatchView> args)
+        {
+            MatchView view = args.Payload;
+            if (view == null || ServerConnection.CurrentRoom?.MatchId != view.MatchId
+                || !ServerConnection.IsMatchSubscribed)
+            {
+                return;
+            }
+
+            bool sameMatch = _displayedMatchId == view.MatchId;
+            _enteredMatchIds.Add(view.MatchId);
+            _displayedMatchId = view.MatchId;
+            Navigation.ClearHistory();
+            if (view.Phase == MatchRoundPhase.MatchFinished)
+            {
+                if (!sameMatch || !(Navigation.CurrentView is GameOverScreen))
+                {
+                    Navigation.NavigateToWithoutHistory(ScreenId.GameOver, view);
+                }
+                return;
+            }
+
+            bool isSpectator = (view.Players ?? Array.Empty<MatchPlayerView>()).Any(
+                player => player.UserId == ServerConnection.PlayerUserId && player.IsEliminated);
+            if (!isSpectator && view.FugitiveKitten?.Result == FugitiveKittenResult.InProgress)
+            {
+                if (!sameMatch || !(Navigation.CurrentView is FugitiveKittenScreen))
+                {
+                    Navigation.NavigateToWithoutHistory(ScreenId.FugitiveKitten, view.MatchId);
+                }
+            }
+            else if (!sameMatch || !(Navigation.CurrentView is GameplayScreen))
             {
                 Navigation.NavigateToWithoutHistory(ScreenId.Gameplay);
             }
