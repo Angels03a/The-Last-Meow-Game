@@ -1,14 +1,9 @@
 using System.Windows;
 using System.Windows.Controls;
-
 using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
-    /// <summary>
-    /// Vista de la pantalla de amigos. Solo alterna las pestañas, que es lógica visual; la lista de amigos, las
-    /// solicitudes y el envío viven en <see cref="FriendsViewModel"/>.
-    /// </summary>
     public partial class FriendsScreen : LocalizableScreen
     {
         private const int TabIndexFriends = 0;
@@ -22,10 +17,6 @@ namespace TLMG.Client.Views
         private readonly FriendsViewModel _viewModel;
         private TabViews[] _tabViews;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="FriendsScreen"/> con su ViewModel.
-        /// </summary>
-        /// <param name="friendsViewModel">ViewModel que la fábrica de pantallas crea e inyecta.</param>
         public FriendsScreen(FriendsViewModel friendsViewModel)
         {
             InitializeComponent();
@@ -88,9 +79,6 @@ namespace TLMG.Client.Views
             }
         }
 
-        /// <summary>
-        /// Agrupa los elementos de la interfaz asociados a una pestaña de navegación.
-        /// </summary>
         private sealed class TabViews
         {
             public TabViews(UIElement content, Button tabButton, Border badgeBorder)

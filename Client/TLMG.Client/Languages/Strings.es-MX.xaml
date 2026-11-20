@@ -457,7 +457,7 @@
     <sys:String x:Key="ChangePassword_CurrentPasswordLabel">Contraseña actual</sys:String>
     <sys:String x:Key="ChangePassword_NewPasswordLabel">Nueva contraseña</sys:String>
     <sys:String x:Key="ChangePassword_RequirementsHeader">REQUISITOS DE CONTRASEÑA</sys:String>
-    <sys:String x:Key="ChangePassword_HintLength">• Al menos 8 caracteres (se recomiendan 12 o más)</sys:String>
+    <sys:String x:Key="ChangePassword_HintLength">• Al menos 12 caracteres (se recomiendan 12 o más)</sys:String>
     <sys:String x:Key="ChangePassword_HintUppercase">• Al menos una letra mayúscula</sys:String>
     <sys:String x:Key="ChangePassword_HintLowercase">• Al menos una letra minúscula</sys:String>
     <sys:String x:Key="ChangePassword_HintNumber">• Al menos un número</sys:String>
@@ -470,6 +470,14 @@
     <sys:String x:Key="Profile_AvatarNotValidError">El avatar seleccionado no es válido.</sys:String>
     <sys:String x:Key="Profile_NetworkError">Error de red. Por favor, inténtalo de nuevo más tarde.</sys:String>
     <sys:String x:Key="Profile_DataModelError">No se pudo actualizar el perfil. Inténtalo de nuevo más tarde.</sys:String>
+    <sys:String x:Key="ChangePassword_IncompleteFieldsError">Por favor, revise que todos los campos obligatorios estén llenos</sys:String>
+    <sys:String x:Key="ChangePassword_PolicyError">Su nueva contraseña debe tener al menos 12 caracteres, entre ellos al menos una minúscula, una mayúscula, un número y un símbolo</sys:String>
+    <sys:String x:Key="ChangePassword_MismatchError">Las contraseñas no coinciden</sys:String>
+    <sys:String x:Key="ChangePassword_CurrentPasswordError">La contraseña actual es incorrecta</sys:String>
+    <sys:String x:Key="ChangePassword_SamePasswordError">La nueva contraseña debe ser distinta de la actual</sys:String>
+    <sys:String x:Key="ChangePassword_SuccessMessage">Contraseña actualizada correctamente</sys:String>
+    <sys:String x:Key="Password_NetworkError">Error de red. Por favor, inténtalo de nuevo más tarde.</sys:String>
+    <sys:String x:Key="Password_DataModelError">No se pudo completar la operación. Inténtalo de nuevo más tarde.</sys:String>
     <sys:String x:Key="Match_FugitiveKittenInProgressError">La partida comenzará cuando termine el minijuego.</sys:String>
     <sys:String x:Key="FugitiveKitten_Unavailable">Conexión de partida no disponible.</sys:String>
     <sys:String x:Key="FugitiveKitten_Waiting">Esperando el resultado del servidor…</sys:String>

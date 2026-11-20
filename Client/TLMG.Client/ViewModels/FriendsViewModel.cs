@@ -1,8 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-
 using CommunityToolkit.Mvvm.Input;
-
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
 using TLMG.Client.Navigation;
@@ -10,11 +8,6 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>
-    /// ViewModel de la pantalla de amigos: lista de amigos con su presencia, solicitudes de amistad pendientes
-    /// (enviar, aceptar y rechazar) e invitación de un amigo en línea a la sala. El invitado no tiene amigos: ve un
-    /// solo mensaje y ningún control de envío. Escucha los eventos del servidor solo entre Activate y Deactivate.
-    /// </summary>
     public class FriendsViewModel : ViewModelBase
     {
         private const string UnexpectedErrorKey = "Common_UnexpectedError";
@@ -38,11 +31,6 @@ namespace TLMG.Client.ViewModels
         private bool _isEmptyPendingVisible;
         private bool _isBusy;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="FriendsViewModel"/>.
-        /// </summary>
-        /// <param name="friendsConnection">Área de amigos de la conexión con el servidor.</param>
-        /// <param name="navigationManager">Administrador de navegación.</param>
         public FriendsViewModel(IFriendsConnection friendsConnection, INavigationManager navigationManager)
         {
             _friendsConnection = friendsConnection;
@@ -63,7 +51,6 @@ namespace TLMG.Client.ViewModels
             RefreshLists();
         }
 
-        /// <summary>Comando para regresar a la pantalla anterior.</summary>
         public ICommand BackCommand { get; }
 
         /// <summary>
@@ -71,29 +58,18 @@ namespace TLMG.Client.ViewModels
         /// </summary>
         public ICommand InviteFriendCommand { get; }
 
-        /// <summary>Comando para enviar una solicitud de amistad al nickname capturado.</summary>
         public ICommand AddFriendCommand => _addFriendCommand;
 
-        /// <summary>
-        /// Comando para aceptar una solicitud recibida; el parámetro es el <see cref="FriendRequestEntry"/>.
-        /// </summary>
         public ICommand AcceptRequestCommand => _acceptRequestCommand;
 
-        /// <summary>
-        /// Comando para rechazar una solicitud recibida; el parámetro es el <see cref="FriendRequestEntry"/>.
-        /// </summary>
         public ICommand DeclineRequestCommand => _declineRequestCommand;
 
-        /// <summary>Lista observable de amigos para la pestaña principal.</summary>
         public ObservableCollection<FriendEntry> FriendsList { get; }
 
-        /// <summary>Lista observable de solicitudes pendientes, recibidas y enviadas.</summary>
         public ObservableCollection<FriendRequestEntry> PendingRequests { get; }
 
-        /// <summary>Mensaje temporal de éxito o error de las operaciones de la pantalla.</summary>
         public StatusMessage FriendsMessage { get; }
 
-        /// <summary>Nickname capturado para enviar una solicitud de amistad.</summary>
         public string NewFriendNickname
         {
             get { return _newFriendNickname; }
@@ -107,24 +83,18 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>Total de amigos para la insignia de la pestaña.</summary>
         public string FriendsBadgeCount
         {
             get { return _friendsBadgeCount; }
             private set { SetProperty(ref _friendsBadgeCount, value); }
         }
 
-        /// <summary>Total de solicitudes pendientes para la insignia de la pestaña.</summary>
         public string PendingBadgeCount
         {
             get { return _pendingBadgeCount; }
             private set { SetProperty(ref _pendingBadgeCount, value); }
         }
 
-        /// <summary>
-        /// Indica si hay un jugador registrado; solo él ve los controles de envío y la pestaña de pendientes. Si es
-        /// falso, la pantalla muestra el mensaje del invitado.
-        /// </summary>
         public bool IsRegisteredPlayer
         {
             get { return _isRegisteredPlayer; }
@@ -139,27 +109,23 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>Indica si la sesión es de invitado (inverso de <see cref="IsRegisteredPlayer"/>).</summary>
         public bool IsGuest
         {
             get { return !_isRegisteredPlayer; }
         }
 
-        /// <summary>Indica si se muestra el mensaje de que el jugador registrado aún no tiene amigos.</summary>
         public bool IsEmptyFriendsVisible
         {
             get { return _isEmptyFriendsVisible; }
             private set { SetProperty(ref _isEmptyFriendsVisible, value); }
         }
 
-        /// <summary>Indica si se muestra el mensaje de que no hay solicitudes pendientes.</summary>
         public bool IsEmptyPendingVisible
         {
             get { return _isEmptyPendingVisible; }
             private set { SetProperty(ref _isEmptyPendingVisible, value); }
         }
 
-        /// <summary>Indica si hay una solicitud de amistad en curso esperando la respuesta del servidor.</summary>
         public bool IsBusy
         {
             get { return _isBusy; }
@@ -173,10 +139,6 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>
-        /// Empieza a escuchar al servidor, muestra el estado actual y pide la lista de amigos si todavía no llega.
-        /// La vista lo llama al cargarse.
-        /// </summary>
         public void Activate()
         {
             Deactivate();
@@ -198,7 +160,6 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>Deja de escuchar al servidor. La vista lo llama al descargarse.</summary>
         public void Deactivate()
         {
             _friendsConnection.FriendListReceived -= OnFriendListReceived;
@@ -211,9 +172,6 @@ namespace TLMG.Client.ViewModels
             _friendsConnection.DeclineFriendRequestResultReceived -= OnDeclineFriendRequestResultReceived;
         }
 
-        /// <summary>
-        /// Libera las suscripciones y el temporizador del mensaje.
-        /// </summary>
         protected override void OnDisposed()
         {
             Deactivate();

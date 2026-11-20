@@ -3,76 +3,60 @@ using System.Windows.Threading;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>
-    /// Mensaje temporal de estado (error o éxito) que se oculta solo.
-    /// </summary>
     public class StatusMessage : ViewModelBase
     {
+        private const int DefaultDurationMilliseconds = 4000;
+
         private readonly DispatcherTimer _hideTimer;
         private string _text;
         private bool _isError;
         private bool _isVisible;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="StatusMessage"/>.
-        /// </summary>
         public StatusMessage()
         {
             _hideTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(ValidationHelper.StatusMessageDurationMilliseconds)
+                Interval = TimeSpan.FromMilliseconds(DefaultDurationMilliseconds)
             };
             _hideTimer.Tick += OnHideTimerTick;
         }
 
-        /// <summary>
-        /// Texto ya traducido del mensaje.
-        /// </summary>
         public string Text
         {
             get { return _text; }
             private set { SetProperty(ref _text, value); }
         }
 
-        /// <summary>
-        /// Indica si el mensaje es un error; si no, es de éxito.
-        /// </summary>
         public bool IsError
         {
             get { return _isError; }
             private set { SetProperty(ref _isError, value); }
         }
 
-        /// <summary>
-        /// Indica si el mensaje está visible.
-        /// </summary>
         public bool IsVisible
         {
             get { return _isVisible; }
             private set { SetProperty(ref _isVisible, value); }
         }
 
-        /// <summary>
-        /// Muestra un mensaje de error.
-        /// </summary>
-        /// <param name="messageText">Texto traducido.</param>
         public void ShowError(string messageText)
         {
             Show(messageText, true);
         }
 
-        /// <summary>
-        /// Muestra un mensaje de éxito.
-        /// </summary>
-        /// <param name="messageText">Texto traducido.</param>
         public void ShowSuccess(string messageText)
         {
             Show(messageText, false);
         }
 
-        /// <summary>
-        /// Oculta el mensaje y detiene su temporizador.
-        /// </summary>
+        public void ShowPersistentError(string messageText)
+        {
+            _hideTimer.Stop();
+            Text = messageText;
+            IsError = true;
+            IsVisible = true;
+        }
+
         public void Hide()
         {
             _hideTimer.Stop();
@@ -83,6 +67,8 @@ namespace TLMG.Client.ViewModels
         {
             _hideTimer.Stop();
             _hideTimer.Tick -= OnHideTimerTick;
+
+            base.OnDisposed();
         }
 
         private void Show(string messageText, bool isError)

@@ -4,9 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:TLMG.Client.Views"
+             xmlns:behaviors="clr-namespace:TLMG.Client.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="600"
-             d:DesignWidth="900">
+             d:DesignWidth="900"
+             behaviors:WaitCursorBehavior.IsBusy="{Binding IsBusy}">
     <local:LocalizableScreen.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -98,11 +100,13 @@
                             Command="{Binding BackCommand}" />
                 </Border>
 
-                <TextBlock x:Name="lblVerificationError"
+                <TextBlock DataContext="{Binding VerificationMessage}"
+                           Text="{Binding Text}"
                            Style="{StaticResource VerificationErrorTextStyle}" />
 
-                <TextBlock x:Name="lblFormMessage"
-                           Style="{StaticResource FormMessageTextStyle}" />
+                <TextBlock DataContext="{Binding FormMessage}"
+                           Text="{Binding Text}"
+                           Style="{StaticResource VerificationErrorTextStyle}" />
             </StackPanel>
         </Border>
     </Grid>

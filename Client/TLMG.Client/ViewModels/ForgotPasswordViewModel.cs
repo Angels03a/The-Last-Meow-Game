@@ -1,17 +1,14 @@
-using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Windows.Input;
 using System.Windows.Threading;
+using CommunityToolkit.Mvvm.Input;
 using TLMG.Client.Communication;
 using TLMG.Client.Navigation;
 using TLMG.Client.UsersManagerReference;
+using TLMG.Client.Validation;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>
-    /// ViewModel de la pantalla de recuperación de contraseña: valida el correo, avisa que se enviará un código y
-    /// pasa a la verificación con el flujo de recuperación (BL-143).
-    /// </summary>
     public class ForgotPasswordViewModel : ViewModelBase
     {
         private const string ScreenResourcePrefix = "ForgotPassword";
@@ -28,11 +25,6 @@ namespace TLMG.Client.ViewModels
         private bool _isBusy;
         private DispatcherTimer _redirectTimer;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="ForgotPasswordViewModel"/>.
-        /// </summary>
-        /// <param name="navigationManager">Administrador de navegación.</param>
-        /// <param name="passwordConnection">Conexión con el servicio de contraseñas.</param>
         public ForgotPasswordViewModel(INavigationManager navigationManager, IPasswordConnection passwordConnection)
         {
             _navigationManager = navigationManager;
@@ -45,26 +37,20 @@ namespace TLMG.Client.ViewModels
             _backCommand = new RelayCommand(ExecuteBack, CanExecuteBack);
         }
 
-        /// <summary>Comando que valida el correo y solicita el envío del código de recuperación.</summary>
         public ICommand SendCodeCommand => _sendCodeCommand;
 
-        /// <summary>Comando que solicita volver al inicio de sesión.</summary>
         public ICommand BackCommand => _backCommand;
 
-        /// <summary>Mensaje de error asociado al campo de correo electrónico.</summary>
         public StatusMessage EmailError { get; }
 
-        /// <summary>Mensaje general del formulario (éxito o error).</summary>
         public StatusMessage FormMessage { get; }
 
-        /// <summary>Correo electrónico capturado.</summary>
         public string Email
         {
             get { return _email; }
             set { SetProperty(ref _email, value); }
         }
 
-        /// <summary>Indica si hay una operación en curso; deshabilita la interacción si es true.</summary>
         public bool IsBusy
         {
             get { return _isBusy; }
@@ -78,17 +64,13 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>
-        /// Valida el correo de forma aislada; la vista lo llama al perder el foco la caja de correo. Un correo vacío
-        /// no marca error hasta que se intenta enviar el código.
-        /// </summary>
         public void ValidateEmailOnly()
         {
             EmailError.Hide();
 
             if (!string.IsNullOrWhiteSpace(Email))
             {
-                string emailErrorKey = ValidationHelper.GetEmailValidationErrorKey(Email, ScreenResourcePrefix);
+                string emailErrorKey = InputValidator.GetEmailValidationErrorKey(Email, ScreenResourcePrefix);
 
                 if (emailErrorKey != null)
                 {
@@ -97,7 +79,6 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>Detiene el temporizador de redirección y libera los mensajes.</summary>
         protected override void OnDisposed()
         {
             StopRedirectTimer();
@@ -118,7 +99,7 @@ namespace TLMG.Client.ViewModels
             }
             else
             {
-                string emailErrorKey = ValidationHelper.GetEmailValidationErrorKey(Email, ScreenResourcePrefix);
+                string emailErrorKey = InputValidator.GetEmailValidationErrorKey(Email, ScreenResourcePrefix);
 
                 if (emailErrorKey == null)
                 {

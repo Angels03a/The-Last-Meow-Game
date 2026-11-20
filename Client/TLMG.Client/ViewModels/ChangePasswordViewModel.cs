@@ -1,11 +1,11 @@
-﻿using System.Windows.Input;
-
-using CommunityToolkit.Mvvm.Input;
-
+﻿using CommunityToolkit.Mvvm.Input;
+using System.Windows.Input;
 using TLMG.Client.Communication;
+using TLMG.Client.Constants;
 using TLMG.Client.Models;
 using TLMG.Client.Navigation;
 using TLMG.Client.UsersManagerReference;
+using TLMG.Client.Validation;
 
 namespace TLMG.Client.ViewModels
 {
@@ -30,14 +30,6 @@ namespace TLMG.Client.ViewModels
         private string _newPassword;
         private string _confirmNewPassword;
         private bool _isBusy;
-        private string _currentPasswordErrorMessage;
-        private bool _hasCurrentPasswordError;
-        private string _newPasswordErrorMessage;
-        private bool _hasNewPasswordError;
-        private string _confirmNewPasswordErrorMessage;
-        private bool _hasConfirmNewPasswordError;
-        private string _formMessage;
-        private bool _hasFormMessage;
 
         public ChangePasswordViewModel(
             INavigationManager navigation,
@@ -47,6 +39,11 @@ namespace TLMG.Client.ViewModels
             _navigation = navigation;
             _passwordConnection = passwordConnection;
             _profileConnection = profileConnection;
+
+            CurrentPasswordError = new StatusMessage();
+            NewPasswordError = new StatusMessage();
+            ConfirmNewPasswordError = new StatusMessage();
+            FormMessage = new StatusMessage();
 
             _updatePasswordCommand = new RelayCommand(ExecuteUpdatePassword, CanExecuteAction);
             _cancelCommand = new RelayCommand(ExecuteCancel, CanExecuteAction);
@@ -58,6 +55,14 @@ namespace TLMG.Client.ViewModels
         public ICommand CancelCommand => _cancelCommand;
 
         public ICommand BackCommand => _backCommand;
+
+        public StatusMessage CurrentPasswordError { get; }
+
+        public StatusMessage NewPasswordError { get; }
+
+        public StatusMessage ConfirmNewPasswordError { get; }
+
+        public StatusMessage FormMessage { get; }
 
         public string AvatarEmoji
         {
@@ -109,54 +114,6 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        public string CurrentPasswordErrorMessage
-        {
-            get { return _currentPasswordErrorMessage; }
-            private set { SetProperty(ref _currentPasswordErrorMessage, value); }
-        }
-
-        public bool HasCurrentPasswordError
-        {
-            get { return _hasCurrentPasswordError; }
-            private set { SetProperty(ref _hasCurrentPasswordError, value); }
-        }
-
-        public string NewPasswordErrorMessage
-        {
-            get { return _newPasswordErrorMessage; }
-            private set { SetProperty(ref _newPasswordErrorMessage, value); }
-        }
-
-        public bool HasNewPasswordError
-        {
-            get { return _hasNewPasswordError; }
-            private set { SetProperty(ref _hasNewPasswordError, value); }
-        }
-
-        public string ConfirmNewPasswordErrorMessage
-        {
-            get { return _confirmNewPasswordErrorMessage; }
-            private set { SetProperty(ref _confirmNewPasswordErrorMessage, value); }
-        }
-
-        public bool HasConfirmNewPasswordError
-        {
-            get { return _hasConfirmNewPasswordError; }
-            private set { SetProperty(ref _hasConfirmNewPasswordError, value); }
-        }
-
-        public string FormMessage
-        {
-            get { return _formMessage; }
-            private set { SetProperty(ref _formMessage, value); }
-        }
-
-        public bool HasFormMessage
-        {
-            get { return _hasFormMessage; }
-            private set { SetProperty(ref _hasFormMessage, value); }
-        }
-
         public void Activate()
         {
             OperationPlayerProfileResult profileResult = _profileConnection.GetPlayerProfile();
@@ -169,8 +126,18 @@ namespace TLMG.Client.ViewModels
             }
             else
             {
-                ShowFormMessage(profileResult.ErrorKey);
+                FormMessage.ShowError(LanguageManager.FindText(profileResult.ErrorKey));
             }
+        }
+
+        protected override void OnDisposed()
+        {
+            CurrentPasswordError.Dispose();
+            NewPasswordError.Dispose();
+            ConfirmNewPasswordError.Dispose();
+            FormMessage.Dispose();
+
+            base.OnDisposed();
         }
 
         private void ExecuteUpdatePassword()
@@ -192,7 +159,7 @@ namespace TLMG.Client.ViewModels
             if (changeResult.IsSuccess)
             {
                 ClearPasswords();
-                ShowFormMessage(SuccessMessageKey);
+                FormMessage.ShowSuccess(LanguageManager.FindText(SuccessMessageKey));
             }
             else
             {
@@ -205,24 +172,22 @@ namespace TLMG.Client.ViewModels
             bool areFieldsFilled = !string.IsNullOrWhiteSpace(CurrentPassword)
                 && !string.IsNullOrWhiteSpace(NewPassword)
                 && !string.IsNullOrWhiteSpace(ConfirmNewPassword);
-            bool isPasswordStrong = ValidationHelper.CalculatePasswordStrength(NewPassword)
-                >= ValidationHelper.RequiredPasswordStrengthScore;
+            bool isPasswordStrong = InputValidator.CalculatePasswordStrength(NewPassword)
+                >= ValidationConstants.RequiredPasswordStrengthScore;
             bool doPasswordsMatch = NewPassword == ConfirmNewPassword;
             bool isFormValid = false;
 
             if (!areFieldsFilled)
             {
-                ShowFormMessage(IncompleteFieldsErrorKey);
+                FormMessage.ShowError(LanguageManager.FindText(IncompleteFieldsErrorKey));
             }
             else if (!isPasswordStrong)
             {
-                NewPasswordErrorMessage = LanguageManager.FindText(PolicyErrorKey);
-                HasNewPasswordError = true;
+                NewPasswordError.ShowError(LanguageManager.FindText(PolicyErrorKey));
             }
             else if (!doPasswordsMatch)
             {
-                ConfirmNewPasswordErrorMessage = LanguageManager.FindText(MismatchErrorKey);
-                HasConfirmNewPasswordError = true;
+                ConfirmNewPasswordError.ShowError(LanguageManager.FindText(MismatchErrorKey));
             }
             else
             {
@@ -238,33 +203,24 @@ namespace TLMG.Client.ViewModels
 
             if (errorKey == ServerErrorKeys.CurrentPasswordIncorrect)
             {
-                CurrentPasswordErrorMessage = errorMessage;
-                HasCurrentPasswordError = true;
+                CurrentPasswordError.ShowError(errorMessage);
             }
             else if (errorKey == ServerErrorKeys.PolicyNotMet || errorKey == ServerErrorKeys.SamePassword)
             {
-                NewPasswordErrorMessage = errorMessage;
-                HasNewPasswordError = true;
+                NewPasswordError.ShowError(errorMessage);
             }
             else
             {
-                FormMessage = errorMessage;
-                HasFormMessage = true;
+                FormMessage.ShowError(errorMessage);
             }
-        }
-
-        private void ShowFormMessage(string messageKey)
-        {
-            FormMessage = LanguageManager.FindText(messageKey);
-            HasFormMessage = true;
         }
 
         private void ClearMessages()
         {
-            HasCurrentPasswordError = false;
-            HasNewPasswordError = false;
-            HasConfirmNewPasswordError = false;
-            HasFormMessage = false;
+            CurrentPasswordError.Hide();
+            NewPasswordError.Hide();
+            ConfirmNewPasswordError.Hide();
+            FormMessage.Hide();
         }
 
         private void ClearPasswords()

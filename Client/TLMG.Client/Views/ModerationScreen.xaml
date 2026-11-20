@@ -71,6 +71,7 @@
                                        Style="{StaticResource ModerationOptionalLabelTextStyle}" />
                         </StackPanel>
                         <TextBox x:Name="txtReportDetails"
+                                 MaxLength="250"
                                  Tag="{DynamicResource Moderation_DetailsPlaceholder}"
                                  Style="{StaticResource ModerationDetailsInputStyle}" />
 
