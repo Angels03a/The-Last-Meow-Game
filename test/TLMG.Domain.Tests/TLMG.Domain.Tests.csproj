@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountFieldValidatorTests.cs" />
+    <Compile Include="AvatarCatalogTests.cs" />
     <Compile Include="CardsPerPlayerValidatorTests.cs" />
     <Compile Include="ChatValidatorTests.cs" />
     <Compile Include="FinalStandingsExitTests.cs" />
@@ -40,7 +41,10 @@
     <Compile Include="MatchStatePunishmentExitTests.cs" />
     <Compile Include="MatchStatePunishmentSuspensionTests.cs" />
     <Compile Include="MatchStateTests.cs" />
+    <Compile Include="PasswordChangeValidatorTests.cs" />
     <Compile Include="PlayerAccountRegistrationValidatorTests.cs" />
+    <Compile Include="PlayerLogInValidatorTests.cs" />
+    <Compile Include="PlayerProfileValidatorTests.cs" />
     <Compile Include="PlayerExitTests.cs" />
     <Compile Include="TestAssembly.cs" />
   </ItemGroup>
