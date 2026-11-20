@@ -60,6 +60,7 @@
     <Compile Include="SessionRegistryMatchPlayAuthorizationTests.cs" />
     <Compile Include="SessionRegistryMatchPlayTests.cs" />
     <Compile Include="SessionRegistryFugitiveKittenTests.cs" />
+    <Compile Include="PasswordChangeServiceTests.cs" />
     <Compile Include="PasswordHasherTests.cs" />
     <Compile Include="PlayerAccountRegistrationServiceTests.cs" />
     <Compile Include="PlayerLogInServiceTests.cs" />
