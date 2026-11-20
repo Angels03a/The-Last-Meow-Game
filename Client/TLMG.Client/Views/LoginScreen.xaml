@@ -45,7 +45,7 @@
             <ColumnDefinition Width="420" />
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Column="0" Background= "{StaticResource Brush_BackgroundDark}">
+        <Grid Grid.Column="0" Background="{StaticResource Brush_BackgroundDark}">
             <Ellipse Style="{StaticResource HeroBackgroundGlowStyle}" />
 
             <StackPanel Style="{StaticResource HeroContentPanelStyle}"
@@ -92,54 +92,59 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0"
-                            Content="{DynamicResource Login_TabLogIn}"
-                            Style="{StaticResource TabButtonActiveStyle}" />
+                                Content="{DynamicResource Login_TabLogIn}"
+                                Style="{StaticResource TabButtonActiveStyle}" />
                         <Button Grid.Column="1"
-                            Content="{DynamicResource Login_TabCreateAccount}"
-                            Style="{StaticResource TabButtonInactiveStyle}"
-                            Command="{Binding CreateAccountCommand}" />
+                                Content="{DynamicResource Login_TabCreateAccount}"
+                                Style="{StaticResource TabButtonInactiveStyle}"
+                                Command="{Binding CreateAccountCommand}" />
                     </Grid>
 
                     <TextBlock Text="{DynamicResource Login_EmailLabel}"
-                           Style="{StaticResource FieldLabelTextStyle}"
-                           Margin="0,0,0,6" />
+                               Style="{StaticResource FieldLabelTextStyle}"
+                               Margin="0,0,0,6" />
                     <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource FieldStyle}" />
+                             MaxLength="254"
+                             behaviors:TextInputBehavior.InputType="Email"
+                             Style="{StaticResource FieldStyle}" />
                     <TextBlock DataContext="{Binding EmailError}"
-                           Text="{Binding Text}"
-                           Style="{StaticResource StatusMessageTextStyle}" />
+                               Text="{Binding Text}"
+                               Style="{StaticResource StatusMessageTextStyle}" />
 
                     <TextBlock Text="{DynamicResource Login_PasswordLabel}"
-                           Style="{StaticResource FieldLabelTextStyle}" />
+                               Style="{StaticResource FieldLabelTextStyle}" />
                     <Grid>
-                        <PasswordBox Style="{StaticResource FieldStyle}"
-                                 Visibility="{Binding IsPasswordHidden,
-                                     Converter={StaticResource BooleanToVisibilityConverter}}"
-                                 behaviors:PasswordBindingBehavior.BindPassword="True"
-                                 behaviors:PasswordBindingBehavior.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <PasswordBox MaxLength="64"
+                                     Style="{StaticResource FieldStyle}"
+                                     Visibility="{Binding IsPasswordHidden,
+                                         Converter={StaticResource BooleanToVisibilityConverter}}"
+                                     behaviors:PasswordBindingBehavior.BindPassword="True"
+                                     behaviors:PasswordBindingBehavior.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBox Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource FieldStyle}"
-                             Visibility="{Binding IsPasswordVisible,
-                                 Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                 MaxLength="64"
+                                 behaviors:TextInputBehavior.InputType="PasswordVisible"
+                                 Style="{StaticResource FieldStyle}"
+                                 Visibility="{Binding IsPasswordVisible,
+                                     Converter={StaticResource BooleanToVisibilityConverter}}" />
                         <Button Content="●"
-                            Style="{StaticResource PasswordToggleButtonStyle}"
-                            ToolTip="{DynamicResource Login_ShowPasswordHint}"
-                            Command="{Binding TogglePasswordVisibilityCommand}" />
+                                Style="{StaticResource PasswordToggleButtonStyle}"
+                                ToolTip="{DynamicResource Login_ShowPasswordHint}"
+                                Command="{Binding TogglePasswordVisibilityCommand}" />
                     </Grid>
 
                     <Button Style="{StaticResource RightAlignedLinkButtonStyle}"
-                        Command="{Binding ForgotPasswordCommand}">
+                            Command="{Binding ForgotPasswordCommand}">
                         <TextBlock Text="{DynamicResource Login_ForgotPassword}"
-                               TextDecorations="Underline" />
+                                   TextDecorations="Underline" />
                     </Button>
 
                     <Button Content="{DynamicResource Login_LogInButton}"
-                        Style="{StaticResource AuthenticationPrimaryButtonStyle}"
-                        Command="{Binding LogInCommand}" />
+                            Style="{StaticResource AuthenticationPrimaryButtonStyle}"
+                            Command="{Binding LogInCommand}" />
 
                     <Button Content="{DynamicResource Login_PlayAsGuestButton}"
-                        Style="{StaticResource AuthenticationSecondaryButtonStyle}"
-                        Command="{Binding PlayAsGuestCommand}" />
+                            Style="{StaticResource AuthenticationSecondaryButtonStyle}"
+                            Command="{Binding PlayAsGuestCommand}" />
 
                     <Button Content="{DynamicResource Recovery_Retry}"
                             Style="{StaticResource AuthenticationSecondaryButtonStyle}"
@@ -147,8 +152,8 @@
                             Visibility="{Binding CanRetryRecovery, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                     <TextBlock DataContext="{Binding FormMessage}"
-                           Text="{Binding Text}"
-                           Style="{StaticResource StatusMessageTextStyle}" />
+                               Text="{Binding Text}"
+                               Style="{StaticResource StatusMessageTextStyle}" />
                 </StackPanel>
 
                 <StackPanel Grid.Row="1"

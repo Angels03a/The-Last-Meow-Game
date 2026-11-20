@@ -1,12 +1,11 @@
-using System.Windows;
-using TLMG.Client.ViewModels;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Documents;
 using TLMG.Client.Models;
+using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
-    /// <summary>Presentación visual de moderación.</summary>
     public partial class ModerationScreen : LocalizableScreen
     {
         private const string BlockIntroKey = "Moderation_BlockIntroLabel";
@@ -23,10 +22,8 @@ namespace TLMG.Client.Views
         private const string WordSeparator = " ";
         private const int FirstReasonIndex = 0;
 
-
         private readonly ModerationViewModel _viewModel;
 
-        /// <summary>Inicializa la vista con su ViewModel.</summary>
         public ModerationScreen(ModerationViewModel viewModel)
         {
             InitializeComponent();
@@ -62,14 +59,17 @@ namespace TLMG.Client.Views
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;
             RefreshVisualState();
         }
+
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
             _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
         }
+
         private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             RefreshVisualState();
         }
+
         private void RefreshVisualState()
         {
             ApplyMode(_viewModel.Mode);
@@ -110,12 +110,10 @@ namespace TLMG.Client.Views
             lblSuccessMessage.Text = successMessage;
         }
 
-
         private Style FindStyle(string styleKey)
         {
             Style foundStyle = (Style)FindResource(styleKey);
             return foundStyle;
         }
-
     }
 }

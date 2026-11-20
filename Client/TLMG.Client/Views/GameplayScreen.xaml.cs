@@ -8,9 +8,6 @@ using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
-    /// <summary>
-    /// Pantalla de partida. Muestra el estado del ViewModel y resuelve el menú contextual y la navegación.
-    /// </summary>
     public partial class GameplayScreen : LocalizableScreen
     {
         private const string RoundPhaseFormatKey = "Gameplay_RoundPhaseFormat";
@@ -21,9 +18,6 @@ namespace TLMG.Client.Views
 
         private readonly GameplayViewModel _viewModel;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="GameplayScreen"/>.
-        /// </summary>
         public GameplayScreen(GameplayViewModel viewModel)
         {
             InitializeComponent();
@@ -103,7 +97,7 @@ namespace TLMG.Client.Views
         private void OnKickVoteRequested(object sender, EventArgs e)
         {
             HidePlayerContextMenu();
-            // TODO (BL-161): Iniciar la votación de expulsión del jugador seleccionado.
+            // TODO (BL-161): Start the kick vote for the selected player.
         }
 
         private void ShowPlayerContextMenu(Point clickPosition)

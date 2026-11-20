@@ -9,12 +9,8 @@ using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
-    /// <summary>
-    /// Representa la pantalla de verificación mediante código numérico de 6 dígitos enviado por correo.
-    /// </summary>
     public partial class VerificationScreen : LocalizableScreen
     {
-        private const bool IsErrorMessage = true;
         private const int FirstIndex = 0;
         private const int NextOffset = 1;
         private const int PreviousOffset = 1;
@@ -25,7 +21,6 @@ namespace TLMG.Client.Views
 
         private const string ResendButtonFormat = "{0} ({1:00}s)";
         private const string ResendButtonKey = "Verification_ResendCodeButton";
-        private const string SuccessMessageKey = "Verification_SuccessMessage";
         private const string ErrorBrushKey = "Brush_Error";
         private const string EmptyDotBrushKey = "Brush_Border";
 
@@ -36,11 +31,6 @@ namespace TLMG.Client.Views
         private readonly Ellipse[] _attemptEllipses;
         private readonly DispatcherTimer _countdownTimer;
 
-        /// <summary>
-        /// Inicializa la pantalla de verificación con un ViewModel por defecto.
-        /// </summary>
-        /// <param name="onVerifiedCallbackAction">Acción al verificar el código correctamente.</param>
-        /// <param name="onBackCallbackAction">Acción al regresar a la pantalla anterior.</param>
         public VerificationScreen(
             Action onVerifiedCallbackAction,
             Action onBackCallbackAction)
@@ -48,12 +38,6 @@ namespace TLMG.Client.Views
         {
         }
 
-        /// <summary>
-        /// Inicializa la pantalla de verificación con su ViewModel y sus acciones de navegación.
-        /// </summary>
-        /// <param name="viewModel">ViewModel de verificación inyectado por la fábrica de pantallas.</param>
-        /// <param name="onVerifiedCallbackAction">Acción al verificar el código correctamente.</param>
-        /// <param name="onBackCallbackAction">Acción al regresar a la pantalla anterior.</param>
         public VerificationScreen(
             VerificationViewModel viewModel,
             Action onVerifiedCallbackAction,
@@ -73,13 +57,7 @@ namespace TLMG.Client.Views
             _countdownTimer.Tick += OnCountdownTimerTick;
 
             _viewModel = viewModel;
-            _viewModel.VerificationSucceeded += OnVerificationSucceeded;
-            _viewModel.BackRequested += OnBackRequested;
-            _viewModel.MessagesChanged += OnMessagesChanged;
-            _viewModel.AttemptsChanged += OnAttemptsChanged;
-            _viewModel.DigitsCleared += OnDigitsCleared;
-            _viewModel.CountdownStateChanged += OnCountdownStateChanged;
-            _viewModel.CountdownUpdated += OnCountdownUpdated;
+            SubscribeViewModelEvents();
             DataContext = _viewModel;
 
             Unloaded += OnScreenUnloaded;
@@ -93,6 +71,28 @@ namespace TLMG.Client.Views
             UpdateResendButtonContent();
         }
 
+        private void SubscribeViewModelEvents()
+        {
+            UnsubscribeViewModelEvents();
+
+            _viewModel.VerificationSucceeded += OnVerificationSucceeded;
+            _viewModel.BackRequested += OnBackRequested;
+            _viewModel.AttemptsChanged += OnAttemptsChanged;
+            _viewModel.DigitsCleared += OnDigitsCleared;
+            _viewModel.CountdownStateChanged += OnCountdownStateChanged;
+            _viewModel.CountdownUpdated += OnCountdownUpdated;
+        }
+
+        private void UnsubscribeViewModelEvents()
+        {
+            _viewModel.VerificationSucceeded -= OnVerificationSucceeded;
+            _viewModel.BackRequested -= OnBackRequested;
+            _viewModel.AttemptsChanged -= OnAttemptsChanged;
+            _viewModel.DigitsCleared -= OnDigitsCleared;
+            _viewModel.CountdownStateChanged -= OnCountdownStateChanged;
+            _viewModel.CountdownUpdated -= OnCountdownUpdated;
+        }
+
         private void DigitBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             TextBox currentDigitTextBox = (TextBox)sender;
@@ -100,8 +100,6 @@ namespace TLMG.Client.Views
 
             bool isBoxFilled = currentDigitTextBox.Text.Length == SingleDigitLength;
             bool hasNextBox = currentIndex < _digitTextBoxes.Length - NextOffset;
-
-            lblFormMessage.Visibility = Visibility.Hidden;
 
             if (isBoxFilled && hasNextBox)
             {
@@ -155,28 +153,8 @@ namespace TLMG.Client.Views
             _digitTextBoxes[FirstIndex].Focus();
         }
 
-        private void OnMessagesChanged(object sender, EventArgs e)
-        {
-            lblFormMessage.Visibility = Visibility.Hidden;
-            lblVerificationError.Visibility = Visibility.Hidden;
-
-            if (_viewModel.FormErrorKey != null)
-            {
-                ShowPersistentErrorMessage(_viewModel.FormErrorKey);
-            }
-
-            if (_viewModel.VerificationErrorKey != null)
-            {
-                ShowStatusMessage(
-                    lblVerificationError,
-                    FindMessage(_viewModel.VerificationErrorKey),
-                    IsErrorMessage);
-            }
-        }
-
         private void OnVerificationSucceeded(object sender, EventArgs e)
         {
-            ShowStatusMessage(lblFormMessage, FindMessage(SuccessMessageKey), !IsErrorMessage);
             _onVerifiedCallbackAction?.Invoke();
         }
 
@@ -188,6 +166,7 @@ namespace TLMG.Client.Views
         private void OnScreenUnloaded(object sender, RoutedEventArgs e)
         {
             _countdownTimer.Stop();
+            UnsubscribeViewModelEvents();
         }
 
         private void UpdateResendButtonContent()
@@ -225,17 +204,9 @@ namespace TLMG.Client.Views
             }
         }
 
-        private void ShowPersistentErrorMessage(string errorKey)
-        {
-            lblFormMessage.Text = FindMessage(errorKey);
-            lblFormMessage.Foreground = (Brush)FindResource(ErrorBrushKey);
-            lblFormMessage.Visibility = Visibility.Visible;
-        }
-
         private string FindMessage(string resourceKey)
         {
             string localizedMessage = TryFindResource(resourceKey) as string ?? resourceKey;
-
             return localizedMessage;
         }
     }

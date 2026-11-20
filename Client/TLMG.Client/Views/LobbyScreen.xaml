@@ -26,17 +26,17 @@
                                HorizontalAlignment="Center"
                                Margin="0,0,0,16"
                                FontFamily="Segoe UI Emoji"
-                               Foreground="{StaticResource Brush_TextPrimary}"/>
+                               Foreground="{StaticResource Brush_TextPrimary}" />
                     <TextBlock Text="{DynamicResource Lobby_KickModalTitle}"
                                Style="{StaticResource TitleMediumTextStyle}"
                                HorizontalAlignment="Center"
-                               Margin="0,0,0,16"/>
+                               Margin="0,0,0,16" />
                     <TextBlock Text="{DynamicResource Lobby_KickModalDescription}"
                                Style="{StaticResource SubtitleTextStyle}"
                                HorizontalAlignment="Center"
                                Margin="0,0,0,32"
                                TextWrapping="Wrap"
-                               TextAlignment="Center"/>
+                               TextAlignment="Center" />
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -66,7 +66,7 @@
                            Margin="0,0,12,0"
                            VerticalAlignment="Center"
                            FontFamily="Segoe UI Emoji"
-                           Foreground="{StaticResource Brush_TextPrimary}"/>
+                           Foreground="{StaticResource Brush_TextPrimary}" />
                 <TextBlock Text="{DynamicResource Lobby_KickToastMessage}"
                            Style="{StaticResource StatusTextOnlineStyle}"
                            Foreground="{StaticResource Brush_White}"
@@ -83,14 +83,14 @@
                            Style="{StaticResource TitleMediumTextStyle}"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,16"
-                           Foreground="{StaticResource Brush_Gold}"/>
+                           Foreground="{StaticResource Brush_Gold}" />
                 <TextBlock Text="{Binding CountdownSecondsRemaining}"
                            FontSize="120"
                            FontWeight="Black"
                            Foreground="{StaticResource Brush_White}"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,48"
-                           Visibility="{Binding HasCountdownSeconds, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                           Visibility="{Binding HasCountdownSeconds, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 <TextBlock Text="{DynamicResource Lobby_CountdownWaitingLabel}"
                            FontSize="32"
                            FontWeight="Black"
@@ -181,18 +181,18 @@
                             <StackPanel Grid.Column="0" HorizontalAlignment="Center">
                                 <TextBlock Text=""
                                            Style="{StaticResource ProfileStatValueStyle}"
-                                           Foreground="{StaticResource Brush_Gold}"/>
+                                           Foreground="{StaticResource Brush_Gold}" />
                                 <TextBlock Text="{DynamicResource Common_Wins}"
                                            Style="{StaticResource StatCardLabelStyle}"
-                                           HorizontalAlignment="Center"/>
+                                           HorizontalAlignment="Center" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center">
                                 <TextBlock Text=""
                                            Style="{StaticResource ProfileStatValueStyle}"
-                                           Foreground="{StaticResource Brush_LilacLight}"/>
+                                           Foreground="{StaticResource Brush_LilacLight}" />
                                 <TextBlock Text="{DynamicResource Common_Rank}"
                                            Style="{StaticResource StatCardLabelStyle}"
-                                           HorizontalAlignment="Center"/>
+                                           HorizontalAlignment="Center" />
                             </StackPanel>
                         </Grid>
 
@@ -233,14 +233,15 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="{DynamicResource Lobby_MainTitle}"
                                    Style="{StaticResource TitleMediumTextStyle}"
-                                   Margin="0,0,0,4"/>
+                                   Margin="0,0,0,4" />
                         <TextBlock Text="{Binding RoomInformation}"
                                    Style="{StaticResource SubtitleTextStyle}" />
                     </StackPanel>
 
                     <Button Grid.Column="2"
                             Style="{StaticResource LobbyToggleReadyButtonStyle}"
-                            MinWidth="160" Height="48"
+                            MinWidth="160"
+                            Height="48"
                             Margin="16,0,0,0"
                             Command="{Binding ToggleReadyCommand}" />
 
@@ -283,7 +284,9 @@
                                     </Border>
                                     <TextBlock x:Name="lblPlayerReadiness"
                                                Text="{DynamicResource Lobby_StatusNotReady}"
-                                               HorizontalAlignment="Center" Margin="0,0,0,8" />
+                                               Style="{StaticResource StatusTextNotReadyStyle}"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,0,0,8" />
                                     <TextBlock Text="{Binding Nickname}"
                                                Style="{StaticResource FriendNameTextStyle}"
                                                HorizontalAlignment="Center" />
@@ -355,7 +358,8 @@
                                  IsEnabled="{Binding IsChatEnabled}"
                                  PreviewTextInput="OnChatPreviewTextInput"
                                  DataObject.Pasting="OnChatPasting"
-                                 AcceptsReturn="False" AcceptsTab="False">
+                                 AcceptsReturn="False"
+                                 AcceptsTab="False">
                             <TextBox.InputBindings>
                                 <KeyBinding Key="Enter" Command="{Binding SendChatCommand}" />
                             </TextBox.InputBindings>

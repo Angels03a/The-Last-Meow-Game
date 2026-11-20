@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:TLMG.Client.Views"
              xmlns:models="clr-namespace:TLMG.Client.Models"
+             xmlns:behaviors="clr-namespace:TLMG.Client.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="720"
              d:DesignWidth="1280">
@@ -221,6 +222,8 @@
                                 <TextBox Grid.Column="0"
                                          Style="{StaticResource ProfileEditNicknameTextBoxStyle}"
                                          Text="{Binding EditingNickname, UpdateSourceTrigger=PropertyChanged}"
+                                         MaxLength="20"
+                                         behaviors:TextInputBehavior.InputType="Nickname"
                                          Margin="0,0,16,0" />
                                 <Button Grid.Column="1"
                                         Style="{StaticResource ProfileSaveNicknameButtonStyle}"

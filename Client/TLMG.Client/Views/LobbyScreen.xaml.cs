@@ -3,33 +3,20 @@ using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-
-using TLMG.Client.Communication;
+using TLMG.Client.Constants;
+using TLMG.Client.Validation;
 using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
-    /// <summary>
-    /// Vista de la sala previa a la partida (lobby). Solo conserva lógica visual: el filtro de caracteres de la caja
-    /// del chat, el desplazamiento del chat y los controles de expulsión que siguen ocultos (BL-082, BL-161). La
-    /// sala, el estado Listo, las cartas por jugador, la cuenta regresiva y el chat viven en
-    /// <see cref="LobbyViewModel"/>.
-    /// </summary>
     public partial class LobbyScreen : LocalizableScreen
     {
         private const int ToastDurationMilliseconds = 3000;
-
         private const string MenuKickVotedKey = "Lobby_MenuKickVoted";
 
         private readonly LobbyViewModel _viewModel;
         private readonly DispatcherTimer _toastTimer;
 
-        private bool _hasVotedToKick;
-
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="LobbyScreen"/> con su ViewModel.
-        /// </summary>
-        /// <param name="lobbyViewModel">ViewModel que la fábrica de pantallas crea e inyecta.</param>
         public LobbyScreen(LobbyViewModel lobbyViewModel)
         {
             InitializeComponent();
@@ -37,15 +24,13 @@ namespace TLMG.Client.Views
             _viewModel = lobbyViewModel;
             DataContext = lobbyViewModel;
 
-            _hasVotedToKick = false;
-
             _toastTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromMilliseconds(ToastDurationMilliseconds)
             };
             _toastTimer.Tick += OnToastTimerTick;
 
-            txtChatInput.MaxLength = ChatInputHelper.MaximumMessageCharacters;
+            txtChatInput.MaxLength = ValidationConstants.MaximumChatMessageLength;
 
             Loaded += OnScreenLoaded;
             Unloaded += OnScreenUnloaded;
@@ -101,7 +86,6 @@ namespace TLMG.Client.Views
             grdKickModal.Visibility = Visibility.Collapsed;
             grdMainCenter.IsEnabled = true;
 
-            _hasVotedToKick = true;
             btnMenuKick.Content = TryFindResource(MenuKickVotedKey) as string;
             btnMenuKick.IsEnabled = false;
 
@@ -124,7 +108,7 @@ namespace TLMG.Client.Views
         {
             string proposedText = txtChatInput.Text.Remove(txtChatInput.SelectionStart, txtChatInput.SelectionLength);
             proposedText = proposedText.Insert(txtChatInput.SelectionStart, insertedText);
-            bool canInsert = ChatInputHelper.CanEnterText(proposedText);
+            bool canInsert = InputValidator.CanEnterChatText(proposedText);
 
             return canInsert;
         }

@@ -3,15 +3,13 @@ using System;
 using System.Windows.Input;
 using System.Windows.Threading;
 using TLMG.Client.Communication;
+using TLMG.Client.Constants;
 using TLMG.Client.Navigation;
 using TLMG.Client.UsersManagerReference;
+using TLMG.Client.Validation;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>
-    /// ViewModel de la pantalla de nueva contraseña: valida la política y la coincidencia, calcula la fuerza y
-    /// navega con el administrador de navegación. Todavía no envía la contraseña al servidor.
-    /// </summary>
     public class NewPasswordViewModel : ViewModelBase
     {
         private const int VeryWeakScore = 1;
@@ -50,11 +48,9 @@ namespace TLMG.Client.ViewModels
         private bool _isBusy;
         private DispatcherTimer _redirectTimer;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="NewPasswordViewModel"/>.
-        /// </summary>
-        /// <param name="navigationManager">Administrador de navegación.</param>
-        public NewPasswordViewModel(INavigationManager navigationManager, IPasswordConnection passwordConnection,
+        public NewPasswordViewModel(
+            INavigationManager navigationManager,
+            IPasswordConnection passwordConnection,
             NewPasswordNavigationParameter navigationParameter)
         {
             _navigationManager = navigationManager;
@@ -69,24 +65,16 @@ namespace TLMG.Client.ViewModels
             _backCommand = new RelayCommand(ExecuteBack, CanExecuteBack);
         }
 
-        /// <summary>Comando que valida las contraseñas y solicita guardar la nueva.</summary>
         public ICommand SetPasswordCommand => _setPasswordCommand;
 
-        /// <summary>Comando que solicita volver a la pantalla de contraseña olvidada.</summary>
         public ICommand BackCommand => _backCommand;
 
-        /// <summary>Mensaje de error de la política de contraseña.</summary>
         public StatusMessage PasswordError { get; }
 
-        /// <summary>Mensaje de error de la coincidencia de las contraseñas.</summary>
         public StatusMessage ConfirmPasswordError { get; }
 
-        /// <summary>Mensaje general del formulario (éxito o error).</summary>
         public StatusMessage FormMessage { get; }
 
-        /// <summary>
-        /// Nueva contraseña capturada.
-        /// </summary>
         public string NewPassword
         {
             get { return _newPassword; }
@@ -99,43 +87,30 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>
-        /// Confirmación de la contraseña capturada.
-        /// </summary>
         public string ConfirmPassword
         {
             get { return _confirmPassword; }
             set { SetProperty(ref _confirmPassword, value); }
         }
 
-        /// <summary>
-        /// Fuerza de la contraseña actual, de 0 a 5.
-        /// </summary>
         public int PasswordStrengthScore
         {
             get { return _passwordStrengthScore; }
             private set { SetProperty(ref _passwordStrengthScore, value); }
         }
 
-        /// <summary>
-        /// Clave de recurso de la etiqueta de fuerza; null si la contraseña está vacía.
-        /// </summary>
         public string StrengthLabelKey
         {
             get { return _strengthLabelKey; }
             private set { SetProperty(ref _strengthLabelKey, value); }
         }
 
-        /// <summary>
-        /// Clave de recurso del pincel del indicador de fuerza; null si la contraseña está vacía.
-        /// </summary>
         public string StrengthBrushKey
         {
             get { return _strengthBrushKey; }
             private set { SetProperty(ref _strengthBrushKey, value); }
         }
 
-        /// <summary>Indica si la contraseña se aceptó y se espera la redirección; bloquea los comandos.</summary>
         public bool IsBusy
         {
             get { return _isBusy; }
@@ -149,7 +124,6 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        /// <summary>Detiene el temporizador de redirección y libera los mensajes.</summary>
         protected override void OnDisposed()
         {
             StopRedirectTimer();
@@ -214,7 +188,7 @@ namespace TLMG.Client.ViewModels
             bool hasNewPassword = !string.IsNullOrWhiteSpace(NewPassword);
             bool hasConfirmation = !string.IsNullOrWhiteSpace(ConfirmPassword);
             bool areFieldsFilled = hasNewPassword && hasConfirmation;
-            bool isPasswordStrong = PasswordStrengthScore >= ValidationHelper.RequiredPasswordStrengthScore;
+            bool isPasswordStrong = PasswordStrengthScore >= ValidationConstants.RequiredPasswordStrengthScore;
             bool doPasswordsMatch = NewPassword == ConfirmPassword;
             bool isFormValid = false;
 
@@ -240,7 +214,7 @@ namespace TLMG.Client.ViewModels
 
         private void UpdatePasswordStrength()
         {
-            int strengthScore = ValidationHelper.CalculatePasswordStrength(NewPassword);
+            int strengthScore = InputValidator.CalculatePasswordStrength(NewPassword);
 
             StrengthLabelKey = GetStrengthLabelKey(strengthScore);
             StrengthBrushKey = GetStrengthBrushKey(strengthScore);
@@ -330,6 +304,7 @@ namespace TLMG.Client.ViewModels
         private void OnRedirectTimerTick(object sender, EventArgs eventArgs)
         {
             StopRedirectTimer();
+            IsBusy = false;
             _navigationManager.NavigateToWithoutHistory(ScreenId.Login);
             _navigationManager.ClearHistory();
         }
