@@ -59,8 +59,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Accounts\AccountVerificationDispatcher.cs" />
+    <Compile Include="Accounts\PasswordChangeService.cs" />
+    <Compile Include="Accounts\PasswordRecoveryService.cs" />
+    <Compile Include="Accounts\PasswordResetDispatcher.cs" />
     <Compile Include="Accounts\PlayerProfileService.cs" />
     <Compile Include="ServiceDependencies.cs" />
+    <Compile Include="ServiceImplementation.PasswordManager.cs" />
     <Compile Include="Sessions\ChatReservation.cs" />
     <Compile Include="Sessions\ChatSubmission.cs" />
     <Compile Include="Sessions\ISessionIdentityProvider.cs" />

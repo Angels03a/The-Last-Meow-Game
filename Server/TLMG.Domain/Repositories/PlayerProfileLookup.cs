@@ -1,4 +1,6 @@
-﻿namespace TLMG.Domain.Repositories
+﻿using System;
+
+namespace TLMG.Domain.Repositories
 {
     public class PlayerProfileLookup
     {
@@ -9,5 +11,7 @@
         public string Email { get; set; }
 
         public string AvatarKey { get; set; }
+
+        public DateTime PasswordChangedAtUtc { get; set; }
     }
 }

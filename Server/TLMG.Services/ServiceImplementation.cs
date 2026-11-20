@@ -31,6 +31,8 @@ namespace TLMG.Services
         private static LeaderboardService _leaderboardService;
         private static LobbyService _lobbyService;
         private static MatchService _matchService;
+        private static PasswordChangeService _passwordChangeService;
+        private static PasswordRecoveryService _passwordRecoveryService;
 
         public static void ConfigureDependencies(ServiceDependencies serviceDependencies)
         {
@@ -43,6 +45,8 @@ namespace TLMG.Services
             _leaderboardService = serviceDependencies.LeaderboardService;
             _lobbyService = serviceDependencies.LobbyService;
             _matchService = serviceDependencies.MatchService;
+            _passwordChangeService = serviceDependencies.PasswordChangeService;
+            _passwordRecoveryService = serviceDependencies.PasswordRecoveryService;
         }
 
         private static TResult CreateFailedOperationResult<TResult>(string errorKey)

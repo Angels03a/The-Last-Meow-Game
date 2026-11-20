@@ -68,6 +68,7 @@
     <Compile Include="Communication\IMatchConnection.cs" />
     <Compile Include="Communication\MatchViewVersionHelper.cs" />
     <Compile Include="Communication\ServerConnectionManager.Match.cs" />
+    <Compile Include="Communication\IPasswordConnection.cs" />
     <Compile Include="Communication\IProfileConnection.cs" />
     <Compile Include="Communication\LobbyCountdown.cs" />
     <Compile Include="Communication\ServerConnectionManager.Accounts.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Communication\ServerConnectionManager.FriendRequests.cs" />
     <Compile Include="Communication\ServerConnectionManager.Leaderboard.cs" />
     <Compile Include="Communication\ServerConnectionManager.Lobby.cs" />
+    <Compile Include="Communication\ServerConnectionManager.Password.cs" />
     <Compile Include="Communication\ServerConnectionManager.Profile.cs" />
     <Compile Include="Communication\ServerConnectionManager.Readiness.cs" />
     <Compile Include="Communication\ServerConnectionManager.Chat.cs" />
@@ -116,6 +118,7 @@
     <Compile Include="Navigation\IScreenFactory.cs" />
     <Compile Include="Navigation\ModerationNavigationParameter.cs" />
     <Compile Include="Navigation\NavigationManager.cs" />
+    <Compile Include="Navigation\NewPasswordNavigationParameter.cs" />
     <Compile Include="Navigation\ScreenEntry.cs" />
     <Compile Include="Navigation\ScreenFactory.cs" />
     <Compile Include="Navigation\ScreenId.cs" />
@@ -352,6 +355,12 @@
     </None>
     <None Include="Connected Services\UsersManagerReference\service2.xsd">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\UsersManagerReference\TLMG.Client.UsersManagerReference.LogOutResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Connected Services\UsersManagerReference\TLMG.Client.UsersManagerReference.OperationRecoveryContextResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Connected Services\UsersManagerReference\TLMG.Client.UsersManagerReference.OperationLogInResult.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>

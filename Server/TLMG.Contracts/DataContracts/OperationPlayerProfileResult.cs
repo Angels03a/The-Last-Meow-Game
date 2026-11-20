@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
 {
@@ -16,5 +17,8 @@ namespace TLMG.Contracts.DataContracts
 
         [DataMember]
         public string AvatarKey { get; set; }
+
+        [DataMember]
+        public DateTime PasswordChangedAtUtc { get; set; }
     }
 }

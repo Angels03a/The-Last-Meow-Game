@@ -44,5 +44,14 @@ namespace TLMG.Client.Navigation
         /// Correo electrónico al que se envió el código de verificación.
         /// </summary>
         public string TargetEmail { get; }
+
+        public VerificationNavigationParameter(VerificationFlow verificationFlow, string targetEmail)
+        {
+            VerificationFlow = verificationFlow;
+            TargetEmail = targetEmail;
+        }
+
+        /// <summary>Code accepted by the server; the recovery flow carries it to the new-password screen.</summary>
+        public string VerifiedCode { get; set; }
     }
 }

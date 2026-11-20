@@ -88,7 +88,7 @@ namespace TLMG.Services.Utilities
             return result;
         }
 
-        private static string ComputeCodeHash(string plainCode)
+        public static string ComputeCodeHash(string plainCode)
         {
             string computedHash;
 
@@ -107,6 +107,40 @@ namespace TLMG.Services.Utilities
             }
 
             return computedHash;
+        }
+
+        public bool SavePasswordResetCode(int userId, string plainCode)
+        {
+            DateTime nowUtc = DateTime.UtcNow;
+            VerificationCodeRecord record = new VerificationCodeRecord
+            {
+                UserId = userId,
+                PendingId = null,
+                CodeHash = ComputeCodeHash(plainCode),
+                Type = VerificationCodeType.PasswordReset,
+                GeneratedAtUtc = nowUtc,
+                ExpiresAtUtc = nowUtc.AddMinutes(CodeExpirationMinutes)
+            };
+
+            bool wasCodeSaved = _verificationCodeRepository.SaveCode(record);
+
+            return wasCodeSaved;
+        }
+
+        public VerificationCodeValidationResult ValidatePasswordResetCode(int userId, string plainCode)
+        {
+            VerificationCodeRecord recordToValidate = new VerificationCodeRecord
+            {
+                UserId = userId,
+                PendingId = null,
+                Type = VerificationCodeType.PasswordReset,
+                CodeHash = ComputeCodeHash(plainCode)
+            };
+
+            VerificationCodeValidationResult validationResult =
+                _verificationCodeRepository.ValidateCode(recordToValidate, DateTime.UtcNow);
+
+            return validationResult;
         }
     }
 }

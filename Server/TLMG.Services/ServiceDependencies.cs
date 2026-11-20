@@ -1,4 +1,4 @@
-﻿using TLMG.Services.Accounts;
+using TLMG.Services.Accounts;
 using TLMG.Services.Chat;
 using TLMG.Services.Friends;
 using TLMG.Services.Leaderboard;
@@ -22,5 +22,7 @@ namespace TLMG.Services
         public LeaderboardService LeaderboardService { get; set; }
         public LobbyService LobbyService { get; set; }
         public MatchService MatchService { get; set; }
+        public PasswordChangeService PasswordChangeService { get; set; }
+        public PasswordRecoveryService PasswordRecoveryService { get; set; }
     }
 }

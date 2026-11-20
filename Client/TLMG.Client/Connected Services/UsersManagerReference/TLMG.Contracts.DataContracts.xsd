@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
   <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
@@ -69,6 +69,7 @@
           <xs:element minOccurs="0" name="AvatarKey" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="PasswordChangedAtUtc" type="xs:dateTime" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -327,7 +328,7 @@
       <xs:element minOccurs="0" name="PlayerInTurnUserId" type="xs:int" />
       <xs:element minOccurs="0" name="Players" nillable="true" type="tns:ArrayOfMatchPlayerView" />
       <xs:element minOccurs="0" name="Punishment" nillable="true" type="tns:MatchPunishmentView" />
-      <xs:element minOccurs="0" name="ReconnectDeadlinesUtc" nillable="true" xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" type="q1:ArrayOfKeyValueOfintdateTime" />
+      <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="ReconnectDeadlinesUtc" nillable="true" type="q1:ArrayOfKeyValueOfintdateTime" />
       <xs:element minOccurs="0" name="RoundNumber" type="xs:int" />
       <xs:element minOccurs="0" name="ServerTimeUtc" type="xs:dateTime" />
       <xs:element minOccurs="0" name="Version" type="xs:int" />
@@ -478,4 +479,20 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="MatchPunishmentView" nillable="true" type="tns:MatchPunishmentView" />
+  <xs:complexType name="OperationChangePasswordRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CurrentPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="NewPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SessionToken" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationChangePasswordRequest" nillable="true" type="tns:OperationChangePasswordRequest" />
+  <xs:complexType name="OperationResetPasswordRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="NewPassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="VerificationCode" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OperationResetPasswordRequest" nillable="true" type="tns:OperationResetPasswordRequest" />
 </xs:schema>

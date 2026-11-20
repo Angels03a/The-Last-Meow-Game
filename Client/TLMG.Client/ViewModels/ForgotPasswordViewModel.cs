@@ -1,10 +1,10 @@
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Windows.Input;
 using System.Windows.Threading;
-
-using CommunityToolkit.Mvvm.Input;
-
+using TLMG.Client.Communication;
 using TLMG.Client.Navigation;
+using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
@@ -20,6 +20,7 @@ namespace TLMG.Client.ViewModels
         private const int RedirectDelayMilliseconds = 500;
 
         private readonly INavigationManager _navigationManager;
+        private readonly IPasswordConnection _passwordConnection;
         private readonly RelayCommand _sendCodeCommand;
         private readonly RelayCommand _backCommand;
 
@@ -31,9 +32,11 @@ namespace TLMG.Client.ViewModels
         /// Inicializa una nueva instancia de la clase <see cref="ForgotPasswordViewModel"/>.
         /// </summary>
         /// <param name="navigationManager">Administrador de navegación.</param>
-        public ForgotPasswordViewModel(INavigationManager navigationManager)
+        /// <param name="passwordConnection">Conexión con el servicio de contraseñas.</param>
+        public ForgotPasswordViewModel(INavigationManager navigationManager, IPasswordConnection passwordConnection)
         {
             _navigationManager = navigationManager;
+            _passwordConnection = passwordConnection;
 
             EmailError = new StatusMessage();
             FormMessage = new StatusMessage();
@@ -134,12 +137,23 @@ namespace TLMG.Client.ViewModels
             return canSendCode;
         }
 
-        // TODO: Pedir al servidor el envío real del código de recuperación; hoy solo se simula. (BL-007).
         private void SendRecoveryCode()
         {
             IsBusy = true;
-            FormMessage.ShowSuccess(LanguageManager.FindText(CodeSentMessageKey));
-            StartRedirectTimer();
+            OperationResult requestResult = _passwordConnection.RequestPasswordResetCode(
+                Email.Trim(),
+                LanguageManager.CurrentCulture);
+
+            if (requestResult.IsSuccess)
+            {
+                FormMessage.ShowSuccess(LanguageManager.FindText(CodeSentMessageKey));
+                StartRedirectTimer();
+            }
+            else
+            {
+                IsBusy = false;
+                FormMessage.ShowError(LanguageManager.FindText(requestResult.ErrorKey));
+            }
         }
 
         private void ExecuteBack()
@@ -181,7 +195,7 @@ namespace TLMG.Client.ViewModels
             IsBusy = false;
             _navigationManager.NavigateTo(
                 ScreenId.Verification,
-                new VerificationNavigationParameter(VerificationFlow.PasswordRecovery));
+                new VerificationNavigationParameter(VerificationFlow.PasswordRecovery, Email.Trim()));
         }
     }
 }

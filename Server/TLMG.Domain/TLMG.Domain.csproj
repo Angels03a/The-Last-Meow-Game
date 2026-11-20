@@ -88,10 +88,14 @@
     <Compile Include="Repositories\FriendshipWriteStatus.cs" />
     <Compile Include="Repositories\IChatMessageRepository.cs" />
     <Compile Include="Repositories\IFriendshipRepository.cs" />
+    <Compile Include="Repositories\IPasswordRepository.cs" />
     <Compile Include="Repositories\IPlayerProfileRepository.cs" />
     <Compile Include="Repositories\IPlayerRepository.cs" />
     <Compile Include="Repositories\IVerificationCodeRepository.cs" />
     <Compile Include="Repositories\LeaderboardLookup.cs" />
+    <Compile Include="Repositories\PasswordChangeStatus.cs" />
+    <Compile Include="Repositories\PasswordHashLookup.cs" />
+    <Compile Include="Repositories\PasswordResetStatus.cs" />
     <Compile Include="Repositories\PendingFriendRequest.cs" />
     <Compile Include="Repositories\PendingFriendRequestsLookup.cs" />
     <Compile Include="Repositories\PendingRegistrationRecord.cs" />
@@ -109,6 +113,7 @@
     <Compile Include="Repositories\VerificationCodeRecord.cs" />
     <Compile Include="Validators\ChatValidator.cs" />
     <Compile Include="Validators\FriendNicknameValidator.cs" />
+    <Compile Include="Validators\PasswordChangeValidator.cs" />
     <Compile Include="Validators\PlayerAccountRegistrationValidator.cs" />
     <Compile Include="Validators\PlayerLoginValidator.cs" />
     <Compile Include="Validators\PlayerProfileValidator.cs" />

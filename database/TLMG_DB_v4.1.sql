@@ -79,6 +79,7 @@ CREATE TABLE dbo.[User]
     id_user         INT IDENTITY(1,1) NOT NULL,
     email           VARCHAR(254)      NOT NULL,
     password_hash   VARCHAR(255)      NOT NULL,
+    password_changed_at DATETIME2(3)  NOT NULL CONSTRAINT DF_User_password_changed DEFAULT (SYSUTCDATETIME()),
     nickname        VARCHAR(12)       NOT NULL,
     state           VARCHAR(30)       NOT NULL
         CONSTRAINT DF_User_state DEFAULT ('USER_ACTIVE'),
@@ -379,6 +380,97 @@ GO
    ============================================================================ */
 
 /* ---- 4.1 Alta de cuenta y 2FA (BL-006, BL-094) ---------------------------- */
+
+/* Password changes and verified reset codes. */
+CREATE PROCEDURE [dbo].[ChangePassword]
+    @id_user      INT,
+    @current_hash VARCHAR(255),
+    @new_hash     VARCHAR(255),
+    @now_utc      DATETIME2(3)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    DECLARE @status VARCHAR(20) = NULL;
+
+    UPDATE dbo.[User]
+    SET password_hash = @new_hash, password_changed_at = @now_utc
+    WHERE id_user = @id_user AND password_hash = @current_hash;
+
+    IF @@ROWCOUNT = 1
+    BEGIN
+        SET @status = 'Changed';
+    END
+    ELSE IF EXISTS (SELECT 1 FROM dbo.[User] WHERE id_user = @id_user)
+    BEGIN
+        SET @status = 'StaleCredentials';
+    END
+    ELSE
+    BEGIN
+        SET @status = 'UserNotFound';
+    END
+
+    SELECT @status AS status;
+END
+GO
+
+CREATE PROCEDURE [dbo].[ResetPasswordWithVerifiedCode]
+    @email             VARCHAR(254),
+    @code_hash         VARCHAR(255),
+    @new_password_hash VARCHAR(255),
+    @now_utc           DATETIME2(3)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    DECLARE @reset_window_minutes INT = 10;
+    DECLARE @status VARCHAR(20) = NULL;
+    DECLARE @id_user INT = NULL;
+    DECLARE @id_code INT = NULL;
+
+    BEGIN TRANSACTION;
+
+    SELECT @id_user = id_user FROM dbo.[User] WITH (UPDLOCK) WHERE email = @email;
+
+    IF @id_user IS NULL
+    BEGIN
+        SET @status = 'UserNotFound';
+    END
+    ELSE
+    BEGIN
+        SELECT TOP (1) @id_code = id_code
+        FROM dbo.Verification_Code WITH (UPDLOCK)
+        WHERE id_user = @id_user
+          AND type = 'CODE_PASSWORD_RESET'
+          AND state = 'CODE_USED'
+          AND code_hash = @code_hash
+          AND DATEADD(MINUTE, @reset_window_minutes, generation_date) >= @now_utc
+        ORDER BY generation_date DESC, id_code DESC;
+
+        IF @id_code IS NULL
+        BEGIN
+            SET @status = 'NoVerifiedCode';
+        END
+        ELSE
+        BEGIN
+            UPDATE dbo.[User]
+            SET password_hash = @new_password_hash, password_changed_at = @now_utc
+            WHERE id_user = @id_user;
+
+            DELETE FROM dbo.Verification_Code
+            WHERE id_user = @id_user AND type = 'CODE_PASSWORD_RESET';
+
+            SET @status = 'Reset';
+        END
+    END
+
+    COMMIT TRANSACTION;
+
+    SELECT @status AS status;
+END
+GO
 
 /* status: Created | EmailTaken | NicknameTaken */
 CREATE PROCEDURE dbo.CreatePendingRegistration
@@ -1146,6 +1238,8 @@ IF DATABASE_PRINCIPAL_ID(N'role_tlmg_app') IS NULL
 GO
 
 /* Procedimientos: la vía normal de escritura. */
+GRANT EXECUTE ON dbo.ChangePassword TO role_tlmg_app;
+GRANT EXECUTE ON dbo.ResetPasswordWithVerifiedCode TO role_tlmg_app;
 GRANT EXECUTE ON dbo.CreatePendingRegistration  TO role_tlmg_app;
 GRANT EXECUTE ON dbo.CreateVerificationCode     TO role_tlmg_app;
 GRANT EXECUTE ON dbo.ValidateVerificationCode   TO role_tlmg_app;

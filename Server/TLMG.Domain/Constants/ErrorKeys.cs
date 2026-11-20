@@ -76,5 +76,13 @@ namespace TLMG.Domain.Constants
             public const string AvatarNotValid = "Profile_AvatarNotValidError";
             public const string DataModel = "Profile_DataModelError";
         }
+        public static class Password
+        {
+            public const string PolicyNotMet = "ChangePassword_PolicyError";
+            public const string CurrentPasswordIncorrect = "ChangePassword_CurrentPasswordError";
+            public const string SamePassword = "ChangePassword_SamePasswordError";
+            public const string EmailFormat = "ForgotPassword_EmailFormatError";
+            public const string DataModel = "Password_DataModelError";
+        }
     }
 }

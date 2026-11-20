@@ -1,4 +1,4 @@
-﻿using TLMG.DataAccess.Repositories;
+using TLMG.DataAccess.Repositories;
 using TLMG.Domain.Repositories;
 using TLMG.Services;
 using TLMG.Services.Accounts;
@@ -49,6 +49,17 @@ namespace TLMG.Server
             LobbyService lobbyService = new LobbyService(sessionRegistry);
 
             MatchService matchService = new MatchService(sessionRegistry);
+            IPasswordRepository passwordRepository = new PasswordRepository();
+
+            PasswordResetDispatcher resetDispatcher =
+                new PasswordResetDispatcher(verificationCodeStore, emailUtility, playerRepository);
+
+            PasswordChangeService passwordChangeService =
+                new PasswordChangeService(passwordRepository, passwordHasher, sessionRegistry);
+
+            PasswordRecoveryService passwordRecoveryService =
+                new PasswordRecoveryService(passwordRepository, passwordHasher, resetDispatcher);
+
             ServiceDependencies dependencies = new ServiceDependencies
             {
                 SessionRegistry = sessionRegistry,
@@ -59,7 +70,9 @@ namespace TLMG.Server
                 FriendsService = friendsService,
                 LeaderboardService = leaderboardService,
                 LobbyService = lobbyService,
-                MatchService = matchService
+                MatchService = matchService,
+                PasswordChangeService = passwordChangeService,
+                PasswordRecoveryService = passwordRecoveryService
             };
 
             ServiceImplementation.ConfigureDependencies(dependencies);
