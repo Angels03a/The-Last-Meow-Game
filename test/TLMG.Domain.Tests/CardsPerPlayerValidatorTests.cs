@@ -1,21 +1,26 @@
-using System;
-
 using Xunit;
 
+using TLMG.Domain.Constants;
 using TLMG.Domain.Validators;
 
 namespace TLMG.Domain.Tests
 {
-    /// <summary>Pruebas de CardsPerPlayerValidator.</summary>
+    /// <summary>
+    /// Tests of CardsPerPlayerValidator. The supported modes (4, 6 and 8 cards per player) are written here on
+    /// purpose and not read from ValidationRules, so that changing a mode in production breaks a test.
+    /// </summary>
     public class CardsPerPlayerValidatorTests
     {
-        /// <summary>Verifica ValidateCardsPerPlayerCount_WithSupportedCount_ReturnsNoError.</summary>
+        /// <summary>The three game modes are accepted.</summary>
+        /// <param name="cardsPerPlayerCount">Cards per player of a supported mode.</param>
         [Theory]
         [InlineData(4)]
         [InlineData(6)]
         [InlineData(8)]
-        public void ValidateCardsPerPlayerCount_WithSupportedCount_ReturnsNoError(int cardsPerPlayerCount)
+        public void ValidateCardsPerPlayerCount_WithSupportedMode_ReturnsNull(int cardsPerPlayerCount)
         {
+            // Arrange
+
             // Act
             string errorKey = CardsPerPlayerValidator.ValidateCardsPerPlayerCount(cardsPerPlayerCount);
 
@@ -23,65 +28,33 @@ namespace TLMG.Domain.Tests
             Assert.Null(errorKey);
         }
 
-        /// <summary>Verifica ValidateCardsPerPlayerCount_WithCountBelowRange_ReturnsError.</summary>
+        /// <summary>
+        /// Any other value is rejected: zero and negatives, the values next to each mode, the ones between modes and
+        /// the extremes of the integer range.
+        /// </summary>
+        /// <param name="cardsPerPlayerCount">Cards per player that is not a supported mode.</param>
         [Theory]
+        [InlineData(int.MinValue)]
+        [InlineData(-4)]
         [InlineData(0)]
         [InlineData(1)]
         [InlineData(3)]
-        [InlineData(-4)]
-        public void ValidateCardsPerPlayerCount_WithCountBelowRange_ReturnsError(int cardsPerPlayerCount)
-        {
-            // Act
-            string errorKey = CardsPerPlayerValidator.ValidateCardsPerPlayerCount(cardsPerPlayerCount);
-
-            // Assert
-            Assert.Equal("Lobby_CardsPerPlayerNotValidError", errorKey);
-        }
-
-        /// <summary>Verifica ValidateCardsPerPlayerCount_WithCountBetweenModes_ReturnsError.</summary>
-        [Theory]
         [InlineData(5)]
         [InlineData(7)]
-        public void ValidateCardsPerPlayerCount_WithCountBetweenModes_ReturnsError(int cardsPerPlayerCount)
-        {
-            // Act
-            string errorKey = CardsPerPlayerValidator.ValidateCardsPerPlayerCount(cardsPerPlayerCount);
-
-            // Assert
-            Assert.Equal("Lobby_CardsPerPlayerNotValidError", errorKey);
-        }
-
-        /// <summary>Verifica ValidateCardsPerPlayerCount_WithCountAboveRange_ReturnsError.</summary>
-        [Theory]
         [InlineData(9)]
         [InlineData(10)]
         [InlineData(48)]
-        public void ValidateCardsPerPlayerCount_WithCountAboveRange_ReturnsError(int cardsPerPlayerCount)
+        [InlineData(int.MaxValue)]
+        public void ValidateCardsPerPlayerCount_WithUnsupportedValue_ReturnsCardsPerPlayerNotValidError(
+            int cardsPerPlayerCount)
         {
+            // Arrange
+
             // Act
             string errorKey = CardsPerPlayerValidator.ValidateCardsPerPlayerCount(cardsPerPlayerCount);
 
             // Assert
-            Assert.Equal("Lobby_CardsPerPlayerNotValidError", errorKey);
-        }
-
-        /// <summary>Verifica ValidateCardsPerPlayerCount_WithExtremeValues_DoesNotThrowAndReturnsError.</summary>
-        [Theory]
-        [InlineData(int.MinValue)]
-        [InlineData(int.MaxValue)]
-        public void ValidateCardsPerPlayerCount_WithExtremeValues_DoesNotThrowAndReturnsError(
-            int cardsPerPlayerCount)
-        {
-            // Arrange
-            string errorKey = null;
-
-            // Act
-            Exception thrown = Record.Exception(
-                () => errorKey = CardsPerPlayerValidator.ValidateCardsPerPlayerCount(cardsPerPlayerCount));
-
-            // Assert
-            Assert.Null(thrown);
-            Assert.Equal("Lobby_CardsPerPlayerNotValidError", errorKey);
+            Assert.Equal(ErrorKeys.Lobby.CardsPerPlayerNotValid, errorKey);
         }
     }
 }

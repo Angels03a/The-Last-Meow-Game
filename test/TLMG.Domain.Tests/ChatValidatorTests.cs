@@ -1,16 +1,26 @@
-using System;
-
 using Xunit;
 
+using TLMG.Domain.Constants;
 using TLMG.Domain.Validators;
 
 namespace TLMG.Domain.Tests
 {
-    /// <summary>Pruebas de ChatValidator.</summary>
+    /// <summary>
+    /// Tests of ChatValidator: only spaces are trimmed, the trimmed text must not be empty, must have at most 160
+    /// characters and may use only the closed list of characters of ValidationRules.ChatAllowedCharacters. The limit
+    /// is written here on purpose and not read from ValidationRules.
+    /// </summary>
     public class ChatValidatorTests
     {
+        private const int MaximumMessageLength = 160;
+        private const string AllowedLetterText = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-        /// <summary>Verifica ValidateText_WithAllowedText_ReturnsNormalizedText.</summary>
+        /// <summary>
+        /// Each character of the closed list is accepted: letters, digits, accented vowels, the letter Ñ, space,
+        /// comma and both question marks. Spaces around the text are removed, the ones inside are kept.
+        /// </summary>
+        /// <param name="text">Text as typed.</param>
+        /// <param name="expectedNormalizedText">Text returned by the validator.</param>
         [Theory]
         [InlineData("a", "a")]
         [InlineData("Z", "Z")]
@@ -30,68 +40,163 @@ namespace TLMG.Domain.Tests
         [InlineData(",", ",")]
         [InlineData("?", "?")]
         [InlineData("¿", "¿")]
+        [InlineData(AllowedLetterText, AllowedLetterText)]
+        [InlineData("0123456789", "0123456789")]
         [InlineData("hola mundo", "hola mundo")]
+        [InlineData("hola   mundo", "hola   mundo")]
         [InlineData("  hola  ", "hola")]
-        public void ValidateText_WithAllowedText_ReturnsNormalizedText(string text, string expected)
+        [InlineData("¿Qué, tal?", "¿Qué, tal?")]
+        public void ValidateText_WithAllowedText_ReturnsNullAndNormalizedText(
+            string text,
+            string expectedNormalizedText)
         {
             // Arrange
-            string normalizedText;
 
             // Act
-            string errorKey = ChatValidator.ValidateText(text, out normalizedText);
+            string errorKey = ChatValidator.ValidateText(text, out string normalizedText);
 
             // Assert
-            Assert.Equal(expected, normalizedText);
+            Assert.Null(errorKey);
+            Assert.Equal(expectedNormalizedText, normalizedText);
         }
 
-        /// <summary>Verifica ValidateText_WithInvalidText_ReturnsError.</summary>
+        /// <summary>A missing text or one with only spaces is empty.</summary>
+        /// <param name="text">Text as typed.</param>
         [Theory]
-        [InlineData(null, "Lobby_ChatEmptyError")]
-        [InlineData("", "Lobby_ChatEmptyError")]
-        [InlineData("   ", "Lobby_ChatEmptyError")]
-        [InlineData("ü", "Lobby_ChatCharactersError")]
-        [InlineData("Ü", "Lobby_ChatCharactersError")]
-        [InlineData("!", "Lobby_ChatCharactersError")]
-        [InlineData("¡", "Lobby_ChatCharactersError")]
-        [InlineData(".", "Lobby_ChatCharactersError")]
-        [InlineData("\t", "Lobby_ChatCharactersError")]
-        [InlineData("\n", "Lobby_ChatCharactersError")]
-        [InlineData("\r", "Lobby_ChatCharactersError")]
-        [InlineData("😀", "Lobby_ChatCharactersError")]
-        [InlineData("á́", "Lobby_ChatCharactersError")]
-        [InlineData("-", "Lobby_ChatCharactersError")]
-        [InlineData("_", "Lobby_ChatCharactersError")]
-        [InlineData("@", "Lobby_ChatCharactersError")]
-        [InlineData("ç", "Lobby_ChatCharactersError")]
-        public void ValidateText_WithInvalidText_ReturnsError(string text, string expected)
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        [InlineData("   ")]
+        public void ValidateText_WithMissingOrOnlySpaces_ReturnsChatEmptyError(string text)
         {
             // Arrange
-            string normalizedText;
 
             // Act
-            string errorKey = ChatValidator.ValidateText(text, out normalizedText);
+            string errorKey = ChatValidator.ValidateText(text, out string normalizedText);
 
             // Assert
-            Assert.Equal(expected, errorKey);
+            Assert.Equal(ErrorKeys.Lobby.ChatEmpty, errorKey);
+            Assert.Null(normalizedText);
         }
 
-        /// <summary>Verifica ValidateText_WithLengthBoundary_ReturnsExpectedError.</summary>
+        /// <summary>
+        /// Any character outside the closed list is rejected, wherever it is: other letters, symbols, control
+        /// characters (only spaces are trimmed, so a tab at the edge counts), emoji and a combining mark.
+        /// </summary>
+        /// <param name="text">Text as typed.</param>
         [Theory]
-        [InlineData(159, null)]
-        [InlineData(160, null)]
-        [InlineData(161, "Lobby_ChatTooLongError")]
-        public void ValidateText_WithLengthBoundary_ReturnsExpectedError(int length, string expected)
+        [InlineData("ü")]
+        [InlineData("Ü")]
+        [InlineData("ç")]
+        [InlineData("!")]
+        [InlineData("¡")]
+        [InlineData(".")]
+        [InlineData("-")]
+        [InlineData("_")]
+        [InlineData("@")]
+        [InlineData("\t")]
+        [InlineData("\n")]
+        [InlineData("\r")]
+        [InlineData("😀")]
+        [InlineData("á́")]
+        [InlineData("\tabc")]
+        [InlineData("abc\n")]
+        [InlineData("hola\nmundo")]
+        [InlineData("hola!")]
+        [InlineData("¡hola")]
+        public void ValidateText_WithCharacterOutsideTheList_ReturnsChatCharactersError(string text)
+        {
+            // Arrange
+
+            // Act
+            string errorKey = ChatValidator.ValidateText(text, out string normalizedText);
+
+            // Assert
+            Assert.Equal(ErrorKeys.Lobby.ChatCharacters, errorKey);
+            Assert.Null(normalizedText);
+        }
+
+        /// <summary>Texts of up to 160 characters are accepted unchanged.</summary>
+        /// <param name="length">Length of the text.</param>
+        [Theory]
+        [InlineData(1)]
+        [InlineData(MaximumMessageLength - 1)]
+        [InlineData(MaximumMessageLength)]
+        public void ValidateText_UpToMaximumLength_ReturnsNullAndSameText(int length)
         {
             // Arrange
             string text = new string('a', length);
-            string normalizedText;
 
             // Act
-            string errorKey = ChatValidator.ValidateText(text, out normalizedText);
+            string errorKey = ChatValidator.ValidateText(text, out string normalizedText);
 
             // Assert
-            Assert.Equal(expected, errorKey);
+            Assert.Null(errorKey);
+            Assert.Equal(text, normalizedText);
         }
 
+        /// <summary>Texts of more than 160 characters are rejected.</summary>
+        /// <param name="length">Length of the text.</param>
+        [Theory]
+        [InlineData(MaximumMessageLength + 1)]
+        [InlineData(MaximumMessageLength * 10)]
+        public void ValidateText_AboveMaximumLength_ReturnsChatTooLongError(int length)
+        {
+            // Arrange
+            string text = new string('a', length);
+
+            // Act
+            string errorKey = ChatValidator.ValidateText(text, out string normalizedText);
+
+            // Assert
+            Assert.Equal(ErrorKeys.Lobby.ChatTooLong, errorKey);
+            Assert.Null(normalizedText);
+        }
+
+        /// <summary>The length is measured after removing the spaces around the text.</summary>
+        [Fact]
+        public void ValidateText_WithMaximumLengthAndSurroundingSpaces_ReturnsNullAndTrimmedText()
+        {
+            // Arrange
+            string trimmedText = new string('a', MaximumMessageLength);
+            string text = "   " + trimmedText + "   ";
+
+            // Act
+            string errorKey = ChatValidator.ValidateText(text, out string normalizedText);
+
+            // Assert
+            Assert.Null(errorKey);
+            Assert.Equal(trimmedText, normalizedText);
+        }
+
+        /// <summary>One character over the limit is rejected even when spaces surround the text.</summary>
+        [Fact]
+        public void ValidateText_AboveMaximumLengthWithSurroundingSpaces_ReturnsChatTooLongError()
+        {
+            // Arrange
+            string text = "   " + new string('a', MaximumMessageLength + 1) + "   ";
+
+            // Act
+            string errorKey = ChatValidator.ValidateText(text, out string normalizedText);
+
+            // Assert
+            Assert.Equal(ErrorKeys.Lobby.ChatTooLong, errorKey);
+            Assert.Null(normalizedText);
+        }
+
+        /// <summary>A text that is too long and has a character outside the list reports the length.</summary>
+        [Fact]
+        public void ValidateText_TooLongWithCharacterOutsideTheList_ReturnsChatTooLongError()
+        {
+            // Arrange
+            string text = new string('a', MaximumMessageLength) + "!";
+
+            // Act
+            string errorKey = ChatValidator.ValidateText(text, out string normalizedText);
+
+            // Assert
+            Assert.Equal(ErrorKeys.Lobby.ChatTooLong, errorKey);
+            Assert.Null(normalizedText);
+        }
     }
 }
