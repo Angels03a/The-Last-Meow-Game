@@ -41,6 +41,7 @@
     <Compile Include="LobbyCallbackStub.cs" />
     <Compile Include="LobbyReadinessHelper.cs" />
     <Compile Include="LobbyScenario.cs" />
+    <Compile Include="PlayerProfileServiceTests.cs" />
     <Compile Include="LobbyServiceCardsPerPlayerTests.cs" />
     <Compile Include="ManualUtcClock.cs" />
     <Compile Include="MatchCallbackStub.cs" />
