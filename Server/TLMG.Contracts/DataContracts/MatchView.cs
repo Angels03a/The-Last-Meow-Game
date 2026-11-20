@@ -5,119 +5,119 @@ using System.Runtime.Serialization;
 namespace TLMG.Contracts.DataContracts
 {
     /// <summary>
-    /// Vista privada de una partida para un jugador: el estado visible para todos y, solo del destinatario, su mano y
-    /// su pila. Una vista con versión menor o igual a la ya mostrada es obsoleta y el cliente la descarta.
+    /// Private match view containing public state and only the recipient's hand and pile. The client discards views
+    /// with the same or an older version than the displayed view.
     /// </summary>
     [DataContract]
     public class MatchView
     {
-        /// <summary>Partida a la que pertenece la vista.</summary>
+        /// <summary>Match this view belongs to.</summary>
         [DataMember]
         public Guid MatchId { get; set; }
 
-        /// <summary>Versión de la partida; sube con cada acción aceptada.</summary>
+        /// <summary>Match version, increased after each accepted action.</summary>
         [DataMember]
         public int Version { get; set; }
 
-        /// <summary>Hora del servidor cuando se construyó esta vista.</summary>
+        /// <summary>Server time when this view was built.</summary>
         [DataMember]
         public DateTime ServerTimeUtc { get; set; }
 
-        /// <summary>Plazos UTC de los jugadores que suspenden la partida por desconexión.</summary>
+        /// <summary>UTC deadlines for disconnected players who are holding up the match.</summary>
         [DataMember]
         public Dictionary<int, DateTime> ReconnectDeadlinesUtc { get; set; }
 
-        /// <summary>El minijuego espera las primeras vinculaciones antes de iniciar su reloj.</summary>
+        /// <summary>The minigame waits for the first connections before starting its clock.</summary>
         [DataMember]
         public bool IsWaitingForInitialLinks { get; set; }
 
-        /// <summary>Minijuego público; null en las modalidades de cuatro y seis cartas.</summary>
+        /// <summary>Public minigame, or null in four- and six-card modes.</summary>
         [DataMember]
         public FugitiveKittenView FugitiveKitten { get; set; }
 
-        /// <summary>Ronda en curso.</summary>
+        /// <summary>Current round.</summary>
         [DataMember]
         public int RoundNumber { get; set; }
 
-        /// <summary>Fase de la ronda en curso.</summary>
+        /// <summary>Current round phase.</summary>
         [DataMember]
         public MatchRoundPhase Phase { get; set; }
 
-        /// <summary>Cuenta del jugador que tiene el turno.</summary>
+        /// <summary>Account of the player whose turn it is.</summary>
         [DataMember]
         public int PlayerInTurnUserId { get; set; }
 
-        /// <summary>Jugadores en su orden fijo de turnos, solo con cantidades.</summary>
+        /// <summary>Players in fixed turn order, with card counts only.</summary>
         [DataMember]
         public List<MatchPlayerView> Players { get; set; }
 
-        /// <summary>Mano del destinatario; ningún otro jugador la recibe.</summary>
+        /// <summary>Recipient's hand, sent only to that player.</summary>
         [DataMember]
         public List<MatchCardKind> OwnHandCards { get; set; }
 
         /// <summary>
-        /// Pila del destinatario, de la carta más antigua a la de arriba; ningún otro jugador la recibe.
+        /// Recipient's pile from oldest to top card, sent only to that player.
         /// </summary>
         [DataMember]
         public List<MatchCardKind> OwnPileCards { get; set; }
 
-        /// <summary>Apuesta actual en cartas a voltear; 0 si no hay apuesta.</summary>
+        /// <summary>Current bid in cards to reveal, or 0 without a bid.</summary>
         [DataMember]
         public int CurrentBet { get; set; }
 
-        /// <summary>Cuenta de quien tiene la apuesta más alta; 0 si no hay apuesta.</summary>
+        /// <summary>Highest bidder's account, or 0 without a bid.</summary>
         [DataMember]
         public int BetLeaderUserId { get; set; }
 
-        /// <summary>Retos exitosos que se necesitan para ganar la partida.</summary>
+        /// <summary>Successful challenges needed to win.</summary>
         [DataMember]
         public int ChallengesToWin { get; set; }
 
-        /// <summary>Cuenta del ganador; 0 mientras la partida sigue.</summary>
+        /// <summary>Winner's account, or 0 while the match continues.</summary>
         [DataMember]
         public int WinnerUserId { get; set; }
 
-        /// <summary>Clasificación pública final; null si no está disponible.</summary>
+        /// <summary>Public final standings, or null if unavailable.</summary>
         [DataMember]
         public List<MatchStandingView> FinalStandings { get; set; }
 
-        /// <summary>Cartas boca abajo en la mesa: la suma de las pilas.</summary>
+        /// <summary>Total face-down cards across all piles.</summary>
         [DataMember]
         public int CardsOnTable { get; set; }
 
-        /// <summary>Desenlace del último reto, público; null si no hay uno vigente.</summary>
+        /// <summary>Latest public challenge outcome, or null if none is active.</summary>
         [DataMember]
         public MatchChallengeView Challenge { get; set; }
 
-        /// <summary>Castigo pendiente, público; null si no hay ninguno.</summary>
+        /// <summary>Public pending punishment, or null if none.</summary>
         [DataMember]
         public MatchPunishmentView Punishment { get; set; }
 
-        /// <summary>Indica si el destinatario puede colocar una carta ahora.</summary>
+        /// <summary>Whether the recipient can place a card now.</summary>
         [DataMember]
         public bool CanPlaceCard { get; set; }
 
-        /// <summary>Indica si el destinatario puede abrir o subir una apuesta ahora.</summary>
+        /// <summary>Whether the recipient can open or raise a bid now.</summary>
         [DataMember]
         public bool CanPlaceBet { get; set; }
 
-        /// <summary>Menor apuesta que el destinatario puede declarar; solo vale si CanPlaceBet.</summary>
+        /// <summary>Lowest bid the recipient can make. Applies only when CanPlaceBet is true.</summary>
         [DataMember]
         public int MinimumBetValue { get; set; }
 
-        /// <summary>Mayor apuesta que el destinatario puede declarar; solo vale si CanPlaceBet.</summary>
+        /// <summary>Highest bid the recipient can make. Applies only when CanPlaceBet is true.</summary>
         [DataMember]
         public int MaximumBetValue { get; set; }
 
-        /// <summary>Indica si el destinatario puede retirarse de la apuesta ahora.</summary>
+        /// <summary>Whether the recipient can fold now.</summary>
         [DataMember]
         public bool CanWithdrawFromBet { get; set; }
 
-        /// <summary>Indica si el destinatario puede elegir una pila para voltear ahora.</summary>
+        /// <summary>Whether the recipient can choose a pile to reveal now.</summary>
         [DataMember]
         public bool CanRevealCard { get; set; }
 
-        /// <summary>Indica si el destinatario debe elegir ahora la carta que se pierde.</summary>
+        /// <summary>Whether the recipient must choose the lost card now.</summary>
         [DataMember]
         public bool CanChoosePunishmentCard { get; set; }
     }

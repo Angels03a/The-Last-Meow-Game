@@ -15,7 +15,7 @@ namespace TLMG.Services.Tests
         {
         }
 
-        /// <summary>Crea la sala con un registro dado, por ejemplo uno con reloj controlado por la prueba.</summary>
+        /// <summary>Creates a room using the supplied registry, which can use a test clock.</summary>
         internal LobbyScenario(SessionRegistry registry)
         {
             Registry = registry;

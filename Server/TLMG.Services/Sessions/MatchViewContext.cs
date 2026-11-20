@@ -6,17 +6,17 @@ using TLMG.Domain.Engine;
 namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Lo que hace falta para armar la vista de un jugador: el estado del motor y los datos que el registro guarda
-    /// fuera de él. Solo se usa bajo _sessionsLock y nunca sale del registro.
+    /// Engine state and separate registry data needed to build one player's view. Used only inside the registry under
+    /// _sessionsLock.
     /// </summary>
     internal sealed class MatchViewContext
     {
-        /// <summary>Crea el contexto.</summary>
-        /// <param name="matchId">Partida de la vista.</param>
-        /// <param name="version">Versión de la partida.</param>
-        /// <param name="matchState">Estado del motor; solo se lee.</param>
-        /// <param name="nicknamesByUserId">Nicknames congelados al iniciar la partida.</param>
-        /// <param name="lastChallenge">Desenlace del último reto; null si no hay uno vigente.</param>
+        /// <summary>Creates the view context.</summary>
+        /// <param name="matchId">Match for this view.</param>
+        /// <param name="version">Match version.</param>
+        /// <param name="matchState">Engine state, used for reading only.</param>
+        /// <param name="nicknamesByUserId">Nicknames recorded at match start.</param>
+        /// <param name="lastChallenge">Latest challenge outcome, or null if none is current.</param>
         internal MatchViewContext(
             Guid matchId,
             int version,
@@ -33,22 +33,22 @@ namespace TLMG.Services.Sessions
             AllParticipantsRegistered = allParticipantsRegistered;
         }
 
-        /// <summary>Obtiene la partida de la vista.</summary>
+        /// <summary>Match for this view.</summary>
         internal Guid MatchId { get; }
 
-        /// <summary>Obtiene la versión de la partida.</summary>
+        /// <summary>Match version.</summary>
         internal int Version { get; }
 
-        /// <summary>Obtiene el estado del motor.</summary>
+        /// <summary>Engine state.</summary>
         internal MatchState MatchState { get; }
 
-        /// <summary>Obtiene los nicknames congelados al iniciar la partida.</summary>
+        /// <summary>Nicknames recorded at match start.</summary>
         internal IReadOnlyDictionary<int, string> NicknamesByUserId { get; }
 
-        /// <summary>Indica si todas las identidades fueron verificadas como cuentas registradas.</summary>
+        /// <summary>Whether all identities were verified as registered accounts.</summary>
         internal bool AllParticipantsRegistered { get; }
 
-        /// <summary>Obtiene el desenlace del último reto; null si no hay uno vigente.</summary>
+        /// <summary>Latest challenge outcome, or null if none is current.</summary>
         internal MatchChallengeRecord LastChallenge { get; }
     }
 }

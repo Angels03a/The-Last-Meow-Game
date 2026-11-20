@@ -9,8 +9,8 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Pruebas de la partida en memoria que SessionRegistry crea al autorizar el inicio: un solo MatchState por
-    /// partida, participantes congelados en orden de ingreso y vida independiente de la sala.
+    /// Tests the in-memory match created by SessionRegistry at start authorization. Each match has one MatchState and
+    /// participants fixed in entry order. Tests its lifetime separately from the room state.
     /// </summary>
     public class SessionRegistryMatchesTests
     {
@@ -32,8 +32,8 @@ namespace TLMG.Services.Tests
 
         private static readonly DateTime _startUtc = new DateTime(2026, 11, 20, 12, 0, 0, DateTimeKind.Utc);
 
-        /// <summary>Verifica RequestMatchStart_WithEveryPlayerReady_CreatesMatchWithAllParticipants.</summary>
-        /// <param name="playerCount">Jugadores en la sala.</param>
+        /// <summary>Checks RequestMatchStart_WithEveryPlayerReady_CreatesMatchWithAllParticipants.</summary>
+        /// <param name="playerCount">Players in the room.</param>
         [Theory]
         [InlineData(MinimumPlayerCount)]
         [InlineData(MaximumPlayerCount)]
@@ -53,8 +53,8 @@ namespace TLMG.Services.Tests
             Assert.Equal(CreatorUserId, match.PlayerInTurnUserId);
         }
 
-        /// <summary>Verifica RequestMatchStart_WithRoomMode_CreatesEngineWithSameCardsPerPlayer.</summary>
-        /// <param name="cardsPerPlayerCount">Modalidad de la sala.</param>
+        /// <summary>Checks RequestMatchStart_WithRoomMode_CreatesEngineWithSameCardsPerPlayer.</summary>
+        /// <param name="cardsPerPlayerCount">Room mode.</param>
         [Theory]
         [InlineData(FourCardsPerPlayer)]
         [InlineData(SixCardsPerPlayer)]
@@ -71,7 +71,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(cardsPerPlayerCount, start.FindMatch(change, CreatorUserId).CardsPerPlayerCount);
         }
 
-        /// <summary>Verifica RequestMatchStart_WithSeveralPlayers_KeepsJoinOrder.</summary>
+        /// <summary>Checks RequestMatchStart_WithSeveralPlayers_KeepsJoinOrder.</summary>
         [Fact]
         public void RequestMatchStart_WithSeveralPlayers_KeepsJoinOrder()
         {
@@ -85,7 +85,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(start.UserIdsInJoinOrder, start.FindMatch(change, CreatorUserId).ParticipantUserIds);
         }
 
-        /// <summary>Verifica RequestMatchStart_WhenAuthorized_LinksMatchIdAndRoomId.</summary>
+        /// <summary>Checks RequestMatchStart_WhenAuthorized_LinksMatchIdAndRoomId.</summary>
         [Fact]
         public void RequestMatchStart_WhenAuthorized_LinksMatchIdAndRoomId()
         {
@@ -102,11 +102,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(start.Scenario.RoomId, change.RoomId);
         }
 
-        /// <summary>Verifica RequestMatchStart_SequentialReentryOfSameGeneration_KeepsMatchIdAndMatch.</summary>
+        /// <summary>Checks RequestMatchStart_SequentialReentryOfSameGeneration_KeepsMatchIdAndMatch.</summary>
         [Fact]
         public void RequestMatchStart_SequentialReentryOfSameGeneration_KeepsMatchIdAndMatch()
         {
-            // Arrange: reentrada secuencial; otro jugador pide el inicio de la misma generación después.
+            // Arrange: A second player requests a start for the same generation after the first request.
             MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
             LobbyMembershipChange firstChange = start.RequestStartAfterCountdown();
 
@@ -120,7 +120,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(start.UserIdsInJoinOrder, start.FindMatch(secondChange, CreatorUserId).ParticipantUserIds);
         }
 
-        /// <summary>Verifica RequestMatchStart_BeforeCountdownEnds_CreatesNoMatch.</summary>
+        /// <summary>Checks RequestMatchStart_BeforeCountdownEnds_CreatesNoMatch.</summary>
         [Fact]
         public void RequestMatchStart_BeforeCountdownEnds_CreatesNoMatch()
         {
@@ -136,11 +136,11 @@ namespace TLMG.Services.Tests
             Assert.Empty(change.RecipientCallbacks);
         }
 
-        /// <summary>Verifica RequestMatchStart_WhenOnePlayerIsNotReady_CreatesNoMatch.</summary>
+        /// <summary>Checks RequestMatchStart_WhenOnePlayerIsNotReady_CreatesNoMatch.</summary>
         [Fact]
         public void RequestMatchStart_WhenOnePlayerIsNotReady_CreatesNoMatch()
         {
-            // Arrange: el último jugador vuelve a No Listo; no queda cuenta vigente.
+            // Arrange: The last player becomes not ready again, canceling the current countdown.
             MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
             start.ChangeReadiness(start.UserIdsInJoinOrder.Last(), false);
             start.Clock.Advance(TimeSpan.FromSeconds(CountdownSeconds));
@@ -153,7 +153,7 @@ namespace TLMG.Services.Tests
             Assert.Empty(change.RecipientCallbacks);
         }
 
-        /// <summary>Verifica RequestMatchStart_WithFewerThanThreePlayers_CreatesNoMatch.</summary>
+        /// <summary>Checks RequestMatchStart_WithFewerThanThreePlayers_CreatesNoMatch.</summary>
         [Fact]
         public void RequestMatchStart_WithFewerThanThreePlayers_CreatesNoMatch()
         {
@@ -169,7 +169,7 @@ namespace TLMG.Services.Tests
             Assert.False(change.Room.Start.CountdownEndsAtUtc.HasValue);
         }
 
-        /// <summary>Verifica LeaveRoom_AfterMatchStarted_KeepsMatchParticipants.</summary>
+        /// <summary>Checks LeaveRoom_AfterMatchStarted_KeepsMatchParticipants.</summary>
         [Fact]
         public void LeaveRoom_AfterMatchStarted_KeepsMatchParticipants()
         {
@@ -184,7 +184,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(start.UserIdsInJoinOrder, start.FindMatch(change, CreatorUserId).ParticipantUserIds);
         }
 
-        /// <summary>Verifica LeaveRoom_WhenRoomBecomesEmpty_ReleasesMatch.</summary>
+        /// <summary>Checks LeaveRoom_WhenRoomBecomesEmpty_ReleasesMatch.</summary>
         [Fact]
         public void LeaveRoom_WhenRoomBecomesEmpty_ReleasesMatch()
         {
@@ -239,11 +239,11 @@ namespace TLMG.Services.Tests
         }
 
 
-        /// <summary>Verifica EndSession_OfLastRoomMember_ReleasesMatch.</summary>
+        /// <summary>Checks EndSession_OfLastRoomMember_ReleasesMatch.</summary>
         [Fact]
         public void EndSession_OfLastRoomMember_ReleasesMatch()
         {
-            // Arrange: todos salen menos el creador, que después termina su sesión.
+            // Arrange: Everyone leaves except the creator, who then ends their session.
             MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
             LobbyMembershipChange change = start.RequestStartAfterCountdown();
             start.LeaveAllExceptCreator();
@@ -257,7 +257,7 @@ namespace TLMG.Services.Tests
             Assert.Null(start.FindMatch(change, CreatorUserId));
         }
 
-        /// <summary>Verifica FindMatchOfParticipant_WithUserOutsideMatch_ReturnsNull.</summary>
+        /// <summary>Checks FindMatchOfParticipant_WithUserOutsideMatch_ReturnsNull.</summary>
         [Fact]
         public void FindMatchOfParticipant_WithUserOutsideMatch_ReturnsNull()
         {
@@ -272,7 +272,7 @@ namespace TLMG.Services.Tests
             Assert.Null(match);
         }
 
-        /// <summary>Verifica FindMatchOfParticipant_WithUnknownMatchId_ReturnsNull.</summary>
+        /// <summary>Checks FindMatchOfParticipant_WithUnknownMatchId_ReturnsNull.</summary>
         [Fact]
         public void FindMatchOfParticipant_WithUnknownMatchId_ReturnsNull()
         {
@@ -663,7 +663,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(started.Room.Start.MatchId, change.Room.Start.MatchId);
         }
 
-        /// <summary>Reloj UTC que la prueba avanza a mano.</summary>
+        /// <summary>UTC clock advanced by the test.</summary>
         private sealed class TestClock
         {
             internal DateTime NowUtc { get; private set; } = _startUtc;
@@ -680,8 +680,8 @@ namespace TLMG.Services.Tests
         }
 
         /// <summary>
-        /// Sala con reloj controlado: el creador y los demás jugadores entran en orden de id, se fija la modalidad y
-        /// todos quedan Listo, con la cuenta regresiva en marcha.
+        /// Room with a controlled clock. The creator and others join in ID order, select the mode and all become ready
+        /// with the countdown running.
         /// </summary>
         private sealed class MatchStartScenario
         {
@@ -732,7 +732,7 @@ namespace TLMG.Services.Tests
                 return Scenario.Registry.ChangePlayerReadiness(CallerOf(userId), Scenario.RoomId, isReady);
             }
 
-            /// <summary>Deja vencer la cuenta vigente y pide el inicio como el creador.</summary>
+            /// <summary>Lets the current countdown expire and requests a start as the creator.</summary>
             internal LobbyMembershipChange ChangeCardsPerPlayer(int userId, int cardsPerPlayerCount)
             {
                 return Scenario.Registry.ChangeCardsPerPlayer(CallerOf(userId), Scenario.RoomId, cardsPerPlayerCount);
@@ -762,7 +762,7 @@ namespace TLMG.Services.Tests
                 return Scenario.Registry.FindMatchOfParticipant(change.Room.Start.MatchId.Value, userId);
             }
 
-            /// <summary>Salen todos menos el creador, en orden de ingreso.</summary>
+            /// <summary>All players except the creator leave in entry order.</summary>
             internal void LeaveAllExceptCreator()
             {
                 foreach (int userId in UserIdsInJoinOrder.Skip(1))
@@ -771,7 +771,7 @@ namespace TLMG.Services.Tests
                 }
             }
 
-            /// <summary>Todos salen de la sala en orden; devuelve la última salida, la que la deja vacía.</summary>
+            /// <summary>All players leave in order. Returns the final exit that empties the room.</summary>
             internal LobbyMembershipChange LeaveAll()
             {
                 LobbyMembershipChange lastDeparture = null;

@@ -9,14 +9,14 @@ using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Tests
 {
-    /// <summary>Pruebas de MatchService para las apuestas: resultado para quien pidió y vista de cada uno.</summary>
+    /// <summary>Tests MatchService bidding results for the requester and views for each player.</summary>
     public class MatchServiceBettingTests
     {
         private const int MinimumPlayerCount = 3;
         private const int TwoCards = 2;
         private const int OneCard = 1;
 
-        /// <summary>Verifica PlaceBet_ByThePlayerInTurn_DeliversOneViewPerSubscribedCallback.</summary>
+        /// <summary>Checks PlaceBet_ByThePlayerInTurn_DeliversOneViewPerSubscribedCallback.</summary>
         [Fact]
         public void PlaceBet_ByThePlayerInTurn_DeliversOneViewPerSubscribedCallback()
         {
@@ -37,7 +37,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(TwoCards, scenario.CallbackOf(scenario.UserIds[1]).LastView.CurrentBet);
         }
 
-        /// <summary>Verifica PlaceBet_OutOfTurn_ReturnsTheErrorKeyAndNotifiesNobody.</summary>
+        /// <summary>Checks PlaceBet_OutOfTurn_ReturnsTheErrorKeyAndNotifiesNobody.</summary>
         [Fact]
         public void PlaceBet_OutOfTurn_ReturnsTheErrorKeyAndNotifiesNobody()
         {
@@ -55,7 +55,7 @@ namespace TLMG.Services.Tests
             Assert.Empty(result.Notifications);
         }
 
-        /// <summary>Verifica WithdrawFromBet_AfterABetIsOpen_AcceptsAndNotifiesEveryone.</summary>
+        /// <summary>Checks WithdrawFromBet_AfterABetIsOpen_AcceptsAndNotifiesEveryone.</summary>
         [Fact]
         public void WithdrawFromBet_AfterABetIsOpen_AcceptsAndNotifiesEveryone()
         {
@@ -74,7 +74,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MinimumPlayerCount, result.Notifications.Count);
         }
 
-        /// <summary>Verifica WithdrawFromBet_WithoutABet_ReturnsTheErrorKey.</summary>
+        /// <summary>Checks WithdrawFromBet_WithoutABet_ReturnsTheErrorKey.</summary>
         [Fact]
         public void WithdrawFromBet_WithoutABet_ReturnsTheErrorKey()
         {

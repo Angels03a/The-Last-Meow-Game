@@ -4,14 +4,14 @@ using TLMG.Contracts;
 
 namespace TLMG.Services.Sessions
 {
-    /// <summary>Suscripción inmutable de un jugador a una partida; solo se guarda en el registro.</summary>
+    /// <summary>Immutable player subscription stored only in the match registry.</summary>
     internal sealed class MatchChannel
     {
-        /// <summary>Crea la copia de los datos recibidos.</summary>
-        /// <param name="sessionToken">Token de la sesión que suscribió el canal.</param>
-        /// <param name="channelId">Identificador del canal de partida.</param>
-        /// <param name="matchId">Partida a la que se suscribió.</param>
-        /// <param name="callback">Callback de entrega.</param>
+        /// <summary>Copies the supplied subscription data.</summary>
+        /// <param name="sessionToken">Token of the session that subscribed the channel.</param>
+        /// <param name="channelId">Match channel ID.</param>
+        /// <param name="matchId">Subscribed match.</param>
+        /// <param name="callback">Delivery callback.</param>
         internal MatchChannel(string sessionToken, string channelId, Guid matchId, IMatchManagerCallback callback)
         {
             SessionToken = sessionToken;
@@ -20,16 +20,16 @@ namespace TLMG.Services.Sessions
             Callback = callback;
         }
 
-        /// <summary>Obtiene el token de la sesión que suscribió el canal.</summary>
+        /// <summary>Token of the session that subscribed the channel.</summary>
         internal string SessionToken { get; }
 
-        /// <summary>Obtiene el identificador del canal de partida.</summary>
+        /// <summary>Match channel ID.</summary>
         internal string ChannelId { get; }
 
-        /// <summary>Obtiene la partida a la que se suscribió.</summary>
+        /// <summary>Subscribed match.</summary>
         internal Guid MatchId { get; }
 
-        /// <summary>Obtiene el callback de entrega.</summary>
+        /// <summary>Delivery callback.</summary>
         internal IMatchManagerCallback Callback { get; }
     }
 }

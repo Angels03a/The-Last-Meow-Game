@@ -2,19 +2,19 @@ using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
 {
-    /// <summary>Resultado de un reto; el cliente solo lo muestra, el servidor lo decide.</summary>
+    /// <summary>Challenge result decided by the server and displayed by the client.</summary>
     [DataContract]
     public enum MatchChallengeOutcome
     {
-        /// <summary>El apostador todavía está volteando cartas.</summary>
+        /// <summary>The bidder is still revealing cards.</summary>
         [EnumMember]
         InProgress,
 
-        /// <summary>El apostador alcanzó el número prometido sin revelar un Gato con Maullido Fatal.</summary>
+        /// <summary>The bidder revealed the promised number of cards without revealing a Fatal Cat.</summary>
         [EnumMember]
         Succeeded,
 
-        /// <summary>Se reveló un Gato con Maullido Fatal y el reto falló.</summary>
+        /// <summary>A Fatal Cat was revealed and the challenge failed.</summary>
         [EnumMember]
         Failed
     }

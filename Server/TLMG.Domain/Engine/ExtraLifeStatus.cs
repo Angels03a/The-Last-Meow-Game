@@ -1,21 +1,23 @@
 namespace TLMG.Domain.Engine
 {
-    /// <summary>Resultado de otorgar la vida extra a un jugador; Services lo traduce a ErrorKey.</summary>
+    /// <summary>Extra life result. Services maps it to an ErrorKey.</summary>
     public enum ExtraLifeStatus
     {
-        /// <summary>La vida extra quedó asignada al jugador.</summary>
+        /// <summary>The player received the extra life.</summary>
         Granted,
 
-        /// <summary>El jugador no forma parte de la partida.</summary>
+        /// <summary>The player is outside this match.</summary>
         PlayerNotInMatch,
 
-        /// <summary>La modalidad de la partida no admite vida extra; solo la de 8 cartas.</summary>
+        /// <summary>Only eight-card mode allows an extra life.</summary>
         ModeDoesNotAllowExtraLife,
 
-        /// <summary>La vida extra ya se otorgó en esta partida; solo un jugador la obtiene, una vez.</summary>
+        /// <summary>The match has already awarded its one extra life to a player.</summary>
         ExtraLifeAlreadyGranted,
 
-        /// <summary>Ya se colocó una carta en la partida: la vida extra solo se otorga antes de empezar.</summary>
+        /// <summary>
+        /// A card has already been placed. The extra life must be awarded before the first placement.
+        /// </summary>
         CardAlreadyPlaced
     }
 }

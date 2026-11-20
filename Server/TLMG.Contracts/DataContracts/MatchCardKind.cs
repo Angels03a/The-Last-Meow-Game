@@ -2,15 +2,15 @@ using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
 {
-    /// <summary>Tipo de carta que viaja por la red; Services lo traduce desde y hacia el motor.</summary>
+    /// <summary>Card type sent over the network. Services maps it to and from the engine type.</summary>
     [DataContract]
     public enum MatchCardKind
     {
-        /// <summary>Carta segura.</summary>
+        /// <summary>Safe card.</summary>
         [EnumMember]
         Safe,
 
-        /// <summary>Gato con Maullido Fatal.</summary>
+        /// <summary>Fatal Cat card.</summary>
         [EnumMember]
         FatalCat
     }

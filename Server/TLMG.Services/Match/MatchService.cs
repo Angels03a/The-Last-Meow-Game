@@ -11,8 +11,8 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Match
 {
     /// <summary>
-    /// Lógica de partida del servidor: convierte las decisiones del registro en el resultado para quien pidió y en
-    /// las vistas que hay que entregar a cada suscrito. El motor y la autorización viven detrás de ISessionRegistry.
+    /// Builds the requester's result and each subscriber's view from the registry's decision. ISessionRegistry handles
+    /// authorization and access to the engine.
     /// </summary>
     public sealed class MatchService
     {
@@ -20,18 +20,18 @@ namespace TLMG.Services.Match
 
         private readonly ISessionRegistry _sessionRegistry;
 
-        /// <summary>Crea el servicio sobre el registro compartido.</summary>
-        /// <param name="sessionRegistry">Registro de sesiones, salas y partidas.</param>
+        /// <summary>Creates the service with the shared registry.</summary>
+        /// <param name="sessionRegistry">Registry of sessions, rooms and matches.</param>
         public MatchService(ISessionRegistry sessionRegistry)
         {
             _sessionRegistry = sessionRegistry;
         }
 
-        /// <summary>Suscribe al jugador a su partida y prepara el envío de su vista.</summary>
-        /// <param name="caller">Token y canal de partida de quien pide.</param>
-        /// <param name="matchId">Partida solicitada.</param>
-        /// <param name="callback">Callback del canal de partida.</param>
-        /// <returns>El resultado para quien pidió y su vista como aviso pendiente de entregar.</returns>
+        /// <summary>Subscribes the player to their match and prepares their view for delivery.</summary>
+        /// <param name="caller">Requester's token and match channel.</param>
+        /// <param name="matchId">Requested match.</param>
+        /// <param name="callback">Match channel callback.</param>
+        /// <returns>Requester's result and private view ready for delivery.</returns>
         public ResultWithNotification<OperationResult> SubscribeToMatch(
             SessionChannelCaller caller,
             Guid matchId,
@@ -48,22 +48,22 @@ namespace TLMG.Services.Match
             return subscribeToMatchResult;
         }
 
-        /// <summary>Valida un intento de atrapar al gatito.</summary>
+        /// <summary>Checks an attempt to catch the kitten.</summary>
         public ResultWithNotification<OperationResult> TryCatchFugitiveKitten(SessionChannelCaller caller)
         {
             return CreateResult(_sessionRegistry.TryCatchFugitiveKitten(caller));
         }
 
-        /// <summary>Comprueba el vencimiento del minijuego.</summary>
+        /// <summary>Checks whether the minigame deadline has passed.</summary>
         public ResultWithNotification<OperationResult> CheckFugitiveKittenDeadline(SessionChannelCaller caller)
         {
             return CreateResult(_sessionRegistry.CheckFugitiveKittenDeadline(caller));
         }
 
-        /// <summary>Coloca una carta del jugador y prepara la vista de cada suscrito.</summary>
-        /// <param name="caller">Token y canal de partida de quien pide.</param>
-        /// <param name="card">Tipo de carta que se quiere colocar.</param>
-        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
+        /// <summary>Places the player's card and prepares a view for each subscriber.</summary>
+        /// <param name="caller">Requester's token and match channel.</param>
+        /// <param name="card">Type of card to place.</param>
+        /// <returns>Requester's result and, on acceptance, one view per subscriber.</returns>
         public ResultWithNotification<OperationResult> PlaceCard(SessionChannelCaller caller, MatchCardKind card)
         {
             MatchDelivery matchDelivery = _sessionRegistry.PlaceCard(caller, card);
@@ -72,10 +72,10 @@ namespace TLMG.Services.Match
             return placeCardResult;
         }
 
-        /// <summary>Abre o sube una apuesta y prepara la vista de cada suscrito.</summary>
-        /// <param name="caller">Token y canal de partida de quien pide.</param>
-        /// <param name="betValue">Cartas que declara poder voltear.</param>
-        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
+        /// <summary>Opens or raises a bid and prepares a view for each subscriber.</summary>
+        /// <param name="caller">Requester's token and match channel.</param>
+        /// <param name="betValue">Number of cards the player claims they can reveal.</param>
+        /// <returns>Requester's result and, on acceptance, one view per subscriber.</returns>
         public ResultWithNotification<OperationResult> PlaceBet(SessionChannelCaller caller, int betValue)
         {
             MatchDelivery matchDelivery = _sessionRegistry.PlaceBet(caller, betValue);
@@ -84,9 +84,9 @@ namespace TLMG.Services.Match
             return placeBetResult;
         }
 
-        /// <summary>Retira al jugador de la apuesta y prepara la vista de cada suscrito.</summary>
-        /// <param name="caller">Token y canal de partida de quien pide.</param>
-        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
+        /// <summary>Folds for the player and prepares a view for each subscriber.</summary>
+        /// <param name="caller">Requester's token and match channel.</param>
+        /// <returns>Requester's result and, on acceptance, one view per subscriber.</returns>
         public ResultWithNotification<OperationResult> WithdrawFromBet(SessionChannelCaller caller)
         {
             MatchDelivery matchDelivery = _sessionRegistry.WithdrawFromBet(caller);
@@ -95,10 +95,10 @@ namespace TLMG.Services.Match
             return withdrawFromBetResult;
         }
 
-        /// <summary>Voltea una carta del reto y prepara la vista de cada suscrito.</summary>
-        /// <param name="caller">Token y canal de partida de quien pide.</param>
-        /// <param name="pileOwnerUserId">Dueño de la pila de la que se voltea.</param>
-        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
+        /// <summary>Reveals a challenge card and prepares a view for each subscriber.</summary>
+        /// <param name="caller">Requester's token and match channel.</param>
+        /// <param name="pileOwnerUserId">Owner of the pile to reveal.</param>
+        /// <returns>Requester's result and, on acceptance, one view per subscriber.</returns>
         public ResultWithNotification<OperationResult> RevealCard(SessionChannelCaller caller, int pileOwnerUserId)
         {
             MatchDelivery matchDelivery = _sessionRegistry.RevealCard(caller, pileOwnerUserId);
@@ -107,10 +107,10 @@ namespace TLMG.Services.Match
             return revealCardResult;
         }
 
-        /// <summary>Elige la carta del castigo y prepara la vista de cada suscrito.</summary>
-        /// <param name="caller">Token y canal de partida de quien pide.</param>
-        /// <param name="cardIndex">Lugar mostrado (a ciegas) o posición en la mano (castigo propio).</param>
-        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
+        /// <summary>Chooses the punishment card and prepares a view for each subscriber.</summary>
+        /// <param name="caller">Requester's token and match channel.</param>
+        /// <param name="cardIndex">Displayed slot for a blind choice or hand position for a visible choice.</param>
+        /// <returns>Requester's result and, on acceptance, one view per subscriber.</returns>
         public ResultWithNotification<OperationResult> ChoosePunishmentCard(SessionChannelCaller caller, int cardIndex)
         {
             MatchDelivery matchDelivery = _sessionRegistry.ChoosePunishmentCard(caller, cardIndex);
@@ -119,9 +119,12 @@ namespace TLMG.Services.Match
             return choosePunishmentCardResult;
         }
 
-        /// <summary>Quita la suscripción de un canal de partida cerrado o fallido, sin tocar la partida.</summary>
-        /// <param name="channelId">Canal que se cerró o falló.</param>
-        /// <param name="closedCallback">Callback que tenía ese canal.</param>
+        /// <summary>
+        /// Removes a closed or failed match channel's subscription. A lost connection starts the applicable grace
+        /// period.
+        /// </summary>
+        /// <param name="channelId">Closed or failed channel.</param>
+        /// <param name="closedCallback">Callback registered for that channel.</param>
         public IReadOnlyList<Action> RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback)
         {
             if (_sessionRegistry.RemoveMatchChannel(channelId, closedCallback, out var deliveries))

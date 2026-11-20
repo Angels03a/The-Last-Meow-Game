@@ -155,7 +155,7 @@
             </Grid>
 
             <Border Grid.Row="2" Style="{StaticResource TableHeaderBorderStyle}">
-                <!-- Las cabeceras se quedan igual -->
+                <!-- Keep the existing column headers. -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="90" />

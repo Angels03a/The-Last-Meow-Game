@@ -5,17 +5,17 @@ using TLMG.Client.ViewModels;
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Vista del podio y la tabla de posiciones de los jugadores (leaderboard). No tiene lógica propia: la consulta
-    /// al servidor, el podio, los textos y la navegación viven en <see cref="LeaderboardViewModel"/>.
+    /// Displays the podium and leaderboard. <see cref="LeaderboardViewModel"/> handles the server query, podium, text
+    /// and navigation.
     /// </summary>
     public partial class LeaderboardScreen : LocalizableScreen
     {
         private readonly LeaderboardViewModel _viewModel;
 
         /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="LeaderboardScreen"/> con su ViewModel.
+        /// Creates a <see cref="LeaderboardScreen"/> with its ViewModel.
         /// </summary>
-        /// <param name="leaderboardViewModel">ViewModel que la fábrica de pantallas crea e inyecta.</param>
+        /// <param name="leaderboardViewModel">ViewModel created and supplied by the screen factory.</param>
         public LeaderboardScreen(LeaderboardViewModel leaderboardViewModel)
         {
             InitializeComponent();

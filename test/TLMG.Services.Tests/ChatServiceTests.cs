@@ -17,7 +17,8 @@ namespace TLMG.Services.Tests
     /// message. The chat repository and the chat callbacks are local doubles. A successful send returns no response
     /// (OperationResult is null) and only deferred actions, so the tests run those actions as the service host does
     /// and then check what the callbacks received and what the repository stored. The registry rules for channels and
-    /// rooms are tested in SessionRegistryChannelIdentityTests; here only their effect on the service result is checked.
+    /// rooms are tested in SessionRegistryChannelIdentityTests; here only their effect on the service result is
+    /// checked.
     /// The send interval of the registry uses the system clock, so the limit is tested only by sending twice in a row.
     /// </summary>
     public class ChatServiceTests
@@ -40,7 +41,8 @@ namespace TLMG.Services.Tests
         public ChatServiceTests()
         {
             _tokensByUserId[CreatorUserId] = _lobby.CreatorToken;
-            _tokensByUserId[FirstGuestUserId] = LobbyReadinessHelper.AddPlayer(_lobby, FirstGuestUserId, "lobby2", null);
+            _tokensByUserId[FirstGuestUserId] =
+                LobbyReadinessHelper.AddPlayer(_lobby, FirstGuestUserId, "lobby2", null);
             _tokensByUserId[SecondGuestUserId] =
                 LobbyReadinessHelper.AddPlayer(_lobby, SecondGuestUserId, "lobby3", null);
         }
@@ -335,7 +337,8 @@ namespace TLMG.Services.Tests
             ChatService service = CreateService();
             ChatCallbackDouble replacementCallback = new ChatCallbackDouble();
             SessionChannelCaller replacedCaller = new SessionChannelCaller(_tokensByUserId[CreatorUserId], "chat-old");
-            SessionChannelCaller replacementCaller = new SessionChannelCaller(_tokensByUserId[CreatorUserId], "chat-new");
+            SessionChannelCaller replacementCaller =
+                new SessionChannelCaller(_tokensByUserId[CreatorUserId], "chat-new");
             service.SubscribeToChat(replacedCaller, _creatorCallback);
             service.SubscribeToChat(replacementCaller, replacementCallback);
 
@@ -427,7 +430,9 @@ namespace TLMG.Services.Tests
             };
         }
 
-        /// <summary>Runs the deferred actions of a result in order, as the service host does outside the lock.</summary>
+        /// <summary>
+        /// Runs the deferred actions of a result in order, as the service host does outside the lock.
+        /// </summary>
         private static void ExecuteDeferredActions<TypeOfResult>(ResultWithNotification<TypeOfResult> result)
         {
             foreach (Action deferredAction in result.Notifications)

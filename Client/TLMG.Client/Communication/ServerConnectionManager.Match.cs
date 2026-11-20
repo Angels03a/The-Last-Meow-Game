@@ -7,8 +7,8 @@ using TLMG.Client.UsersManagerReference;
 namespace TLMG.Client.Communication
 {
     /// <summary>
-    /// Parte del manager que atiende el canal de partida. Cerrar o fallar este canal solo lo limpia: no saca al
-    /// jugador de la sala ni termina su sesión.
+    /// Manages the match channel. Closing it or losing it clears only that channel. The player stays in the room and
+    /// keeps the session.
     /// </summary>
     internal sealed partial class ServerConnectionManager : IMatchConnection
     {
@@ -63,7 +63,9 @@ namespace TLMG.Client.Communication
                 Guid matchId = CurrentRoom.MatchId.Value;
                 _matchSubscriptionUntil = _heartbeatClock.ElapsedMilliseconds + RecoveryReplyMilliseconds;
                 wasSubscriptionSent = TrySendToMatchChannel(
-                    () => SendConnectionRequest(_matchChannel, () => _matchClient.SubscribeToMatch(_sessionToken, matchId)),
+                    () => SendConnectionRequest(
+                        _matchChannel,
+                        () => _matchClient.SubscribeToMatch(_sessionToken, matchId)),
                     "suscribirse a la partida");
             }
 
@@ -288,7 +290,9 @@ namespace TLMG.Client.Communication
                 _matchClient = new MatchManagerClient(new InstanceContext(_matchCallback));
                 _matchChannel = _matchClient.InnerChannel;
                 WatchMatchChannel(_matchChannel);
-                isMatchChannelOpen = TrySendToMatchChannel(() => OpenConnection(_matchClient), "abrir el canal de partida");
+                isMatchChannelOpen = TrySendToMatchChannel(
+                    () => OpenConnection(_matchClient),
+                    "abrir el canal de partida");
             }
 
             return isMatchChannelOpen;
@@ -345,8 +349,8 @@ namespace TLMG.Client.Communication
         }
 
         /// <summary>
-        /// Limpia solo el canal de partida si el que terminó sigue siendo el vigente. A diferencia de los canales de
-        /// amigos y de lobby, no desconecta la sesión ni avisa ConnectionLost.
+        /// Clears the match channel only if the channel that ended is still current. Unlike the friends and lobby
+        /// channels, this leaves the session open and does not raise ConnectionLost.
         /// </summary>
         private void CloseMatchChannelIfCurrent(object channel)
         {

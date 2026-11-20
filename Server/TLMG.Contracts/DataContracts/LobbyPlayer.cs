@@ -3,20 +3,20 @@
 namespace TLMG.Contracts.DataContracts
 {
     /// <summary>
-    /// Datos de un jugador dentro de una sala.
+    /// Player details within a room.
     /// </summary>
     [DataContract]
     public class LobbyPlayer
     {
-        /// <summary>Identificador de la cuenta del jugador (id de User).</summary>
+        /// <summary>Player's account ID (User ID).</summary>
         [DataMember]
         public int UserId { get; set; }
 
-        /// <summary>Nickname del jugador.</summary>
+        /// <summary>Player's nickname.</summary>
         [DataMember]
         public string Nickname { get; set; }
 
-        /// <summary>Indica si el jugador está Listo; al entrar siempre es false.</summary>
+        /// <summary>Whether the player is ready. Always false on entry.</summary>
         [DataMember]
         public bool IsReady { get; set; }
     }

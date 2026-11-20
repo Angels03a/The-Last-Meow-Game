@@ -6,10 +6,9 @@ using TLMG.Client.UsersManagerReference;
 namespace TLMG.Client.Communication
 {
     /// <summary>
-    /// Parte del manager que consulta la tabla de posiciones. Usa un canal propio y de corta vida, que no depende de
-    /// la sesión del jugador: un fallo aquí se informa como resultado de la consulta y no desconecta la sesión. Su
-    /// receptor es una instancia nueva de ServerCallback por consulta, que no recibe sesión; la consulta anterior
-    /// queda descartada porque su instancia deja de ser la vigente.
+    /// Queries the leaderboard through a separate, short-lived channel. A query failure reaches the screen without
+    /// disconnecting the player. Each query creates a new ServerCallback without a session and replaces the previous
+    /// receiver, so earlier results are ignored.
     /// </summary>
     internal sealed partial class ServerConnectionManager : ILeaderboardConnection
     {
@@ -21,8 +20,7 @@ namespace TLMG.Client.Communication
 
         /// <inheritdoc />
         /// <remarks>
-        /// Abrir el canal bloquea el hilo de la interfaz hasta que el servidor responde o vencen los tiempos del
-        /// binding (BL-079).
+        /// Opening the channel blocks the UI thread until the server responds or the binding times out (BL-079).
         /// </remarks>
         public bool RequestLeaderboard()
         {
@@ -59,11 +57,11 @@ namespace TLMG.Client.Communication
         }
 
         /// <summary>
-        /// Cierra el canal de la consulta y dispara LeaderboardResultReceived, siempre que el resultado sea de la
-        /// consulta vigente; el de una consulta anterior se ignora.
+        /// Closes the query channel and raises LeaderboardResultReceived only for the current query. Ignores older
+        /// results.
         /// </summary>
-        /// <param name="callback">Receptor que entregó el resultado.</param>
-        /// <param name="operationGetLeaderboardResult">Resultado que llegó del servidor.</param>
+        /// <param name="callback">Receiver that delivered the result.</param>
+        /// <param name="operationGetLeaderboardResult">Result received from the server.</param>
         internal void NotifyLeaderboardResultReceived(
             ServerCallback callback,
             OperationGetLeaderboardResult operationGetLeaderboardResult)

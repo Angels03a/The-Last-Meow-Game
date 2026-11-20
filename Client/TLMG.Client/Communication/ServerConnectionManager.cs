@@ -267,11 +267,11 @@ namespace TLMG.Client.Communication
         }
 
         /// <summary>
-        /// Pasa al hilo de la interfaz un aviso de los canales de amigos o de lobby. La vigencia se comprueba al
-        /// ejecutarse en el hilo de la interfaz, no al llegar, porque entre ambos momentos el canal pudo cerrarse.
+        /// Passes a friends or lobby notification to the UI thread. It checks the channel when the notification runs
+        /// because the channel may close after the notification arrives.
         /// </summary>
-        /// <param name="callback">Receptor que entregó el aviso.</param>
-        /// <param name="notification">Aviso que se aplica solo si el receptor sigue vigente.</param>
+        /// <param name="callback">Receiver that delivered the notification.</param>
+        /// <param name="notification">Notification to apply only if the receiver is still current.</param>
         internal void RunOnInterfaceIfCurrent(ServerCallback callback, Action notification)
         {
             RunOnInterface(() => RunIfCurrentCallback(callback, notification));
@@ -502,8 +502,8 @@ namespace TLMG.Client.Communication
         }
 
         /// <summary>
-        /// Aplica el aviso solo si viene del receptor vigente del canal de amigos o del de lobby; cada apertura crea
-        /// un receptor distinto, así que lo que llegue de un canal anterior se ignora sin cambiar nada.
+        /// Applies notifications only from the current friends or lobby receiver. Each new channel has its own
+        /// receiver, so old callbacks leave the current state unchanged.
         /// </summary>
         private void RunIfCurrentCallback(ServerCallback callback, Action notification)
         {

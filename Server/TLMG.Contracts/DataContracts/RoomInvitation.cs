@@ -3,16 +3,16 @@
 namespace TLMG.Contracts.DataContracts
 {
     /// <summary>
-    /// Invitación a una sala recibida de un amigo; no incluye la sala, que el servidor revela al aceptarla.
+    /// Room invitation from a friend. The server reveals the room only after acceptance.
     /// </summary>
     [DataContract]
     public class RoomInvitation
     {
-        /// <summary>Identificador de la invitación, que el jugador usa para aceptarla.</summary>
+        /// <summary>Invitation ID used by the player to accept it.</summary>
         [DataMember]
         public int InvitationId { get; set; }
 
-        /// <summary>Nickname del amigo que invita.</summary>
+        /// <summary>Inviting friend's nickname.</summary>
         [DataMember]
         public string InviterNickname { get; set; }
     }

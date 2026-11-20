@@ -248,12 +248,12 @@ namespace TLMG.Services.Sessions
         }
 
         /// <summary>
-        /// Saca al jugador de su sala por la causa indicada. Solo la salida voluntaria lo saca también del motor de
-        /// partida; las demás causas dejan la partida intacta hasta que exista la ventana de reconexión (C2).
+        /// Removes the player from the room for the given reason. A voluntary exit also removes the player from the
+        /// match engine immediately. A disconnection follows the reconnection rules (C2).
         /// </summary>
-        /// <param name="userId">Jugador que sale.</param>
-        /// <param name="exitCause">Causa de la salida.</param>
-        /// <param name="matchViewDeliveries">Vistas para los demás suscritos de la partida; vacía si no hay.</param>
+        /// <param name="userId">Player leaving.</param>
+        /// <param name="exitCause">Exit cause.</param>
+        /// <param name="matchViewDeliveries">Views for other match subscribers, empty if none.</param>
         private LobbyMembershipChange RemoveUserFromRoom(
             int userId,
             RoomExitCause exitCause,
@@ -421,7 +421,7 @@ namespace TLMG.Services.Sessions
             return CreateRoomSnapshot(roomId, members, _startsByRoomId[roomId]);
         }
 
-        /// <summary>Copia la sala con un estado de inicio, publicado o por publicar; requiere _sessionsLock.</summary>
+        /// <summary>Copies the room with its published or pending start state. Requires _sessionsLock.</summary>
         private LobbyRoomSnapshot CreateRoomSnapshot(
             int roomId,
             List<LobbyMember> members,

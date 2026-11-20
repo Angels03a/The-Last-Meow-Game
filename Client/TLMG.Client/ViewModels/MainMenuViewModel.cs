@@ -41,7 +41,7 @@ namespace TLMG.Client.ViewModels
             LogOutCommand = new RelayCommand(ExecuteLogOut);
         }
 
-        /// <summary>Comando para navegar al Lobby.</summary>
+        /// <summary>Opens the lobby.</summary>
         public ICommand NavigateToLobbyCommand { get; }
 
         /// <summary>Comando para navegar a la lista de amigos.</summary>
@@ -53,7 +53,7 @@ namespace TLMG.Client.ViewModels
         /// <summary>Comando para navegar a las instrucciones.</summary>
         public ICommand NavigateToHowToPlayCommand { get; }
 
-        /// <summary>Comando para navegar al Leaderboard.</summary>
+        /// <summary>Opens the leaderboard.</summary>
         public ICommand NavigateToLeaderboardCommand { get; }
 
         /// <summary>Comando para navegar a las opciones.</summary>

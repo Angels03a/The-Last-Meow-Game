@@ -4,24 +4,24 @@ using System.Collections.Generic;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Azar de prueba, sin hilos ni reloj: devuelve primero los índices que la prueba encoló y después 0. Valida que
-    /// cada índice esté dentro del rango pedido, como lo exige el motor.
+    /// Test random source without threads or a clock. Returns queued indices followed by 0. Checks every index against
+    /// the requested range as required by the engine.
     /// </summary>
     internal sealed class ScriptedRandom
     {
         private readonly Queue<int> _indexes = new Queue<int>();
 
-        /// <summary>Obtiene cuántas veces se pidió un índice.</summary>
+        /// <summary>Number of index requests.</summary>
         internal int CallCount { get; private set; }
 
-        /// <summary>Encola un índice que se devolverá en la siguiente petición.</summary>
+        /// <summary>Queues an index for the next request.</summary>
         internal void Enqueue(int index)
         {
             _indexes.Enqueue(index);
         }
 
-        /// <summary>Devuelve el siguiente índice encolado, o 0 si no hay.</summary>
-        /// <param name="count">Cantidad de opciones; el índice debe ser menor.</param>
+        /// <summary>Returns the next queued index, or 0 if none remains.</summary>
+        /// <param name="count">Number of options. The index must be smaller.</param>
         internal int PickIndex(int count)
         {
             CallCount++;

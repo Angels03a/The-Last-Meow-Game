@@ -6,18 +6,18 @@ using TLMG.Domain.Engine;
 namespace TLMG.Services.Helpers
 {
     /// <summary>
-    /// Calcula qué acciones puede hacer cada destinatario de una vista. Es una ayuda para la interfaz: el motor sigue
-    /// siendo quien acepta o rechaza cada acción, así que un valor de aquí nunca da un permiso.
+    /// Describes actions available to each view recipient so the UI can show the right controls. Only the engine can
+    /// accept or reject an action.
     /// </summary>
     internal static class MatchActionAvailabilityHelper
     {
         private const int MinimumOpeningBetValue = 1;
         private const int NoBetValue = 0;
 
-        /// <summary>Llena las banderas de acciones y el rango de apuesta de la vista de un destinatario.</summary>
-        /// <param name="matchView">Vista del destinatario, ya con fase, apuesta y cartas.</param>
-        /// <param name="matchState">Estado del motor; solo se lee.</param>
-        /// <param name="viewer">El jugador destinatario; null si no es jugador de la partida.</param>
+        /// <summary>Fills in the recipient's available actions and bid range.</summary>
+        /// <param name="matchView">Recipient's view with phase, bid and cards already set.</param>
+        /// <param name="matchState">Engine state, used for reading only.</param>
+        /// <param name="viewer">Recipient, or null if outside the match.</param>
         internal static void ApplyAvailability(MatchView matchView, MatchState matchState, MatchPlayer viewer)
         {
             bool isViewerInPlay = viewer != null && viewer.IsInPlay;
@@ -67,7 +67,9 @@ namespace TLMG.Services.Helpers
             }
         }
 
-        /// <summary>Abrir exige la fase de colocación, una carta propia ya colocada y cartas en la mesa.</summary>
+        /// <summary>
+        /// Opening a bid requires the placement phase, a card already placed by this player and cards on the table.
+        /// </summary>
         private static bool CanOpenBet(MatchState matchState, MatchPlayer viewer, int maximumBet)
         {
             bool isPlacingPhase = matchState.Phase == RoundPhase.PlacingCards;

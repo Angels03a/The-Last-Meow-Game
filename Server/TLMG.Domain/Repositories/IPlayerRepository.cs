@@ -35,9 +35,9 @@ namespace TLMG.Domain.Repositories
         /// <returns>true si se guardó; false si la cuenta no existe o la operación falló.</returns>
         bool UpdateLastLogInTime(int userId, DateTime lastLogInTimeUtc);
 
-        /// <summary>Obtiene los jugadores activos con más puntos, ordenados de mayor a menor.</summary>
-        /// <param name="maximumPlayerCount">Cantidad máxima de jugadores a devolver.</param>
-        /// <returns>Los jugadores y su estado de consulta; nunca es null.</returns>
+        /// <summary>Returns the highest-scoring active players in descending points order.</summary>
+        /// <param name="maximumPlayerCount">Maximum number of players to return.</param>
+        /// <returns>Players and query status, always present.</returns>
         LeaderboardLookup FindTopRankedPlayers(int maximumPlayerCount);
     }
 }

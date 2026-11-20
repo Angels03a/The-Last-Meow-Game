@@ -9,7 +9,7 @@ using TLMG.Client.ViewModels;
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Pantalla de partida. Muestra el estado del ViewModel y resuelve el menú contextual y la navegación.
+    /// Displays match state from the ViewModel and handles the context menu and navigation.
     /// </summary>
     public partial class GameplayScreen : LocalizableScreen
     {
@@ -22,7 +22,7 @@ namespace TLMG.Client.Views
         private readonly GameplayViewModel _viewModel;
 
         /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="GameplayScreen"/>.
+        /// Creates a <see cref="GameplayScreen"/>.
         /// </summary>
         public GameplayScreen(GameplayViewModel viewModel)
         {
@@ -103,7 +103,7 @@ namespace TLMG.Client.Views
         private void OnKickVoteRequested(object sender, EventArgs e)
         {
             HidePlayerContextMenu();
-            // TODO (BL-161): Iniciar la votación de expulsión del jugador seleccionado.
+            // TODO: Start a vote to remove the selected player. (BL-161).
         }
 
         private void ShowPlayerContextMenu(Point clickPosition)

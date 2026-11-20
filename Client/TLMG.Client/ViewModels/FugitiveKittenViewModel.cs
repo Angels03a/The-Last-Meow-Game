@@ -11,7 +11,7 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>Presenta el minijuego confirmado por la partida actual.</summary>
+    /// <summary>Shows the minigame confirmed by the current match.</summary>
     public sealed class FugitiveKittenViewModel : ViewModelBase
     {
         private const int TickMilliseconds = 100;

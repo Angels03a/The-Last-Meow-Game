@@ -13,7 +13,7 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Pruebas de suscripción, colocación de cartas y vistas privadas de una partida autorizada.
+    /// Tests subscriptions, card placement and private views for an authorized match.
     /// </summary>
     public class SessionRegistryMatchPlayTests
     {
@@ -116,7 +116,7 @@ namespace TLMG.Services.Tests
                 .Select(property => property.Name)
                 .ToArray();
 
-            // Assert: las cartas volteadas son públicas; ninguna otra propiedad del jugador lleva tipos de carta.
+            // Assert: Revealed cards are public. No other player property exposes card types.
             Assert.Equal(new[] { nameof(MatchPlayerView.RevealedPileCards) }, propertiesWithCards);
         }
 
@@ -195,7 +195,7 @@ namespace TLMG.Services.Tests
         [Fact]
         public void PlaceCard_WithCardAlreadyPlaced_RejectsWithCardNotInHand()
         {
-            // Arrange: una vuelta completa; el creador ya colocó su único Gato con Maullido Fatal.
+            // Arrange: After a full turn cycle, the creator has placed their only Fatal Cat.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             PlaceInTurnOrder(scenario, MatchCardKind.FatalCat, MinimumPlayerCount);
@@ -211,7 +211,7 @@ namespace TLMG.Services.Tests
         [Fact]
         public void PlaceCard_WithEmptyHand_RejectsWithHandEmpty()
         {
-            // Arrange: todos colocan sus 4 cartas y al creador le vuelve a tocar con la mano vacía.
+            // Arrange: Everyone places four cards. The creator's turn comes around with an empty hand.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             PlaceInTurnOrder(scenario, MatchCardKind.FatalCat, MinimumPlayerCount);
@@ -299,7 +299,7 @@ namespace TLMG.Services.Tests
         [Fact]
         public void PlaceCard_RepeatedByTheSamePlayer_RejectsSecondAndKeepsVersion()
         {
-            // Arrange: reentrada secuencial; la segunda llamada llega cuando el turno ya pasó.
+            // Arrange: The second call arrives in sequence after the turn has passed.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             scenario.Place(scenario.CreatorUserId, MatchCardKind.Safe);
@@ -350,7 +350,7 @@ namespace TLMG.Services.Tests
         [Fact]
         public void RemoveMatchChannel_WithOldCallbackOnSameChannel_KeepsNewCallback()
         {
-            // Arrange: mismo canal, otro callback; comparar solo el canal borraría la suscripción nueva.
+            // Arrange: Same channel, different callback. Checking only the channel would remove the newer subscription.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             MatchCallbackStub oldCallback = new MatchCallbackStub();
             SessionChannelCaller caller = scenario.MatchCallerOf(scenario.CreatorUserId);

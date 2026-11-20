@@ -3,16 +3,18 @@ using System;
 namespace TLMG.Domain.Engine
 {
     /// <summary>
-    /// Salida de un jugador de la partida (Reglas 4.0.6 y H-11): cuándo comenzó y cuándo se hizo efectiva, en UTC. En
-    /// una salida voluntaria ambas coinciden; en una desconexión no recuperada, el inicio es cuándo comenzó la
-    /// desconexión y la efectiva es cuándo venció su gracia. Las horas las da Services; el motor no lee el reloj.
+    /// Player exit times in UTC (Rule 4.0.6 and H-11). A voluntary exit starts and takes effect at the same instant.
+    /// For a missed reconnection, the exit starts at disconnection and takes effect when the grace period ends.
+    /// Services supplies both times. The engine never reads the clock.
     /// </summary>
     public sealed class PlayerExit
     {
-        /// <summary>Crea una salida con su inicio y su hora efectiva.</summary>
-        /// <param name="startedAtUtc">Hora UTC en que comenzó la salida o la desconexión.</param>
-        /// <param name="effectiveAtUtc">Hora UTC en que la salida se hizo efectiva.</param>
-        /// <exception cref="ArgumentException">Una hora no es UTC o el inicio es posterior a la efectiva.</exception>
+        /// <summary>Creates an exit with its start and effective times.</summary>
+        /// <param name="startedAtUtc">UTC time when the exit or disconnection began.</param>
+        /// <param name="effectiveAtUtc">UTC time when the exit took effect.</param>
+        /// <exception cref="ArgumentException">
+        /// A time is outside UTC or the start is later than the effective time.
+        /// </exception>
         public PlayerExit(DateTime startedAtUtc, DateTime effectiveAtUtc)
         {
             ValidateUtc(startedAtUtc, nameof(startedAtUtc));
@@ -28,22 +30,24 @@ namespace TLMG.Domain.Engine
             EffectiveAtUtc = effectiveAtUtc;
         }
 
-        /// <summary>Obtiene la hora UTC en que comenzó la salida o la desconexión.</summary>
+        /// <summary>UTC time when the exit or disconnection began.</summary>
         public DateTime StartedAtUtc { get; }
 
-        /// <summary>Obtiene la hora UTC en que la salida se hizo efectiva.</summary>
+        /// <summary>UTC time when the exit took effect.</summary>
         public DateTime EffectiveAtUtc { get; }
 
-        /// <summary>Crea una salida inmediata, como la voluntaria: el inicio y la hora efectiva coinciden.</summary>
-        /// <param name="atUtc">Hora UTC de la salida.</param>
-        /// <returns>La salida inmediata.</returns>
-        /// <exception cref="ArgumentException">atUtc no es una hora UTC.</exception>
+        /// <summary>
+        /// Creates an immediate exit, such as a voluntary exit, with matching start and effective times.
+        /// </summary>
+        /// <param name="atUtc">UTC exit time.</param>
+        /// <returns>Immediate exit.</returns>
+        /// <exception cref="ArgumentException">atUtc is not a UTC time.</exception>
         public static PlayerExit Immediate(DateTime atUtc)
         {
             return new PlayerExit(atUtc, atUtc);
         }
 
-        /// <summary>Único validador UTC del motor; MatchState lo reutiliza con el nombre de su parámetro.</summary>
+        /// <summary>Shared UTC check for the engine. MatchState supplies its own parameter name.</summary>
         internal static void ValidateUtc(DateTime utcTime, string parameterName)
         {
             if (utcTime.Kind != DateTimeKind.Utc)

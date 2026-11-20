@@ -2,27 +2,27 @@ using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
 {
-    /// <summary>Fase de la ronda que viaja por la red; Services la traduce desde el motor.</summary>
+    /// <summary>Round phase sent over the network. Services maps it from the engine phase.</summary>
     [DataContract]
     public enum MatchRoundPhase
     {
-        /// <summary>Los jugadores colocan cartas por turnos.</summary>
+        /// <summary>Players take turns placing cards.</summary>
         [EnumMember]
         PlacingCards,
 
-        /// <summary>Hay una apuesta en curso.</summary>
+        /// <summary>Bidding is in progress.</summary>
         [EnumMember]
         Betting,
 
-        /// <summary>Queda un solo apostador y el reto está listo.</summary>
+        /// <summary>One bidder remains and the challenge is ready.</summary>
         [EnumMember]
         ChallengeReady,
 
-        /// <summary>Hay un castigo pendiente tras un reto fallido.</summary>
+        /// <summary>A failed challenge has a pending punishment.</summary>
         [EnumMember]
         PunishmentPending,
 
-        /// <summary>La partida terminó.</summary>
+        /// <summary>The match has ended.</summary>
         [EnumMember]
         MatchFinished
     }

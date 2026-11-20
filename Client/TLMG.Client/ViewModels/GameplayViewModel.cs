@@ -118,14 +118,14 @@ namespace TLMG.Client.ViewModels
             private set => SetProperty(ref _recoveryMessage, value);
         }
 
-        /// <summary>Obtiene si la partida dejó de estar disponible y el tablero ya no se muestra actualizado.</summary>
+        /// <summary>Checks if the match is unavailable and the board may be out of date.</summary>
         public bool IsMatchUnavailable
         {
             get { return _isMatchUnavailable; }
             private set { SetProperty(ref _isMatchUnavailable, value); }
         }
 
-        /// <summary>Obtiene si se muestran los controles de demostración; no se muestran en una partida real.</summary>
+        /// <summary>Checks if demo controls are shown; they are hidden in a real match.</summary>
         public bool IsDemoPanelVisible
         {
             get
@@ -140,7 +140,7 @@ namespace TLMG.Client.ViewModels
         public int HandColumnCount => _matchMode.HandColumnCount;
         public ObservableCollection<ChatMessageEntry> ChatMessages => _chatMessages;
 
-        /// <summary>Obtiene lo que la pantalla dibuja de la última vista aceptada del servidor.</summary>
+        /// <summary>Gets the board shown from the last accepted server view.</summary>
         public MatchBoard Board
         {
             get { return _board; }
@@ -364,8 +364,8 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
-        /// Al perder la disponibilidad el tablero deja de presentarse como actualizado: se vacía y se avisa al
-        /// jugador. Un fallo del canal de partida no lo saca de la sala ni de la sesión.
+        /// Marks the board as unavailable when the match connection is lost. Clears it if the current view no longer
+        /// belongs to the match. A match channel failure does not remove the player from the room or session.
         /// </summary>
         private void OnMatchAvailabilityChanged(object sender, EventArgs eventArgs)
         {

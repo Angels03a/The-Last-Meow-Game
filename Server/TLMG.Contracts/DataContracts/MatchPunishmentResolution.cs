@@ -2,31 +2,31 @@ using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
 {
-    /// <summary>Cómo se resolvió el castigo de un reto fallido.</summary>
+    /// <summary>How the punishment for a failed challenge was resolved.</summary>
     [DataContract]
     public enum MatchPunishmentResolution
     {
-        /// <summary>El reto no falló, así que no hay castigo.</summary>
+        /// <summary>The challenge did not fail, so there is no punishment.</summary>
         [EnumMember]
         None,
 
-        /// <summary>El castigo sigue pendiente: quien debe elegir todavía no elige.</summary>
+        /// <summary>Punishment is pending while the designated player chooses.</summary>
         [EnumMember]
         Pending,
 
-        /// <summary>Quien debía elegir eligió la carta que se eliminó.</summary>
+        /// <summary>The designated player chose the card to remove.</summary>
         [EnumMember]
         ChosenByChooser,
 
-        /// <summary>El sistema eligió al azar, porque venció el plazo o salió quien debía elegir.</summary>
+        /// <summary>The system chose at random because time ran out or the player making the choice left.</summary>
         [EnumMember]
         ChosenAtRandom,
 
-        /// <summary>El castigado tenía una sola vida: se eliminó sin elegir.</summary>
+        /// <summary>The punished player had one life and was eliminated without a choice.</summary>
         [EnumMember]
         SingleLifeNoChoice,
 
-        /// <summary>El castigo se canceló porque el castigado salió de la partida.</summary>
+        /// <summary>The punishment was canceled because the punished player left the match.</summary>
         [EnumMember]
         Cancelled
     }

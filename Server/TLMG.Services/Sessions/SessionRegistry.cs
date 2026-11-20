@@ -9,10 +9,9 @@ using TLMG.Services.Helpers;
 namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Guarda las sesiones iniciadas, las salas (SessionRegistry.Lobbies.cs) y los canales de amigos y las invitaciones
-    /// (SessionRegistry.Friends.cs). Un solo candado protege todo el estado compartido y dentro de él no hay datos,
-    /// callbacks, log ni esperas: solo se lee o modifica memoria, se copia lo necesario y el log y los avisos se hacen
-    /// siempre después de salir del candado.
+    /// Stores sessions, rooms (SessionRegistry.Lobbies.cs), friends channels and room invitations
+    /// (SessionRegistry.Friends.cs). One lock protects shared state. Inside it, only read, update or copy memory.
+    /// Database calls, callbacks, logging and waits stay outside the lock.
     /// </summary>
     public partial class SessionRegistry : ISessionRegistry
     {
@@ -25,26 +24,28 @@ namespace TLMG.Services.Sessions
             new Dictionary<string, PlayerSession>();
         private readonly Dictionary<int, string> _tokensByUserId = new Dictionary<int, string>();
 
-        /// <summary>Crea el registro con el reloj UTC del sistema.</summary>
+        /// <summary>Creates the registry with the system UTC clock.</summary>
         public SessionRegistry() : this(ReadSystemUtcNow)
         {
         }
 
         /// <summary>
-        /// Crea el registro con la fuente de hora UTC indicada y el azar del sistema. El generador solo se usa bajo
-        /// _sessionsLock, así que una sola instancia de Random es suficiente.
+        /// Creates the registry with the supplied UTC clock and system randomness. One Random instance is enough
+        /// because it is used only under _sessionsLock.
         /// </summary>
-        /// <param name="readUtcNow">Devuelve la hora UTC actual; se lee solo bajo _sessionsLock.</param>
+        /// <param name="readUtcNow">Returns current UTC time, read only under _sessionsLock.</param>
         internal SessionRegistry(Func<DateTime> readUtcNow) : this(readUtcNow, new Random().Next)
         {
         }
 
         /// <summary>
-        /// Crea el registro con la fuente de hora UTC y el azar indicados; permite a las pruebas vencer la cuenta
-        /// regresiva y el plazo del castigo sin esperar. El servidor usa el constructor sin parámetros.
+        /// Creates a registry with supplied UTC time and randomness so tests can expire countdowns and punishments
+        /// without waiting. The server uses the parameterless constructor.
         /// </summary>
-        /// <param name="readUtcNow">Devuelve la hora UTC actual; se lee solo bajo _sessionsLock.</param>
-        /// <param name="pickRandomIndex">Devuelve un índice al azar entre 0 y la cantidad dada, sin incluirla.</param>
+        /// <param name="readUtcNow">Returns current UTC time, read only under _sessionsLock.</param>
+        /// <param name="pickRandomIndex">
+        /// Returns a random index from 0 up to the given count, excluding the count.
+        /// </param>
         internal SessionRegistry(Func<DateTime> readUtcNow, Func<int, int> pickRandomIndex)
         {
             _readUtcNow = readUtcNow;

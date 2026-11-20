@@ -7,10 +7,9 @@ using TLMG.Domain.Constants;
 namespace TLMG.Domain.Engine
 {
     /// <summary>
-    /// Estado de una partida en curso: reglas de la modalidad, jugadores en su orden de turnos y jugador en turno.
-    /// Es una biblioteca pura (§4.2): valida y calcula; Services decide qué notificar y guardar. El orden de turnos
-    /// es el de ingreso a la sala y se congela al crear la partida. No es seguro entre hilos: quien la use debe
-    /// serializar cada operación completa sobre una misma partida, incluidas las lecturas.
+    /// Current match rules, players in turn order and current player. This pure library validates and calculates
+    /// (§4.2). Services decides what to publish and store. Turn order follows room entry and is fixed at creation.
+    /// Callers must serialize each complete operation on a match, including reads.
     /// </summary>
     public sealed partial class MatchState
     {
@@ -25,12 +24,12 @@ namespace TLMG.Domain.Engine
         private bool _hasAnyCardBeenPlaced;
         private int _successfulChallengeSequence;
 
-        /// <summary>Inicia una partida con la mano completa para cada jugador.</summary>
-        /// <param name="modeRules">Reglas de la modalidad elegida en la sala.</param>
-        /// <param name="playerIdsInJoinOrder">Identificadores de los jugadores, en orden de ingreso a la sala.</param>
-        /// <exception cref="ArgumentNullException">Alguno de los argumentos es null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Hay menos de 3 o más de 6 jugadores.</exception>
-        /// <exception cref="ArgumentException">Un identificador de jugador se repite.</exception>
+        /// <summary>Starts a match with a full hand for each player.</summary>
+        /// <param name="modeRules">Mode rules selected in the room.</param>
+        /// <param name="playerIdsInJoinOrder">Player IDs in room entry order.</param>
+        /// <exception cref="ArgumentNullException">An argument is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">There are fewer than 3 or more than 6 players.</exception>
+        /// <exception cref="ArgumentException">A player ID appears more than once.</exception>
         public MatchState(MatchModeRules modeRules, IReadOnlyList<int> playerIdsInJoinOrder)
         {
             ValidateMatchSetup(modeRules, playerIdsInJoinOrder);
@@ -45,56 +44,58 @@ namespace TLMG.Domain.Engine
             EliminatedPlayers = _eliminatedPlayers.AsReadOnly();
         }
 
-        /// <summary>Obtiene las reglas de la modalidad de la partida.</summary>
+        /// <summary>Rules for this match mode.</summary>
         public MatchModeRules ModeRules { get; }
 
-        /// <summary>Obtiene a los jugadores en su orden fijo de turnos.</summary>
+        /// <summary>Players in fixed turn order.</summary>
         public IReadOnlyList<MatchPlayer> Players { get; }
 
         /// <summary>
-        /// Obtiene al jugador que tiene el turno; la partida empieza con el primero del orden. Con la partida terminada
-        /// carece de significado: Phase es MatchFinished y toda acción se rechaza.
+        /// Player whose turn it is, starting with the first player. After the match ends, Phase is MatchFinished, every
+        /// action is rejected and the turn has no meaning.
         /// </summary>
         public MatchPlayer PlayerInTurn => _players[_playerInTurnIndex];
 
         /// <summary>
-        /// Obtiene el número de la ronda en curso; empieza en 1 y solo sube cuando empieza una ronda nueva, incluida la
-        /// que reinicia una salida.
+        /// Current round number, starting at 1. Increases only for a new round, including a restart after an exit.
         /// </summary>
         public int RoundNumber { get; private set; } = FirstRoundNumber;
 
-        /// <summary>Obtiene la fase de la ronda: colocando cartas, apostando o con el reto listo.</summary>
+        /// <summary>Current round phase for placement, bidding or a ready challenge.</summary>
         public RoundPhase Phase { get; private set; }
 
-        /// <summary>Obtiene la apuesta actual, o 0 si no hay; con el reto listo, las cartas a voltear.</summary>
+        /// <summary>
+        /// Current bid, or 0 without a bid. For a ready challenge, this is the number of cards to reveal.
+        /// </summary>
         public int CurrentBet { get; private set; }
 
-        /// <summary>Obtiene a quien tiene la apuesta más alta (el apostador con el reto listo), o null.</summary>
+        /// <summary>Highest bidder, who takes the challenge when ready, or null.</summary>
         public MatchPlayer BetLeader { get; private set; }
 
         /// <summary>
-        /// Obtiene la última resolución disponible, o null si todavía no hubo ningún reto o una salida reinició la
-        /// ronda. Sigue disponible después de cerrarse para consultar la última carta volteada; las acciones permitidas
-        /// las decide Phase.
+        /// Latest challenge resolution, or null before the first challenge or after an exit restarts the round. A
+        /// closed resolution keeps the last revealed card available. Phase determines permitted actions.
         /// </summary>
         public ChallengeResolution Resolution { get; private set; }
 
-        /// <summary>Obtiene el castigo pendiente de un reto fallido, o null si no hay.</summary>
+        /// <summary>Pending punishment from a failed challenge, or null if none.</summary>
         public PendingPunishment PendingPunishment { get; private set; }
 
-        /// <summary>Obtiene al ganador por retos o por ser el último en pie, o null si la partida sigue.</summary>
+        /// <summary>
+        /// Winner by challenge count or by being the last player standing, or null while play continues.
+        /// </summary>
         public MatchPlayer Winner { get; private set; }
 
-        /// <summary>Obtiene las cartas boca abajo en la mesa: la suma de las pilas de los jugadores.</summary>
+        /// <summary>Face-down cards on the table, summed across player piles.</summary>
         public int CardsOnTable => _players.Sum(player => player.PileCards.Count);
 
         /// <summary>
-        /// Coloca una carta de la mano del jugador arriba de su pila y pasa el turno al siguiente jugador activo del
-        /// orden. No cambia las vidas. Si rechaza la acción, el estado no cambia.
+        /// Moves a hand card to the top of the player's pile and passes the turn to the next active player. Lives stay
+        /// the same. Rejection leaves state unchanged.
         /// </summary>
-        /// <param name="playerId">Jugador que pide colocar.</param>
-        /// <param name="card">Tipo de carta que coloca.</param>
-        /// <returns>Placed si se colocó; en otro caso, el motivo del rechazo.</returns>
+        /// <param name="playerId">Player requesting placement.</param>
+        /// <param name="card">Type of card to place.</param>
+        /// <returns>Placed on success, otherwise the rejection reason.</returns>
         public CardPlacementStatus PlaceCard(int playerId, CardKind card)
         {
             CardPlacementStatus placementStatus;
@@ -139,12 +140,11 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Otorga la vida extra a un jugador. Solo existe en la modalidad de 8 cartas y solo un jugador la obtiene por
-        /// partida, una sola vez y antes de colocar la primera carta (2.0.4.1); no se acumula ni se transfiere. Quién
-        /// la gana lo decide Services. Si rechaza, nada cambia.
+        /// Awards an extra life only in eight-card mode, once per match to one player before the first card is placed
+        /// (2.0.4.1). It cannot stack or transfer. Services determines the recipient. Rejection leaves state unchanged.
         /// </summary>
-        /// <param name="playerId">Jugador que recibe la vida extra.</param>
-        /// <returns>Granted si se otorgó; en otro caso, el motivo del rechazo.</returns>
+        /// <param name="playerId">Player receiving the extra life.</param>
+        /// <returns>Granted on success, otherwise the rejection reason.</returns>
         public ExtraLifeStatus GrantExtraLife(int playerId)
         {
             ExtraLifeStatus extraLifeStatus = ExtraLifeStatus.Granted;
@@ -176,8 +176,7 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Valida la creación de la partida antes de tocar ningún estado: argumentos no nulos, de 3 a 6 jugadores y
-        /// sin identificadores repetidos.
+        /// Checks for non-null arguments, 3 to 6 players and unique IDs before changing state.
         /// </summary>
         private static void ValidateMatchSetup(MatchModeRules modeRules, IReadOnlyList<int> playerIdsInJoinOrder)
         {
@@ -205,15 +204,15 @@ namespace TLMG.Domain.Engine
             }
         }
 
-        /// <summary>El motor solo recibe la hora UTC del servidor; nunca lee el reloj por su cuenta.</summary>
+        /// <summary>The engine uses only UTC time supplied by the server and never reads the clock itself.</summary>
         private static void ValidateUtc(DateTime nowUtc)
         {
             PlayerExit.ValidateUtc(nowUtc, nameof(nowUtc));
         }
 
         /// <summary>
-        /// Empieza una ronda nueva: sube RoundNumber, deja la mesa lista para colocar y da el turno al primer jugador
-        /// en juego del orden fijo. Es el único punto que cuenta rondas.
+        /// Starts a new round, increments RoundNumber, prepares the table and gives the turn to the first active player
+        /// in fixed order. Only this method counts rounds.
         /// </summary>
         private void StartNextRound()
         {
@@ -223,7 +222,7 @@ namespace TLMG.Domain.Engine
             _playerInTurnIndex = _players.FindIndex(player => player.IsInPlay);
         }
 
-        /// <summary>Deja la apuesta en su valor inicial: sin apuesta, sin líder y sin retiradas.</summary>
+        /// <summary>Resets bidding to no bid, no leader and no folded players.</summary>
         private void ResetBetting()
         {
             ClearWithdrawals();
@@ -233,7 +232,7 @@ namespace TLMG.Domain.Engine
 
         private bool HasSinglePlayerInPlay() => _players.Count(player => player.IsInPlay) == LastSurvivorCount;
 
-        /// <summary>Termina la partida con la victoria del único jugador que sigue en juego (No. 9b).</summary>
+        /// <summary>Ends the match with the sole active player as winner (No. 9b).</summary>
         private void FinishWithLastPlayerInPlay()
         {
             Winner = _players.First(player => player.IsInPlay);
@@ -248,7 +247,7 @@ namespace TLMG.Domain.Engine
             }
         }
 
-        /// <summary>Pasa el turno al siguiente jugador en juego del orden; quien coloca siempre lo está.</summary>
+        /// <summary>Passes the turn to the next active player. The player placing a card is always active.</summary>
         private void MoveToNextActivePlayer()
         {
             do
@@ -258,7 +257,7 @@ namespace TLMG.Domain.Engine
             while (!PlayerInTurn.IsInPlay);
         }
 
-        /// <summary>Busca a un jugador de la partida; quien ya salió no está en ella para ninguna acción.</summary>
+        /// <summary>Finds a match player. A player who left cannot take any game action.</summary>
         private MatchPlayer FindPlayer(int playerId)
         {
             MatchPlayer participant = FindParticipant(playerId);

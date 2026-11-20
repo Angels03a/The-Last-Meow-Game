@@ -9,7 +9,7 @@ using TLMG.Client.Models;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>Estado y navegación de GameOver.</summary>
+    /// <summary>State and navigation for GameOver.</summary>
     public class GameOverViewModel : ViewModelBase
     {
         private readonly INavigationManager _navigation;
@@ -19,7 +19,7 @@ namespace TLMG.Client.ViewModels
         private readonly Guid? _matchId;
         private bool _isLeaving;
         private bool _isDisposed;
-        /// <summary>Inicializa los comandos de navegación.</summary>
+        /// <summary>Sets up navigation commands.</summary>
         public GameOverViewModel(
             INavigationManager navigation, ILobbyConnection lobbyConnection, IDialogManager dialogs, MatchView result)
         {
@@ -41,9 +41,9 @@ namespace TLMG.Client.ViewModels
             }
             _mainMenuCommand = new RelayCommand(ExecuteMainMenu, CanExecuteMainMenu);
         }
-        /// <summary>Continúa a la partida.</summary>
+        /// <summary>Victory notification for the winner named in the server view.</summary>
         public GameNotification Notification { get; }
-        /// <summary>Regresa al menú principal.</summary>
+        /// <summary>Returns to the main menu.</summary>
         public ICommand MainMenuCommand => _mainMenuCommand;
 
         private bool CanExecuteMainMenu() => !_isLeaving;
@@ -104,15 +104,15 @@ namespace TLMG.Client.ViewModels
             base.OnDisposed();
         }
 
-        /// <summary>Valor de demostración del resultado.</summary>
+        /// <summary>Winner's nickname from the match result, or an empty string if unavailable.</summary>
         public string WinnerName { get; }
 
         public bool EndedByCollectiveAbandonment { get; }
 
-        /// <summary>Filas finales entregadas por el servidor; null si no están disponibles.</summary>
+        /// <summary>Final standings from the server, or null if unavailable.</summary>
         public MatchStandingView[] Standings { get; }
 
-        /// <summary>Indica si el servidor entregó la clasificación, incluso vacía.</summary>
+        /// <summary>Whether the server supplied standings, even if empty.</summary>
         public bool HasStandings { get; }
     }
 }

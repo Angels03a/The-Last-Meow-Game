@@ -9,12 +9,12 @@ using TLMG.Domain.Engine;
 
 namespace TLMG.Domain.Tests
 {
-    /// <summary>Pruebas de MatchModeRules.</summary>
+    /// <summary>Tests for MatchModeRules.</summary>
     public class MatchModeRulesTests
     {
         private const BindingFlags PublicInstanceMembers = BindingFlags.Instance | BindingFlags.Public;
 
-        /// <summary>Verifica CreateFromCardsPerPlayerCount_WithSupportedCount_ReturnsModeData.</summary>
+        /// <summary>Checks CreateFromCardsPerPlayerCount_WithSupportedCount_ReturnsModeData.</summary>
         [Theory]
         [InlineData(4, 1, 3, 2)]
         [InlineData(6, 1, 5, 2)]
@@ -35,7 +35,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(expectedSuccessfulChallengesToWin, modeRules.SuccessfulChallengesToWin);
         }
 
-        /// <summary>Verifica CreateFromCardsPerPlayerCount_WithSupportedCount_AllowsExtraLifeOnlyInEightMode.</summary>
+        /// <summary>Checks CreateFromCardsPerPlayerCount_WithSupportedCount_AllowsExtraLifeOnlyInEightMode.</summary>
         [Theory]
         [InlineData(4, false)]
         [InlineData(6, false)]
@@ -51,7 +51,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(expectedAllowsExtraLife, modeRules.AllowsExtraLife);
         }
 
-        /// <summary>Verifica CreateFromCardsPerPlayerCount_WithUnsupportedCount_ThrowsArgumentOutOfRange.</summary>
+        /// <summary>Checks CreateFromCardsPerPlayerCount_WithUnsupportedCount_ThrowsArgumentOutOfRange.</summary>
         [Theory]
         [InlineData(0)]
         [InlineData(5)]
@@ -68,7 +68,7 @@ namespace TLMG.Domain.Tests
             Assert.IsType<ArgumentOutOfRangeException>(thrown);
         }
 
-        /// <summary>Verifica Properties_Always_HaveNoPublicSetter.</summary>
+        /// <summary>Checks Properties_Always_HaveNoPublicSetter.</summary>
         [Fact]
         public void Properties_Always_HaveNoPublicSetter()
         {
@@ -84,7 +84,7 @@ namespace TLMG.Domain.Tests
             Assert.Empty(publicSetters);
         }
 
-        /// <summary>Verifica Methods_Always_ContainNoPublicInstanceMethodBesidesAccessors.</summary>
+        /// <summary>Checks Methods_Always_ContainNoPublicInstanceMethodBesidesAccessors.</summary>
         [Fact]
         public void Methods_Always_ContainNoPublicInstanceMethodBesidesAccessors()
         {
@@ -99,7 +99,7 @@ namespace TLMG.Domain.Tests
             Assert.Empty(modeChangingMethods);
         }
 
-        /// <summary>Verifica Fields_Always_ContainNoPublicInstanceField.</summary>
+        /// <summary>Checks Fields_Always_ContainNoPublicInstanceField.</summary>
         [Fact]
         public void Fields_Always_ContainNoPublicInstanceField()
         {

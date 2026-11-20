@@ -7,8 +7,8 @@ using TLMG.Client.UsersManagerReference;
 namespace TLMG.Client.ViewModels
 {
     /// <summary>
-    /// Convierte la vista privada del servidor en el tablero que dibuja la pantalla. Solo copia y ordena lo recibido:
-    /// no decide turnos, resultados ni permisos, y no inventa datos que la vista no trae.
+    /// Builds the board from the server's private view. It only copies and orders the data received. The server
+    /// supplies turns, results and permissions.
     /// </summary>
     public static class MatchBoardHelper
     {
@@ -33,8 +33,7 @@ namespace TLMG.Client.ViewModels
             };
 
         /// <summary>
-        /// Lugares de la mesa según cuántos rivales hay, en el orden de turnos que sigue al jugador local; el
-        /// siguiente en jugar queda a la izquierda.
+        /// Seats for each number of opponents, starting with the next player in turn order on the local player's left.
         /// </summary>
         private static readonly OpponentSlot[][] _layouts =
         {
@@ -48,8 +47,8 @@ namespace TLMG.Client.ViewModels
             }
         };
 
-        /// <summary>Crea el tablero vacío que se muestra antes de que llegue la primera vista.</summary>
-        /// <returns>Un tablero sin jugadores ni cartas.</returns>
+        /// <summary>Creates the empty board shown before the first view arrives.</summary>
+        /// <returns>Board without players or cards.</returns>
         public static MatchBoard CreateEmptyBoard()
         {
             MatchBoard board = new MatchBoard
@@ -63,11 +62,15 @@ namespace TLMG.Client.ViewModels
             return board;
         }
 
-        /// <summary>Arma el tablero que corresponde a una vista del servidor.</summary>
-        /// <param name="matchView">Vista privada recibida; si es null o sin jugadores, el tablero queda vacío.</param>
-        /// <param name="localUserId">Cuenta del jugador local, que decide su lugar y si es su turno.</param>
-        /// <param name="cardsPerPlayer">Cartas por jugador de la modalidad; son las vidas con que se empieza.</param>
-        /// <returns>El tablero nuevo; nunca es null.</returns>
+        /// <summary>Builds the board for a server view.</summary>
+        /// <param name="matchView">
+        /// Private view received. A null view or a view without players gives an empty board.
+        /// </param>
+        /// <param name="localUserId">
+        /// Local player's account, used to find their seat and check whose turn it is.
+        /// </param>
+        /// <param name="cardsPerPlayer">Cards per player in this mode, equal to starting lives.</param>
+        /// <returns>New board, always present.</returns>
         public static MatchBoard CreateBoard(MatchView matchView, int localUserId, int cardsPerPlayer)
         {
             MatchBoard board = CreateEmptyBoard();
@@ -130,9 +133,9 @@ namespace TLMG.Client.ViewModels
             return board;
         }
 
-        /// <summary>Convierte el tipo de carta que dibuja la pantalla al que entiende el servidor.</summary>
-        /// <param name="handCardKind">Aspecto de la carta que eligió el jugador.</param>
-        /// <returns>FatalCat para la calavera; Safe para cualquier otra.</returns>
+        /// <summary>Converts the displayed card type to the type used by the server.</summary>
+        /// <param name="handCardKind">Appearance of the selected card.</param>
+        /// <returns>FatalCat for the skull, Safe for all other cards.</returns>
         public static MatchCardKind ConvertToServerCard(HandCardKind handCardKind)
         {
             MatchCardKind serverCard = MatchCardKind.Safe;
@@ -145,9 +148,9 @@ namespace TLMG.Client.ViewModels
             return serverCard;
         }
 
-        /// <summary>Busca la clave de recurso del nombre de una fase.</summary>
-        /// <param name="roundPhase">Fase recibida del servidor.</param>
-        /// <returns>La clave de la fase; una clave genérica si la fase no se conoce.</returns>
+        /// <summary>Finds the resource key for a phase name.</summary>
+        /// <param name="roundPhase">Phase received from the server.</param>
+        /// <returns>Phase key, or a generic key for an unknown phase.</returns>
         public static string FindPhaseLabelKey(MatchRoundPhase roundPhase)
         {
             string labelKey;
@@ -161,11 +164,11 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
-        /// Crea la mano a partir de los tipos recibidos, en el mismo orden. Las cartas seguras alternan su aspecto
-        /// (egipcio y zombi) solo para variar el dibujo; el servidor solo conoce Safe y FatalCat.
+        /// Builds the hand in the order received. Safe cards alternate between Egyptian and zombie designs for display.
+        /// The server uses only Safe and FatalCat.
         /// </summary>
-        /// <param name="ownHandCards">Mano del jugador local; puede ser null.</param>
-        /// <returns>Las cartas de la mano; vacía si no hay.</returns>
+        /// <param name="ownHandCards">Local player's hand, which may be null.</param>
+        /// <returns>Hand cards, empty if there are none.</returns>
         public static IReadOnlyList<HandCardEntry> CreateHandCards(IEnumerable<MatchCardKind> ownHandCards)
         {
             List<HandCardEntry> handCards = new List<HandCardEntry>();
@@ -188,12 +191,12 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
-        /// Reparte a los rivales por la mesa: se recorre el orden de turnos empezando por quien juega después del
-        /// jugador local, y cada uno ocupa el siguiente lugar del diseño que corresponde al número de rivales.
+        /// Seats opponents in turn order, starting with the player after the local player. Each takes the next seat in
+        /// the layout for that number of opponents.
         /// </summary>
-        /// <param name="players">Jugadores en su orden fijo de turnos.</param>
-        /// <param name="localUserId">Cuenta del jugador local.</param>
-        /// <returns>Cada rival con su lugar, en el orden en que se dibujan.</returns>
+        /// <param name="players">Players in fixed turn order.</param>
+        /// <param name="localUserId">Local player's account.</param>
+        /// <returns>Opponents and their seats in display order.</returns>
         public static IReadOnlyList<KeyValuePair<OpponentSlot, MatchPlayerEntry>> ArrangeOpponents(
             IReadOnlyList<MatchPlayerEntry> players,
             int localUserId)

@@ -15,8 +15,8 @@ using TLMG.Client.UsersManagerReference;
 namespace TLMG.Client.ViewModels
 {
     /// <summary>
-    /// ViewModel de la tabla de posiciones: pide el ranking al servidor, reparte el podio y la lista, y regresa a la
-    /// pantalla anterior. Escucha al servidor solo entre Activate y Deactivate.
+    /// Requests the leaderboard, fills the podium and remaining rows, and returns to the previous screen. Listens to
+    /// server events only between Activate and Deactivate.
     /// </summary>
     public class LeaderboardViewModel : ViewModelBase
     {
@@ -42,7 +42,7 @@ namespace TLMG.Client.ViewModels
         private const int SecondPlaceRank = 2;
         private const int ThirdPlaceRank = 3;
 
-        // FIXME: Mostrar el puesto y los puntos del jugador en sesión cuando el cliente los conozca. (BL-091).
+        // FIXME: Show the current player's rank and points when the client receives them. (BL-091).
         private const int CurrentUserStandingRank = 38;
         private const int CurrentUserStandingPoints = 1840;
 
@@ -61,11 +61,11 @@ namespace TLMG.Client.ViewModels
         private string _currentPointsFormat = PlainPointsFormat;
 
         /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="LeaderboardViewModel"/>.
+        /// Creates a <see cref="LeaderboardViewModel"/>.
         /// </summary>
-        /// <param name="leaderboardConnection">Área de la tabla de posiciones de la conexión con el servidor.</param>
-        /// <param name="navigationManager">Administrador de navegación.</param>
-        /// <param name="dialogManager">Administrador de diálogos.</param>
+        /// <param name="leaderboardConnection">Leaderboard connection to the server.</param>
+        /// <param name="navigationManager">Navigation manager.</param>
+        /// <param name="dialogManager">Dialog manager.</param>
         public LeaderboardViewModel(
             ILeaderboardConnection leaderboardConnection,
             INavigationManager navigationManager,
@@ -81,65 +81,65 @@ namespace TLMG.Client.ViewModels
             ShowEmptyLeaderboard();
         }
 
-        /// <summary>Comando para consultar nuevamente la tabla de posiciones histórica.</summary>
+        /// <summary>Requests the historical leaderboard again.</summary>
         public ICommand FilterAllTimeCommand { get; }
 
-        /// <summary>Comando para regresar a la pantalla anterior.</summary>
+        /// <summary>Returns to the previous screen.</summary>
         public ICommand BackCommand { get; }
 
-        /// <summary>Colección de jugadores a partir del cuarto lugar.</summary>
+        /// <summary>Players ranked fourth and below.</summary>
         public ObservableCollection<PlayerRankEntry> RankedPlayers { get; }
 
-        /// <summary>Jugador en el primer lugar del podio.</summary>
+        /// <summary>First-place player.</summary>
         public PlayerRankEntry FirstPlace
         {
             get { return _firstPlace; }
             private set { SetProperty(ref _firstPlace, value); }
         }
 
-        /// <summary>Jugador en el segundo lugar del podio.</summary>
+        /// <summary>Second-place player.</summary>
         public PlayerRankEntry SecondPlace
         {
             get { return _secondPlace; }
             private set { SetProperty(ref _secondPlace, value); }
         }
 
-        /// <summary>Jugador en el tercer lugar del podio.</summary>
+        /// <summary>Third-place player.</summary>
         public PlayerRankEntry ThirdPlace
         {
             get { return _thirdPlace; }
             private set { SetProperty(ref _thirdPlace, value); }
         }
 
-        /// <summary>Puntos del primer lugar con el formato del idioma activo.</summary>
+        /// <summary>First-place points formatted for the current language.</summary>
         public string FirstPlaceScoreLabel
         {
             get { return _firstPlaceScoreLabel; }
             private set { SetProperty(ref _firstPlaceScoreLabel, value); }
         }
 
-        /// <summary>Puntos del segundo lugar con el formato del idioma activo.</summary>
+        /// <summary>Second-place points formatted for the current language.</summary>
         public string SecondPlaceScoreLabel
         {
             get { return _secondPlaceScoreLabel; }
             private set { SetProperty(ref _secondPlaceScoreLabel, value); }
         }
 
-        /// <summary>Puntos del tercer lugar con el formato del idioma activo.</summary>
+        /// <summary>Third-place points formatted for the current language.</summary>
         public string ThirdPlaceScoreLabel
         {
             get { return _thirdPlaceScoreLabel; }
             private set { SetProperty(ref _thirdPlaceScoreLabel, value); }
         }
 
-        /// <summary>Puesto del jugador en sesión (dato fijo mientras no llegue del servidor).</summary>
+        /// <summary>Current player's rank. Uses a fixed value until the server supplies it.</summary>
         public string UserStandingRankLabel
         {
             get { return _userStandingRankLabel; }
             private set { SetProperty(ref _userStandingRankLabel, value); }
         }
 
-        /// <summary>Puntos del jugador en sesión (dato fijo mientras no lleguen del servidor).</summary>
+        /// <summary>Current player's points. Uses a fixed value until the server supplies them.</summary>
         public string UserStandingPointsLabel
         {
             get { return _userStandingPointsLabel; }
@@ -147,8 +147,7 @@ namespace TLMG.Client.ViewModels
         }
 
         /// <summary>
-        /// Empieza a escuchar al servidor y al cambio de idioma, y pide la tabla de posiciones. La vista lo llama al
-        /// cargarse.
+        /// Listens for server and language changes and requests the leaderboard when the view loads.
         /// </summary>
         public void Activate()
         {
@@ -161,7 +160,7 @@ namespace TLMG.Client.ViewModels
             RequestLeaderboardData();
         }
 
-        /// <summary>Deja de escuchar, cierra el canal de la consulta y suelta el cambio de idioma.</summary>
+        /// <summary>Stops listening for server and language changes and closes the query channel.</summary>
         public void Deactivate()
         {
             _leaderboardConnection.LeaderboardResultReceived -= OnLeaderboardResultReceived;
@@ -169,7 +168,7 @@ namespace TLMG.Client.ViewModels
             _leaderboardConnection.CloseLeaderboardChannel();
         }
 
-        /// <summary>Libera las suscripciones y cierra el canal de la consulta.</summary>
+        /// <summary>Releases subscriptions and closes the query channel.</summary>
         protected override void OnDisposed()
         {
             Deactivate();
@@ -324,7 +323,7 @@ namespace TLMG.Client.ViewModels
             return emptyEntry;
         }
 
-        // HACK: Tratar como ruta de la aplicación el profile_image que guarda la BD, que no existe. (BL-045).
+        // HACK: Treat the database profile_image as an application path, even though the file is missing. (BL-045).
         private string ResolveAvatarImagePath(string profileImage)
         {
             string resolvedPath;

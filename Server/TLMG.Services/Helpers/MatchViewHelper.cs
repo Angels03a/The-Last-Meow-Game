@@ -11,8 +11,8 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Helpers
 {
     /// <summary>
-    /// Traduce el motor al contrato: arma la vista privada de cada jugador y convierte cartas, fases y rechazos. Solo
-    /// copia valores; nunca conserva referencias al MatchState ni a sus listas.
+    /// Builds private player views and maps engine cards, phases and rejections to the contract. Copies values without
+    /// keeping references to MatchState or its lists.
     /// </summary>
     internal static class MatchViewHelper
     {
@@ -98,13 +98,12 @@ namespace TLMG.Services.Helpers
             };
 
         /// <summary>
-        /// Arma la vista de un destinatario: lo visible para todos y, solo del propio destinatario, su mano, su pila y
-        /// las acciones que puede hacer. Requiere que el llamador tenga serializado el acceso al MatchState (bajo
-        /// _sessionsLock). Nunca incluye los tipos de cartas ocultas de otro jugador (Regla No. 2).
+        /// Builds public state plus only the recipient's hand, pile and available actions. The caller must hold
+        /// _sessionsLock while reading MatchState. Other players' hidden card types stay private (Rule No. 2).
         /// </summary>
-        /// <param name="context">Estado del motor y datos que el registro guarda fuera de él.</param>
-        /// <param name="viewerUserId">Jugador que recibirá la vista.</param>
-        /// <returns>Una vista nueva, sin referencias al motor.</returns>
+        /// <param name="context">Engine state and match details stored separately by the registry.</param>
+        /// <param name="viewerUserId">Player receiving the view.</param>
+        /// <returns>New view without engine references.</returns>
         internal static MatchView CreateMatchView(MatchViewContext context, int viewerUserId)
         {
             MatchState matchState = context.MatchState;
@@ -156,9 +155,9 @@ namespace TLMG.Services.Helpers
             }).ToList();
         }
 
-        /// <summary>Convierte una fase del motor a la del contrato.</summary>
-        /// <param name="enginePhase">Fase del motor.</param>
-        /// <returns>La fase equivalente del contrato.</returns>
+        /// <summary>Maps an engine phase to the contract phase.</summary>
+        /// <param name="enginePhase">Engine phase.</param>
+        /// <returns>Equivalent contract phase.</returns>
         internal static MatchRoundPhase ConvertToContractPhase(RoundPhase enginePhase)
         {
             MatchRoundPhase contractPhase = _contractPhasesByEnginePhase[enginePhase];
@@ -166,9 +165,9 @@ namespace TLMG.Services.Helpers
             return contractPhase;
         }
 
-        /// <summary>Convierte una carta del motor a la del contrato.</summary>
-        /// <param name="engineCard">Carta del motor.</param>
-        /// <returns>La carta equivalente del contrato.</returns>
+        /// <summary>Maps an engine card to the contract card type.</summary>
+        /// <param name="engineCard">Engine card.</param>
+        /// <returns>Equivalent contract card.</returns>
         internal static MatchCardKind ConvertToContractCard(CardKind engineCard)
         {
             MatchCardKind contractCard = _contractCardsByEngineCard[engineCard];
@@ -176,10 +175,10 @@ namespace TLMG.Services.Helpers
             return contractCard;
         }
 
-        /// <summary>Convierte la carta recibida del cliente al motor.</summary>
-        /// <param name="contractCard">Tipo recibido; puede ser un valor fuera del enum.</param>
-        /// <param name="engineCard">El tipo del motor; solo vale si devuelve true.</param>
-        /// <returns>true si el tipo existe; en caso contrario, false.</returns>
+        /// <summary>Maps a client card type to its engine type.</summary>
+        /// <param name="contractCard">Received value, possibly outside the enum.</param>
+        /// <param name="engineCard">Engine type, valid only on success.</param>
+        /// <returns>True if the type exists.</returns>
         internal static bool TryConvertToEngineCard(MatchCardKind contractCard, out CardKind engineCard)
         {
             bool isValid = _engineCardsByContractCard.TryGetValue(contractCard, out engineCard);
@@ -187,9 +186,9 @@ namespace TLMG.Services.Helpers
             return isValid;
         }
 
-        /// <summary>Traduce el estado devuelto por el motor al abrir, subir o retirarse de una apuesta.</summary>
-        /// <param name="betStatus">Resultado del motor.</param>
-        /// <returns>null si la acción se aplicó; la clave de error en cualquier otro caso.</returns>
+        /// <summary>Maps the engine result for opening a bid, raising or folding.</summary>
+        /// <param name="betStatus">Engine result.</param>
+        /// <returns>Null if applied, otherwise the error key.</returns>
         internal static string ConvertToErrorKey(BetActionStatus betStatus)
         {
             string errorKey;
@@ -206,9 +205,9 @@ namespace TLMG.Services.Helpers
             return errorKey;
         }
 
-        /// <summary>Traduce el estado devuelto por el motor al voltear una carta del reto.</summary>
-        /// <param name="revealStatus">Resultado del motor.</param>
-        /// <returns>null si la carta se volteó (aunque el reto termine); la clave de error si se rechazó.</returns>
+        /// <summary>Maps the engine result for revealing a challenge card.</summary>
+        /// <param name="revealStatus">Engine result.</param>
+        /// <returns>Null if a card was revealed, even if the challenge ended. Otherwise the error key.</returns>
         internal static string ConvertToErrorKey(ChallengeRevealStatus revealStatus)
         {
             string errorKey;
@@ -225,9 +224,9 @@ namespace TLMG.Services.Helpers
             return errorKey;
         }
 
-        /// <summary>Traduce el estado devuelto por el motor al elegir la carta del castigo.</summary>
-        /// <param name="punishmentStatus">Resultado del motor.</param>
-        /// <returns>null si la carta se eliminó; la clave de error en cualquier otro caso.</returns>
+        /// <summary>Maps the engine result for a punishment choice.</summary>
+        /// <param name="punishmentStatus">Engine result.</param>
+        /// <returns>Null if the card was removed, otherwise the error key.</returns>
         internal static string ConvertToErrorKey(PunishmentStatus punishmentStatus)
         {
             string errorKey;
@@ -244,9 +243,9 @@ namespace TLMG.Services.Helpers
             return errorKey;
         }
 
-        /// <summary>Traduce el estado devuelto por el motor al colocar una carta.</summary>
-        /// <param name="placementStatus">Resultado del motor.</param>
-        /// <returns>null si la carta se colocó; la clave de error en cualquier otro caso.</returns>
+        /// <summary>Maps the engine result for placing a card.</summary>
+        /// <param name="placementStatus">Engine result.</param>
+        /// <returns>Null if placed, otherwise the error key.</returns>
         internal static string ConvertToErrorKey(CardPlacementStatus placementStatus)
         {
             string errorKey;
@@ -289,8 +288,8 @@ namespace TLMG.Services.Helpers
         }
 
         /// <summary>
-        /// Jugador al que se le muestra el turno: quien tiene el turno; quien debe elegir mientras hay un castigo
-        /// pendiente; nadie cuando la partida terminó (el motor ya no da significado al turno).
+        /// Player shown as active in the UI. Shows the current player, the chooser during punishment, or nobody after
+        /// the match ends.
         /// </summary>
         private static int FindPlayerInTurnUserId(MatchState matchState)
         {
@@ -308,7 +307,7 @@ namespace TLMG.Services.Helpers
             return playerInTurnUserId;
         }
 
-        /// <summary>Cartas volteadas de la pila de un jugador, de arriba hacia abajo; información pública.</summary>
+        /// <summary>Revealed cards in a player's pile from top to bottom, visible to everyone.</summary>
         private static IReadOnlyList<CardKind> FindRevealedPileCards(MatchPlayer player)
         {
             IReadOnlyList<CardKind> revealedCards = player.PileCards
@@ -347,7 +346,9 @@ namespace TLMG.Services.Helpers
             return challengeView;
         }
 
-        /// <summary>Castigo pendiente sin ninguna carta: quién elige, a quién castigan y entre cuántas.</summary>
+        /// <summary>
+        /// Pending punishment with the chooser, punished player and number of choices. Contains no cards.
+        /// </summary>
         private static MatchPunishmentView CreatePunishmentView(MatchState matchState)
         {
             MatchPunishmentView punishmentView = null;

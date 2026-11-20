@@ -2,7 +2,7 @@ using System;
 
 namespace TLMG.Client.Models
 {
-    /// <summary>Datos de presentación de un aviso autorizado por el servidor.</summary>
+    /// <summary>Display data for a notification authorized by the server.</summary>
     public sealed class GameNotification
     {
         public string TitleKey { get; set; }
@@ -14,7 +14,7 @@ namespace TLMG.Client.Models
         public TimeSpan Duration { get; set; }
     }
 
-    /// <summary>Construye avisos sin decidir reglas de juego ni destinatarios de red.</summary>
+    /// <summary>Builds notifications for display. The server decides game rules and network recipients.</summary>
     public static class GameNotificationFactory
     {
         public static GameNotification CreatePublic(

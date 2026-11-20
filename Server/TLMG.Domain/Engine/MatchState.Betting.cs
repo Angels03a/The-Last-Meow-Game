@@ -9,12 +9,12 @@ namespace TLMG.Domain.Engine
         private const int EmptyHandBetValue = 1;
 
         /// <summary>
-        /// Abre una apuesta como acción del turno, alternativa a colocar. El valor va de 1 al menor entre las cartas
-        /// de la mesa y las de la modalidad; con la mano vacía debe ser exactamente 1. Si rechaza, nada cambia.
+        /// Opens a bid on the player's turn instead of placing a card. Bid from 1 to the smaller of the table count and
+        /// the mode's card count. With an empty hand, bid exactly 1. Rejection leaves state unchanged.
         /// </summary>
-        /// <param name="playerId">Jugador que abre la apuesta.</param>
-        /// <param name="betValue">Cartas que declara poder voltear.</param>
-        /// <returns>Accepted si se abrió; en otro caso, el motivo del rechazo.</returns>
+        /// <param name="playerId">Player opening the bid.</param>
+        /// <param name="betValue">Number of cards the player claims they can reveal.</param>
+        /// <returns>Accepted if bidding opened, otherwise the rejection reason.</returns>
         public BetActionStatus OpenBet(int playerId, int betValue)
         {
             BetActionStatus betStatus = ValidateBetActor(
@@ -36,12 +36,12 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Sube la apuesta en el turno del jugador: el valor debe ser estrictamente mayor que la apuesta actual y no
-        /// pasar del menor entre las cartas de la mesa y las de la modalidad. Si rechaza, el estado no cambia.
+        /// Raises on the player's turn. The bid must exceed the current bid and cannot exceed the smaller of the table
+        /// count and the mode's card count. Rejection leaves state unchanged.
         /// </summary>
-        /// <param name="playerId">Jugador que sube.</param>
-        /// <param name="betValue">Nueva apuesta, en cartas a voltear.</param>
-        /// <returns>Accepted si se subió; en otro caso, el motivo del rechazo.</returns>
+        /// <param name="playerId">Player raising the bid.</param>
+        /// <param name="betValue">New bid in cards to reveal.</param>
+        /// <returns>Accepted if the bid was raised, otherwise the rejection reason.</returns>
         public BetActionStatus RaiseBet(int playerId, int betValue)
         {
             BetActionStatus betStatus = ValidateBetActor(playerId, RoundPhase.Betting, BetActionStatus.NoBetInProgress);
@@ -64,11 +64,11 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Retira al jugador de la apuesta en curso; no puede volver a participar en ella. Cuando queda un solo
-        /// apostador, el reto queda listo y empieza su resolución (ChallengeResolution).
+        /// Folds for the rest of this bidding round. When only one bidder remains, the challenge is ready and
+        /// ChallengeResolution starts.
         /// </summary>
-        /// <param name="playerId">Jugador que se retira.</param>
-        /// <returns>Accepted si se retiró; en otro caso, el motivo del rechazo.</returns>
+        /// <param name="playerId">Player folding.</param>
+        /// <returns>Accepted if the player folded, otherwise the rejection reason.</returns>
         public BetActionStatus WithdrawFromBet(int playerId)
         {
             BetActionStatus betStatus = ValidateBetActor(playerId, RoundPhase.Betting, BetActionStatus.NoBetInProgress);
@@ -125,8 +125,8 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Valida el valor con el que el jugador en turno quiere abrir: mesa, carta propia ya colocada en la ronda,
-        /// mano vacía y rango.
+        /// Checks the opening bid against the table, the player's card already placed this round, the empty-hand rule
+        /// and the bid range.
         /// </summary>
         private BetActionStatus ValidateOpeningBetValue(int betValue)
         {
@@ -153,7 +153,7 @@ namespace TLMG.Domain.Engine
             return betStatus;
         }
 
-        /// <summary>Inicia la ronda de apuestas: nadie se ha retirado y el jugador en turno la lidera.</summary>
+        /// <summary>Starts bidding with the current player in the lead and nobody folded.</summary>
         private void StartBetting(int betValue)
         {
             ClearWithdrawals();
@@ -167,10 +167,10 @@ namespace TLMG.Domain.Engine
 
         private int CountRemainingBettors() => _players.Count(player => IsBetting(player));
 
-        /// <summary>Indica si el jugador sigue en la apuesta en curso: no se retiró y sigue en juego.</summary>
+        /// <summary>Whether the player is active and has not folded in this bidding round.</summary>
         private static bool IsBetting(MatchPlayer player) => !player.HasWithdrawnFromBet && player.IsInPlay;
 
-        /// <summary>Pasa el turno al siguiente del orden que sigue en la apuesta; siempre queda alguno.</summary>
+        /// <summary>Passes the turn to the next remaining bidder. At least one always remains.</summary>
         private void MoveToNextBettor()
         {
             do

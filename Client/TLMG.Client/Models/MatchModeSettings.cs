@@ -1,13 +1,13 @@
 ﻿namespace TLMG.Client.Models
 {
     /// <summary>
-    /// Datos de una modalidad de partida que la interfaz necesita: cartas por jugador, Gatos con Maullido Fatal,
-    /// retos exitosos para ganar y disposición de la mano. Solo sirve para mostrar y limitar controles; las reglas
-    /// las decide el servidor (Reglas de The Last Meow, §2.0.4 y §2.0.5).
+    /// Match settings used by the UI include cards per player, Fatal Cats, challenges needed to win and hand layout.
+    /// These settings control the display and available controls. The server decides the rules (Reglas de The Last
+    /// Meow, §2.0.4 and §2.0.5).
     /// </summary>
     public sealed class MatchModeSettings
     {
-        /// <summary>Cartas por jugador de la modalidad pequeña, que también es la predeterminada.</summary>
+        /// <summary>Cards per player in the smallest mode, which is also the default.</summary>
         public const int FourCardsPerPlayer = 4;
 
         private const int SixCardsPerPlayer = 6;
@@ -22,33 +22,33 @@
         {
         }
 
-        /// <summary>Cartas que recibe cada jugador: 4, 6 u 8.</summary>
+        /// <summary>Cards dealt to each player (4, 6 or 8).</summary>
         public int CardsPerPlayer { get; private set; }
 
-        /// <summary>Gatos con Maullido Fatal por jugador.</summary>
+        /// <summary>Fatal Cats per player.</summary>
         public int FatalCatCount { get; private set; }
 
-        /// <summary>Retos exitosos que se necesitan para ganar la partida.</summary>
+        /// <summary>Successful challenges needed to win.</summary>
         public int ChallengesToWin { get; private set; }
 
-        /// <summary>Indica si la modalidad incluye el minijuego del Gatito Fugitivo; solo la de 8 cartas.</summary>
+        /// <summary>Whether this mode includes Fugitive Kitten. Only the eight-card mode does.</summary>
         public bool HasFugitiveKitten { get; private set; }
 
-        /// <summary>Indica si las cartas de la mano se dibujan en tamaño reducido para que quepan.</summary>
+        /// <summary>Whether to draw smaller cards so the hand fits.</summary>
         public bool IsCompactHand { get; private set; }
 
-        /// <summary>Columnas de la mano; con 8 cartas se usan dos filas.</summary>
+        /// <summary>Hand columns. Eight cards use two rows.</summary>
         public int HandColumnCount { get; private set; }
 
-        /// <summary>Cartas seguras por jugador.</summary>
+        /// <summary>Safe cards per player.</summary>
         public int SafeCardCount
         {
             get { return CardsPerPlayer - FatalCatCount; }
         }
 
-        /// <summary>Crea la configuración de las cartas por jugador indicadas.</summary>
-        /// <param name="cardsPerPlayer">Cartas por jugador; un valor desconocido usa la modalidad de 4 cartas.</param>
-        /// <returns>La configuración de la modalidad; nunca es null.</returns>
+        /// <summary>Creates settings for the given number of cards per player.</summary>
+        /// <param name="cardsPerPlayer">Cards per player. An unknown value selects four-card mode.</param>
+        /// <returns>Mode settings, always present.</returns>
         public static MatchModeSettings FromCardsPerPlayer(int cardsPerPlayer)
         {
             MatchModeSettings matchModeSettings;

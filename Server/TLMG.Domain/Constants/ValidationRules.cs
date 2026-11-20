@@ -44,7 +44,7 @@ namespace TLMG.Domain.Constants
         public const int MinimumPlayersPerMatchCount = 3;
         public const int MaximumPlayersPerMatchCount = 6;
 
-        /// <summary>Puntos base mínimos, aunque haya menos de 3 jugadores contados (Reglas 5.0.1).</summary>
+        /// <summary>Minimum base points, even when fewer than three players count (Rule 5.0.1).</summary>
         public const int MinimumBasePoints = 2;
 
         public const int PunishmentChoiceSeconds = 10;

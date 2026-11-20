@@ -26,7 +26,7 @@ namespace TLMG.Client.Communication
         /// <summary>Se dispara cuando una solicitud se aceptó y el nuevo amigo entró a la lista.</summary>
         event EventHandler<ServerEventArgs<Friend>> FriendAdded;
 
-        /// <summary>Se dispara con el resultado de invitar a un amigo a la sala.</summary>
+        /// <summary>Raised when the server responds to a room invitation request.</summary>
         event EventHandler<ServerEventArgs<OperationResult>> InviteFriendResultReceived;
 
         /// <summary>Se dispara con el resultado de enviar una solicitud de amistad.</summary>
@@ -43,7 +43,7 @@ namespace TLMG.Client.Communication
         /// <summary>Obtiene si hay una sesión de jugador registrado; un invitado no la tiene.</summary>
         bool HasRegisteredSession { get; }
 
-        /// <summary>Obtiene si el jugador está en una sala, requisito para invitar a un amigo.</summary>
+        /// <summary>Whether the player is in a room and can therefore invite a friend.</summary>
         bool HasCurrentRoom { get; }
 
         /// <summary>Obtiene la última lista de amigos del servidor, o null si todavía no llega.</summary>
@@ -59,9 +59,9 @@ namespace TLMG.Client.Communication
         /// <returns>true si se envió; false si no hay sesión registrada o falló el envío.</returns>
         bool RequestFriendList();
 
-        /// <summary>Invita a un amigo en línea a la sala; el resultado llega por InviteFriendResultReceived.</summary>
-        /// <param name="friendUserId">Id de la cuenta del amigo, tal como llegó en la lista de amigos.</param>
-        /// <returns>true si se envió; false si no hay sesión registrada o falló el envío.</returns>
+        /// <summary>Invites an online friend to the room. InviteFriendResultReceived delivers the result.</summary>
+        /// <param name="friendUserId">Friend's account ID as received in the friends list.</param>
+        /// <returns>True if sent. False without a registered session or if sending fails.</returns>
         bool InviteFriendToRoom(int friendUserId);
 
         /// <summary>

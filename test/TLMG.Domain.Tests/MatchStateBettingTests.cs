@@ -9,8 +9,8 @@ using TLMG.Domain.Engine;
 namespace TLMG.Domain.Tests
 {
     /// <summary>
-    /// Pruebas de las apuestas de MatchState: abrir, subir y retirarse. Los escenarios 1 (ronda 1), 2 y 3 del
-    /// Dominio v3 (§4.4) se usan solo en su parte de colocación y apuesta.
+    /// Tests opening, raising and folding in MatchState. Uses the placement and bidding parts of Domain v3 scenarios 1
+    /// (round 1), 2 and 3 (§4.4).
     /// </summary>
     public class MatchStateBettingTests
     {
@@ -31,11 +31,11 @@ namespace TLMG.Domain.Tests
         private const int TwoCardBet = 2;
         private const int PlacementsForTwelveCardsOnTable = 12;
 
-        /// <summary>Verifica OpenBet_Scenario1Round1_ThirdPlayerOpensTwoWithFiveCardsOnTable.</summary>
+        /// <summary>Checks OpenBet_Scenario1Round1_ThirdPlayerOpensTwoWithFiveCardsOnTable.</summary>
         [Fact]
         public void OpenBet_Scenario1Round1_ThirdPlayerOpensTwoWithFiveCardsOnTable()
         {
-            // Arrange: orden C, B, A (ids 1, 2, 3); C S, B S, A S, C S y B coloca el Gato.
+            // Arrange: Order C, B, A (IDs 1, 2, 3). C, B, A and C place safe cards, then B places the Fatal Cat.
             MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, PlacementsBeforeFatalCat);
             match.PlaceCard(SecondPlayerId, CardKind.FatalCat);
@@ -51,7 +51,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ThirdPlayerId, match.BetLeader.PlayerId);
         }
 
-        /// <summary>Verifica WithdrawFromBet_Scenario1Round1_LeavesChallengeReadyForThirdPlayer.</summary>
+        /// <summary>Checks WithdrawFromBet_Scenario1Round1_LeavesChallengeReadyForThirdPlayer.</summary>
         [Fact]
         public void WithdrawFromBet_Scenario1Round1_LeavesChallengeReadyForThirdPlayer()
         {
@@ -72,7 +72,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ThirdPlayerId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica OpenBet_Scenario2WithThreeCardsOnTable_LeavesChallengeReadyForThree.</summary>
+        /// <summary>Checks OpenBet_Scenario2WithThreeCardsOnTable_LeavesChallengeReadyForThree.</summary>
         [Fact]
         public void OpenBet_Scenario2WithThreeCardsOnTable_LeavesChallengeReadyForThree()
         {
@@ -92,7 +92,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(3, match.CurrentBet);
         }
 
-        /// <summary>Verifica OpenBet_Scenario2WithValueAboveTable_ReturnsBetValueNotValid.</summary>
+        /// <summary>Checks OpenBet_Scenario2WithValueAboveTable_ReturnsBetValueNotValid.</summary>
         [Fact]
         public void OpenBet_Scenario2WithValueAboveTable_ReturnsBetValueNotValid()
         {
@@ -107,11 +107,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.BetValueNotValid, status);
         }
 
-        /// <summary>Verifica RaiseBet_Scenario3WithRaiseAndWithdrawals_LeavesChallengeReadyForSecondPlayer.</summary>
+        /// <summary>Checks RaiseBet_Scenario3WithRaiseAndWithdrawals_LeavesChallengeReadyForSecondPlayer.</summary>
         [Fact]
         public void RaiseBet_Scenario3WithRaiseAndWithdrawals_LeavesChallengeReadyForSecondPlayer()
         {
-            // Arrange: 4 jugadores y 8 cartas en la mesa; A abre con 2.
+            // Arrange: Four players, eight cards on the table and A opens at 2.
             MatchState match = CreateMatch(FourCardsPerPlayer, FourPlayers);
             PlaceSafeCards(match, PlacementsForEightCardsOnTable);
             match.OpenBet(FirstPlayerId, 2);
@@ -130,7 +130,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(3, match.CurrentBet);
         }
 
-        /// <summary>Verifica RaiseBet_Scenario3WithValueAboveCap_ReturnsBetValueNotValid.</summary>
+        /// <summary>Checks RaiseBet_Scenario3WithValueAboveCap_ReturnsBetValueNotValid.</summary>
         [Fact]
         public void RaiseBet_Scenario3WithValueAboveCap_ReturnsBetValueNotValid()
         {
@@ -146,7 +146,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.BetValueNotValid, status);
         }
 
-        /// <summary>Verifica RaiseBet_Scenario3WithValueEqualToCap_ReturnsAccepted.</summary>
+        /// <summary>Checks RaiseBet_Scenario3WithValueEqualToCap_ReturnsAccepted.</summary>
         [Fact]
         public void RaiseBet_Scenario3WithValueEqualToCap_ReturnsAccepted()
         {
@@ -162,7 +162,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.Accepted, status);
         }
 
-        /// <summary>Verifica OpenBet_WithEightCardMode_LimitsValueToCardsOnTable.</summary>
+        /// <summary>Checks OpenBet_WithEightCardMode_LimitsValueToCardsOnTable.</summary>
         [Fact]
         public void OpenBet_WithEightCardMode_LimitsValueToCardsOnTable()
         {
@@ -179,11 +179,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.Accepted, tableStatus);
         }
 
-        /// <summary>Verifica OpenBet_WithValueAboveModeCap_ReturnsBetValueNotValid.</summary>
+        /// <summary>Checks OpenBet_WithValueAboveModeCap_ReturnsBetValueNotValid.</summary>
         [Fact]
         public void OpenBet_WithValueAboveModeCap_ReturnsBetValueNotValid()
         {
-            // Arrange: 12 cartas en la mesa, pero la modalidad de 4 limita la apuesta a 4.
+            // Arrange: Twelve cards are on the table, but four-card mode caps the bid at 4.
             MatchState match = CreateMatch(FourCardsPerPlayer, FourPlayers);
             PlaceSafeCards(match, PlacementsForTwelveCardsOnTable);
 
@@ -196,7 +196,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.Accepted, capStatus);
         }
 
-        /// <summary>Verifica OpenBet_WithZeroOrNegativeValue_ReturnsBetValueNotValid.</summary>
+        /// <summary>Checks OpenBet_WithZeroOrNegativeValue_ReturnsBetValueNotValid.</summary>
         [Theory]
         [InlineData(0)]
         [InlineData(-1)]
@@ -213,7 +213,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.BetValueNotValid, status);
         }
 
-        /// <summary>Verifica OpenBet_WithEmptyTable_ReturnsTableEmpty.</summary>
+        /// <summary>Checks OpenBet_WithEmptyTable_ReturnsTableEmpty.</summary>
         [Fact]
         public void OpenBet_WithEmptyTable_ReturnsTableEmpty()
         {
@@ -228,7 +228,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(RoundPhase.PlacingCards, match.Phase);
         }
 
-        /// <summary>Verifica OpenBet_WithEmptyHandAndValueOne_ReturnsAccepted.</summary>
+        /// <summary>Checks OpenBet_WithEmptyHandAndValueOne_ReturnsAccepted.</summary>
         [Fact]
         public void OpenBet_WithEmptyHandAndValueOne_ReturnsAccepted()
         {
@@ -244,7 +244,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(1, match.CurrentBet);
         }
 
-        /// <summary>Verifica OpenBet_WithEmptyHandAndValueAboveOne_ReturnsEmptyHandRequiresBetOfOne.</summary>
+        /// <summary>Checks OpenBet_WithEmptyHandAndValueAboveOne_ReturnsEmptyHandRequiresBetOfOne.</summary>
         [Theory]
         [InlineData(2)]
         [InlineData(4)]
@@ -261,7 +261,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.EmptyHandRequiresBetOfOne, status);
         }
 
-        /// <summary>Verifica RaiseBet_ByEmptyHandPlayer_ReturnsAccepted.</summary>
+        /// <summary>Checks RaiseBet_ByEmptyHandPlayer_ReturnsAccepted.</summary>
         [Fact]
         public void RaiseBet_ByEmptyHandPlayer_ReturnsAccepted()
         {
@@ -278,7 +278,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(3, match.CurrentBet);
         }
 
-        /// <summary>Verifica WithdrawFromBet_ByEmptyHandPlayer_ReturnsAccepted.</summary>
+        /// <summary>Checks WithdrawFromBet_ByEmptyHandPlayer_ReturnsAccepted.</summary>
         [Fact]
         public void WithdrawFromBet_ByEmptyHandPlayer_ReturnsAccepted()
         {
@@ -295,7 +295,7 @@ namespace TLMG.Domain.Tests
             Assert.True(match.Players[1].HasWithdrawnFromBet);
         }
 
-        /// <summary>Verifica OpenBet_OutOfTurn_ReturnsNotPlayersTurn.</summary>
+        /// <summary>Checks OpenBet_OutOfTurn_ReturnsNotPlayersTurn.</summary>
         [Fact]
         public void OpenBet_OutOfTurn_ReturnsNotPlayersTurn()
         {
@@ -311,7 +311,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(RoundPhase.PlacingCards, match.Phase);
         }
 
-        /// <summary>Verifica OpenBet_ByUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
+        /// <summary>Checks OpenBet_ByUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
         [Fact]
         public void OpenBet_ByUnknownPlayer_ReturnsPlayerNotInMatch()
         {
@@ -326,7 +326,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.PlayerNotInMatch, status);
         }
 
-        /// <summary>Verifica OpenBet_WithBetInProgress_ReturnsBetInProgress.</summary>
+        /// <summary>Checks OpenBet_WithBetInProgress_ReturnsBetInProgress.</summary>
         [Fact]
         public void OpenBet_WithBetInProgress_ReturnsBetInProgress()
         {
@@ -342,7 +342,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.BetInProgress, status);
         }
 
-        /// <summary>Verifica OpenBet_WithChallengeReady_ReturnsBetInProgress.</summary>
+        /// <summary>Checks OpenBet_WithChallengeReady_ReturnsBetInProgress.</summary>
         [Fact]
         public void OpenBet_WithChallengeReady_ReturnsBetInProgress()
         {
@@ -356,7 +356,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.BetInProgress, status);
         }
 
-        /// <summary>Verifica RaiseBet_WithEqualValue_ReturnsBetValueNotValid.</summary>
+        /// <summary>Checks RaiseBet_WithEqualValue_ReturnsBetValueNotValid.</summary>
         [Fact]
         public void RaiseBet_WithEqualValue_ReturnsBetValueNotValid()
         {
@@ -372,7 +372,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.BetValueNotValid, status);
         }
 
-        /// <summary>Verifica RaiseBet_WithLowerValue_KeepsBetAndTurn.</summary>
+        /// <summary>Checks RaiseBet_WithLowerValue_KeepsBetAndTurn.</summary>
         [Fact]
         public void RaiseBet_WithLowerValue_KeepsBetAndTurn()
         {
@@ -390,7 +390,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ThirdPlayerId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica RaiseBet_WithoutBet_ReturnsNoBetInProgress.</summary>
+        /// <summary>Checks RaiseBet_WithoutBet_ReturnsNoBetInProgress.</summary>
         [Fact]
         public void RaiseBet_WithoutBet_ReturnsNoBetInProgress()
         {
@@ -405,7 +405,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.NoBetInProgress, status);
         }
 
-        /// <summary>Verifica RaiseBet_WithChallengeReady_ReturnsNoBetInProgress.</summary>
+        /// <summary>Checks RaiseBet_WithChallengeReady_ReturnsNoBetInProgress.</summary>
         [Fact]
         public void RaiseBet_WithChallengeReady_ReturnsNoBetInProgress()
         {
@@ -419,7 +419,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.NoBetInProgress, status);
         }
 
-        /// <summary>Verifica RaiseBet_OutOfTurn_ReturnsNotPlayersTurn.</summary>
+        /// <summary>Checks RaiseBet_OutOfTurn_ReturnsNotPlayersTurn.</summary>
         [Fact]
         public void RaiseBet_OutOfTurn_ReturnsNotPlayersTurn()
         {
@@ -435,7 +435,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.NotPlayersTurn, status);
         }
 
-        /// <summary>Verifica RaiseBet_ByWithdrawnPlayer_ReturnsNotPlayersTurn.</summary>
+        /// <summary>Checks RaiseBet_ByWithdrawnPlayer_ReturnsNotPlayersTurn.</summary>
         [Fact]
         public void RaiseBet_ByWithdrawnPlayer_ReturnsNotPlayersTurn()
         {
@@ -452,7 +452,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.NotPlayersTurn, status);
         }
 
-        /// <summary>Verifica WithdrawFromBet_WithBetInProgress_SkipsWithdrawnPlayerInNextTurns.</summary>
+        /// <summary>Checks WithdrawFromBet_WithBetInProgress_SkipsWithdrawnPlayerInNextTurns.</summary>
         [Fact]
         public void WithdrawFromBet_WithBetInProgress_SkipsWithdrawnPlayerInNextTurns()
         {
@@ -471,7 +471,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ThirdPlayerId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica WithdrawFromBet_WithoutBet_ReturnsNoBetInProgress.</summary>
+        /// <summary>Checks WithdrawFromBet_WithoutBet_ReturnsNoBetInProgress.</summary>
         [Fact]
         public void WithdrawFromBet_WithoutBet_ReturnsNoBetInProgress()
         {
@@ -486,7 +486,7 @@ namespace TLMG.Domain.Tests
             Assert.False(match.Players[0].HasWithdrawnFromBet);
         }
 
-        /// <summary>Verifica WithdrawFromBet_OutOfTurn_ReturnsNotPlayersTurn.</summary>
+        /// <summary>Checks WithdrawFromBet_OutOfTurn_ReturnsNotPlayersTurn.</summary>
         [Fact]
         public void WithdrawFromBet_OutOfTurn_ReturnsNotPlayersTurn()
         {
@@ -502,7 +502,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.NotPlayersTurn, status);
         }
 
-        /// <summary>Verifica PlaceCard_WithBetInProgress_ReturnsBetInProgress.</summary>
+        /// <summary>Checks PlaceCard_WithBetInProgress_ReturnsBetInProgress.</summary>
         [Fact]
         public void PlaceCard_WithBetInProgress_ReturnsBetInProgress()
         {
@@ -519,7 +519,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(PlacementsForThreeCardsOnTable, match.CardsOnTable);
         }
 
-        /// <summary>Verifica PlaceCard_WithChallengeReady_ReturnsBetInProgress.</summary>
+        /// <summary>Checks PlaceCard_WithChallengeReady_ReturnsBetInProgress.</summary>
         [Fact]
         public void PlaceCard_WithChallengeReady_ReturnsBetInProgress()
         {
@@ -533,7 +533,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(CardPlacementStatus.BetInProgress, status);
         }
 
-        /// <summary>Verifica RaiseBet_WithSuccessiveRaises_NeverGivesTurnToBetLeaderWhileOthersRemain.</summary>
+        /// <summary>Checks RaiseBet_WithSuccessiveRaises_NeverGivesTurnToBetLeaderWhileOthersRemain.</summary>
         [Fact]
         public void RaiseBet_WithSuccessiveRaises_NeverGivesTurnToBetLeaderWhileOthersRemain()
         {
@@ -560,7 +560,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(4, match.CurrentBet);
         }
 
-        /// <summary>Verifica WithdrawFromBet_WhenOnlyOneBettorRemains_PutsTurnOnTheBettor.</summary>
+        /// <summary>Checks WithdrawFromBet_WhenOnlyOneBettorRemains_PutsTurnOnTheBettor.</summary>
         [Fact]
         public void WithdrawFromBet_WhenOnlyOneBettorRemains_PutsTurnOnTheBettor()
         {
@@ -580,11 +580,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(2, match.CurrentBet);
         }
 
-        /// <summary>Verifica OpenBet_WithoutOwnCardPlacedInRound_ReturnsNoCardPlacedInRound.</summary>
+        /// <summary>Checks OpenBet_WithoutOwnCardPlacedInRound_ReturnsNoCardPlacedInRound.</summary>
         [Fact]
         public void OpenBet_WithoutOwnCardPlacedInRound_ReturnsNoCardPlacedInRound()
         {
-            // Arrange: A y B colocaron una carta; C tiene el turno sin haber colocado ninguna.
+            // Arrange: A and B placed a card. It is C's turn and C has placed none.
             MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, TwoPlacementsBeforeThirdPlayer);
 
@@ -597,11 +597,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ThirdPlayerId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica OpenBet_AfterPlacingOwnCard_ReturnsAccepted.</summary>
+        /// <summary>Checks OpenBet_AfterPlacingOwnCard_ReturnsAccepted.</summary>
         [Fact]
         public void OpenBet_AfterPlacingOwnCard_ReturnsAccepted()
         {
-            // Arrange: C intenta abrir sin carta, coloca una y vuelve a tener el turno.
+            // Arrange: C tries to open before placing a card, then places one and gets another turn.
             MatchState match = CreateMatch(FourCardsPerPlayer, ThreePlayers);
             PlaceSafeCards(match, TwoPlacementsBeforeThirdPlayer);
             match.OpenBet(ThirdPlayerId, TwoCardBet);

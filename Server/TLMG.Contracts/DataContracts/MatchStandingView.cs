@@ -2,23 +2,23 @@ using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
 {
-    /// <summary>Resultado público de un participante.</summary>
+    /// <summary>Participant's public result.</summary>
     [DataContract]
     public class MatchStandingView
     {
-        /// <summary>Identidad pública del participante.</summary>
+        /// <summary>Participant's public identity.</summary>
         [DataMember]
         public int UserId { get; set; }
 
-        /// <summary>Nombre visible congelado al iniciar.</summary>
+        /// <summary>Display name recorded at match start.</summary>
         [DataMember]
         public string Nickname { get; set; }
 
-        /// <summary>Posición final calculada por el motor.</summary>
+        /// <summary>Final rank calculated by the engine.</summary>
         [DataMember]
         public int Position { get; set; }
 
-        /// <summary>Puntos calculados por el motor.</summary>
+        /// <summary>Points calculated by the engine.</summary>
         [DataMember]
         public int Points { get; set; }
     }

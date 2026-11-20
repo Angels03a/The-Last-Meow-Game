@@ -10,26 +10,25 @@ namespace TLMG.Services.Sessions
     public partial class SessionRegistry
     {
         /// <summary>
-        /// Partidas autorizadas por su MatchId. Se conservan mientras su sala exista, aunque salgan miembros, y se
-        /// liberan al eliminarse la sala (ReleaseMatchOfRemovedRoomInLock).
+        /// Authorized matches by MatchId. Keeps them while their room exists even when members leave.
+        /// ReleaseMatchOfRemovedRoomInLock releases them when the room is removed.
         /// </summary>
         private readonly Dictionary<Guid, MatchRecord> _matchesById = new Dictionary<Guid, MatchRecord>();
 
-        /// <summary>Versión de la primera vista de una partida; una versión mayor siempre es más reciente.</summary>
+        /// <summary>First match view version. A higher version always means a newer view.</summary>
         private const int InitialMatchVersion = 1;
 
         private static readonly IReadOnlyList<MatchViewDelivery> _noMatchViewDeliveries =
             new List<MatchViewDelivery>().AsReadOnly();
 
         /// <summary>
-        /// Copia el estado básico de una partida si el usuario estaba entre sus participantes al iniciarla; el
-        /// MatchState nunca sale del candado. Es pertenencia histórica, no autorización: quien atienda acciones de
-        /// partida debe validar además el token de sesión, la identidad, la participación vigente y, cuando existan,
-        /// el abandono definitivo y la ventana de reconexión.
+        /// Copies basic state for a player who belonged to the match at start. MatchState stays under the lock. Initial
+        /// membership alone grants no permission to act. Also check the session token, identity, current participation,
+        /// final exit and applicable reconnection window.
         /// </summary>
-        /// <param name="matchId">Partida consultada.</param>
-        /// <param name="userId">Jugador que consulta.</param>
-        /// <returns>La copia, o null si la partida no existe o el jugador no participa en ella.</returns>
+        /// <param name="matchId">Match to look up.</param>
+        /// <param name="userId">Player requesting the snapshot.</param>
+        /// <returns>Snapshot, or null if the match is missing or the player was not a participant.</returns>
         internal MatchSnapshot FindMatchOfParticipant(Guid matchId, int userId)
         {
             MatchSnapshot matchSnapshot = null;
@@ -49,12 +48,10 @@ namespace TLMG.Services.Sessions
         }
 
         /// <summary>
-        /// Libera la partida de una sala que se elimina, en la misma sección crítica. Es el único punto de liberación.
-        /// Hoy la sala se elimina en cuanto sale su último miembro, incluso por perder el canal o terminar la sesión,
-        /// porque aún no hay ventana de reconexión (AUD-002); cuando exista, solo cambia esta condición. Los callbacks
-        /// de partida no necesitan descarte aquí: cada salida de la sala ya quitó el del jugador que salió.
+        /// Releases the match in the same critical section that removes its room (AUD-002). This is the only release
+        /// point. Each departing player's match callback is already removed when they leave the room.
         /// </summary>
-        /// <param name="removedStart">Estado de inicio de la sala que se elimina.</param>
+        /// <param name="removedStart">Start state of the room being removed.</param>
         private void ReleaseMatchOfRemovedRoomInLock(LobbyStartState removedStart)
         {
             if (removedStart.MatchId.HasValue)
@@ -121,16 +118,15 @@ namespace TLMG.Services.Sessions
 
 
         /// <summary>
-        /// Revisa los plazos de la partida con la hora real y aplica los que ya vencieron. Hoy el único plazo es el de
-        /// 10 s del castigo (ValidationRules.PunishmentChoiceSeconds): si venció, el motor elimina una carta al azar,
-        /// con la misma probabilidad para cada carta del castigado. Es el ÚNICO punto que revisa plazos: se llama al
-        /// inicio de cada operación de partida, de SubscribeToMatch y de la salida voluntaria; el servidor no usa
-        /// temporizadores (D-54), así que un plazo vencido se aplica en cuanto llega la siguiente operación. El latido
-        /// de I4 (BL-058) solo tendrá que llamar a esta función. Requiere _sessionsLock.
+        /// Checks match deadlines under _sessionsLock using server UTC time. Handles missing first connections and
+        /// expired reconnection windows, and checks game deadlines in time order. An expired punishment removes a
+        /// uniformly chosen card after ValidationRules.PunishmentChoiceSeconds (10 seconds). Match operations,
+        /// subscriptions, voluntary exits and heartbeat checks can advance deadlines without server timers (D-54,
+        /// BL-058).
         /// </summary>
-        /// <param name="matchRecord">Partida cuyos plazos se revisan.</param>
-        /// <param name="nowUtc">Hora UTC real, leída una sola vez por operación.</param>
-        /// <returns>true si venció un plazo y el estado de la partida cambió; en caso contrario, false.</returns>
+        /// <param name="matchRecord">Match whose deadlines are being checked.</param>
+        /// <param name="nowUtc">Server UTC time read once per operation.</param>
+        /// <returns>True if a deadline expired and changed match state.</returns>
         private const int ReconnectGraceSeconds = 15;
         private const int FirstMatchLinkSeconds = 9;
 
@@ -218,13 +214,13 @@ namespace TLMG.Services.Sessions
         }
 
         /// <summary>
-        /// Saca al jugador del motor de partida por una salida voluntaria inmediata (Reglas No. 3 y 4.0.6): sale por
-        /// completo, la ronda en curso se reinicia y la apuesta se anula; un castigo se cancela o se resuelve al
-        /// azar según quién salga; si queda un solo jugador activo, gana. Requiere _sessionsLock.
+        /// Applies an immediate voluntary exit under _sessionsLock (Rules No. 3 and 4.0.6). Restarts an ordinary round
+        /// and clears its bid. During punishment the effect depends on who leaves, including cancellation or a random
+        /// choice. A sole active player wins.
         /// </summary>
-        /// <param name="userId">Jugador que sale.</param>
-        /// <param name="matchId">Partida de la sala que deja.</param>
-        /// <returns>Una vista por cada suscrito si el estado cambió; vacía en otro caso.</returns>
+        /// <param name="userId">Player leaving.</param>
+        /// <param name="matchId">Match in the room being left.</param>
+        /// <returns>One view per subscriber if state changed, otherwise empty.</returns>
         private IReadOnlyList<MatchViewDelivery> ApplyVoluntaryMatchExitInLock(int userId, Guid matchId)
         {
             IReadOnlyList<MatchViewDelivery> viewDeliveries = _noMatchViewDeliveries;
@@ -255,7 +251,7 @@ namespace TLMG.Services.Sessions
             return viewDeliveries;
         }
 
-        /// <summary>Olvida la permutación del castigo a ciegas en cuanto ya no hay un castigo pendiente.</summary>
+        /// <summary>Drops the blind slot mapping when punishment is no longer pending.</summary>
         private static void DiscardEndedBlindSlots(MatchRecord matchRecord)
         {
             if (matchRecord.MatchState.PendingPunishment == null)
@@ -282,8 +278,8 @@ namespace TLMG.Services.Sessions
         }
 
         /// <summary>
-        /// Ajusta el desenlace del último reto a lo que hizo la salida: un reto en curso desaparece con la ronda y un
-        /// castigo pendiente se anota como cancelado o resuelto al azar.
+        /// Updates the recorded outcome after an exit. A round restart clears an unfinished challenge. A pending
+        /// punishment can be recorded as canceled or resolved at random.
         /// </summary>
         private static void UpdateChallengeAfterExit(MatchRecord matchRecord, PlayerExitStatus exitStatus)
         {
@@ -320,8 +316,8 @@ namespace TLMG.Services.Sessions
         }
 
         /// <summary>
-        /// Prepara la partida de la sala sin publicarla: modalidad de la sala y participantes congelados en el orden
-        /// de ingreso. Requiere _sessionsLock; puede lanzar si el motor rechaza la configuración.
+        /// Prepares the room's match without publishing it. Uses the room mode and fixes participants in entry order.
+        /// Requires _sessionsLock and may throw if the engine rejects the settings.
         /// </summary>
         private MatchRecord CreateMatchRecordInLock(Guid matchId, int roomId, DateTime nowUtc)
         {
@@ -343,7 +339,7 @@ namespace TLMG.Services.Sessions
             return matchRecord;
         }
 
-        /// <summary>Copia los nicknames de los participantes para congelarlos; requiere _sessionsLock.</summary>
+        /// <summary>Copies participant nicknames at start under _sessionsLock.</summary>
         private Dictionary<int, string> CopyNicknamesInLock(IReadOnlyList<int> participantUserIds)
         {
             Dictionary<int, string> nicknamesByUserId = new Dictionary<int, string>();
@@ -356,7 +352,7 @@ namespace TLMG.Services.Sessions
             return nicknamesByUserId;
         }
 
-        /// <summary>Copia inmutable de la partida; requiere _sessionsLock.</summary>
+        /// <summary>Immutable match snapshot. Requires _sessionsLock.</summary>
         private static MatchSnapshot CreateMatchSnapshotInLock(MatchRecord matchRecord)
         {
             MatchState matchState = matchRecord.MatchState;
@@ -372,7 +368,7 @@ namespace TLMG.Services.Sessions
             return matchSnapshot;
         }
 
-        /// <summary>Partida autorizada; mutable solo a través de su MatchState y solo bajo _sessionsLock.</summary>
+        /// <summary>Authorized match. Change its engine state only through MatchState under _sessionsLock.</summary>
         private sealed class MatchRecord
         {
             public MatchRecord(
@@ -402,25 +398,25 @@ namespace TLMG.Services.Sessions
                 }
             }
 
-            /// <summary>Identificador de la partida, el mismo que recibe la sala.</summary>
+            /// <summary>Match ID shared with the room.</summary>
             public Guid MatchId { get; }
 
-            /// <summary>Sala que autorizó la partida.</summary>
+            /// <summary>Room that authorized the match.</summary>
             public int RoomId { get; }
 
-            /// <summary>Estado autoritativo del motor; nunca sale del candado.</summary>
+            /// <summary>Authoritative engine state kept under the lock.</summary>
             public MatchState MatchState { get; }
 
-            /// <summary>Participantes congelados al autorizar, en el orden de ingreso a la sala.</summary>
+            /// <summary>Participants fixed at authorization in room entry order.</summary>
             public IReadOnlyList<int> ParticipantUserIds { get; }
 
-            /// <summary>Cartas por jugador de la sala al autorizar.</summary>
+            /// <summary>Cards per player at authorization.</summary>
             public int CardsPerPlayerCount { get; }
 
-            /// <summary>Nicknames de los participantes al autorizar; las vistas los usan aunque salgan.</summary>
+            /// <summary>Nicknames recorded at authorization and used in views even after a player leaves.</summary>
             public IReadOnlyDictionary<int, string> ParticipantNicknames { get; }
 
-            /// <summary>Indica si todas las identidades congeladas eran cuentas registradas.</summary>
+            /// <summary>Whether all original participants had registered accounts.</summary>
             public bool AllParticipantsRegistered { get; }
 
             public FugitiveKittenState Kitten { get; }
@@ -431,18 +427,18 @@ namespace TLMG.Services.Sessions
 
             public HashSet<int> AwaitingFirstLink { get; }
 
-            /// <summary>Versión de la partida; sube con cada acción aceptada y solo bajo _sessionsLock.</summary>
+            /// <summary>Match version, increased for each accepted action under _sessionsLock.</summary>
             public int Version { get; set; }
 
             /// <summary>
-            /// Desenlace del último reto; null hasta que haya uno y otra vez null cuando se abre la siguiente apuesta
-            /// o se coloca la siguiente carta. Solo cambia bajo _sessionsLock.
+            /// Latest challenge outcome. Null before the first challenge and cleared by the next opening bid or card
+            /// placement. Changes only under _sessionsLock.
             /// </summary>
             public MatchChallengeRecord LastChallenge { get; set; }
 
             /// <summary>
-            /// Mientras hay un castigo a ciegas, la permutación lugar → índice real de la mano del castigado, hecha por
-            /// el servidor; null si no hay castigo a ciegas pendiente. Nunca sale del registro.
+            /// Server's private mapping from displayed blind slot to actual hand index. Null without pending blind
+            /// punishment. Never leaves the registry.
             /// </summary>
             public int[] BlindSlotOrder { get; set; }
         }

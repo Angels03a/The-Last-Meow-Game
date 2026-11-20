@@ -5,18 +5,20 @@ namespace TLMG.Client.Communication
 {
     internal sealed partial class ServerConnectionManager
     {
-        /// <summary>Entrega el resultado de pedir un cambio de preparación.</summary>
+        /// <summary>Delivers the result of a readiness change request.</summary>
         public event EventHandler<ServerEventArgs<OperationLobbyRoomResult>> ReadinessResultReceived;
 
-        /// <summary>Entrega el resultado de comprobar el inicio; IsSuccess no autoriza navegar.</summary>
+        /// <summary>Delivers the match start check. IsSuccess alone does not allow navigation.</summary>
         public event EventHandler<ServerEventArgs<OperationRequestMatchStartResult>> MatchStartResultReceived;
 
-        /// <summary>Cuenta proyectada desde el plazo del servidor; vive mientras la sesión está abierta.</summary>
+        /// <summary>Displays the countdown from the server deadline while the session is open.</summary>
         public LobbyCountdown Countdown { get; } = new LobbyCountdown();
 
-        /// <summary>Pide el estado deseado sin modificar la foto ni distinguir jugadores por tipo.</summary>
-        /// <param name="isReadyToStartMatch">Estado Listo deseado.</param>
-        /// <returns>true si se envió la petición por el canal actual.</returns>
+        /// <summary>
+        /// Requests the desired ready state without changing the snapshot or treating player types differently.
+        /// </summary>
+        /// <param name="isReadyToStartMatch">Requested ready state.</param>
+        /// <returns>True if the request was sent through the current channel.</returns>
         public bool ChangePlayerReadiness(bool isReadyToStartMatch)
         {
             bool wasChangePlayerReadinessSent = false;
@@ -38,8 +40,8 @@ namespace TLMG.Client.Communication
             return wasChangePlayerReadinessSent;
         }
 
-        /// <summary>Publica el resultado y canaliza su foto por el mismo filtro autoritativo de versiones.</summary>
-        /// <param name="changePlayerReadinessResult">Resultado del servidor.</param>
+        /// <summary>Publishes the result and checks its snapshot with the same server version filter.</summary>
+        /// <param name="changePlayerReadinessResult">Server result.</param>
         internal void NotifyReadinessResultReceived(OperationLobbyRoomResult changePlayerReadinessResult)
         {
             if (changePlayerReadinessResult != null)
@@ -51,8 +53,10 @@ namespace TLMG.Client.Communication
             }
         }
 
-        /// <summary>Publica la foto y programa el único reintento permitido por generación.</summary>
-        /// <param name="requestMatchStartResult">Resultado del servidor; puede contener un plazo aún no vencido.</param>
+        /// <summary>Publishes the snapshot and schedules the single retry allowed per generation.</summary>
+        /// <param name="requestMatchStartResult">
+        /// Server result, which may include a deadline that has not passed.
+        /// </param>
         internal void NotifyMatchStartResultReceived(OperationRequestMatchStartResult requestMatchStartResult)
         {
             if (requestMatchStartResult != null)

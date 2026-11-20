@@ -11,7 +11,7 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Pruebas de MatchService: resultado para quien pidió y avisos que se entregan a cada suscrito con su vista.
+    /// Tests MatchService results for the requester and private view notifications for each subscriber.
     /// </summary>
     public class MatchServiceTests
     {
@@ -20,7 +20,7 @@ namespace TLMG.Services.Tests
         private const int OneView = 1;
         private const int GuestIndex = 1;
 
-        /// <summary>Verifica SubscribeToMatch_WithParticipant_ReturnsSuccessAndOwnViewNotification.</summary>
+        /// <summary>Checks SubscribeToMatch_WithParticipant_ReturnsSuccessAndOwnViewNotification.</summary>
         [Fact]
         public void SubscribeToMatch_WithParticipant_ReturnsSuccessAndOwnViewNotification()
         {
@@ -41,7 +41,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(scenario.MatchId, callback.LastView.MatchId);
         }
 
-        /// <summary>Verifica SubscribeToMatch_WithInvalidToken_ReturnsErrorKeyAndNoNotifications.</summary>
+        /// <summary>Checks SubscribeToMatch_WithInvalidToken_ReturnsErrorKeyAndNoNotifications.</summary>
         [Fact]
         public void SubscribeToMatch_WithInvalidToken_ReturnsErrorKeyAndNoNotifications()
         {
@@ -61,7 +61,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(NoViews, callback.Views.Count);
         }
 
-        /// <summary>Verifica PlaceCard_InTurn_DeliversDifferentViewToEachSubscribedCallback.</summary>
+        /// <summary>Checks PlaceCard_InTurn_DeliversDifferentViewToEachSubscribedCallback.</summary>
         [Fact]
         public void PlaceCard_InTurn_DeliversDifferentViewToEachSubscribedCallback()
         {
@@ -87,7 +87,7 @@ namespace TLMG.Services.Tests
             Assert.Empty(guestView.OwnPileCards);
         }
 
-        /// <summary>Verifica PlaceCard_OutOfTurn_ReturnsErrorKeyAndNotifiesNobody.</summary>
+        /// <summary>Checks PlaceCard_OutOfTurn_ReturnsErrorKeyAndNotifiesNobody.</summary>
         [Fact]
         public void PlaceCard_OutOfTurn_ReturnsErrorKeyAndNotifiesNobody()
         {
@@ -110,7 +110,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(viewsBefore, scenario.CallbackOf(scenario.CreatorUserId).Views.Count);
         }
 
-        /// <summary>Verifica RemoveMatchChannel_WithCurrentCallback_StopsFutureViewsForThatPlayer.</summary>
+        /// <summary>Checks RemoveMatchChannel_WithCurrentCallback_StopsFutureViewsForThatPlayer.</summary>
         [Fact]
         public void RemoveMatchChannel_WithCurrentCallback_StopsFutureViewsForThatPlayer()
         {

@@ -3,14 +3,14 @@
 namespace TLMG.Domain.Repositories
 {
     /// <summary>
-    /// Resultado de consultar la tabla de posiciones: los jugadores o un fallo de datos.
+    /// Leaderboard query result with players or a data access failure.
     /// </summary>
     public class LeaderboardLookup
     {
-        /// <summary>Indica si la consulta se resolvió; false si falló por un problema de datos.</summary>
+        /// <summary>Whether the query succeeded. False on a data access failure.</summary>
         public bool WasLeaderboardLookupSuccessful { get; set; }
 
-        /// <summary>Jugadores ordenados por puntos, de mayor a menor; vacía si la consulta falló.</summary>
+        /// <summary>Players ordered by points, highest first. Empty if the query failed.</summary>
         public List<RankedPlayer> Players { get; set; }
     }
 }

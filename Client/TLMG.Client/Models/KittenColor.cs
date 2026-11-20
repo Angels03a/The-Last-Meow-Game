@@ -1,5 +1,5 @@
 namespace TLMG.Client.Models
 {
-    /// <summary>Colores visuales disponibles para el gatito.</summary>
+    /// <summary>Available kitten colors.</summary>
     public enum KittenColor { Orange, White, Gray }
 }

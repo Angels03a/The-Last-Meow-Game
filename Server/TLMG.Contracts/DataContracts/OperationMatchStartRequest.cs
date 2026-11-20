@@ -2,15 +2,15 @@ using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
 {
-    /// <summary>Petición para validar el vencimiento de una cuenta del servidor.</summary>
+    /// <summary>Request to check whether a server countdown has expired.</summary>
     [DataContract]
     public class OperationMatchStartRequest
     {
-        /// <summary>Sala a la que pertenece la petición.</summary>
+        /// <summary>Room for this request.</summary>
         [DataMember]
         public int RoomId { get; set; }
 
-        /// <summary>Generación de la cuenta observada por el cliente.</summary>
+        /// <summary>Countdown generation seen by the client.</summary>
         [DataMember]
         public long CountdownId { get; set; }
     }

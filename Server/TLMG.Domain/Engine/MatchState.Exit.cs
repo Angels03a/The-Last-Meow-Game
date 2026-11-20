@@ -9,25 +9,23 @@ namespace TLMG.Domain.Engine
         private const int LeavingPlayerCount = 1;
 
         /// <summary>
-        /// Saca de la partida a un jugador por abandono, desconexión no recuperada o votación (Reglas 4.0.6 y
-        /// 2.0.3.1). El jugador queda en Players con su salida registrada y no vuelve a participar. Si queda un solo
-        /// jugador en juego, gana: se limpian el castigo pendiente y la apuesta y no empieza otra ronda. Sin castigo
-        /// pendiente, la ronda en curso se reinicia: las cartas colocadas vuelven a las manos, se descartan la
-        /// apuesta y lo revelado y empieza una ronda nueva. Con castigo pendiente la ronda no se reinicia: si sale el
-        /// castigado, el castigo se cancela y empieza la siguiente ronda; si sale quien elige con el castigo activo,
-        /// el sistema elige al azar y el castigo se completa; con el castigo suspendido, o si sale un tercero, solo
-        /// se registra la salida. Un eliminado que sale no cambia nada. Si rechaza o el azar devuelve un índice
-        /// inválido, nada cambia.
+        /// Removes a player after a voluntary exit, missed reconnection or vote (Rules 4.0.6 and 2.0.3.1). Players
+        /// keeps their exit record and they take no further part. A sole remaining player wins immediately. The
+        /// punishment and bid are cleared without a new round. With no pending punishment, cards return to hands, the
+        /// bid and reveals are cleared, and a new round starts. During punishment, the punished player's exit cancels
+        /// it and starts the next round. If the chooser leaves during active punishment, a random choice completes it.
+        /// If the chooser leaves during suspension or a third player leaves, only the exit is recorded. An eliminated
+        /// player's exit, rejection or invalid random index leaves state unchanged.
         /// </summary>
-        /// <param name="playerId">Jugador que sale.</param>
-        /// <param name="exit">Inicio y hora efectiva de la salida, en UTC.</param>
+        /// <param name="playerId">Player leaving.</param>
+        /// <param name="exit">UTC start and effective times of the exit.</param>
         /// <param name="chooseRandomCardIndex">
-        /// Azar uniforme sobre las cartas del castigado: recibe n y da [0, n). Se usa solo si sale quien elige con el
-        /// castigo activo.
+        /// Uniform random choice from the punished player's cards. Takes n and returns an index in [0, n). Used only if
+        /// the chooser leaves during active punishment.
         /// </param>
-        /// <returns>El efecto de la salida; MatchFinished si la partida terminó; o el motivo del rechazo.</returns>
-        /// <exception cref="ArgumentNullException">exit o chooseRandomCardIndex es null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">El azar devolvió un índice fuera de [0, n).</exception>
+        /// <returns>Exit effect, MatchFinished if the match ended, or the rejection reason.</returns>
+        /// <exception cref="ArgumentNullException">exit or chooseRandomCardIndex is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The random index is outside [0, n).</exception>
         public PlayerExitStatus RemovePlayer(int playerId, PlayerExit exit, Func<int, int> chooseRandomCardIndex)
         {
             ValidateExitArguments(exit, chooseRandomCardIndex);
@@ -50,7 +48,7 @@ namespace TLMG.Domain.Engine
             return exitStatus;
         }
 
-        /// <summary>Aplica las bajas de un mismo instante antes de evaluar al último jugador activo.</summary>
+        /// <summary>Applies all exits at the same instant before checking for a sole remaining player.</summary>
         public PlayerExitStatus RemoveSimultaneousPlayers(IReadOnlyDictionary<int, PlayerExit> exits,
             Func<int, int> chooseRandomCardIndex)
         {
@@ -111,11 +109,13 @@ namespace TLMG.Domain.Engine
             return ApplyExit(affectedPlayer, randomCardIndex);
         }
 
-        /// <summary>Indica que todos los activos restantes abandonaron en el mismo instante.</summary>
+        /// <summary>Whether all remaining active players left at the same instant.</summary>
         public bool EndedByCollectiveAbandonment => Phase == RoundPhase.MatchFinished && Winner == null;
 
 
-        /// <summary>Aplica la salida ya registrada: victoria del último, reinicio o efecto en el castigo.</summary>
+        /// <summary>
+        /// Applies the recorded exit, resolving a last-player win, round restart or punishment change.
+        /// </summary>
         private PlayerExitStatus ApplyExit(MatchPlayer leavingPlayer, int? randomCardIndex)
         {
             PlayerExitStatus exitStatus = PlayerExitStatus.RoundRestarted;
@@ -141,8 +141,8 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Efecto de la salida en el castigo pendiente: cancelarlo si salió el castigado, completarlo con la carta al
-        /// azar ya validada si salió quien elige con el castigo activo, o dejarlo igual.
+        /// Cancels punishment if the punished player left. If the chooser left during active punishment, completes it
+        /// with the checked random card. Otherwise keeps it pending.
         /// </summary>
         private PlayerExitStatus ApplyExitDuringPunishment(MatchPlayer leavingPlayer, int? randomCardIndex)
         {
@@ -168,7 +168,9 @@ namespace TLMG.Domain.Engine
             return exitStatus;
         }
 
-        /// <summary>Indica si sale quien elige, no es el castigado y el castigo está activo (no suspendido).</summary>
+        /// <summary>
+        /// Whether the chooser is leaving while punishment is active and another player is being punished.
+        /// </summary>
         private bool IsActiveChooserOnly(MatchPlayer leavingPlayer)
         {
             bool isChooserOnly = Phase == RoundPhase.PunishmentPending
@@ -178,7 +180,7 @@ namespace TLMG.Domain.Engine
             return isChooserOnly && !PendingPunishment.IsSuspended;
         }
 
-        /// <summary>Indica si, al salir un jugador en juego, quedaría un solo jugador en juego.</summary>
+        /// <summary>Whether one active player would remain after this active player leaves.</summary>
         private bool LeavesSinglePlayerInPlay() =>
             _players.Count(player => player.IsInPlay) - LeavingPlayerCount == LastSurvivorCount;
 
@@ -195,7 +197,7 @@ namespace TLMG.Domain.Engine
             }
         }
 
-        /// <summary>Valida la salida sin cambiar nada; RoundRestarted indica que puede aplicarse.</summary>
+        /// <summary>Checks the exit without changing state. RoundRestarted means it may proceed.</summary>
         private PlayerExitStatus ValidateExit(int playerId)
         {
             PlayerExitStatus exitStatus = PlayerExitStatus.RoundRestarted;
@@ -222,8 +224,8 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Descarta la ronda en curso: todas las cartas colocadas vuelven a las manos, sin cartas volteadas, y se
-        /// descartan la resolución a medias y la apuesta. El turno lo da StartNextRound si la partida sigue.
+        /// Clears the current round. All placed cards return to hands, with no reveals, unfinished challenge or bid
+        /// left. StartNextRound assigns the turn if play continues.
         /// </summary>
         private void DiscardRoundInProgress()
         {
@@ -236,7 +238,7 @@ namespace TLMG.Domain.Engine
             ResetBetting();
         }
 
-        /// <summary>Busca a un participante por su identificador, aunque ya haya salido.</summary>
+        /// <summary>Finds a participant by ID, including players who have left.</summary>
         private MatchPlayer FindParticipant(int playerId) =>
             _players.FirstOrDefault(player => player.PlayerId == playerId);
     }

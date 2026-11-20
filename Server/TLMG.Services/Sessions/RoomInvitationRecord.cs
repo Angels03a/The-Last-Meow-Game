@@ -1,15 +1,15 @@
 ﻿namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Invitación pendiente de un jugador a la sala de otro; es inmutable.
+    /// Immutable pending invitation to another player's room.
     /// </summary>
     internal sealed class RoomInvitationRecord
     {
-        /// <summary>Crea una invitación pendiente.</summary>
-        /// <param name="invitationId">Identificador de la invitación.</param>
-        /// <param name="inviterUserId">Identificador de la cuenta que invita.</param>
-        /// <param name="inviteeUserId">Identificador de la cuenta invitada.</param>
-        /// <param name="roomId">Identificador de la sala a la que se invita.</param>
+        /// <summary>Creates a pending invitation.</summary>
+        /// <param name="invitationId">Invitation ID.</param>
+        /// <param name="inviterUserId">Inviting account ID.</param>
+        /// <param name="inviteeUserId">Invited account ID.</param>
+        /// <param name="roomId">ID of the room to join.</param>
         public RoomInvitationRecord(int invitationId, int inviterUserId, int inviteeUserId, int roomId)
         {
             InvitationId = invitationId;
@@ -18,16 +18,16 @@
             RoomId = roomId;
         }
 
-        /// <summary>Obtiene el identificador de la invitación.</summary>
+        /// <summary>Invitation ID.</summary>
         public int InvitationId { get; }
 
-        /// <summary>Obtiene el identificador de la cuenta que invita.</summary>
+        /// <summary>Inviting account ID.</summary>
         public int InviterUserId { get; }
 
-        /// <summary>Obtiene el identificador de la cuenta invitada.</summary>
+        /// <summary>Invited account ID.</summary>
         public int InviteeUserId { get; }
 
-        /// <summary>Obtiene el identificador de la sala a la que se invita.</summary>
+        /// <summary>ID of the room to join.</summary>
         public int RoomId { get; }
     }
 }

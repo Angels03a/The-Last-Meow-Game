@@ -2,15 +2,15 @@
 
 namespace TLMG.Contracts.DataContracts
 {
-    /// <summary>Petición de la cantidad de cartas por jugador deseada para la sala.</summary>
+    /// <summary>Requested number of cards per player for the room.</summary>
     [DataContract]
     public class OperationChangeCardsPerPlayerRequest
     {
-        /// <summary>Sala a la que pertenece la petición.</summary>
+        /// <summary>Room for this request.</summary>
         [DataMember]
         public int RoomId { get; set; }
 
-        /// <summary>Cantidad deseada de cartas por jugador: 4, 6 u 8; repetir la actual no reinicia el Listo.</summary>
+        /// <summary>Requested cards per player (4, 6 or 8). Repeating the current value preserves readiness.</summary>
         [DataMember]
         public int CardsPerPlayerCount { get; set; }
     }

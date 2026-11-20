@@ -10,10 +10,9 @@ using TLMG.Client.ViewModels;
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Vista de la sala previa a la partida (lobby). Solo conserva lógica visual: el filtro de caracteres de la caja
-    /// del chat, el desplazamiento del chat y los controles de expulsión que siguen ocultos (BL-082, BL-161). La
-    /// sala, el estado Listo, las cartas por jugador, la cuenta regresiva y el chat viven en
-    /// <see cref="LobbyViewModel"/>.
+    /// Displays the lobby before a match. The view filters chat input, scrolls chat and keeps the removal controls
+    /// hidden (BL-082, BL-161). <see cref="LobbyViewModel"/> manages the room, readiness, cards per player, countdown
+    /// and chat.
     /// </summary>
     public partial class LobbyScreen : LocalizableScreen
     {
@@ -27,9 +26,9 @@ namespace TLMG.Client.Views
         private bool _hasVotedToKick;
 
         /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="LobbyScreen"/> con su ViewModel.
+        /// Creates a <see cref="LobbyScreen"/> with its ViewModel.
         /// </summary>
-        /// <param name="lobbyViewModel">ViewModel que la fábrica de pantallas crea e inyecta.</param>
+        /// <param name="lobbyViewModel">ViewModel created and supplied by the screen factory.</param>
         public LobbyScreen(LobbyViewModel lobbyViewModel)
         {
             InitializeComponent();

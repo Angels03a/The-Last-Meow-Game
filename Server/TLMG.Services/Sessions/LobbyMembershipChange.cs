@@ -5,14 +5,14 @@ using TLMG.Contracts;
 namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Resultado inmutable de un cambio de sala: qué pasó, a quién y a quién hay que avisar fuera del candado.
+    /// Immutable room change recording what happened, who was affected and who to notify after releasing the lock.
     /// </summary>
     public sealed class LobbyMembershipChange
     {
-        /// <summary>Valor de RoomId cuando el resultado no se refiere a ninguna sala.</summary>
+        /// <summary>RoomId when the result refers to no room.</summary>
         public const int NoRoomId = 0;
 
-        /// <summary>Valor de UserId cuando el token no pertenece a ninguna sesión.</summary>
+        /// <summary>UserId when the token belongs to no session.</summary>
         public const int NoUserId = 0;
 
         private static readonly IReadOnlyList<ILobbyManagerCallback> _noCallbacks =
@@ -36,31 +36,31 @@ namespace TLMG.Services.Sessions
             LeftAuthorizedMatch = leftAuthorizedMatch;
         }
 
-        /// <summary>Obtiene qué ocurrió con el intento de cambio.</summary>
+        /// <summary>Outcome of the requested change.</summary>
         public LobbyChangeStatus Status { get; }
 
-        /// <summary>Obtiene el id de la cuenta del jugador; NoUserId si el token no era válido.</summary>
+        /// <summary>Player's account ID, or NoUserId for an invalid token.</summary>
         public int UserId { get; }
 
-        /// <summary>Obtiene el id de la sala afectada; NoRoomId si no hubo sala.</summary>
+        /// <summary>Affected room ID, or NoRoomId if none.</summary>
         public int RoomId { get; }
 
-        /// <summary>Obtiene la sala tras el cambio; null si se rechazó o si la sala se borró por vacía.</summary>
+        /// <summary>Room after the change, or null on rejection or when the empty room was deleted.</summary>
         public LobbyRoomSnapshot Room { get; }
 
-        /// <summary>Obtiene los callbacks destinatarios del cambio; nunca es null.</summary>
+        /// <summary>Callbacks to notify, always present.</summary>
         public IReadOnlyList<ILobbyManagerCallback> RecipientCallbacks { get; }
 
-        /// <summary>Obtiene la causa de la salida; None si el cambio no fue una salida.</summary>
+        /// <summary>Exit cause, or None for a change other than an exit.</summary>
         public RoomExitCause ExitCause { get; }
 
-        /// <summary>Obtiene si el jugador dejó una sala que ya tenía una partida autorizada.</summary>
+        /// <summary>Whether the player left a room with an authorized match.</summary>
         public bool LeftAuthorizedMatch { get; }
 
-        /// <summary>Crea un resultado de cambio rechazado.</summary>
-        /// <param name="status">Motivo del rechazo.</param>
-        /// <param name="userId">Id de la cuenta, o NoUserId si el token no era válido.</param>
-        /// <returns>El resultado sin sala y sin jugadores a quienes avisar; nunca es null.</returns>
+        /// <summary>Creates a rejected change result.</summary>
+        /// <param name="status">Rejection reason.</param>
+        /// <param name="userId">Account ID, or NoUserId for an invalid token.</param>
+        /// <returns>Result without a room or recipients, always present.</returns>
         public static LobbyMembershipChange CreateRejected(LobbyChangeStatus status, int userId)
         {
             LobbyMembershipChange lobbyMembershipChange =
@@ -70,11 +70,11 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        /// <summary>Crea un resultado aplicado sin jugadores a quienes avisar.</summary>
-        /// <param name="userId">Id de la cuenta del jugador.</param>
-        /// <param name="roomId">Id de la sala afectada.</param>
-        /// <param name="room">La sala tras el cambio; null si la sala se eliminó.</param>
-        /// <returns>El resultado aplicado; nunca es null.</returns>
+        /// <summary>Creates an applied result with nobody to notify.</summary>
+        /// <param name="userId">Player's account ID.</param>
+        /// <param name="roomId">Affected room ID.</param>
+        /// <param name="room">Room after the change, or null if deleted.</param>
+        /// <returns>Applied result, always present.</returns>
         public static LobbyMembershipChange CreateApplied(int userId, int roomId, LobbyRoomSnapshot room)
         {
             LobbyMembershipChange lobbyMembershipChange = CreateApplied(userId, roomId, room, _noCallbacks);
@@ -82,14 +82,14 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        /// <summary>Crea un resultado de cambio aplicado.</summary>
-        /// <param name="userId">Id de la cuenta del jugador.</param>
-        /// <param name="roomId">Id de la sala afectada.</param>
-        /// <param name="room">La sala tras el cambio; null si la sala se eliminó.</param>
+        /// <summary>Creates the result for an applied change.</summary>
+        /// <param name="userId">Player's account ID.</param>
+        /// <param name="roomId">Affected room ID.</param>
+        /// <param name="room">Room after the change, or null if deleted.</param>
         /// <param name="recipientCallbacks">
-        /// Callbacks destinatarios, incluido el solicitante cuando corresponda; no se modifica después.
+        /// Callbacks to notify, including the requester when appropriate. Leave the list unchanged afterward.
         /// </param>
-        /// <returns>El resultado aplicado; nunca es null.</returns>
+        /// <returns>Applied result, always present.</returns>
         public static LobbyMembershipChange CreateApplied(
             int userId,
             int roomId,
@@ -103,14 +103,14 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        /// <summary>Crea el cambio de una salida de sala, con su causa.</summary>
-        /// <param name="userId">Jugador que salió.</param>
-        /// <param name="roomId">Sala que dejó.</param>
-        /// <param name="room">Sala que queda; null si quedó vacía.</param>
-        /// <param name="recipientCallbacks">Callbacks de lobby de quienes siguen en la sala.</param>
-        /// <param name="exitCause">Causa de la salida.</param>
-        /// <param name="leftAuthorizedMatch">Indica si la sala ya tenía una partida autorizada.</param>
-        /// <returns>El cambio aplicado.</returns>
+        /// <summary>Creates a room exit change with its cause.</summary>
+        /// <param name="userId">Player who left.</param>
+        /// <param name="roomId">Room the player left.</param>
+        /// <param name="room">Remaining room, or null if empty.</param>
+        /// <param name="recipientCallbacks">Lobby callbacks for players still in the room.</param>
+        /// <param name="exitCause">Exit cause.</param>
+        /// <param name="leftAuthorizedMatch">Whether the room already had an authorized match.</param>
+        /// <returns>Applied change.</returns>
         public static LobbyMembershipChange CreateDeparture(
             int userId,
             int roomId,

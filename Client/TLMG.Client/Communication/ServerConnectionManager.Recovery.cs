@@ -201,7 +201,10 @@ namespace TLMG.Client.Communication
                 {
                     int roomId = _recoveryContext.RoomId.Value;
                     _recoveryLobbyUntil = _heartbeatClock.ElapsedMilliseconds + RecoveryReplyMilliseconds;
-                    TrySend(() => SendConnectionRequest(_lobbyChannel, () => _lobbyClient.EnterLobby(_sessionToken, roomId)),
+                    TrySend(
+                        () => SendConnectionRequest(
+                            _lobbyChannel,
+                            () => _lobbyClient.EnterLobby(_sessionToken, roomId)),
                         "revincular la sala", CloseLobbyChannel);
                 }
                 return true;

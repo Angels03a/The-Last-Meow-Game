@@ -3,39 +3,39 @@ using System.Collections.Generic;
 namespace TLMG.Client.Models
 {
     /// <summary>
-    /// Jugador de la partida tal como lo muestra la pantalla: nickname, cantidades y estado. Nunca guarda los tipos
-    /// de las cartas de un rival; solo el servidor los conoce.
+    /// Player as shown on the match screen, with nickname, counts and status. Only the server knows the types of an
+    /// opponent's hidden cards.
     /// </summary>
     public sealed class MatchPlayerEntry
     {
-        /// <summary>Cuenta del jugador.</summary>
+        /// <summary>Player account.</summary>
         public int UserId { get; set; }
 
-        /// <summary>Nickname que tenía el jugador al iniciar la partida.</summary>
+        /// <summary>Nickname at match start.</summary>
         public string Nickname { get; set; }
 
-        /// <summary>Cartas que conserva en la mano.</summary>
+        /// <summary>Cards remaining in hand.</summary>
         public int HandCardCount { get; set; }
 
-        /// <summary>Cartas que tiene boca abajo en su pila.</summary>
+        /// <summary>Face-down cards in the player's pile.</summary>
         public int PileCardCount { get; set; }
 
-        /// <summary>Cartas de la pila que todavía están ocultas.</summary>
+        /// <summary>Cards still hidden in the pile.</summary>
         public int HiddenPileCardCount { get; set; }
 
-        /// <summary>Vidas del jugador: las cartas de la mano más las de la pila.</summary>
+        /// <summary>Player's lives, counted as cards in hand plus cards in the pile.</summary>
         public int LivesCount { get; set; }
 
-        /// <summary>Vidas con las que empezó: las cartas por jugador de la modalidad.</summary>
+        /// <summary>Starting lives, equal to cards per player in this mode.</summary>
         public int MaximumLivesCount { get; set; }
 
-        /// <summary>Indica si el jugador quedó eliminado.</summary>
+        /// <summary>Whether the player has been eliminated.</summary>
         public bool IsEliminated { get; set; }
 
-        /// <summary>Indica si es el jugador que tiene el turno.</summary>
+        /// <summary>Whether it is this player's turn.</summary>
         public bool IsInTurn { get; set; }
 
-        /// <summary>Cartas de la pila en miniatura, una por carta colocada.</summary>
+        /// <summary>Miniature pile cards, one per card placed.</summary>
         public IReadOnlyList<PileCardEntry> PileCards { get; set; }
     }
 }

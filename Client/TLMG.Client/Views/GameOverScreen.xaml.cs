@@ -10,7 +10,7 @@ namespace TLMG.Client.Views
         private const string DefaultFormat = "{0}";
         private readonly GameOverViewModel _viewModel;
 
-        /// <summary>Inicializa la vista con su ViewModel.</summary>
+        /// <summary>Sets up the view with its ViewModel.</summary>
         public GameOverScreen(GameOverViewModel viewModel)
         {
             InitializeComponent();

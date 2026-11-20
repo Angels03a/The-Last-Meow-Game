@@ -9,9 +9,9 @@ using TLMG.Domain.Engine;
 namespace TLMG.Domain.Tests
 {
     /// <summary>
-    /// Pruebas de la tabla final (Reglas 5.0.1 a 5.0.4): orden de posiciones sin empates, puntos por posición y
-    /// modalidad, invitados y rechazos. Los estados se arman solo con acciones públicas del motor; los escenarios
-    /// E5-1 a E5-4 se reproducen exactos y la secuencia de retos hace las veces del número de ronda.
+    /// Tests final standings under Rules 5.0.1 to 5.0.4, including unique ranks, points by rank and mode, guests and
+    /// rejections. Uses only public engine actions to reproduce E5-1 to E5-4. Challenge sequence serves as the round
+    /// number.
     /// </summary>
     public class FinalStandingsTests
     {
@@ -50,11 +50,11 @@ namespace TLMG.Domain.Tests
         private static readonly DateTime _nowUtc = new DateTime(2026, 11, 20, 12, 0, 0, DateTimeKind.Utc);
         private static readonly int[] _noGuests = new int[0];
 
-        /// <summary>Verifica CalculateFromMatch_RulesExampleOneWithThreePlayers_Pays3And1And0.</summary>
+        /// <summary>Checks CalculateFromMatch_RulesExampleOneWithThreePlayers_Pays3And1And0.</summary>
         [Fact]
         public void CalculateFromMatch_RulesExampleOneWithThreePlayers_Pays3And1And0()
         {
-            // Arrange: Reglas 5.0.3 ejemplo 1 y Dominio escenario 2; B y C con 0 retos e iguales vidas.
+            // Arrange: Rule 5.0.3 example 1 and Domain scenario 2. B and C have zero challenges and equal lives.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             WinChallenge(match, PlayerAId);
             WinChallenge(match, PlayerAId);
@@ -67,11 +67,11 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerAId, PlayerBId, PlayerCId }, new[] { 3, 1, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_RulesExampleTwoWithSixPlayersInEightCardMode_Pays8To2.</summary>
+        /// <summary>Checks CalculateFromMatch_RulesExampleTwoWithSixPlayersInEightCardMode_Pays8To2.</summary>
         [Fact]
         public void CalculateFromMatch_RulesExampleTwoWithSixPlayersInEightCardMode_Pays8To2()
         {
-            // Arrange: Reglas 5.0.3 ejemplo 2; A gana con los 4 retos de la modalidad de 8.
+            // Arrange: Rule 5.0.3 example 2. A wins with the four challenges needed in eight-card mode.
             MatchState match = CreateSixPlayerMatch();
             WinChallenges(match, PlayerAId, match.ModeRules.SuccessfulChallengesToWin);
 
@@ -84,12 +84,12 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Verifica CalculateFromMatch_ScenarioE51WithSixPlayers_RanksByChallengesLivesSequenceAndTurn.
+        /// Checks CalculateFromMatch_ScenarioE51WithSixPlayers_RanksByChallengesLivesSequenceAndTurn.
         /// </summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE51WithSixPlayers_RanksByChallengesLivesSequenceAndTurn()
         {
-            // Arrange: E5-1 exacto en la modalidad de 6; B logra su reto antes que D y D antes que C.
+            // Arrange: Six-card E5-1. B succeeds before D, and D before C.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId, PlayerEId,
                 PlayerFId);
             LoseCardsUntilLives(match, PlayerBId, FiveLives);
@@ -114,11 +114,11 @@ namespace TLMG.Domain.Tests
                 new[] { 7, 5, 4, 3, 2, 1 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_SurvivorWithMoreChallenges_RanksAboveEarlierTurn.</summary>
+        /// <summary>Checks CalculateFromMatch_SurvivorWithMoreChallenges_RanksAboveEarlierTurn.</summary>
         [Fact]
         public void CalculateFromMatch_SurvivorWithMoreChallenges_RanksAboveEarlierTurn()
         {
-            // Arrange: más retos gana aunque el otro vaya antes en el orden de turnos; C tiene 1 reto y B ninguno.
+            // Arrange: Challenge count takes priority over turn order. C has one success and B has none.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             WinChallenge(match, PlayerCId);
             WinChallenges(match, PlayerAId, match.ModeRules.SuccessfulChallengesToWin);
@@ -130,11 +130,11 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerAId, PlayerCId, PlayerBId }, new[] { 4, 2, 1 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_SurvivorsWithEqualChallenges_RankByMoreLives.</summary>
+        /// <summary>Checks CalculateFromMatch_SurvivorsWithEqualChallenges_RankByMoreLives.</summary>
         [Fact]
         public void CalculateFromMatch_SurvivorsWithEqualChallenges_RankByMoreLives()
         {
-            // Arrange: con retos iguales, más vidas gana aunque el otro vaya antes en el turno; B perdió una carta.
+            // Arrange: With equal challenges, more lives take priority over turn order. B lost a card.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             LoseCardOnOwnCat(match, PlayerBId);
             WinChallenges(match, PlayerAId, match.ModeRules.SuccessfulChallengesToWin);
@@ -146,11 +146,11 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerAId, PlayerCId, PlayerBId }, new[] { 4, 2, 1 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_SurvivorsWithEqualChallengesAndLives_RankByEarlierSequence.</summary>
+        /// <summary>Checks CalculateFromMatch_SurvivorsWithEqualChallengesAndLives_RankByEarlierSequence.</summary>
         [Fact]
         public void CalculateFromMatch_SurvivorsWithEqualChallengesAndLives_RankByEarlierSequence()
         {
-            // Arrange: la secuencia menor gana aunque el otro vaya antes en el turno; C llega a 1 reto antes que B.
+            // Arrange: An earlier success breaks a tie before turn order. C reaches one challenge before B.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             WinChallenge(match, PlayerCId);
             WinChallenge(match, PlayerBId);
@@ -164,11 +164,11 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerAId, PlayerCId, PlayerBId, PlayerDId }, new[] { 5, 3, 2, 1 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_ScenarioE52WithTwoEliminated_RanksLaterEliminationHigher.</summary>
+        /// <summary>Checks CalculateFromMatch_ScenarioE52WithTwoEliminated_RanksLaterEliminationHigher.</summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE52WithTwoEliminated_RanksLaterEliminationHigher()
         {
-            // Arrange: E5-2 exacto en la modalidad de 4; B se elimina primero, C después y A gana con su 2.º reto.
+            // Arrange: Four-card E5-2. B is eliminated before C and A wins on the second challenge.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             EliminateOnOwnCat(match, PlayerBId);
             EliminateOnOwnCat(match, PlayerCId);
@@ -183,11 +183,11 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerAId, PlayerDId, PlayerCId, PlayerBId }, new[] { 4, 2, 1, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_LastSurvivorWinsWithOneChallenge_Pays3And1And0.</summary>
+        /// <summary>Checks CalculateFromMatch_LastSurvivorWinsWithOneChallenge_Pays3And1And0.</summary>
         [Fact]
         public void CalculateFromMatch_LastSurvivorWinsWithOneChallenge_Pays3And1And0()
         {
-            // Arrange: victoria por último en pie con 1 reto; B se elimina, C gana 1 reto y A se elimina.
+            // Arrange: Last-player win with one challenge. B is eliminated, C wins a challenge and A is eliminated.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             EliminateOnOwnCat(match, PlayerBId);
             WinChallenge(match, PlayerCId);
@@ -201,11 +201,11 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerCId, PlayerAId, PlayerBId }, new[] { 3, 1, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_ScenarioE54WithSixPlayersInEightCardMode_Pays8To2.</summary>
+        /// <summary>Checks CalculateFromMatch_ScenarioE54WithSixPlayersInEightCardMode_Pays8To2.</summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE54WithSixPlayersInEightCardMode_Pays8To2()
         {
-            // Arrange: E5-4 exacto; P6 se elimina primero y P5 después; P2 llega a 3 retos, P3 a 1 y P1 gana con 4.
+            // Arrange: In E5-4, P6 is eliminated before P5. P2 reaches three challenges, P3 one and P1 wins with four.
             MatchState match = CreateSixPlayerMatch();
             EliminateOnOwnCat(match, PlayerFId);
             EliminateOnOwnCat(match, PlayerEId);
@@ -226,12 +226,12 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Verifica CalculateFromMatch_ScenarioE53WithGuestInSecondPlace_CountsGuestForBaseAndPaysZero.
+        /// Checks CalculateFromMatch_ScenarioE53WithGuestInSecondPlace_CountsGuestForBaseAndPaysZero.
         /// </summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE53WithGuestInSecondPlace_CountsGuestForBaseAndPaysZero()
         {
-            // Arrange: E5-3 exacto (H-10) en la modalidad de 6; orden R1, G, R2, R3 y G es invitado.
+            // Arrange: Six-card E5-3 (H-10). Turn order is R1, G, R2, R3 and G is a guest.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerR1Id, GuestPlayerId, PlayerR2Id, PlayerR3Id);
             EliminateOnOwnCat(match, PlayerR3Id);
             LoseCardsUntilLives(match, GuestPlayerId, FiveLives);
@@ -252,11 +252,11 @@ namespace TLMG.Domain.Tests
                 new[] { 5, 0, 2, 1 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_GuestWins_GetsFirstPositionWithZeroPoints.</summary>
+        /// <summary>Checks CalculateFromMatch_GuestWins_GetsFirstPositionWithZeroPoints.</summary>
         [Fact]
         public void CalculateFromMatch_GuestWins_GetsFirstPositionWithZeroPoints()
         {
-            // Arrange: Dominio escenario 6; A es el invitado G y gana con 2 retos en la modalidad de 6.
+            // Arrange: Domain scenario 6. A is guest G and wins with two challenges in six-card mode.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             WinChallenges(match, PlayerAId, match.ModeRules.SuccessfulChallengesToWin);
 
@@ -267,7 +267,7 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerAId, PlayerBId, PlayerCId }, new[] { 0, 2, 1 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_WithRepeatedGuest_CountsGuestOnce.</summary>
+        /// <summary>Checks CalculateFromMatch_WithRepeatedGuest_CountsGuestOnce.</summary>
         [Fact]
         public void CalculateFromMatch_WithRepeatedGuest_CountsGuestOnce()
         {
@@ -282,7 +282,7 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerAId, PlayerBId, PlayerCId, PlayerDId }, new[] { 4, 0, 1, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_WithEmptyGuests_PaysEveryPosition.</summary>
+        /// <summary>Checks CalculateFromMatch_WithEmptyGuests_PaysEveryPosition.</summary>
         [Fact]
         public void CalculateFromMatch_WithEmptyGuests_PaysEveryPosition()
         {
@@ -297,11 +297,11 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerAId, PlayerBId, PlayerCId, PlayerDId }, new[] { 4, 2, 1, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_WhenMatchNotFinished_ReturnsMatchNotFinishedWithoutStandings.</summary>
+        /// <summary>Checks CalculateFromMatch_WhenMatchNotFinished_ReturnsMatchNotFinishedWithoutStandings.</summary>
         [Fact]
         public void CalculateFromMatch_WhenMatchNotFinished_ReturnsMatchNotFinishedWithoutStandings()
         {
-            // Arrange: A lleva 1 reto de los 2 que necesita.
+            // Arrange: A has one of the two challenges needed.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             WinChallenge(match, PlayerAId);
 
@@ -316,7 +316,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(OneChallenge, GetPlayer(match, PlayerAId).SuccessfulChallengeCount);
         }
 
-        /// <summary>Verifica CalculateFromMatch_WithNullGuests_ThrowsArgumentNullException.</summary>
+        /// <summary>Checks CalculateFromMatch_WithNullGuests_ThrowsArgumentNullException.</summary>
         [Fact]
         public void CalculateFromMatch_WithNullGuests_ThrowsArgumentNullException()
         {
@@ -331,7 +331,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal("guestPlayerIds", exception.ParamName);
         }
 
-        /// <summary>Verifica CalculateFromMatch_WithNullMatch_ThrowsArgumentNullException.</summary>
+        /// <summary>Checks CalculateFromMatch_WithNullMatch_ThrowsArgumentNullException.</summary>
         [Fact]
         public void CalculateFromMatch_WithNullMatch_ThrowsArgumentNullException()
         {
@@ -346,7 +346,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal("match", exception.ParamName);
         }
 
-        /// <summary>Verifica CalculateFromMatch_WithGuestOutsideMatch_ThrowsArgumentException.</summary>
+        /// <summary>Checks CalculateFromMatch_WithGuestOutsideMatch_ThrowsArgumentException.</summary>
         [Fact]
         public void CalculateFromMatch_WithGuestOutsideMatch_ThrowsArgumentException()
         {
@@ -362,11 +362,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal("guestPlayerIds", exception.ParamName);
         }
 
-        /// <summary>Verifica CalculatePoints_ForEveryCountedPlayerCountModeAndPosition_ReturnsRulesPoints.</summary>
-        /// <param name="countedPlayerCount">Jugadores contados para la base.</param>
-        /// <param name="cardsPerPlayerCount">Modalidad: 4, 6 u 8 cartas.</param>
-        /// <param name="position">Posición final.</param>
-        /// <param name="expectedPoints">Puntos según Reglas 5.0.1.</param>
+        /// <summary>Checks CalculatePoints_ForEveryCountedPlayerCountModeAndPosition_ReturnsRulesPoints.</summary>
+        /// <param name="countedPlayerCount">Players counted toward the base.</param>
+        /// <param name="cardsPerPlayerCount">Mode with 4, 6 or 8 cards.</param>
+        /// <param name="position">Final rank.</param>
+        /// <param name="expectedPoints">Points under Rule 5.0.1.</param>
         [Theory]
         [InlineData(1, 4, 1, 3)]
         [InlineData(1, 6, 1, 4)]
@@ -444,8 +444,8 @@ namespace TLMG.Domain.Tests
             Assert.Equal(expectedPoints, points);
         }
 
-        /// <summary>Verifica CalculatePoints_ForLastPositionInFourCardMode_ReturnsZeroAndNeverNegative.</summary>
-        /// <param name="countedPlayerCount">Jugadores contados; la última posición es igual a ellos.</param>
+        /// <summary>Checks CalculatePoints_ForLastPositionInFourCardMode_ReturnsZeroAndNeverNegative.</summary>
+        /// <param name="countedPlayerCount">Counted players. The last rank equals this count.</param>
         [Theory]
         [InlineData(3)]
         [InlineData(4)]
@@ -463,8 +463,8 @@ namespace TLMG.Domain.Tests
             Assert.Equal(NoPoints, points);
         }
 
-        /// <summary>Verifica CalculatePoints_WithPositionOutOfRange_ThrowsArgumentOutOfRangeException.</summary>
-        /// <param name="position">Posición fuera de 1 a los contados.</param>
+        /// <summary>Checks CalculatePoints_WithPositionOutOfRange_ThrowsArgumentOutOfRangeException.</summary>
+        /// <param name="position">Rank outside the range from 1 to the counted player total.</param>
         [Theory]
         [InlineData(ZeroPosition)]
         [InlineData(FourCountedPlayers)]
@@ -482,9 +482,9 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Verifica CalculatePoints_WithCountedPlayerCountOutOfRange_ThrowsArgumentOutOfRangeException.
+        /// Checks CalculatePoints_WithCountedPlayerCountOutOfRange_ThrowsArgumentOutOfRangeException.
         /// </summary>
-        /// <param name="countedPlayerCount">Contados fuera de 1 a 6.</param>
+        /// <param name="countedPlayerCount">Count outside the range from 1 to 6.</param>
         [Theory]
         [InlineData(NoCountedPlayers)]
         [InlineData(SevenCountedPlayers)]
@@ -503,7 +503,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal("countedPlayerCount", exception.ParamName);
         }
 
-        /// <summary>Verifica CalculatePoints_WithNullModeRules_ThrowsArgumentNullException.</summary>
+        /// <summary>Checks CalculatePoints_WithNullModeRules_ThrowsArgumentNullException.</summary>
         [Fact]
         public void CalculatePoints_WithNullModeRules_ThrowsArgumentNullException()
         {
@@ -537,7 +537,7 @@ namespace TLMG.Domain.Tests
                 $"El jugador {playerId} no llegó a {challengesToWin} retos en la ronda {match.RoundNumber}.");
         }
 
-        /// <summary>Comprueba el orden de jugadores, las posiciones consecutivas desde 1 y los puntos.</summary>
+        /// <summary>Checks player order, consecutive ranks starting at 1 and points.</summary>
         private static void AssertStandings(FinalStandings finalStandings, int[] expectedPlayerIds,
             int[] expectedPoints)
         {
@@ -561,7 +561,7 @@ namespace TLMG.Domain.Tests
             return match.Players.First(player => player.PlayerId == playerId);
         }
 
-        /// <summary>Quien tiene el turno abre la apuesta y todos los demás se retiran: el que abre apuesta.</summary>
+        /// <summary>The current player opens and all others fold, leaving the opener as the final bidder.</summary>
         private static void OpenAndConcede(MatchState match, int betValue)
         {
             int openingPlayerId = match.PlayerInTurn.PlayerId;
@@ -603,8 +603,8 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Los demás colocan una segura hasta el turno del jugador, él coloca la carta indicada, los demás vuelven a
-        /// colocar hasta su turno y apuesta 1 sobre su propia pila: con segura gana el reto y con Gato lo falla.
+        /// Others place safe cards until the player's turn. That player places the given card, waits another cycle and
+        /// bids 1 on their own pile. A safe card wins and a Fatal Cat fails.
         /// </summary>
         private static void BetOneOnOwnTopCard(MatchState match, int playerId, CardKind card)
         {
@@ -620,7 +620,9 @@ namespace TLMG.Domain.Tests
             BetOneOnOwnTopCard(match, playerId, SafeCard);
         }
 
-        /// <summary>Falla sobre su propio Gato y pierde una segura; si ya no tiene, la primera carta.</summary>
+        /// <summary>
+        /// Fails on the player's own Fatal Cat and loses a safe card, or the first card if no safe card remains.
+        /// </summary>
         private static void LoseCardOnOwnCat(MatchState match, int playerId)
         {
             BetOneOnOwnTopCard(match, playerId, FatalCatCard);

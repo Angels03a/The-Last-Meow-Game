@@ -3,11 +3,11 @@
 namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Resultado inmutable de invitar a un amigo a la sala: qué pasó y a quién hay que avisar fuera del candado.
+    /// Immutable result of inviting a friend to a room, with the outcome and recipients to notify outside the lock.
     /// </summary>
     public sealed class RoomInvitationCreation
     {
-        /// <summary>Valor de InvitationId cuando el resultado no se refiere a ninguna invitación.</summary>
+        /// <summary>InvitationId when the result refers to no invitation.</summary>
         public const int NoInvitationId = 0;
 
         private RoomInvitationCreation(
@@ -24,24 +24,24 @@ namespace TLMG.Services.Sessions
             InviteeCallback = inviteeCallback;
         }
 
-        /// <summary>Obtiene qué ocurrió con el intento de invitar.</summary>
+        /// <summary>Outcome of the invitation attempt.</summary>
         public FriendsChangeStatus Status { get; }
 
-        /// <summary>Obtiene el id de la invitación, nueva o ya existente; NoInvitationId si se rechazó.</summary>
+        /// <summary>ID of the new or existing invitation, or NoInvitationId on rejection.</summary>
         public int InvitationId { get; }
 
-        /// <summary>Obtiene el nickname de quien invita; null si se rechazó.</summary>
+        /// <summary>Inviting player's nickname, or null on rejection.</summary>
         public string InviterNickname { get; }
 
-        /// <summary>Obtiene si la invitación se creó ahora; false si ya existía una igual.</summary>
+        /// <summary>Whether the invitation is new. False for an existing identical invitation.</summary>
         public bool IsNewInvitation { get; }
 
-        /// <summary>Obtiene el callback del canal de amigos del invitado; null si se rechazó.</summary>
+        /// <summary>Recipient's friends channel callback, or null on rejection.</summary>
         public IFriendsManagerCallback InviteeCallback { get; }
 
-        /// <summary>Crea un resultado rechazado.</summary>
-        /// <param name="status">Motivo del rechazo.</param>
-        /// <returns>El resultado sin invitación; nunca es null.</returns>
+        /// <summary>Creates a rejected result.</summary>
+        /// <param name="status">Rejection reason.</param>
+        /// <returns>Result without an invitation, always present.</returns>
         public static RoomInvitationCreation CreateRejected(FriendsChangeStatus status)
         {
             RoomInvitationCreation roomInvitationCreation =
@@ -50,12 +50,12 @@ namespace TLMG.Services.Sessions
             return roomInvitationCreation;
         }
 
-        /// <summary>Crea un resultado aplicado.</summary>
-        /// <param name="invitationId">Id de la invitación.</param>
-        /// <param name="inviterNickname">Nickname de quien invita.</param>
-        /// <param name="isNewInvitation">true si la invitación se creó ahora; false si ya existía.</param>
-        /// <param name="inviteeCallback">Callback del canal de amigos del invitado.</param>
-        /// <returns>El resultado aplicado; nunca es null.</returns>
+        /// <summary>Creates an applied result.</summary>
+        /// <param name="invitationId">Invitation ID.</param>
+        /// <param name="inviterNickname">Inviting player's nickname.</param>
+        /// <param name="isNewInvitation">True for a new invitation, false for an existing one.</param>
+        /// <param name="inviteeCallback">Invited player's friends channel callback.</param>
+        /// <returns>Applied result, always present.</returns>
         public static RoomInvitationCreation CreateApplied(
             int invitationId,
             string inviterNickname,

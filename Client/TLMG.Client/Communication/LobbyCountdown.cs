@@ -6,7 +6,7 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
 {
-    /// <summary>Proyecta el plazo del servidor con tiempo transcurrido; nunca autoriza una partida.</summary>
+    /// <summary>Uses elapsed time to display the server's countdown. Only the server can authorize a match.</summary>
     internal sealed class LobbyCountdown
     {
         private const int CountdownRefreshMilliseconds = 100;
@@ -20,7 +20,7 @@ namespace TLMG.Client.Communication
         private bool _isRetryScheduled;
         private int _defaultSeconds = 0;
 
-        /// <summary>Crea la temporización en el dispatcher de la interfaz.</summary>
+        /// <summary>Sets up timing on the UI dispatcher.</summary>
         public LobbyCountdown()
         {
             _timer = new DispatcherTimer
@@ -30,23 +30,27 @@ namespace TLMG.Client.Communication
             _timer.Tick += OnCountdownTick;
         }
 
-        /// <summary>Se dispara cuando cambia la presentación de la cuenta.</summary>
+        /// <summary>Raised when the displayed countdown changes.</summary>
         public event EventHandler Changed;
 
-        /// <summary>Solicita validar la generación actual al llegar a cero o vencer el único reintento.</summary>
+        /// <summary>
+        /// Requests a check of the current countdown generation at zero or when its one retry is due.
+        /// </summary>
         public event EventHandler<ServerEventArgs<long>> StartRequested;
 
-        /// <summary>Obtiene si la foto del servidor mantiene una cuenta activa.</summary>
+        /// <summary>Whether the server snapshot shows an active countdown.</summary>
         public bool IsVisible { get; private set; }
 
-        /// <summary>Obtiene la generación de cuenta vigente.</summary>
+        /// <summary>Current countdown generation.</summary>
         public long CountdownId { get; private set; }
 
-        /// <summary>Obtiene los segundos proyectados, redondeados hacia arriba.</summary>
+        /// <summary>Estimated seconds left, rounded up.</summary>
         public int SecondsRemaining { get; private set; }
 
-        /// <summary>Aplica una foto ya validada por versión; otra generación reinicia la cuenta.</summary>
-        /// <param name="lobbyRoom">Foto vigente, o null al salir.</param>
+        /// <summary>
+        /// Applies a snapshot whose version has been checked. A new generation restarts the countdown.
+        /// </summary>
+        /// <param name="lobbyRoom">Current snapshot, or null when leaving.</param>
         public void ApplyRoom(LobbyRoom lobbyRoom)
         {
             bool hasRoomCountdown = lobbyRoom != null && lobbyRoom.CountdownEndsAtUtc.HasValue;
@@ -77,8 +81,8 @@ namespace TLMG.Client.Communication
             }
         }
 
-        /// <summary>Programa como máximo un reintento de la misma generación con el intervalo del contrato.</summary>
-        /// <param name="matchStartRequestResult">Respuesta autoritativa a la petición pendiente.</param>
+        /// <summary>Schedules at most one retry for the same generation using the interval in the contract.</summary>
+        /// <param name="matchStartRequestResult">Server's decision on the pending request.</param>
         public void ApplyMatchStartResult(OperationRequestMatchStartResult matchStartRequestResult)
         {
             bool canRetryMatchStart = CanRetryMatchStart(matchStartRequestResult);

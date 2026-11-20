@@ -7,7 +7,7 @@ using TLMG.Contracts.DataContracts;
 namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Registro en memoria de las sesiones iniciadas y de las salas, compartido entre todas las sesiones de WCF.
+    /// In-memory session and room registry shared by all WCF sessions.
     /// </summary>
     public interface ISessionRegistry
     {
@@ -39,7 +39,7 @@ namespace TLMG.Services.Sessions
         /// <returns>true si había una sesión vigente y se cerró; en caso contrario, false.</returns>
         bool EndSession(string sessionToken, out SessionEnd sessionEnd);
 
-        /// <summary>Revoca el token solo si el jugador no tiene participación activa.</summary>
+        /// <summary>Revokes the token only if the player has no active participation.</summary>
         bool TryLogOut(string sessionToken, out SessionEnd sessionEnd, out bool hasActiveParticipation);
 
         IReadOnlyList<Action> EvaluateConnectionDeadlines(bool force = true);
@@ -58,38 +58,41 @@ namespace TLMG.Services.Sessions
         /// <returns>true si el canal era el de amigos de una sesión y esta se cerró; si no, false.</returns>
         bool TryEndSessionByFriendsChannel(string channelId, out SessionEnd sessionEnd);
 
-        /// <summary>Crea una sala nueva y deja dentro al jugador de la sesión.</summary>
-        /// <param name="caller">Token de sesión y canal de lobby desde el que llama el jugador.</param>
-        /// <param name="lobbyCallback">Callback del canal de lobby del jugador.</param>
-        /// <returns>Applied con la sala, InvalidSession o AlreadyInRoom; nunca es null.</returns>
+        /// <summary>Creates a room and places the session's player in it.</summary>
+        /// <param name="caller">Session token and lobby channel used by the caller.</param>
+        /// <param name="lobbyCallback">Player's lobby channel callback.</param>
+        /// <returns>Applied with the room, InvalidSession or AlreadyInRoom. Always present.</returns>
         LobbyMembershipChange CreateRoom(SessionChannelCaller caller, ILobbyManagerCallback lobbyCallback);
 
         /// <summary>
-        /// Mete al jugador en una sala si tiene autorización de entrada y hay cupo; consume la autorización.
+        /// Joins the player to a room if they have entry permission and space is available. Uses up the permission.
         /// </summary>
-        /// <param name="caller">Token de sesión y canal de lobby desde el que llama el jugador.</param>
-        /// <param name="roomId">Identificador de la sala a la que se quiere entrar.</param>
-        /// <param name="lobbyCallback">Callback del canal de lobby del jugador.</param>
+        /// <param name="caller">Session token and lobby channel used by the caller.</param>
+        /// <param name="roomId">ID of the room to join.</param>
+        /// <param name="lobbyCallback">Player's lobby channel callback.</param>
         /// <returns>
-        /// Applied con la sala y los demás jugadores, InvalidSession, AlreadyInRoom, NotAuthorized o RoomFull;
-        /// NotAuthorized cubre sala inexistente, falta de autorización o partida ya iniciada. Nunca es null.
+        /// Applied with the room and other players, InvalidSession, AlreadyInRoom, NotAuthorized or RoomFull.
+        /// NotAuthorized covers missing rooms, missing permission and matches already started. Always present.
         /// </returns>
         LobbyMembershipChange EnterRoom(SessionChannelCaller caller, int roomId, ILobbyManagerCallback lobbyCallback);
 
         /// <summary>
-        /// Saca al jugador de su sala por su propia decisión (Salir); la elimina si queda vacía. Si la sala tenía una
-        /// partida, también lo saca del motor de partida bajo el mismo candado.
+        /// Handles a voluntary exit and deletes the room if empty. If it had a match, removes the player from the
+        /// engine under the same lock.
         /// </summary>
-        /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
+        /// <param name="sessionToken">Client's session token, which may be null or unknown.</param>
         /// <param name="matchViewDeliveries">
-        /// Vistas que hay que entregar a los demás suscritos de la partida; vacía si la partida no cambió.
+        /// Views for other match subscribers, empty if the match did not change.
         /// </param>
-        /// <returns>Applied, InvalidSession o NotInRoom; nunca es null.</returns>
+        /// <returns>Applied, InvalidSession or NotInRoom. Always present.</returns>
         LobbyMembershipChange LeaveRoom(string sessionToken, out IReadOnlyList<MatchViewDelivery> matchViewDeliveries);
 
-        /// <summary>Saca de su sala al jugador cuyo canal de lobby terminó; la elimina si queda vacía.</summary>
-        /// <param name="channelId">Identificador del canal de lobby que terminó.</param>
-        /// <returns>Applied o NotInRoom; nunca es null.</returns>
+        /// <summary>
+        /// Detaches a closed lobby channel after match authorization so the player keeps their seat. Before
+        /// authorization, removes the player and deletes the room if empty.
+        /// </summary>
+        /// <param name="channelId">ID of the lobby channel that ended.</param>
+        /// <returns>Applied or NotInRoom. Always present.</returns>
         LobbyMembershipChange LeaveRoomByChannel(string channelId);
 
         /// <summary>
@@ -105,14 +108,14 @@ namespace TLMG.Services.Sessions
             IFriendsManagerCallback friendsCallback, IReadOnlyList<int> friendUserIds);
 
         /// <summary>
-        /// Crea la invitación del jugador de la sesión a su sala para un amigo en línea que no está en una sala. La
-        /// amistad ya debe estar comprobada en la base de datos; una invitación repetida no crea otra.
+        /// Invites an online friend who is outside a room to the session player's room. The database must already have
+        /// confirmed the friendship. A duplicate request reuses the existing invitation.
         /// </summary>
-        /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
-        /// <param name="friendUserId">Id de la cuenta del amigo invitado.</param>
+        /// <param name="sessionToken">Client's session token, which may be null or unknown.</param>
+        /// <param name="friendUserId">Invited friend's account ID.</param>
         /// <returns>
-        /// Applied con la invitación y el callback del invitado, InvalidSession, NotInRoom, RoomFull o CannotInvite;
-        /// CannotInvite cubre que el invitado no esté en línea o ya esté en una sala. Nunca es null.
+        /// Applied with the invitation and recipient callback, InvalidSession, NotInRoom, RoomFull or CannotInvite.
+        /// CannotInvite covers offline friends and friends already in a room. Always present.
         /// </returns>
         RoomInvitationCreation CreateRoomInvitation(string sessionToken, int friendUserId);
 
@@ -133,42 +136,44 @@ namespace TLMG.Services.Sessions
         FriendsAddition AddFriendshipToOnlineChannels(int firstUserId, int secondUserId);
 
         /// <summary>
-        /// Acepta una invitación del jugador de la sesión: la consume y emite la autorización de entrada a su sala.
-        /// No mete al jugador en la sala.
+        /// Consumes an accepted invitation and grants entry permission. The player must still join the room.
         /// </summary>
-        /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
-        /// <param name="invitationId">Id de la invitación recibida.</param>
+        /// <param name="sessionToken">Client's session token, which may be null or unknown.</param>
+        /// <param name="invitationId">Received invitation ID.</param>
         /// <returns>
-        /// Applied con el id de la sala, InvalidSession o InvitationNotValid; InvitationNotValid cubre que la
-        /// invitación no exista, no sea del jugador o su sala ya no exista. Nunca es null.
+        /// Applied with the room ID, InvalidSession or InvitationNotValid. The invitation may be missing, belong to
+        /// another player or refer to a deleted room. Always present.
         /// </returns>
         
         RoomInvitationAcceptance AcceptRoomInvitation(string sessionToken, int invitationId);
-        /// <summary>Cambia el estado Listo del propio jugador. Valida token y canal antes de copiar el estado.</summary>
-        /// <param name="caller">Token de sesión y canal de lobby vinculado al jugador.</param>
-        /// <param name="roomId">Sala indicada por la petición.</param>
-        /// <param name="isReady">Estado Listo deseado del propio jugador; repetirlo no renueva la cuenta.</param>
-        /// <returns>Estado actual y destinatarios, o rechazo sin datos de la sala.</returns>
+        /// <summary>Changes the caller's own ready state. Checks the token and channel before copying state.</summary>
+        /// <param name="caller">Session token and lobby channel linked to the player.</param>
+        /// <param name="roomId">Room named in the request.</param>
+        /// <param name="isReady">Player's requested ready state. Repeating it keeps the existing countdown.</param>
+        /// <returns>Current state and recipients, or a rejection without room data.</returns>
         LobbyMembershipChange ChangePlayerReadiness(SessionChannelCaller caller, int roomId, bool isReady);
 
         /// <summary>
-        /// Cambia las cartas por jugador de la sala. Valida token y canal; un valor distinto se guarda y deja a todos
-        /// los jugadores en No Listo bajo el mismo _sessionsLock, y el mismo valor no cambia nada.
+        /// Changes cards per player after checking the token and channel. A new value resets everyone to not ready
+        /// under the same _sessionsLock. Repeating the value changes nothing.
         /// </summary>
-        /// <param name="caller">Token de sesión y canal de lobby vinculado al jugador.</param>
-        /// <param name="roomId">Sala indicada por la petición.</param>
-        /// <param name="cardsPerPlayerCount">Cantidad ya validada por el servicio: 4, 6 u 8.</param>
+        /// <param name="caller">Session token and lobby channel linked to the player.</param>
+        /// <param name="roomId">Room named in the request.</param>
+        /// <param name="cardsPerPlayerCount">Count checked by the service (4, 6 or 8).</param>
         /// <returns>
-        /// Estado actual y como destinatarios los demás jugadores, o rechazo sin datos de la sala. Con el mismo valor
-        /// no hay destinatarios.
+        /// Current state and other players to notify, or a rejection without room data. An unchanged value has no
+        /// recipients.
         /// </returns>
         LobbyMembershipChange ChangeCardsPerPlayer(SessionChannelCaller caller, int roomId, int cardsPerPlayerCount);
 
-        /// <summary>Valida la generación y el plazo UTC para iniciar. Valida token y canal antes de copiar el estado.</summary>
-        /// <param name="caller">Token de sesión y canal de lobby vinculado al jugador.</param>
-        /// <param name="roomId">Sala indicada por la petición.</param>
-        /// <param name="countdownId">Generación de cuenta observada; una generación vieja solo devuelve el estado.</param>
-        /// <returns>Estado actual y destinatarios, o rechazo sin datos de la sala.</returns>
+        /// <summary>
+        /// Checks the countdown generation and UTC deadline before starting. Checks token and channel before copying
+        /// state.
+        /// </summary>
+        /// <param name="caller">Session token and lobby channel linked to the player.</param>
+        /// <param name="roomId">Room named in the request.</param>
+        /// <param name="countdownId">Observed countdown generation. An old generation only returns the state.</param>
+        /// <returns>Current state and recipients, or a rejection without room data.</returns>
         LobbyMembershipChange RequestMatchStart(SessionChannelCaller caller, int roomId, long countdownId);
 
         /// <summary>Suscribe el canal a la sala actual; la última suscripción válida de la sesión gana.</summary>
@@ -185,26 +190,26 @@ namespace TLMG.Services.Sessions
         string AcceptChatMessage(SessionChannelCaller caller, ChatSubmission submission, out ChatDelivery chatDelivery);
 
         /// <summary>Retira solo el canal que aún coincide; no borra el intervalo de envíos del jugador.</summary>
-        /// <param name="channelId">Canal que se cerró o falló.</param>
+        /// <param name="channelId">Closed or failed channel.</param>
         void RemoveChatChannel(string channelId);
 
         /// <summary>
-        /// Autoriza la suscripción a una partida y devuelve la vista del jugador; todo bajo el mismo candado. El
-        /// userId sale de la sesión y la participación debe seguir vigente (sigue en la sala de esa partida).
+        /// Authorizes a subscription and returns the player's view under the same lock. The userId comes from the
+        /// session and the player must still belong to the match's room.
         /// </summary>
-        /// <param name="caller">Token de cuenta registrada y canal de partida.</param>
-        /// <param name="matchId">Partida solicitada.</param>
-        /// <param name="callback">Callback del canal de partida; sustituye al anterior del jugador.</param>
-        /// <returns>La vista del jugador si se aceptó; la clave de error si se rechazó.</returns>
+        /// <param name="caller">Registered account token and match channel.</param>
+        /// <param name="matchId">Requested match.</param>
+        /// <param name="callback">Match channel callback replacing the player's previous one.</param>
+        /// <returns>Player's view on acceptance, otherwise the error key.</returns>
         MatchDelivery SubscribeToMatch(SessionChannelCaller caller, Guid matchId, IMatchManagerCallback callback);
 
         /// <summary>
-        /// Autoriza y coloca una carta en la partida a la que está suscrito el canal. Si el motor la rechaza no
-        /// cambia nada; si la acepta sube la versión y devuelve una vista por cada suscrito.
+        /// Authorizes card placement in the channel's subscribed match. Rejection leaves state unchanged. Acceptance
+        /// increases the version and returns one view per subscriber.
         /// </summary>
-        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
-        /// <param name="card">Tipo de carta que se quiere colocar.</param>
-        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        /// <param name="caller">Current token and subscribed match channel.</param>
+        /// <param name="card">Type of card to place.</param>
+        /// <returns>All subscribers' views on acceptance, otherwise the error key.</returns>
         MatchDelivery PlaceCard(SessionChannelCaller caller, MatchCardKind card);
 
         MatchDelivery TryCatchFugitiveKitten(SessionChannelCaller caller);
@@ -212,48 +217,47 @@ namespace TLMG.Services.Sessions
         MatchDelivery CheckFugitiveKittenDeadline(SessionChannelCaller caller);
 
         /// <summary>
-        /// Autoriza y abre o sube una apuesta en la partida a la que está suscrito el canal; la fase decide cuál de las
-        /// dos es. Si el motor la rechaza no cambia nada; si la acepta sube la versión y devuelve una vista por cada
-        /// suscrito.
+        /// Authorizes a bid in the subscribed match. The phase determines whether to open or raise. Rejection leaves
+        /// state unchanged. Acceptance increases the version and returns one view per subscriber.
         /// </summary>
-        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
-        /// <param name="betValue">Cartas que el jugador declara poder voltear.</param>
-        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        /// <param name="caller">Current token and subscribed match channel.</param>
+        /// <param name="betValue">Number of cards the player claims they can reveal.</param>
+        /// <returns>All subscribers' views on acceptance, otherwise the error key.</returns>
         MatchDelivery PlaceBet(SessionChannelCaller caller, int betValue);
 
         /// <summary>
-        /// Autoriza y retira al jugador de la apuesta en curso. Con un solo apostador restante el reto queda listo y su
-        /// desenlace empieza a registrarse.
+        /// Authorizes folding. When only one bidder remains, the challenge is ready and the registry starts recording
+        /// its outcome.
         /// </summary>
-        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
-        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        /// <param name="caller">Current token and subscribed match channel.</param>
+        /// <returns>All subscribers' views on acceptance, otherwise the error key.</returns>
         MatchDelivery WithdrawFromBet(SessionChannelCaller caller);
 
         /// <summary>
-        /// Autoriza y voltea la carta de arriba de la pila elegida durante el reto del jugador. El desenlace del reto
-        /// (cartas volteadas, éxito o fallo y castigo) se anota en el registro de la partida.
+        /// Authorizes revealing the top card of the chosen pile. Records revealed cards, success or failure and
+        /// punishment in the match record.
         /// </summary>
-        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
-        /// <param name="pileOwnerUserId">Cuenta del dueño de la pila de la que se voltea.</param>
-        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        /// <param name="caller">Current token and subscribed match channel.</param>
+        /// <param name="pileOwnerUserId">Account of the player whose pile supplies the card.</param>
+        /// <returns>All subscribers' views on acceptance, otherwise the error key.</returns>
         MatchDelivery RevealCard(SessionChannelCaller caller, int pileOwnerUserId);
 
         /// <summary>
-        /// Autoriza y elimina la carta elegida del castigo. En el castigo a ciegas traduce el lugar mostrado al índice
-        /// real con la permutación del servidor; el cliente nunca conoce esa correspondencia.
+        /// Authorizes removal of the chosen punishment card. For a blind choice, the server maps the displayed slot to
+        /// the actual index and keeps that mapping private.
         /// </summary>
-        /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
-        /// <param name="cardIndex">Lugar mostrado (a ciegas) o posición en la mano (castigo propio).</param>
-        /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
+        /// <param name="caller">Current token and subscribed match channel.</param>
+        /// <param name="cardIndex">Displayed slot for a blind choice or hand position for a visible choice.</param>
+        /// <returns>All subscribers' views on acceptance, otherwise the error key.</returns>
         MatchDelivery ChoosePunishmentCard(SessionChannelCaller caller, int cardIndex);
 
         /// <summary>
-        /// Quita solo el callback de partida del canal que se cerró o falló, si sigue siendo el registrado. No
-        /// modifica la partida ni la sala.
+        /// Removes the callback only if the closed or failed channel is still current. A lost match connection can
+        /// start a reconnection window.
         /// </summary>
-        /// <param name="channelId">Canal que se cerró o falló.</param>
-        /// <param name="closedCallback">Callback que tenía ese canal; se compara por referencia.</param>
-        /// <returns>true si se quitó la suscripción; en caso contrario, false.</returns>
+        /// <param name="channelId">Closed or failed channel.</param>
+        /// <param name="closedCallback">Original channel callback, compared by reference.</param>
+        /// <returns>True if the subscription was removed.</returns>
         bool RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback,
             out IReadOnlyList<MatchViewDelivery> deliveries);
     }

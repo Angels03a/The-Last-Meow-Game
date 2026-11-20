@@ -5,9 +5,8 @@ using TLMG.Domain.Constants;
 
 namespace TLMG.Services.Sessions
 {
-    // Parte del registro que guarda los canales de amigos (quien tiene uno vivo está en línea) y las invitaciones
-    // a sala. Todo método que termina en InLock, y los ayudantes que llama, se invoca únicamente con _sessionsLock
-    // tomado y solo toca memoria: la amistad se comprueba en la base de datos antes de llamar a este registro.
+    // Stores friends channels for online presence and room invitations. Methods ending in InLock and their helpers
+    // require _sessionsLock and access memory only. The database checks friendship before the registry is called.
     public partial class SessionRegistry
     {
         private static readonly IReadOnlyList<IFriendsManagerCallback> _noFriendsCallbacks =
@@ -325,7 +324,7 @@ namespace TLMG.Services.Sessions
             return roomInvitationAcceptance;
         }
 
-        // Una invitación repetida al mismo jugador para la misma sala no crea otra: se devuelve la que ya existe.
+        // Reuses the existing invitation when the same player is invited to the same room again.
         private RoomInvitationCreation CreateOrFindInvitation(
             PlayerSession inviterSession,
             int friendUserId,

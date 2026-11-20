@@ -1,12 +1,12 @@
 namespace TLMG.Domain.Engine
 {
-    /// <summary>Fila de la tabla final de una partida: jugador, posición sin empates y puntos ganados.</summary>
+    /// <summary>Final match row with player, unique rank and points earned.</summary>
     public sealed class PlayerStanding
     {
-        /// <summary>Crea la fila de un jugador.</summary>
-        /// <param name="playerId">Identificador del jugador en la partida.</param>
-        /// <param name="position">Posición final, empezando en 1.</param>
-        /// <param name="points">Puntos ganados en la partida; nunca negativos.</param>
+        /// <summary>Creates a player's row.</summary>
+        /// <param name="playerId">Player ID within the match.</param>
+        /// <param name="position">Final rank starting at 1.</param>
+        /// <param name="points">Points earned in the match, always zero or more.</param>
         internal PlayerStanding(int playerId, int position, int points)
         {
             PlayerId = playerId;
@@ -14,13 +14,13 @@ namespace TLMG.Domain.Engine
             Points = points;
         }
 
-        /// <summary>Obtiene el identificador del jugador en la partida.</summary>
+        /// <summary>Player ID within the match.</summary>
         public int PlayerId { get; }
 
-        /// <summary>Obtiene la posición final del jugador; 1 es el ganador.</summary>
+        /// <summary>Final player rank. The winner ranks first.</summary>
         public int Position { get; }
 
-        /// <summary>Obtiene los puntos que ganó el jugador; un invitado siempre tiene 0.</summary>
+        /// <summary>Points earned by the player. Guests always receive 0.</summary>
         public int Points { get; }
     }
 }

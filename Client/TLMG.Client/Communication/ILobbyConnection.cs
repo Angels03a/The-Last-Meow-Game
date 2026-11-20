@@ -4,31 +4,29 @@ using TLMG.Client.UsersManagerReference;
 namespace TLMG.Client.Communication
 {
     /// <summary>
-    /// Área de sala (lobby) de la conexión con el servidor: crear y dejar la sala, el estado Listo, las cartas
-    /// por jugador y el chat de la sala. LobbyViewModel depende solo de esta interfaz (D-70); la implementa
-    /// ServerConnectionManager, que conserva la sala aunque ninguna pantalla esté abierta (D-60). Los eventos se
-    /// disparan en el hilo de la interfaz y llevan la ErrorKey tal como la manda el servidor, sin textos. Las
-    /// operaciones solo envían: el resultado llega por el evento correspondiente, y toda decisión (listo, inicio
-    /// de partida, cartas por jugador) es del servidor.
+    /// Provides room creation, exit, readiness, cards per player and room chat for LobbyViewModel (D-70).
+    /// ServerConnectionManager keeps the room even when no screen is open (D-60). Events run on the UI thread and carry
+    /// the server's ErrorKey without translated text. Each request has a result event. The server decides readiness,
+    /// match start and cards per player.
     /// </summary>
     public interface ILobbyConnection
     {
-        /// <summary>Se dispara con el resultado de crear una sala.</summary>
+        /// <summary>Raised when the server responds to a request to create a room.</summary>
         event EventHandler<ServerEventArgs<OperationLobbyRoomResult>> CreateRoomResultReceived;
 
-        /// <summary>Se dispara al recibir la respuesta de salida tras finalizar la partida.</summary>
+        /// <summary>Raised when the server responds to a request to leave after the match ends.</summary>
         event EventHandler<ServerEventArgs<OperationResult>> FinishedMatchLeaveResultReceived;
 
-        /// <summary>Se dispara cuando cambia la sala del jugador (jugadores, listos o cartas por jugador).</summary>
+        /// <summary>Raised when room membership, readiness or cards per player change.</summary>
         event EventHandler<ServerEventArgs<LobbyRoom>> LobbyRoomChanged;
 
-        /// <summary>Se dispara con el resultado de cambiar el estado Listo.</summary>
+        /// <summary>Raised when the server responds to a readiness change.</summary>
         event EventHandler<ServerEventArgs<OperationLobbyRoomResult>> ReadinessResultReceived;
 
-        /// <summary>Se dispara con el resultado de comprobar el inicio de la partida.</summary>
+        /// <summary>Raised when the server returns the match start check.</summary>
         event EventHandler<ServerEventArgs<OperationRequestMatchStartResult>> MatchStartResultReceived;
 
-        /// <summary>Se dispara con el resultado de cambiar las cartas por jugador.</summary>
+        /// <summary>Raised when the server responds to a change in cards per player.</summary>
         event EventHandler<ServerEventArgs<OperationLobbyRoomResult>> ChangeCardsPerPlayerResultReceived;
 
         /// <summary>Se dispara con cada mensaje de chat que el servidor confirma.</summary>
@@ -37,19 +35,19 @@ namespace TLMG.Client.Communication
         /// <summary>Se dispara cuando el chat pasa a estar disponible o deja de estarlo.</summary>
         event EventHandler ChatAvailabilityChanged;
 
-        /// <summary>Se dispara cuando cambia la cuenta regresiva de inicio.</summary>
+        /// <summary>Raised when the start countdown changes.</summary>
         event EventHandler CountdownChanged;
 
-        /// <summary>Obtiene si hay una sesión de jugador registrado; un invitado no la tiene.</summary>
+        /// <summary>Whether the current player has a registered session. Guests have none.</summary>
         bool HasRegisteredSession { get; }
 
-        /// <summary>Obtiene la última foto de la sala del jugador, o null si no está en una sala.</summary>
+        /// <summary>The latest room snapshot, or null if the player is outside a room.</summary>
         LobbyRoom CurrentRoom { get; }
 
-        /// <summary>Obtiene si se pidió crear una sala y su resultado todavía no llega.</summary>
+        /// <summary>Whether a request to create a room is waiting for a response.</summary>
         bool IsRoomCreationPending { get; }
 
-        /// <summary>Obtiene el id de la cuenta del jugador en sesión, o 0 si no hay sesión registrada.</summary>
+        /// <summary>The current player's account ID, or 0 without a registered session.</summary>
         int PlayerUserId { get; }
 
         /// <summary>Obtiene si el servidor aceptó la suscripción al chat de la sala.</summary>
@@ -57,36 +55,36 @@ namespace TLMG.Client.Communication
 
         void RetryChatConnection();
 
-        /// <summary>Obtiene si la foto del servidor mantiene una cuenta regresiva activa.</summary>
+        /// <summary>Whether the server snapshot shows an active countdown.</summary>
         bool IsCountdownVisible { get; }
 
-        /// <summary>Obtiene los segundos que faltan de la cuenta regresiva, o 0 si no la confirma.</summary>
+        /// <summary>Seconds left in the countdown, or 0 if the server has not confirmed it.</summary>
         int CountdownSecondsRemaining { get; }
 
-        /// <summary>Crea una sala y deja al jugador dentro; el resultado llega por CreateRoomResultReceived.</summary>
-        /// <returns>true si se envió; false si no hay sesión registrada o falló el canal o el envío.</returns>
+        /// <summary>Creates a room and joins it. CreateRoomResultReceived delivers the result.</summary>
+        /// <returns>True if sent. False without a registered session or if the channel or send fails.</returns>
         bool CreateRoom();
 
-        /// <summary>Sale de la sala actual y la libera en el cliente sin esperar la respuesta.</summary>
-        /// <returns>true si se envió; false si no hay sesión registrada o falló el canal o el envío.</returns>
+        /// <summary>Leaves the room and releases it on the client without waiting for a response.</summary>
+        /// <returns>True if sent. False without a registered session or if the channel or send fails.</returns>
         bool LeaveLobby();
 
-        /// <summary>Solicita salir de la sala de una partida terminada sin anticipar la respuesta.</summary>
-        /// <param name="matchId">Partida terminada a la que pertenece la sala.</param>
-        /// <returns>true si se envió la solicitud.</returns>
+        /// <summary>Requests to leave the room after the match ends and waits for the server's decision.</summary>
+        /// <param name="matchId">Finished match associated with the room.</param>
+        /// <returns>True if the request was sent.</returns>
         bool LeaveFinishedMatch(Guid matchId);
 
-        /// <summary>Pide el estado Listo deseado; el resultado llega por ReadinessResultReceived.</summary>
-        /// <param name="isReadyToStartMatch">Estado Listo deseado.</param>
-        /// <returns>true si se envió; false si no hay sala o falló el envío.</returns>
+        /// <summary>Requests the desired ready state. ReadinessResultReceived delivers the result.</summary>
+        /// <param name="isReadyToStartMatch">Requested ready state.</param>
+        /// <returns>True if sent. False if there is no room or the send fails.</returns>
         bool ChangePlayerReadiness(bool isReadyToStartMatch);
 
         /// <summary>
-        /// Pide cambiar las cartas por jugador de la sala (4, 6 u 8); el servidor valida el valor y reinicia el
-        /// estado Listo de todos. El resultado llega por ChangeCardsPerPlayerResultReceived.
+        /// Requests 4, 6 or 8 cards per player. The server checks the value and resets everyone's ready state on a
+        /// change. ChangeCardsPerPlayerResultReceived delivers the result.
         /// </summary>
-        /// <param name="cardsPerPlayerCount">Cartas por jugador elegidas.</param>
-        /// <returns>true si se envió; false si no hay sala o falló el envío.</returns>
+        /// <param name="cardsPerPlayerCount">Selected number of cards per player.</param>
+        /// <returns>True if sent. False if there is no room or the send fails.</returns>
         bool ChangeCardsPerPlayer(int cardsPerPlayerCount);
 
         /// <summary>Envía un mensaje de chat; su eco por ChatMessageReceived es la única confirmación.</summary>

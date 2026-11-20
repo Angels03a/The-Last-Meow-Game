@@ -37,9 +37,9 @@ namespace TLMG.Client.Navigation
         /// <param name="dialogs">Administrador de diálogos.</param>
         /// <param name="accountsConnection">Área de cuentas de la conexión con el servidor.</param>
         /// <param name="friendsConnection">Área de amigos de la conexión con el servidor.</param>
-        /// <param name="lobbyConnection">Área de sala de la conexión con el servidor.</param>
-        /// <param name="matchConnection">Área de partida de la conexión con el servidor.</param>
-        /// <param name="leaderboardConnection">Área de la tabla de posiciones de la conexión con el servidor.</param>
+        /// <param name="lobbyConnection">Room connection to the server.</param>
+        /// <param name="matchConnection">Match connection to the server.</param>
+        /// <param name="leaderboardConnection">Leaderboard connection to the server.</param>
         public ScreenFactory(
             INavigationManager navigation,
             IDialogManager dialogs,

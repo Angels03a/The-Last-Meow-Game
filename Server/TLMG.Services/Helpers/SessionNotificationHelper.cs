@@ -87,10 +87,10 @@ namespace TLMG.Services.Helpers
         }
 
         /// <summary>
-        /// Deja constancia de que una salida involuntaria no modificó la partida: el motor solo se toca con la salida
-        /// voluntaria hasta que exista la ventana de reconexión de 15 s (C2).
+        /// Records an involuntary room exit separately from an immediate voluntary match exit. Disconnection uses the
+        /// 15-second reconnection window (C2).
         /// </summary>
-        /// <param name="roomDeparture">Salida de sala ya aplicada, con su causa.</param>
+        /// <param name="roomDeparture">Room exit already applied, including its cause.</param>
         internal static void LogMatchLeftUntouched(LobbyMembershipChange roomDeparture)
         {
             bool leftWithoutTouchingMatch = roomDeparture.LeftAuthorizedMatch
@@ -105,9 +105,9 @@ namespace TLMG.Services.Helpers
             }
         }
 
-        /// <summary>Crea un aviso OnMatchViewChanged por cada vista, con la vista de cada destinatario.</summary>
-        /// <param name="viewDeliveries">Vistas ya armadas bajo el candado, cada una con su callback.</param>
-        /// <returns>Los avisos, sin enviar, en el orden de las vistas.</returns>
+        /// <summary>Creates one OnMatchViewChanged notification per recipient with that player's view.</summary>
+        /// <param name="viewDeliveries">Views built under the lock, each with its callback.</param>
+        /// <returns>Unsent notifications in view order.</returns>
         internal static IReadOnlyList<Action> CreateMatchViewNotifications(
             IReadOnlyList<MatchViewDelivery> viewDeliveries)
         {
@@ -124,11 +124,11 @@ namespace TLMG.Services.Helpers
         }
 
         /// <summary>
-        /// Crea los avisos OnLobbyRoomChanged de un cambio de sala, uno por cada destinatario del cambio. Si el cambio
-        /// no trae sala (rechazado o sala vacía), no hay avisos.
+        /// Creates one OnLobbyRoomChanged notification per recipient. A rejection or an empty room has no room snapshot
+        /// and produces no notifications.
         /// </summary>
-        /// <param name="lobbyMembershipChange">Cambio de la sala con la foto y los destinatarios.</param>
-        /// <returns>Los avisos, sin enviar, en el orden de los destinatarios.</returns>
+        /// <param name="lobbyMembershipChange">Room change with its snapshot and recipients.</param>
+        /// <returns>Unsent notifications in recipient order.</returns>
         internal static IReadOnlyList<Action> CreateRoomNotifications(LobbyMembershipChange lobbyMembershipChange)
         {
             List<Action> notifications = new List<Action>();

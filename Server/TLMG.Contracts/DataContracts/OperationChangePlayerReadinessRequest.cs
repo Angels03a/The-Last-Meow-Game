@@ -2,15 +2,15 @@ using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
 {
-    /// <summary>Petición del estado Listo deseado del jugador.</summary>
+    /// <summary>Request to set the player's ready state.</summary>
     [DataContract]
     public class OperationChangePlayerReadinessRequest
     {
-        /// <summary>Sala a la que pertenece la petición.</summary>
+        /// <summary>Room for this request.</summary>
         [DataMember]
         public int RoomId { get; set; }
 
-        /// <summary>Estado Listo deseado; repetir el mismo valor no renueva la cuenta.</summary>
+        /// <summary>Requested ready state. Repeating it leaves the countdown unchanged.</summary>
         [DataMember]
         public bool IsReady { get; set; }
     }

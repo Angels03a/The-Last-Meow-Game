@@ -3,102 +3,104 @@ using System.Collections.Generic;
 namespace TLMG.Client.Models
 {
     /// <summary>
-    /// Lo que la pantalla de partida dibuja a partir de una vista privada del servidor: ronda, fase, jugadores por
-    /// lugar de la mesa, y la mano y la pila del jugador local. Se arma completo en cada vista y no se modifica.
+    /// Board built from a private server view. It includes the round, phase, players by seat, and the local hand and
+    /// pile. Each view creates a complete board that stays unchanged.
     /// </summary>
     public sealed class MatchBoard
     {
-        /// <summary>Indica si ya llegó una vista del servidor; antes de eso el tablero está vacío.</summary>
+        /// <summary>Whether a server view has arrived. Until then, the board is empty.</summary>
         public bool HasMatchView { get; set; }
 
-        /// <summary>Ronda en curso.</summary>
+        /// <summary>Current round.</summary>
         public int RoundNumber { get; set; }
 
-        /// <summary>Clave de recurso del nombre de la fase en curso.</summary>
+        /// <summary>Resource key for the current phase name.</summary>
         public string PhaseLabelKey { get; set; }
 
-        /// <summary>Indica si el turno es del jugador local.</summary>
+        /// <summary>Whether it is the local player's turn.</summary>
         public bool IsLocalPlayerTurn { get; set; }
 
-        /// <summary>Indica si el jugador local puede pedir colocar una carta; el servidor decide si procede.</summary>
+        /// <summary>
+        /// Whether the local player can request to place a card. The server decides whether to accept it.
+        /// </summary>
         public bool CanPlaceCards { get; set; }
 
-        /// <summary>Apuesta confirmada por el servidor.</summary>
+        /// <summary>Bid confirmed by the server.</summary>
         public int CurrentBet { get; set; }
 
-        /// <summary>Límite inferior publicado para la siguiente apuesta.</summary>
+        /// <summary>Lowest next bid published by the server.</summary>
         public int MinimumBetValue { get; set; }
 
-        /// <summary>Límite superior publicado para la siguiente apuesta.</summary>
+        /// <summary>Highest next bid published by the server.</summary>
         public int MaximumBetValue { get; set; }
 
-        /// <summary>Indica si el servidor permite apostar.</summary>
+        /// <summary>Whether the server allows a bid.</summary>
         public bool CanPlaceBet { get; set; }
 
-        /// <summary>Indica si el servidor permite retirarse de la apuesta.</summary>
+        /// <summary>Whether the server allows the player to fold.</summary>
         public bool CanWithdrawFromBet { get; set; }
 
-        /// <summary>Nombre del líder de la apuesta, cuando existe.</summary>
+        /// <summary>Name of the leading bidder, if any.</summary>
         public string BetLeaderName { get; set; }
 
-        /// <summary>Indica si el servidor permite solicitar una revelación.</summary>
+        /// <summary>Whether the server allows a reveal request.</summary>
         public bool CanRevealCard { get; set; }
 
-        /// <summary>Indica si hay información pública de un reto.</summary>
+        /// <summary>Whether public challenge details are available.</summary>
         public bool HasChallenge { get; set; }
 
-        /// <summary>Cartas reveladas durante el reto.</summary>
+        /// <summary>Cards revealed during the challenge.</summary>
         public int RevealedCount { get; set; }
 
-        /// <summary>Cantidad prometida por el apostador.</summary>
+        /// <summary>Number of cards the bidder promised to reveal.</summary>
         public int PromisedCount { get; set; }
 
-        /// <summary>Resultado del reto recibido del servidor.</summary>
+        /// <summary>Challenge result received from the server.</summary>
         public TLMG.Client.UsersManagerReference.MatchChallengeOutcome ChallengeOutcome { get; set; }
 
-        /// <summary>Indica si hay un castigo pendiente.</summary>
+        /// <summary>Whether a punishment is pending.</summary>
         public bool HasPunishment { get; set; }
 
-        /// <summary>Permiso publicado para elegir una carta.</summary>
+        /// <summary>Permission from the server to choose a card.</summary>
         public bool CanChoosePunishment { get; set; }
 
-        /// <summary>Indica si la elección es a ciegas.</summary>
+        /// <summary>Whether the player must choose blindly.</summary>
         public bool IsBlindPunishment { get; set; }
 
-        /// <summary>Nombre de quien elige.</summary>
+        /// <summary>Name of the player making the choice.</summary>
         public string PunishmentChooserName { get; set; }
 
-        /// <summary>Nombre de quien recibe el castigo.</summary>
+        /// <summary>Name of the player receiving the punishment.</summary>
         public string PunishedPlayerName { get; set; }
 
-        /// <summary>Posiciones disponibles para el destinatario autorizado.</summary>
+        /// <summary>Positions available to the authorized player.</summary>
         public IReadOnlyList<HandCardEntry> PunishmentCards { get; set; }
 
-        /// <summary>Todos los jugadores, en su orden fijo de turnos.</summary>
+        /// <summary>All players in their fixed turn order.</summary>
         public IReadOnlyList<MatchPlayerEntry> Players { get; set; }
 
-        /// <summary>El jugador local, o null si todavía no llega la vista.</summary>
+        /// <summary>Local player, or null before the view arrives.</summary>
         public MatchPlayerEntry LocalPlayer { get; set; }
 
-        /// <summary>Rival en el lugar izquierdo de la mesa, o null si no hay.</summary>
+        /// <summary>Opponent on the left, or null if the seat is empty.</summary>
         public MatchPlayerEntry OpponentLeft { get; set; }
 
-        /// <summary>Rival en el lugar superior izquierdo, o null si no hay.</summary>
+        /// <summary>Opponent at the top left, or null if the seat is empty.</summary>
         public MatchPlayerEntry OpponentTopLeft { get; set; }
 
-        /// <summary>Rival en el lugar superior, o null si no hay.</summary>
+        /// <summary>Opponent at the top, or null if the seat is empty.</summary>
         public MatchPlayerEntry OpponentTop { get; set; }
 
-        /// <summary>Rival en el lugar superior derecho, o null si no hay.</summary>
+        /// <summary>Opponent at the top right, or null if the seat is empty.</summary>
         public MatchPlayerEntry OpponentTopRight { get; set; }
 
-        /// <summary>Rival en el lugar derecho, o null si no hay.</summary>
+        /// <summary>Opponent on the right, or null if the seat is empty.</summary>
         public MatchPlayerEntry OpponentRight { get; set; }
 
-        /// <summary>Mano del jugador local.</summary>
+        /// <summary>Local player's hand.</summary>
         public IReadOnlyList<HandCardEntry> HandCards { get; set; }
 
-        /// <summary>Pila del jugador local, de la carta más antigua a la de arriba.</summary>
+        /// <summary>Local player's pile, from the oldest card to the top card.</summary>
         public IReadOnlyList<PileCardEntry> OwnPileCards { get; set; }
     }
 }

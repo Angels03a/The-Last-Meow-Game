@@ -5,15 +5,15 @@ using TLMG.Contracts;
 namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Resultado inmutable de terminar una sesión: a quién hay que avisar de su salida de la sala y de su presencia,
-    /// siempre fuera del candado.
+    /// Immutable session end result listing who to notify of the room exit and presence change after releasing the
+    /// lock.
     /// </summary>
     public sealed class SessionEnd
     {
         /// <summary>Crea el resultado de terminar una sesión.</summary>
         /// <param name="userId">Id de la cuenta del jugador cuya sesión terminó.</param>
-        /// <param name="nickname">Nickname del jugador.</param>
-        /// <param name="roomDeparture">Cambio en la sala del jugador; NotInRoom si no estaba en una.</param>
+        /// <param name="nickname">Player's nickname.</param>
+        /// <param name="roomDeparture">Player's room change, or NotInRoom if outside a room.</param>
         /// <param name="friendsCallback">
         /// Callback del canal de amigos de la sesión que terminó, capturado antes de quitarlo; null si no tenía.
         /// </param>
@@ -42,7 +42,7 @@ namespace TLMG.Services.Sessions
         /// <summary>Obtiene el nickname del jugador.</summary>
         public string Nickname { get; }
 
-        /// <summary>Obtiene el cambio en la sala del jugador; nunca es null.</summary>
+        /// <summary>Player's room change, always present.</summary>
         public LobbyMembershipChange RoomDeparture { get; }
 
         /// <summary>Obtiene el callback del canal de amigos de la sesión que terminó, o null si no tenía.</summary>

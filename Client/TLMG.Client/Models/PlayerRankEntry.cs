@@ -3,7 +3,7 @@ using System;
 namespace TLMG.Client.Models
 {
     /// <summary>
-    /// Representa los datos de un jugador para mostrarse en el leaderboard.
+    /// Player details displayed on the leaderboard.
     /// </summary>
     public class PlayerRankEntry
     {
@@ -12,58 +12,57 @@ namespace TLMG.Client.Models
         private const double PercentageDivisor = 100.0;
 
         /// <summary>
-        /// Obtiene o establece la posición en el ranking general.
+        /// Player's overall rank.
         /// </summary>
         public int Rank { get; set; }
 
         /// <summary>
-        /// Obtiene o establece el emoji del avatar del jugador.
+        /// Emoji used for the player's avatar.
         /// </summary>
         public string AvatarEmoji { get; set; } = string.Empty;
 
         /// <summary>
-        /// Obtiene o establece el nombre o nickname del jugador.
+        /// Player's display name or nickname.
         /// </summary>
         public string PlayerName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Obtiene o establece el puntaje total acumulado por el jugador.
+        /// Player's total accumulated points.
         /// </summary>
         public int Score { get; set; }
 
         /// <summary>
-        /// Obtiene o establece la cantidad total de victorias obtenidas.
+        /// Player's total wins.
         /// </summary>
         public int Wins { get; set; }
 
         /// <summary>
-        /// Obtiene o establece el porcentaje de victorias del jugador.
+        /// Percentage of matches the player won.
         /// </summary>
         public int WinRatePercentage { get; set; }
 
         /// <summary>
-        /// Obtiene la etiqueta formateada del rango del jugador (por ejemplo, "#1").
+        /// Formatted rank, such as "#1".
         /// </summary>
         public string RankLabel => $"#{Rank}";
 
         /// <summary>
-        /// Obtiene la etiqueta formateada del puntaje con separador de miles.
+        /// Score formatted with a thousands separator.
         /// </summary>
         public string ScoreLabel => Score.ToString("N0");
 
         /// <summary>
-        /// Obtiene la etiqueta formateada del porcentaje de victorias (por ejemplo, "80%").
+        /// Formatted win rate, such as "80%".
         /// </summary>
         public string WinRateLabel => $"{WinRatePercentage}%";
 
         /// <summary>
-        /// Obtiene el ancho en píxeles para la barra visual, proporcional al porcentaje
-        /// de victorias del jugador.
+        /// Width of the win-rate bar in pixels, proportional to the player's win percentage.
         /// </summary>
         public double WinRateBarWidth => WinRatePercentage / PercentageDivisor * WinRateBarMaxWidthPixels;
 
         /// <summary>
-        /// Obtiene un valor que indica si el porcentaje de victoria supera el umbral destacado.
+        /// Whether the win rate reaches the highlight threshold.
         /// </summary>
         public bool IsHighWinRate => WinRatePercentage >= HighWinRateThresholdPercentage;
     }

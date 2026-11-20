@@ -3,12 +3,12 @@
 namespace TLMG.Contracts
 {
     /// <summary>
-    /// Contrato para consultar la tabla de posiciones.
+    /// Contract for leaderboard queries.
     /// </summary>
     [ServiceContract(CallbackContract = typeof(ILeaderboardManagerCallback))]
     public interface ILeaderboardManager
     {
-        /// <summary>Solicita la tabla de posiciones; la respuesta llega por GetLeaderboardResult.</summary>
+        /// <summary>Requests the leaderboard. GetLeaderboardResult delivers the response.</summary>
         [OperationContract(IsOneWay = true)]
         void GetLeaderboard();
     }

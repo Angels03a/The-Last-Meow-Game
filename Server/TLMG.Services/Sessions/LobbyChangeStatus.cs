@@ -1,29 +1,29 @@
 ﻿namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Resultado de intentar cambiar la pertenencia de un jugador a una sala.
+    /// Result of trying to change a player's room membership.
     /// </summary>
     public enum LobbyChangeStatus
     {
-        /// <summary>El cambio se aplicó.</summary>
+        /// <summary>The change was applied.</summary>
         Applied,
 
-        /// <summary>El token no pertenece a una sesión vigente.</summary>
+        /// <summary>The token does not belong to a current session.</summary>
         InvalidSession,
 
-        /// <summary>El jugador, o el canal desde el que llama, ya está en una sala.</summary>
+        /// <summary>The player or calling channel is already in a room.</summary>
         AlreadyInRoom,
 
-        /// <summary>La sala no existe o el jugador no tiene autorización de entrada para ella.</summary>
+        /// <summary>The room is missing or the player lacks entry permission.</summary>
         NotAuthorized,
 
-        /// <summary>La sala tiene el máximo de jugadores; solo se informa a quien ya estaba autorizado.</summary>
+        /// <summary>The room is full. Only an already authorized player receives this result.</summary>
         RoomFull,
 
-        /// <summary>El jugador no estaba en ninguna sala.</summary>
+        /// <summary>The player was outside every room.</summary>
         NotInRoom,
 
-        /// <summary>La partida ya fue autorizada y no admite cambios de preparación.</summary>
+        /// <summary>The match is already authorized and readiness can no longer change.</summary>
         MatchAlreadyStarted
     }
 }

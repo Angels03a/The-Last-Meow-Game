@@ -7,8 +7,8 @@ using TLMG.Domain.Constants;
 namespace TLMG.Domain.Engine
 {
     /// <summary>
-    /// Tabla final de una partida terminada (Reglas 5.0.1 a 5.0.4): posiciones sin empates y puntos de cada jugador.
-    /// Solo lee la API pública de MatchState y no la modifica. El marcador acumulado no es de aquí.
+    /// Final standings for one finished match, with a unique rank and points for each player (Rules 5.0.1 to 5.0.4).
+    /// Reads MatchState through its public API without changing it. Cumulative scores are handled separately.
     /// </summary>
     public sealed class FinalStandings
     {
@@ -23,25 +23,24 @@ namespace TLMG.Domain.Engine
             Standings = standings;
         }
 
-        /// <summary>Obtiene si la tabla se calculó o el motivo del rechazo.</summary>
+        /// <summary>Whether the standings were calculated or why they were rejected.</summary>
         public FinalStandingsStatus Status { get; }
 
-        /// <summary>Obtiene las filas ordenadas de la 1.ª posición a la última; vacía si se rechazó.</summary>
+        /// <summary>Rows from first to last place, empty on rejection.</summary>
         public IReadOnlyList<PlayerStanding> Standings { get; }
 
         /// <summary>
-        /// Calcula la tabla final de una partida terminada. Cuentan para la base todos los que no salieron de la
-        /// partida, invitados incluidos; quienes salieron van al final con 0 puntos. Los invitados conservan su
-        /// posición y cobran 0. Si la partida no ha terminado, se rechaza sin cambiar nada. Si un identificador de
-        /// invitado se repite, se toma una sola vez.
+        /// Calculates final standings for a finished match. Everyone who stayed counts toward the base, including
+        /// guests. Players who left rank last with 0 points. Guests keep their place and earn 0. An unfinished match is
+        /// rejected without changes. Duplicate guest IDs count only once.
         /// </summary>
-        /// <param name="match">Partida de la que se calcula la tabla.</param>
+        /// <param name="match">Match to rank.</param>
         /// <param name="guestPlayerIds">
-        /// Jugadores invitados de la partida; los entrega Services a partir de datos autoritativos, nunca del cliente.
+        /// Guest players identified by Services using trusted server data. The client cannot supply this list.
         /// </param>
-        /// <returns>La tabla calculada o el rechazo con la tabla vacía.</returns>
-        /// <exception cref="ArgumentNullException">match o guestPlayerIds es null.</exception>
-        /// <exception cref="ArgumentException">Un invitado no es jugador de la partida.</exception>
+        /// <returns>Calculated standings, or a rejection with empty standings.</returns>
+        /// <exception cref="ArgumentNullException">match or guestPlayerIds is null.</exception>
+        /// <exception cref="ArgumentException">A listed guest is outside the match.</exception>
         public static FinalStandings CalculateFromMatch(MatchState match, IEnumerable<int> guestPlayerIds)
         {
             HashSet<int> guestIds = ValidateGuests(match, guestPlayerIds);
@@ -60,17 +59,18 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Calcula los puntos de una posición (Reglas 5.0.1): base = max(2, contados − 1); la posición k recibe
-        /// base − (k − 1) más el bono de la modalidad, de ganador en la 1.ª posición y de no ganador en las demás.
-        /// Nunca baja de 0. Contados son quienes no abandonaron ni fueron expulsados. No conoce a los invitados: su
-        /// cero lo aplica CalculateFromMatch, después de que el invitado ya contó para la base y ocupó su posición.
+        /// Calculates points by rank (Rule 5.0.1). The base is max(2, counted players − 1). Rank k earns base − (k − 1)
+        /// plus the mode bonus for winners at rank 1 or for non-winners elsewhere, with a minimum of 0. Players who
+        /// left or were removed do not count. CalculateFromMatch assigns guests 0 after counting and ranking them.
         /// </summary>
-        /// <param name="position">Posición final entre los contados, empezando en 1.</param>
-        /// <param name="countedPlayerCount">Jugadores contados para la base, de 1 a 6.</param>
-        /// <param name="modeRules">Reglas de la modalidad, que fijan los bonos.</param>
-        /// <returns>Los puntos de la posición.</returns>
-        /// <exception cref="ArgumentNullException">modeRules es null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">La posición o los contados están fuera de rango.</exception>
+        /// <param name="position">Final rank among counted players, starting at 1.</param>
+        /// <param name="countedPlayerCount">Number of players counted toward the base, from 1 to 6.</param>
+        /// <param name="modeRules">Mode rules that set the bonuses.</param>
+        /// <returns>Points earned for this rank.</returns>
+        /// <exception cref="ArgumentNullException">modeRules is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Rank or counted player total is outside the allowed range.
+        /// </exception>
         public static int CalculatePoints(int position, int countedPlayerCount, MatchModeRules modeRules)
         {
             return CalculatePoints(position, countedPlayerCount, modeRules, position == FirstPosition);
@@ -94,10 +94,9 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Ordena a los jugadores por posición final (Reglas 5.0.4): el ganador; después quienes siguen en juego, por
-        /// más retos, más vidas y menor secuencia del último éxito; luego los eliminados, del más tardío al primero; al
-        /// final quienes salieron, por salida efectiva más tardía y luego por inicio más tardío (H-11). El
-        /// ordenamiento es estable, así que el último desempate es el orden de turnos.
+        /// Ranks the winner first (Rule 5.0.4). Active players follow by most challenges, most lives, then earliest
+        /// last success. Eliminated players follow in reverse elimination order. Players who left rank last, by latest
+        /// effective exit and then latest exit start (H-11). A stable sort preserves turn order for remaining ties.
         /// </summary>
         private static List<MatchPlayer> OrderPlayersByPosition(MatchState match)
         {
@@ -122,8 +121,8 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Arma una fila por jugador en orden de posición. Cuentan para la base quienes no salieron; el invitado
-        /// conserva su posición y cobra 0, y quien salió cobra 0 sin pasar por CalculatePoints (Reglas 5.0.2).
+        /// Builds one row per player in rank order. Players who stayed count toward the base. Guests keep their rank
+        /// with 0 points. Players who left receive 0 without calling CalculatePoints (Rule 5.0.2).
         /// </summary>
         private static IReadOnlyList<PlayerStanding> CreateStandings(MatchState match, HashSet<int> guestIds)
         {
@@ -148,7 +147,7 @@ namespace TLMG.Domain.Engine
             return standings.AsReadOnly();
         }
 
-        /// <summary>Valida los argumentos y devuelve los invitados sin repetir.</summary>
+        /// <summary>Checks the arguments and returns unique guests.</summary>
         private static HashSet<int> ValidateGuests(MatchState match, IEnumerable<int> guestPlayerIds)
         {
             if (match == null)

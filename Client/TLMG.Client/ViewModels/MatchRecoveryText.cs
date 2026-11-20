@@ -5,7 +5,7 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>Proyecta la espera visual desde la última vista, sin tomar decisiones de partida.</summary>
+    /// <summary>Displays the wait based on the latest view. The server makes all match decisions.</summary>
     internal static class MatchRecoveryText
     {
         internal static string Describe(IMatchConnection connection)

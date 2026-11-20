@@ -2,7 +2,7 @@ using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
 {
-    /// <summary>Estado y desenlace público del minijuego.</summary>
+    /// <summary>Public minigame state and outcome.</summary>
     [DataContract]
     public enum FugitiveKittenResult
     {

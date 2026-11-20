@@ -4,46 +4,46 @@ using System.Runtime.Serialization;
 namespace TLMG.Contracts.DataContracts
 {
     /// <summary>
-    /// Lo que todos pueden ver de un jugador de la partida: solo cantidades, nunca los tipos de sus cartas.
+    /// Public player state exposes card counts and keeps hidden card types private.
     /// </summary>
     [DataContract]
     public class MatchPlayerView
     {
-        /// <summary>Cuenta del jugador.</summary>
+        /// <summary>Player account.</summary>
         [DataMember]
         public int UserId { get; set; }
 
-        /// <summary>Nickname que tenía el jugador al iniciar la partida.</summary>
+        /// <summary>Nickname at match start.</summary>
         [DataMember]
         public string Nickname { get; set; }
 
-        /// <summary>Cartas que conserva en la mano.</summary>
+        /// <summary>Cards remaining in hand.</summary>
         [DataMember]
         public int HandCardCount { get; set; }
 
-        /// <summary>Cartas que tiene boca abajo en su pila.</summary>
+        /// <summary>Face-down cards in the player's pile.</summary>
         [DataMember]
         public int PileCardCount { get; set; }
 
-        /// <summary>Indica si el jugador quedó eliminado.</summary>
+        /// <summary>Whether the player has been eliminated.</summary>
         [DataMember]
         public bool IsEliminated { get; set; }
 
-        /// <summary>Retos exitosos del jugador; nunca se reinician durante la partida.</summary>
+        /// <summary>Player's successful challenges. The count never resets during the match.</summary>
         [DataMember]
         public int SuccessfulChallengeCount { get; set; }
 
-        /// <summary>Indica si el jugador se retiró de la apuesta en curso.</summary>
+        /// <summary>Whether the player folded in the current bidding round.</summary>
         [DataMember]
         public bool HasWithdrawnFromBet { get; set; }
 
-        /// <summary>Indica si el jugador salió de la partida por completo.</summary>
+        /// <summary>Whether the player left the match entirely.</summary>
         [DataMember]
         public bool HasLeftMatch { get; set; }
 
         /// <summary>
-        /// Cartas de su pila ya volteadas en el reto en curso, de la de arriba hacia abajo; es información pública.
-        /// Vacía fuera de un reto.
+        /// Pile cards revealed in the current challenge, from top to bottom. Visible to everyone and empty outside a
+        /// challenge.
         /// </summary>
         [DataMember]
         public List<MatchCardKind> RevealedPileCards { get; set; }

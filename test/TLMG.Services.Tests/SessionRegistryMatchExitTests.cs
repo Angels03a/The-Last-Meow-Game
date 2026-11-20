@@ -14,8 +14,8 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Pruebas de C1 (abandono voluntario inmediato): solo la salida voluntaria saca al jugador del motor; las demás
-    /// causas se conservan y dejan la partida intacta hasta la ventana de reconexión (C2).
+    /// Tests immediate voluntary exits (C1). Only a voluntary exit removes the player immediately. Other exit causes
+    /// are recorded separately and a lost match connection has a reconnection window (C2).
     /// </summary>
     public class SessionRegistryMatchExitTests
     {
@@ -35,7 +35,7 @@ namespace TLMG.Services.Tests
         [Fact]
         public void LeaveRoom_VoluntaryDuringMatch_RemovesPlayerFromEngineAndRestartsRound()
         {
-            // Arrange: el primero coloca una carta y el segundo sale por su voluntad.
+            // Arrange: The first player places a card and the second leaves voluntarily.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             int creatorUserId = scenario.CreatorUserId;
@@ -60,7 +60,7 @@ namespace TLMG.Services.Tests
         [Fact]
         public void LeaveRoom_VoluntaryDuringMatch_NotifiesOnlyTheOtherSubscribedPlayers()
         {
-            // Arrange: se suscriben el que sale y solo uno de los otros dos.
+            // Arrange: The departing player and only one of the other two subscribe.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             int leavingUserId = scenario.UserIds[1];
             int subscribedUserId = scenario.UserIds[2];
@@ -130,7 +130,7 @@ namespace TLMG.Services.Tests
         [Fact]
         public void LeaveRoom_BeforeTheMatch_DoesNotTouchAnyMatch()
         {
-            // Arrange: una sala en el lobby, sin partida autorizada.
+            // Arrange: A room in the lobby has no authorized match.
             LobbyScenario scenario = new LobbyScenario();
             IReadOnlyList<MatchViewDelivery> deliveries;
 

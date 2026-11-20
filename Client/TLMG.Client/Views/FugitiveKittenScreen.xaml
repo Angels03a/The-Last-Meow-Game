@@ -22,14 +22,14 @@
 
                 <Canvas x:Name="pnlStars" />
 
-                <!-- Escenario de 1280×662 del prototipo, centrado en los 720 de alto (Top = 29). -->
+                <!-- The 1280×662 prototype scene is centered vertically in 720 pixels (Top = 29). -->
                 <Canvas Canvas.Top="29" Width="1280" Height="662">
 
                     <Canvas x:Name="pnlStage">
                         <Line Y1="390" Y2="390" Style="{StaticResource FugitiveKittenFloorLineStyle}" />
                         <Line Y1="600" Y2="600" Style="{StaticResource FugitiveKittenFloorLineStyle}" />
 
-                        <!-- El gatito va detrás de gateras y cajas: así entra y sale de ellas. -->
+                        <!-- The kitten passes behind the cat flaps and boxes to enter and leave them. -->
                         <Canvas x:Name="pnlKitten" Canvas.Left="337" Canvas.Top="330" Width="96" Height="64">
                             <Canvas.InputBindings>
                                 <MouseBinding MouseAction="LeftClick" Command="{Binding CatchKittenCommand}" />
@@ -113,18 +113,18 @@
                     <Rectangle x:Name="rectCaughtOverlay" Canvas.Top="-29" Width="1280" Height="720"
                                Fill="{StaticResource Brush_Online}" Opacity="0.07" />
 
-                    <!-- Gatera P3 cerrada, con opacidad completa sobre la escena atenuada (Escapó). -->
+                    <!-- Closed P3 flap at full opacity over the dimmed escape scene. -->
                     <Canvas x:Name="pnlClosedDoor" Canvas.Left="74" Canvas.Top="480">
                         <ContentControl Template="{StaticResource FugitiveKittenDoorTemplate}"
                                         Focusable="False" IsTabStop="False" />
-                        <!-- La placa baja desde el borde superior del hueco (y = 38 de 120). -->
+                        <!-- The panel drops from the top of the opening (y = 38 of 120). -->
                         <Canvas x:Name="pnlDoorShutter" Width="112" Height="120" RenderTransformOrigin="0.5,0.3167">
                             <ContentControl Template="{StaticResource FugitiveKittenDoorShutterTemplate}"
                                             Focusable="False" IsTabStop="False" />
                         </Canvas>
                     </Canvas>
 
-                    <!-- Gatito que desaparece y nube "puf" (Lo atrapó otro); los anima E4. -->
+                    <!-- E4 animates the disappearing kitten and puff when another player catches it. -->
                     <Canvas x:Name="pnlCatchPuff" Canvas.Left="498" Canvas.Top="570">
                         <Canvas x:Name="pnlVanishingKitten" Canvas.Left="-48" Canvas.Top="-30" Width="96" Height="64"
                                 RenderTransformOrigin="0.5,0.5">
@@ -149,7 +149,7 @@
                                Text="{DynamicResource FugitiveKitten_GetReadyMessage}"
                                Style="{StaticResource FugitiveKittenGetReadyTextStyle}" />
 
-                    <!-- Contenedor de 400 px centrado en el escondite activo (P2: x = 1150, floor − 160). -->
+                    <!-- The 400 px container is centered on the active hiding place (P2: x = 1150, floor − 160). -->
                     <Grid x:Name="grdHidingMessage" Canvas.Left="950" Canvas.Top="230" Width="400">
                         <Border Style="{StaticResource FugitiveKittenHidingPillStyle}">
                             <TextBlock Text="{DynamicResource FugitiveKitten_HiddenMessage}"

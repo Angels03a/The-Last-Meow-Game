@@ -1,26 +1,26 @@
 ﻿namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Identidad y canal de quien llama a una operación de lobby, de chat o de partida; se crea una vez por llamada.
+    /// Identity and channel for one lobby, chat or match operation. Created once per call.
     /// </summary>
     public sealed class SessionChannelCaller
     {
-        /// <summary>Crea la copia de los datos recibidos.</summary>
-        /// <param name="sessionToken">Token de sesión recibido del cliente; puede ser null o vacío.</param>
-        /// <param name="channelId">Identificador del canal desde el que llega la petición.</param>
+        /// <summary>Copies the supplied subscription data.</summary>
+        /// <param name="sessionToken">Session token from the client, possibly null or empty.</param>
+        /// <param name="channelId">ID of the channel that sent the request.</param>
         public SessionChannelCaller(string sessionToken, string channelId)
         {
             SessionToken = sessionToken;
             ChannelId = channelId;
         }
 
-        /// <summary>Token de sesión recibido del cliente.</summary>
+        /// <summary>Session token received from the client.</summary>
         public string SessionToken { get; }
 
-        /// <summary>Identificador del canal desde el que llega la petición.</summary>
+        /// <summary>ID of the channel that sent the request.</summary>
         public string ChannelId { get; }
 
-        /// <summary>Indica si el token y el canal vienen con valor.</summary>
+        /// <summary>Whether both token and channel are present.</summary>
         public bool HasSessionAndChannel => !string.IsNullOrEmpty(SessionToken) && !string.IsNullOrEmpty(ChannelId);
     }
 }
