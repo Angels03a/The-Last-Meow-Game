@@ -591,7 +591,13 @@
                                  DataObject.Pasting="OnChatPasting"
                                  Text="{Binding ChatInput, UpdateSourceTrigger=PropertyChanged}"
                                  Tag="{DynamicResource Gameplay_ChatPlaceholder}"
-                                 Style="{StaticResource GameplayChatInputStyle}" />
+                                 Style="{StaticResource GameplayChatInputStyle}"
+                                 AcceptsReturn="False"
+                                 AcceptsTab="False">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding SendChatCommand}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
                         <Button Grid.Column="1"
                                 Content="{DynamicResource Gameplay_SendChatButton}"
                                 Style="{StaticResource GameplaySendChatButtonStyle}"

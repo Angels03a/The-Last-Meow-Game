@@ -4,12 +4,10 @@ using CommunityToolkit.Mvvm.Input;
 using TLMG.Client.Communication;
 using TLMG.Client.Navigation;
 using TLMG.Client.UsersManagerReference;
+using TLMG.Client.Validation;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>
-    /// Estado, temporizadores lógicos y comandos de la pantalla de verificación por código.
-    /// </summary>
     public class VerificationViewModel : ViewModelBase
     {
         private const int MaximumVerificationAttempts = 3;
@@ -24,6 +22,7 @@ namespace TLMG.Client.ViewModels
         private const string AttemptsExhaustedErrorKey = "Verification_AttemptsExhaustedError";
         private const string IncorrectCodeErrorKey = "Verification_IncorrectCodeError";
         private const string UnexpectedErrorKey = "CreateAccount_DataModelError";
+        private const string SuccessMessageKey = "Verification_SuccessMessage";
 
         private readonly IAccountsConnection _accountsConnection;
         private readonly IPasswordConnection _passwordConnection;
@@ -44,8 +43,6 @@ namespace TLMG.Client.ViewModels
         private bool _isCountdownRunning;
         private bool _isBusy;
         private string _expirationText;
-        private string _formErrorKey;
-        private string _verificationErrorKey;
 
         public VerificationViewModel()
             : this(null, null, null)
@@ -60,6 +57,9 @@ namespace TLMG.Client.ViewModels
             _accountsConnection = accountsConnection;
             _passwordConnection = passwordConnection;
             _navigationParameter = navigationParameter;
+
+            VerificationMessage = new StatusMessage();
+            FormMessage = new StatusMessage();
 
             _remainingSecondsUntilExpiry = VerificationCodeExpirySeconds;
             _remainingSecondsUntilResend = CodeResendCooldownSeconds;
@@ -77,8 +77,6 @@ namespace TLMG.Client.ViewModels
 
         public event EventHandler BackRequested;
 
-        public event EventHandler MessagesChanged;
-
         public event EventHandler AttemptsChanged;
 
         public event EventHandler DigitsCleared;
@@ -86,6 +84,10 @@ namespace TLMG.Client.ViewModels
         public event EventHandler CountdownStateChanged;
 
         public event EventHandler CountdownUpdated;
+
+        public StatusMessage VerificationMessage { get; }
+
+        public StatusMessage FormMessage { get; }
 
         public ICommand VerifyCodeCommand => _verifyCodeCommand;
 
@@ -184,18 +186,6 @@ namespace TLMG.Client.ViewModels
             private set { SetProperty(ref _expirationText, value); }
         }
 
-        public string FormErrorKey
-        {
-            get { return _formErrorKey; }
-            private set { SetProperty(ref _formErrorKey, value); }
-        }
-
-        public string VerificationErrorKey
-        {
-            get { return _verificationErrorKey; }
-            private set { SetProperty(ref _verificationErrorKey, value); }
-        }
-
         public void StartCountdown()
         {
             IsCountdownRunning = true;
@@ -221,20 +211,25 @@ namespace TLMG.Client.ViewModels
             {
                 StopCountdown();
                 LockForm(ExpiredCodeErrorKey);
-                MessagesChanged?.Invoke(this, EventArgs.Empty);
             }
+        }
+
+        protected override void OnDisposed()
+        {
+            StopCountdown();
+            VerificationMessage.Dispose();
+            FormMessage.Dispose();
+            base.OnDisposed();
         }
 
         private void ExecuteVerifyCode()
         {
             string enteredCode = GetEnteredCode();
-            VerificationErrorKey = null;
-            FormErrorKey = null;
+            ClearMessages();
 
             if (_accountsConnection == null || _navigationParameter == null)
             {
-                FormErrorKey = UnexpectedErrorKey;
-                MessagesChanged?.Invoke(this, EventArgs.Empty);
+                ShowFormError(UnexpectedErrorKey);
             }
             else if (_navigationParameter.VerificationFlow == VerificationFlow.AccountRegistration)
             {
@@ -269,10 +264,7 @@ namespace TLMG.Client.ViewModels
         {
             if (_accountsConnection != null && _navigationParameter != null)
             {
-                VerificationErrorKey = null;
-                FormErrorKey = null;
-                MessagesChanged?.Invoke(this, EventArgs.Empty);
-
+                ClearMessages();
                 IsBusy = true;
 
                 OperationResult resendResult =
@@ -288,8 +280,8 @@ namespace TLMG.Client.ViewModels
                 }
                 else
                 {
-                    FormErrorKey = resendResult.ErrorKey ?? UnexpectedErrorKey;
-                    MessagesChanged?.Invoke(this, EventArgs.Empty);
+                    string errorKey = resendResult.ErrorKey ?? UnexpectedErrorKey;
+                    ShowFormError(errorKey);
                 }
             }
         }
@@ -299,8 +291,7 @@ namespace TLMG.Client.ViewModels
             _remainingSecondsUntilExpiry = VerificationCodeExpirySeconds;
             ResendSecondsRemaining = CodeResendCooldownSeconds;
             FailedAttempts = InitialFailedAttempts;
-            FormErrorKey = null;
-            VerificationErrorKey = null;
+            ClearMessages();
             AreDigitsEnabled = true;
 
             ClearDigits();
@@ -313,7 +304,6 @@ namespace TLMG.Client.ViewModels
 
             AttemptsChanged?.Invoke(this, EventArgs.Empty);
             CountdownUpdated?.Invoke(this, EventArgs.Empty);
-            MessagesChanged?.Invoke(this, EventArgs.Empty);
             DigitsCleared?.Invoke(this, EventArgs.Empty);
         }
 
@@ -339,10 +329,10 @@ namespace TLMG.Client.ViewModels
             }
             else
             {
-                VerificationErrorKey = IncorrectCodeErrorKey;
+                string errorText = LanguageManager.FindText(IncorrectCodeErrorKey);
+                VerificationMessage.ShowError(errorText);
                 ClearDigits();
                 AttemptsChanged?.Invoke(this, EventArgs.Empty);
-                MessagesChanged?.Invoke(this, EventArgs.Empty);
                 DigitsCleared?.Invoke(this, EventArgs.Empty);
             }
         }
@@ -354,13 +344,14 @@ namespace TLMG.Client.ViewModels
             LockForm(AttemptsExhaustedErrorKey);
             ClearDigits();
             AttemptsChanged?.Invoke(this, EventArgs.Empty);
-            MessagesChanged?.Invoke(this, EventArgs.Empty);
             DigitsCleared?.Invoke(this, EventArgs.Empty);
         }
 
         private void LockForm(string errorKey)
         {
-            FormErrorKey = errorKey;
+            VerificationMessage.Hide();
+            string errorText = LanguageManager.FindText(errorKey);
+            FormMessage.ShowPersistentError(errorText);
             AreDigitsEnabled = false;
         }
 
@@ -374,6 +365,11 @@ namespace TLMG.Client.ViewModels
         {
             if (SetProperty(ref digitField, newValue, propertyName))
             {
+                if (AreDigitsEnabled)
+                {
+                    FormMessage.Hide();
+                }
+
                 _verifyCodeCommand.NotifyCanExecuteChanged();
             }
         }
@@ -452,7 +448,8 @@ namespace TLMG.Client.ViewModels
             if (verificationResult.IsSuccess)
             {
                 StopCountdown();
-                MessagesChanged?.Invoke(this, EventArgs.Empty);
+                string successText = LanguageManager.FindText(SuccessMessageKey);
+                FormMessage.ShowSuccess(successText);
                 VerificationSucceeded?.Invoke(this, EventArgs.Empty);
             }
             else if (verificationResult.ErrorKey == IncorrectCodeErrorKey)
@@ -467,13 +464,24 @@ namespace TLMG.Client.ViewModels
             {
                 StopCountdown();
                 LockForm(ExpiredCodeErrorKey);
-                MessagesChanged?.Invoke(this, EventArgs.Empty);
             }
             else
             {
-                FormErrorKey = verificationResult.ErrorKey ?? UnexpectedErrorKey;
-                MessagesChanged?.Invoke(this, EventArgs.Empty);
+                string errorKey = verificationResult.ErrorKey ?? UnexpectedErrorKey;
+                ShowFormError(errorKey);
             }
+        }
+
+        private void ShowFormError(string errorKey)
+        {
+            string errorText = LanguageManager.FindText(errorKey);
+            FormMessage.ShowError(errorText);
+        }
+
+        private void ClearMessages()
+        {
+            VerificationMessage.Hide();
+            FormMessage.Hide();
         }
     }
 }

@@ -1,31 +1,19 @@
-using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-
 using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
-    /// <summary>
-    /// Vista de la nueva contraseña. Solo conserva lógica visual: pintar las barras y la etiqueta de fuerza con los
-    /// pinceles del diccionario. La validación, los mensajes y la navegación viven en
-    /// <see cref="NewPasswordViewModel"/>.
-    /// </summary>
     public partial class NewPasswordScreen : LocalizableScreen
     {
         private const int FirstIndex = 0;
-
         private const string EmptyBarBrushKey = "Brush_Border";
 
         private readonly NewPasswordViewModel _viewModel;
         private readonly Border[] _strengthBars;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="NewPasswordScreen"/> con su ViewModel.
-        /// </summary>
-        /// <param name="newPasswordViewModel">ViewModel que la fábrica de pantallas crea e inyecta.</param>
         public NewPasswordScreen(NewPasswordViewModel newPasswordViewModel)
         {
             InitializeComponent();
@@ -42,7 +30,6 @@ namespace TLMG.Client.Views
             Unloaded += OnScreenUnloaded;
         }
 
-        /// <inheritdoc />
         protected override void UpdateDynamicLabels()
         {
             UpdatePasswordStrengthDisplay();
@@ -108,7 +95,6 @@ namespace TLMG.Client.Views
         private string FindMessage(string resourceKey)
         {
             string localizedMessage = TryFindResource(resourceKey) as string ?? resourceKey;
-
             return localizedMessage;
         }
     }

@@ -459,10 +459,11 @@
         <Setter Property="Margin" Value="0,4,0,0" />
         <Setter Property="Visibility" Value="Hidden" />
     </Style>
-
+    
     <Style x:Key="FormMessageTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="12" />
         <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_White}" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
         <Setter Property="TextWrapping" Value="Wrap" />
@@ -471,7 +472,7 @@
     </Style>
 
     <Style x:Key="StatusMessageTextStyle" TargetType="TextBlock" BasedOn="{StaticResource ErrorTextStyle}">
-        <Setter Property="Foreground" Value="{StaticResource Brush_Accent}" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_LilacLight}" />
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsVisible}" Value="True">
                 <Setter Property="Visibility" Value="Visible" />
@@ -748,8 +749,9 @@
         <Setter Property="Padding" Value="0,14,0,0" />
     </Style>
 
-    <Style x:Key="VerificationErrorTextStyle" TargetType="TextBlock" BasedOn="{StaticResource ErrorTextStyle}">
+    <Style x:Key="VerificationErrorTextStyle" TargetType="TextBlock" BasedOn="{StaticResource StatusMessageTextStyle}">
         <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
         <Setter Property="Margin" Value="0,0,0,12" />
     </Style>
 
@@ -843,6 +845,7 @@
 
     <Style x:Key="SidebarFooterMessageStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{StaticResource Brush_White}" />
         <Setter Property="Margin" Value="24,16,24,24" />
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>

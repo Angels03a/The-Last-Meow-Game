@@ -4,7 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:TLMG.Client.Views"
+             xmlns:behaviors="clr-namespace:TLMG.Client.Behaviors"
              mc:Ignorable="d"
+             behaviors:WaitCursorBehavior.IsBusy="{Binding IsBusy}"
              d:DesignHeight="720"
              d:DesignWidth="1280">
     <local:LocalizableScreen.Resources>
@@ -30,11 +32,11 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" 
-                           Text="{DynamicResource Friends_SidebarTitle}" 
+                <TextBlock Grid.Row="0"
+                           Text="{DynamicResource Friends_SidebarTitle}"
                            Style="{StaticResource SidebarTitleTextStyle}" />
 
-                <Button Grid.Row="2" 
+                <Button Grid.Row="2"
                         Content="{DynamicResource Common_BackButton}"
                         Style="{StaticResource SidebarBackButtonStyle}"
                         Command="{Binding BackCommand}" />
@@ -64,6 +66,8 @@
                          Style="{StaticResource SearchFieldStyle}"
                          Tag="{DynamicResource Friends_SearchPlaceholder}"
                          Text="{Binding NewFriendNickname, UpdateSourceTrigger=PropertyChanged}"
+                         MaxLength="20"
+                         behaviors:TextInputBehavior.InputType="Nickname"
                          Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBox.InputBindings>
                         <KeyBinding Key="Enter" Command="{Binding AddFriendCommand}" />
@@ -87,22 +91,25 @@
 
             <Border Grid.Row="1" BorderBrush="{StaticResource Brush_Border}" BorderThickness="0,0,0,1" Margin="40,0,40,0">
                 <StackPanel Orientation="Horizontal">
-                    <Button x:Name="btnTabFriends" 
-                            Style="{StaticResource TabNavActiveButtonStyle}" 
+                    <Button x:Name="btnTabFriends"
+                            Style="{StaticResource TabNavActiveButtonStyle}"
                             Click="BtnTab_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Friends_TabFriends}" 
+                            <TextBlock Text="{DynamicResource Friends_TabFriends}"
                                        VerticalAlignment="Center" />
                             <Border x:Name="brdBadgeFriends" Style="{StaticResource BadgeActiveStyle}">
-                                <TextBlock Text="{Binding FriendsBadgeCount}" 
+                                <TextBlock Text="{Binding FriendsBadgeCount}"
                                            Style="{StaticResource BadgeTextActiveStyle}" />
                             </Border>
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="btnTabPending" Style="{StaticResource TabNavInactiveButtonStyle}" Click="BtnTab_Click" Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Button x:Name="btnTabPending"
+                            Style="{StaticResource TabNavInactiveButtonStyle}"
+                            Click="BtnTab_Click"
+                            Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Friends_TabPending}" 
+                            <TextBlock Text="{DynamicResource Friends_TabPending}"
                                        VerticalAlignment="Center" />
                             <Border x:Name="brdBadgePending" Style="{StaticResource BadgeInactiveStyle}">
                                 <TextBlock Text="{Binding PendingBadgeCount}"
