@@ -6,6 +6,7 @@ using System.Reflection;
 using Xunit;
 
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Constants;
 using TLMG.Services.Match;
 using TLMG.Services.Sessions;
 
@@ -169,7 +170,7 @@ namespace TLMG.Services.Tests
             MatchDelivery delivery = scenario.Place(scenario.CreatorUserId, MatchCardKind.Safe);
 
             // Assert
-            Assert.NotNull(delivery.ErrorKey);
+            Assert.Equal(ErrorKeys.Common.InvalidSession, delivery.ErrorKey);
             Assert.Empty(delivery.ViewDeliveries);
         }
 
