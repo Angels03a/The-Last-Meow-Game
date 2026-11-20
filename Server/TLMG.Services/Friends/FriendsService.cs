@@ -546,25 +546,12 @@ namespace TLMG.Services.Friends
 
             if (friendshipWriteStatus == FriendshipWriteStatus.Applied)
             {
-                FriendsAddition friendsAddition = _sessionRegistry.AddFriendshipToOnlineChannels(
-                    context.SenderSession.UserId,
-                    context.FriendCandidate.UserId);
+                Friend newFriend;
+                friendRequestNotifications = PrepareFriendshipNotifications(
+                    context.SenderSession, context.FriendCandidate.UserId,
+                    context.FriendCandidate.Nickname, out newFriend);
                 context.Result.IsSuccess = true;
-                context.Result.NewFriend = new Friend
-                {
-                    UserId = context.FriendCandidate.UserId,
-                    Nickname = context.FriendCandidate.Nickname,
-                    IsOnline = friendsAddition.IsSecondOnline
-                };
-                FriendshipNotificationPair notificationPair = new FriendshipNotificationPair
-                {
-                    FriendsAddition = friendsAddition,
-                    FirstUserId = context.SenderSession.UserId,
-                    FirstNickname = context.SenderSession.Nickname,
-                    SecondUserId = context.FriendCandidate.UserId,
-                    SecondNickname = context.FriendCandidate.Nickname
-                };
-                friendRequestNotifications = CreateFriendAddedNotifications(notificationPair);
+                context.Result.NewFriend = newFriend;
                 _log.InfoFormat(
                     "La solicitud cruzada entre los jugadores {0} y {1} se aceptó sola.",
                     context.SenderSession.UserId,
@@ -646,24 +633,11 @@ namespace TLMG.Services.Friends
             }
             else if (context.NewState == FriendshipState.Accepted)
             {
-                FriendsAddition friendsAddition = _sessionRegistry.AddFriendshipToOnlineChannels(
-                    context.ReceiverSession.UserId,
-                    context.FriendshipRecord.SenderUserId);
-                context.Answer.NewFriend = new Friend
-                {
-                    UserId = context.FriendshipRecord.SenderUserId,
-                    Nickname = context.FriendshipRecord.SenderNickname,
-                    IsOnline = friendsAddition.IsSecondOnline
-                };
-                FriendshipNotificationPair notificationPair = new FriendshipNotificationPair
-                {
-                    FriendsAddition = friendsAddition,
-                    FirstUserId = context.ReceiverSession.UserId,
-                    FirstNickname = context.ReceiverSession.Nickname,
-                    SecondUserId = context.FriendshipRecord.SenderUserId,
-                    SecondNickname = context.FriendshipRecord.SenderNickname
-                };
-                context.Answer.Notifications = CreateFriendAddedNotifications(notificationPair);
+                Friend newFriend;
+                context.Answer.Notifications = PrepareFriendshipNotifications(
+                    context.ReceiverSession, context.FriendshipRecord.SenderUserId,
+                    context.FriendshipRecord.SenderNickname, out newFriend);
+                context.Answer.NewFriend = newFriend;
                 _log.InfoFormat(
                     "El jugador {0} aceptó la solicitud de amistad del jugador {1}.",
                     context.ReceiverSession.UserId,
@@ -676,6 +650,29 @@ namespace TLMG.Services.Friends
                     context.ReceiverSession.UserId,
                     context.FriendshipRecord.SenderUserId);
             }
+        }
+
+        private IReadOnlyList<Action> PrepareFriendshipNotifications(
+            PlayerSession playerSession, int friendUserId, string friendNickname, out Friend newFriend)
+        {
+            FriendsAddition friendsAddition = _sessionRegistry.AddFriendshipToOnlineChannels(
+                playerSession.UserId, friendUserId);
+            newFriend = new Friend
+            {
+                UserId = friendUserId,
+                Nickname = friendNickname,
+                IsOnline = friendsAddition.IsSecondOnline
+            };
+            FriendshipNotificationPair notificationPair = new FriendshipNotificationPair
+            {
+                FriendsAddition = friendsAddition,
+                FirstUserId = playerSession.UserId,
+                FirstNickname = playerSession.Nickname,
+                SecondUserId = friendUserId,
+                SecondNickname = friendNickname
+            };
+
+            return CreateFriendAddedNotifications(notificationPair);
         }
 
         private static bool IsPendingRequestOfReceiver(FriendshipRecord friendshipRecord, int receiverUserId)
