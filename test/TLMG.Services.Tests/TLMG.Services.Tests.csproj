@@ -43,6 +43,7 @@
     <Compile Include="MatchPlayScenario.cs" />
     <Compile Include="ScriptedRandom.cs" />
     <Compile Include="SessionRegistryMatchDeadlineTests.cs" />
+    <Compile Include="SessionRegistryMatchVersionTests.cs" />
     <Compile Include="MatchChallengeErrorKeyTests.cs" />
     <Compile Include="MatchServiceChallengeTests.cs" />
     <Compile Include="SessionRegistryMatchChallengeTests.cs" />
