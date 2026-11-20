@@ -26,6 +26,8 @@ namespace TLMG.Services.Tests
         private const int OneSecond = 1;
         private const int FirstRoundNumber = 1;
         private const int NonParticipantUserId = 99;
+        private const int NewcomerUserId = 4;
+        private const int UnknownRoomOffset = 100;
         private const string LobbyChannelPrefix = "lobby";
 
         private static readonly DateTime _startUtc = new DateTime(2026, 11, 20, 12, 0, 0, DateTimeKind.Utc);
@@ -201,13 +203,16 @@ namespace TLMG.Services.Tests
         [Fact]
         public void TryLogOut_WithActiveParticipation_PreservesSessionAndMatch()
         {
+            // Arrange
             MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
             LobbyMembershipChange change = start.RequestStartAfterCountdown();
             string token = start.TokenOf(CreatorUserId);
 
+            // Act
             bool loggedOut = start.Scenario.Registry.TryLogOut(token, out SessionEnd sessionEnd,
                 out bool hasActiveParticipation);
 
+            // Assert
             Assert.False(loggedOut);
             Assert.True(hasActiveParticipation);
             Assert.Null(sessionEnd);
@@ -218,12 +223,15 @@ namespace TLMG.Services.Tests
         [Fact]
         public void TryLogOut_WithoutMatch_RevokesSession()
         {
-            var registry = new SessionRegistry();
+            // Arrange
+            SessionRegistry registry = new SessionRegistry();
             string token = registry.StartRegisteredSession(CreatorUserId, "Creator", out _);
 
+            // Act
             bool loggedOut = registry.TryLogOut(token, out SessionEnd sessionEnd,
                 out bool hasActiveParticipation);
 
+            // Assert
             Assert.True(loggedOut);
             Assert.False(hasActiveParticipation);
             Assert.NotNull(sessionEnd);
@@ -279,6 +287,382 @@ namespace TLMG.Services.Tests
             Assert.Null(match);
         }
 
+        [Fact]
+        public void ChangePlayerReadiness_WhenTheLastPlayerBecomesReady_ArmsANewCountdownOfThreeSeconds()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            long firstCountdownId = start.ArmedRoom.Room.Start.CountdownId;
+            int lastUserId = start.UserIdsInJoinOrder.Last();
+            start.ChangeReadiness(lastUserId, false);
+            start.Clock.Advance(TimeSpan.FromSeconds(CountdownSeconds + OneSecond));
+
+            // Act
+            LobbyMembershipChange change = start.ChangeReadiness(lastUserId, true);
+
+            // Assert
+            Assert.Equal(LobbyChangeStatus.Applied, change.Status);
+            Assert.Equal(firstCountdownId + 1, change.Room.Start.CountdownId);
+            Assert.Equal(start.Clock.NowUtc.AddSeconds(CountdownSeconds), change.Room.Start.CountdownEndsAtUtc);
+            Assert.Equal(MinimumPlayerCount, change.Room.Start.ReadyUserIds.Count);
+        }
+
+        [Fact]
+        public void ChangePlayerReadiness_WhenAReadyPlayerBecomesNotReady_CancelsTheCountdown()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            LobbyMembershipChange armed = start.ArmedRoom;
+            int lastUserId = start.UserIdsInJoinOrder.Last();
+
+            // Act
+            LobbyMembershipChange change = start.ChangeReadiness(lastUserId, false);
+
+            // Assert
+            Assert.True(armed.Room.Start.CountdownEndsAtUtc.HasValue);
+            Assert.Equal(LobbyChangeStatus.Applied, change.Status);
+            Assert.False(change.Room.Start.CountdownEndsAtUtc.HasValue);
+            Assert.DoesNotContain(lastUserId, change.Room.Start.ReadyUserIds);
+            Assert.Equal(MinimumPlayerCount - 1, change.Room.Start.ReadyUserIds.Count);
+            Assert.True(change.Room.Start.Version > armed.Room.Start.Version);
+        }
+
+        [Fact]
+        public void ChangePlayerReadiness_ToTheStateThePlayerAlreadyHas_ChangesNothingAndNotifiesNobody()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            LobbyMembershipChange armed = start.ArmedRoom;
+
+            // Act
+            LobbyMembershipChange change = start.ChangeReadiness(CreatorUserId, true);
+
+            // Assert
+            Assert.Equal(LobbyChangeStatus.Applied, change.Status);
+            Assert.Equal(armed.Room.Start.Version, change.Room.Start.Version);
+            Assert.Equal(armed.Room.Start.CountdownId, change.Room.Start.CountdownId);
+            Assert.Equal(armed.Room.Start.CountdownEndsAtUtc, change.Room.Start.CountdownEndsAtUtc);
+            Assert.Empty(change.RecipientCallbacks);
+        }
+
+        [Fact]
+        public void ChangePlayerReadiness_ToNotReadyWhenAlreadyNotReady_ChangesNothing()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            int lastUserId = start.UserIdsInJoinOrder.Last();
+            LobbyMembershipChange firstChange = start.ChangeReadiness(lastUserId, false);
+
+            // Act
+            LobbyMembershipChange repeated = start.ChangeReadiness(lastUserId, false);
+
+            // Assert
+            Assert.Equal(firstChange.Room.Start.Version, repeated.Room.Start.Version);
+            Assert.Equal(firstChange.Room.Start.ReadyUserIds, repeated.Room.Start.ReadyUserIds);
+            Assert.Empty(repeated.RecipientCallbacks);
+        }
+
+        [Fact]
+        public void ChangePlayerReadiness_WithOnlyTwoPlayersReady_DoesNotArmACountdown()
+        {
+            // Arrange: ready the creator and leave the second player (not yet ready) in a two-player room.
+            MatchStartScenario start = new MatchStartScenario(TwoPlayers, FourCardsPerPlayer, readyPlayerCount: 1);
+
+            // Act
+            LobbyMembershipChange change = start.ChangeReadiness(start.UserIdsInJoinOrder.Last(), true);
+
+            // Assert
+            Assert.Equal(TwoPlayers, change.Room.Start.ReadyUserIds.Count);
+            Assert.False(change.Room.Start.CountdownEndsAtUtc.HasValue);
+        }
+
+        [Fact]
+        public void ChangePlayerReadiness_WhenApplied_ReturnsTheCallbacksOfTheRoomMembersWithoutInvokingThem()
+        {
+            // Arrange
+            LobbyScenario scenario = new LobbyScenario();
+            LobbyCallbackStub secondCallback = new LobbyCallbackStub();
+            LobbyCallbackStub thirdCallback = new LobbyCallbackStub();
+            LobbyReadinessHelper.AddPlayer(scenario, FirstGuestUserId, "lobby2", secondCallback);
+            LobbyReadinessHelper.AddPlayer(scenario, FirstGuestUserId + 1, "lobby3", thirdCallback);
+
+            // Act
+            LobbyMembershipChange change = LobbyReadinessHelper.MarkReady(
+                scenario, scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+
+            // Assert
+            Assert.Equal(new[] { CreatorUserId }, change.Room.Start.ReadyUserIds);
+            Assert.Equal(TwoPlayers, change.RecipientCallbacks.Count);
+            Assert.Contains(secondCallback, change.RecipientCallbacks);
+            Assert.Contains(thirdCallback, change.RecipientCallbacks);
+            Assert.Equal(0, secondCallback.CallCount);
+            Assert.Equal(0, thirdCallback.CallCount);
+        }
+
+        [Fact]
+        public void EnterRoom_WhileTheCountdownRuns_CancelsItBecauseTheNewPlayerIsNotReady()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            long armedCountdownId = start.ArmedRoom.Room.Start.CountdownId;
+
+            string newcomerToken = start.Scenario.Authorize(NewcomerUserId);
+
+            // Act
+            LobbyMembershipChange entry = start.Scenario.Registry.EnterRoom(
+                new LobbyCaller(newcomerToken, "lobby" + NewcomerUserId), start.Scenario.RoomId, null);
+
+            // Assert
+            Assert.Equal(LobbyChangeStatus.Applied, entry.Status);
+            Assert.False(entry.Room.Start.CountdownEndsAtUtc.HasValue);
+            Assert.Equal(MinimumPlayerCount, entry.Room.Start.ReadyUserIds.Count);
+            Assert.Equal(armedCountdownId, entry.Room.Start.CountdownId);
+        }
+
+        [Fact]
+        public void LeaveRoom_OfTheOnlyPlayerWhoIsNotReady_ArmsTheCountdownForTheRest()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount + 1, FourCardsPerPlayer);
+            long firstCountdownId = start.ArmedRoom.Room.Start.CountdownId;
+            int notReadyUserId = start.UserIdsInJoinOrder.Last();
+            LobbyMembershipChange cancelled = start.ChangeReadiness(notReadyUserId, false);
+
+            // Act
+            LobbyMembershipChange departure = start.Scenario.Registry.LeaveRoom(start.TokenOf(notReadyUserId), out _);
+
+            // Assert
+            Assert.False(cancelled.Room.Start.CountdownEndsAtUtc.HasValue);
+            Assert.True(departure.Room.Start.CountdownEndsAtUtc.HasValue);
+            Assert.Equal(firstCountdownId + 1, departure.Room.Start.CountdownId);
+            Assert.Equal(MinimumPlayerCount, departure.Room.Start.ReadyUserIds.Count);
+        }
+
+        [Fact]
+        public void LeaveRoom_WhenFewerThanThreePlayersWouldRemain_CancelsTheCountdown()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            LobbyMembershipChange armed = start.ArmedRoom;
+
+            // Act
+            LobbyMembershipChange departure = start.Scenario.Registry.LeaveRoom(
+                start.TokenOf(start.UserIdsInJoinOrder.Last()), out _);
+
+            // Assert
+            Assert.True(armed.Room.Start.CountdownEndsAtUtc.HasValue);
+            Assert.False(departure.Room.Start.CountdownEndsAtUtc.HasValue);
+            Assert.Equal(TwoPlayers, departure.Room.Start.ReadyUserIds.Count);
+        }
+
+        [Fact]
+        public void RequestMatchStart_WithStaleCountdownId_CreatesNoMatchUntilTheCurrentIdIsUsed()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            long staleCountdownId = start.ArmedRoom.Room.Start.CountdownId;
+            int lastUserId = start.UserIdsInJoinOrder.Last();
+            start.ChangeReadiness(lastUserId, false);
+            long currentCountdownId = start.ChangeReadiness(lastUserId, true).Room.Start.CountdownId;
+            start.Clock.Advance(TimeSpan.FromSeconds(CountdownSeconds));
+
+            // Act
+            LobbyMembershipChange withStaleId = start.RequestStartWithCountdownId(CreatorUserId, staleCountdownId);
+            LobbyMembershipChange withCurrentId = start.RequestStartWithCountdownId(CreatorUserId, currentCountdownId);
+
+            // Assert
+            Assert.NotEqual(staleCountdownId, currentCountdownId);
+            Assert.False(withStaleId.Room.Start.MatchId.HasValue);
+            Assert.Empty(withStaleId.RecipientCallbacks);
+            Assert.True(withCurrentId.Room.Start.MatchId.HasValue);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("unknown")]
+        public void ChangePlayerReadiness_WithInvalidSession_RejectsWithoutChangingTheRoom(string token)
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            LobbyMembershipChange before = start.ArmedRoom;
+            LobbyCaller invalidCaller = new LobbyCaller(token, LobbyReadinessHelper.CreatorChannelId);
+
+            // Act
+            LobbyMembershipChange change = start.Scenario.Registry.ChangePlayerReadiness(
+                invalidCaller, start.Scenario.RoomId, false);
+
+            // Assert
+            Assert.Equal(LobbyChangeStatus.InvalidSession, change.Status);
+            Assert.Null(change.Room);
+            // Same-state repeat by the creator: it changes nothing, so its snapshot shows the room kept its version.
+            LobbyMembershipChange repeated = start.ChangeReadiness(CreatorUserId, true);
+            Assert.Equal(before.Room.Start.Version, repeated.Room.Start.Version);
+            Assert.Empty(repeated.RecipientCallbacks);
+        }
+
+        [Fact]
+        public void ChangePlayerReadiness_ByPlayerOutsideTheRoom_RejectsWithNotInRoomWithoutChangingTheRoom()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            LobbyMembershipChange before = start.ArmedRoom;
+            string outsiderToken = start.Scenario.Registry.StartRegisteredSession(
+                NonParticipantUserId, "Outsider", out _);
+
+            // Act
+            LobbyMembershipChange change = start.Scenario.Registry.ChangePlayerReadiness(
+                new LobbyCaller(outsiderToken, "outsider"), start.Scenario.RoomId, true);
+
+            // Assert
+            Assert.Equal(LobbyChangeStatus.NotInRoom, change.Status);
+            Assert.Null(change.Room);
+            // Same-state repeat by the creator: it changes nothing, so its snapshot shows the room kept its version.
+            LobbyMembershipChange repeated = start.ChangeReadiness(CreatorUserId, true);
+            Assert.Equal(before.Room.Start.Version, repeated.Room.Start.Version);
+            Assert.Empty(repeated.RecipientCallbacks);
+        }
+
+        [Fact]
+        public void ChangePlayerReadiness_ForAnotherRoomId_RejectsWithNotInRoomWithoutChangingTheRoom()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            LobbyMembershipChange before = start.ArmedRoom;
+
+            // Act
+            LobbyMembershipChange change = start.Scenario.Registry.ChangePlayerReadiness(
+                new LobbyCaller(start.TokenOf(CreatorUserId), LobbyReadinessHelper.CreatorChannelId),
+                start.Scenario.RoomId + UnknownRoomOffset,
+                false);
+
+            // Assert
+            Assert.Equal(LobbyChangeStatus.NotInRoom, change.Status);
+            Assert.Null(change.Room);
+            // Same-state repeat by the creator: it changes nothing, so its snapshot shows the room kept its version.
+            LobbyMembershipChange repeated = start.ChangeReadiness(CreatorUserId, true);
+            Assert.Equal(before.Room.Start.Version, repeated.Room.Start.Version);
+            Assert.Empty(repeated.RecipientCallbacks);
+        }
+
+        [Fact]
+        public void RequestMatchStart_ByPlayerOutsideTheRoom_RejectsWithNotInRoomAndCreatesNoMatch()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            LobbyMembershipChange before = start.ArmedRoom;
+            string outsiderToken = start.Scenario.Registry.StartRegisteredSession(
+                NonParticipantUserId, "Outsider", out _);
+            start.Clock.Advance(TimeSpan.FromSeconds(CountdownSeconds));
+
+            // Act
+            LobbyMembershipChange change = start.Scenario.Registry.RequestMatchStart(
+                new LobbyCaller(outsiderToken, "outsider"), start.Scenario.RoomId, before.Room.Start.CountdownId);
+
+            // Assert
+            Assert.Equal(LobbyChangeStatus.NotInRoom, change.Status);
+            Assert.Null(change.Room);
+            Assert.Empty(change.RecipientCallbacks);
+            // Same-state repeat by the creator: it changes nothing, so its snapshot shows the room as it was left.
+            LobbyMembershipChange repeated = start.ChangeReadiness(CreatorUserId, true);
+            Assert.False(repeated.Room.Start.MatchId.HasValue);
+            Assert.Equal(before.Room.Start.Version, repeated.Room.Start.Version);
+            Assert.Equal(before.Room.Start.CountdownId, repeated.Room.Start.CountdownId);
+            Assert.Empty(repeated.RecipientCallbacks);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("unknown")]
+        public void RequestMatchStart_WithInvalidSession_RejectsAndCreatesNoMatch(string token)
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            long countdownId = start.ArmedRoom.Room.Start.CountdownId;
+            start.Clock.Advance(TimeSpan.FromSeconds(CountdownSeconds));
+
+            // Act
+            LobbyMembershipChange change = start.Scenario.Registry.RequestMatchStart(
+                new LobbyCaller(token, LobbyReadinessHelper.CreatorChannelId), start.Scenario.RoomId, countdownId);
+
+            // Assert
+            Assert.Equal(LobbyChangeStatus.InvalidSession, change.Status);
+            Assert.Null(change.Room);
+            // Same-state repeat by the creator: it changes nothing, so its snapshot shows that no match was created.
+            LobbyMembershipChange repeated = start.ChangeReadiness(CreatorUserId, true);
+            Assert.False(repeated.Room.Start.MatchId.HasValue);
+            Assert.Empty(repeated.RecipientCallbacks);
+        }
+
+        [Fact]
+        public void ChangePlayerReadiness_AfterTheMatchStarted_RejectsAChangeWithMatchAlreadyStarted()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            LobbyMembershipChange started = start.RequestStartAfterCountdown();
+
+            // Act
+            LobbyMembershipChange change = start.ChangeReadiness(start.UserIdsInJoinOrder.Last(), false);
+
+            // Assert
+            Assert.Equal(LobbyChangeStatus.MatchAlreadyStarted, change.Status);
+            Assert.Null(change.Room);
+            // Same-state repeat by the creator: it changes nothing, so its snapshot shows the match was left alone.
+            LobbyMembershipChange repeated = start.ChangeReadiness(CreatorUserId, true);
+            Assert.Equal(started.Room.Start.MatchId, repeated.Room.Start.MatchId);
+            Assert.Equal(started.Room.Start.Version, repeated.Room.Start.Version);
+            Assert.Empty(repeated.RecipientCallbacks);
+        }
+
+        [Fact]
+        public void ChangePlayerReadiness_AfterTheMatchStartedToTheSameState_IsAppliedWithoutChanges()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            LobbyMembershipChange started = start.RequestStartAfterCountdown();
+
+            // Act
+            LobbyMembershipChange change = start.ChangeReadiness(CreatorUserId, true);
+
+            // Assert
+            Assert.Equal(LobbyChangeStatus.Applied, change.Status);
+            Assert.Equal(started.Room.Start.Version, change.Room.Start.Version);
+            Assert.Equal(started.Room.Start.MatchId, change.Room.Start.MatchId);
+        }
+
+        [Fact]
+        public void ChangeCardsPerPlayer_AfterTheMatchStarted_RejectsAnotherModeAndKeepsTheMatchMode()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            LobbyMembershipChange started = start.RequestStartAfterCountdown();
+
+            // Act
+            LobbyMembershipChange change = start.ChangeCardsPerPlayer(CreatorUserId, EightCardsPerPlayer);
+
+            // Assert
+            Assert.Equal(LobbyChangeStatus.MatchAlreadyStarted, change.Status);
+            Assert.Null(change.Room);
+            Assert.Equal(FourCardsPerPlayer, start.FindMatch(started, CreatorUserId).CardsPerPlayerCount);
+        }
+
+        [Fact]
+        public void ChangeCardsPerPlayer_AfterTheMatchStartedToTheSameMode_IsAppliedWithoutChanges()
+        {
+            // Arrange
+            MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
+            LobbyMembershipChange started = start.RequestStartAfterCountdown();
+
+            // Act
+            LobbyMembershipChange change = start.ChangeCardsPerPlayer(CreatorUserId, FourCardsPerPlayer);
+
+            // Assert
+            Assert.Equal(LobbyChangeStatus.Applied, change.Status);
+            Assert.Equal(started.Room.Start.Version, change.Room.Start.Version);
+            Assert.Equal(started.Room.Start.MatchId, change.Room.Start.MatchId);
+        }
+
         /// <summary>Reloj UTC que la prueba avanza a mano.</summary>
         private sealed class TestClock
         {
@@ -304,6 +688,11 @@ namespace TLMG.Services.Tests
             private readonly Dictionary<int, string> _tokensByUserId = new Dictionary<int, string>();
 
             internal MatchStartScenario(int playerCount, int cardsPerPlayerCount)
+                : this(playerCount, cardsPerPlayerCount, playerCount)
+            {
+            }
+
+            internal MatchStartScenario(int playerCount, int cardsPerPlayerCount, int readyPlayerCount)
             {
                 Clock = new TestClock();
                 Scenario = new LobbyScenario(new SessionRegistry(Clock.ReadUtcNow));
@@ -318,13 +707,16 @@ namespace TLMG.Services.Tests
 
                 Scenario.Registry.ChangeCardsPerPlayer(CallerOf(CreatorUserId), Scenario.RoomId, cardsPerPlayerCount);
 
-                foreach (int userId in UserIdsInJoinOrder)
+                foreach (int userId in UserIdsInJoinOrder.Take(readyPlayerCount))
                 {
-                    ChangeReadiness(userId, true);
+                    ArmedRoom = ChangeReadiness(userId, true);
                 }
             }
 
             internal TestClock Clock { get; }
+
+            /// <summary>Snapshot returned when the last player became ready: the room as the tests start it.</summary>
+            internal LobbyMembershipChange ArmedRoom { get; }
 
             internal LobbyScenario Scenario { get; }
 
@@ -341,6 +733,16 @@ namespace TLMG.Services.Tests
             }
 
             /// <summary>Deja vencer la cuenta vigente y pide el inicio como el creador.</summary>
+            internal LobbyMembershipChange ChangeCardsPerPlayer(int userId, int cardsPerPlayerCount)
+            {
+                return Scenario.Registry.ChangeCardsPerPlayer(CallerOf(userId), Scenario.RoomId, cardsPerPlayerCount);
+            }
+
+            internal LobbyMembershipChange RequestStartWithCountdownId(int userId, long countdownId)
+            {
+                return Scenario.Registry.RequestMatchStart(CallerOf(userId), Scenario.RoomId, countdownId);
+            }
+
             internal LobbyMembershipChange RequestStartAfterCountdown()
             {
                 Clock.Advance(TimeSpan.FromSeconds(CountdownSeconds));
@@ -350,9 +752,9 @@ namespace TLMG.Services.Tests
 
             internal LobbyMembershipChange RequestStartAs(int userId)
             {
-                long countdownId = CurrentCountdownId();
+                long armedCountdownId = ArmedRoom.Room.Start.CountdownId;
 
-                return Scenario.Registry.RequestMatchStart(CallerOf(userId), Scenario.RoomId, countdownId);
+                return Scenario.Registry.RequestMatchStart(CallerOf(userId), Scenario.RoomId, armedCountdownId);
             }
 
             internal MatchSnapshot FindMatch(LobbyMembershipChange change, int userId)
@@ -380,13 +782,6 @@ namespace TLMG.Services.Tests
                 }
 
                 return lastDeparture;
-            }
-
-            private long CurrentCountdownId()
-            {
-                LobbyMembershipChange current = ChangeReadiness(CreatorUserId, true);
-
-                return current.Room.Start.CountdownId;
             }
 
             private LobbyCaller CallerOf(int userId)

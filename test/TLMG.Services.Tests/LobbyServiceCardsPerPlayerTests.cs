@@ -20,6 +20,7 @@ namespace TLMG.Services.Tests
         private const int OtherPlayersCount = 2;
         private const int NoCalls = 0;
         private const int OneCall = 1;
+        private const int CountdownSeconds = 3;
         private const string InvalidSessionKey = "Common_InvalidSessionError";
         private const string NotInRoomKey = "Lobby_NotInRoomError";
         private const string UnexpectedKey = "Common_UnexpectedError";
@@ -85,6 +86,7 @@ namespace TLMG.Services.Tests
         [Fact]
         public void ChangeCardsPerPlayer_WithDifferentValue_LeavesEveryPlayerNotReady()
         {
+            // Arrange
             LobbyScenario scenario = new LobbyScenario();
             string secondToken = LobbyReadinessHelper.AddPlayer(scenario, SecondUserId, SecondChannelId, null);
             string thirdToken = LobbyReadinessHelper.AddPlayer(scenario, ThirdUserId, ThirdChannelId, null);
@@ -94,11 +96,13 @@ namespace TLMG.Services.Tests
             LobbyService service = new LobbyService(scenario.Registry);
             LobbyCaller secondCaller = new LobbyCaller(secondToken, SecondChannelId);
 
+            // Act
             ResultWithNotification<OperationLobbyRoomResult> actual =
                 service.ChangeCardsPerPlayer(
                     secondCaller,
                     CreateRequest(scenario.RoomId, SixCardsPerPlayer));
 
+            // Assert
             Assert.True(actual.OperationResult.IsSuccess);
             Assert.Equal(3, actual.OperationResult.Room.Players.Count);
             Assert.All(actual.OperationResult.Room.Players, player => Assert.False(player.IsReady));
@@ -108,6 +112,7 @@ namespace TLMG.Services.Tests
         [Fact]
         public void ChangeCardsPerPlayer_WithSameValue_SucceedsWithoutResettingReady()
         {
+            // Arrange
             LobbyScenario scenario = new LobbyScenario();
             LobbyReadinessHelper.AddPlayer(scenario, SecondUserId, SecondChannelId, new LobbyCallbackStub());
             LobbyReadinessHelper.MarkReady(scenario, scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
@@ -116,11 +121,13 @@ namespace TLMG.Services.Tests
                 scenario.CreatorToken,
                 LobbyReadinessHelper.CreatorChannelId);
 
+            // Act
             ResultWithNotification<OperationLobbyRoomResult> actual =
                 service.ChangeCardsPerPlayer(
                     creatorCaller,
                     CreateRequest(scenario.RoomId, DefaultCardsPerPlayer));
 
+            // Assert
             Assert.True(actual.OperationResult.IsSuccess);
             Assert.Equal(DefaultCardsPerPlayer, actual.OperationResult.Room.CardsPerPlayerCount);
             Assert.Single(actual.OperationResult.Room.Players, player => player.IsReady);
@@ -136,25 +143,30 @@ namespace TLMG.Services.Tests
         [InlineData(-4)]
         public void ChangeCardsPerPlayer_WithInvalidValue_ReturnsErrorAndKeepsRoomUnchanged(int cardsPerPlayerCount)
         {
+            // Arrange
             LobbyScenario scenario = new LobbyScenario();
             LobbyService service = new LobbyService(scenario.Registry);
             LobbyCaller creatorCaller = new LobbyCaller(
                 scenario.CreatorToken,
                 LobbyReadinessHelper.CreatorChannelId);
+            LobbyMembershipChange roomBefore = scenario.Registry.ChangePlayerReadiness(
+                creatorCaller, scenario.RoomId, false);
 
+            // Act
             ResultWithNotification<OperationLobbyRoomResult> actual =
                 service.ChangeCardsPerPlayer(
                     creatorCaller,
                     CreateRequest(scenario.RoomId, cardsPerPlayerCount));
-            LobbyMembershipChange roomAfter = scenario.Registry.ChangeCardsPerPlayer(
-                creatorCaller,
-                scenario.RoomId,
-                DefaultCardsPerPlayer);
 
+            // Assert
             Assert.False(actual.OperationResult.IsSuccess);
             Assert.Equal(NotValidKey, actual.OperationResult.ErrorKey);
             Assert.Null(actual.OperationResult.Room);
             Assert.Empty(actual.Notifications);
+            // "Not ready" again for a player who is not ready changes nothing; it only shows the room kept its state.
+            LobbyMembershipChange roomAfter = scenario.Registry.ChangePlayerReadiness(
+                creatorCaller, scenario.RoomId, false);
+            Assert.Equal(roomBefore.Room.Start.Version, roomAfter.Room.Start.Version);
             Assert.Equal(DefaultCardsPerPlayer, roomAfter.Room.Start.CardsPerPlayerCount);
             Assert.Empty(roomAfter.RecipientCallbacks);
         }
@@ -165,15 +177,18 @@ namespace TLMG.Services.Tests
         [InlineData("unknown")]
         public void ChangeCardsPerPlayer_WithInvalidSession_ReturnsInvalidSessionError(string token)
         {
+            // Arrange
             LobbyScenario scenario = new LobbyScenario();
             LobbyService service = new LobbyService(scenario.Registry);
             LobbyCaller invalidCaller = new LobbyCaller(token, LobbyReadinessHelper.CreatorChannelId);
 
+            // Act
             ResultWithNotification<OperationLobbyRoomResult> actual =
                 service.ChangeCardsPerPlayer(
                     invalidCaller,
                     CreateRequest(scenario.RoomId, SixCardsPerPlayer));
 
+            // Assert
             Assert.False(actual.OperationResult.IsSuccess);
             Assert.Equal(InvalidSessionKey, actual.OperationResult.ErrorKey);
             Assert.Null(actual.OperationResult.Room);
@@ -183,16 +198,19 @@ namespace TLMG.Services.Tests
         [Fact]
         public void ChangeCardsPerPlayer_WithPlayerOutsideLobby_ReturnsNotInRoomError()
         {
+            // Arrange
             LobbyScenario scenario = new LobbyScenario();
             string outsiderToken = scenario.Registry.StartRegisteredSession(9, "Outsider", out SessionEnd replaced);
             LobbyService service = new LobbyService(scenario.Registry);
             LobbyCaller outsiderCaller = new LobbyCaller(outsiderToken, "outsider");
 
+            // Act
             ResultWithNotification<OperationLobbyRoomResult> actual =
                 service.ChangeCardsPerPlayer(
                     outsiderCaller,
                     CreateRequest(scenario.RoomId, SixCardsPerPlayer));
 
+            // Assert
             Assert.False(actual.OperationResult.IsSuccess);
             Assert.Equal(NotInRoomKey, actual.OperationResult.ErrorKey);
             Assert.Null(actual.OperationResult.Room);
@@ -202,15 +220,18 @@ namespace TLMG.Services.Tests
         [Fact]
         public void ChangeCardsPerPlayer_WithNullRequest_ReturnsInvalidSessionError()
         {
+            // Arrange
             LobbyScenario scenario = new LobbyScenario();
             LobbyService service = new LobbyService(scenario.Registry);
             LobbyCaller creatorCaller = new LobbyCaller(
                 scenario.CreatorToken,
                 LobbyReadinessHelper.CreatorChannelId);
 
+            // Act
             ResultWithNotification<OperationLobbyRoomResult> actual =
                 service.ChangeCardsPerPlayer(creatorCaller, null);
 
+            // Assert
             Assert.False(actual.OperationResult.IsSuccess);
             Assert.Equal(InvalidSessionKey, actual.OperationResult.ErrorKey);
             Assert.Empty(actual.Notifications);
@@ -219,13 +240,149 @@ namespace TLMG.Services.Tests
         [Fact]
         public void ChangeCardsPerPlayer_WhenRegistryFails_ThrowsInvalidOperationException()
         {
+            // Arrange
             LobbyService service = new LobbyService(new FailingSessionRegistryStub());
             LobbyCaller caller = new LobbyCaller("token", LobbyReadinessHelper.CreatorChannelId);
 
-            Assert.Throws<InvalidOperationException>(() =>
-                service.ChangeCardsPerPlayer(
-                    caller,
-                    CreateRequest(1, SixCardsPerPlayer)));
+            // Act
+            Action change = () => service.ChangeCardsPerPlayer(caller, CreateRequest(1, SixCardsPerPlayer));
+
+            // Assert
+            Assert.Throws<InvalidOperationException>(change);
+        }
+
+        [Fact]
+        public void ChangePlayerReadiness_WithNullRequest_RejectsWithInvalidSessionWithoutNotifications()
+        {
+            // Arrange
+            LobbyScenario scenario = new LobbyScenario();
+            LobbyService service = new LobbyService(scenario.Registry);
+            LobbyCaller creatorCaller = new LobbyCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+
+            // Act
+            ResultWithNotification<OperationLobbyRoomResult> actual =
+                service.ChangePlayerReadiness(creatorCaller, null);
+
+            // Assert
+            Assert.False(actual.OperationResult.IsSuccess);
+            Assert.Equal(InvalidSessionKey, actual.OperationResult.ErrorKey);
+            Assert.Null(actual.OperationResult.Room);
+            Assert.Empty(actual.Notifications);
+        }
+
+        [Fact]
+        public void ChangePlayerReadiness_WhenTheLastPlayerBecomesReady_ReturnsTheCountdownAndNotifiesTheRoom()
+        {
+            // Arrange
+            LobbyScenario scenario = new LobbyScenario();
+            LobbyCallbackStub secondCallback = new LobbyCallbackStub();
+            LobbyCallbackStub thirdCallback = new LobbyCallbackStub();
+            string secondToken = LobbyReadinessHelper.AddPlayer(
+                scenario, SecondUserId, SecondChannelId, secondCallback);
+            string thirdToken = LobbyReadinessHelper.AddPlayer(scenario, ThirdUserId, ThirdChannelId, thirdCallback);
+            LobbyReadinessHelper.MarkReady(scenario, scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+            LobbyReadinessHelper.MarkReady(scenario, secondToken, SecondChannelId);
+            LobbyService service = new LobbyService(scenario.Registry);
+
+            // Act
+            ResultWithNotification<OperationLobbyRoomResult> actual = service.ChangePlayerReadiness(
+                new LobbyCaller(thirdToken, ThirdChannelId),
+                new OperationChangePlayerReadinessRequest { RoomId = scenario.RoomId, IsReady = true });
+            RunNotifications(actual.Notifications);
+
+            // Assert
+            Assert.True(actual.OperationResult.IsSuccess);
+            Assert.True(actual.OperationResult.Room.CountdownEndsAtUtc.HasValue);
+            Assert.All(actual.OperationResult.Room.Players, player => Assert.True(player.IsReady));
+            Assert.Equal(OneCall, secondCallback.CallCount);
+            Assert.Equal(OneCall, thirdCallback.CallCount);
+            Assert.Equal(actual.OperationResult.Room.CountdownId, secondCallback.LastLobbyRoom.CountdownId);
+            Assert.Equal(actual.OperationResult.Room.CountdownId, thirdCallback.LastLobbyRoom.CountdownId);
+        }
+
+        [Fact]
+        public void RequestMatchStart_WithNullRequest_RejectsWithInvalidSessionWithoutNotifications()
+        {
+            // Arrange
+            LobbyScenario scenario = new LobbyScenario();
+            LobbyService service = new LobbyService(scenario.Registry);
+            LobbyCaller creatorCaller = new LobbyCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+
+            // Act
+            ResultWithNotification<OperationRequestMatchStartResult> actual =
+                service.RequestMatchStart(creatorCaller, null);
+
+            // Assert
+            Assert.False(actual.OperationResult.IsSuccess);
+            Assert.Equal(InvalidSessionKey, actual.OperationResult.ErrorKey);
+            Assert.Null(actual.OperationResult.Room);
+            Assert.Empty(actual.Notifications);
+        }
+
+        [Fact]
+        public void RequestMatchStart_BeforeTheCountdownEnds_CreatesNoMatchAndAsksToRetryInOneSecond()
+        {
+            // Arrange
+            ManualUtcClock clock = new ManualUtcClock();
+            RoomWithThreeReadyPlayers room = new RoomWithThreeReadyPlayers(clock);
+            LobbyService service = new LobbyService(room.Scenario.Registry);
+            clock.Advance(TimeSpan.FromSeconds(CountdownSeconds - 1));
+
+            // Act
+            ResultWithNotification<OperationRequestMatchStartResult> actual = service.RequestMatchStart(
+                room.CreatorCaller,
+                new OperationMatchStartRequest { RoomId = room.Scenario.RoomId, CountdownId = room.CountdownId });
+
+            // Assert
+            Assert.True(actual.OperationResult.IsSuccess);
+            Assert.False(actual.OperationResult.Room.MatchId.HasValue);
+            Assert.Equal(1, actual.OperationResult.RetryAfterSeconds);
+            Assert.Empty(actual.Notifications);
+        }
+
+        [Fact]
+        public void RequestMatchStart_AfterTheCountdownEnds_AuthorizesTheMatchAndNotifiesTheOtherPlayers()
+        {
+            // Arrange
+            ManualUtcClock clock = new ManualUtcClock();
+            RoomWithThreeReadyPlayers room = new RoomWithThreeReadyPlayers(clock);
+            LobbyService service = new LobbyService(room.Scenario.Registry);
+            clock.Advance(TimeSpan.FromSeconds(CountdownSeconds));
+
+            // Act
+            ResultWithNotification<OperationRequestMatchStartResult> actual = service.RequestMatchStart(
+                room.CreatorCaller,
+                new OperationMatchStartRequest { RoomId = room.Scenario.RoomId, CountdownId = room.CountdownId });
+            RunNotifications(actual.Notifications);
+
+            // Assert
+            Assert.True(actual.OperationResult.IsSuccess);
+            Guid matchId = actual.OperationResult.Room.MatchId.Value;
+            Assert.True(actual.OperationResult.Room.InGame);
+            Assert.Equal(0, actual.OperationResult.RetryAfterSeconds);
+            Assert.Equal(matchId, room.SecondCallback.LastLobbyRoom.MatchId);
+            Assert.Equal(matchId, room.ThirdCallback.LastLobbyRoom.MatchId);
+        }
+
+        [Fact]
+        public void RequestMatchStart_WithPlayersNotReady_CreatesNoMatchAndDoesNotAskToRetry()
+        {
+            // Arrange
+            LobbyScenario scenario = new LobbyScenario();
+            LobbyReadinessHelper.AddPlayer(scenario, SecondUserId, SecondChannelId, new LobbyCallbackStub());
+            LobbyReadinessHelper.AddPlayer(scenario, ThirdUserId, ThirdChannelId, new LobbyCallbackStub());
+            LobbyService service = new LobbyService(scenario.Registry);
+            LobbyCaller creatorCaller = new LobbyCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+
+            // Act
+            ResultWithNotification<OperationRequestMatchStartResult> actual = service.RequestMatchStart(
+                creatorCaller, new OperationMatchStartRequest { RoomId = scenario.RoomId, CountdownId = 0 });
+
+            // Assert
+            Assert.True(actual.OperationResult.IsSuccess);
+            Assert.False(actual.OperationResult.Room.MatchId.HasValue);
+            Assert.Equal(0, actual.OperationResult.RetryAfterSeconds);
+            Assert.Empty(actual.Notifications);
         }
 
         private static void RunNotifications(IReadOnlyList<Action> notifications)
@@ -245,6 +402,36 @@ namespace TLMG.Services.Tests
             };
 
             return request;
+        }
+
+        /// <summary>A room of three players who are all ready, with a manual clock and a known countdown.</summary>
+        private sealed class RoomWithThreeReadyPlayers
+        {
+            internal RoomWithThreeReadyPlayers(ManualUtcClock clock)
+            {
+                Scenario = new LobbyScenario(new SessionRegistry(clock.ReadUtcNow));
+                SecondCallback = new LobbyCallbackStub();
+                ThirdCallback = new LobbyCallbackStub();
+                string secondToken = LobbyReadinessHelper.AddPlayer(
+                    Scenario, SecondUserId, SecondChannelId, SecondCallback);
+                string thirdToken = LobbyReadinessHelper.AddPlayer(
+                    Scenario, ThirdUserId, ThirdChannelId, ThirdCallback);
+                LobbyReadinessHelper.MarkReady(Scenario, Scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+                LobbyReadinessHelper.MarkReady(Scenario, secondToken, SecondChannelId);
+                CountdownId = LobbyReadinessHelper.MarkReady(Scenario, thirdToken, ThirdChannelId)
+                    .Room.Start.CountdownId;
+                CreatorCaller = new LobbyCaller(Scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+            }
+
+            internal LobbyScenario Scenario { get; }
+
+            internal LobbyCallbackStub SecondCallback { get; }
+
+            internal LobbyCallbackStub ThirdCallback { get; }
+
+            internal long CountdownId { get; }
+
+            internal LobbyCaller CreatorCaller { get; }
         }
     }
 }
