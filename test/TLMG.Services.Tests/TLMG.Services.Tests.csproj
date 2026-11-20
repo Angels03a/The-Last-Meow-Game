@@ -26,6 +26,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FailingPasswordHasherStub.cs" />
+    <Compile Include="PasswordRecoveryServiceTests.cs" />
+    <Compile Include="PasswordResetDispatcherTests.cs" />
+    <Compile Include="VerificationCodeRepositoryStub.cs" />
+    <Compile Include="VerificationCodeStoreTests.cs" />
     <Compile Include="FailingSessionRegistryStub.cs" />
     <Compile Include="FriendsCallbackStub.cs" />
     <Compile Include="FriendshipRepositoryStub.cs" />
