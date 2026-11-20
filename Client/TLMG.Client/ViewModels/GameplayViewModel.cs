@@ -260,9 +260,7 @@ namespace TLMG.Client.ViewModels
         private void OnRecoveryStateChanged(object sender, EventArgs args)
         {
             UpdateRecoveryDisplay(sender, args);
-            _placeCardCommand.NotifyCanExecuteChanged();
-            _choosePunishmentCommand.NotifyCanExecuteChanged();
-            _revealCardCommand.NotifyCanExecuteChanged();
+            RefreshGameplayCommands();
             RefreshBetCommands();
         }
 
@@ -284,17 +282,8 @@ namespace TLMG.Client.ViewModels
                 OnPropertyChanged(nameof(CurrentBidAmount));
             }
 
-            _placeCardCommand.NotifyCanExecuteChanged();
-            _choosePunishmentCommand.NotifyCanExecuteChanged();
-            _revealCardCommand.NotifyCanExecuteChanged();
-            if (Board.CanPlaceBet && Board.MinimumBetValue <= Board.MaximumBetValue)
-            {
-                BidAmount = Math.Max(Board.MinimumBetValue, Math.Min(BidAmount, Board.MaximumBetValue));
-            }
-            else
-            {
-                BidAmount = 0;
-            }
+            RefreshGameplayCommands();
+            ClampBidAmountToBoard();
 
             RefreshBetCommands();
         }
@@ -398,9 +387,21 @@ namespace TLMG.Client.ViewModels
                 }
             }
 
+            RefreshGameplayCommands();
+            ClampBidAmountToBoard();
+
+            RefreshBetCommands();
+        }
+
+        private void RefreshGameplayCommands()
+        {
             _placeCardCommand.NotifyCanExecuteChanged();
             _choosePunishmentCommand.NotifyCanExecuteChanged();
             _revealCardCommand.NotifyCanExecuteChanged();
+        }
+
+        private void ClampBidAmountToBoard()
+        {
             if (Board.CanPlaceBet && Board.MinimumBetValue <= Board.MaximumBetValue)
             {
                 BidAmount = Math.Max(Board.MinimumBetValue, Math.Min(BidAmount, Board.MaximumBetValue));
@@ -409,8 +410,6 @@ namespace TLMG.Client.ViewModels
             {
                 BidAmount = 0;
             }
-
-            RefreshBetCommands();
         }
 
         private void RefreshBetCommands()
