@@ -19,6 +19,12 @@ namespace TLMG.Services.Tests
 
         internal PlayerCredentials Credentials { get; set; } = new PlayerCredentials();
 
+        /// <summary>Result returned by the leaderboard query.</summary>
+        internal LeaderboardLookup Leaderboard { get; set; } = new LeaderboardLookup();
+
+        /// <summary>Player limits received by the leaderboard query, in call order.</summary>
+        internal List<int> RequestedLeaderboardLimits { get; } = new List<int>();
+
         /// <summary>Emails received by the lookups of existence and of credentials, in call order.</summary>
         internal List<string> LookedUpEmails { get; } = new List<string>();
 
@@ -77,7 +83,9 @@ namespace TLMG.Services.Tests
         /// <inheritdoc />
         public LeaderboardLookup FindTopRankedPlayers(int maximumPlayerCount)
         {
-            throw new NotSupportedException("Consulta fuera del alcance de estas pruebas.");
+            RequestedLeaderboardLimits.Add(maximumPlayerCount);
+
+            return Leaderboard;
         }
 
         /// <summary>Arguments of one call to CreatePlayer.</summary>
