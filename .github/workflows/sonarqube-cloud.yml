@@ -92,23 +92,31 @@ jobs:
           msbuild Server/TLMG.Server.slnx /t:Rebuild /p:Configuration=Debug /m:1 /nr:false /p:UseSharedCompilation=false
           if ($LASTEXITCODE -ne 0) { throw "Server build failed" }
 
+
       - name: Execute xUnit tests with coverage
         shell: pwsh
         run: |
           $vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio/Installer/vswhere.exe"
           $vs = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -property installationPath
-          $vstest = Join-Path $vs "Common7/IDE/CommonExtensions/Microsoft/TestWindow/vstest.console.exe"
+          if (!$vs) { throw "Visual Studio not found" }
 
+          $vstest = Join-Path $vs "Common7/IDE/CommonExtensions/Microsoft/TestWindow/vstest.console.exe"
           if (!(Test-Path $vstest)) { throw "VSTest not found" }
+
+          # Allow launching VSTest without a path containing spaces.
+          $env:PATH = "$(Split-Path $vstest -Parent);$env:PATH"
 
           $domain = (Resolve-Path "test/TLMG.Domain.Tests/bin/Debug/TLMG.Domain.Tests.dll").Path
           $services = (Resolve-Path "test/TLMG.Services.Tests/bin/Debug/TLMG.Services.Tests.dll").Path
 
-          $command = "`"$vstest`" `"$domain`" `"$services`" /Logger:trx"
+          $command = "vstest.console.exe $domain $services /Logger:trx"
           dotnet-coverage collect $command -f xml -o coverage.xml
 
           if ($LASTEXITCODE -ne 0) { throw "Tests or coverage failed" }
           if (!(Test-Path coverage.xml)) { throw "Coverage report missing" }
+
+          Write-Host "Coverage report generated successfully."
+
 
       - name: Finish SonarQube analysis
         shell: pwsh
