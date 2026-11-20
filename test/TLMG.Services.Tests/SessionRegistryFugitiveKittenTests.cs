@@ -193,6 +193,38 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.FugitiveKittenInProgress, choice.ErrorKey);
         }
 
+        /// <summary>
+        /// A lost match link leaves a reconnection pending while the kitten, paused by that loss, is still
+        /// unresolved. Both blocking conditions coexist, and the reconnection one prevails for every game action.
+        /// </summary>
+        [Fact]
+        public void PlayerActions_WithPendingReconnectionAndUnresolvedKitten_AreRejectedWithReconnectionPending()
+        {
+            // Arrange
+            MatchPlayScenario scenario = new MatchPlayScenario(3, 8);
+            scenario.SubscribeAll();
+            int userId = scenario.CreatorUserId;
+            Assert.True(scenario.CloseMatchChannelOf(scenario.UserIds[1]));
+            FugitiveKittenSnapshot kittenBefore = scenario.Registry.FindFugitiveKitten(scenario.MatchId, userId);
+            Assert.Equal(FugitiveKittenOutcome.InProgress, kittenBefore.Outcome);
+            Assert.True(kittenBefore.PausedAtUtc.HasValue);
+
+            // Act
+            MatchDelivery placement = scenario.Place(userId, MatchCardKind.Safe);
+            MatchDelivery bet = scenario.PlaceBet(userId, 1);
+            MatchDelivery withdrawal = scenario.Withdraw(userId);
+            MatchDelivery reveal = scenario.Reveal(userId, 1);
+            MatchDelivery choice = scenario.Choose(userId, 0);
+
+            // Assert
+            MatchDelivery[] attempts = { placement, bet, withdrawal, reveal, choice };
+            Assert.All(attempts, attempt => Assert.Equal("Match_ReconnectionPending", attempt.ErrorKey));
+            Assert.All(attempts, attempt => Assert.Empty(attempt.ViewDeliveries));
+            FugitiveKittenSnapshot kittenAfter = scenario.Registry.FindFugitiveKitten(scenario.MatchId, userId);
+            Assert.Equal(FugitiveKittenOutcome.InProgress, kittenAfter.Outcome);
+            Assert.Equal(kittenBefore.Version, kittenAfter.Version);
+        }
+
         [Fact]
         public void PlaceCard_AfterTheKittenWindowEnds_ResolvesTheKittenAndNotifiesEveryoneEvenIfTheActionIsRejected()
         {

@@ -12,6 +12,9 @@ namespace TLMG.Services.Match
         /// <summary>El canal no está suscrito a la partida.</summary>
         public const string NotSubscribed = "Match_NotSubscribedError";
 
+        /// <summary>A player is waiting to reconnect.</summary>
+        public const string ReconnectionPending = "Match_ReconnectionPending";
+
         /// <summary>El minijuego previo a la partida todavía no termina.</summary>
         public const string FugitiveKittenInProgress = "Match_FugitiveKittenInProgressError";
 

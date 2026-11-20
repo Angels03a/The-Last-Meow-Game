@@ -166,13 +166,21 @@ namespace TLMG.Services.Sessions
         {
             DateTime nowUtc = _readUtcNow();
             bool hasExpired = ExpireMatchDeadlinesInLock(matchRecord, nowUtc);
-            string errorKey = matchRecord.Disconnections.Count != 0
+            string errorKey;
+            if (matchRecord.Disconnections.Count != 0
                 && matchRecord.MatchState.Phase != RoundPhase.MatchFinished
-                && matchRecord.MatchState.PendingPunishment?.ChooserPlayerId != userId
-                ? "Match_ReconnectionPending"
-                : matchRecord.Kitten != null && !matchRecord.Kitten.IsResolved
-                ? MatchErrorKeys.FugitiveKittenInProgress
-                : matchAction(matchRecord, userId, nowUtc);
+                && matchRecord.MatchState.PendingPunishment?.ChooserPlayerId != userId)
+            {
+                errorKey = MatchErrorKeys.ReconnectionPending;
+            }
+            else if (matchRecord.Kitten != null && !matchRecord.Kitten.IsResolved)
+            {
+                errorKey = MatchErrorKeys.FugitiveKittenInProgress;
+            }
+            else
+            {
+                errorKey = matchAction(matchRecord, userId, nowUtc);
+            }
             IReadOnlyList<MatchViewDelivery> viewDeliveries = _noMatchViewDeliveries;
 
             if (hasExpired || errorKey == null)

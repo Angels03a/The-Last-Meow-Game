@@ -304,6 +304,62 @@ namespace TLMG.Services.Tests
             Assert.True(chooserView.Players.Single(player => player.UserId == scenario.UserIds[2]).HasLeftMatch);
         }
 
+        /// <summary>
+        /// Losing the link of a player who is neither the punished one nor the chooser does not suspend the
+        /// punishment, and the chooser is not blocked by that reconnection: the choice is accepted and the round
+        /// advances while the third player's grace stays open.
+        /// </summary>
+        [Fact]
+        public void ChoosePunishmentCard_WhenAnUninvolvedPlayerIsDisconnected_IsAcceptedForTheChooser()
+        {
+            // Arrange
+            MatchPlayScenario scenario = StartBlindPunishment();
+            int punishedUserId = scenario.UserIds[0];
+            int chooserUserId = scenario.UserIds[1];
+            int bystanderUserId = scenario.UserIds[2];
+            int versionBefore = scenario.ReadVersionAs(chooserUserId);
+            IReadOnlyList<MatchViewDelivery> loss;
+            bool wasRemoved = scenario.Registry.RemoveMatchChannel(
+                MatchPlayScenario.MatchChannelPrefix + bystanderUserId, scenario.CallbackOf(bystanderUserId), out loss);
+            Assert.True(wasRemoved);
+            Assert.All(loss, item => Assert.Equal(MatchRoundPhase.PunishmentPending, item.MatchView.Phase));
+            Assert.All(loss, item => Assert.Equal(MatchPunishmentResolution.Pending,
+                item.MatchView.Challenge.PunishmentResolution));
+
+            // Act
+            MatchDelivery delivery = scenario.Choose(chooserUserId, 0);
+
+            // Assert
+            Assert.Null(delivery.ErrorKey);
+            Assert.Equal(2, delivery.ViewDeliveries.Count);
+            Assert.DoesNotContain(scenario.CallbackOf(bystanderUserId), MatchPlayScenario.RecipientsOf(delivery));
+            Assert.All(delivery.ViewDeliveries, item => Assert.Equal(versionBefore + 2, item.MatchView.Version));
+            Assert.All(delivery.ViewDeliveries, item => Assert.Equal(SecondRound, item.MatchView.RoundNumber));
+            Assert.All(delivery.ViewDeliveries, item => Assert.Null(item.MatchView.Punishment));
+            MatchView punishedView = ViewOf(delivery, scenario, punishedUserId);
+            Assert.Equal(LivesAfterOnePunishment, punishedView.OwnHandCards.Count);
+            Assert.Equal(MatchPunishmentResolution.ChosenByChooser, punishedView.Challenge.PunishmentResolution);
+        }
+
+        /// <summary>
+        /// The reconnection guard keeps blocking everyone who is not the chooser: while a third player is
+        /// disconnected, the punished player cannot act and nothing changes.
+        /// </summary>
+        [Fact]
+        public void PlaceCard_ByThePunishedPlayerWithAnUninvolvedOneDisconnected_IsRejectedWithReconnectionPending()
+        {
+            // Arrange
+            MatchPlayScenario scenario = StartBlindPunishment();
+            Assert.True(scenario.CloseMatchChannelOf(scenario.UserIds[2]));
+
+            // Act
+            MatchDelivery attempt = scenario.Place(scenario.UserIds[0], MatchCardKind.Safe);
+
+            // Assert
+            Assert.Equal("Match_ReconnectionPending", attempt.ErrorKey);
+            Assert.Empty(attempt.ViewDeliveries);
+        }
+
         private static MatchPlayScenario StartBlindPunishment(params int[] shuffleIndexes)
         {
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
