@@ -10,291 +10,254 @@ using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Tests
 {
-    /// <summary>Pruebas de PlayerLogInService.</summary>
+    /// <summary>
+    /// Tests of PlayerLogInService with the real password hasher and the real session registry, and a repository
+    /// double that records its calls. A rejected log-in must not create a session, replace an existing one or
+    /// update the last log-in time.
+    /// </summary>
     public class PlayerLogInServiceTests
     {
         private const string SyntheticPassword = "Synthetic12!";
-
         private const string SyntheticEmail = "player@example.test";
-
         private const string PlayerNickname = "Player";
-
         private const string IncorrectPassword = "Wrong12!";
-
         private const string InactiveUserState = "USER_INACTIVE";
+        private const int PlayerUserId = 7;
 
-        /// <summary>Verifica LogIn_WithInvalidFields_ReturnsExpectedError.</summary>
-        [Theory]
-        [InlineData(null, "p", "Login_IncompleteFieldsError")]
-        [InlineData("", "p", "Login_IncompleteFieldsError")]
-        [InlineData("  ", "p", "Login_IncompleteFieldsError")]
-        [InlineData(SyntheticEmail, null, "Login_IncompleteFieldsError")]
-        [InlineData(SyntheticEmail, "", "Login_IncompleteFieldsError")]
-        [InlineData(SyntheticEmail, " ", "Login_IncompleteFieldsError")]
-        [InlineData("bad", "p", "Login_EmailFormatError")]
-        [InlineData("abcde@example.test", "p", "Login_EmailFormatError")]
-        public void LogIn_WithInvalidFields_ReturnsExpectedError(string email, string password, string expected)
+        private readonly PasswordHasher _hasher = new PasswordHasher();
+        private readonly PlayerRepositoryStub _repository = new PlayerRepositoryStub();
+        private readonly SessionRegistry _registry = new SessionRegistry();
+
+        [Fact]
+        public void LogIn_WithValidAccount_CreatesSessionForThatPlayerAndRecordsTheLogIn()
         {
             // Arrange
-            PlayerRepositoryStub repository = new PlayerRepositoryStub();
-            PlayerLogInService service = new PlayerLogInService(
-                repository,
-                new PasswordHasher(),
-                new SessionRegistry());
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+
+            // Act
+            ResultWithNotification<OperationLogInResult> result = service.LogIn(CreateRequest(SyntheticPassword));
+
+            // Assert
+            Assert.True(result.OperationResult.IsSuccess);
+            Assert.Null(result.OperationResult.ErrorKey);
+            Assert.Equal(PlayerUserId, result.OperationResult.UserId);
+            Assert.Equal(PlayerNickname, result.OperationResult.Nickname);
+            Assert.True(_registry.TryFindSessionByToken(
+                result.OperationResult.SessionToken, out PlayerSession session));
+            Assert.Equal(PlayerUserId, session.UserId);
+            Assert.Equal(PlayerNickname, session.Nickname);
+            Assert.Equal(new[] { PlayerUserId }, _repository.UpdatedLogInUserIds);
+            Assert.Empty(result.Notifications);
+        }
+
+        [Fact]
+        public void LogIn_WithEmailInOtherCaseAndSpaces_LooksUpTheNormalizedEmail()
+        {
+            // Arrange
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+            OperationLogInRequest request = new OperationLogInRequest
+            {
+                Email = "  PLAYER@Example.TEST  ",
+                Password = SyntheticPassword
+            };
+
+            // Act
+            OperationLogInResult result = service.LogIn(request).OperationResult;
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal(new[] { SyntheticEmail }, _repository.LookedUpEmails);
+        }
+
+        [Theory]
+        [InlineData(null, "p", ErrorKeys.Login.IncompleteFields)]
+        [InlineData("", "p", ErrorKeys.Login.IncompleteFields)]
+        [InlineData("  ", "p", ErrorKeys.Login.IncompleteFields)]
+        [InlineData(SyntheticEmail, null, ErrorKeys.Login.IncompleteFields)]
+        [InlineData(SyntheticEmail, "", ErrorKeys.Login.IncompleteFields)]
+        [InlineData(SyntheticEmail, " ", ErrorKeys.Login.IncompleteFields)]
+        [InlineData("bad", "p", ErrorKeys.Login.EmailFormat)]
+        [InlineData("abcde@example.test", "p", ErrorKeys.Login.EmailFormat)]
+        public void LogIn_WithInvalidFields_RejectsBeforeAnyLookup(
+            string email,
+            string password,
+            string expectedErrorKey)
+        {
+            // Arrange
+            PlayerLogInService service = CreateServiceWithActiveAccount();
             OperationLogInRequest request = new OperationLogInRequest { Email = email, Password = password };
 
             // Act
-            string errorKey = service.LogIn(request).OperationResult.ErrorKey;
+            OperationLogInResult result = service.LogIn(request).OperationResult;
 
             // Assert
-            Assert.Equal(expected, errorKey);
+            AssertRejectedWithoutSideEffects(result, expectedErrorKey);
+            Assert.Empty(_repository.LookedUpEmails);
         }
 
-        /// <summary>Verifica LogIn_WithValidAccount_ReturnsExpectedResult.</summary>
         [Fact]
-        public void LogIn_WithValidAccount_ReturnsExpectedResult()
+        public void LogIn_WithNullRequest_RejectsWithIncompleteFields()
         {
             // Arrange
-            PlayerRepositoryStub repository = new PlayerRepositoryStub();
-            PasswordHasher hasher = new PasswordHasher();
-            repository.Credentials = new PlayerCredentials
-            {
-                Status = CredentialsLookupStatus.Found,
-                UserId = 1,
-                Nickname = PlayerNickname,
-                State = ValidationRules.ActiveUserState,
-                PasswordHash = hasher.HashPassword(SyntheticPassword)
-            };
-            SessionRegistry registry = new SessionRegistry();
-            PlayerLogInService service = new PlayerLogInService(repository, hasher, registry);
-            OperationLogInRequest request = new OperationLogInRequest
-            {
-                Email = SyntheticEmail,
-                Password = SyntheticPassword
-            };
+            PlayerLogInService service = CreateServiceWithActiveAccount();
 
             // Act
-            bool actual = service.LogIn(request).OperationResult.IsSuccess;
+            OperationLogInResult result = service.LogIn(null).OperationResult;
 
             // Assert
-            Assert.True(actual);
+            AssertRejectedWithoutSideEffects(result, ErrorKeys.Login.IncompleteFields);
+            Assert.Empty(_repository.LookedUpEmails);
         }
 
-        /// <summary>Verifica LogIn_WithNotFound_ReturnsExpectedResult.</summary>
         [Fact]
-        public void LogIn_WithNotFound_ReturnsExpectedResult()
+        public void LogIn_WithUnknownEmail_RejectsWithInvalidCredentials()
         {
             // Arrange
-            PlayerRepositoryStub repository = new PlayerRepositoryStub();
-            PasswordHasher hasher = new PasswordHasher();
-            repository.Credentials = new PlayerCredentials
-            {
-                Status = CredentialsLookupStatus.Found,
-                UserId = 1,
-                Nickname = PlayerNickname,
-                State = ValidationRules.ActiveUserState,
-                PasswordHash = hasher.HashPassword(SyntheticPassword)
-            };
-            SessionRegistry registry = new SessionRegistry();
-            PlayerLogInService service = new PlayerLogInService(repository, hasher, registry);
-            OperationLogInRequest request = new OperationLogInRequest
-            {
-                Email = SyntheticEmail,
-                Password = SyntheticPassword
-            };
-            repository.Credentials.Status = CredentialsLookupStatus.NotFound;
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+            _repository.Credentials.Status = CredentialsLookupStatus.NotFound;
 
             // Act
-            string actual = service.LogIn(request).OperationResult.ErrorKey;
+            OperationLogInResult result = service.LogIn(CreateRequest(SyntheticPassword)).OperationResult;
 
             // Assert
-            Assert.Equal(ErrorKeys.Login.InvalidCredentials, actual);
+            AssertRejectedWithoutSideEffects(result, ErrorKeys.Login.InvalidCredentials);
         }
 
-        /// <summary>Verifica LogIn_WithDataFailure_ReturnsExpectedResult.</summary>
         [Fact]
-        public void LogIn_WithDataFailure_ReturnsExpectedResult()
+        public void LogIn_WithWrongPassword_RejectsWithSameErrorAsUnknownEmail()
         {
             // Arrange
-            PlayerRepositoryStub repository = new PlayerRepositoryStub();
-            PasswordHasher hasher = new PasswordHasher();
-            repository.Credentials = new PlayerCredentials
-            {
-                Status = CredentialsLookupStatus.Found,
-                UserId = 1,
-                Nickname = PlayerNickname,
-                State = ValidationRules.ActiveUserState,
-                PasswordHash = hasher.HashPassword(SyntheticPassword)
-            };
-            SessionRegistry registry = new SessionRegistry();
-            PlayerLogInService service = new PlayerLogInService(repository, hasher, registry);
-            OperationLogInRequest request = new OperationLogInRequest
-            {
-                Email = SyntheticEmail,
-                Password = SyntheticPassword
-            };
-            repository.Credentials.Status = CredentialsLookupStatus.DataFailure;
+            PlayerLogInService service = CreateServiceWithActiveAccount();
 
             // Act
-            string actual = service.LogIn(request).OperationResult.ErrorKey;
+            OperationLogInResult result = service.LogIn(CreateRequest(IncorrectPassword)).OperationResult;
 
             // Assert
-            Assert.Equal(ErrorKeys.Login.DataModel, actual);
+            AssertRejectedWithoutSideEffects(result, ErrorKeys.Login.InvalidCredentials);
         }
 
-        /// <summary>Verifica LogIn_WithInactiveAccount_ReturnsExpectedResult.</summary>
-        [Fact]
-        public void LogIn_WithInactiveAccount_ReturnsExpectedResult()
+        [Theory]
+        [InlineData(InactiveUserState)]
+        [InlineData("")]
+        [InlineData(null)]
+        public void LogIn_WithCorrectPasswordButAccountNotActive_RejectsWithInvalidCredentials(string accountState)
         {
             // Arrange
-            PlayerRepositoryStub repository = new PlayerRepositoryStub();
-            PasswordHasher hasher = new PasswordHasher();
-            repository.Credentials = new PlayerCredentials
-            {
-                Status = CredentialsLookupStatus.Found,
-                UserId = 1,
-                Nickname = PlayerNickname,
-                State = ValidationRules.ActiveUserState,
-                PasswordHash = hasher.HashPassword(SyntheticPassword)
-            };
-            SessionRegistry registry = new SessionRegistry();
-            PlayerLogInService service = new PlayerLogInService(repository, hasher, registry);
-            OperationLogInRequest request = new OperationLogInRequest
-            {
-                Email = SyntheticEmail,
-                Password = SyntheticPassword
-            };
-            repository.Credentials.State = InactiveUserState;
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+            _repository.Credentials.State = accountState;
 
             // Act
-            string actual = service.LogIn(request).OperationResult.ErrorKey;
+            OperationLogInResult result = service.LogIn(CreateRequest(SyntheticPassword)).OperationResult;
 
             // Assert
-            Assert.Equal(ErrorKeys.Login.InvalidCredentials, actual);
+            AssertRejectedWithoutSideEffects(result, ErrorKeys.Login.InvalidCredentials);
         }
 
-        /// <summary>Verifica LogIn_WithWrongPassword_ReturnsExpectedResult.</summary>
         [Fact]
-        public void LogIn_WithWrongPassword_ReturnsExpectedResult()
+        public void LogIn_WhenCredentialsLookupFails_RejectsWithDataModelError()
         {
             // Arrange
-            PlayerRepositoryStub repository = new PlayerRepositoryStub();
-            PasswordHasher hasher = new PasswordHasher();
-            repository.Credentials = new PlayerCredentials
-            {
-                Status = CredentialsLookupStatus.Found,
-                UserId = 1,
-                Nickname = PlayerNickname,
-                State = ValidationRules.ActiveUserState,
-                PasswordHash = hasher.HashPassword(SyntheticPassword)
-            };
-            SessionRegistry registry = new SessionRegistry();
-            PlayerLogInService service = new PlayerLogInService(repository, hasher, registry);
-            OperationLogInRequest request = new OperationLogInRequest
-            {
-                Email = SyntheticEmail,
-                Password = SyntheticPassword
-            };
-            request.Password = IncorrectPassword;
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+            _repository.Credentials.Status = CredentialsLookupStatus.DataFailure;
 
             // Act
-            string actual = service.LogIn(request).OperationResult.ErrorKey;
+            OperationLogInResult result = service.LogIn(CreateRequest(SyntheticPassword)).OperationResult;
 
             // Assert
-            Assert.Equal(ErrorKeys.Login.InvalidCredentials, actual);
+            AssertRejectedWithoutSideEffects(result, ErrorKeys.Login.DataModel);
         }
 
-        /// <summary>Verifica LogIn_WithUpdateFailure_ReturnsExpectedResult.</summary>
         [Fact]
-        public void LogIn_WithUpdateFailure_ReturnsExpectedResult()
+        public void LogIn_WhenLastLogInUpdateFails_RejectsWithDataModelErrorAndNoSession()
         {
             // Arrange
-            PlayerRepositoryStub repository = new PlayerRepositoryStub();
-            PasswordHasher hasher = new PasswordHasher();
-            repository.Credentials = new PlayerCredentials
-            {
-                Status = CredentialsLookupStatus.Found,
-                UserId = 1,
-                Nickname = PlayerNickname,
-                State = ValidationRules.ActiveUserState,
-                PasswordHash = hasher.HashPassword(SyntheticPassword)
-            };
-            SessionRegistry registry = new SessionRegistry();
-            PlayerLogInService service = new PlayerLogInService(repository, hasher, registry);
-            OperationLogInRequest request = new OperationLogInRequest
-            {
-                Email = SyntheticEmail,
-                Password = SyntheticPassword
-            };
-            repository.UpdateSucceeds = false;
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+            _repository.UpdateSucceeds = false;
 
             // Act
-            string actual = service.LogIn(request).OperationResult.ErrorKey;
+            OperationLogInResult result = service.LogIn(CreateRequest(SyntheticPassword)).OperationResult;
 
             // Assert
-            Assert.Equal(ErrorKeys.Login.DataModel, actual);
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorKeys.Login.DataModel, result.ErrorKey);
+            Assert.Null(result.SessionToken);
+            Assert.Null(result.Nickname);
         }
 
-        /// <summary>Verifica LogIn_WithRepositoryException_PropagatesException.</summary>
         [Fact]
-        public void LogIn_WithRepositoryException_PropagatesException()
+        public void LogIn_WhenTheRepositoryThrows_PropagatesTheExceptionWithoutSession()
         {
             // Arrange
-            PlayerRepositoryStub repository = new PlayerRepositoryStub();
-            PasswordHasher hasher = new PasswordHasher();
-            repository.Credentials = new PlayerCredentials
-            {
-                Status = CredentialsLookupStatus.Found,
-                UserId = 1,
-                Nickname = PlayerNickname,
-                State = ValidationRules.ActiveUserState,
-                PasswordHash = hasher.HashPassword(SyntheticPassword)
-            };
-            SessionRegistry registry = new SessionRegistry();
-            PlayerLogInService service = new PlayerLogInService(repository, hasher, registry);
-            OperationLogInRequest request = new OperationLogInRequest
-            {
-                Email = SyntheticEmail,
-                Password = SyntheticPassword
-            };
-            repository.ThrowOnLookup = true;
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+            _repository.ThrowOnLookup = true;
 
             // Act
-            Action logIn = () => service.LogIn(request);
+            Action logIn = () => service.LogIn(CreateRequest(SyntheticPassword));
 
             // Assert
             Assert.Throws<InvalidOperationException>(logIn);
+            Assert.Empty(_repository.UpdatedLogInUserIds);
         }
 
-        /// <summary>Verifica LogIn_WithNullRequest_ReturnsIncompleteFields.</summary>
         [Fact]
-        public void LogIn_WithNullRequest_ReturnsIncompleteFields()
+        public void LogIn_ForPlayerWithOpenSession_InvalidatesTheOldTokenAndIssuesANewOne()
         {
             // Arrange
-            PlayerRepositoryStub repository = new PlayerRepositoryStub();
-            PasswordHasher hasher = new PasswordHasher();
-            repository.Credentials = new PlayerCredentials
-            {
-                Status = CredentialsLookupStatus.Found,
-                UserId = 1,
-                Nickname = PlayerNickname,
-                State = ValidationRules.ActiveUserState,
-                PasswordHash = hasher.HashPassword(SyntheticPassword)
-            };
-            SessionRegistry registry = new SessionRegistry();
-            PlayerLogInService service = new PlayerLogInService(repository, hasher, registry);
-            OperationLogInRequest request = new OperationLogInRequest
-            {
-                Email = SyntheticEmail,
-                Password = SyntheticPassword
-            };
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+            string oldToken = service.LogIn(CreateRequest(SyntheticPassword)).OperationResult.SessionToken;
 
             // Act
-            string errorKey = service.LogIn(null).OperationResult.ErrorKey;
+            OperationLogInResult second = service.LogIn(CreateRequest(SyntheticPassword)).OperationResult;
 
             // Assert
-            Assert.Equal(ErrorKeys.Login.IncompleteFields, errorKey);
+            Assert.True(second.IsSuccess);
+            Assert.NotEqual(oldToken, second.SessionToken);
+            Assert.False(_registry.TryFindSessionByToken(oldToken, out _));
+            Assert.True(_registry.TryFindSessionByToken(second.SessionToken, out _));
         }
 
+        [Fact]
+        public void LogIn_WithWrongPasswordForPlayerWithOpenSession_KeepsTheOpenSession()
+        {
+            // Arrange
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+            string openToken = service.LogIn(CreateRequest(SyntheticPassword)).OperationResult.SessionToken;
+
+            // Act
+            OperationLogInResult rejected = service.LogIn(CreateRequest(IncorrectPassword)).OperationResult;
+
+            // Assert
+            Assert.False(rejected.IsSuccess);
+            Assert.True(_registry.TryFindSessionByToken(openToken, out _));
+            Assert.Equal(new[] { PlayerUserId }, _repository.UpdatedLogInUserIds);
+        }
+
+        private PlayerLogInService CreateServiceWithActiveAccount()
+        {
+            _repository.Credentials = new PlayerCredentials
+            {
+                Status = CredentialsLookupStatus.Found,
+                UserId = PlayerUserId,
+                Nickname = PlayerNickname,
+                State = ValidationRules.ActiveUserState,
+                PasswordHash = _hasher.HashPassword(SyntheticPassword)
+            };
+
+            return new PlayerLogInService(_repository, _hasher, _registry);
+        }
+
+        private static OperationLogInRequest CreateRequest(string password)
+        {
+            return new OperationLogInRequest { Email = SyntheticEmail, Password = password };
+        }
+
+        private void AssertRejectedWithoutSideEffects(OperationLogInResult result, string expectedErrorKey)
+        {
+            Assert.False(result.IsSuccess);
+            Assert.Equal(expectedErrorKey, result.ErrorKey);
+            Assert.Null(result.SessionToken);
+            Assert.Null(result.Nickname);
+            Assert.Empty(_repository.UpdatedLogInUserIds);
+        }
     }
 }
