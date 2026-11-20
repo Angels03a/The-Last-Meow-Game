@@ -14,7 +14,7 @@ namespace TLMG.Services.Sessions
         private readonly Dictionary<int, LobbyStartState> _startsByRoomId =
             new Dictionary<int, LobbyStartState>();
 
-        public LobbyMembershipChange ChangePlayerReadiness(LobbyCaller caller, int roomId, bool isReady)
+        public LobbyMembershipChange ChangePlayerReadiness(SessionChannelCaller caller, int roomId, bool isReady)
         {
             LobbyMembershipChange lobbyMembershipChange;
 
@@ -36,7 +36,7 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        public LobbyMembershipChange ChangeCardsPerPlayer(LobbyCaller caller, int roomId, int cardsPerPlayerCount)
+        public LobbyMembershipChange ChangeCardsPerPlayer(SessionChannelCaller caller, int roomId, int cardsPerPlayerCount)
         {
             LobbyMembershipChange lobbyMembershipChange;
 
@@ -59,7 +59,7 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        public LobbyMembershipChange RequestMatchStart(LobbyCaller caller, int roomId, long countdownId)
+        public LobbyMembershipChange RequestMatchStart(SessionChannelCaller caller, int roomId, long countdownId)
         {
             LobbyMembershipChange lobbyMembershipChange;
 
@@ -89,7 +89,7 @@ namespace TLMG.Services.Sessions
         /// Applied si coinciden identidad, canal y sala; de lo contrario, el motivo sin estado de sala.
         /// </returns>
         private LobbyChangeStatus ValidateLobbyCallerInLock(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             int roomId,
             out PlayerSession playerSession)
         {

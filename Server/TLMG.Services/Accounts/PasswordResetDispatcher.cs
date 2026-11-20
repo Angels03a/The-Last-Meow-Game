@@ -16,7 +16,7 @@ namespace TLMG.Services.Accounts
         private readonly VerificationCodeStore _verificationCodeStore;
         private readonly EmailUtility _emailUtility;
         private readonly IPlayerRepository _playerRepository;
-        private readonly CodeGeneratorUtility _codeGeneratorUtility;
+        private readonly VerificationCodeGenerator _codeGeneratorUtility;
 
         public PasswordResetDispatcher(
             VerificationCodeStore verificationCodeStore,
@@ -26,7 +26,7 @@ namespace TLMG.Services.Accounts
             _verificationCodeStore = verificationCodeStore;
             _emailUtility = emailUtility;
             _playerRepository = playerRepository;
-            _codeGeneratorUtility = new CodeGeneratorUtility();
+            _codeGeneratorUtility = new VerificationCodeGenerator();
         }
 
         /// <summary>Sends a code when the account exists; true also when it does not, to hide that fact.</summary>

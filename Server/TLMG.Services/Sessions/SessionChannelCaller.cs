@@ -3,12 +3,12 @@
     /// <summary>
     /// Identidad y canal de quien llama a una operación de lobby, de chat o de partida; se crea una vez por llamada.
     /// </summary>
-    public sealed class LobbyCaller
+    public sealed class SessionChannelCaller
     {
         /// <summary>Crea la copia de los datos recibidos.</summary>
         /// <param name="sessionToken">Token de sesión recibido del cliente; puede ser null o vacío.</param>
         /// <param name="channelId">Identificador del canal desde el que llega la petición.</param>
-        public LobbyCaller(string sessionToken, string channelId)
+        public SessionChannelCaller(string sessionToken, string channelId)
         {
             SessionToken = sessionToken;
             ChannelId = channelId;

@@ -401,7 +401,7 @@ namespace TLMG.Client.Views
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;
             _viewModel.Activate();
             UpdatePosition();
-            UpdateConnection();
+            UpdateConnectionDisplay();
             ApplyKittenColor(_viewModel.KittenColor);
             ShowSceneState(_viewModel.SceneState);
             Focus();
@@ -441,7 +441,7 @@ namespace TLMG.Client.Views
             else if (eventArgs.PropertyName == nameof(FugitiveKittenViewModel.IsConnected)
                 || eventArgs.PropertyName == nameof(FugitiveKittenViewModel.IsWaiting))
             {
-                UpdateConnection();
+                UpdateConnectionDisplay();
             }
             else if (eventArgs.PropertyName == nameof(FugitiveKittenViewModel.AlternatePose))
             {
@@ -453,7 +453,7 @@ namespace TLMG.Client.Views
             }
         }
 
-        private void UpdateConnection()
+        private void UpdateConnectionDisplay()
         {
             lblConnection.Visibility = _viewModel.IsConnected ? Visibility.Collapsed : Visibility.Visible;
             lblWaiting.Visibility = _viewModel.IsConnected && _viewModel.IsWaiting

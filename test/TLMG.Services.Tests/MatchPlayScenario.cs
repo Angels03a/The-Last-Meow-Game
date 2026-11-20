@@ -109,9 +109,9 @@ namespace TLMG.Services.Tests
             return callback;
         }
 
-        internal LobbyCaller MatchCallerOf(int userId)
+        internal SessionChannelCaller MatchCallerOf(int userId)
         {
-            return new LobbyCaller(TokenOf(userId), MatchChannelPrefix + userId);
+            return new SessionChannelCaller(TokenOf(userId), MatchChannelPrefix + userId);
         }
 
         internal MatchDelivery Subscribe(int userId)
@@ -226,9 +226,9 @@ namespace TLMG.Services.Tests
         }
 
         /// <summary>Un llamador con el canal de partida del primer jugador y el token recibido.</summary>
-        internal static LobbyCaller CallerWithToken(string sessionToken)
+        internal static SessionChannelCaller CallerWithToken(string sessionToken)
         {
-            return new LobbyCaller(sessionToken, MatchChannelPrefix + FirstUserId);
+            return new SessionChannelCaller(sessionToken, MatchChannelPrefix + FirstUserId);
         }
 
         /// <summary>Todos los jugadores salen de la sala, en orden de ingreso.</summary>
@@ -240,9 +240,9 @@ namespace TLMG.Services.Tests
             }
         }
 
-        private LobbyCaller LobbyCallerOf(int userId)
+        private SessionChannelCaller LobbyCallerOf(int userId)
         {
-            return new LobbyCaller(TokenOf(userId), LobbyChannelPrefix + userId);
+            return new SessionChannelCaller(TokenOf(userId), LobbyChannelPrefix + userId);
         }
 
         private void CreateRoomWithAllPlayers()

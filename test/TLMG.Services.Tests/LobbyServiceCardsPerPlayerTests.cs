@@ -36,7 +36,7 @@ namespace TLMG.Services.Tests
             LobbyReadinessHelper.AddPlayer(scenario, SecondUserId, SecondChannelId, secondCallback);
             LobbyReadinessHelper.AddPlayer(scenario, ThirdUserId, ThirdChannelId, thirdCallback);
             LobbyService service = new LobbyService(scenario.Registry);
-            LobbyCaller creatorCaller = new LobbyCaller(
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(
                 scenario.CreatorToken,
                 LobbyReadinessHelper.CreatorChannelId);
 
@@ -65,7 +65,7 @@ namespace TLMG.Services.Tests
             LobbyReadinessHelper.AddPlayer(scenario, SecondUserId, SecondChannelId, secondCallback);
             LobbyReadinessHelper.AddPlayer(scenario, ThirdUserId, ThirdChannelId, thirdCallback);
             LobbyService service = new LobbyService(scenario.Registry);
-            LobbyCaller creatorCaller = new LobbyCaller(
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(
                 scenario.CreatorToken,
                 LobbyReadinessHelper.CreatorChannelId);
 
@@ -94,7 +94,7 @@ namespace TLMG.Services.Tests
             LobbyReadinessHelper.MarkReady(scenario, secondToken, SecondChannelId);
             LobbyReadinessHelper.MarkReady(scenario, thirdToken, ThirdChannelId);
             LobbyService service = new LobbyService(scenario.Registry);
-            LobbyCaller secondCaller = new LobbyCaller(secondToken, SecondChannelId);
+            SessionChannelCaller secondCaller = new SessionChannelCaller(secondToken, SecondChannelId);
 
             // Act
             ResultWithNotification<OperationLobbyRoomResult> actual =
@@ -117,7 +117,7 @@ namespace TLMG.Services.Tests
             LobbyReadinessHelper.AddPlayer(scenario, SecondUserId, SecondChannelId, new LobbyCallbackStub());
             LobbyReadinessHelper.MarkReady(scenario, scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
             LobbyService service = new LobbyService(scenario.Registry);
-            LobbyCaller creatorCaller = new LobbyCaller(
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(
                 scenario.CreatorToken,
                 LobbyReadinessHelper.CreatorChannelId);
 
@@ -146,7 +146,7 @@ namespace TLMG.Services.Tests
             // Arrange
             LobbyScenario scenario = new LobbyScenario();
             LobbyService service = new LobbyService(scenario.Registry);
-            LobbyCaller creatorCaller = new LobbyCaller(
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(
                 scenario.CreatorToken,
                 LobbyReadinessHelper.CreatorChannelId);
             LobbyMembershipChange roomBefore = scenario.Registry.ChangePlayerReadiness(
@@ -180,7 +180,7 @@ namespace TLMG.Services.Tests
             // Arrange
             LobbyScenario scenario = new LobbyScenario();
             LobbyService service = new LobbyService(scenario.Registry);
-            LobbyCaller invalidCaller = new LobbyCaller(token, LobbyReadinessHelper.CreatorChannelId);
+            SessionChannelCaller invalidCaller = new SessionChannelCaller(token, LobbyReadinessHelper.CreatorChannelId);
 
             // Act
             ResultWithNotification<OperationLobbyRoomResult> actual =
@@ -202,7 +202,7 @@ namespace TLMG.Services.Tests
             LobbyScenario scenario = new LobbyScenario();
             string outsiderToken = scenario.Registry.StartRegisteredSession(9, "Outsider", out SessionEnd replaced);
             LobbyService service = new LobbyService(scenario.Registry);
-            LobbyCaller outsiderCaller = new LobbyCaller(outsiderToken, "outsider");
+            SessionChannelCaller outsiderCaller = new SessionChannelCaller(outsiderToken, "outsider");
 
             // Act
             ResultWithNotification<OperationLobbyRoomResult> actual =
@@ -223,7 +223,7 @@ namespace TLMG.Services.Tests
             // Arrange
             LobbyScenario scenario = new LobbyScenario();
             LobbyService service = new LobbyService(scenario.Registry);
-            LobbyCaller creatorCaller = new LobbyCaller(
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(
                 scenario.CreatorToken,
                 LobbyReadinessHelper.CreatorChannelId);
 
@@ -242,7 +242,7 @@ namespace TLMG.Services.Tests
         {
             // Arrange
             LobbyService service = new LobbyService(new FailingSessionRegistryStub());
-            LobbyCaller caller = new LobbyCaller("token", LobbyReadinessHelper.CreatorChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller("token", LobbyReadinessHelper.CreatorChannelId);
 
             // Act
             Action change = () => service.ChangeCardsPerPlayer(caller, CreateRequest(1, SixCardsPerPlayer));
@@ -257,7 +257,7 @@ namespace TLMG.Services.Tests
             // Arrange
             LobbyScenario scenario = new LobbyScenario();
             LobbyService service = new LobbyService(scenario.Registry);
-            LobbyCaller creatorCaller = new LobbyCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
 
             // Act
             ResultWithNotification<OperationLobbyRoomResult> actual =
@@ -286,7 +286,7 @@ namespace TLMG.Services.Tests
 
             // Act
             ResultWithNotification<OperationLobbyRoomResult> actual = service.ChangePlayerReadiness(
-                new LobbyCaller(thirdToken, ThirdChannelId),
+                new SessionChannelCaller(thirdToken, ThirdChannelId),
                 new OperationChangePlayerReadinessRequest { RoomId = scenario.RoomId, IsReady = true });
             RunNotifications(actual.Notifications);
 
@@ -306,7 +306,7 @@ namespace TLMG.Services.Tests
             // Arrange
             LobbyScenario scenario = new LobbyScenario();
             LobbyService service = new LobbyService(scenario.Registry);
-            LobbyCaller creatorCaller = new LobbyCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
 
             // Act
             ResultWithNotification<OperationRequestMatchStartResult> actual =
@@ -372,7 +372,7 @@ namespace TLMG.Services.Tests
             LobbyReadinessHelper.AddPlayer(scenario, SecondUserId, SecondChannelId, new LobbyCallbackStub());
             LobbyReadinessHelper.AddPlayer(scenario, ThirdUserId, ThirdChannelId, new LobbyCallbackStub());
             LobbyService service = new LobbyService(scenario.Registry);
-            LobbyCaller creatorCaller = new LobbyCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
 
             // Act
             ResultWithNotification<OperationRequestMatchStartResult> actual = service.RequestMatchStart(
@@ -420,7 +420,7 @@ namespace TLMG.Services.Tests
                 LobbyReadinessHelper.MarkReady(Scenario, secondToken, SecondChannelId);
                 CountdownId = LobbyReadinessHelper.MarkReady(Scenario, thirdToken, ThirdChannelId)
                     .Room.Start.CountdownId;
-                CreatorCaller = new LobbyCaller(Scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+                CreatorCaller = new SessionChannelCaller(Scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
             }
 
             internal LobbyScenario Scenario { get; }
@@ -431,7 +431,7 @@ namespace TLMG.Services.Tests
 
             internal long CountdownId { get; }
 
-            internal LobbyCaller CreatorCaller { get; }
+            internal SessionChannelCaller CreatorCaller { get; }
         }
     }
 }

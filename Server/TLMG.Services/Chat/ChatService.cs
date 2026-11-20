@@ -28,7 +28,7 @@ namespace TLMG.Services.Chat {
         }
 
         public ResultWithNotification<OperationResult> SubscribeToChat(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             IChatManagerCallback callback)
         {
             string errorKey = _sessionRegistry.SubscribeToChat(caller, callback);
@@ -46,7 +46,7 @@ namespace TLMG.Services.Chat {
         }
 
         public ResultWithNotification<OperationSendChatMessageResult> SendChatMessage(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             OperationSendChatMessageRequest sendChatMessageRequest)
         {
             string text = null;

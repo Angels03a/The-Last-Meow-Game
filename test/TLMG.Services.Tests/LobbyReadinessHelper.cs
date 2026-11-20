@@ -14,7 +14,7 @@ namespace TLMG.Services.Tests
             ILobbyManagerCallback callback)
         {
             string token = scenario.Authorize(userId);
-            LobbyCaller caller = new LobbyCaller(token, channelId);
+            SessionChannelCaller caller = new SessionChannelCaller(token, channelId);
             scenario.Registry.EnterRoom(caller, scenario.RoomId, callback);
 
             return token;
@@ -22,7 +22,7 @@ namespace TLMG.Services.Tests
 
         internal static LobbyMembershipChange MarkReady(LobbyScenario scenario, string token, string channelId)
         {
-            LobbyCaller caller = new LobbyCaller(token, channelId);
+            SessionChannelCaller caller = new SessionChannelCaller(token, channelId);
             LobbyMembershipChange change = scenario.Registry.ChangePlayerReadiness(
                 caller, scenario.RoomId, true);
 

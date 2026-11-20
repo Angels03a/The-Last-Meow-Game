@@ -32,7 +32,7 @@ namespace TLMG.Services.Tests
         {
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
-            LobbyCaller caller = MatchPlayScenario.CallerWithToken(sessionToken);
+            SessionChannelCaller caller = MatchPlayScenario.CallerWithToken(sessionToken);
 
             // Act
             MatchDelivery delivery = scenario.Registry.SubscribeToMatch(
@@ -49,7 +49,7 @@ namespace TLMG.Services.Tests
         {
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
-            LobbyCaller caller = new LobbyCaller(scenario.TokenOf(scenario.CreatorUserId), string.Empty);
+            SessionChannelCaller caller = new SessionChannelCaller(scenario.TokenOf(scenario.CreatorUserId), string.Empty);
 
             // Act
             MatchDelivery delivery = scenario.Registry.SubscribeToMatch(
@@ -82,7 +82,7 @@ namespace TLMG.Services.Tests
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             int guestUserId = scenario.UserIds[1];
             scenario.Subscribe(scenario.CreatorUserId);
-            LobbyCaller stolenChannel = new LobbyCaller(
+            SessionChannelCaller stolenChannel = new SessionChannelCaller(
                 scenario.TokenOf(guestUserId), MatchPlayScenario.MatchChannelPrefix + scenario.CreatorUserId);
 
             // Act
@@ -101,7 +101,7 @@ namespace TLMG.Services.Tests
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             SessionEnd replacedSession;
             string outsiderToken = scenario.Registry.StartRegisteredSession(OutsiderUserId, "Outsider", out replacedSession);
-            LobbyCaller caller = new LobbyCaller(outsiderToken, OutsiderChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller(outsiderToken, OutsiderChannelId);
 
             // Act
             MatchDelivery delivery = scenario.Registry.SubscribeToMatch(
@@ -203,7 +203,7 @@ namespace TLMG.Services.Tests
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
-            LobbyCaller caller = MatchPlayScenario.CallerWithToken(sessionToken);
+            SessionChannelCaller caller = MatchPlayScenario.CallerWithToken(sessionToken);
 
             // Act
             MatchDelivery delivery = scenario.Registry.PlaceCard(caller, MatchCardKind.Safe);
@@ -219,7 +219,7 @@ namespace TLMG.Services.Tests
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
-            LobbyCaller caller = new LobbyCaller(scenario.TokenOf(scenario.CreatorUserId), OtherChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller(scenario.TokenOf(scenario.CreatorUserId), OtherChannelId);
 
             // Act
             MatchDelivery delivery = scenario.Registry.PlaceCard(caller, MatchCardKind.Safe);
@@ -236,7 +236,7 @@ namespace TLMG.Services.Tests
             // Arrange: el segundo jugador usa el canal suscrito del creador, a quien le toca el turno.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
-            LobbyCaller caller = new LobbyCaller(
+            SessionChannelCaller caller = new SessionChannelCaller(
                 scenario.TokenOf(scenario.UserIds[1]), MatchPlayScenario.MatchChannelPrefix + scenario.CreatorUserId);
 
             // Act

@@ -100,7 +100,7 @@
       <DependentUpon>TLMGModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\ChatInputOutcome.cs" />
+    <Compile Include="Repositories\ChatInsertOutcome.cs" />
     <Compile Include="Repositories\ChatMessageRepository.cs" />
     <Compile Include="Repositories\FriendshipRepository.cs" />
     <Compile Include="Repositories\PasswordRepository.cs" />

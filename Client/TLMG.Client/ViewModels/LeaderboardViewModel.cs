@@ -195,7 +195,7 @@ namespace TLMG.Client.ViewModels
 
             if (leaderboardResult.IsSuccess)
             {
-                ProcessLeaderboardData(leaderboardResult.Players);
+                UpdateLeaderboard(leaderboardResult.Players);
             }
             else
             {
@@ -214,7 +214,7 @@ namespace TLMG.Client.ViewModels
             ShowEmptyLeaderboard();
         }
 
-        private void ProcessLeaderboardData(LeaderboardPlayer[] players)
+        private void UpdateLeaderboard(LeaderboardPlayer[] players)
         {
             List<PlayerRankEntry> allEntries = new List<PlayerRankEntry>();
 

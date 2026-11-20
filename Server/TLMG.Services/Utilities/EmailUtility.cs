@@ -10,7 +10,7 @@ namespace TLMG.Services.Utilities
 {
     public class EmailUtility
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(EmailUtility));
+        private static readonly ILog _log = LogManager.GetLogger(typeof(EmailUtility));
 
         private readonly string _smtpServer;
         private readonly int _port;
@@ -49,25 +49,25 @@ namespace TLMG.Services.Utilities
                     }
                     else
                     {
-                        Logger.Error($"Configuration file {configurationFileName} is missing required XML elements.");
+                        _log.Error($"Configuration file {configurationFileName} is missing required XML elements.");
                     }
                 }
             }
             catch (FileNotFoundException fileNotFoundException)
             {
-                Logger.Error($"Configuration file not found at path: {configurationPath}", fileNotFoundException);
+                _log.Error($"Configuration file not found at path: {configurationPath}", fileNotFoundException);
             }
             catch (DirectoryNotFoundException directoryNotFoundException)
             {
-                Logger.Error($"Configuration directory not found for path: {configurationPath}", directoryNotFoundException);
+                _log.Error($"Configuration directory not found for path: {configurationPath}", directoryNotFoundException);
             }
             catch (XmlException xmlException)
             {
-                Logger.Error($"Malformed XML content in configuration file: {configurationPath}", xmlException);
+                _log.Error($"Malformed XML content in configuration file: {configurationPath}", xmlException);
             }
             catch (FormatException formatException)
             {
-                Logger.Error($"SmtpPort element value in {configurationFileName} is not a valid integer.", formatException);
+                _log.Error($"SmtpPort element value in {configurationFileName} is not a valid integer.", formatException);
             }
         }
 
@@ -98,11 +98,11 @@ namespace TLMG.Services.Utilities
             }
             catch (SmtpFailedRecipientException smtpFailedRecipientException)
             {
-                Logger.Error($"SMTP Error: Recipient '{recipientEmail}' was rejected.", smtpFailedRecipientException);
+                _log.Error($"SMTP Error: Recipient '{recipientEmail}' was rejected.", smtpFailedRecipientException);
             }
             catch (SmtpException smtpException)
             {
-                Logger.Error($"SMTP Error: Connection or authentication failure with the mail server for " +
+                _log.Error($"SMTP Error: Connection or authentication failure with the mail server for " +
                     $"'{recipientEmail}'.", smtpException);
             }
 

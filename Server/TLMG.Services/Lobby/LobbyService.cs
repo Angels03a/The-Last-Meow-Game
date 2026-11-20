@@ -34,7 +34,7 @@ namespace TLMG.Services.Lobby
         }
 
         public ResultWithNotification<OperationLobbyRoomResult> CreateRoom(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             ILobbyManagerCallback lobbyCallback)
         {
             LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.CreateRoom(caller, lobbyCallback);
@@ -62,7 +62,7 @@ namespace TLMG.Services.Lobby
         }
 
         public ResultWithNotification<OperationLobbyRoomResult> EnterLobby(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             int roomId,
             ILobbyManagerCallback lobbyCallback)
         {

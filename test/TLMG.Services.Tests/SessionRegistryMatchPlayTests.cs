@@ -143,8 +143,8 @@ namespace TLMG.Services.Tests
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             MatchCallbackStub oldCallback = new MatchCallbackStub();
             MatchCallbackStub newCallback = new MatchCallbackStub();
-            LobbyCaller oldCaller = scenario.MatchCallerOf(scenario.CreatorUserId);
-            LobbyCaller newCaller = new LobbyCaller(scenario.TokenOf(scenario.CreatorUserId), SecondChannelId);
+            SessionChannelCaller oldCaller = scenario.MatchCallerOf(scenario.CreatorUserId);
+            SessionChannelCaller newCaller = new SessionChannelCaller(scenario.TokenOf(scenario.CreatorUserId), SecondChannelId);
             scenario.Registry.SubscribeToMatch(oldCaller, scenario.MatchId, oldCallback);
             scenario.Registry.SubscribeToMatch(newCaller, scenario.MatchId, newCallback);
 
@@ -163,7 +163,7 @@ namespace TLMG.Services.Tests
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.Subscribe(scenario.CreatorUserId);
-            LobbyCaller newCaller = new LobbyCaller(scenario.TokenOf(scenario.CreatorUserId), SecondChannelId);
+            SessionChannelCaller newCaller = new SessionChannelCaller(scenario.TokenOf(scenario.CreatorUserId), SecondChannelId);
             scenario.Registry.SubscribeToMatch(newCaller, scenario.MatchId, new MatchCallbackStub());
 
             // Act
@@ -333,8 +333,8 @@ namespace TLMG.Services.Tests
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             MatchCallbackStub oldCallback = new MatchCallbackStub();
-            LobbyCaller oldCaller = scenario.MatchCallerOf(scenario.CreatorUserId);
-            LobbyCaller newCaller = new LobbyCaller(scenario.TokenOf(scenario.CreatorUserId), SecondChannelId);
+            SessionChannelCaller oldCaller = scenario.MatchCallerOf(scenario.CreatorUserId);
+            SessionChannelCaller newCaller = new SessionChannelCaller(scenario.TokenOf(scenario.CreatorUserId), SecondChannelId);
             scenario.Registry.SubscribeToMatch(oldCaller, scenario.MatchId, oldCallback);
             MatchCallbackStub newCallback = scenario.CallbackOf(scenario.CreatorUserId);
             scenario.Registry.SubscribeToMatch(newCaller, scenario.MatchId, newCallback);
@@ -353,7 +353,7 @@ namespace TLMG.Services.Tests
             // Arrange: mismo canal, otro callback; comparar solo el canal borraría la suscripción nueva.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             MatchCallbackStub oldCallback = new MatchCallbackStub();
-            LobbyCaller caller = scenario.MatchCallerOf(scenario.CreatorUserId);
+            SessionChannelCaller caller = scenario.MatchCallerOf(scenario.CreatorUserId);
             scenario.Registry.SubscribeToMatch(caller, scenario.MatchId, oldCallback);
             scenario.Subscribe(scenario.CreatorUserId);
 
@@ -390,7 +390,7 @@ namespace TLMG.Services.Tests
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             MatchCallbackStub firstCallback = new MatchCallbackStub();
-            LobbyCaller caller = scenario.MatchCallerOf(scenario.CreatorUserId);
+            SessionChannelCaller caller = scenario.MatchCallerOf(scenario.CreatorUserId);
             scenario.Registry.SubscribeToMatch(caller, scenario.MatchId, firstCallback);
             scenario.Subscribe(scenario.CreatorUserId);
 
@@ -411,7 +411,7 @@ namespace TLMG.Services.Tests
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             int closingUserId = scenario.UserIds[2];
-            LobbyCaller closingCaller = scenario.MatchCallerOf(closingUserId);
+            SessionChannelCaller closingCaller = scenario.MatchCallerOf(closingUserId);
 
             // Act
             bool wasRemoved = scenario.CloseMatchChannelOf(closingUserId);

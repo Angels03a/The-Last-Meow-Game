@@ -10,7 +10,7 @@ namespace TLMG.Services.Lobby
         private const int ZeroCount = 0;
 
         public ResultWithNotification<OperationLobbyRoomResult> ChangePlayerReadiness(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             OperationChangePlayerReadinessRequest lobbyRequest)
         {
             LobbyMembershipChange lobbyMembershipChange;
@@ -46,7 +46,7 @@ namespace TLMG.Services.Lobby
         }
 
         public ResultWithNotification<OperationRequestMatchStartResult> RequestMatchStart(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             OperationMatchStartRequest matchStartRequest)
         {
             LobbyMembershipChange lobbyMembershipChange;

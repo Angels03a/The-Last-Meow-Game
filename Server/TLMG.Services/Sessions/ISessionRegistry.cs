@@ -62,7 +62,7 @@ namespace TLMG.Services.Sessions
         /// <param name="caller">Token de sesión y canal de lobby desde el que llama el jugador.</param>
         /// <param name="lobbyCallback">Callback del canal de lobby del jugador.</param>
         /// <returns>Applied con la sala, InvalidSession o AlreadyInRoom; nunca es null.</returns>
-        LobbyMembershipChange CreateRoom(LobbyCaller caller, ILobbyManagerCallback lobbyCallback);
+        LobbyMembershipChange CreateRoom(SessionChannelCaller caller, ILobbyManagerCallback lobbyCallback);
 
         /// <summary>
         /// Mete al jugador en una sala si tiene autorización de entrada y hay cupo; consume la autorización.
@@ -74,7 +74,7 @@ namespace TLMG.Services.Sessions
         /// Applied con la sala y los demás jugadores, InvalidSession, AlreadyInRoom, NotAuthorized o RoomFull;
         /// NotAuthorized cubre sala inexistente, falta de autorización o partida ya iniciada. Nunca es null.
         /// </returns>
-        LobbyMembershipChange EnterRoom(LobbyCaller caller, int roomId, ILobbyManagerCallback lobbyCallback);
+        LobbyMembershipChange EnterRoom(SessionChannelCaller caller, int roomId, ILobbyManagerCallback lobbyCallback);
 
         /// <summary>
         /// Saca al jugador de su sala por su propia decisión (Salir); la elimina si queda vacía. Si la sala tenía una
@@ -149,7 +149,7 @@ namespace TLMG.Services.Sessions
         /// <param name="roomId">Sala indicada por la petición.</param>
         /// <param name="isReady">Estado Listo deseado del propio jugador; repetirlo no renueva la cuenta.</param>
         /// <returns>Estado actual y destinatarios, o rechazo sin datos de la sala.</returns>
-        LobbyMembershipChange ChangePlayerReadiness(LobbyCaller caller, int roomId, bool isReady);
+        LobbyMembershipChange ChangePlayerReadiness(SessionChannelCaller caller, int roomId, bool isReady);
 
         /// <summary>
         /// Cambia las cartas por jugador de la sala. Valida token y canal; un valor distinto se guarda y deja a todos
@@ -162,27 +162,27 @@ namespace TLMG.Services.Sessions
         /// Estado actual y como destinatarios los demás jugadores, o rechazo sin datos de la sala. Con el mismo valor
         /// no hay destinatarios.
         /// </returns>
-        LobbyMembershipChange ChangeCardsPerPlayer(LobbyCaller caller, int roomId, int cardsPerPlayerCount);
+        LobbyMembershipChange ChangeCardsPerPlayer(SessionChannelCaller caller, int roomId, int cardsPerPlayerCount);
 
         /// <summary>Valida la generación y el plazo UTC para iniciar. Valida token y canal antes de copiar el estado.</summary>
         /// <param name="caller">Token de sesión y canal de lobby vinculado al jugador.</param>
         /// <param name="roomId">Sala indicada por la petición.</param>
         /// <param name="countdownId">Generación de cuenta observada; una generación vieja solo devuelve el estado.</param>
         /// <returns>Estado actual y destinatarios, o rechazo sin datos de la sala.</returns>
-        LobbyMembershipChange RequestMatchStart(LobbyCaller caller, int roomId, long countdownId);
+        LobbyMembershipChange RequestMatchStart(SessionChannelCaller caller, int roomId, long countdownId);
 
         /// <summary>Suscribe el canal a la sala actual; la última suscripción válida de la sesión gana.</summary>
         /// <param name="caller">Token de cuenta registrada y canal de chat.</param>
         /// <param name="callback">Callback del canal de chat.</param>
         /// <returns>null si se suscribió; clave de error si se rechazó.</returns>
-        string SubscribeToChat(LobbyCaller caller, IChatManagerCallback callback);
+        string SubscribeToChat(SessionChannelCaller caller, IChatManagerCallback callback);
 
         /// <summary>Valida identidad, canal y sala y reserva atómicamente el intervalo del envío.</summary>
         /// <param name="caller">Token vigente y canal suscrito del emisor.</param>
         /// <param name="submission">Sala, correlación y texto ya validado por ChatValidator.</param>
         /// <param name="chatDelivery">Copia efímera de identidad, mensaje y destinatarios; null si se rechaza.</param>
         /// <returns>null si se aceptó; clave de error si se rechazó.</returns>
-        string AcceptChatMessage(LobbyCaller caller, ChatSubmission submission, out ChatDelivery chatDelivery);
+        string AcceptChatMessage(SessionChannelCaller caller, ChatSubmission submission, out ChatDelivery chatDelivery);
 
         /// <summary>Retira solo el canal que aún coincide; no borra el intervalo de envíos del jugador.</summary>
         /// <param name="channelId">Canal que se cerró o falló.</param>
@@ -196,7 +196,7 @@ namespace TLMG.Services.Sessions
         /// <param name="matchId">Partida solicitada.</param>
         /// <param name="callback">Callback del canal de partida; sustituye al anterior del jugador.</param>
         /// <returns>La vista del jugador si se aceptó; la clave de error si se rechazó.</returns>
-        MatchDelivery SubscribeToMatch(LobbyCaller caller, Guid matchId, IMatchManagerCallback callback);
+        MatchDelivery SubscribeToMatch(SessionChannelCaller caller, Guid matchId, IMatchManagerCallback callback);
 
         /// <summary>
         /// Autoriza y coloca una carta en la partida a la que está suscrito el canal. Si el motor la rechaza no
@@ -205,11 +205,11 @@ namespace TLMG.Services.Sessions
         /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
         /// <param name="card">Tipo de carta que se quiere colocar.</param>
         /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
-        MatchDelivery PlaceCard(LobbyCaller caller, MatchCardKind card);
+        MatchDelivery PlaceCard(SessionChannelCaller caller, MatchCardKind card);
 
-        MatchDelivery TryCatchFugitiveKitten(LobbyCaller caller);
+        MatchDelivery TryCatchFugitiveKitten(SessionChannelCaller caller);
 
-        MatchDelivery CheckFugitiveKittenDeadline(LobbyCaller caller);
+        MatchDelivery CheckFugitiveKittenDeadline(SessionChannelCaller caller);
 
         /// <summary>
         /// Autoriza y abre o sube una apuesta en la partida a la que está suscrito el canal; la fase decide cuál de las
@@ -219,7 +219,7 @@ namespace TLMG.Services.Sessions
         /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
         /// <param name="betValue">Cartas que el jugador declara poder voltear.</param>
         /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
-        MatchDelivery PlaceBet(LobbyCaller caller, int betValue);
+        MatchDelivery PlaceBet(SessionChannelCaller caller, int betValue);
 
         /// <summary>
         /// Autoriza y retira al jugador de la apuesta en curso. Con un solo apostador restante el reto queda listo y su
@@ -227,7 +227,7 @@ namespace TLMG.Services.Sessions
         /// </summary>
         /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
         /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
-        MatchDelivery WithdrawFromBet(LobbyCaller caller);
+        MatchDelivery WithdrawFromBet(SessionChannelCaller caller);
 
         /// <summary>
         /// Autoriza y voltea la carta de arriba de la pila elegida durante el reto del jugador. El desenlace del reto
@@ -236,7 +236,7 @@ namespace TLMG.Services.Sessions
         /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
         /// <param name="pileOwnerUserId">Cuenta del dueño de la pila de la que se voltea.</param>
         /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
-        MatchDelivery RevealCard(LobbyCaller caller, int pileOwnerUserId);
+        MatchDelivery RevealCard(SessionChannelCaller caller, int pileOwnerUserId);
 
         /// <summary>
         /// Autoriza y elimina la carta elegida del castigo. En el castigo a ciegas traduce el lugar mostrado al índice
@@ -245,7 +245,7 @@ namespace TLMG.Services.Sessions
         /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
         /// <param name="cardIndex">Lugar mostrado (a ciegas) o posición en la mano (castigo propio).</param>
         /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
-        MatchDelivery ChoosePunishmentCard(LobbyCaller caller, int cardIndex);
+        MatchDelivery ChoosePunishmentCard(SessionChannelCaller caller, int cardIndex);
 
         /// <summary>
         /// Quita solo el callback de partida del canal que se cerró o falló, si sigue siendo el registrado. No

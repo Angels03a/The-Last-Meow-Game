@@ -410,7 +410,7 @@ namespace TLMG.Services.Tests
 
             // Act
             LobbyMembershipChange entry = start.Scenario.Registry.EnterRoom(
-                new LobbyCaller(newcomerToken, "lobby" + NewcomerUserId), start.Scenario.RoomId, null);
+                new SessionChannelCaller(newcomerToken, "lobby" + NewcomerUserId), start.Scenario.RoomId, null);
 
             // Assert
             Assert.Equal(LobbyChangeStatus.Applied, entry.Status);
@@ -486,7 +486,7 @@ namespace TLMG.Services.Tests
             // Arrange
             MatchStartScenario start = new MatchStartScenario(MinimumPlayerCount, FourCardsPerPlayer);
             LobbyMembershipChange before = start.ArmedRoom;
-            LobbyCaller invalidCaller = new LobbyCaller(token, LobbyReadinessHelper.CreatorChannelId);
+            SessionChannelCaller invalidCaller = new SessionChannelCaller(token, LobbyReadinessHelper.CreatorChannelId);
 
             // Act
             LobbyMembershipChange change = start.Scenario.Registry.ChangePlayerReadiness(
@@ -512,7 +512,7 @@ namespace TLMG.Services.Tests
 
             // Act
             LobbyMembershipChange change = start.Scenario.Registry.ChangePlayerReadiness(
-                new LobbyCaller(outsiderToken, "outsider"), start.Scenario.RoomId, true);
+                new SessionChannelCaller(outsiderToken, "outsider"), start.Scenario.RoomId, true);
 
             // Assert
             Assert.Equal(LobbyChangeStatus.NotInRoom, change.Status);
@@ -532,7 +532,7 @@ namespace TLMG.Services.Tests
 
             // Act
             LobbyMembershipChange change = start.Scenario.Registry.ChangePlayerReadiness(
-                new LobbyCaller(start.TokenOf(CreatorUserId), LobbyReadinessHelper.CreatorChannelId),
+                new SessionChannelCaller(start.TokenOf(CreatorUserId), LobbyReadinessHelper.CreatorChannelId),
                 start.Scenario.RoomId + UnknownRoomOffset,
                 false);
 
@@ -557,7 +557,7 @@ namespace TLMG.Services.Tests
 
             // Act
             LobbyMembershipChange change = start.Scenario.Registry.RequestMatchStart(
-                new LobbyCaller(outsiderToken, "outsider"), start.Scenario.RoomId, before.Room.Start.CountdownId);
+                new SessionChannelCaller(outsiderToken, "outsider"), start.Scenario.RoomId, before.Room.Start.CountdownId);
 
             // Assert
             Assert.Equal(LobbyChangeStatus.NotInRoom, change.Status);
@@ -584,7 +584,7 @@ namespace TLMG.Services.Tests
 
             // Act
             LobbyMembershipChange change = start.Scenario.Registry.RequestMatchStart(
-                new LobbyCaller(token, LobbyReadinessHelper.CreatorChannelId), start.Scenario.RoomId, countdownId);
+                new SessionChannelCaller(token, LobbyReadinessHelper.CreatorChannelId), start.Scenario.RoomId, countdownId);
 
             // Assert
             Assert.Equal(LobbyChangeStatus.InvalidSession, change.Status);
@@ -784,11 +784,11 @@ namespace TLMG.Services.Tests
                 return lastDeparture;
             }
 
-            private LobbyCaller CallerOf(int userId)
+            private SessionChannelCaller CallerOf(int userId)
             {
                 string channelId = userId == CreatorUserId ? LobbyReadinessHelper.CreatorChannelId : ChannelOf(userId);
 
-                return new LobbyCaller(TokenOf(userId), channelId);
+                return new SessionChannelCaller(TokenOf(userId), channelId);
             }
 
             private static string ChannelOf(int userId)

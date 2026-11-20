@@ -69,7 +69,7 @@ namespace TLMG.Services.Tests
 
             // Act
             ResultWithNotification<OperationResult> result =
-                service.SubscribeToChat(new LobbyCaller("unknown-token", "chat-unknown"), _creatorCallback);
+                service.SubscribeToChat(new SessionChannelCaller("unknown-token", "chat-unknown"), _creatorCallback);
 
             // Assert
             Assert.False(result.OperationResult.IsSuccess);
@@ -86,7 +86,7 @@ namespace TLMG.Services.Tests
 
             // Act
             ResultWithNotification<OperationResult> result =
-                service.SubscribeToChat(new LobbyCaller(lonelyToken, "chat9"), _creatorCallback);
+                service.SubscribeToChat(new SessionChannelCaller(lonelyToken, "chat9"), _creatorCallback);
 
             // Assert
             Assert.False(result.OperationResult.IsSuccess);
@@ -293,7 +293,7 @@ namespace TLMG.Services.Tests
 
             // Act
             ResultWithNotification<OperationSendChatMessageResult> result = service.SendChatMessage(
-                new LobbyCaller("unknown-token", "chat-unknown"), CreateRequest(_lobby.RoomId, ChatText));
+                new SessionChannelCaller("unknown-token", "chat-unknown"), CreateRequest(_lobby.RoomId, ChatText));
 
             // Assert
             AssertRejectedWithoutSideEffects(result, ErrorKeys.Common.InvalidSession);
@@ -334,8 +334,8 @@ namespace TLMG.Services.Tests
             // Arrange
             ChatService service = CreateService();
             ChatCallbackDouble replacementCallback = new ChatCallbackDouble();
-            LobbyCaller replacedCaller = new LobbyCaller(_tokensByUserId[CreatorUserId], "chat-old");
-            LobbyCaller replacementCaller = new LobbyCaller(_tokensByUserId[CreatorUserId], "chat-new");
+            SessionChannelCaller replacedCaller = new SessionChannelCaller(_tokensByUserId[CreatorUserId], "chat-old");
+            SessionChannelCaller replacementCaller = new SessionChannelCaller(_tokensByUserId[CreatorUserId], "chat-new");
             service.SubscribeToChat(replacedCaller, _creatorCallback);
             service.SubscribeToChat(replacementCaller, replacementCallback);
 
@@ -405,9 +405,9 @@ namespace TLMG.Services.Tests
             return new ChatService(_lobby.Registry, _repository);
         }
 
-        private LobbyCaller ChatCallerOf(int userId)
+        private SessionChannelCaller ChatCallerOf(int userId)
         {
-            return new LobbyCaller(_tokensByUserId[userId], "chat" + userId);
+            return new SessionChannelCaller(_tokensByUserId[userId], "chat" + userId);
         }
 
         private void SubscribeRoomToChat(ChatService service)

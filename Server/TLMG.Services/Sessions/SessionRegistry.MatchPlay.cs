@@ -30,7 +30,7 @@ namespace TLMG.Services.Sessions
         /// <param name="matchId">Partida solicitada por el cliente.</param>
         /// <param name="callback">Callback del canal de partida.</param>
         /// <returns>La vista del jugador si se aceptó; la clave de error si se rechazó.</returns>
-        public MatchDelivery SubscribeToMatch(LobbyCaller caller, Guid matchId, IMatchManagerCallback callback)
+        public MatchDelivery SubscribeToMatch(SessionChannelCaller caller, Guid matchId, IMatchManagerCallback callback)
         {
             MatchDelivery matchDelivery;
 
@@ -61,7 +61,7 @@ namespace TLMG.Services.Sessions
         /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
         /// <param name="card">Tipo de carta que el jugador quiere colocar.</param>
         /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
-        public MatchDelivery PlaceCard(LobbyCaller caller, MatchCardKind card)
+        public MatchDelivery PlaceCard(SessionChannelCaller caller, MatchCardKind card)
         {
             MatchAction placeCardAction =
                 (matchRecord, userId, nowUtc) => PlaceCardInEngineInLock(matchRecord, userId, card);
@@ -77,7 +77,7 @@ namespace TLMG.Services.Sessions
         /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
         /// <param name="betValue">Cartas que el jugador declara poder voltear.</param>
         /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
-        public MatchDelivery PlaceBet(LobbyCaller caller, int betValue)
+        public MatchDelivery PlaceBet(SessionChannelCaller caller, int betValue)
         {
             MatchAction placeBetAction =
                 (matchRecord, userId, nowUtc) => PlaceBetInEngineInLock(matchRecord, userId, betValue);
@@ -92,7 +92,7 @@ namespace TLMG.Services.Sessions
         /// </summary>
         /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
         /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
-        public MatchDelivery WithdrawFromBet(LobbyCaller caller)
+        public MatchDelivery WithdrawFromBet(SessionChannelCaller caller)
         {
             MatchAction withdrawAction =
                 (matchRecord, userId, nowUtc) => WithdrawFromBetInEngineInLock(matchRecord, userId);
@@ -108,7 +108,7 @@ namespace TLMG.Services.Sessions
         /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
         /// <param name="pileOwnerUserId">Cuenta del dueño de la pila de la que se voltea.</param>
         /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
-        public MatchDelivery RevealCard(LobbyCaller caller, int pileOwnerUserId)
+        public MatchDelivery RevealCard(SessionChannelCaller caller, int pileOwnerUserId)
         {
             MatchAction revealAction = (matchRecord, userId, nowUtc) =>
                 RevealCardInEngineInLock(matchRecord, userId, pileOwnerUserId, nowUtc);
@@ -124,7 +124,7 @@ namespace TLMG.Services.Sessions
         /// <param name="caller">Token vigente y canal de partida ya suscrito.</param>
         /// <param name="cardIndex">Lugar mostrado (a ciegas) o posición en la mano (castigo propio).</param>
         /// <returns>Las vistas de todos los suscritos si se aceptó; la clave de error si se rechazó.</returns>
-        public MatchDelivery ChoosePunishmentCard(LobbyCaller caller, int cardIndex)
+        public MatchDelivery ChoosePunishmentCard(SessionChannelCaller caller, int cardIndex)
         {
             MatchAction chooseAction = (matchRecord, userId, nowUtc) =>
                 ChoosePunishmentCardInEngineInLock(matchRecord, userId, cardIndex, nowUtc);
@@ -139,7 +139,7 @@ namespace TLMG.Services.Sessions
         /// la versión una sola vez y arma una vista por cada suscrito; el rechazo de la acción no deshace un plazo
         /// vencido, así que sus vistas viajan igual.
         /// </summary>
-        private MatchDelivery RunMatchAction(LobbyCaller caller, MatchAction matchAction)
+        private MatchDelivery RunMatchAction(SessionChannelCaller caller, MatchAction matchAction)
         {
             MatchDelivery matchDelivery;
 
@@ -204,7 +204,7 @@ namespace TLMG.Services.Sessions
         }
 
         private MatchDelivery SubscribeInLock(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             int userId,
             MatchRecord matchRecord,
             IMatchManagerCallback callback)
@@ -313,7 +313,7 @@ namespace TLMG.Services.Sessions
         }
 
         private string ValidateMatchSubscriptionInLock(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             Guid matchId,
             IMatchManagerCallback callback,
             out PlayerSession playerSession,
@@ -341,7 +341,7 @@ namespace TLMG.Services.Sessions
         }
 
         private string ValidateMatchActionInLock(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             out PlayerSession playerSession,
             out MatchRecord matchRecord)
         {
@@ -376,7 +376,7 @@ namespace TLMG.Services.Sessions
         /// Valida token vigente, cuenta registrada y que el canal no pertenezca a otro jugador; el mismo criterio del
         /// chat, con el mapa de canales de partida.
         /// </summary>
-        private string ValidateMatchIdentityInLock(LobbyCaller caller, out PlayerSession playerSession)
+        private string ValidateMatchIdentityInLock(SessionChannelCaller caller, out PlayerSession playerSession)
         {
             string errorKey = ErrorKeys.Common.InvalidSession;
             playerSession = null;
@@ -422,7 +422,7 @@ namespace TLMG.Services.Sessions
             return errorKey;
         }
 
-        private static bool IsMatchChannelOfCaller(MatchChannel matchChannel, LobbyCaller caller)
+        private static bool IsMatchChannelOfCaller(MatchChannel matchChannel, SessionChannelCaller caller)
         {
             bool isSameSession = matchChannel.SessionToken == caller.SessionToken;
             bool isSameChannel = matchChannel.ChannelId == caller.ChannelId;

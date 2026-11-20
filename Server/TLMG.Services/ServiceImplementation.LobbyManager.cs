@@ -98,9 +98,9 @@ namespace TLMG.Services
             return callback;
         }
 
-        private LobbyCaller CreateLobbyCaller(string sessionToken)
+        private SessionChannelCaller CreateLobbyCaller(string sessionToken)
         {
-            LobbyCaller lobbyCaller = new LobbyCaller(sessionToken, _lobbyChannelId);
+            SessionChannelCaller lobbyCaller = new SessionChannelCaller(sessionToken, _lobbyChannelId);
 
             return lobbyCaller;
         }

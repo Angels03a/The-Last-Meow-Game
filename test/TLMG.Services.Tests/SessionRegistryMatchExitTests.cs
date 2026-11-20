@@ -279,9 +279,9 @@ namespace TLMG.Services.Tests
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             int userId = scenario.CreatorUserId;
-            LobbyCaller original = new LobbyCaller(
+            SessionChannelCaller original = new SessionChannelCaller(
                 scenario.TokenOf(userId), MatchPlayScenario.LobbyChannelPrefix + userId);
-            LobbyCaller rebound = new LobbyCaller(scenario.TokenOf(userId), original.ChannelId + "-new");
+            SessionChannelCaller rebound = new SessionChannelCaller(scenario.TokenOf(userId), original.ChannelId + "-new");
 
             // Act
             scenario.Registry.LeaveRoomByChannel(original.ChannelId);
@@ -316,7 +316,7 @@ namespace TLMG.Services.Tests
             // Act
             string replacement = scenario.Registry.StartRegisteredSession(userId, "Replacement", out _);
             MatchDelivery recovered = scenario.Registry.SubscribeToMatch(
-                new LobbyCaller(replacement, "replacement"), scenario.MatchId, callback);
+                new SessionChannelCaller(replacement, "replacement"), scenario.MatchId, callback);
 
             // Assert
             Assert.False(wasLoggedOut);
@@ -359,7 +359,7 @@ namespace TLMG.Services.Tests
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
-            LobbyCaller caller = scenario.MatchCallerOf(scenario.CreatorUserId);
+            SessionChannelCaller caller = scenario.MatchCallerOf(scenario.CreatorUserId);
             int version = scenario.ReadVersionAs(scenario.CreatorUserId);
             List<int> echoedSequences = new List<int>();
             List<string> echoedErrors = new List<string>();
@@ -595,12 +595,12 @@ namespace TLMG.Services.Tests
             string token = scenario.Registry.StartRegisteredSession(userId, "Replacement", out _);
             OperationRecoveryContextResult context = scenario.Registry.GetRecoveryContext(token).OperationResult;
             LobbyMembershipChange room = scenario.Registry.EnterRoom(
-                new LobbyCaller(token, "recovered-lobby"), context.RoomId.Value, scenario.LobbyCallbackOf(userId));
+                new SessionChannelCaller(token, "recovered-lobby"), context.RoomId.Value, scenario.LobbyCallbackOf(userId));
             MatchCallbackStub callback = new MatchCallbackStub();
 
             // Act
             MatchDelivery delivery = scenario.Registry.SubscribeToMatch(
-                new LobbyCaller(token, "recovered-match"), room.Room.Start.MatchId.Value, callback);
+                new SessionChannelCaller(token, "recovered-match"), room.Room.Start.MatchId.Value, callback);
 
             // Assert
             MatchView view = delivery.ViewDeliveries.Single(item => item.Callback == callback).MatchView;
@@ -624,7 +624,7 @@ namespace TLMG.Services.Tests
 
             // Act
             MatchDelivery delivery = scenario.Registry.SubscribeToMatch(
-                new LobbyCaller(token, "terminal-match"), context.MatchId.Value, new MatchCallbackStub());
+                new SessionChannelCaller(token, "terminal-match"), context.MatchId.Value, new MatchCallbackStub());
 
             // Assert
             MatchView view = Assert.Single(delivery.ViewDeliveries).MatchView;
@@ -640,7 +640,7 @@ namespace TLMG.Services.Tests
             // Arrange
             SessionRegistry registry = new SessionRegistry();
             string token = registry.StartRegisteredSession(OrphanUserId, "Player", out _);
-            registry.CreateRoom(new LobbyCaller(token, "initial-lobby"), new LobbyCallbackStub());
+            registry.CreateRoom(new SessionChannelCaller(token, "initial-lobby"), new LobbyCallbackStub());
             registry.LeaveRoomByChannel("initial-lobby");
             string replacement = registry.StartRegisteredSession(OrphanUserId, "Player", out _);
 

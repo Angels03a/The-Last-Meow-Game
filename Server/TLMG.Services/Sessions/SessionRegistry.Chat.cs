@@ -14,7 +14,7 @@ namespace TLMG.Services.Sessions
         private readonly Dictionary<string, int> _chatUserIdsByChannelId = new Dictionary<string, int>();
         private readonly Dictionary<int, DateTime> _lastChatSentAtUtcByUserId = new Dictionary<int, DateTime>();
 
-        public string SubscribeToChat(LobbyCaller caller, IChatManagerCallback callback)
+        public string SubscribeToChat(SessionChannelCaller caller, IChatManagerCallback callback)
         {
             string errorKey;
 
@@ -48,7 +48,7 @@ namespace TLMG.Services.Sessions
             return errorKey;
         }
 
-        public string AcceptChatMessage(LobbyCaller caller, ChatSubmission submission, out ChatDelivery chatDelivery)
+        public string AcceptChatMessage(SessionChannelCaller caller, ChatSubmission submission, out ChatDelivery chatDelivery)
         {
             string errorKey;
             chatDelivery = null;
@@ -108,7 +108,7 @@ namespace TLMG.Services.Sessions
             }
         }
 
-        private string ValidateChatIdentityInLock(LobbyCaller caller, out PlayerSession playerSession)
+        private string ValidateChatIdentityInLock(SessionChannelCaller caller, out PlayerSession playerSession)
         {
             string errorKey = ErrorKeys.Common.InvalidSession;
             playerSession = null;
@@ -132,7 +132,7 @@ namespace TLMG.Services.Sessions
             return errorKey;
         }
 
-        private string ValidateChatMembershipInLock(LobbyCaller caller, int userId, int roomId)
+        private string ValidateChatMembershipInLock(SessionChannelCaller caller, int userId, int roomId)
         {
             string errorKey = null;
             ChatChannel chatChannel;

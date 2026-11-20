@@ -33,7 +33,7 @@ namespace TLMG.Services.Match
         /// <param name="callback">Callback del canal de partida.</param>
         /// <returns>El resultado para quien pidió y su vista como aviso pendiente de entregar.</returns>
         public ResultWithNotification<OperationResult> SubscribeToMatch(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             Guid matchId,
             IMatchManagerCallback callback)
         {
@@ -49,13 +49,13 @@ namespace TLMG.Services.Match
         }
 
         /// <summary>Valida un intento de atrapar al gatito.</summary>
-        public ResultWithNotification<OperationResult> TryCatchFugitiveKitten(LobbyCaller caller)
+        public ResultWithNotification<OperationResult> TryCatchFugitiveKitten(SessionChannelCaller caller)
         {
             return CreateResult(_sessionRegistry.TryCatchFugitiveKitten(caller));
         }
 
         /// <summary>Comprueba el vencimiento del minijuego.</summary>
-        public ResultWithNotification<OperationResult> CheckFugitiveKittenDeadline(LobbyCaller caller)
+        public ResultWithNotification<OperationResult> CheckFugitiveKittenDeadline(SessionChannelCaller caller)
         {
             return CreateResult(_sessionRegistry.CheckFugitiveKittenDeadline(caller));
         }
@@ -64,7 +64,7 @@ namespace TLMG.Services.Match
         /// <param name="caller">Token y canal de partida de quien pide.</param>
         /// <param name="card">Tipo de carta que se quiere colocar.</param>
         /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
-        public ResultWithNotification<OperationResult> PlaceCard(LobbyCaller caller, MatchCardKind card)
+        public ResultWithNotification<OperationResult> PlaceCard(SessionChannelCaller caller, MatchCardKind card)
         {
             MatchDelivery matchDelivery = _sessionRegistry.PlaceCard(caller, card);
             ResultWithNotification<OperationResult> placeCardResult = CreateResult(matchDelivery);
@@ -76,7 +76,7 @@ namespace TLMG.Services.Match
         /// <param name="caller">Token y canal de partida de quien pide.</param>
         /// <param name="betValue">Cartas que declara poder voltear.</param>
         /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
-        public ResultWithNotification<OperationResult> PlaceBet(LobbyCaller caller, int betValue)
+        public ResultWithNotification<OperationResult> PlaceBet(SessionChannelCaller caller, int betValue)
         {
             MatchDelivery matchDelivery = _sessionRegistry.PlaceBet(caller, betValue);
             ResultWithNotification<OperationResult> placeBetResult = CreateResult(matchDelivery);
@@ -87,7 +87,7 @@ namespace TLMG.Services.Match
         /// <summary>Retira al jugador de la apuesta y prepara la vista de cada suscrito.</summary>
         /// <param name="caller">Token y canal de partida de quien pide.</param>
         /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
-        public ResultWithNotification<OperationResult> WithdrawFromBet(LobbyCaller caller)
+        public ResultWithNotification<OperationResult> WithdrawFromBet(SessionChannelCaller caller)
         {
             MatchDelivery matchDelivery = _sessionRegistry.WithdrawFromBet(caller);
             ResultWithNotification<OperationResult> withdrawFromBetResult = CreateResult(matchDelivery);
@@ -99,7 +99,7 @@ namespace TLMG.Services.Match
         /// <param name="caller">Token y canal de partida de quien pide.</param>
         /// <param name="pileOwnerUserId">Dueño de la pila de la que se voltea.</param>
         /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
-        public ResultWithNotification<OperationResult> RevealCard(LobbyCaller caller, int pileOwnerUserId)
+        public ResultWithNotification<OperationResult> RevealCard(SessionChannelCaller caller, int pileOwnerUserId)
         {
             MatchDelivery matchDelivery = _sessionRegistry.RevealCard(caller, pileOwnerUserId);
             ResultWithNotification<OperationResult> revealCardResult = CreateResult(matchDelivery);
@@ -111,7 +111,7 @@ namespace TLMG.Services.Match
         /// <param name="caller">Token y canal de partida de quien pide.</param>
         /// <param name="cardIndex">Lugar mostrado (a ciegas) o posición en la mano (castigo propio).</param>
         /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
-        public ResultWithNotification<OperationResult> ChoosePunishmentCard(LobbyCaller caller, int cardIndex)
+        public ResultWithNotification<OperationResult> ChoosePunishmentCard(SessionChannelCaller caller, int cardIndex)
         {
             MatchDelivery matchDelivery = _sessionRegistry.ChoosePunishmentCard(caller, cardIndex);
             ResultWithNotification<OperationResult> choosePunishmentCardResult = CreateResult(matchDelivery);

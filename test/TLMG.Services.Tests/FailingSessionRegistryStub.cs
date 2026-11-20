@@ -35,12 +35,12 @@ namespace TLMG.Services.Tests
             throw new InvalidOperationException(FailureMessage);
 
         public LobbyMembershipChange CreateRoom(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             ILobbyManagerCallback lobbyCallback) =>
             throw new InvalidOperationException(FailureMessage);
 
         public LobbyMembershipChange EnterRoom(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             int roomId,
             ILobbyManagerCallback lobbyCallback) =>
             throw new InvalidOperationException(FailureMessage);
@@ -73,28 +73,28 @@ namespace TLMG.Services.Tests
             throw new InvalidOperationException(FailureMessage);
 
         public LobbyMembershipChange ChangePlayerReadiness(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             int roomId,
             bool isReady) =>
             throw new InvalidOperationException(FailureMessage);
 
         public LobbyMembershipChange ChangeCardsPerPlayer(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             int roomId,
             int cardsPerPlayerCount) =>
             throw new InvalidOperationException(FailureMessage);
 
         public LobbyMembershipChange RequestMatchStart(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             int roomId,
             long countdownId) =>
             throw new InvalidOperationException(FailureMessage);
 
-        public string SubscribeToChat(LobbyCaller caller, IChatManagerCallback callback) =>
+        public string SubscribeToChat(SessionChannelCaller caller, IChatManagerCallback callback) =>
             throw new InvalidOperationException(FailureMessage);
 
         public string AcceptChatMessage(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             ChatSubmission submission,
             out ChatDelivery chatDelivery) =>
             throw new InvalidOperationException(FailureMessage);
@@ -102,26 +102,26 @@ namespace TLMG.Services.Tests
         public void RemoveChatChannel(string channelId) =>
             throw new InvalidOperationException(FailureMessage);
 
-        public MatchDelivery SubscribeToMatch(LobbyCaller caller, Guid matchId, IMatchManagerCallback callback) =>
+        public MatchDelivery SubscribeToMatch(SessionChannelCaller caller, Guid matchId, IMatchManagerCallback callback) =>
             throw new InvalidOperationException(FailureMessage);
 
-        public MatchDelivery TryCatchFugitiveKitten(LobbyCaller caller) { throw new System.NotImplementedException(); }
+        public MatchDelivery TryCatchFugitiveKitten(SessionChannelCaller caller) { throw new System.NotImplementedException(); }
 
-        public MatchDelivery CheckFugitiveKittenDeadline(LobbyCaller caller) { throw new System.NotImplementedException(); }
+        public MatchDelivery CheckFugitiveKittenDeadline(SessionChannelCaller caller) { throw new System.NotImplementedException(); }
 
-        public MatchDelivery PlaceCard(LobbyCaller caller, MatchCardKind card) =>
+        public MatchDelivery PlaceCard(SessionChannelCaller caller, MatchCardKind card) =>
             throw new InvalidOperationException(FailureMessage);
 
-        public MatchDelivery PlaceBet(LobbyCaller caller, int betValue) =>
+        public MatchDelivery PlaceBet(SessionChannelCaller caller, int betValue) =>
             throw new InvalidOperationException(FailureMessage);
 
-        public MatchDelivery WithdrawFromBet(LobbyCaller caller) =>
+        public MatchDelivery WithdrawFromBet(SessionChannelCaller caller) =>
             throw new InvalidOperationException(FailureMessage);
 
-        public MatchDelivery RevealCard(LobbyCaller caller, int pileOwnerUserId) =>
+        public MatchDelivery RevealCard(SessionChannelCaller caller, int pileOwnerUserId) =>
             throw new InvalidOperationException(FailureMessage);
 
-        public MatchDelivery ChoosePunishmentCard(LobbyCaller caller, int cardIndex) =>
+        public MatchDelivery ChoosePunishmentCard(SessionChannelCaller caller, int cardIndex) =>
             throw new InvalidOperationException(FailureMessage);
 
         public bool RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback,

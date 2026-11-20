@@ -15,7 +15,7 @@ namespace TLMG.Client.ViewModels
     public sealed class FugitiveKittenViewModel : ViewModelBase
     {
         private const int TickMilliseconds = 100;
-        private const int ResultMilliseconds = 2800;
+        private const int ResultDisplayMilliseconds = 2800;
         private const int DeadlineRetryMilliseconds = 1000;
         private readonly INavigationManager _navigation;
         private readonly IMatchConnection _match;
@@ -232,7 +232,7 @@ namespace TLMG.Client.ViewModels
             if (_kitten == null || !IsConnected) return;
             if (_resultAt.HasValue)
             {
-                if (!_navigated && _elapsed.ElapsedMilliseconds - _resultAt.Value >= ResultMilliseconds)
+                if (!_navigated && _elapsed.ElapsedMilliseconds - _resultAt.Value >= ResultDisplayMilliseconds)
                 {
                     _navigated = true;
                     _navigation.NavigateToWithoutHistory(ScreenId.Gameplay);

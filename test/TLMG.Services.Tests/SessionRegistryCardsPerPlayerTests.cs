@@ -33,7 +33,7 @@ namespace TLMG.Services.Tests
             LobbyReadinessHelper.MarkReady(scenario, scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
             LobbyReadinessHelper.MarkReady(scenario, secondToken, SecondChannelId);
             LobbyMembershipChange allReady = LobbyReadinessHelper.MarkReady(scenario, thirdToken, ThirdChannelId);
-            LobbyCaller creatorCaller = new LobbyCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
 
             // Act
             LobbyMembershipChange change = scenario.Registry.ChangeCardsPerPlayer(
@@ -58,7 +58,7 @@ namespace TLMG.Services.Tests
             LobbyCallbackStub thirdCallback = new LobbyCallbackStub();
             LobbyReadinessHelper.AddPlayer(scenario, SecondUserId, SecondChannelId, secondCallback);
             LobbyReadinessHelper.AddPlayer(scenario, ThirdUserId, ThirdChannelId, thirdCallback);
-            LobbyCaller creatorCaller = new LobbyCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
 
             // Act
             LobbyMembershipChange change = scenario.Registry.ChangeCardsPerPlayer(
@@ -81,7 +81,7 @@ namespace TLMG.Services.Tests
             LobbyReadinessHelper.AddPlayer(scenario, SecondUserId, SecondChannelId, secondCallback);
             LobbyMembershipChange ready = LobbyReadinessHelper.MarkReady(
                 scenario, scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
-            LobbyCaller creatorCaller = new LobbyCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
 
             // Act
             LobbyMembershipChange change = scenario.Registry.ChangeCardsPerPlayer(
@@ -104,8 +104,8 @@ namespace TLMG.Services.Tests
         {
             // Arrange
             LobbyScenario scenario = new LobbyScenario();
-            LobbyCaller invalidCaller = new LobbyCaller(token, LobbyReadinessHelper.CreatorChannelId);
-            LobbyCaller creatorCaller = new LobbyCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+            SessionChannelCaller invalidCaller = new SessionChannelCaller(token, LobbyReadinessHelper.CreatorChannelId);
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
             LobbyMembershipChange before = RepeatNotReady(scenario, creatorCaller);
 
             // Act
@@ -124,8 +124,8 @@ namespace TLMG.Services.Tests
             // Arrange
             LobbyScenario scenario = new LobbyScenario();
             string outsiderToken = scenario.Registry.StartRegisteredSession(OutsiderUserId, "Outsider", out _);
-            LobbyCaller outsiderCaller = new LobbyCaller(outsiderToken, "outsider");
-            LobbyCaller creatorCaller = new LobbyCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
+            SessionChannelCaller outsiderCaller = new SessionChannelCaller(outsiderToken, "outsider");
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(scenario.CreatorToken, LobbyReadinessHelper.CreatorChannelId);
             LobbyMembershipChange before = RepeatNotReady(scenario, creatorCaller);
 
             // Act
@@ -142,7 +142,7 @@ namespace TLMG.Services.Tests
         /// A "not ready" request from a player who is already not ready. It is a repeat without changes, not a
         /// read: AssertRoomUnchanged checks that it kept the version and notified nobody.
         /// </summary>
-        private static LobbyMembershipChange RepeatNotReady(LobbyScenario scenario, LobbyCaller notReadyMemberCaller)
+        private static LobbyMembershipChange RepeatNotReady(LobbyScenario scenario, SessionChannelCaller notReadyMemberCaller)
         {
             return scenario.Registry.ChangePlayerReadiness(notReadyMemberCaller, scenario.RoomId, false);
         }

@@ -49,9 +49,9 @@ namespace TLMG.Services
             return callback;
         }
 
-        private LobbyCaller CreateChatCaller(string sessionToken)
+        private SessionChannelCaller CreateChatCaller(string sessionToken)
         {
-            LobbyCaller chatCaller = new LobbyCaller(sessionToken, _chatChannelId);
+            SessionChannelCaller chatCaller = new SessionChannelCaller(sessionToken, _chatChannelId);
 
             return chatCaller;
         }

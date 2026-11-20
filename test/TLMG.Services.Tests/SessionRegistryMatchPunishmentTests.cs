@@ -399,7 +399,7 @@ namespace TLMG.Services.Tests
             var context = scenario.Registry.GetRecoveryContext(replacement).OperationResult;
 
             Assert.Equal(scenario.MatchId, context.MatchId);
-            var delivery = scenario.Registry.SubscribeToMatch(new LobbyCaller(replacement, "spectator"),
+            var delivery = scenario.Registry.SubscribeToMatch(new SessionChannelCaller(replacement, "spectator"),
                 context.MatchId.Value, new MatchCallbackStub());
             var view = Assert.Single(delivery.ViewDeliveries).MatchView;
             Assert.True(view.Players.Single(player => player.UserId == userId).IsEliminated);

@@ -68,7 +68,7 @@
     <Compile Include="Sessions\ChatReservation.cs" />
     <Compile Include="Sessions\ChatSubmission.cs" />
     <Compile Include="Sessions\ISessionIdentityProvider.cs" />
-    <Compile Include="Sessions\LobbyCaller.cs" />
+    <Compile Include="Sessions\SessionChannelCaller.cs" />
     <Compile Include="Sessions\SessionRegistry.Chat.cs" />
     <Compile Include="Sessions\ChatDelivery.cs" />
     <Compile Include="Sessions\ChatChannel.cs" />
@@ -129,7 +129,7 @@
     <Compile Include="Helpers\MatchViewHelper.cs" />
     <Compile Include="ServiceImplementation.MatchManager.cs" />
     <Compile Include="Sessions\MatchSnapshot.cs" />
-    <Compile Include="Utilities\CodeGeneratorUtility.cs" />
+    <Compile Include="Utilities\VerificationCodeGenerator.cs" />
     <Compile Include="Utilities\EmailTemplates.cs" />
     <Compile Include="Utilities\EmailUtility.cs" />
     <Compile Include="Utilities\Languages\EmailLanguageStrategyFactory.cs" />

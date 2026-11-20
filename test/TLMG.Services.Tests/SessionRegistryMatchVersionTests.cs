@@ -354,7 +354,7 @@ namespace TLMG.Services.Tests
             scenario.SubscribeAll();
             int versionBefore = KittenVersion(scenario);
             scenario.Clock.Advance(TimeSpan.FromSeconds(FugitiveKittenLimitSeconds));
-            LobbyCaller caller = scenario.MatchCallerOf(scenario.UserIds[FirstPlayerIndex]);
+            SessionChannelCaller caller = scenario.MatchCallerOf(scenario.UserIds[FirstPlayerIndex]);
 
             // Act
             MatchDelivery first = scenario.Registry.CheckFugitiveKittenDeadline(caller);
@@ -422,7 +422,7 @@ namespace TLMG.Services.Tests
             int versionBefore = scenario.ReadVersionAs(userId);
             string newToken = scenario.Registry.StartRegisteredSession(userId, "Replacement", out SessionEnd replaced);
             MatchCallbackStub newCallback = new MatchCallbackStub();
-            LobbyCaller newCaller = new LobbyCaller(newToken, "replacement-match");
+            SessionChannelCaller newCaller = new SessionChannelCaller(newToken, "replacement-match");
 
             // Act
             bool hasContext = scenario.Registry.GetRecoveryContext(newToken).OperationResult.IsSuccess;
@@ -591,7 +591,7 @@ namespace TLMG.Services.Tests
                     _sequencesByUserId.TryGetValue(userId, out sequence);
                     sequence++;
                     _sequencesByUserId[userId] = sequence;
-                    LobbyCaller caller = _scenario.MatchCallerOf(userId);
+                    SessionChannelCaller caller = _scenario.MatchCallerOf(userId);
                     RunAll(_scenario.Registry.ProcessHeartbeat(
                         caller.SessionToken, caller.ChannelId, HeartbeatChannel.Match, sequence, sequence - 1,
                         IgnoreEcho));

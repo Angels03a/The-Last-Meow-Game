@@ -111,9 +111,9 @@ namespace TLMG.Services
             return _matchCallback;
         }
 
-        private LobbyCaller CreateMatchCaller(string sessionToken)
+        private SessionChannelCaller CreateMatchCaller(string sessionToken)
         {
-            LobbyCaller matchCaller = new LobbyCaller(sessionToken, _matchChannelId);
+            SessionChannelCaller matchCaller = new SessionChannelCaller(sessionToken, _matchChannelId);
 
             return matchCaller;
         }

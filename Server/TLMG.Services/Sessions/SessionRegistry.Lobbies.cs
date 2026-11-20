@@ -22,7 +22,7 @@ namespace TLMG.Services.Sessions
             new Dictionary<int, HashSet<int>>();
         private int _lastRoomId;
 
-        public LobbyMembershipChange CreateRoom(LobbyCaller caller, ILobbyManagerCallback lobbyCallback)
+        public LobbyMembershipChange CreateRoom(SessionChannelCaller caller, ILobbyManagerCallback lobbyCallback)
         {
             LobbyMembershipChange lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.InvalidSession);
 
@@ -37,7 +37,7 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        public LobbyMembershipChange EnterRoom(LobbyCaller caller, int roomId, ILobbyManagerCallback lobbyCallback)
+        public LobbyMembershipChange EnterRoom(SessionChannelCaller caller, int roomId, ILobbyManagerCallback lobbyCallback)
         {
             LobbyMembershipChange lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.InvalidSession);
 
@@ -151,7 +151,7 @@ namespace TLMG.Services.Sessions
             return wasIssued;
         }
 
-        private LobbyMembershipChange CreateRoomInLock(LobbyCaller caller, ILobbyManagerCallback lobbyCallback)
+        private LobbyMembershipChange CreateRoomInLock(SessionChannelCaller caller, ILobbyManagerCallback lobbyCallback)
         {
             LobbyMembershipChange lobbyMembershipChange;
             PlayerSession playerSession;
@@ -183,7 +183,7 @@ namespace TLMG.Services.Sessions
         }
 
         private LobbyMembershipChange EnterRoomInLock(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             int roomId,
             ILobbyManagerCallback lobbyCallback)
         {

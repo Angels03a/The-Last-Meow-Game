@@ -25,7 +25,7 @@ namespace TLMG.Services.Friends
                 { FriendsChangeStatus.InvitationNotValid, ErrorKeys.Friends.InvitationNotValid }
             };
 
-        private static readonly IReadOnlyList<Action> _notifications = new List<Action>().AsReadOnly();
+        private static readonly IReadOnlyList<Action> _noNotifications = new List<Action>().AsReadOnly();
 
         private readonly IFriendshipRepository _friendshipRepository;
         private readonly ISessionRegistry _sessionRegistry;
@@ -70,7 +70,7 @@ namespace TLMG.Services.Friends
             int friendUserId)
         {
             OperationResult operationInviteFriendToRoomResult = new OperationResult();
-            IReadOnlyList<Action> createInvitationNotifications = _notifications;
+            IReadOnlyList<Action> createInvitationNotifications = _noNotifications;
             PlayerSession playerSession;
 
             if (!_sessionRegistry.TryFindSessionByToken(sessionToken, out playerSession))
@@ -144,7 +144,7 @@ namespace TLMG.Services.Friends
         {
             OperationSendFriendRequestResult operationSendFriendRequestResult =
                 new OperationSendFriendRequestResult();
-            IReadOnlyList<Action> friendRequestNotifications = _notifications;
+            IReadOnlyList<Action> friendRequestNotifications = _noNotifications;
             FriendRequestValidation validationResult = ValidateSendRequest(sessionToken, friendNickname);
 
             if (validationResult.ErrorKey == null)
@@ -173,7 +173,7 @@ namespace TLMG.Services.Friends
         {
             OperationAcceptFriendRequestResult operationAcceptFriendRequestResult =
                 new OperationAcceptFriendRequestResult();
-            IReadOnlyList<Action> friendRequestNotifications = _notifications;
+            IReadOnlyList<Action> friendRequestNotifications = _noNotifications;
 
             FriendRequestAnswer friendRequestAnswer =
                 AnswerFriendRequest(sessionToken, friendRequestId, FriendshipState.Accepted);
@@ -233,7 +233,7 @@ namespace TLMG.Services.Friends
         {
             OperationSubscribeToFriendsResult operationSubscribeToFriendsResult =
                 new OperationSubscribeToFriendsResult();
-            IReadOnlyList<Action> subscribeToFriendsNotifications = _notifications;
+            IReadOnlyList<Action> subscribeToFriendsNotifications = _noNotifications;
             FriendListLookup friendListLookup = _friendshipRepository.FindAcceptedFriends(request.PlayerSession.UserId);
             PendingFriendRequestsLookup pendingFriendRequestsLookup =
                 _friendshipRepository.FindPendingFriendRequests(request.PlayerSession.UserId);
@@ -390,7 +390,7 @@ namespace TLMG.Services.Friends
             string nickname,
             OperationSendFriendRequestResult operationSendFriendRequestResult)
         {
-            IReadOnlyList<Action> friendRequestNotifications = _notifications;
+            IReadOnlyList<Action> friendRequestNotifications = _noNotifications;
             FriendCandidateLookup friendCandidateLookup = _friendshipRepository.FindFriendCandidateByNickname(nickname);
 
             if (friendCandidateLookup.Status == FriendLookupStatus.DataFailure)
@@ -424,7 +424,7 @@ namespace TLMG.Services.Friends
             FriendCandidateLookup friendCandidate,
             OperationSendFriendRequestResult operationSendFriendRequestResult)
         {
-            IReadOnlyList<Action> friendRequestNotifications = _notifications;
+            IReadOnlyList<Action> friendRequestNotifications = _noNotifications;
             FriendshipRecordLookup friendshipRecordLookup =
                 _friendshipRepository.FindFriendshipRecord(senderSession.UserId, friendCandidate.UserId);
 
@@ -464,7 +464,7 @@ namespace TLMG.Services.Friends
 
         private IReadOnlyList<Action> ApplyExistingRecordRules(ExistingRecordRuleContext context)
         {
-            IReadOnlyList<Action> friendRequestNotifications = _notifications;
+            IReadOnlyList<Action> friendRequestNotifications = _noNotifications;
 
             if (context.FriendshipRecord.State == FriendshipState.Accepted)
             {
@@ -503,7 +503,7 @@ namespace TLMG.Services.Friends
 
         private IReadOnlyList<Action> CompletePendingRequest(PendingRequestCompletion context)
         {
-            IReadOnlyList<Action> friendRequestNotifications = _notifications;
+            IReadOnlyList<Action> friendRequestNotifications = _noNotifications;
 
             if (context.WriteStatus == FriendshipWriteStatus.Applied)
             {
@@ -538,7 +538,7 @@ namespace TLMG.Services.Friends
 
         private IReadOnlyList<Action> AcceptCrossedRequest(ExistingRecordRuleContext context)
         {
-            IReadOnlyList<Action> friendRequestNotifications = _notifications;
+            IReadOnlyList<Action> friendRequestNotifications = _noNotifications;
             FriendshipWriteStatus friendshipWriteStatus = _friendshipRepository.AnswerFriendRequest(
                 context.FriendshipRecord.FriendshipId,
                 context.SenderSession.UserId,
@@ -906,7 +906,7 @@ namespace TLMG.Services.Friends
 
             public Friend NewFriend { get; set; }
 
-            public IReadOnlyList<Action> Notifications { get; set; } = _notifications;
+            public IReadOnlyList<Action> Notifications { get; set; } = _noNotifications;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace TLMG.Services.Lobby
     public partial class LobbyService
     {
         public ResultWithNotification<OperationLobbyRoomResult> ChangeCardsPerPlayer(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             OperationChangeCardsPerPlayerRequest operationChangeCardsPerPlayerRequest)
         {
             OperationLobbyRoomResult operationChangeCardsPerPlayerResult =

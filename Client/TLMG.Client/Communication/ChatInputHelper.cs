@@ -5,7 +5,7 @@ namespace TLMG.Client.Communication
     {
         /// <summary>Límite de caracteres por mensaje.</summary>
         public const int MaximumMessageCharacters = 160;
-        public const int zeroCaracterCount = 0;
+        public const int FirstValidIndex = 0;
         private const string AllowedCharacters =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÁÉÍÓÚáéíóúÑñ0123456789 ,?¿";
 
@@ -39,7 +39,7 @@ namespace TLMG.Client.Communication
             {
                 foreach (char character in messageText)
                 {
-                    if (AllowedCharacters.IndexOf(character) < zeroCaracterCount)
+                    if (AllowedCharacters.IndexOf(character) < FirstValidIndex)
                     {
                         isTextAllowed = false;
                         break;
