@@ -62,6 +62,7 @@
     <Compile Include="SessionRegistryMatchExitTests.cs" />
     <Compile Include="MatchServiceTests.cs" />
     <Compile Include="MatchViewHelperTests.cs" />
+    <Compile Include="ChatServiceTests.cs" />
     <Compile Include="SessionRegistryMatchPlayAuthorizationTests.cs" />
     <Compile Include="SessionRegistryMatchPlayTests.cs" />
     <Compile Include="SessionRegistryFugitiveKittenTests.cs" />
