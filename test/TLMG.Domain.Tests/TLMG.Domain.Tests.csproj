@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\Server\TLMG.Domain\TLMG.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountFieldValidatorTests.cs" />
     <Compile Include="CardsPerPlayerValidatorTests.cs" />
     <Compile Include="ChatValidatorTests.cs" />
     <Compile Include="FinalStandingsExitTests.cs" />
