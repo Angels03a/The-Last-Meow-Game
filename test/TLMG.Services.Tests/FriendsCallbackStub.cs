@@ -12,6 +12,8 @@ namespace TLMG.Services.Tests
 
         internal List<Friend> AddedFriends { get; } = new List<Friend>();
 
+        internal List<Friend> PresenceChanges { get; } = new List<Friend>();
+
         internal int OtherCallCount { get; private set; }
 
         public void SubscribeToFriendsResult(OperationSubscribeToFriendsResult operationSubscribeToFriendsResult)
@@ -31,6 +33,7 @@ namespace TLMG.Services.Tests
 
         public void OnFriendPresenceChanged(Friend friend)
         {
+            PresenceChanges.Add(friend);
             OtherCallCount++;
         }
 

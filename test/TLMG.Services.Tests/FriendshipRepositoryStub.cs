@@ -21,6 +21,18 @@ namespace TLMG.Services.Tests
 
         internal bool FailPendingLookup { get; set; }
 
+        /// <summary>Makes the lookup of a user by nickname report a data failure.</summary>
+        internal bool FailCandidateLookup { get; set; }
+
+        /// <summary>Makes the lookups of a friendship record (by pair or by id) report a data failure.</summary>
+        internal bool FailRecordLookup { get; set; }
+
+        /// <summary>Makes the lookup of the accepted friends of a user report a data failure.</summary>
+        internal bool FailFriendListLookup { get; set; }
+
+        /// <summary>Number of times the service asked to answer (accept or reject) a request.</summary>
+        internal int AnswerWriteCount { get; private set; }
+
         internal bool ForceDuplicateOnCreate { get; set; }
 
         internal bool ForceStateChangedOnWrite { get; set; }
@@ -71,7 +83,7 @@ namespace TLMG.Services.Tests
                 }
             }
 
-            return new FriendListLookup { WasFriendListLookupSuccessful = true, Friends = friends };
+            return new FriendListLookup { WasFriendListLookupSuccessful = !FailFriendListLookup, Friends = friends };
         }
 
         public FriendshipLookupStatus FindFriendshipStatus(int userId, int otherUserId)
@@ -93,6 +105,13 @@ namespace TLMG.Services.Tests
             CheckForSimulatedFailure();
             FriendCandidateLookup lookup = new FriendCandidateLookup { Status = FriendLookupStatus.NotFound };
 
+            if (FailCandidateLookup)
+            {
+                lookup.Status = FriendLookupStatus.DataFailure;
+
+                return lookup;
+            }
+
             foreach (KeyValuePair<int, string> user in _nicknamesByUserId)
             {
                 if (string.Equals(user.Value, nickname, StringComparison.OrdinalIgnoreCase))
@@ -109,6 +128,12 @@ namespace TLMG.Services.Tests
         public FriendshipRecordLookup FindFriendshipRecord(int userId, int otherUserId)
         {
             CheckForSimulatedFailure();
+
+            if (FailRecordLookup)
+            {
+                return new FriendshipRecordLookup { Status = FriendLookupStatus.DataFailure };
+            }
+
             StoredFriendship row = Rows.Find(candidate =>
                 (candidate.SenderUserId == userId && candidate.ReceiverUserId == otherUserId)
                 || (candidate.SenderUserId == otherUserId && candidate.ReceiverUserId == userId));
@@ -119,6 +144,11 @@ namespace TLMG.Services.Tests
         public FriendshipRecordLookup FindFriendshipRecordById(int friendshipId)
         {
             CheckForSimulatedFailure();
+
+            if (FailRecordLookup)
+            {
+                return new FriendshipRecordLookup { Status = FriendLookupStatus.DataFailure };
+            }
 
             return CreateRecordLookup(Find(friendshipId));
         }
@@ -187,6 +217,7 @@ namespace TLMG.Services.Tests
 
         public FriendshipWriteStatus AnswerFriendRequest(int friendshipId, int receiverUserId, FriendshipState newState)
         {
+            AnswerWriteCount++;
             CheckForSimulatedFailure();
             StoredFriendship row = Find(friendshipId);
             FriendshipWriteStatus status = FriendshipWriteStatus.StateChanged;
