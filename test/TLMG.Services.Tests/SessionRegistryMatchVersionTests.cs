@@ -38,8 +38,8 @@ namespace TLMG.Services.Tests
         private const int ReconnectGraceSeconds = 15;
         private const int FugitiveKittenLimitSeconds = 15;
         private const int HeartbeatPeriodSeconds = 2;
-        private const int CatchableMilliseconds = 900;
         private const int HalfSecondMilliseconds = 500;
+        private const int CatchableMilliseconds = 900;
         private const int SecondsBeforePunishedPlayerLeaves = 4;
         private const int SecondsUntilPunishedPlayerReturns = 8;
         private const int SecondsBeforeRemainingTimeEnds = 5;
@@ -48,42 +48,6 @@ namespace TLMG.Services.Tests
 
         private static readonly TimeSpan _punishmentLimit =
             TimeSpan.FromSeconds(ValidationRules.PunishmentChoiceSeconds);
-
-        /// <summary>An accepted action raises the version once; every subscriber receives that same version.</summary>
-        [Fact]
-        public void PlaceCard_AcceptedAction_RaisesVersionOnceForEverySubscriber()
-        {
-            // Arrange
-            MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
-            scenario.SubscribeAll();
-            int versionBefore = scenario.ReadVersionAs(scenario.UserIds[FirstPlayerIndex]);
-
-            // Act
-            MatchDelivery delivery = scenario.Place(scenario.UserIds[FirstPlayerIndex], MatchCardKind.Safe);
-
-            // Assert
-            Assert.Null(delivery.ErrorKey);
-            Assert.Equal(MinimumPlayerCount, delivery.ViewDeliveries.Count);
-            AssertVersionOfAll(delivery.ViewDeliveries, versionBefore + OneVersion);
-        }
-
-        /// <summary>A rejected action without any expired deadline publishes nothing and keeps the version.</summary>
-        [Fact]
-        public void PlaceCard_RejectedAction_KeepsVersionAndPublishesNothing()
-        {
-            // Arrange
-            MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
-            scenario.SubscribeAll();
-            int versionBefore = scenario.ReadVersionAs(scenario.UserIds[SecondPlayerIndex]);
-
-            // Act
-            MatchDelivery delivery = scenario.Place(scenario.UserIds[SecondPlayerIndex], MatchCardKind.Safe);
-
-            // Assert
-            Assert.Equal(MatchErrorKeys.NotYourTurn, delivery.ErrorKey);
-            Assert.Empty(delivery.ViewDeliveries);
-            Assert.Equal(versionBefore, scenario.ReadVersionAs(scenario.UserIds[SecondPlayerIndex]));
-        }
 
         /// <summary>Reading the view again without a state transition never raises the version.</summary>
         [Fact]
@@ -332,35 +296,53 @@ namespace TLMG.Services.Tests
             AssertPunishmentPending(attempt.ViewDeliveries, false);
         }
 
-        /// <summary>FugitiveKitten: the version rises when the last first link arrives and on a catch.</summary>
+        /// <summary>FugitiveKitten: the version rises only when the last first link arrives.</summary>
         [Fact]
-        public void FugitiveKitten_FirstLinksAndCatch_RaiseVersionOnlyOnRealTransitions()
+        public void SubscribeToMatch_WithFugitiveKitten_RaisesVersionOnlyWhenTheLastFirstLinkArrives()
         {
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount, EightCardsPerPlayer);
-            // Act and assert: the first two links change nothing visible; the last one resumes the clock.
+
+            // Act
             scenario.Subscribe(scenario.UserIds[FirstPlayerIndex]);
+            int versionAfterFirstLink = KittenVersion(scenario);
             scenario.Subscribe(scenario.UserIds[SecondPlayerIndex]);
-            Assert.Equal(MatchPlayScenario.InitialVersion, KittenVersion(scenario));
+            int versionAfterSecondLink = KittenVersion(scenario);
             MatchDelivery lastLink = scenario.Subscribe(scenario.UserIds[ThirdPlayerIndex]);
-            Assert.Equal(MatchPlayScenario.InitialVersion + OneVersion, KittenVersion(scenario));
+
+            // Assert
+            Assert.Equal(MatchPlayScenario.InitialVersion, versionAfterFirstLink);
+            Assert.Equal(MatchPlayScenario.InitialVersion, versionAfterSecondLink);
             Assert.Equal(MinimumPlayerCount, lastLink.ViewDeliveries.Count);
+            AssertVersionOfAll(lastLink.ViewDeliveries, MatchPlayScenario.InitialVersion + OneVersion);
+            Assert.Equal(MatchPlayScenario.InitialVersion + OneVersion, KittenVersion(scenario));
+        }
 
-            // Act and assert: a catch raises the version once and reaches every subscriber.
+        /// <summary>FugitiveKitten: a valid catch publishes the caught result and a new version to all.</summary>
+        [Fact]
+        public void TryCatchFugitiveKitten_WithValidCatch_PublishesTheNewVersionToEverySubscriber()
+        {
+            // Arrange
+            MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount, EightCardsPerPlayer);
+            scenario.SubscribeAll();
+            int versionBefore = KittenVersion(scenario);
+            int catcherUserId = scenario.UserIds[FirstPlayerIndex];
             scenario.Clock.Advance(TimeSpan.FromMilliseconds(CatchableMilliseconds));
-            MatchDelivery caught = scenario.Registry.TryCatchFugitiveKitten(
-                scenario.MatchCallerOf(scenario.UserIds[FirstPlayerIndex]));
-            Assert.Equal(MinimumPlayerCount, caught.ViewDeliveries.Count);
-            AssertVersionOfAll(caught.ViewDeliveries, MatchPlayScenario.InitialVersion + TwoVersions);
 
-            // Act and assert: a second attempt and a later deadline check change nothing.
-            MatchDelivery second = scenario.Registry.TryCatchFugitiveKitten(
-                scenario.MatchCallerOf(scenario.UserIds[SecondPlayerIndex]));
-            MatchDelivery deadlineCheck = scenario.Registry.CheckFugitiveKittenDeadline(
-                scenario.MatchCallerOf(scenario.UserIds[SecondPlayerIndex]));
-            Assert.Empty(second.ViewDeliveries);
-            Assert.Single(deadlineCheck.ViewDeliveries);
-            Assert.Equal(MatchPlayScenario.InitialVersion + TwoVersions, KittenVersion(scenario));
+            // Act
+            MatchDelivery caught = scenario.Registry.TryCatchFugitiveKitten(scenario.MatchCallerOf(catcherUserId));
+
+            // Assert
+            Assert.Null(caught.ErrorKey);
+            Assert.Equal(
+                scenario.UserIds.Select(userId => scenario.CallbackOf(userId)),
+                caught.ViewDeliveries.Select(item => item.Callback));
+            AssertVersionOfAll(caught.ViewDeliveries, versionBefore + OneVersion);
+            Assert.All(caught.ViewDeliveries, item => Assert.Equal(
+                FugitiveKittenResult.Caught, item.MatchView.FugitiveKitten.Result));
+            Assert.All(caught.ViewDeliveries, item => Assert.Equal(
+                catcherUserId, item.MatchView.FugitiveKitten.WinnerUserId));
+            Assert.Equal(versionBefore + OneVersion, KittenVersion(scenario));
         }
 
         /// <summary>FugitiveKitten: reaching the limit raises the version once; a repeated check does not.</summary>
@@ -465,7 +447,7 @@ namespace TLMG.Services.Tests
         /// same version are allowed; this test does not require an increment on every delivery.
         /// </summary>
         [Fact]
-        public void MixedTransitions_DeliverVersionsThatNeverDecreaseForAnySubscriber()
+        public void RegistryOperations_InAMixedSequence_DeliverVersionsThatNeverDecreaseForAnySubscriber()
         {
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);

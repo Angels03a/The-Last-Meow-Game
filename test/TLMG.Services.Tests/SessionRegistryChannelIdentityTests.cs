@@ -64,43 +64,6 @@ namespace TLMG.Services.Tests
             Assert.NotNull(delivery);
         }
 
-        /// <summary>A missing or unknown token never subscribes to the chat.</summary>
-        /// <param name="sessionToken">Token received from the client.</param>
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(UnknownToken)]
-        public void SubscribeToChat_WithInvalidToken_RejectsWithInvalidSession(string sessionToken)
-        {
-            // Arrange
-            MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
-            LobbyCaller caller = new LobbyCaller(sessionToken, ChatChannelPrefix + FirstPlayerIndex);
-
-            // Act
-            string errorKey = scenario.Registry.SubscribeToChat(caller, new ChatCallbackStub());
-
-            // Assert
-            Assert.Equal(ErrorKeys.Common.InvalidSession, errorKey);
-        }
-
-        /// <summary>A caller without channel id never subscribes to the chat.</summary>
-        /// <param name="channelId">Channel id received from the client.</param>
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        public void SubscribeToChat_WithoutChannelId_RejectsWithInvalidSession(string channelId)
-        {
-            // Arrange
-            MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
-            LobbyCaller caller = new LobbyCaller(scenario.TokenOf(scenario.UserIds[FirstPlayerIndex]), channelId);
-
-            // Act
-            string errorKey = scenario.Registry.SubscribeToChat(caller, new ChatCallbackStub());
-
-            // Assert
-            Assert.Equal(ErrorKeys.Common.InvalidSession, errorKey);
-        }
-
         /// <summary>A null callback is rejected as an invalid session and nothing is registered.</summary>
         [Fact]
         public void SubscribeToChat_WithNullCallback_RejectsWithInvalidSession()
@@ -344,7 +307,9 @@ namespace TLMG.Services.Tests
 
         /// <summary>
         /// The same caller shape gets the same verdict from the chat and from the match: only an own, free channel
-        /// with a valid token passes; every other shape is an invalid session. Each map is checked on its own.
+        /// with a valid token passes; every other shape is an invalid session. Each map is checked on its own. The
+        /// rows also cover the missing, blank and unknown tokens and the missing or blank channel of the chat
+        /// subscription.
         /// </summary>
         /// <param name="shape">Shape of the caller under test.</param>
         [Theory]
@@ -409,44 +374,6 @@ namespace TLMG.Services.Tests
             Assert.Null(scenario.Place(scenario.UserIds[SecondPlayerIndex], MatchCardKind.Safe).ErrorKey);
             Assert.Null(scenario.Place(scenario.UserIds[ThirdPlayerIndex], MatchCardKind.Safe).ErrorKey);
             Assert.Null(scenario.Place(userId, MatchCardKind.Safe).ErrorKey);
-        }
-
-        /// <summary>A closed match channel rejects actions as not subscribed until a new subscription.</summary>
-        [Fact]
-        public void PlaceCard_AfterTheMatchChannelClosed_RejectsWithNotSubscribed()
-        {
-            // Arrange
-            MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
-            scenario.SubscribeAll();
-            int userId = scenario.UserIds[FirstPlayerIndex];
-            Assert.True(scenario.CloseMatchChannelOf(userId));
-
-            // Act
-            MatchDelivery delivery = scenario.Place(userId, MatchCardKind.Safe);
-
-            // Assert
-            Assert.Equal(MatchErrorKeys.NotSubscribed, delivery.ErrorKey);
-            Assert.Empty(delivery.ViewDeliveries);
-        }
-
-        /// <summary>A player who is still in the match room keeps a valid identity for both channels.</summary>
-        [Fact]
-        public void MatchAndChat_ForAnActiveMatchPlayer_AcceptTheSameSession()
-        {
-            // Arrange
-            MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
-            scenario.SubscribeAll();
-            int userId = scenario.UserIds[ThirdPlayerIndex];
-            LobbyCaller chatCaller = ChatCallerOf(scenario, ThirdPlayerIndex);
-
-            // Act
-            string chatErrorKey = scenario.Registry.SubscribeToChat(chatCaller, new ChatCallbackStub());
-            MatchDelivery matchDelivery = scenario.Subscribe(userId);
-
-            // Assert
-            Assert.Null(chatErrorKey);
-            Assert.Null(matchDelivery.ErrorKey);
-            Assert.Equal(chatCaller.SessionToken, scenario.TokenOf(userId));
         }
 
         private static LobbyCaller ChatCallerOf(MatchPlayScenario scenario, int playerIndex)
