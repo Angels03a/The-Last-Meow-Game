@@ -40,7 +40,14 @@ namespace TLMG.Services.Accounts
                 errorKey = ErrorKeys.Password.DataModel;
             }
 
-            return CreateResult(errorKey);
+            OperationResult result = CreateResult(errorKey);
+
+            if (result.IsSuccess)
+            {
+                result.ErrorKey = string.Empty;
+            }
+
+            return result;
         }
 
         /// <summary>Verifies the code; the database marks it as used so the reset step can rely on it.</summary>

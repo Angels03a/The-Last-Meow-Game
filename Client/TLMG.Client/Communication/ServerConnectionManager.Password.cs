@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ServiceModel;
+using System.Windows;
 
 using TLMG.Client.UsersManagerReference;
 
@@ -41,6 +42,14 @@ namespace TLMG.Client.Communication
             OperationResult requestResult = SendPasswordManagerRequest(
                 passwordClient => passwordClient.RequestPasswordResetCode(email, cultureCode),
                 "solicitar el código de recuperación");
+
+            if (!requestResult.IsSuccess && (string.IsNullOrWhiteSpace(requestResult.ErrorKey)
+                || (Application.Current != null
+                    && !(Application.Current.TryFindResource(requestResult.ErrorKey) is string))))
+            {
+                _log.Warn("El servidor devolvió una clave de error inválida al solicitar el código de recuperación.");
+                requestResult.ErrorKey = PasswordUnexpectedErrorKey;
+            }
 
             return requestResult;
         }
