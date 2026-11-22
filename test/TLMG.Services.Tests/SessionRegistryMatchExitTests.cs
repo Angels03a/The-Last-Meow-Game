@@ -485,6 +485,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
+            Assert.Equal(string.Empty, result.ErrorKey);
             Assert.Equal(scenario.RoomId, result.RoomId);
             Assert.Equal(scenario.MatchId, result.MatchId);
             Assert.False(scenario.Registry.GetRecoveryContext(previous).OperationResult.IsSuccess);
@@ -556,6 +557,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
+            Assert.Equal(string.Empty, result.ErrorKey);
             Assert.Null(result.RoomId);
             Assert.Null(result.MatchId);
         }
