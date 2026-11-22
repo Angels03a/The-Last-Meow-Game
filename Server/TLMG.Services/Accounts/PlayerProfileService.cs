@@ -31,18 +31,25 @@ namespace TLMG.Services.Accounts
             if (_sessionIdentityProvider.TryGetUserId(sessionToken, out int userId))
             {
                 PlayerProfileLookup profileLookup = _playerProfileRepository.FindProfileByUserId(userId);
-                errorKey = ResolveLookupErrorKey(profileLookup.Status);
-
-                if (errorKey == null)
+                if (profileLookup == null)
                 {
-                    profileResult.Nickname = profileLookup.Nickname;
-                    profileResult.Email = profileLookup.Email;
-                    profileResult.AvatarKey = AvatarCatalog.NormalizeKey(profileLookup.AvatarKey);
-                    profileResult.PasswordChangedAtUtc = profileLookup.PasswordChangedAtUtc;
+                    _log.Warn("La consulta de perfil no devolvió resultado.");
+                    errorKey = ErrorKeys.Profile.DataModel;
+                }
+                else
+                {
+                    errorKey = ResolveLookupErrorKey(profileLookup.Status);
+                    if (profileLookup.Status == PlayerProfileLookupStatus.Found)
+                    {
+                        profileResult.IsSuccess = true;
+                        profileResult.Nickname = profileLookup.Nickname;
+                        profileResult.Email = profileLookup.Email;
+                        profileResult.AvatarKey = AvatarCatalog.NormalizeKey(profileLookup.AvatarKey);
+                        profileResult.PasswordChangedAtUtc = profileLookup.PasswordChangedAtUtc;
+                    }
                 }
             }
 
-            profileResult.IsSuccess = errorKey == null;
             profileResult.ErrorKey = errorKey;
 
             return profileResult;
@@ -144,7 +151,7 @@ namespace TLMG.Services.Accounts
             switch (lookupStatus)
             {
                 case PlayerProfileLookupStatus.Found:
-                    errorKey = null;
+                    errorKey = string.Empty;
                     break;
                 case PlayerProfileLookupStatus.NotFound:
                     errorKey = ErrorKeys.Common.InvalidSession;

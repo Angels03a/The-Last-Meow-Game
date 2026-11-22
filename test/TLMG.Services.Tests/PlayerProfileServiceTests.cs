@@ -53,7 +53,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Null(result.ErrorKey);
+            Assert.Equal(string.Empty, result.ErrorKey);
             Assert.Equal(Nickname, result.Nickname);
             Assert.Equal("whiskers@example.com", result.Email);
             Assert.Equal(AvatarKey, result.AvatarKey);
@@ -149,6 +149,24 @@ namespace TLMG.Services.Tests
             Assert.False(result.IsSuccess);
             Assert.Equal(ErrorKeys.Common.Unexpected, result.ErrorKey);
             Assert.Null(result.Nickname);
+        }
+
+        [Fact]
+        public void GetProfile_WhenLookupIsNull_RejectsWithoutProfileData()
+        {
+            // Arrange
+            PlayerProfileService service = CreateService();
+            _repository.Lookup = null;
+
+            // Act
+            OperationPlayerProfileResult result = service.GetProfile(ValidToken);
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorKeys.Profile.DataModel, result.ErrorKey);
+            Assert.Null(result.Nickname);
+            Assert.Null(result.Email);
+            Assert.Null(result.AvatarKey);
         }
 
         [Fact]
