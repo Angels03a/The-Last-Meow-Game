@@ -37,6 +37,7 @@
     <Compile Include="FriendsServiceAcceptRequestTests.cs" />
     <Compile Include="FriendsServiceDeclineRequestTests.cs" />
     <Compile Include="FriendsServiceSendRequestTests.cs" />
+    <Compile Include="FriendsServiceRoomInvitationTests.cs" />
     <Compile Include="FriendsServiceSubscribeTests.cs" />
     <Compile Include="LobbyCallbackStub.cs" />
     <Compile Include="LobbyReadinessHelper.cs" />

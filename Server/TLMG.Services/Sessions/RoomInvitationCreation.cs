@@ -14,13 +14,13 @@ namespace TLMG.Services.Sessions
             FriendsChangeStatus status,
             int invitationId,
             string inviterNickname,
-            bool isNewInvitation,
+            bool shouldNotifyInvitee,
             IFriendsManagerCallback inviteeCallback)
         {
             Status = status;
             InvitationId = invitationId;
             InviterNickname = inviterNickname;
-            IsNewInvitation = isNewInvitation;
+            ShouldNotifyInvitee = shouldNotifyInvitee;
             InviteeCallback = inviteeCallback;
         }
 
@@ -33,8 +33,11 @@ namespace TLMG.Services.Sessions
         /// <summary>Inviting player's nickname, or null on rejection.</summary>
         public string InviterNickname { get; }
 
-        /// <summary>Whether the invitation is new. False for an existing identical invitation.</summary>
-        public bool IsNewInvitation { get; }
+        /// <summary>
+        /// Whether the invitee must be notified: a new invitation, or an existing one not notified within the
+        /// renotification interval.
+        /// </summary>
+        public bool ShouldNotifyInvitee { get; }
 
         /// <summary>Recipient's friends channel callback, or null on rejection.</summary>
         public IFriendsManagerCallback InviteeCallback { get; }
@@ -53,20 +56,20 @@ namespace TLMG.Services.Sessions
         /// <summary>Creates an applied result.</summary>
         /// <param name="invitationId">Invitation ID.</param>
         /// <param name="inviterNickname">Inviting player's nickname.</param>
-        /// <param name="isNewInvitation">True for a new invitation, false for an existing one.</param>
+        /// <param name="shouldNotifyInvitee">True if the invitee must be notified now.</param>
         /// <param name="inviteeCallback">Invited player's friends channel callback.</param>
         /// <returns>Applied result, always present.</returns>
         public static RoomInvitationCreation CreateApplied(
             int invitationId,
             string inviterNickname,
-            bool isNewInvitation,
+            bool shouldNotifyInvitee,
             IFriendsManagerCallback inviteeCallback)
         {
             RoomInvitationCreation roomInvitationCreation = new RoomInvitationCreation(
                 FriendsChangeStatus.Applied,
                 invitationId,
                 inviterNickname,
-                isNewInvitation,
+                shouldNotifyInvitee,
                 inviteeCallback);
 
             return roomInvitationCreation;

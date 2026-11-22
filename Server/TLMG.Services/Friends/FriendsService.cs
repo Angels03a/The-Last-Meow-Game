@@ -362,7 +362,8 @@ namespace TLMG.Services.Friends
         {
             List<Action> roomInvitationNotifications = new List<Action>();
 
-            if (roomInvitationCreation.Status == FriendsChangeStatus.Applied && roomInvitationCreation.IsNewInvitation)
+            if (roomInvitationCreation.Status == FriendsChangeStatus.Applied
+                && roomInvitationCreation.ShouldNotifyInvitee)
             {
                 IFriendsManagerCallback inviteCallback = roomInvitationCreation.InviteeCallback;
                 RoomInvitation roomInvitation = new RoomInvitation
