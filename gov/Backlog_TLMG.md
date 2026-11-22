@@ -50,14 +50,6 @@ Formato de entrada:
 - Estado: Pendiente
 - Nota (2026-11-20): revisión inicial sobre 0829793; requiere confirmar alcance detallado durante la tarea.
 
-### BL-187 · Auditar semántica de null y resultados de contratos
-- Creado: 2026-11-20 15:07
-- Por qué: Los contratos y resultados requieren una revisión explícita de ausencia, error y valores nulos entre cliente y servidor.
-- Depende de: Contratos WCF y decisiones de error.
-- Responsable: Luis.
-- Estado: Pendiente
-- Nota (2026-11-20): revisión inicial sobre 0829793; requiere confirmar alcance detallado durante la tarea.
-
 ### BL-188 · Preparar cuaderno integral de estudio técnico
 - Creado: 2026-11-20 15:07
 - Por qué: El equipo necesita un material de estudio para explicar y defender la implementación y sus decisiones con evidencia.
@@ -1493,6 +1485,20 @@ Formato de entrada:
 - Nota (2026-11-11 20:32): avance en la rama paquete2-modalidad, sin confirmar: ChangeCardsPerPlayer quedó implementado en SessionRegistry.ChangeCardsPerPlayer (SessionRegistry.Readiness.cs) y en LobbyService.ChangeCardsPerPlayer (LobbyService.CardsPerPlayer.cs), con pruebas en TLMG.Services.Tests. Falta compilar, correr las pruebas y probarla con el cliente (BL-154). Sigue pendiente hasta tener el commit; BL-105 se cierra con ella.
 - Nota (2026-11-11 23:55): commit encontrado: 8b5b84f (SessionRegistry.ChangeCardsPerPlayer y LobbyService.ChangeCardsPerPlayer), con pruebas LobbyServiceCardsPerPlayerTests y SessionRegistryCardsPerPlayerTests. Sigue pendiente porque no consta que se hayan compilado y corrido las pruebas del servidor; el cliente ya la usa (0fc59c2).
 - Nota (2026-11-15 00:32): cierre. Evidencia: 8b5b84f (SessionRegistry.ChangeCardsPerPlayer y LobbyService.ChangeCardsPerPlayer) está en origin/main (git merge-base --is-ancestor); el rango 78e1fa1..8aa6844 adaptó sus pruebas (c78a54f); el encargado reporta las 144 pruebas de TLMG.Services.Tests en verde (2026-11-15); el cliente usa la operación desde 0fc59c2; y el encargado reporta la prueba con 3 clientes. Cierra BL-105.
+### BL-187 · Auditar semántica de null y resultados de contratos
+- Creado: 2026-11-20 15:07
+- Por qué: Los contratos y resultados requieren una revisión explícita de ausencia, error y valores nulos entre cliente y servidor.
+- Depende de: Contratos WCF y decisiones de error.
+- Responsable: Luis.
+- Estado: Finalizado el 2026-11-22 · commit e7a385a
+- Nota (2026-11-20): revisión inicial sobre 0829793; requiere confirmar alcance detallado durante la tarea.
+- Nota (2026-11-21): implementación sobre acc33c1. Los 18 commits de 720586c a 338b3d0 (por su asunto) normalizan los resultados públicos por área: solicitud, verificación y cambio de contraseña (720586c, 8b61240, c23c8f3), perfil (ab3bff8, 42ac76f), registro y reenvío (e56f998, ade91b7), inicio y cierre de sesión (8d3f02a), recuperación y perfil (7632b67), registros pendientes (92dfc14), amistades y sala (53e6212), chat (505dd1f), partida (043e338), heartbeats de cliente y servidor (14a09c0) y clasificación (338b3d0). Incluyen sus pruebas en test/.
+- Nota (2026-11-22): auditoría independiente de solo lectura sobre 338b3d0, sin compilar ni ejecutar pruebas (el informe no está en el repositorio). No halló defectos P0 ni P1. Halló una omisión (GetRecoveryContext devolvía ErrorKey nulo en éxito), documentación que aún decía «null en éxito» y ramas defensivas sin prueba. Verificó por script que las 72 ErrorKeys del servidor existen en los diccionarios es-MX y en-US, que tienen paridad exacta (489 claves cada uno).
+- Nota (2026-11-22): decisión D-66 y su implementación. Contrato público de los …Result derivados de OperationResult: éxito con IsSuccess=true y ErrorKey=string.Empty; fallo con IsSuccess=false y ErrorKey no vacía y reconocida por los diccionarios. Un resultado nulo, un estado desconocido o una clave inválida no se interpretan como éxito. T07 no prohíbe null: se distinguen el resultado público, las validaciones locales del cliente (los métodos Get…ErrorKey de InputValidator y ValidationHelper devuelven null si el dato es válido), los validadores de TLMG.Domain (string.Empty si es válido), los datos opcionales (null) y los protocolos internos (eco de chat, MatchDelivery, delegados privados). 8c01c91 fija string.Empty en GetRecoveryContext, documenta el contrato en OperationResult y amplía SessionRegistryMatchExitTests.
+- Nota (2026-11-22): validaciones. Declaración del desarrollador, no ejecución de Claude: suite completa en Visual Studio con 1379 de 1379 pruebas aprobadas y 0 fallidas, sobre el código previo a e7a385a e incluyendo las pruebas de invitaciones. Prueba manual integral con tres clientes WPF y un servidor WCF (JugadorTest1, JugadorTest2 y JugadorTest3): autenticación, perfil, amistades, invitaciones, lobby, chat, preparación, juego, resultados y clasificación. Además, un cliente se desconectó sin avisar durante una partida con el servidor activo, volvió a iniciar sesión dentro del período de gracia de 15 s y continuó la partida conservando su turno.
+- Nota (2026-11-22): defecto hallado en la prueba integral y corregido en e7f2da6. Tras pulsar No, una nueva invitación del mismo jugador a la misma sala no aparecía, porque el rechazo no llega al servidor y la invitación pendiente se reutilizaba sin avisar. Ahora el servidor vuelve a notificar la misma invitación si pasaron al menos 5 s desde el último aviso (RoomInvitationRecord.LastNotifiedUtc, SessionRegistry.CreateOrFindInvitation) y agrega FriendsServiceRoomInvitationTests. No agrega una operación de rechazo al contrato WCF. El desarrollador confirmó a mano la primera invitación, el rechazo, la nueva invitación tras el intervalo, la aceptación y un solo aviso ante intentos repetidos dentro del intervalo.
+- Nota (2026-11-22): estándar. La fuente oficial se actualizó en Google Docs y e7a385a sincroniza la copia exportada docs/Estandar.md (§10.2, contrato de los resultados, y §16.1, validación). e7a385a es un cambio solo documental; los funcionales son 720586c..338b3d0, 8c01c91 y e7f2da6.
+- Nota (2026-11-22): cierre del alcance de BL-187, que era revisar la semántica de ausencia, error y null entre cliente y servidor. No afirma la ausencia de otros defectos de comunicación, persistencia o concurrencia. Quedan fuera y abiertas: (a) la creación de la cuenta y el borrado del registro pendiente no son atómicos (FinalizePlayer; BL-094 cubre la carrera de duplicados al guardar, no este borrado); (b) las ramas defensivas nuevas de ChatService, MatchService y FriendsService tienen poca o ninguna prueba y el cliente no tiene proyecto de pruebas (BL-164); (c) la normalización de resultados del cliente está repetida en varias clases de ServerConnectionManager y ProfileViewModel, y los literales de clave siguen duplicados (relacionado con BL-017); (d) tras reiniciar el servidor no se restaura la sesión ni la partida, porque ambas viven en memoria y no hay persistencia. Las deudas (a) a (c) y un rechazo explícito de invitación no tienen entrada propia; se proponen aparte.
 
 ## Descartados
 
