@@ -225,6 +225,7 @@ namespace TLMG.Client.Communication
                 RegistrationConnectionErrorKey,
                 RegistrationUnexpectedErrorKey);
 
+            NormalizeRegistrationResult(operationResult);
             return operationResult;
         }
 
@@ -236,6 +237,7 @@ namespace TLMG.Client.Communication
                 RegistrationConnectionErrorKey,
                 RegistrationUnexpectedErrorKey);
 
+            NormalizeRegistrationResult(operationResult);
             return operationResult;
         }
     }

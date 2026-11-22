@@ -81,6 +81,7 @@ namespace TLMG.Services.Accounts
         {
             OperationResult operationResult = new OperationResult();
             string errorKey = null;
+            bool isSuccess = false;
 
             if (playerAccountRegistration == null || string.IsNullOrWhiteSpace(playerAccountRegistration.Email))
             {
@@ -108,12 +109,12 @@ namespace TLMG.Services.Accounts
                 }
                 else
                 {
-                    errorKey = VerifyCodeAndFinalizePlayer(pendingRecord, verificationCode.Trim());
+                    errorKey = VerifyCodeAndFinalizePlayer(pendingRecord, verificationCode.Trim(), out isSuccess);
                 }
             }
 
-            operationResult.IsSuccess = errorKey == null;
-            operationResult.ErrorKey = errorKey;
+            operationResult.IsSuccess = isSuccess;
+            operationResult.ErrorKey = isSuccess ? string.Empty : errorKey;
 
             return operationResult;
         }
@@ -122,6 +123,7 @@ namespace TLMG.Services.Accounts
         {
             OperationResult operationResult = new OperationResult();
             string errorKey = null;
+            bool isSuccess = false;
 
             if (string.IsNullOrWhiteSpace(email))
             {
@@ -149,10 +151,14 @@ namespace TLMG.Services.Accounts
                 {
                     errorKey = ErrorKeys.CreateAccount.DataModel;
                 }
+                else
+                {
+                    isSuccess = true;
+                }
             }
 
-            operationResult.IsSuccess = errorKey == null;
-            operationResult.ErrorKey = errorKey;
+            operationResult.IsSuccess = isSuccess;
+            operationResult.ErrorKey = isSuccess ? string.Empty : errorKey;
 
             return operationResult;
         }
@@ -207,16 +213,24 @@ namespace TLMG.Services.Accounts
             return errorKey;
         }
 
-        private string VerifyCodeAndFinalizePlayer(PendingRegistrationRecord pendingRecord, string plainCode)
+        private string VerifyCodeAndFinalizePlayer(PendingRegistrationRecord pendingRecord, string plainCode,
+            out bool isSuccess)
         {
-            string errorKey;
+            string errorKey = ErrorKeys.CreateAccount.DataModel;
+            isSuccess = false;
             VerificationCodeValidationResult validationResult =
                 _verificationDispatcher.ValidateRegistrationCode(pendingRecord.PendingId, plainCode);
+
+            if (validationResult == null)
+            {
+                _log.Warn("La validación del código de registro no devolvió resultado.");
+                return errorKey;
+            }
 
             switch (validationResult.Status)
             {
                 case VerificationCodeStatus.Valid:
-                    errorKey = FinalizePlayer(pendingRecord);
+                    errorKey = FinalizePlayer(pendingRecord, out isSuccess);
                     break;
                 case VerificationCodeStatus.Invalid:
                     errorKey = ErrorKeys.Verification.IncorrectCode;
@@ -237,9 +251,10 @@ namespace TLMG.Services.Accounts
             return errorKey;
         }
 
-        private string FinalizePlayer(PendingRegistrationRecord pendingRecord)
+        private string FinalizePlayer(PendingRegistrationRecord pendingRecord, out bool isSuccess)
         {
             string errorKey = FindDuplicateAccountErrorKey(pendingRecord.Email, pendingRecord.Nickname);
+            isSuccess = false;
 
             if (errorKey == null)
             {
@@ -250,6 +265,7 @@ namespace TLMG.Services.Accounts
 
                 if (wasCreated)
                 {
+                    isSuccess = true;
                     _verificationDispatcher.DeletePendingRegistration(pendingRecord.PendingId);
                 }
                 else

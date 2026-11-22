@@ -351,6 +351,94 @@ namespace TLMG.Services.Tests
             AssertRejectedWithoutWrites(result, ErrorKeys.Common.Unexpected);
         }
 
+        [Theory]
+        [InlineData(VerificationCodeStatus.Invalid, ErrorKeys.Verification.IncorrectCode)]
+        [InlineData(VerificationCodeStatus.Expired, ErrorKeys.Verification.ExpiredCode)]
+        [InlineData(VerificationCodeStatus.NoActiveCode, ErrorKeys.Verification.ExpiredCode)]
+        [InlineData(VerificationCodeStatus.TooManyAttempts, ErrorKeys.Verification.AttemptsExhausted)]
+        [InlineData((VerificationCodeStatus)999, ErrorKeys.CreateAccount.DataModel)]
+        public void CompleteRegistration_WithRejectedCode_DoesNotCreateAccount(VerificationCodeStatus status, string key)
+        {
+            // Arrange
+            VerificationCodeRepositoryStub codes = CreatePendingCodes();
+            codes.ValidationResultToReturn = new VerificationCodeValidationResult { Status = status };
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(codes);
+
+            // Act
+            OperationResult result = service.CompleteRegistration(CreateValidRequest(), "123456");
+
+            // Assert
+            AssertRejectedWithoutWrites(result, key);
+            Assert.Empty(codes.DeletedPendingIds);
+        }
+
+        [Fact]
+        public void CompleteRegistration_WithNullValidation_RejectsWithoutCreation()
+        {
+            // Arrange
+            VerificationCodeRepositoryStub codes = CreatePendingCodes();
+            codes.ValidationResultToReturn = null;
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(codes);
+
+            // Act
+            OperationResult result = service.CompleteRegistration(CreateValidRequest(), "123456");
+
+            // Assert
+            AssertRejectedWithoutWrites(result, ErrorKeys.CreateAccount.DataModel);
+        }
+
+        [Fact]
+        public void CompleteRegistration_WithValidCode_CreatesAccountAndReturnsEmptyKey()
+        {
+            // Arrange
+            VerificationCodeRepositoryStub codes = CreatePendingCodes();
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(codes);
+
+            // Act
+            OperationResult result = service.CompleteRegistration(CreateValidRequest(), "123456");
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal(string.Empty, result.ErrorKey);
+            Assert.Single(_repository.CreatedPlayers);
+            Assert.Single(codes.DeletedPendingIds);
+        }
+
+        [Fact]
+        public void ResendVerificationCode_WhenSavingCodeFails_Rejects()
+        {
+            // Arrange
+            VerificationCodeRepositoryStub codes = CreatePendingCodes();
+            codes.SaveCodeSucceeds = false;
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(codes);
+
+            // Act
+            OperationResult result = service.ResendVerificationCode(SyntheticEmail, CultureCode);
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorKeys.CreateAccount.DataModel, result.ErrorKey);
+            Assert.Single(codes.SavedCodes);
+        }
+
+        private static VerificationCodeRepositoryStub CreatePendingCodes()
+        {
+            return new VerificationCodeRepositoryStub
+            {
+                PendingRegistrationToReturn = new PendingRegistrationRecord
+                {
+                    PendingId = 1, Email = SyntheticEmail, Nickname = PlayerNickname,
+                    PasswordHash = "stored-hash", ExpiresAtUtc = DateTime.UtcNow.AddMinutes(5)
+                }
+            };
+        }
+
+        private PlayerAccountRegistrationService CreateServiceWithCodes(VerificationCodeRepositoryStub codes)
+        {
+            return new PlayerAccountRegistrationService(_repository, new PasswordHasher(),
+                new AccountVerificationDispatcher(new VerificationCodeStore(codes), null));
+        }
+
         private PlayerAccountRegistrationService CreateService()
         {
             return new PlayerAccountRegistrationService(_repository, new PasswordHasher());
