@@ -16,7 +16,7 @@ namespace TLMG.Domain.Tests
         [InlineData("abc", "AVATAR_CAT")]
         [InlineData("abcdefghijkl", "AVATAR_ALIEN")]
         [InlineData("Cat_1", "AVATAR_ZOMBIE")]
-        public void ValidateProfileUpdate_WithValidNicknameAndAvatar_ReturnsNull(string nickname, string avatarKey)
+        public void ValidateProfileUpdate_WithValidNicknameAndAvatar_ReturnsEmpty(string nickname, string avatarKey)
         {
             // Arrange
             PlayerProfileUpdate update = new PlayerProfileUpdate { Nickname = nickname, AvatarKey = avatarKey };
@@ -25,7 +25,7 @@ namespace TLMG.Domain.Tests
             string errorKey = PlayerProfileValidator.ValidateProfileUpdate(update);
 
             // Assert
-            Assert.Null(errorKey);
+            Assert.Equal(string.Empty, errorKey);
         }
 
         [Fact]

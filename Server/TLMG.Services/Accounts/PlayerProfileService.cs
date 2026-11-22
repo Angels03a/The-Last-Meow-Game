@@ -53,12 +53,12 @@ namespace TLMG.Services.Accounts
             OperationResult updateResult = new OperationResult();
             string errorKey = ValidateUpdateRequest(updateProfileRequest, out PlayerProfileUpdate profileUpdate);
 
-            if (errorKey == null)
+            if (errorKey == string.Empty)
             {
                 errorKey = SaveProfileUpdate(updateProfileRequest.SessionToken, profileUpdate);
             }
 
-            updateResult.IsSuccess = errorKey == null;
+            updateResult.IsSuccess = errorKey == string.Empty;
             updateResult.ErrorKey = errorKey;
 
             return updateResult;
@@ -92,7 +92,7 @@ namespace TLMG.Services.Accounts
             {
                 errorKey = FindNicknameTakenErrorKey(userId, profileUpdate.Nickname);
 
-                if (errorKey == null)
+                if (errorKey == string.Empty)
                 {
                     errorKey = PersistProfile(sessionToken, userId, profileUpdate);
                 }
@@ -103,11 +103,15 @@ namespace TLMG.Services.Accounts
 
         private string FindNicknameTakenErrorKey(int userId, string nickname)
         {
-            string errorKey = null;
+            string errorKey = ErrorKeys.Common.Unexpected;
             PlayerExistenceLookupStatus existenceStatus =
                 _playerProfileRepository.FindNicknameExistenceStatusForOtherUsers(userId, nickname);
 
-            if (existenceStatus == PlayerExistenceLookupStatus.Exists)
+            if (existenceStatus == PlayerExistenceLookupStatus.NotFound)
+            {
+                errorKey = string.Empty;
+            }
+            else if (existenceStatus == PlayerExistenceLookupStatus.Exists)
             {
                 errorKey = ErrorKeys.Profile.NicknameTaken;
             }
@@ -124,7 +128,7 @@ namespace TLMG.Services.Accounts
             PlayerProfileUpdateStatus updateStatus = _playerProfileRepository.UpdateProfile(userId, profileUpdate);
             string errorKey = ResolveUpdateErrorKey(updateStatus);
 
-            if (errorKey == null)
+            if (errorKey == string.Empty)
             {
                 _sessionIdentityProvider.TryUpdateNickname(sessionToken, profileUpdate.Nickname);
                 _log.InfoFormat("El jugador {0} actualizó su perfil.", userId);
@@ -164,7 +168,7 @@ namespace TLMG.Services.Accounts
             switch (updateStatus)
             {
                 case PlayerProfileUpdateStatus.Updated:
-                    errorKey = null;
+                    errorKey = string.Empty;
                     break;
                 case PlayerProfileUpdateStatus.NicknameTaken:
                     errorKey = ErrorKeys.Profile.NicknameTaken;

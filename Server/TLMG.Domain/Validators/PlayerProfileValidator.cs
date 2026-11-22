@@ -13,7 +13,7 @@ namespace TLMG.Domain.Validators
             {
                 errorKey = ValidateNickname(profileUpdate.Nickname);
 
-                if (errorKey == null)
+                if (errorKey == string.Empty)
                 {
                     errorKey = ValidateAvatar(profileUpdate.AvatarKey);
                 }
@@ -24,7 +24,7 @@ namespace TLMG.Domain.Validators
 
         private static string ValidateNickname(string nickname)
         {
-            string errorKey = null;
+            string errorKey = string.Empty;
 
             if (!AccountFieldValidator.IsNicknameValid(nickname))
             {
@@ -36,7 +36,7 @@ namespace TLMG.Domain.Validators
 
         private static string ValidateAvatar(string avatarKey)
         {
-            string errorKey = null;
+            string errorKey = string.Empty;
 
             if (!AvatarCatalog.IsValidKey(avatarKey))
             {

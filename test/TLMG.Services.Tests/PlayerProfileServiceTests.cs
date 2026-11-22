@@ -162,7 +162,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Null(result.ErrorKey);
+            Assert.Equal(string.Empty, result.ErrorKey);
             ProfileRepositoryDouble.NicknameCheck check = Assert.Single(_repository.NicknameChecks);
             Assert.Equal(PlayerUserId, check.UserId);
             Assert.Equal(Nickname, check.Nickname);
@@ -309,6 +309,20 @@ namespace TLMG.Services.Tests
             Assert.Empty(_identity.NicknameSyncs);
         }
 
+        [Fact]
+        public void UpdateProfile_WhenNicknameStatusIsUnknown_RejectsWithoutSaving()
+        {
+            PlayerProfileService service = CreateService();
+            _repository.NicknameStatus = (PlayerExistenceLookupStatus)99;
+
+            OperationResult result = service.UpdateProfile(CreateRequest(ValidToken, Nickname, AvatarKey));
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorKeys.Common.Unexpected, result.ErrorKey);
+            Assert.Empty(_repository.Updates);
+            Assert.Empty(_identity.NicknameSyncs);
+        }
+
         [Theory]
         [InlineData(PlayerProfileUpdateStatus.NicknameTaken, ErrorKeys.Profile.NicknameTaken)]
         [InlineData(PlayerProfileUpdateStatus.PlayerNotFound, ErrorKeys.Common.InvalidSession)]
@@ -344,7 +358,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Null(result.ErrorKey);
+            Assert.Equal(string.Empty, result.ErrorKey);
             Assert.Single(_repository.Updates);
             Assert.Single(_identity.NicknameSyncs);
         }
