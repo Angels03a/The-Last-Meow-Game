@@ -5,6 +5,7 @@ using log4net;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
 using TLMG.Domain.Validators;
 using TLMG.Services.Sessions;
@@ -32,10 +33,14 @@ namespace TLMG.Services.Chat {
             IChatManagerCallback callback)
         {
             string errorKey = _sessionRegistry.SubscribeToChat(caller, callback);
+            if (errorKey != null && string.IsNullOrWhiteSpace(errorKey))
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
             OperationResult operationSubscribeToChatResult = new OperationResult
             {
                 IsSuccess = errorKey == null,
-                ErrorKey = errorKey
+                ErrorKey = errorKey == null ? string.Empty : errorKey
             };
             LogChatRejection(errorKey);
 
@@ -73,6 +78,16 @@ namespace TLMG.Services.Chat {
             ChatDelivery chatDelivery;
             string errorKey = _sessionRegistry.AcceptChatMessage(caller, chatSubmission, out chatDelivery);
             ResultWithNotification<OperationSendChatMessageResult> sendChatMessageResult;
+
+            if (errorKey == null && chatDelivery == null)
+            {
+                _log.Warn("La operación de chat aceptada no devolvió una entrega.");
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
+            else if (errorKey != null && string.IsNullOrWhiteSpace(errorKey))
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
 
             if (errorKey != null)
             {
