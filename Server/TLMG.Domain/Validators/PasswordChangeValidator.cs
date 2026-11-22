@@ -6,7 +6,7 @@ namespace TLMG.Domain.Validators
     {
         public static string ValidateNewPassword(string newPassword)
         {
-            string errorKey = null;
+            string errorKey = string.Empty;
 
             if (PlayerAccountRegistrationValidator.ValidatePassword(newPassword) != null)
             {

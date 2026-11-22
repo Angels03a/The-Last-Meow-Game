@@ -8,6 +8,8 @@ namespace TLMG.Services.Accounts
 {
     public class PasswordRecoveryService
     {
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(PasswordRecoveryService));
+
         private readonly IPasswordRepository _passwordRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly PasswordResetDispatcher _resetDispatcher;
@@ -84,23 +86,25 @@ namespace TLMG.Services.Accounts
         public OperationResult ResetPassword(OperationResetPasswordRequest resetPasswordRequest)
         {
             string errorKey = ErrorKeys.Common.Unexpected;
+            bool isSuccess = false;
 
             if (resetPasswordRequest != null)
             {
                 errorKey = PasswordChangeValidator.ValidateNewPassword(resetPasswordRequest.NewPassword);
 
-                if (errorKey == null)
+                if (errorKey == string.Empty)
                 {
-                    errorKey = ApplyReset(resetPasswordRequest);
+                    errorKey = ApplyReset(resetPasswordRequest, out isSuccess);
                 }
             }
 
-            return CreateResult(errorKey);
+            return new OperationResult { IsSuccess = isSuccess, ErrorKey = errorKey };
         }
 
-        private string ApplyReset(OperationResetPasswordRequest resetPasswordRequest)
+        private string ApplyReset(OperationResetPasswordRequest resetPasswordRequest, out bool isSuccess)
         {
             string errorKey = ErrorKeys.Verification.ExpiredCode;
+            isSuccess = false;
 
             if (!string.IsNullOrWhiteSpace(resetPasswordRequest.Email)
                 && !string.IsNullOrWhiteSpace(resetPasswordRequest.VerificationCode))
@@ -111,6 +115,7 @@ namespace TLMG.Services.Accounts
                     VerificationCodeStore.ComputeCodeHash(resetPasswordRequest.VerificationCode.Trim()),
                     newHash);
                 errorKey = ResolveResetErrorKey(resetStatus);
+                isSuccess = resetStatus == PasswordResetStatus.Reset;
             }
 
             return errorKey;
@@ -150,13 +155,17 @@ namespace TLMG.Services.Accounts
             switch (resetStatus)
             {
                 case PasswordResetStatus.Reset:
-                    errorKey = null;
+                    errorKey = string.Empty;
                     break;
                 case PasswordResetStatus.NoVerifiedCode:
                 case PasswordResetStatus.UserNotFound:
                     errorKey = ErrorKeys.Verification.ExpiredCode;
                     break;
                 default:
+                    if (resetStatus != PasswordResetStatus.DataFailure)
+                    {
+                        _log.Warn("El restablecimiento de contraseña devolvió un estado desconocido.");
+                    }
                     errorKey = ErrorKeys.Password.DataModel;
                     break;
             }

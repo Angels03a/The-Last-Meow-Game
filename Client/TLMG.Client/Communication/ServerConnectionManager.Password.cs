@@ -34,6 +34,7 @@ namespace TLMG.Client.Communication
                 changeResult = CreateFailedResult<OperationResult>(PasswordInvalidSessionErrorKey);
             }
 
+            NormalizePasswordResult(changeResult, true);
             return changeResult;
         }
 
@@ -43,7 +44,7 @@ namespace TLMG.Client.Communication
                 passwordClient => passwordClient.RequestPasswordResetCode(email, cultureCode),
                 "solicitar el código de recuperación");
 
-            NormalizeRecoveryError(requestResult);
+            NormalizePasswordResult(requestResult, false);
 
             return requestResult;
         }
@@ -54,24 +55,23 @@ namespace TLMG.Client.Communication
                 passwordClient => passwordClient.VerifyPasswordResetCode(email, verificationCode),
                 "verificar el código de recuperación");
 
-            if (verifyResult.IsSuccess && verifyResult.ErrorKey != string.Empty)
-            {
-                _log.Warn("El servidor devolvió un resultado de verificación inconsistente.");
-                verifyResult.IsSuccess = false;
-                verifyResult.ErrorKey = PasswordUnexpectedErrorKey;
-            }
-
-            NormalizeRecoveryError(verifyResult);
+            NormalizePasswordResult(verifyResult, true);
             return verifyResult;
         }
 
-        private void NormalizeRecoveryError(OperationResult result)
+        private void NormalizePasswordResult(OperationResult result, bool validateSuccess)
         {
-            if (!result.IsSuccess && (string.IsNullOrWhiteSpace(result.ErrorKey)
+            if (validateSuccess && result.IsSuccess && result.ErrorKey != string.Empty)
+            {
+                _log.Warn("El servidor devolvió un resultado de contraseña inconsistente.");
+                result.IsSuccess = false;
+                result.ErrorKey = PasswordUnexpectedErrorKey;
+            }
+            else if (!result.IsSuccess && (string.IsNullOrWhiteSpace(result.ErrorKey)
                 || (Application.Current != null
                     && !(Application.Current.TryFindResource(result.ErrorKey) is string))))
             {
-                _log.Warn("El servidor devolvió una clave de error de recuperación inválida.");
+                _log.Warn("El servidor devolvió una clave de error de contraseña inválida.");
                 result.ErrorKey = PasswordUnexpectedErrorKey;
             }
         }
@@ -89,6 +89,7 @@ namespace TLMG.Client.Communication
                 passwordClient => passwordClient.ResetPassword(resetRequest),
                 "restablecer la contraseña");
 
+            NormalizePasswordResult(resetResult, true);
             return resetResult;
         }
 

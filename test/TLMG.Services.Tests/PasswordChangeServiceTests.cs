@@ -50,7 +50,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Null(result.ErrorKey);
+            Assert.Equal(string.Empty, result.ErrorKey);
             Assert.Equal(new[] { PlayerUserId }, _repository.LookedUpUserIds);
             PasswordRepositoryDouble.ChangeCall call = Assert.Single(_repository.Changes);
             Assert.Equal(PlayerUserId, call.UserId);
@@ -158,6 +158,45 @@ namespace TLMG.Services.Tests
         [Theory]
         [InlineData(null)]
         [InlineData("")]
+        [InlineData("   ")]
+        public void ChangePassword_WhenFoundHashIsMissing_RejectsWithoutVerifyingOrWriting(string hash)
+        {
+            // Arrange
+            _repository.Lookup = new PasswordHashLookup { Status = CredentialsLookupStatus.Found, PasswordHash = hash };
+            PasswordChangeService service = new PasswordChangeService(_repository, new RejectingHasher(), _identity);
+
+            // Act
+            OperationResult result = service.ChangePassword(CreateRequest(ValidToken, CurrentPassword, NewPassword));
+
+            // Assert
+            AssertRejectedWithoutWrite(result);
+            Assert.Equal(ErrorKeys.Password.DataModel, result.ErrorKey);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ChangePassword_WhenLookupIsNullOrUnknown_RejectsWithoutVerifyingOrWriting(bool isNull)
+        {
+            // Arrange
+            _repository.Lookup = isNull ? null : new PasswordHashLookup
+            {
+                Status = (CredentialsLookupStatus)999,
+                PasswordHash = _storedHash
+            };
+            PasswordChangeService service = new PasswordChangeService(_repository, new RejectingHasher(), _identity);
+
+            // Act
+            OperationResult result = service.ChangePassword(CreateRequest(ValidToken, CurrentPassword, NewPassword));
+
+            // Assert
+            AssertRejectedWithoutWrite(result);
+            Assert.Equal(ErrorKeys.Password.DataModel, result.ErrorKey);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
         [InlineData(WrongPassword)]
         public void ChangePassword_WithWrongCurrentPassword_RejectsWithoutUpdatingTheHash(string currentPassword)
         {
@@ -205,6 +244,7 @@ namespace TLMG.Services.Tests
         [InlineData(PasswordChangeStatus.StaleCredentials, ErrorKeys.Password.CurrentPasswordIncorrect)]
         [InlineData(PasswordChangeStatus.UserNotFound, ErrorKeys.Common.InvalidSession)]
         [InlineData(PasswordChangeStatus.DataFailure, ErrorKeys.Password.DataModel)]
+        [InlineData((PasswordChangeStatus)999, ErrorKeys.Password.DataModel)]
         public void ChangePassword_WhenTheWriteIsRejected_ReturnsTheMatchingError(
             PasswordChangeStatus writeStatus,
             string expectedErrorKey)
@@ -244,6 +284,19 @@ namespace TLMG.Services.Tests
         {
             Assert.False(result.IsSuccess);
             Assert.Empty(_repository.Changes);
+        }
+
+        private sealed class RejectingHasher : IPasswordHasher
+        {
+            public string HashPassword(string password)
+            {
+                throw new System.InvalidOperationException("Hashing must not occur after a rejected lookup.");
+            }
+
+            public bool VerifyPassword(string password, string storedHash)
+            {
+                throw new System.InvalidOperationException("Verification must not occur after a rejected lookup.");
+            }
         }
 
         private sealed class PasswordRepositoryDouble : IPasswordRepository
