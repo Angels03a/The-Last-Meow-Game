@@ -24,21 +24,33 @@ namespace TLMG.Client.Communication
                 client => client.LogOut(_sessionToken), "cerrar sesión",
                 "MainMenu_LogOutUnconfirmed", "MainMenu_LogOutUnconfirmed");
 
+            if (result.IsSuccess && result.ErrorKey != string.Empty)
+            {
+                _log.Warn("El servidor devolvió un resultado de cierre inconsistente.");
+                result = CreateFailedResult<LogOutResult>("MainMenu_LogOutUnconfirmed");
+            }
+            else if (!result.IsSuccess && (string.IsNullOrWhiteSpace(result.ErrorKey)
+                || (Application.Current != null && !(Application.Current.TryFindResource(result.ErrorKey) is string))))
+            {
+                _log.Warn("El servidor devolvió una clave de cierre inválida.");
+                result.ErrorKey = "MainMenu_LogOutUnconfirmed";
+            }
+
             if (!result.IsSuccess && result.ErrorKey == "MainMenu_LogOutUnconfirmed")
             {
                 OperationResult validity = SendUsersManagerRequest(
                     client => client.CheckSession(_sessionToken), "comprobar el cierre de sesión",
                     "MainMenu_LogOutUnconfirmed", "MainMenu_LogOutUnconfirmed");
-                if (validity.ErrorKey == "Common_InvalidSessionError")
+                if (!validity.IsSuccess && validity.ErrorKey == "Common_InvalidSessionError")
                 {
-                    result = new LogOutResult { IsSuccess = true };
+                    result = new LogOutResult { IsSuccess = true, ErrorKey = string.Empty };
                 }
             }
 
             if (result.IsSuccess || result.ErrorKey == "Common_InvalidSessionError")
             {
                 Disconnect();
-                result = new LogOutResult { IsSuccess = true };
+                result = new LogOutResult { IsSuccess = true, ErrorKey = string.Empty };
             }
 
             return result;
@@ -57,6 +69,19 @@ namespace TLMG.Client.Communication
                 "iniciar sesión",
                 LogInConnectionErrorKey,
                 LogInUnexpectedErrorKey);
+
+            if (operationLogInResult.IsSuccess && operationLogInResult.ErrorKey != string.Empty)
+            {
+                _log.Warn("El servidor devolvió un resultado de inicio de sesión inconsistente.");
+                operationLogInResult = CreateFailedResult<OperationLogInResult>(LogInUnexpectedErrorKey);
+            }
+            else if (!operationLogInResult.IsSuccess && (string.IsNullOrWhiteSpace(operationLogInResult.ErrorKey)
+                || (Application.Current != null
+                    && !(Application.Current.TryFindResource(operationLogInResult.ErrorKey) is string))))
+            {
+                _log.Warn("El servidor devolvió una clave de inicio de sesión inválida.");
+                operationLogInResult.ErrorKey = LogInUnexpectedErrorKey;
+            }
 
             if (operationLogInResult.IsSuccess)
             {

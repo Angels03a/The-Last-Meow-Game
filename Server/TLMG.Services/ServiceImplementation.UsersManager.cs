@@ -136,7 +136,7 @@ namespace TLMG.Services
             return new OperationResult
             {
                 IsSuccess = isValid,
-                ErrorKey = isValid ? null : ErrorKeys.Common.InvalidSession
+                ErrorKey = isValid ? string.Empty : ErrorKeys.Common.InvalidSession
             };
         }
 
@@ -153,7 +153,7 @@ namespace TLMG.Services
             return new LogOutResult
             {
                 IsSuccess = wasRevoked,
-                ErrorKey = wasRevoked ? null : hasActiveParticipation
+                ErrorKey = wasRevoked ? string.Empty : hasActiveParticipation
                     ? ErrorKeys.Common.LogOutActiveMatch
                     : ErrorKeys.Common.InvalidSession
             };
