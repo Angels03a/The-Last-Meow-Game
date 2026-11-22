@@ -36,16 +36,24 @@ namespace TLMG.Services.Accounts
         // TODO: Agregar el cooldown por cuenta y el Token Bucket del 2FA. (ADR-05).
         public bool SendResetCode(string normalizedEmail, string cultureCode)
         {
-            bool wasHandled = true;
+            bool wasHandled = false;
             PlayerCredentials credentials = _playerRepository.FindCredentialsByEmail(normalizedEmail);
 
-            if (credentials.Status == CredentialsLookupStatus.DataFailure)
+            if (credentials == null)
             {
-                wasHandled = false;
+                _log.Warn("La consulta de recuperación no devolvió credenciales.");
             }
             else if (credentials.Status == CredentialsLookupStatus.Found)
             {
                 wasHandled = SendCodeToUser(credentials.UserId, normalizedEmail, cultureCode);
+            }
+            else if (credentials.Status == CredentialsLookupStatus.NotFound)
+            {
+                wasHandled = true;
+            }
+            else if (credentials.Status != CredentialsLookupStatus.DataFailure)
+            {
+                _log.Warn("La consulta de recuperación devolvió un estado desconocido.");
             }
 
             return wasHandled;
@@ -63,7 +71,12 @@ namespace TLMG.Services.Accounts
             };
             PlayerCredentials credentials = _playerRepository.FindCredentialsByEmail(normalizedEmail);
 
-            if (credentials.Status == CredentialsLookupStatus.Found)
+            if (credentials == null)
+            {
+                _log.Warn("La consulta de verificación no devolvió credenciales.");
+                validationResult.Status = VerificationCodeStatus.UnexpectedError;
+            }
+            else if (credentials.Status == CredentialsLookupStatus.Found)
             {
                 validationResult = _verificationCodeStore.ValidatePasswordResetCode(credentials.UserId, plainCode);
             }

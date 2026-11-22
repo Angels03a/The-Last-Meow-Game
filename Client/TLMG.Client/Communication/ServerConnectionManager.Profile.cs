@@ -47,6 +47,20 @@ namespace TLMG.Client.Communication
                     ProfileConnectionErrorKey,
                     ProfileUnexpectedErrorKey);
 
+                if (updateResult.IsSuccess && updateResult.ErrorKey != string.Empty)
+                {
+                    _log.Warn("El servidor devolvió un resultado de perfil inconsistente.");
+                    updateResult.IsSuccess = false;
+                    updateResult.ErrorKey = ProfileUnexpectedErrorKey;
+                }
+                else if (!updateResult.IsSuccess && (string.IsNullOrWhiteSpace(updateResult.ErrorKey)
+                    || (System.Windows.Application.Current != null
+                        && !(System.Windows.Application.Current.TryFindResource(updateResult.ErrorKey) is string))))
+                {
+                    _log.Warn("El servidor devolvió una clave de error de perfil inválida.");
+                    updateResult.ErrorKey = ProfileUnexpectedErrorKey;
+                }
+
                 if (updateResult.IsSuccess)
                 {
                     PlayerNickname = nickname;

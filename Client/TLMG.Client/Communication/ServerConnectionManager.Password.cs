@@ -34,7 +34,7 @@ namespace TLMG.Client.Communication
                 changeResult = CreateFailedResult<OperationResult>(PasswordInvalidSessionErrorKey);
             }
 
-            NormalizePasswordResult(changeResult, true);
+            NormalizePasswordResult(changeResult);
             return changeResult;
         }
 
@@ -44,7 +44,7 @@ namespace TLMG.Client.Communication
                 passwordClient => passwordClient.RequestPasswordResetCode(email, cultureCode),
                 "solicitar el código de recuperación");
 
-            NormalizePasswordResult(requestResult, false);
+            NormalizePasswordResult(requestResult);
 
             return requestResult;
         }
@@ -55,13 +55,13 @@ namespace TLMG.Client.Communication
                 passwordClient => passwordClient.VerifyPasswordResetCode(email, verificationCode),
                 "verificar el código de recuperación");
 
-            NormalizePasswordResult(verifyResult, true);
+            NormalizePasswordResult(verifyResult);
             return verifyResult;
         }
 
-        private void NormalizePasswordResult(OperationResult result, bool validateSuccess)
+        private void NormalizePasswordResult(OperationResult result)
         {
-            if (validateSuccess && result.IsSuccess && result.ErrorKey != string.Empty)
+            if (result.IsSuccess && result.ErrorKey != string.Empty)
             {
                 _log.Warn("El servidor devolvió un resultado de contraseña inconsistente.");
                 result.IsSuccess = false;
@@ -89,7 +89,7 @@ namespace TLMG.Client.Communication
                 passwordClient => passwordClient.ResetPassword(resetRequest),
                 "restablecer la contraseña");
 
-            NormalizePasswordResult(resetResult, true);
+            NormalizePasswordResult(resetResult);
             return resetResult;
         }
 
