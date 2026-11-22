@@ -24,9 +24,11 @@ namespace TLMG.Services.Leaderboard
             LeaderboardLookup leaderboardLookup = 
                 _playerRepository.FindTopRankedPlayers(MaximumLeaderboardPlayerCount);
 
-            if (leaderboardLookup.WasLeaderboardLookupSuccessful)
+            if (leaderboardLookup != null && leaderboardLookup.WasLeaderboardLookupSuccessful
+                && leaderboardLookup.Players != null)
             {
                 operationGetLeaderboardResult.IsSuccess = true;
+                operationGetLeaderboardResult.ErrorKey = string.Empty;
                 operationGetLeaderboardResult.Players = ConvertToLeaderboardPlayers(leaderboardLookup.Players);
             }
             else

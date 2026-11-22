@@ -36,7 +36,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Null(result.ErrorKey);
+            Assert.Equal(string.Empty, result.ErrorKey);
             Assert.Equal(3, result.Players.Count);
             AssertPlayer(result.Players[0], "Whiskers", "AVATAR_LION", 120, 8, 20);
             AssertPlayer(result.Players[1], "Mittens", null, 0, 0, 0);
@@ -88,7 +88,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Null(result.ErrorKey);
+            Assert.Equal(string.Empty, result.ErrorKey);
             Assert.NotNull(result.Players);
             Assert.Empty(result.Players);
         }
@@ -103,6 +103,38 @@ namespace TLMG.Services.Tests
                 WasLeaderboardLookupSuccessful = false,
                 Players = new List<RankedPlayer> { CreateRankedPlayer("Whiskers", "AVATAR_LION", 120, 8, 20) }
             };
+
+            // Act
+            OperationGetLeaderboardResult result = service.GetLeaderboard();
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorKeys.Leaderboard.ConnectionError, result.ErrorKey);
+            Assert.Null(result.Players);
+        }
+
+        [Fact]
+        public void GetLeaderboard_WhenLookupIsNull_ReturnsFailure()
+        {
+            // Arrange
+            LeaderboardService service = CreateService();
+            _players.Leaderboard = null;
+
+            // Act
+            OperationGetLeaderboardResult result = service.GetLeaderboard();
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorKeys.Leaderboard.ConnectionError, result.ErrorKey);
+            Assert.Null(result.Players);
+        }
+
+        [Fact]
+        public void GetLeaderboard_WhenPlayersAreNull_ReturnsFailure()
+        {
+            // Arrange
+            LeaderboardService service = CreateService();
+            _players.Leaderboard = new LeaderboardLookup { WasLeaderboardLookupSuccessful = true, Players = null };
 
             // Act
             OperationGetLeaderboardResult result = service.GetLeaderboard();
