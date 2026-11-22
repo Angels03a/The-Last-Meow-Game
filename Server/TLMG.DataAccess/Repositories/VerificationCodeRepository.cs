@@ -93,9 +93,10 @@ namespace TLMG.DataAccess.Repositories
             return pendingId;
         }
 
-        public PendingRegistrationRecord FindPendingRegistrationByEmail(string email)
+        public PlayerExistenceLookupStatus FindPendingRegistrationByEmail(string email, out PendingRegistrationRecord pendingRecord)
         {
-            PendingRegistrationRecord pendingRecord = null;
+            pendingRecord = null;
+            PlayerExistenceLookupStatus status = PlayerExistenceLookupStatus.DataFailure;
             const string storedProcedureCommand = "EXEC dbo.FindPendingRegistration @email";
 
             try
@@ -107,6 +108,7 @@ namespace TLMG.DataAccess.Repositories
                     pendingRecord = context.Database
                         .SqlQuery<PendingRegistrationRecord>(storedProcedureCommand, emailParameter)
                         .FirstOrDefault();
+                    status = pendingRecord == null ? PlayerExistenceLookupStatus.NotFound : PlayerExistenceLookupStatus.Exists;
                 }
             }
             catch (SqlException sqlException)
@@ -118,7 +120,7 @@ namespace TLMG.DataAccess.Repositories
                 _log.Error("Error de entidad al consultar el registro pendiente.", entityException);
             }
 
-            return pendingRecord;
+            return status;
         }
 
         public void DeletePendingRegistration(int pendingId)

@@ -219,10 +219,11 @@ namespace TLMG.Services.Tests
             _repository.PendingRegistrationToReturn = CreatePending(DateTime.UtcNow.AddHours(1));
 
             // Act
-            PendingRegistrationRecord found = store.FindValidPendingRegistration("whiskers@example.com");
+            PlayerExistenceLookupStatus status = store.FindValidPendingRegistration("whiskers@example.com", out PendingRegistrationRecord found);
 
             // Assert
             Assert.Same(_repository.PendingRegistrationToReturn, found);
+            Assert.Equal(PlayerExistenceLookupStatus.Exists, status);
             Assert.Empty(_repository.DeletedPendingIds);
         }
 
@@ -234,10 +235,11 @@ namespace TLMG.Services.Tests
             _repository.PendingRegistrationToReturn = CreatePending(DateTime.UtcNow.AddHours(-1));
 
             // Act
-            PendingRegistrationRecord found = store.FindValidPendingRegistration("whiskers@example.com");
+            PlayerExistenceLookupStatus status = store.FindValidPendingRegistration("whiskers@example.com", out PendingRegistrationRecord found);
 
             // Assert
             Assert.Null(found);
+            Assert.Equal(PlayerExistenceLookupStatus.NotFound, status);
             Assert.Equal(new[] { PendingId }, _repository.DeletedPendingIds);
         }
 
@@ -249,10 +251,11 @@ namespace TLMG.Services.Tests
             _repository.PendingRegistrationToReturn = null;
 
             // Act
-            PendingRegistrationRecord found = store.FindValidPendingRegistration("whiskers@example.com");
+            PlayerExistenceLookupStatus status = store.FindValidPendingRegistration("whiskers@example.com", out PendingRegistrationRecord found);
 
             // Assert
             Assert.Null(found);
+            Assert.Equal(PlayerExistenceLookupStatus.NotFound, status);
             Assert.Empty(_repository.DeletedPendingIds);
         }
 

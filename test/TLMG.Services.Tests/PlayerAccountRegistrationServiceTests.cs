@@ -421,6 +421,27 @@ namespace TLMG.Services.Tests
             Assert.Single(codes.SavedCodes);
         }
 
+        [Theory]
+        [InlineData(PlayerExistenceLookupStatus.DataFailure)]
+        [InlineData((PlayerExistenceLookupStatus)999)]
+        [InlineData(PlayerExistenceLookupStatus.Exists)]
+        public void Registration_WhenPendingLookupFails_RejectsWithoutCreatingOrSending(PlayerExistenceLookupStatus status)
+        {
+            // Arrange
+            VerificationCodeRepositoryStub codes = new VerificationCodeRepositoryStub { PendingStatusToReturn = status };
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(codes);
+
+            // Act
+            OperationResult confirmation = service.CompleteRegistration(CreateValidRequest(), "123456");
+            OperationResult resend = service.ResendVerificationCode(SyntheticEmail, CultureCode);
+
+            // Assert
+            AssertRejectedWithoutWrites(confirmation, ErrorKeys.CreateAccount.DataModel);
+            AssertRejectedWithoutWrites(resend, ErrorKeys.CreateAccount.DataModel);
+            Assert.Empty(codes.ValidatedCodes);
+            Assert.Empty(codes.SavedCodes);
+        }
+
         private static VerificationCodeRepositoryStub CreatePendingCodes()
         {
             return new VerificationCodeRepositoryStub

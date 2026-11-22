@@ -100,16 +100,20 @@ namespace TLMG.Services.Accounts
             if (errorKey == null)
             {
                 string normalizedEmail = AccountFieldValidator.NormalizeEmail(playerAccountRegistration.Email);
-                PendingRegistrationRecord pendingRecord =
-                    _verificationDispatcher.FindValidPendingRegistration(normalizedEmail);
+                PlayerExistenceLookupStatus pendingStatus =
+                    _verificationDispatcher.FindValidPendingRegistration(normalizedEmail, out PendingRegistrationRecord pendingRecord);
 
-                if (pendingRecord == null)
+                if (pendingStatus == PlayerExistenceLookupStatus.NotFound)
                 {
                     errorKey = ErrorKeys.Verification.ExpiredCode;
                 }
-                else
+                else if (pendingStatus == PlayerExistenceLookupStatus.Exists && pendingRecord != null)
                 {
                     errorKey = VerifyCodeAndFinalizePlayer(pendingRecord, verificationCode.Trim(), out isSuccess);
+                }
+                else
+                {
+                    errorKey = ErrorKeys.CreateAccount.DataModel;
                 }
             }
 
@@ -137,12 +141,16 @@ namespace TLMG.Services.Accounts
             else
             {
                 string normalizedEmail = AccountFieldValidator.NormalizeEmail(email);
-                PendingRegistrationRecord pendingRecord =
-                    _verificationDispatcher.FindValidPendingRegistration(normalizedEmail);
+                PlayerExistenceLookupStatus pendingStatus =
+                    _verificationDispatcher.FindValidPendingRegistration(normalizedEmail, out PendingRegistrationRecord pendingRecord);
 
-                if (pendingRecord == null)
+                if (pendingStatus == PlayerExistenceLookupStatus.NotFound)
                 {
                     errorKey = ErrorKeys.Verification.ExpiredCode;
+                }
+                else if (pendingStatus != PlayerExistenceLookupStatus.Exists || pendingRecord == null)
+                {
+                    errorKey = ErrorKeys.CreateAccount.DataModel;
                 }
                 else if (!_verificationDispatcher.SendRegistrationCode(
                     pendingRecord.PendingId,
