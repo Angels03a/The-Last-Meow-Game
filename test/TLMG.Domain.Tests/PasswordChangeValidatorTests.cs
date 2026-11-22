@@ -20,7 +20,7 @@ namespace TLMG.Domain.Tests
         [Theory]
         [InlineData(ValidPassword)]
         [InlineData("Aa1_aaaaaaaa")]
-        public void ValidateNewPassword_WithValidPassword_ReturnsNull(string newPassword)
+        public void ValidateNewPassword_WithValidPassword_ReturnsEmpty(string newPassword)
         {
             // Arrange
 
@@ -28,7 +28,7 @@ namespace TLMG.Domain.Tests
             string errorKey = PasswordChangeValidator.ValidateNewPassword(newPassword);
 
             // Assert
-            Assert.Null(errorKey);
+            Assert.Equal(string.Empty, errorKey);
         }
 
         [Theory]
@@ -64,7 +64,7 @@ namespace TLMG.Domain.Tests
             string errorKey = PasswordChangeValidator.ValidateNewPassword(newPassword);
 
             // Assert
-            Assert.Equal(isValid, errorKey == null);
+            Assert.Equal(isValid, errorKey == string.Empty);
         }
 
         [Fact]

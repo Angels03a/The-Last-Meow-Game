@@ -256,7 +256,7 @@ namespace TLMG.Services.Helpers
             }
             else if (!_errorKeysByPlacementStatus.TryGetValue(placementStatus, out errorKey))
             {
-                errorKey = MatchErrorKeys.NotInMatch;
+                errorKey = ErrorKeys.Common.Unexpected;
             }
 
             return errorKey;

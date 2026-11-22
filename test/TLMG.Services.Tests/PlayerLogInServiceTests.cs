@@ -39,7 +39,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.OperationResult.IsSuccess);
-            Assert.Null(result.OperationResult.ErrorKey);
+            Assert.Equal(string.Empty, result.OperationResult.ErrorKey);
             Assert.Equal(PlayerUserId, result.OperationResult.UserId);
             Assert.Equal(PlayerNickname, result.OperationResult.Nickname);
             Assert.True(_registry.TryFindSessionByToken(
@@ -159,6 +159,41 @@ namespace TLMG.Services.Tests
             // Arrange
             PlayerLogInService service = CreateServiceWithActiveAccount();
             _repository.Credentials.Status = CredentialsLookupStatus.DataFailure;
+
+            // Act
+            OperationLogInResult result = service.LogIn(CreateRequest(SyntheticPassword)).OperationResult;
+
+            // Assert
+            AssertRejectedWithoutSideEffects(result, ErrorKeys.Login.DataModel);
+        }
+
+        [Fact]
+        public void LogIn_WhenLookupIsNull_RejectsWithoutSession()
+        {
+            // Arrange
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+            _repository.Credentials = null;
+
+            // Act
+            OperationLogInResult result = service.LogIn(CreateRequest(SyntheticPassword)).OperationResult;
+
+            // Assert
+            AssertRejectedWithoutSideEffects(result, ErrorKeys.Login.DataModel);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void LogIn_WhenLookupIsIncompleteOrUnknown_RejectsWithoutSession(int scenario)
+        {
+            // Arrange
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+            if (scenario == 0) _repository.Credentials.PasswordHash = null;
+            if (scenario == 1) _repository.Credentials.Nickname = null;
+            if (scenario == 2) _repository.Credentials.UserId = 0;
+            if (scenario == 3) _repository.Credentials.Status = (CredentialsLookupStatus)999;
 
             // Act
             OperationLogInResult result = service.LogIn(CreateRequest(SyntheticPassword)).OperationResult;

@@ -1,7 +1,9 @@
-﻿namespace TLMG.Services.Sessions
+﻿using System;
+
+namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Immutable pending invitation to another player's room.
+    /// Pending invitation to another player's room. Only the time of its last notification changes.
     /// </summary>
     internal sealed class RoomInvitationRecord
     {
@@ -10,12 +12,19 @@
         /// <param name="inviterUserId">Inviting account ID.</param>
         /// <param name="inviteeUserId">Invited account ID.</param>
         /// <param name="roomId">ID of the room to join.</param>
-        public RoomInvitationRecord(int invitationId, int inviterUserId, int inviteeUserId, int roomId)
+        /// <param name="createdUtc">UTC time of creation, which is also the first notification.</param>
+        public RoomInvitationRecord(
+            int invitationId,
+            int inviterUserId,
+            int inviteeUserId,
+            int roomId,
+            DateTime createdUtc)
         {
             InvitationId = invitationId;
             InviterUserId = inviterUserId;
             InviteeUserId = inviteeUserId;
             RoomId = roomId;
+            LastNotifiedUtc = createdUtc;
         }
 
         /// <summary>Invitation ID.</summary>
@@ -29,5 +38,8 @@
 
         /// <summary>ID of the room to join.</summary>
         public int RoomId { get; }
+
+        /// <summary>UTC time when the invitee was last notified of this invitation.</summary>
+        public DateTime LastNotifiedUtc { get; set; }
     }
 }

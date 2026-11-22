@@ -34,15 +34,16 @@ namespace TLMG.Services.Accounts
             int userId = ValidationRules.NoUserId;
             string nickname = null;
             SessionEnd replacedSession = null;
+            bool isSuccess = false;
 
             string errorKey = ValidateLogInRequest(operationLogInRequest, out PlayerLogin playerLogin);
 
-            if (errorKey == null)
+            if (errorKey == string.Empty)
             {
                 PlayerCredentials playerCredentials;
                 errorKey = AuthenticatePlayer(playerLogin, out playerCredentials);
 
-                if (errorKey == null)
+                if (errorKey == string.Empty)
                 {
                     sessionToken = _sessionRegistry.StartRegisteredSession(
                         playerCredentials.UserId,
@@ -50,12 +51,13 @@ namespace TLMG.Services.Accounts
                         out replacedSession);
                     userId = playerCredentials.UserId;
                     nickname = playerCredentials.Nickname;
+                    isSuccess = true;
                 }
             }
 
             OperationLogInResult operationLogInResult = new OperationLogInResult
             {
-                IsSuccess = errorKey == null,
+                IsSuccess = isSuccess,
                 ErrorKey = errorKey,
                 SessionToken = sessionToken,
                 UserId = userId,
@@ -94,13 +96,33 @@ namespace TLMG.Services.Accounts
             string errorKey = ErrorKeys.Login.InvalidCredentials;
             playerCredentials = _playerRepository.FindCredentialsByEmail(playerLogin.Email);
 
-            if (playerCredentials.Status == CredentialsLookupStatus.DataFailure)
+            if (playerCredentials == null)
+            {
+                _log.Warn("La consulta de credenciales no devolvió resultado.");
+                errorKey = ErrorKeys.Login.DataModel;
+            }
+            else if (playerCredentials.Status == CredentialsLookupStatus.DataFailure)
             {
                 errorKey = ErrorKeys.Login.DataModel;
             }
             else if (playerCredentials.Status == CredentialsLookupStatus.Found)
             {
-                errorKey = VerifyKnownPlayer(playerCredentials, playerLogin.Password);
+                if (playerCredentials.UserId <= ValidationRules.NoUserId
+                    || string.IsNullOrWhiteSpace(playerCredentials.Nickname)
+                    || string.IsNullOrWhiteSpace(playerCredentials.PasswordHash))
+                {
+                    _log.Warn("La consulta de credenciales devolvió datos incompletos.");
+                    errorKey = ErrorKeys.Login.DataModel;
+                }
+                else
+                {
+                    errorKey = VerifyKnownPlayer(playerCredentials, playerLogin.Password);
+                }
+            }
+            else if (playerCredentials.Status != CredentialsLookupStatus.NotFound)
+            {
+                _log.Warn("La consulta de credenciales devolvió un estado desconocido.");
+                errorKey = ErrorKeys.Login.DataModel;
             }
 
             return errorKey;
@@ -131,7 +153,7 @@ namespace TLMG.Services.Accounts
 
             if (wasLastLogInTimeUpdated)
             {
-                errorKey = null;
+                errorKey = string.Empty;
                 _log.InfoFormat("El jugador {0} inició sesión.", userId);
             }
 

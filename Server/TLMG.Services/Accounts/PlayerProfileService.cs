@@ -31,18 +31,25 @@ namespace TLMG.Services.Accounts
             if (_sessionIdentityProvider.TryGetUserId(sessionToken, out int userId))
             {
                 PlayerProfileLookup profileLookup = _playerProfileRepository.FindProfileByUserId(userId);
-                errorKey = ResolveLookupErrorKey(profileLookup.Status);
-
-                if (errorKey == null)
+                if (profileLookup == null)
                 {
-                    profileResult.Nickname = profileLookup.Nickname;
-                    profileResult.Email = profileLookup.Email;
-                    profileResult.AvatarKey = AvatarCatalog.NormalizeKey(profileLookup.AvatarKey);
-                    profileResult.PasswordChangedAtUtc = profileLookup.PasswordChangedAtUtc;
+                    _log.Warn("La consulta de perfil no devolvió resultado.");
+                    errorKey = ErrorKeys.Profile.DataModel;
+                }
+                else
+                {
+                    errorKey = ResolveLookupErrorKey(profileLookup.Status);
+                    if (profileLookup.Status == PlayerProfileLookupStatus.Found)
+                    {
+                        profileResult.IsSuccess = true;
+                        profileResult.Nickname = profileLookup.Nickname;
+                        profileResult.Email = profileLookup.Email;
+                        profileResult.AvatarKey = AvatarCatalog.NormalizeKey(profileLookup.AvatarKey);
+                        profileResult.PasswordChangedAtUtc = profileLookup.PasswordChangedAtUtc;
+                    }
                 }
             }
 
-            profileResult.IsSuccess = errorKey == null;
             profileResult.ErrorKey = errorKey;
 
             return profileResult;
@@ -53,12 +60,12 @@ namespace TLMG.Services.Accounts
             OperationResult updateResult = new OperationResult();
             string errorKey = ValidateUpdateRequest(updateProfileRequest, out PlayerProfileUpdate profileUpdate);
 
-            if (errorKey == null)
+            if (errorKey == string.Empty)
             {
                 errorKey = SaveProfileUpdate(updateProfileRequest.SessionToken, profileUpdate);
             }
 
-            updateResult.IsSuccess = errorKey == null;
+            updateResult.IsSuccess = errorKey == string.Empty;
             updateResult.ErrorKey = errorKey;
 
             return updateResult;
@@ -92,7 +99,7 @@ namespace TLMG.Services.Accounts
             {
                 errorKey = FindNicknameTakenErrorKey(userId, profileUpdate.Nickname);
 
-                if (errorKey == null)
+                if (errorKey == string.Empty)
                 {
                     errorKey = PersistProfile(sessionToken, userId, profileUpdate);
                 }
@@ -103,11 +110,15 @@ namespace TLMG.Services.Accounts
 
         private string FindNicknameTakenErrorKey(int userId, string nickname)
         {
-            string errorKey = null;
+            string errorKey = ErrorKeys.Common.Unexpected;
             PlayerExistenceLookupStatus existenceStatus =
                 _playerProfileRepository.FindNicknameExistenceStatusForOtherUsers(userId, nickname);
 
-            if (existenceStatus == PlayerExistenceLookupStatus.Exists)
+            if (existenceStatus == PlayerExistenceLookupStatus.NotFound)
+            {
+                errorKey = string.Empty;
+            }
+            else if (existenceStatus == PlayerExistenceLookupStatus.Exists)
             {
                 errorKey = ErrorKeys.Profile.NicknameTaken;
             }
@@ -124,7 +135,7 @@ namespace TLMG.Services.Accounts
             PlayerProfileUpdateStatus updateStatus = _playerProfileRepository.UpdateProfile(userId, profileUpdate);
             string errorKey = ResolveUpdateErrorKey(updateStatus);
 
-            if (errorKey == null)
+            if (errorKey == string.Empty)
             {
                 _sessionIdentityProvider.TryUpdateNickname(sessionToken, profileUpdate.Nickname);
                 _log.InfoFormat("El jugador {0} actualizó su perfil.", userId);
@@ -140,7 +151,7 @@ namespace TLMG.Services.Accounts
             switch (lookupStatus)
             {
                 case PlayerProfileLookupStatus.Found:
-                    errorKey = null;
+                    errorKey = string.Empty;
                     break;
                 case PlayerProfileLookupStatus.NotFound:
                     errorKey = ErrorKeys.Common.InvalidSession;
@@ -164,7 +175,7 @@ namespace TLMG.Services.Accounts
             switch (updateStatus)
             {
                 case PlayerProfileUpdateStatus.Updated:
-                    errorKey = null;
+                    errorKey = string.Empty;
                     break;
                 case PlayerProfileUpdateStatus.NicknameTaken:
                     errorKey = ErrorKeys.Profile.NicknameTaken;

@@ -73,7 +73,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Null(result.ErrorKey);
+            Assert.Equal(string.Empty, result.ErrorKey);
             Assert.Empty(_codes.SavedCodes);
         }
 
@@ -158,7 +158,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Null(result.ErrorKey);
+            Assert.Equal(string.Empty, result.ErrorKey);
             Assert.Equal(new[] { Email }, _players.LookedUpEmails);
             VerificationCodeRecord validated = Assert.Single(_codes.ValidatedCodes);
             Assert.Equal(PlayerUserId, validated.UserId);
@@ -171,6 +171,7 @@ namespace TLMG.Services.Tests
         [InlineData(VerificationCodeStatus.Expired, ErrorKeys.Verification.ExpiredCode)]
         [InlineData(VerificationCodeStatus.NoActiveCode, ErrorKeys.Verification.ExpiredCode)]
         [InlineData(VerificationCodeStatus.UnexpectedError, ErrorKeys.Password.DataModel)]
+        [InlineData((VerificationCodeStatus)999, ErrorKeys.Password.DataModel)]
         public void VerifyResetCode_WhenTheDatabaseRejectsTheCode_ReturnsTheMatchingError(
             VerificationCodeStatus status,
             string expectedErrorKey)
@@ -217,6 +218,21 @@ namespace TLMG.Services.Tests
             Assert.False(result.IsSuccess);
             Assert.Equal(ErrorKeys.Password.DataModel, result.ErrorKey);
             Assert.Empty(_codes.ValidatedCodes);
+        }
+
+        [Fact]
+        public void VerifyResetCode_WhenValidationResultIsNull_RejectsWithDataModelError()
+        {
+            // Arrange
+            PasswordRecoveryService service = CreateService();
+            _codes.ValidationResultToReturn = null;
+
+            // Act
+            OperationResult result = service.VerifyResetCode(Email, PlainCode);
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorKeys.Password.DataModel, result.ErrorKey);
         }
 
         [Fact]
@@ -302,7 +318,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Null(result.ErrorKey);
+            Assert.Equal(string.Empty, result.ErrorKey);
             PasswordRepositoryDouble.ResetCall call = Assert.Single(_passwords.Resets);
             Assert.Equal(Email, call.Email);
             Assert.Equal(PlainCodeHash, call.CodeHash);
@@ -329,6 +345,7 @@ namespace TLMG.Services.Tests
         [InlineData(PasswordResetStatus.NoVerifiedCode, ErrorKeys.Verification.ExpiredCode)]
         [InlineData(PasswordResetStatus.UserNotFound, ErrorKeys.Verification.ExpiredCode)]
         [InlineData(PasswordResetStatus.DataFailure, ErrorKeys.Password.DataModel)]
+        [InlineData((PasswordResetStatus)999, ErrorKeys.Password.DataModel)]
         public void ResetPassword_WhenTheDatabaseRejectsTheReset_ReturnsTheMatchingError(
             PasswordResetStatus resetStatus,
             string expectedErrorKey)

@@ -5,6 +5,7 @@ using log4net;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Constants;
 using TLMG.Services.Helpers;
 using TLMG.Services.Sessions;
 
@@ -40,7 +41,7 @@ namespace TLMG.Services.Match
             MatchDelivery matchDelivery = _sessionRegistry.SubscribeToMatch(caller, matchId, callback);
             ResultWithNotification<OperationResult> subscribeToMatchResult = CreateResult(matchDelivery);
 
-            if (matchDelivery.ErrorKey == null)
+            if (subscribeToMatchResult.OperationResult.IsSuccess)
             {
                 _log.InfoFormat("Un jugador se suscribió a la partida {0}.", matchId);
             }
@@ -136,15 +137,22 @@ namespace TLMG.Services.Match
 
         private static ResultWithNotification<OperationResult> CreateResult(MatchDelivery matchDelivery)
         {
+            bool isSuccess = matchDelivery != null && matchDelivery.ErrorKey == null;
+            string errorKey = isSuccess ? string.Empty : matchDelivery?.ErrorKey;
+            if (!isSuccess && string.IsNullOrWhiteSpace(errorKey))
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
             OperationResult operationResult = new OperationResult
             {
-                IsSuccess = matchDelivery.ErrorKey == null,
-                ErrorKey = matchDelivery.ErrorKey
+                IsSuccess = isSuccess,
+                ErrorKey = errorKey
             };
-            LogMatchRejection(matchDelivery.ErrorKey);
+            LogMatchRejection(isSuccess ? null : errorKey);
 
             ResultWithNotification<OperationResult> matchResult = new ResultWithNotification<OperationResult>(
-                operationResult, SessionNotificationHelper.CreateMatchViewNotifications(matchDelivery.ViewDeliveries));
+                operationResult, SessionNotificationHelper.CreateMatchViewNotifications(
+                    matchDelivery?.ViewDeliveries ?? new List<MatchViewDelivery>()));
 
             return matchResult;
         }

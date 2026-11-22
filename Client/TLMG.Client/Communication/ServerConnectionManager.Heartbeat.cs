@@ -139,7 +139,7 @@ namespace TLMG.Client.Communication
             {
                 DisconnectAndNotifyConnectionLost();
             }
-            else if (errorKey == null)
+            else if (errorKey == string.Empty)
             {
                 callback.ConfirmedHeartbeat = sequence;
                 callback.LastHeartbeatEchoAt = now;

@@ -16,7 +16,7 @@ namespace TLMG.Domain.Tests
         private const string AnyPassword = "x";
 
         [Fact]
-        public void ValidateLogIn_WithValidFields_ReturnsNull()
+        public void ValidateLogIn_WithValidFields_ReturnsEmpty()
         {
             // Arrange
             PlayerLogin playerLogIn = new PlayerLogin { Email = ValidEmail, Password = AnyPassword };
@@ -25,7 +25,7 @@ namespace TLMG.Domain.Tests
             string errorKey = PlayerLogInValidator.ValidateLogIn(playerLogIn);
 
             // Assert
-            Assert.Null(errorKey);
+            Assert.Equal(string.Empty, errorKey);
         }
 
         [Fact]
@@ -101,7 +101,7 @@ namespace TLMG.Domain.Tests
             string errorKey = PlayerLogInValidator.ValidateLogIn(playerLogIn);
 
             // Assert
-            Assert.Null(errorKey);
+            Assert.Equal(string.Empty, errorKey);
         }
     }
 }

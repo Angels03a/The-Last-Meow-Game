@@ -35,18 +35,23 @@ namespace TLMG.Services.Utilities
             return pendingId;
         }
 
-        public PendingRegistrationRecord FindValidPendingRegistration(string email)
+        public PlayerExistenceLookupStatus FindValidPendingRegistration(string email, out PendingRegistrationRecord pendingRecord)
         {
-            PendingRegistrationRecord pendingRecord =
-                _verificationCodeRepository.FindPendingRegistrationByEmail(email);
+            PlayerExistenceLookupStatus status =
+                _verificationCodeRepository.FindPendingRegistrationByEmail(email, out pendingRecord);
 
-            if (pendingRecord != null && pendingRecord.ExpiresAtUtc < DateTime.UtcNow)
+            if (status == PlayerExistenceLookupStatus.Exists && pendingRecord == null)
+            {
+                status = PlayerExistenceLookupStatus.DataFailure;
+            }
+            else if (status == PlayerExistenceLookupStatus.Exists && pendingRecord.ExpiresAtUtc < DateTime.UtcNow)
             {
                 _verificationCodeRepository.DeletePendingRegistration(pendingRecord.PendingId);
                 pendingRecord = null;
+                status = PlayerExistenceLookupStatus.NotFound;
             }
 
-            return pendingRecord;
+            return status;
         }
 
         public void DeletePendingRegistration(int pendingId)

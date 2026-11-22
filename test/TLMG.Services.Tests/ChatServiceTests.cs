@@ -59,7 +59,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.OperationResult.IsSuccess);
-            Assert.Null(result.OperationResult.ErrorKey);
+            Assert.Equal(string.Empty, result.OperationResult.ErrorKey);
             Assert.Empty(result.Notifications);
         }
 

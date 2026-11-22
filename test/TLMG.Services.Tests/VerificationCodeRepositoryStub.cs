@@ -16,6 +16,7 @@ namespace TLMG.Services.Tests
         internal int? PendingIdToReturn { get; set; }
 
         internal PendingRegistrationRecord PendingRegistrationToReturn { get; set; }
+        internal PlayerExistenceLookupStatus? PendingStatusToReturn { get; set; }
 
         internal VerificationCodeValidationResult ValidationResultToReturn { get; set; } =
             new VerificationCodeValidationResult { Status = VerificationCodeStatus.Valid };
@@ -45,9 +46,10 @@ namespace TLMG.Services.Tests
         }
 
         /// <inheritdoc />
-        public PendingRegistrationRecord FindPendingRegistrationByEmail(string email)
+        public PlayerExistenceLookupStatus FindPendingRegistrationByEmail(string email, out PendingRegistrationRecord record)
         {
-            return PendingRegistrationToReturn;
+            record = PendingRegistrationToReturn;
+            return PendingStatusToReturn ?? (record == null ? PlayerExistenceLookupStatus.NotFound : PlayerExistenceLookupStatus.Exists);
         }
 
         /// <inheritdoc />

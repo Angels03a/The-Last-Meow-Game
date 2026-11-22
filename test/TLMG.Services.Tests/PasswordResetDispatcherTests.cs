@@ -54,6 +54,51 @@ namespace TLMG.Services.Tests
         }
 
         [Fact]
+        public void SendResetCode_WhenLookupIsNull_RejectsWithoutSaving()
+        {
+            // Arrange
+            PasswordResetDispatcher dispatcher = CreateDispatcher();
+            _players.Credentials = null;
+
+            // Act
+            bool result = dispatcher.SendResetCode(Email, CultureCode);
+
+            // Assert
+            Assert.False(result);
+            Assert.Empty(_codes.SavedCodes);
+        }
+
+        [Fact]
+        public void SendResetCode_WhenLookupStatusIsUnknown_RejectsWithoutSaving()
+        {
+            // Arrange
+            PasswordResetDispatcher dispatcher = CreateDispatcher();
+            _players.Credentials = new PlayerCredentials { Status = (CredentialsLookupStatus)999 };
+
+            // Act
+            bool result = dispatcher.SendResetCode(Email, CultureCode);
+
+            // Assert
+            Assert.False(result);
+            Assert.Empty(_codes.SavedCodes);
+        }
+
+        [Fact]
+        public void ValidateResetCode_WhenLookupIsNull_ReportsUnexpectedError()
+        {
+            // Arrange
+            PasswordResetDispatcher dispatcher = CreateDispatcher();
+            _players.Credentials = null;
+
+            // Act
+            VerificationCodeValidationResult result = dispatcher.ValidateResetCode(Email, PlainCode);
+
+            // Assert
+            Assert.Equal(VerificationCodeStatus.UnexpectedError, result.Status);
+            Assert.Empty(_codes.ValidatedCodes);
+        }
+
+        [Fact]
         public void SendResetCode_WhenTheCodeCannotBeSaved_ReturnsFalseWithoutSendingAnEmail()
         {
             // Arrange

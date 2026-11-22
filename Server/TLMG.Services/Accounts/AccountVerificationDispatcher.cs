@@ -25,9 +25,9 @@ namespace TLMG.Services.Accounts
             return _verificationCodeStore.SavePendingRegistration(nickname, normalizedEmail, passwordHash);
         }
 
-        public PendingRegistrationRecord FindValidPendingRegistration(string normalizedEmail)
+        public PlayerExistenceLookupStatus FindValidPendingRegistration(string normalizedEmail, out PendingRegistrationRecord record)
         {
-            return _verificationCodeStore.FindValidPendingRegistration(normalizedEmail);
+            return _verificationCodeStore.FindValidPendingRegistration(normalizedEmail, out record);
         }
 
         public void DeletePendingRegistration(int pendingId)

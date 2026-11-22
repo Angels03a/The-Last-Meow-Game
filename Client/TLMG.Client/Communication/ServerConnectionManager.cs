@@ -280,6 +280,7 @@ namespace TLMG.Client.Communication
         internal void NotifyFriendListReceived(
             OperationSubscribeToFriendsResult operationSubscribeToFriendsResult)
         {
+            operationSubscribeToFriendsResult = NormalizeOperationResult(operationSubscribeToFriendsResult);
             if (operationSubscribeToFriendsResult.IsSuccess)
             {
                 _friendsSubscriptionUntil = null;
@@ -319,6 +320,7 @@ namespace TLMG.Client.Communication
 
         internal void NotifySendFriendRequestResultReceived(OperationSendFriendRequestResult result)
         {
+            result = NormalizeOperationResult(result);
             if (result != null)
             {
                 if (result.IsSuccess && result.SentFriendRequest != null)
@@ -339,6 +341,7 @@ namespace TLMG.Client.Communication
 
         internal void NotifyAcceptFriendRequestResultReceived(OperationAcceptFriendRequestResult result)
         {
+            result = NormalizeOperationResult(result);
             if (result != null)
             {
                 if (result.IsSuccess)
@@ -359,6 +362,7 @@ namespace TLMG.Client.Communication
 
         internal void NotifyDeclineFriendRequestResultReceived(OperationDeclineFriendRequestResult result)
         {
+            result = NormalizeOperationResult(result);
             if (result != null)
             {
                 if (result.IsSuccess)
@@ -374,6 +378,7 @@ namespace TLMG.Client.Communication
 
         internal void NotifyChangeCardsPerPlayerResultReceived(OperationLobbyRoomResult result)
         {
+            result = NormalizeOperationResult(result);
             if (result != null)
             {
                 if (result.Room != null)
@@ -395,6 +400,7 @@ namespace TLMG.Client.Communication
         internal void NotifyInviteFriendResultReceived(
             OperationResult operationInviteFriendToRoomResult)
         {
+            operationInviteFriendToRoomResult = NormalizeOperationResult(operationInviteFriendToRoomResult);
             InviteFriendResultReceived?.Invoke(
                 this,
                 new ServerEventArgs<OperationResult>(operationInviteFriendToRoomResult));
@@ -403,13 +409,28 @@ namespace TLMG.Client.Communication
         internal void NotifyAcceptInvitationResultReceived(
             OperationAcceptRoomInvitationResult operationAcceptRoomInvitationResult)
         {
+            operationAcceptRoomInvitationResult = NormalizeOperationResult(operationAcceptRoomInvitationResult);
             AcceptInvitationResultReceived?.Invoke(
                 this,
                 new ServerEventArgs<OperationAcceptRoomInvitationResult>(operationAcceptRoomInvitationResult));
         }
 
+        private static T NormalizeOperationResult<T>(T result) where T : OperationResult, new()
+        {
+            if (result == null || (result.IsSuccess && result.ErrorKey != string.Empty)
+                || (!result.IsSuccess && (string.IsNullOrWhiteSpace(result.ErrorKey)
+                    || (System.Windows.Application.Current != null
+                        && !(System.Windows.Application.Current.TryFindResource(result.ErrorKey) is string)))))
+            {
+                result = new T { IsSuccess = false, ErrorKey = "Common_UnexpectedError" };
+            }
+
+            return result;
+        }
+
         internal void NotifyCreateRoomResultReceived(OperationLobbyRoomResult operationCreateRoomResult)
         {
+            operationCreateRoomResult = NormalizeOperationResult(operationCreateRoomResult);
             if (IsRoomCreationPending && operationCreateRoomResult.IsSuccess)
             {
                 _lobbyBoundRoomId = operationCreateRoomResult.Room?.RoomId;
@@ -425,6 +446,7 @@ namespace TLMG.Client.Communication
 
         internal void NotifyEnterLobbyResultReceived(OperationLobbyRoomResult operationEnterLobbyResult)
         {
+            operationEnterLobbyResult = NormalizeOperationResult(operationEnterLobbyResult);
             if (_recoveryLobbyUntil.HasValue)
             {
                 CompleteRecoveryLobby(operationEnterLobbyResult);
@@ -450,6 +472,7 @@ namespace TLMG.Client.Communication
 
         internal void NotifyLeaveLobbyResultReceived(OperationResult operationLeaveLobbyResult)
         {
+            operationLeaveLobbyResult = NormalizeOperationResult(operationLeaveLobbyResult);
             bool isFinishedLeave = _finishedLeaveRoomId.HasValue && _pendingLeaveRequests == 1;
             if (_pendingLeaveRequests > 0)
             {

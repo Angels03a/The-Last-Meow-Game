@@ -164,7 +164,7 @@ namespace TLMG.Client.ViewModels
             {
                 string errorKey = SaveProfile(DisplayNickname, avatarKey);
 
-                if (errorKey == null)
+                if (errorKey == string.Empty)
                 {
                     NicknameError.Hide();
                     ApplyAvatar(avatarKey);
@@ -193,7 +193,7 @@ namespace TLMG.Client.ViewModels
                 errorKey = SaveProfile(EditingNickname, _currentAvatarKey);
             }
 
-            if (errorKey == null)
+            if (errorKey == string.Empty)
             {
                 NicknameError.Hide();
                 DisplayNickname = EditingNickname;
@@ -212,12 +212,17 @@ namespace TLMG.Client.ViewModels
 
         private string SaveProfile(string nickname, string avatarKey)
         {
-            string errorKey = null;
+            string errorKey = string.Empty;
             OperationResult updateResult = _profileConnection.UpdatePlayerProfile(nickname, avatarKey);
 
-            if (!updateResult.IsSuccess)
+            if (updateResult == null || !updateResult.IsSuccess)
             {
-                errorKey = updateResult.ErrorKey;
+                errorKey = updateResult?.ErrorKey;
+                if (string.IsNullOrWhiteSpace(errorKey) || (System.Windows.Application.Current != null
+                    && !(System.Windows.Application.Current.TryFindResource(errorKey) is string)))
+                {
+                    errorKey = "Common_UnexpectedError";
+                }
             }
 
             return errorKey;

@@ -81,7 +81,7 @@ namespace TLMG.Services.Sessions
                 {
                     session.LastActivityUtc = nowUtc;
                     result.IsSuccess = true;
-                    result.ErrorKey = null;
+                    result.ErrorKey = string.Empty;
                     MatchRecord match = FindRecoverableMatchInLock(session.UserId);
                     if (match != null)
                     {

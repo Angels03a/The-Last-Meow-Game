@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using TLMG.Contracts;
@@ -11,6 +12,9 @@ namespace TLMG.Services.Sessions
     {
         private static readonly IReadOnlyList<IFriendsManagerCallback> _noFriendsCallbacks =
             new List<IFriendsManagerCallback>().AsReadOnly();
+
+        // Minimum time between notifications of the same pending invitation, so repeated invitations cannot flood.
+        private static readonly TimeSpan _invitationRenotifyInterval = TimeSpan.FromSeconds(5);
 
         private readonly Dictionary<int, FriendsChannel> _friendsChannelsByUserId =
             new Dictionary<int, FriendsChannel>();
@@ -324,7 +328,8 @@ namespace TLMG.Services.Sessions
             return roomInvitationAcceptance;
         }
 
-        // Reuses the existing invitation when the same player is invited to the same room again.
+        // Reuses the existing invitation when the same player is invited to the same room again. The invitee is
+        // notified again only after the renotification interval, because declining is not reported to the server.
         private RoomInvitationCreation CreateOrFindInvitation(
             PlayerSession inviterSession,
             int friendUserId,
@@ -333,19 +338,26 @@ namespace TLMG.Services.Sessions
         {
             RoomInvitationRecord invitation = _roomInvitations.Find(pending =>
                 pending.InviteeUserId == friendUserId && pending.RoomId == roomId);
-            bool isNewInvitation = invitation == null;
+            DateTime nowUtc = _readUtcNow();
+            bool shouldNotifyInvitee = invitation == null
+                || nowUtc - invitation.LastNotifiedUtc >= _invitationRenotifyInterval;
 
-            if (isNewInvitation)
+            if (invitation == null)
             {
                 _lastInvitationId++;
-                invitation = new RoomInvitationRecord(_lastInvitationId, inviterSession.UserId, friendUserId, roomId);
+                invitation = new RoomInvitationRecord(
+                    _lastInvitationId, inviterSession.UserId, friendUserId, roomId, nowUtc);
                 _roomInvitations.Add(invitation);
+            }
+            else if (shouldNotifyInvitee)
+            {
+                invitation.LastNotifiedUtc = nowUtc;
             }
 
             RoomInvitationCreation roomInvitationCreation = RoomInvitationCreation.CreateApplied(
                 invitation.InvitationId,
                 inviterSession.Nickname,
-                isNewInvitation,
+                shouldNotifyInvitee,
                 inviteeCallback);
 
             return roomInvitationCreation;

@@ -68,8 +68,9 @@ namespace TLMG.Client.Communication
         {
             bool isCurrentCallback = ReferenceEquals(callback, _leaderboardCallback);
 
-            if (isCurrentCallback && operationGetLeaderboardResult != null)
+            if (isCurrentCallback)
             {
+                operationGetLeaderboardResult = NormalizeOperationResult(operationGetLeaderboardResult);
                 CloseLeaderboardChannel();
                 LeaderboardResultReceived?.Invoke(
                     this,

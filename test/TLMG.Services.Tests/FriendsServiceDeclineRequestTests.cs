@@ -30,7 +30,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(actual.OperationResult.IsSuccess);
-            Assert.Null(actual.OperationResult.ErrorKey);
+            Assert.Equal(string.Empty, actual.OperationResult.ErrorKey);
             Assert.Equal(friendshipId, actual.OperationResult.FriendRequestId);
             Assert.Equal(FriendshipState.Rejected, scenario.Repository.Find(friendshipId).State);
             Assert.Empty(actual.Notifications);

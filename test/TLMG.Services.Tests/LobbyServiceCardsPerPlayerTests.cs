@@ -27,6 +27,40 @@ namespace TLMG.Services.Tests
         private const string NotValidKey = "Lobby_CardsPerPlayerNotValidError";
 
         [Fact]
+        public void LeaveLobby_WhenAlreadyOutsideRoom_ReturnsSuccessWithEmptyKey()
+        {
+            // Arrange
+            SessionRegistry registry = new SessionRegistry();
+            string token = registry.StartRegisteredSession(1, "Creator", out SessionEnd replaced);
+            LobbyService service = new LobbyService(registry);
+
+            // Act
+            OperationResult result = service.LeaveLobby(token).OperationResult;
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal(string.Empty, result.ErrorKey);
+        }
+
+        [Fact]
+        public void CreateRoom_WithValidSession_ReturnsSuccessWithEmptyKey()
+        {
+            // Arrange
+            SessionRegistry registry = new SessionRegistry();
+            string token = registry.StartRegisteredSession(1, "Creator", out SessionEnd replaced);
+            LobbyService service = new LobbyService(registry);
+
+            // Act
+            OperationLobbyRoomResult result = service.CreateRoom(new SessionChannelCaller(token, "creator"), null)
+                .OperationResult;
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal(string.Empty, result.ErrorKey);
+            Assert.NotNull(result.Room);
+        }
+
+        [Fact]
         public void ChangeCardsPerPlayer_WithDifferentValidValue_ReturnsNewValueAndNoticesForOthersWithoutSending()
         {
             // Arrange
@@ -48,7 +82,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(actual.OperationResult.IsSuccess);
-            Assert.Null(actual.OperationResult.ErrorKey);
+            Assert.Equal(string.Empty, actual.OperationResult.ErrorKey);
             Assert.Equal(SixCardsPerPlayer, actual.OperationResult.Room.CardsPerPlayerCount);
             Assert.Equal(OtherPlayersCount, actual.Notifications.Count);
             Assert.Equal(NoCalls, secondCallback.CallCount);

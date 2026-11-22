@@ -6,6 +6,7 @@ using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
 using TLMG.Services.Accounts;
+using TLMG.Services.Utilities;
 
 namespace TLMG.Services.Tests
 {
@@ -43,7 +44,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Null(result.ErrorKey);
+            Assert.Equal(string.Empty, result.ErrorKey);
             PlayerRepositoryStub.CreatedPlayerRecord created = Assert.Single(_repository.CreatedPlayers);
             Assert.Equal(PlayerNickname, created.Nickname);
             Assert.Equal(SyntheticEmail, created.Email);
@@ -242,6 +243,30 @@ namespace TLMG.Services.Tests
             AssertRejectedWithoutWrites(result, ErrorKeys.CreateAccount.EmailTaken);
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Registration_WhenExistenceStatusIsUnknown_RejectsBeforeCreatingOrSending(bool unknownEmail)
+        {
+            // Arrange
+            VerificationCodeRepositoryStub codes = new VerificationCodeRepositoryStub();
+            AccountVerificationDispatcher dispatcher = new AccountVerificationDispatcher(new VerificationCodeStore(codes), null);
+            PlayerAccountRegistrationService service = new PlayerAccountRegistrationService(
+                _repository, new PasswordHasher(), dispatcher);
+            _repository.EmailStatus = unknownEmail ? (PlayerExistenceLookupStatus)999 : PlayerExistenceLookupStatus.NotFound;
+            _repository.NicknameStatus = unknownEmail ? PlayerExistenceLookupStatus.NotFound : (PlayerExistenceLookupStatus)999;
+
+            // Act
+            OperationResult registration = service.RegisterPlayerAccount(CreateValidRequest());
+            OperationResult request = service.RequestVerificationCode(CreateValidRequest(), CultureCode);
+
+            // Assert
+            AssertRejectedWithoutWrites(registration, ErrorKeys.CreateAccount.DataModel);
+            AssertRejectedWithoutWrites(request, ErrorKeys.CreateAccount.DataModel);
+            Assert.Empty(codes.SavedPendingRegistrations);
+            Assert.Empty(codes.SavedCodes);
+        }
+
         [Fact]
         public void RequestVerificationCode_WithoutConfiguredDispatcher_ReturnsUnexpectedErrorWithoutWriting()
         {
@@ -324,6 +349,115 @@ namespace TLMG.Services.Tests
 
             // Assert
             AssertRejectedWithoutWrites(result, ErrorKeys.Common.Unexpected);
+        }
+
+        [Theory]
+        [InlineData(VerificationCodeStatus.Invalid, ErrorKeys.Verification.IncorrectCode)]
+        [InlineData(VerificationCodeStatus.Expired, ErrorKeys.Verification.ExpiredCode)]
+        [InlineData(VerificationCodeStatus.NoActiveCode, ErrorKeys.Verification.ExpiredCode)]
+        [InlineData(VerificationCodeStatus.TooManyAttempts, ErrorKeys.Verification.AttemptsExhausted)]
+        [InlineData((VerificationCodeStatus)999, ErrorKeys.CreateAccount.DataModel)]
+        public void CompleteRegistration_WithRejectedCode_DoesNotCreateAccount(VerificationCodeStatus status, string key)
+        {
+            // Arrange
+            VerificationCodeRepositoryStub codes = CreatePendingCodes();
+            codes.ValidationResultToReturn = new VerificationCodeValidationResult { Status = status };
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(codes);
+
+            // Act
+            OperationResult result = service.CompleteRegistration(CreateValidRequest(), "123456");
+
+            // Assert
+            AssertRejectedWithoutWrites(result, key);
+            Assert.Empty(codes.DeletedPendingIds);
+        }
+
+        [Fact]
+        public void CompleteRegistration_WithNullValidation_RejectsWithoutCreation()
+        {
+            // Arrange
+            VerificationCodeRepositoryStub codes = CreatePendingCodes();
+            codes.ValidationResultToReturn = null;
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(codes);
+
+            // Act
+            OperationResult result = service.CompleteRegistration(CreateValidRequest(), "123456");
+
+            // Assert
+            AssertRejectedWithoutWrites(result, ErrorKeys.CreateAccount.DataModel);
+        }
+
+        [Fact]
+        public void CompleteRegistration_WithValidCode_CreatesAccountAndReturnsEmptyKey()
+        {
+            // Arrange
+            VerificationCodeRepositoryStub codes = CreatePendingCodes();
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(codes);
+
+            // Act
+            OperationResult result = service.CompleteRegistration(CreateValidRequest(), "123456");
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal(string.Empty, result.ErrorKey);
+            Assert.Single(_repository.CreatedPlayers);
+            Assert.Single(codes.DeletedPendingIds);
+        }
+
+        [Fact]
+        public void ResendVerificationCode_WhenSavingCodeFails_Rejects()
+        {
+            // Arrange
+            VerificationCodeRepositoryStub codes = CreatePendingCodes();
+            codes.SaveCodeSucceeds = false;
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(codes);
+
+            // Act
+            OperationResult result = service.ResendVerificationCode(SyntheticEmail, CultureCode);
+
+            // Assert
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ErrorKeys.CreateAccount.DataModel, result.ErrorKey);
+            Assert.Single(codes.SavedCodes);
+        }
+
+        [Theory]
+        [InlineData(PlayerExistenceLookupStatus.DataFailure)]
+        [InlineData((PlayerExistenceLookupStatus)999)]
+        [InlineData(PlayerExistenceLookupStatus.Exists)]
+        public void Registration_WhenPendingLookupFails_RejectsWithoutCreatingOrSending(PlayerExistenceLookupStatus status)
+        {
+            // Arrange
+            VerificationCodeRepositoryStub codes = new VerificationCodeRepositoryStub { PendingStatusToReturn = status };
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(codes);
+
+            // Act
+            OperationResult confirmation = service.CompleteRegistration(CreateValidRequest(), "123456");
+            OperationResult resend = service.ResendVerificationCode(SyntheticEmail, CultureCode);
+
+            // Assert
+            AssertRejectedWithoutWrites(confirmation, ErrorKeys.CreateAccount.DataModel);
+            AssertRejectedWithoutWrites(resend, ErrorKeys.CreateAccount.DataModel);
+            Assert.Empty(codes.ValidatedCodes);
+            Assert.Empty(codes.SavedCodes);
+        }
+
+        private static VerificationCodeRepositoryStub CreatePendingCodes()
+        {
+            return new VerificationCodeRepositoryStub
+            {
+                PendingRegistrationToReturn = new PendingRegistrationRecord
+                {
+                    PendingId = 1, Email = SyntheticEmail, Nickname = PlayerNickname,
+                    PasswordHash = "stored-hash", ExpiresAtUtc = DateTime.UtcNow.AddMinutes(5)
+                }
+            };
+        }
+
+        private PlayerAccountRegistrationService CreateServiceWithCodes(VerificationCodeRepositoryStub codes)
+        {
+            return new PlayerAccountRegistrationService(_repository, new PasswordHasher(),
+                new AccountVerificationDispatcher(new VerificationCodeStore(codes), null));
         }
 
         private PlayerAccountRegistrationService CreateService()
