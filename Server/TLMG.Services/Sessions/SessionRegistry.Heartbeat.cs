@@ -66,7 +66,7 @@ namespace TLMG.Services.Sessions
                     session.LastActivityUtc = nowUtc;
                     link.LastPulseUtc = nowUtc;
                     link.Sequence = sequence;
-                    notifications.Add(() => echo(sequence, null));
+                    notifications.Add(() => echo(sequence, string.Empty));
                 }
             }
 
