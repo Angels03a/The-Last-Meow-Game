@@ -40,7 +40,7 @@ namespace TLMG.Services.Accounts
                 playerAccountRegistration,
                 out PlayerRegistration playerRegistration);
 
-            if (validationErrorKey != null)
+            if (validationErrorKey != string.Empty)
             {
                 operationRegisterPlayerAccountResult.ErrorKey = validationErrorKey;
             }
@@ -59,7 +59,7 @@ namespace TLMG.Services.Accounts
             string errorKey = ValidateRegisterPlayerAccountRequest(playerAccountRegistration,
                 out PlayerRegistration playerRegistration);
 
-            if (errorKey == null)
+            if (errorKey == string.Empty)
             {
                 string normalizedEmail = playerRegistration.Email;
                 errorKey = FindDuplicateAccountErrorKey(normalizedEmail, playerRegistration.Nickname);
@@ -71,7 +71,7 @@ namespace TLMG.Services.Accounts
             }
 
             operationResult.IsSuccess = errorKey == null;
-            operationResult.ErrorKey = errorKey;
+            operationResult.ErrorKey = operationResult.IsSuccess ? string.Empty : errorKey;
 
             return operationResult;
         }
@@ -298,6 +298,7 @@ namespace TLMG.Services.Accounts
             if (errorKey == null)
             {
                 operationRegisterPlayerAccountResult.IsSuccess = true;
+                operationRegisterPlayerAccountResult.ErrorKey = string.Empty;
             }
             else
             {
@@ -335,6 +336,11 @@ namespace TLMG.Services.Accounts
             }
             else if (playerExistenceLookupStatus == PlayerExistenceLookupStatus.DataFailure)
             {
+                errorKey = ErrorKeys.CreateAccount.DataModel;
+            }
+            else if (playerExistenceLookupStatus != PlayerExistenceLookupStatus.NotFound)
+            {
+                _log.Warn("La consulta de existencia de cuenta devolvió un estado desconocido.");
                 errorKey = ErrorKeys.CreateAccount.DataModel;
             }
 

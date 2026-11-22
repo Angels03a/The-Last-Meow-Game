@@ -13,17 +13,17 @@ namespace TLMG.Domain.Validators
             {
                 errorKey = ValidateNickname(playerRegistration.Nickname);
 
-                if (errorKey == null)
+                if (errorKey == string.Empty)
                 {
                     errorKey = ValidateEmail(playerRegistration.Email);
                 }
 
-                if (errorKey == null)
+                if (errorKey == string.Empty)
                 {
                     errorKey = ValidatePassword(playerRegistration.Password);
                 }
 
-                if (errorKey == null && !playerRegistration.HasAcceptedTerms)
+                if (errorKey == string.Empty && !playerRegistration.HasAcceptedTerms)
                 {
                     errorKey = ErrorKeys.CreateAccount.Terms;
                 }
@@ -34,7 +34,7 @@ namespace TLMG.Domain.Validators
 
         public static string ValidateNickname(string nickname)
         {
-            string errorKey = null;
+            string errorKey = string.Empty;
 
             if (!AccountFieldValidator.IsNicknameValid(nickname))
             {
@@ -46,7 +46,7 @@ namespace TLMG.Domain.Validators
 
         public static string ValidateEmail(string email)
         {
-            string errorKey = null;
+            string errorKey = string.Empty;
 
             if (!AccountFieldValidator.IsEmailValid(email))
             {
@@ -58,7 +58,7 @@ namespace TLMG.Domain.Validators
 
         public static string ValidatePassword(string password)
         {
-            string errorKey = null;
+            string errorKey = string.Empty;
             bool isLengthValid = AccountFieldValidator.IsLengthInRange(
                 password,
                 ValidationRules.PasswordMinimumLength,

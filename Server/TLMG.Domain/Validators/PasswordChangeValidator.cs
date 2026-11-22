@@ -8,7 +8,7 @@ namespace TLMG.Domain.Validators
         {
             string errorKey = string.Empty;
 
-            if (PlayerAccountRegistrationValidator.ValidatePassword(newPassword) != null)
+            if (PlayerAccountRegistrationValidator.ValidatePassword(newPassword) != string.Empty)
             {
                 errorKey = ErrorKeys.Password.PolicyNotMet;
             }

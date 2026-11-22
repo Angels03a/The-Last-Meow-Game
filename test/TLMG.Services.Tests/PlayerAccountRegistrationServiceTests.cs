@@ -6,6 +6,7 @@ using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
 using TLMG.Services.Accounts;
+using TLMG.Services.Utilities;
 
 namespace TLMG.Services.Tests
 {
@@ -43,7 +44,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(result.IsSuccess);
-            Assert.Null(result.ErrorKey);
+            Assert.Equal(string.Empty, result.ErrorKey);
             PlayerRepositoryStub.CreatedPlayerRecord created = Assert.Single(_repository.CreatedPlayers);
             Assert.Equal(PlayerNickname, created.Nickname);
             Assert.Equal(SyntheticEmail, created.Email);
@@ -240,6 +241,30 @@ namespace TLMG.Services.Tests
 
             // Assert
             AssertRejectedWithoutWrites(result, ErrorKeys.CreateAccount.EmailTaken);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Registration_WhenExistenceStatusIsUnknown_RejectsBeforeCreatingOrSending(bool unknownEmail)
+        {
+            // Arrange
+            VerificationCodeRepositoryStub codes = new VerificationCodeRepositoryStub();
+            AccountVerificationDispatcher dispatcher = new AccountVerificationDispatcher(new VerificationCodeStore(codes), null);
+            PlayerAccountRegistrationService service = new PlayerAccountRegistrationService(
+                _repository, new PasswordHasher(), dispatcher);
+            _repository.EmailStatus = unknownEmail ? (PlayerExistenceLookupStatus)999 : PlayerExistenceLookupStatus.NotFound;
+            _repository.NicknameStatus = unknownEmail ? PlayerExistenceLookupStatus.NotFound : (PlayerExistenceLookupStatus)999;
+
+            // Act
+            OperationResult registration = service.RegisterPlayerAccount(CreateValidRequest());
+            OperationResult request = service.RequestVerificationCode(CreateValidRequest(), CultureCode);
+
+            // Assert
+            AssertRejectedWithoutWrites(registration, ErrorKeys.CreateAccount.DataModel);
+            AssertRejectedWithoutWrites(request, ErrorKeys.CreateAccount.DataModel);
+            Assert.Empty(codes.SavedPendingRegistrations);
+            Assert.Empty(codes.SavedCodes);
         }
 
         [Fact]

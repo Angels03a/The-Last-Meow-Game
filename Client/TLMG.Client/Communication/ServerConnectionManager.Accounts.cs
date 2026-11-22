@@ -1,5 +1,6 @@
 using System;
 using System.ServiceModel;
+using System.Windows;
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
@@ -74,6 +75,7 @@ namespace TLMG.Client.Communication
                 RegistrationConnectionErrorKey,
                 RegistrationUnexpectedErrorKey);
 
+            NormalizeRegistrationResult(operationRegisterPlayerAccountResult);
             return operationRegisterPlayerAccountResult;
         }
 
@@ -190,7 +192,25 @@ namespace TLMG.Client.Communication
                 RegistrationConnectionErrorKey,
                 RegistrationUnexpectedErrorKey);
 
+            NormalizeRegistrationResult(operationResult);
             return operationResult;
+        }
+
+        private void NormalizeRegistrationResult(OperationResult result)
+        {
+            if (result.IsSuccess && result.ErrorKey != string.Empty)
+            {
+                _log.Warn("El servidor devolvió un resultado de registro inconsistente.");
+                result.IsSuccess = false;
+                result.ErrorKey = RegistrationUnexpectedErrorKey;
+            }
+            else if (!result.IsSuccess && (string.IsNullOrWhiteSpace(result.ErrorKey)
+                || (Application.Current != null
+                    && !(Application.Current.TryFindResource(result.ErrorKey) is string))))
+            {
+                _log.Warn("El servidor devolvió una clave de error de registro inválida.");
+                result.ErrorKey = RegistrationUnexpectedErrorKey;
+            }
         }
 
         public OperationResult CompletePlayerAccountRegistration(

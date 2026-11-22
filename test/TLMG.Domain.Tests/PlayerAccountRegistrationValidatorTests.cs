@@ -37,7 +37,7 @@ namespace TLMG.Domain.Tests
         [InlineData("___")]
         [InlineData("123")]
         [InlineData("ABC")]
-        public void ValidateNickname_WithAllowedCharactersWithinRange_ReturnsNull(string nickname)
+        public void ValidateNickname_WithAllowedCharactersWithinRange_ReturnsEmpty(string nickname)
         {
             // Arrange
 
@@ -45,7 +45,7 @@ namespace TLMG.Domain.Tests
             string errorKey = PlayerAccountRegistrationValidator.ValidateNickname(nickname);
 
             // Assert
-            Assert.Null(errorKey);
+            Assert.Equal(string.Empty, errorKey);
         }
 
         /// <summary>Missing, blank, out-of-range or non-allowed nicknames are rejected with the format error.</summary>
@@ -91,7 +91,7 @@ namespace TLMG.Domain.Tests
             string errorKey = PlayerAccountRegistrationValidator.ValidateNickname(nickname);
 
             // Assert
-            Assert.Equal(isValid, errorKey == null);
+            Assert.Equal(isValid, errorKey == string.Empty);
         }
 
         /// <summary>Emails with letters, digits and dots in the local part and a dotted domain are accepted.</summary>
@@ -103,7 +103,7 @@ namespace TLMG.Domain.Tests
         [InlineData("abc123@example.test")]
         [InlineData("abcdef@sub.example.test")]
         [InlineData("abcdef@a.b")]
-        public void ValidateEmail_WithValidFormat_ReturnsNull(string email)
+        public void ValidateEmail_WithValidFormat_ReturnsEmpty(string email)
         {
             // Arrange
 
@@ -111,7 +111,7 @@ namespace TLMG.Domain.Tests
             string errorKey = PlayerAccountRegistrationValidator.ValidateEmail(email);
 
             // Assert
-            Assert.Null(errorKey);
+            Assert.Equal(string.Empty, errorKey);
         }
 
         /// <summary>Missing, blank and malformed emails are rejected with the email format error.</summary>
@@ -161,7 +161,7 @@ namespace TLMG.Domain.Tests
             string errorKey = PlayerAccountRegistrationValidator.ValidateEmail(email);
 
             // Assert
-            Assert.Equal(isValid, errorKey == null);
+            Assert.Equal(isValid, errorKey == string.Empty);
         }
 
         /// <summary>The whole email accepts up to 254 characters and rejects one more.</summary>
@@ -180,7 +180,7 @@ namespace TLMG.Domain.Tests
 
             // Assert
             Assert.Equal(totalLength, email.Length);
-            Assert.Equal(isValid, errorKey == null);
+            Assert.Equal(isValid, errorKey == string.Empty);
         }
 
         /// <summary>A password with every required character type and 12 to 128 characters is accepted.</summary>
@@ -189,7 +189,7 @@ namespace TLMG.Domain.Tests
         [InlineData(ValidPassword)]
         [InlineData("Aa1_aaaaaaaa")]
         [InlineData("Ññ1!aaaaaaaa")]
-        public void ValidatePassword_WithAllRequiredCharacterTypes_ReturnsNull(string password)
+        public void ValidatePassword_WithAllRequiredCharacterTypes_ReturnsEmpty(string password)
         {
             // Arrange
 
@@ -197,7 +197,7 @@ namespace TLMG.Domain.Tests
             string errorKey = PlayerAccountRegistrationValidator.ValidatePassword(password);
 
             // Assert
-            Assert.Null(errorKey);
+            Assert.Equal(string.Empty, errorKey);
         }
 
         /// <summary>Missing, blank or incomplete passwords are rejected with the password policy error.</summary>
@@ -243,7 +243,7 @@ namespace TLMG.Domain.Tests
 
             // Assert
             Assert.Equal(length, password.Length);
-            Assert.Equal(isValid, errorKey == null);
+            Assert.Equal(isValid, errorKey == string.Empty);
         }
 
         /// <summary>A null registration is rejected as incomplete fields.</summary>
@@ -262,7 +262,7 @@ namespace TLMG.Domain.Tests
 
         /// <summary>A registration with valid fields and accepted terms is accepted.</summary>
         [Fact]
-        public void ValidateAccountPlayerRegistration_WithValidFieldsAndAcceptedTerms_ReturnsNull()
+        public void ValidateAccountPlayerRegistration_WithValidFieldsAndAcceptedTerms_ReturnsEmpty()
         {
             // Arrange
             PlayerRegistration registration = CreateRegistration(ValidNickname, ValidEmail, ValidPassword, true);
@@ -271,7 +271,7 @@ namespace TLMG.Domain.Tests
             string errorKey = PlayerAccountRegistrationValidator.ValidateAccountPlayerRegistration(registration);
 
             // Assert
-            Assert.Null(errorKey);
+            Assert.Equal(string.Empty, errorKey);
         }
 
         /// <summary>Each invalid field of a registration is reported with the error of that field.</summary>
