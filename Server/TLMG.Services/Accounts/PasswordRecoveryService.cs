@@ -57,16 +57,25 @@ namespace TLMG.Services.Accounts
         public OperationResult VerifyResetCode(string email, string verificationCode)
         {
             string errorKey = ErrorKeys.Verification.IncorrectCode;
+            bool isSuccess = false;
 
             if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(verificationCode))
             {
                 VerificationCodeValidationResult validationResult = _resetDispatcher.ValidateResetCode(
                     AccountFieldValidator.NormalizeEmail(email),
                     verificationCode.Trim());
-                errorKey = ResolveVerificationErrorKey(validationResult.Status);
+                if (validationResult != null)
+                {
+                    errorKey = ResolveVerificationErrorKey(validationResult.Status);
+                    isSuccess = validationResult.Status == VerificationCodeStatus.Valid;
+                }
+                else
+                {
+                    errorKey = ErrorKeys.Password.DataModel;
+                }
             }
 
-            return CreateResult(errorKey);
+            return new OperationResult { IsSuccess = isSuccess, ErrorKey = errorKey };
         }
 
         /// <summary>Validates the new password, then lets the database check the verified code and apply it.</summary>
@@ -114,7 +123,7 @@ namespace TLMG.Services.Accounts
             switch (status)
             {
                 case VerificationCodeStatus.Valid:
-                    errorKey = null;
+                    errorKey = string.Empty;
                     break;
                 case VerificationCodeStatus.Invalid:
                     errorKey = ErrorKeys.Verification.IncorrectCode;
