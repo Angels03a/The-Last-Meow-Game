@@ -86,10 +86,16 @@ namespace TLMG.Services.Friends
                 {
                     RoomInvitationCreation roomInvitationCreation =
                         _sessionRegistry.CreateRoomInvitation(sessionToken, friendUserId);
-                    operationInviteFriendToRoomResult =
-                        CreateInviteResult(playerSession, friendUserId, roomInvitationCreation);
-                    createInvitationNotifications =
-                        CreateInvitationNotifications(roomInvitationCreation);
+                    if (roomInvitationCreation == null)
+                    {
+                        operationInviteFriendToRoomResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                    }
+                    else
+                    {
+                        operationInviteFriendToRoomResult =
+                            CreateInviteResult(playerSession, friendUserId, roomInvitationCreation);
+                        createInvitationNotifications = CreateInvitationNotifications(roomInvitationCreation);
+                    }
                 }
                 else
                 {
@@ -114,9 +120,14 @@ namespace TLMG.Services.Friends
             OperationAcceptRoomInvitationResult operationAcceptRoomInvitationResult =
                 new OperationAcceptRoomInvitationResult();
 
-            if (roomInvitationAcceptance.Status == FriendsChangeStatus.Applied)
+            if (roomInvitationAcceptance == null)
+            {
+                operationAcceptRoomInvitationResult.ErrorKey = ErrorKeys.Common.Unexpected;
+            }
+            else if (roomInvitationAcceptance.Status == FriendsChangeStatus.Applied)
             {
                 operationAcceptRoomInvitationResult.IsSuccess = true;
+                operationAcceptRoomInvitationResult.ErrorKey = string.Empty;
                 operationAcceptRoomInvitationResult.RoomId = roomInvitationAcceptance.RoomId;
                 _log.InfoFormat(
                     "El jugador {0} aceptó una invitación a la sala {1}.",
@@ -179,9 +190,10 @@ namespace TLMG.Services.Friends
                 AnswerFriendRequest(sessionToken, friendRequestId, FriendshipState.Accepted);
             operationAcceptFriendRequestResult.ErrorKey = friendRequestAnswer.ErrorKey;
 
-            if (friendRequestAnswer.ErrorKey == null)
+            if (friendRequestAnswer.IsSuccess)
             {
                 operationAcceptFriendRequestResult.IsSuccess = true;
+                operationAcceptFriendRequestResult.ErrorKey = string.Empty;
                 operationAcceptFriendRequestResult.FriendRequestId = friendRequestId;
                 operationAcceptFriendRequestResult.NewFriend = friendRequestAnswer.NewFriend;
                 friendRequestNotifications = friendRequestAnswer.Notifications;
@@ -206,9 +218,10 @@ namespace TLMG.Services.Friends
                 AnswerFriendRequest(sessionToken, friendRequestId, FriendshipState.Rejected);
             operationDeclineFriendRequestResult.ErrorKey = friendRequestAnswer.ErrorKey;
 
-            if (friendRequestAnswer.ErrorKey == null)
+            if (friendRequestAnswer.IsSuccess)
             {
                 operationDeclineFriendRequestResult.IsSuccess = true;
+                operationDeclineFriendRequestResult.ErrorKey = string.Empty;
                 operationDeclineFriendRequestResult.FriendRequestId = friendRequestId;
             }
 
@@ -238,7 +251,9 @@ namespace TLMG.Services.Friends
             PendingFriendRequestsLookup pendingFriendRequestsLookup =
                 _friendshipRepository.FindPendingFriendRequests(request.PlayerSession.UserId);
 
-            if (!friendListLookup.WasFriendListLookupSuccessful || !pendingFriendRequestsLookup.WasLookupSuccessful)
+            if (friendListLookup == null || pendingFriendRequestsLookup == null
+                || !friendListLookup.WasFriendListLookupSuccessful || !pendingFriendRequestsLookup.WasLookupSuccessful
+                || friendListLookup.Friends == null || pendingFriendRequestsLookup.Requests == null)
             {
                 operationSubscribeToFriendsResult.ErrorKey = ErrorKeys.Common.Unexpected;
                 LogRejectedOperation("suscribirse a los amigos", request.PlayerSession.UserId, "fallo de datos");
@@ -251,9 +266,14 @@ namespace TLMG.Services.Friends
                     request.FriendsCallback,
                     ExtractUserIds(friendListLookup.Friends));
 
-                if (friendsSubscription.Status == FriendsChangeStatus.Applied)
+                if (friendsSubscription == null)
+                {
+                    operationSubscribeToFriendsResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                }
+                else if (friendsSubscription.Status == FriendsChangeStatus.Applied)
                 {
                     operationSubscribeToFriendsResult.IsSuccess = true;
+                    operationSubscribeToFriendsResult.ErrorKey = string.Empty;
                     operationSubscribeToFriendsResult.Friends = ConvertToFriends(
                         friendListLookup.Friends,
                         friendsSubscription.OnlineFriendUserIds);
@@ -301,6 +321,10 @@ namespace TLMG.Services.Friends
                 errorKey = ErrorKeys.Friends.CannotInvite;
                 LogRejectedOperation("invitar a un amigo", inviterSession.UserId, "no son amigos aceptados");
             }
+            else if (friendshipLookupStatus != FriendshipLookupStatus.Accepted)
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
 
             return errorKey;
         }
@@ -315,6 +339,7 @@ namespace TLMG.Services.Friends
             if (roomInvitationCreation.Status == FriendsChangeStatus.Applied)
             {
                 operationInviteFriendToRoomResult.IsSuccess = true;
+                operationInviteFriendToRoomResult.ErrorKey = string.Empty;
                 _log.InfoFormat(
                     "El jugador {0} invitó al jugador {1} a su sala.",
                     inviterSession.UserId,
@@ -393,7 +418,8 @@ namespace TLMG.Services.Friends
             IReadOnlyList<Action> friendRequestNotifications = _noNotifications;
             FriendCandidateLookup friendCandidateLookup = _friendshipRepository.FindFriendCandidateByNickname(nickname);
 
-            if (friendCandidateLookup.Status == FriendLookupStatus.DataFailure)
+            if (friendCandidateLookup == null || (friendCandidateLookup.Status != FriendLookupStatus.Found
+                && friendCandidateLookup.Status != FriendLookupStatus.NotFound))
             {
                 operationSendFriendRequestResult.ErrorKey = ErrorKeys.Common.Unexpected;
                 LogRejectedOperation("solicitar amistad", senderSession.UserId, "fallo de datos");
@@ -402,6 +428,11 @@ namespace TLMG.Services.Friends
             {
                 operationSendFriendRequestResult.ErrorKey = ErrorKeys.Friends.UserNotFound;
                 LogRejectedOperation("solicitar amistad", senderSession.UserId, "el nickname no existe");
+            }
+            else if (friendCandidateLookup.UserId <= ValidationRules.NoUserId
+                || string.IsNullOrWhiteSpace(friendCandidateLookup.Nickname))
+            {
+                operationSendFriendRequestResult.ErrorKey = ErrorKeys.Common.Unexpected;
             }
             else if (friendCandidateLookup.UserId == senderSession.UserId)
             {
@@ -428,7 +459,9 @@ namespace TLMG.Services.Friends
             FriendshipRecordLookup friendshipRecordLookup =
                 _friendshipRepository.FindFriendshipRecord(senderSession.UserId, friendCandidate.UserId);
 
-            if (friendshipRecordLookup.Status == FriendLookupStatus.DataFailure)
+            if (friendshipRecordLookup == null || (friendshipRecordLookup.Status != FriendLookupStatus.Found
+                && friendshipRecordLookup.Status != FriendLookupStatus.NotFound)
+                || (friendshipRecordLookup.Status == FriendLookupStatus.Found && friendshipRecordLookup.Record == null))
             {
                 operationSendFriendRequestResult.ErrorKey = ErrorKeys.Common.Unexpected;
                 LogRejectedOperation("solicitar amistad", senderSession.UserId, "fallo de datos");
@@ -437,15 +470,22 @@ namespace TLMG.Services.Friends
             {
                 FriendshipWriteResult friendshipWriteResult =
                     _friendshipRepository.CreateFriendRequest(senderSession.UserId, friendCandidate.UserId);
-                PendingRequestCompletion completionContext = new PendingRequestCompletion
+                if (friendshipWriteResult == null)
                 {
-                    SenderSession = senderSession,
-                    FriendCandidate = friendCandidate,
-                    WriteStatus = friendshipWriteResult.Status,
-                    FriendshipId = friendshipWriteResult.FriendshipId,
-                    Result = operationSendFriendRequestResult
-                };
-                friendRequestNotifications = CompletePendingRequest(completionContext);
+                    operationSendFriendRequestResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                }
+                else
+                {
+                    PendingRequestCompletion completionContext = new PendingRequestCompletion
+                    {
+                        SenderSession = senderSession,
+                        FriendCandidate = friendCandidate,
+                        WriteStatus = friendshipWriteResult.Status,
+                        FriendshipId = friendshipWriteResult.FriendshipId,
+                        Result = operationSendFriendRequestResult
+                    };
+                    friendRequestNotifications = CompletePendingRequest(completionContext);
+                }
             }
             else
             {
@@ -481,7 +521,7 @@ namespace TLMG.Services.Friends
             {
                 friendRequestNotifications = AcceptCrossedRequest(context);
             }
-            else
+            else if (context.FriendshipRecord.State == FriendshipState.Rejected)
             {
                 FriendshipWriteStatus friendshipWriteStatus = _friendshipRepository.ReactivateFriendRequest(
                     context.FriendshipRecord.FriendshipId,
@@ -497,6 +537,10 @@ namespace TLMG.Services.Friends
                 };
                 friendRequestNotifications = CompletePendingRequest(completionContext);
             }
+            else
+            {
+                context.Result.ErrorKey = ErrorKeys.Common.Unexpected;
+            }
 
             return friendRequestNotifications;
         }
@@ -508,6 +552,7 @@ namespace TLMG.Services.Friends
             if (context.WriteStatus == FriendshipWriteStatus.Applied)
             {
                 context.Result.IsSuccess = true;
+                context.Result.ErrorKey = string.Empty;
                 context.Result.SentFriendRequest = new FriendRequest
                 {
                     FriendRequestId = context.FriendshipId,
@@ -551,6 +596,7 @@ namespace TLMG.Services.Friends
                     context.SenderSession, context.FriendCandidate.UserId,
                     context.FriendCandidate.Nickname, out newFriend);
                 context.Result.IsSuccess = true;
+                context.Result.ErrorKey = string.Empty;
                 context.Result.NewFriend = newFriend;
                 _log.InfoFormat(
                     "La solicitud cruzada entre los jugadores {0} y {1} se aceptó sola.",
@@ -588,7 +634,9 @@ namespace TLMG.Services.Friends
                 FriendshipRecordLookup friendshipRecordLookup =
                     _friendshipRepository.FindFriendshipRecordById(friendRequestId);
 
-                if (friendshipRecordLookup.Status == FriendLookupStatus.DataFailure)
+                if (friendshipRecordLookup == null || (friendshipRecordLookup.Status != FriendLookupStatus.Found
+                    && friendshipRecordLookup.Status != FriendLookupStatus.NotFound)
+                    || (friendshipRecordLookup.Status == FriendLookupStatus.Found && friendshipRecordLookup.Record == null))
                 {
                     friendRequestAnswer.ErrorKey = ErrorKeys.Common.Unexpected;
                     LogRejectedOperation("responder una solicitud de amistad", playerSession.UserId, "fallo de datos");
@@ -633,6 +681,7 @@ namespace TLMG.Services.Friends
             }
             else if (context.NewState == FriendshipState.Accepted)
             {
+                context.Answer.IsSuccess = true;
                 Friend newFriend;
                 context.Answer.Notifications = PrepareFriendshipNotifications(
                     context.ReceiverSession, context.FriendshipRecord.SenderUserId,
@@ -645,6 +694,7 @@ namespace TLMG.Services.Friends
             }
             else
             {
+                context.Answer.IsSuccess = true;
                 _log.InfoFormat(
                     "El jugador {0} rechazó la solicitud de amistad del jugador {1}.",
                     context.ReceiverSession.UserId,
@@ -902,6 +952,7 @@ namespace TLMG.Services.Friends
 
         private sealed class FriendRequestAnswer
         {
+            public bool IsSuccess { get; set; }
             public string ErrorKey { get; set; }
 
             public Friend NewFriend { get; set; }

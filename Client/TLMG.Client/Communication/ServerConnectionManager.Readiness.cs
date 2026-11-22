@@ -44,6 +44,7 @@ namespace TLMG.Client.Communication
         /// <param name="changePlayerReadinessResult">Server result.</param>
         internal void NotifyReadinessResultReceived(OperationLobbyRoomResult changePlayerReadinessResult)
         {
+            changePlayerReadinessResult = NormalizeOperationResult(changePlayerReadinessResult);
             if (changePlayerReadinessResult != null)
             {
                 NotifyLobbyRoomChanged(changePlayerReadinessResult.Room);
@@ -59,6 +60,7 @@ namespace TLMG.Client.Communication
         /// </param>
         internal void NotifyMatchStartResultReceived(OperationRequestMatchStartResult requestMatchStartResult)
         {
+            requestMatchStartResult = NormalizeOperationResult(requestMatchStartResult);
             if (requestMatchStartResult != null)
             {
                 NotifyLobbyRoomChanged(requestMatchStartResult.Room);

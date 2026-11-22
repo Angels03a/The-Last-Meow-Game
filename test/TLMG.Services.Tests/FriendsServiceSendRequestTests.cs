@@ -28,7 +28,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(actual.OperationResult.IsSuccess);
-            Assert.Null(actual.OperationResult.ErrorKey);
+            Assert.Equal(string.Empty, actual.OperationResult.ErrorKey);
             Assert.Null(actual.OperationResult.NewFriend);
             FriendshipRepositoryStub.StoredFriendship row = Assert.Single(scenario.Repository.Rows);
             Assert.Equal(FriendsScenario.AlphaUserId, row.SenderUserId);
@@ -61,6 +61,42 @@ namespace TLMG.Services.Tests
             // Assert
             Assert.True(actual.IsSuccess);
             Assert.Equal(FriendsScenario.BravoNickname, actual.SentFriendRequest.Nickname);
+        }
+
+        [Fact]
+        public void SendFriendRequest_WithUnknownCandidateStatus_RejectsWithoutWriteOrNotification()
+        {
+            // Arrange
+            FriendsScenario scenario = new FriendsScenario();
+            scenario.Repository.CandidateStatusOverride = (FriendLookupStatus)999;
+
+            // Act
+            ResultWithNotification<OperationSendFriendRequestResult> result =
+                scenario.Service.SendFriendRequest(scenario.AlphaToken, FriendsScenario.BravoNickname);
+
+            // Assert
+            Assert.False(result.OperationResult.IsSuccess);
+            Assert.Equal(ErrorKeys.Common.Unexpected, result.OperationResult.ErrorKey);
+            Assert.Empty(scenario.Repository.Rows);
+            Assert.Empty(result.Notifications);
+        }
+
+        [Fact]
+        public void SendFriendRequest_WithUnknownPairStatus_RejectsWithoutWriteOrNotification()
+        {
+            // Arrange
+            FriendsScenario scenario = new FriendsScenario();
+            scenario.Repository.RecordStatusOverride = (FriendLookupStatus)999;
+
+            // Act
+            ResultWithNotification<OperationSendFriendRequestResult> result =
+                scenario.Service.SendFriendRequest(scenario.AlphaToken, FriendsScenario.BravoNickname);
+
+            // Assert
+            Assert.False(result.OperationResult.IsSuccess);
+            Assert.Equal(ErrorKeys.Common.Unexpected, result.OperationResult.ErrorKey);
+            Assert.Empty(scenario.Repository.Rows);
+            Assert.Empty(result.Notifications);
         }
 
         [Fact]

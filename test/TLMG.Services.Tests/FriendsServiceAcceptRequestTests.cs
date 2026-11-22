@@ -30,7 +30,7 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(actual.OperationResult.IsSuccess);
-            Assert.Null(actual.OperationResult.ErrorKey);
+            Assert.Equal(string.Empty, actual.OperationResult.ErrorKey);
             Assert.Equal(friendshipId, actual.OperationResult.FriendRequestId);
             Assert.Equal(FriendsScenario.AlphaUserId, actual.OperationResult.NewFriend.UserId);
             Assert.Equal(FriendsScenario.AlphaNickname, actual.OperationResult.NewFriend.Nickname);

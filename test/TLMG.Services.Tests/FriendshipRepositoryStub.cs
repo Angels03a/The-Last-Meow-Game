@@ -26,6 +26,8 @@ namespace TLMG.Services.Tests
 
         /// <summary>Makes the lookups of a friendship record (by pair or by id) report a data failure.</summary>
         internal bool FailRecordLookup { get; set; }
+        internal FriendLookupStatus? CandidateStatusOverride { get; set; }
+        internal FriendLookupStatus? RecordStatusOverride { get; set; }
 
         /// <summary>Makes the lookup of the accepted friends of a user report a data failure.</summary>
         internal bool FailFriendListLookup { get; set; }
@@ -103,6 +105,10 @@ namespace TLMG.Services.Tests
         public FriendCandidateLookup FindFriendCandidateByNickname(string nickname)
         {
             CheckForSimulatedFailure();
+            if (CandidateStatusOverride.HasValue)
+            {
+                return new FriendCandidateLookup { Status = CandidateStatusOverride.Value };
+            }
             FriendCandidateLookup lookup = new FriendCandidateLookup { Status = FriendLookupStatus.NotFound };
 
             if (FailCandidateLookup)
@@ -128,6 +134,10 @@ namespace TLMG.Services.Tests
         public FriendshipRecordLookup FindFriendshipRecord(int userId, int otherUserId)
         {
             CheckForSimulatedFailure();
+            if (RecordStatusOverride.HasValue)
+            {
+                return new FriendshipRecordLookup { Status = RecordStatusOverride.Value };
+            }
 
             if (FailRecordLookup)
             {
