@@ -165,11 +165,12 @@ namespace TLMG.Client.Communication
 
         internal void NotifyMatchSubscriptionResult(ServerCallback callback, OperationResult subscriptionResult)
         {
-            if (!IsCurrentMatchCallback(callback) || subscriptionResult == null || !IsMatchSubscriptionPending())
+            if (!IsCurrentMatchCallback(callback) || !IsMatchSubscriptionPending())
             {
                 return;
             }
 
+            subscriptionResult = NormalizeOperationResult(subscriptionResult);
             if (subscriptionResult.IsSuccess)
             {
                 _matchSubscriptionAccepted = true;
@@ -193,16 +194,21 @@ namespace TLMG.Client.Communication
 
         internal void NotifyMatchActionResult(ServerCallback callback, OperationResult actionResult)
         {
-            if (IsCurrentMatchCallback(callback) && actionResult != null && !actionResult.IsSuccess)
+            if (IsCurrentMatchCallback(callback))
             {
-                MatchErrorReceived?.Invoke(this, new ServerEventArgs<string>(actionResult.ErrorKey));
+                actionResult = NormalizeOperationResult(actionResult);
+                if (!actionResult.IsSuccess)
+                {
+                    MatchErrorReceived?.Invoke(this, new ServerEventArgs<string>(actionResult.ErrorKey));
+                }
             }
         }
 
         internal void NotifyFugitiveKittenResult(ServerCallback callback, OperationResult result, bool isCatch)
         {
-            if (IsCurrentMatchCallback(callback) && result != null)
+            if (IsCurrentMatchCallback(callback))
             {
+                result = NormalizeOperationResult(result);
                 ServerEventArgs<OperationResult> eventArgs = new ServerEventArgs<OperationResult>(result);
                 if (isCatch)
                 {

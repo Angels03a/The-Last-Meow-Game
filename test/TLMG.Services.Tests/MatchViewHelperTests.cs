@@ -4,6 +4,7 @@ using Xunit;
 
 using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Engine;
+using TLMG.Domain.Constants;
 using TLMG.Services.Helpers;
 using TLMG.Services.Match;
 
@@ -54,9 +55,9 @@ namespace TLMG.Services.Tests
             Assert.Equal(expectedErrorKey, errorKey);
         }
 
-        /// <summary>Checks ConvertToErrorKey_WithUnknownStatus_ReturnsNotInMatchWithoutThrowing.</summary>
+        /// <summary>Checks that an unknown status returns the generic error.</summary>
         [Fact]
-        public void ConvertToErrorKey_WithUnknownStatus_ReturnsNotInMatchWithoutThrowing()
+        public void ConvertToErrorKey_WithUnknownStatus_ReturnsUnexpectedError()
         {
             // Arrange
             CardPlacementStatus unknownStatus = (CardPlacementStatus)UndefinedCardValue;
@@ -65,7 +66,7 @@ namespace TLMG.Services.Tests
             string errorKey = MatchViewHelper.ConvertToErrorKey(unknownStatus);
 
             // Assert
-            Assert.Equal(MatchErrorKeys.NotInMatch, errorKey);
+            Assert.Equal(ErrorKeys.Common.Unexpected, errorKey);
         }
 
         /// <summary>Checks ConvertToContractPhase_WithEnginePhase_ReturnsSameNamedPhase.</summary>
