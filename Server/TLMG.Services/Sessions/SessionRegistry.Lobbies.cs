@@ -76,6 +76,7 @@ namespace TLMG.Services.Sessions
                 }
             }
 
+            PersistPendingMatchFinalizations();
             return lobbyMembershipChange;
         }
 
@@ -100,25 +101,29 @@ namespace TLMG.Services.Sessions
                 }
             }
 
+            PersistPendingMatchFinalizations();
             return lobbyMembershipChange;
         }
 
         private bool DetachStartedLobbyChannelInLock(int userId)
         {
-            if (!_roomIdsByUserId.TryGetValue(userId, out int roomId) || !_startsByRoomId[roomId].MatchId.HasValue)
+            bool wasDetached = _roomIdsByUserId.TryGetValue(userId, out int roomId)
+                && _startsByRoomId[roomId].MatchId.HasValue;
+
+            if (wasDetached)
             {
-                return false;
+                List<LobbyMember> members = _membersByRoomId[roomId];
+                LobbyMember member = (from lobbyMember in members
+                                      where lobbyMember.UserId == userId
+                                      select lobbyMember).First();
+                if (member.ChannelId != null)
+                {
+                    _userIdsByChannelId.Remove(member.ChannelId);
+                    members[members.IndexOf(member)] = new LobbyMember(userId, null, null);
+                }
             }
 
-            List<LobbyMember> members = _membersByRoomId[roomId];
-            int index = members.FindIndex(member => member.UserId == userId);
-            if (members[index].ChannelId != null)
-            {
-                _userIdsByChannelId.Remove(members[index].ChannelId);
-                members[index] = new LobbyMember(userId, null, null);
-            }
-
-            return true;
+            return wasDetached;
         }
 
         private static LobbyMembershipChange CreateRejectedWithoutUser(LobbyChangeStatus lobbyChangeStatus)
@@ -170,7 +175,10 @@ namespace TLMG.Services.Sessions
                 _lastRoomId++;
                 List<LobbyMember> members = new List<LobbyMember>();
                 _membersByRoomId[_lastRoomId] = members;
-                _startsByRoomId[_lastRoomId] = new LobbyStartState();
+                _startsByRoomId[_lastRoomId] = new LobbyStartState
+                {
+                    LobbyOpenedAtUtc = _readUtcNow()
+                };
                 LobbyMember creator = new LobbyMember(playerSession.UserId, caller.ChannelId, lobbyCallback);
                 AddMemberToRoom(_lastRoomId, members, creator);
                 lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
@@ -180,6 +188,34 @@ namespace TLMG.Services.Sessions
             }
 
             return lobbyMembershipChange;
+        }
+
+        private bool CanReconnectToLobbyInLock(int userId, int roomId, string channelId)
+        {
+            bool canReconnect = false;
+
+            if (_roomIdsByUserId.TryGetValue(userId, out int currentRoomId) && currentRoomId == roomId)
+            {
+                MatchRecord recoverableMatch = FindRecoverableMatchInLock(userId);
+                if (recoverableMatch != null && HasValidLobbyReconnectDeadline(recoverableMatch, userId)
+                    && !_userIdsByChannelId.ContainsKey(channelId))
+                {
+                    canReconnect = (from member in _membersByRoomId[roomId]
+                                    where member.UserId == userId && member.ChannelId == null
+                                    select member).Any();
+                }
+            }
+
+            return canReconnect;
+        }
+
+        private bool HasValidLobbyReconnectDeadline(MatchRecord match, int userId)
+        {
+            bool hasValidDeadline = match.MatchState.Phase == TLMG.Domain.Engine.RoundPhase.MatchFinished
+                || !match.Disconnections.TryGetValue(userId, out TLMG.Domain.Engine.PlayerExit exit)
+                || _readUtcNow() < exit.EffectiveAtUtc;
+
+            return hasValidDeadline;
         }
 
         private LobbyMembershipChange EnterRoomInLock(
@@ -195,16 +231,13 @@ namespace TLMG.Services.Sessions
             {
                 lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.InvalidSession);
             }
-            else if (_roomIdsByUserId.TryGetValue(playerSession.UserId, out int currentRoomId)
-                && currentRoomId == roomId && FindRecoverableMatchInLock(playerSession.UserId) is MatchRecord match
-                && (match.MatchState.Phase == TLMG.Domain.Engine.RoundPhase.MatchFinished
-                    || !match.Disconnections.TryGetValue(playerSession.UserId, out var exit)
-                    || _readUtcNow() < exit.EffectiveAtUtc)
-                && !_userIdsByChannelId.ContainsKey(caller.ChannelId)
-                && _membersByRoomId[roomId].Any(member => member.UserId == playerSession.UserId && member.ChannelId == null))
+            else if (CanReconnectToLobbyInLock(playerSession.UserId, roomId, caller.ChannelId))
             {
                 members = _membersByRoomId[roomId];
-                int memberIndex = members.FindIndex(member => member.UserId == playerSession.UserId);
+                LobbyMember reconnectingMember = (from member in members
+                                                  where member.UserId == playerSession.UserId
+                                                  select member).First();
+                int memberIndex = members.IndexOf(reconnectingMember);
                 members[memberIndex] = new LobbyMember(playerSession.UserId, caller.ChannelId, lobbyCallback);
                 _userIdsByChannelId.Add(caller.ChannelId, playerSession.UserId);
                 TrackLinkInLock(playerSession, HeartbeatChannel.Lobby, caller.ChannelId);
@@ -247,13 +280,6 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        /// <summary>
-        /// Saca al jugador de su sala por la causa indicada. Solo la salida voluntaria lo saca también del motor de
-        /// partida; las demás causas dejan la partida intacta hasta que exista la ventana de reconexión (C2).
-        /// </summary>
-        /// <param name="userId">Jugador que sale.</param>
-        /// <param name="exitCause">Causa de la salida.</param>
-        /// <param name="matchViewDeliveries">Vistas para los demás suscritos de la partida; vacía si no hay.</param>
         private LobbyMembershipChange RemoveUserFromRoom(
             int userId,
             RoomExitCause exitCause,
@@ -267,6 +293,7 @@ namespace TLMG.Services.Sessions
 
             if (_roomIdsByUserId.TryGetValue(userId, out roomId))
             {
+                InvalidatePendingMatchStartInLock(roomId);
                 Guid? matchId = _startsByRoomId[roomId].MatchId;
 
                 if (matchId.HasValue && exitCause == RoomExitCause.Voluntary)
@@ -293,7 +320,9 @@ namespace TLMG.Services.Sessions
             LobbyMembershipChange lobbyMembershipChange;
 
             List<LobbyMember> members = _membersByRoomId[roomId];
-            LobbyMember leavingMember = members.Find(member => member.UserId == userId);
+            LobbyMember leavingMember = (from member in members
+                                         where member.UserId == userId
+                                         select member).First();
             members.Remove(leavingMember);
             _roomIdsByUserId.Remove(userId);
             if (leavingMember.ChannelId != null)
@@ -418,10 +447,11 @@ namespace TLMG.Services.Sessions
 
         private LobbyRoomSnapshot CreateRoomSnapshot(int roomId, List<LobbyMember> members)
         {
-            return CreateRoomSnapshot(roomId, members, _startsByRoomId[roomId]);
+            LobbyRoomSnapshot roomSnapshot = CreateRoomSnapshot(roomId, members, _startsByRoomId[roomId]);
+
+            return roomSnapshot;
         }
 
-        /// <summary>Copia la sala con un estado de inicio, publicado o por publicar; requiere _sessionsLock.</summary>
         private LobbyRoomSnapshot CreateRoomSnapshot(
             int roomId,
             List<LobbyMember> members,

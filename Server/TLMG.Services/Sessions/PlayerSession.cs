@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 
+using TLMG.Domain.Authorization;
+
 namespace TLMG.Services.Sessions
 {
     /// <summary>
@@ -17,13 +19,11 @@ namespace TLMG.Services.Sessions
             Nickname = nickname;
         }
 
-        internal static PlayerSession CreateRegistered(int userId, string nickname)
-        {
-            return new PlayerSession(userId, nickname) { IsRegistered = true };
-        }
-
         /// <summary>Indica si la identidad procede de una cuenta autenticada.</summary>
-        internal bool IsRegistered { get; private set; }
+        internal bool IsRegistered => Role == AccountRole.RegisteredPlayer;
+
+        /// <summary>Rol fijado al iniciar la sesión; el servidor nunca lo toma del cliente.</summary>
+        internal AccountRole Role { get; private set; }
 
         internal System.DateTime LastActivityUtc { get; set; }
 
@@ -38,5 +38,15 @@ namespace TLMG.Services.Sessions
 
         /// <summary>Obtiene el nickname de la cuenta.</summary>
         public string Nickname { get; internal set; }
+
+        internal static PlayerSession CreateRegistered(int userId, string nickname)
+        {
+            return new PlayerSession(userId, nickname) { Role = AccountRole.RegisteredPlayer };
+        }
+
+        internal static PlayerSession CreateGuest(int guestUserId, string nickname)
+        {
+            return new PlayerSession(guestUserId, nickname) { Role = AccountRole.Guest };
+        }
     }
 }

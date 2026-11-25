@@ -24,5 +24,6 @@ namespace TLMG.Services
         public MatchService MatchService { get; set; }
         public PasswordChangeService PasswordChangeService { get; set; }
         public PasswordRecoveryService PasswordRecoveryService { get; set; }
+        public GuestSessionService GuestSessionService { get; set; }
     }
 }

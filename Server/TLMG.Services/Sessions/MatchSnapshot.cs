@@ -19,6 +19,7 @@ namespace TLMG.Services.Sessions
         /// <param name="roundNumber">Ronda en curso del motor.</param>
         /// <param name="phase">Fase en curso del motor.</param>
         /// <param name="playerInTurnUserId">Jugador en turno.</param>
+        /// <param name="guestUserIds">Invitados congelados al autorizar; no se persisten en Game_Player.</param>
         internal MatchSnapshot(
             Guid matchId,
             int roomId,
@@ -26,11 +27,13 @@ namespace TLMG.Services.Sessions
             int cardsPerPlayerCount,
             int roundNumber,
             RoundPhase phase,
-            int playerInTurnUserId)
+            int playerInTurnUserId,
+            IReadOnlyList<int> guestUserIds = null)
         {
             MatchId = matchId;
             RoomId = roomId;
             ParticipantUserIds = participantUserIds;
+            GuestUserIds = guestUserIds ?? Array.Empty<int>();
             CardsPerPlayerCount = cardsPerPlayerCount;
             RoundNumber = roundNumber;
             Phase = phase;
@@ -45,6 +48,9 @@ namespace TLMG.Services.Sessions
 
         /// <summary>Obtiene los participantes en el orden de ingreso a la sala.</summary>
         internal IReadOnlyList<int> ParticipantUserIds { get; }
+
+        /// <summary>Obtiene los identificadores de los invitados congelados al autorizar la partida.</summary>
+        internal IReadOnlyList<int> GuestUserIds { get; }
 
         /// <summary>Obtiene las cartas por jugador de la modalidad con la que se creó el motor.</summary>
         internal int CardsPerPlayerCount { get; }

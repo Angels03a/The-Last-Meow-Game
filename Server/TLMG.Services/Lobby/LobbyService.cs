@@ -8,6 +8,7 @@ using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Constants;
 using TLMG.Services.Helpers;
 using TLMG.Services.Sessions;
+using TLMG.Domain.Authorization;
 
 namespace TLMG.Services.Lobby
 {
@@ -23,22 +24,61 @@ namespace TLMG.Services.Lobby
                 { LobbyChangeStatus.NotAuthorized, ErrorKeys.Lobby.NotInRoom },
                 { LobbyChangeStatus.RoomFull, ErrorKeys.Common.RoomFull },
                 { LobbyChangeStatus.NotInRoom, ErrorKeys.Lobby.NotInRoom },
-                { LobbyChangeStatus.MatchAlreadyStarted, ErrorKeys.Lobby.MatchAlreadyStarted }
+                { LobbyChangeStatus.MatchAlreadyStarted, ErrorKeys.Lobby.MatchAlreadyStarted },
+                { LobbyChangeStatus.MatchStartPersistenceFailed, ErrorKeys.Common.Unexpected }
             };
 
-        private ISessionRegistry _sessionRegistry;
+        private readonly ISessionRegistry _sessionRegistry;
+        private readonly ISessionAuthorizer _sessionAuthorizer;
+        private readonly IMatchStartCoordinator _matchStartCoordinator;
 
-        public LobbyService(ISessionRegistry sessionRegistry)
+        public LobbyService(ISessionRegistry sessionRegistry, ISessionAuthorizer sessionAuthorizer,
+            IMatchStartCoordinator matchStartCoordinator)
         {
             _sessionRegistry = sessionRegistry;
+            _sessionAuthorizer = sessionAuthorizer;
+            _matchStartCoordinator = matchStartCoordinator;
         }
 
         public ResultWithNotification<OperationLobbyRoomResult> CreateRoom(
+     LobbyCaller caller,
+     ILobbyManagerCallback lobbyCallback)
+        {
+            OperationLobbyRoomResult operationCreateRoomResult = new OperationLobbyRoomResult();
+            SessionAuthorization authorization = _sessionAuthorizer.Authorize(
+                caller.SessionToken,
+                SystemPermission.CreateRoom);
+
+            if (authorization.ErrorKey != null)
+            {
+                operationCreateRoomResult.ErrorKey = authorization.ErrorKey;
+                _log.WarnFormat(
+                    "Se rechazó crear una sala del jugador {0}: {1}.",
+                    authorization.UserId,
+                    authorization.Status);
+            }
+            else
+            {
+                ApplyRoomCreation(caller, lobbyCallback, operationCreateRoomResult);
+            }
+
+            ResultWithNotification<OperationLobbyRoomResult> createRoomResult =
+                new ResultWithNotification<OperationLobbyRoomResult>(operationCreateRoomResult);
+
+            if (operationCreateRoomResult.IsSuccess)
+            {
+                _matchStartCoordinator.ReconcileCancelledStarts();
+            }
+
+            return createRoomResult;
+        }
+
+        private void ApplyRoomCreation(
             LobbyCaller caller,
-            ILobbyManagerCallback lobbyCallback)
+            ILobbyManagerCallback lobbyCallback,
+            OperationLobbyRoomResult operationCreateRoomResult)
         {
             LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.CreateRoom(caller, lobbyCallback);
-            OperationLobbyRoomResult operationCreateRoomResult = new OperationLobbyRoomResult();
 
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
@@ -54,11 +94,6 @@ namespace TLMG.Services.Lobby
                 operationCreateRoomResult.ErrorKey = ResolveErrorKey(lobbyMembershipChange.Status);
                 LogRejectedOperation("crear una sala", lobbyMembershipChange, lobbyMembershipChange.RoomId);
             }
-
-            ResultWithNotification<OperationLobbyRoomResult> createRoomResult =
-                new ResultWithNotification<OperationLobbyRoomResult>(operationCreateRoomResult);
-
-            return createRoomResult;
         }
 
         public ResultWithNotification<OperationLobbyRoomResult> EnterLobby(
@@ -87,6 +122,11 @@ namespace TLMG.Services.Lobby
                 new ResultWithNotification<OperationLobbyRoomResult>(
                     operationEnterLobbyResult,
                     lobbyNotifications);
+
+            if (operationEnterLobbyResult.IsSuccess && !operationEnterLobbyResult.Room.MatchId.HasValue)
+            {
+                _matchStartCoordinator.ReconcileCancelledStarts();
+            }
 
             return enterLobbyResult;
         }
@@ -126,6 +166,11 @@ namespace TLMG.Services.Lobby
                     operationLeaveLobbyResult,
                     lobbyChangeNotifications);
 
+            if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied && !lobbyMembershipChange.LeftAuthorizedMatch)
+            {
+                _matchStartCoordinator.ReconcileCancelledStarts();
+            }
+
             return leaveLobbyResult;
         }
 
@@ -153,6 +198,7 @@ namespace TLMG.Services.Lobby
                     lobbyMembershipChange.UserId,
                     lobbyMembershipChange.RoomId);
                 SessionNotificationHelper.LogMatchLeftUntouched(lobbyMembershipChange);
+                _matchStartCoordinator.ReconcileCancelledStarts();
             }
 
             return lobbyChangeNotifications;

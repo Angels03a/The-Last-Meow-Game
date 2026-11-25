@@ -20,12 +20,13 @@ namespace TLMG.Server
             IPlayerProfileRepository playerProfileRepository = new PlayerProfileRepository();
             IFriendshipRepository friendshipRepository = new FriendshipRepository();
             IVerificationCodeRepository verificationCodeRepository = new VerificationCodeRepository();
+            IGameHistoryRepository gameHistoryRepository = new GameHistoryRepository();
 
             IPasswordHasher passwordHasher = new PasswordHasher();
             SessionRegistry sessionRegistry = new SessionRegistry();
+            sessionRegistry.ConfigureMatchHistory(gameHistoryRepository);
 
             VerificationCodeStore verificationCodeStore = new VerificationCodeStore(verificationCodeRepository);
-
             EmailUtility emailUtility = new EmailUtility();
 
             AccountVerificationDispatcher verificationDispatcher =
@@ -37,16 +38,24 @@ namespace TLMG.Server
             PlayerLogInService logInService =
                 new PlayerLogInService(playerRepository, passwordHasher, sessionRegistry);
 
+            GuestSessionService guestSessionService = new GuestSessionService(sessionRegistry);
+
             PlayerProfileService profileService =
-                new PlayerProfileService(playerProfileRepository, sessionRegistry);
+                new PlayerProfileService(playerProfileRepository, sessionRegistry, sessionRegistry);
 
-            ChatService chatService = new ChatService(sessionRegistry, new ChatMessageRepository());
+            ChatService chatService =
+                new ChatService(sessionRegistry, new ChatMessageRepository(), sessionRegistry);
 
-            FriendsService friendsService = new FriendsService(friendshipRepository, sessionRegistry);
+            FriendsService friendsService =
+                new FriendsService(friendshipRepository, sessionRegistry, sessionRegistry);
 
-            LeaderboardService leaderboardService = new LeaderboardService(playerRepository);
+            LeaderboardService leaderboardService = new LeaderboardService(playerRepository, sessionRegistry);
 
-            LobbyService lobbyService = new LobbyService(sessionRegistry);
+            MatchStartCoordinator matchStartCoordinator =
+                new MatchStartCoordinator(sessionRegistry, gameHistoryRepository);
+            matchStartCoordinator.RecoverInterruptedMatches();
+
+            LobbyService lobbyService = new LobbyService(sessionRegistry, sessionRegistry, matchStartCoordinator);
 
             MatchService matchService = new MatchService(sessionRegistry);
             IPasswordRepository passwordRepository = new PasswordRepository();
@@ -65,6 +74,7 @@ namespace TLMG.Server
                 SessionRegistry = sessionRegistry,
                 RegistrationService = registrationService,
                 LogInService = logInService,
+                GuestSessionService = guestSessionService,
                 ProfileService = profileService,
                 ChatService = chatService,
                 FriendsService = friendsService,

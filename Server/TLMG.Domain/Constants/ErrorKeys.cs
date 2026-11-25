@@ -10,6 +10,7 @@ namespace TLMG.Domain.Constants
             public const string Unexpected = "Common_UnexpectedError";
             public const string RoomFull = "Common_RoomFullError";
             public const string OutOfMemory = "Common_OutOfMemoryError";
+            public const string PermissionDenied = "Common_PermissionDeniedError";
         }
 
         public static class Lobby
@@ -56,6 +57,7 @@ namespace TLMG.Domain.Constants
             public const string EmailFormat = "Login_EmailFormatError";
             public const string InvalidCredentials = "Login_InvalidCredentialsError";
             public const string DataModel = "Login_DataModelError";
+            public const string GuestUnavailable = "Login_GuestUnavailableError";
         }
 
         public static class Friends

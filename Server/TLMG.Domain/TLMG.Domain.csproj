@@ -41,6 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Authorization\AccountRole.cs" />
+    <Compile Include="Authorization\GuestIdentity.cs" />
+    <Compile Include="Authorization\RolePermissionMap.cs" />
+    <Compile Include="Authorization\SystemPermission.cs" />
     <Compile Include="Constants\AvatarCatalog.cs" />
     <Compile Include="Constants\ErrorKeys.cs" />
     <Compile Include="Constants\ValidationRules.cs" />

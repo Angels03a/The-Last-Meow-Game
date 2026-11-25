@@ -23,5 +23,9 @@ namespace TLMG.Contracts.DataContracts
         /// <summary>Nickname del jugador; null si el inicio de sesión falló.</summary>
         [DataMember]
         public string Nickname { get; set; }
+
+        /// <summary>Indicates whether the session is a guest session, so the client can warn that nothing is saved.</summary>
+        [DataMember]
+        public bool IsGuest { get; set; }
     }
 }

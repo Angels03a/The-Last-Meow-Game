@@ -101,7 +101,7 @@ namespace TLMG.Services.Sessions
         /// <param name="friendsCallback">Callback del canal de amigos del jugador.</param>
         /// <param name="friendUserIds">Ids de los amigos aceptados del jugador, ya consultados en la base.</param>
         /// <returns>Applied con cuáles de esos amigos están en línea, o InvalidSession; nunca es null.</returns>
-        FriendsSubscription SubscribeFriendsChannel(string sessionToken, string channelId, 
+        FriendsSubscription SubscribeFriendsChannel(string sessionToken, string channelId,
             IFriendsManagerCallback friendsCallback, IReadOnlyList<int> friendUserIds);
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace TLMG.Services.Sessions
         /// Applied con el id de la sala, InvalidSession o InvitationNotValid; InvitationNotValid cubre que la
         /// invitación no exista, no sea del jugador o su sala ya no exista. Nunca es null.
         /// </returns>
-        
+
         RoomInvitationAcceptance AcceptRoomInvitation(string sessionToken, int invitationId);
         /// <summary>Cambia el estado Listo del propio jugador. Valida token y canal antes de copiar el estado.</summary>
         /// <param name="caller">Token de sesión y canal de lobby vinculado al jugador.</param>
@@ -163,13 +163,6 @@ namespace TLMG.Services.Sessions
         /// no hay destinatarios.
         /// </returns>
         LobbyMembershipChange ChangeCardsPerPlayer(LobbyCaller caller, int roomId, int cardsPerPlayerCount);
-
-        /// <summary>Valida la generación y el plazo UTC para iniciar. Valida token y canal antes de copiar el estado.</summary>
-        /// <param name="caller">Token de sesión y canal de lobby vinculado al jugador.</param>
-        /// <param name="roomId">Sala indicada por la petición.</param>
-        /// <param name="countdownId">Generación de cuenta observada; una generación vieja solo devuelve el estado.</param>
-        /// <returns>Estado actual y destinatarios, o rechazo sin datos de la sala.</returns>
-        LobbyMembershipChange RequestMatchStart(LobbyCaller caller, int roomId, long countdownId);
 
         /// <summary>Suscribe el canal a la sala actual; la última suscripción válida de la sesión gana.</summary>
         /// <param name="caller">Token de cuenta registrada y canal de chat.</param>

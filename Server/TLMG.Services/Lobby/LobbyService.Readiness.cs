@@ -27,14 +27,17 @@ namespace TLMG.Services.Lobby
                     _sessionRegistry.ChangePlayerReadiness(caller, requestedRoomId, lobbyRequest.IsReady);
             }
 
-            OperationLobbyRoomResult operationChangePlayerReadinessResult =
-                new OperationLobbyRoomResult();
+            OperationLobbyRoomResult operationChangePlayerReadinessResult = new OperationLobbyRoomResult();
             ApplyOutcome(operationChangePlayerReadinessResult, lobbyMembershipChange);
             operationChangePlayerReadinessResult.Room = ConvertRoomOrNull(lobbyMembershipChange);
 
             if (!operationChangePlayerReadinessResult.IsSuccess)
             {
-                LogRejectedOperation("cambiar el estado Listo", lobbyMembershipChange, requestedRoomId);
+                LogRejectedOperation("change readiness", lobbyMembershipChange, requestedRoomId);
+            }
+            else
+            {
+                _matchStartCoordinator.ReconcileCancelledStarts();
             }
 
             ResultWithNotification<OperationLobbyRoomResult> changePlayerReadinessResult =
@@ -45,6 +48,7 @@ namespace TLMG.Services.Lobby
             return changePlayerReadinessResult;
         }
 
+        /// <summary>Requests durable authorization without publishing a match that has not been registered.</summary>
         public ResultWithNotification<OperationRequestMatchStartResult> RequestMatchStart(
             LobbyCaller caller,
             OperationMatchStartRequest matchStartRequest)
@@ -59,8 +63,8 @@ namespace TLMG.Services.Lobby
             else
             {
                 requestedRoomId = matchStartRequest.RoomId;
-                lobbyMembershipChange =
-                    _sessionRegistry.RequestMatchStart(caller, requestedRoomId, matchStartRequest.CountdownId);
+                lobbyMembershipChange = _matchStartCoordinator.RequestMatchStart(
+                    caller, requestedRoomId, matchStartRequest.CountdownId);
             }
 
             OperationRequestMatchStartResult operationRequestMatchStartResult =
@@ -76,13 +80,13 @@ namespace TLMG.Services.Lobby
 
             if (!operationRequestMatchStartResult.IsSuccess)
             {
-                LogRejectedOperation("solicitar el inicio de la partida", lobbyMembershipChange, requestedRoomId);
+                LogRejectedOperation("request match start", lobbyMembershipChange, requestedRoomId);
             }
 
             if (lobbyMembershipChange.RecipientCallbacks.Count > ZeroCount)
             {
                 _log.InfoFormat(
-                    "El jugador {0} autorizó el inicio de la partida {1} en la sala {2}: {3} cartas, {4} jugadores.",
+                    "Player {0} authorized match {1} in room {2}: {3} cards, {4} players.",
                     lobbyMembershipChange.UserId,
                     lobbyMembershipChange.Room.Start.MatchId,
                     lobbyMembershipChange.RoomId,

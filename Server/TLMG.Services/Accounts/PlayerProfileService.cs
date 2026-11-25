@@ -1,6 +1,7 @@
 ﻿using log4net;
 
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Authorization;
 using TLMG.Domain.Constants;
 using TLMG.Domain.Entities;
 using TLMG.Domain.Repositories;
@@ -15,22 +16,29 @@ namespace TLMG.Services.Accounts
 
         private readonly IPlayerProfileRepository _playerProfileRepository;
         private readonly ISessionIdentityProvider _sessionIdentityProvider;
+        private readonly ISessionAuthorizer _sessionAuthorizer;
 
         public PlayerProfileService(
             IPlayerProfileRepository playerProfileRepository,
-            ISessionIdentityProvider sessionIdentityProvider)
+            ISessionIdentityProvider sessionIdentityProvider,
+            ISessionAuthorizer sessionAuthorizer)
         {
             _playerProfileRepository = playerProfileRepository;
             _sessionIdentityProvider = sessionIdentityProvider;
+            _sessionAuthorizer = sessionAuthorizer;
         }
+
         public OperationPlayerProfileResult GetProfile(string sessionToken)
         {
             OperationPlayerProfileResult profileResult = new OperationPlayerProfileResult();
-            string errorKey = ErrorKeys.Common.InvalidSession;
+            SessionAuthorization authorization = _sessionAuthorizer.Authorize(
+                sessionToken,
+                SystemPermission.ManageProfile);
+            string errorKey = authorization.ErrorKey;
 
-            if (_sessionIdentityProvider.TryGetUserId(sessionToken, out int userId))
+            if (errorKey == null)
             {
-                PlayerProfileLookup profileLookup = _playerProfileRepository.FindProfileByUserId(userId);
+                PlayerProfileLookup profileLookup = _playerProfileRepository.FindProfileByUserId(authorization.UserId);
                 errorKey = ResolveLookupErrorKey(profileLookup.Status);
 
                 if (errorKey == null)
@@ -84,55 +92,6 @@ namespace TLMG.Services.Accounts
             return errorKey;
         }
 
-        private string SaveProfileUpdate(string sessionToken, PlayerProfileUpdate profileUpdate)
-        {
-            string errorKey = ErrorKeys.Common.InvalidSession;
-
-            if (_sessionIdentityProvider.TryGetUserId(sessionToken, out int userId))
-            {
-                errorKey = FindNicknameTakenErrorKey(userId, profileUpdate.Nickname);
-
-                if (errorKey == null)
-                {
-                    errorKey = PersistProfile(sessionToken, userId, profileUpdate);
-                }
-            }
-
-            return errorKey;
-        }
-
-        private string FindNicknameTakenErrorKey(int userId, string nickname)
-        {
-            string errorKey = null;
-            PlayerExistenceLookupStatus existenceStatus =
-                _playerProfileRepository.FindNicknameExistenceStatusForOtherUsers(userId, nickname);
-
-            if (existenceStatus == PlayerExistenceLookupStatus.Exists)
-            {
-                errorKey = ErrorKeys.Profile.NicknameTaken;
-            }
-            else if (existenceStatus == PlayerExistenceLookupStatus.DataFailure)
-            {
-                errorKey = ErrorKeys.Profile.DataModel;
-            }
-
-            return errorKey;
-        }
-
-        private string PersistProfile(string sessionToken, int userId, PlayerProfileUpdate profileUpdate)
-        {
-            PlayerProfileUpdateStatus updateStatus = _playerProfileRepository.UpdateProfile(userId, profileUpdate);
-            string errorKey = ResolveUpdateErrorKey(updateStatus);
-
-            if (errorKey == null)
-            {
-                _sessionIdentityProvider.TryUpdateNickname(sessionToken, profileUpdate.Nickname);
-                _log.InfoFormat("El jugador {0} actualizó su perfil.", userId);
-            }
-
-            return errorKey;
-        }
-
         private static string ResolveLookupErrorKey(PlayerProfileLookupStatus lookupStatus)
         {
             string errorKey;
@@ -179,6 +138,58 @@ namespace TLMG.Services.Accounts
                     _log.ErrorFormat("Estado de actualización de perfil no reconocido: {0}.", updateStatus);
                     errorKey = ErrorKeys.Common.Unexpected;
                     break;
+            }
+
+            return errorKey;
+        }
+
+        private string SaveProfileUpdate(string sessionToken, PlayerProfileUpdate profileUpdate)
+        {
+            SessionAuthorization authorization = _sessionAuthorizer.Authorize(
+                sessionToken,
+                SystemPermission.ManageProfile);
+            string errorKey = authorization.ErrorKey;
+
+            if (errorKey == null)
+            {
+                errorKey = FindNicknameTakenErrorKey(authorization.UserId, profileUpdate.Nickname);
+
+                if (errorKey == null)
+                {
+                    errorKey = PersistProfile(sessionToken, authorization.UserId, profileUpdate);
+                }
+            }
+
+            return errorKey;
+        }
+
+        private string FindNicknameTakenErrorKey(int userId, string nickname)
+        {
+            string errorKey = null;
+            PlayerExistenceLookupStatus existenceStatus =
+                _playerProfileRepository.FindNicknameExistenceStatusForOtherUsers(userId, nickname);
+
+            if (existenceStatus == PlayerExistenceLookupStatus.Exists)
+            {
+                errorKey = ErrorKeys.Profile.NicknameTaken;
+            }
+            else if (existenceStatus == PlayerExistenceLookupStatus.DataFailure)
+            {
+                errorKey = ErrorKeys.Profile.DataModel;
+            }
+
+            return errorKey;
+        }
+
+        private string PersistProfile(string sessionToken, int userId, PlayerProfileUpdate profileUpdate)
+        {
+            PlayerProfileUpdateStatus updateStatus = _playerProfileRepository.UpdateProfile(userId, profileUpdate);
+            string errorKey = ResolveUpdateErrorKey(updateStatus);
+
+            if (errorKey == null)
+            {
+                _sessionIdentityProvider.TryUpdateNickname(sessionToken, profileUpdate.Nickname);
+                _log.InfoFormat("El jugador {0} actualizó su perfil.", userId);
             }
 
             return errorKey;

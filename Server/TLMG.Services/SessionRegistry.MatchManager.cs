@@ -118,10 +118,6 @@ namespace TLMG.Services
             return matchCaller;
         }
 
-        /// <summary>
-        /// En la primera operación fija el callback de la sesión; todas las operaciones y la limpieza usan ese mismo
-        /// objeto, así la comparación por referencia al cerrar el canal no depende de lo que entregue WCF después.
-        /// </summary>
         private void ObserveMatchChannel()
         {
             if (!_isMatchChannelObserved)
@@ -135,7 +131,6 @@ namespace TLMG.Services
             }
         }
 
-        /// <summary>El cierre o fallo del canal solo quita su callback; no abandona ni finaliza la partida.</summary>
         private void OnMatchChannelClosed(object sender, EventArgs eventArguments)
         {
             LogChannelEnd("Match", "Closed", sender);

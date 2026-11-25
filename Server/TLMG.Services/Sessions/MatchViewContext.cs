@@ -17,20 +17,21 @@ namespace TLMG.Services.Sessions
         /// <param name="matchState">Estado del motor; solo se lee.</param>
         /// <param name="nicknamesByUserId">Nicknames congelados al iniciar la partida.</param>
         /// <param name="lastChallenge">Desenlace del último reto; null si no hay uno vigente.</param>
+        /// <param name="guestUserIds">Invitados congelados al iniciar la partida; no obtienen puntos.</param>
         internal MatchViewContext(
             Guid matchId,
             int version,
             MatchState matchState,
             IReadOnlyDictionary<int, string> nicknamesByUserId,
             MatchChallengeRecord lastChallenge,
-            bool allParticipantsRegistered = false)
+            IReadOnlyList<int> guestUserIds = null)
         {
             MatchId = matchId;
             Version = version;
             MatchState = matchState;
             NicknamesByUserId = nicknamesByUserId;
             LastChallenge = lastChallenge;
-            AllParticipantsRegistered = allParticipantsRegistered;
+            GuestUserIds = guestUserIds ?? Array.Empty<int>();
         }
 
         /// <summary>Obtiene la partida de la vista.</summary>
@@ -45,8 +46,8 @@ namespace TLMG.Services.Sessions
         /// <summary>Obtiene los nicknames congelados al iniciar la partida.</summary>
         internal IReadOnlyDictionary<int, string> NicknamesByUserId { get; }
 
-        /// <summary>Indica si todas las identidades fueron verificadas como cuentas registradas.</summary>
-        internal bool AllParticipantsRegistered { get; }
+        /// <summary>Guests of the match, so their standing shows zero points instead of hiding the table.</summary>
+        internal IReadOnlyList<int> GuestUserIds { get; }
 
         /// <summary>Obtiene el desenlace del último reto; null si no hay uno vigente.</summary>
         internal MatchChallengeRecord LastChallenge { get; }

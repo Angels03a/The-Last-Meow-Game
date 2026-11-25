@@ -99,6 +99,7 @@
     <Compile Include="IPasswordManager.cs" />
     <Compile Include="IRoomInvitationManager.cs" />
     <Compile Include="IRoomInvitationManagerCallback.cs" />
+    <Compile Include="ISessionManager.cs" />
     <Compile Include="IUsersManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

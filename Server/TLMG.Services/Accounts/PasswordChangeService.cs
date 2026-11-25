@@ -1,6 +1,7 @@
 ﻿using log4net;
 
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Authorization;
 using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
 using TLMG.Domain.Validators;
@@ -14,21 +15,18 @@ namespace TLMG.Services.Accounts
 
         private readonly IPasswordRepository _passwordRepository;
         private readonly IPasswordHasher _passwordHasher;
-        private readonly ISessionIdentityProvider _sessionIdentityProvider;
+        private readonly ISessionAuthorizer _sessionAuthorizer;
 
         public PasswordChangeService(
             IPasswordRepository passwordRepository,
             IPasswordHasher passwordHasher,
-            ISessionIdentityProvider sessionIdentityProvider)
+            ISessionAuthorizer sessionAuthorizer)
         {
             _passwordRepository = passwordRepository;
             _passwordHasher = passwordHasher;
-            _sessionIdentityProvider = sessionIdentityProvider;
+            _sessionAuthorizer = sessionAuthorizer;
         }
 
-        /// <summary>Validates the format first and the session second, then verifies the current password.</summary>
-        /// <param name="changePasswordRequest">Session token, current and new password.</param>
-        /// <returns>Success or the error key.</returns>
         public OperationResult ChangePassword(OperationChangePasswordRequest changePasswordRequest)
         {
             string errorKey = ErrorKeys.Common.Unexpected;
@@ -52,18 +50,60 @@ namespace TLMG.Services.Accounts
             return changeResult;
         }
 
+        private static string ResolveLookupErrorKey(CredentialsLookupStatus lookupStatus)
+        {
+            string errorKey = null;
+
+            if (lookupStatus == CredentialsLookupStatus.NotFound)
+            {
+                errorKey = ErrorKeys.Common.InvalidSession;
+            }
+            else if (lookupStatus == CredentialsLookupStatus.DataFailure)
+            {
+                errorKey = ErrorKeys.Password.DataModel;
+            }
+
+            return errorKey;
+        }
+
+        private static string ResolveChangeErrorKey(PasswordChangeStatus changeStatus)
+        {
+            string errorKey;
+
+            switch (changeStatus)
+            {
+                case PasswordChangeStatus.Changed:
+                    errorKey = null;
+                    break;
+                case PasswordChangeStatus.StaleCredentials:
+                    errorKey = ErrorKeys.Password.CurrentPasswordIncorrect;
+                    break;
+                case PasswordChangeStatus.UserNotFound:
+                    errorKey = ErrorKeys.Common.InvalidSession;
+                    break;
+                default:
+                    errorKey = ErrorKeys.Password.DataModel;
+                    break;
+            }
+
+            return errorKey;
+        }
+
         private string ChangeForSession(OperationChangePasswordRequest changePasswordRequest)
         {
-            string errorKey = ErrorKeys.Common.InvalidSession;
+            SessionAuthorization authorization = _sessionAuthorizer.Authorize(
+                changePasswordRequest.SessionToken,
+                SystemPermission.ChangePassword);
+            string errorKey = authorization.ErrorKey;
 
-            if (_sessionIdentityProvider.TryGetUserId(changePasswordRequest.SessionToken, out int userId))
+            if (errorKey == null)
             {
-                PasswordHashLookup hashLookup = _passwordRepository.FindPasswordHashByUserId(userId);
+                PasswordHashLookup hashLookup = _passwordRepository.FindPasswordHashByUserId(authorization.UserId);
                 errorKey = ResolveLookupErrorKey(hashLookup.Status);
 
                 if (errorKey == null)
                 {
-                    errorKey = VerifyAndChange(userId, hashLookup.PasswordHash, changePasswordRequest);
+                    errorKey = VerifyAndChange(authorization.UserId, hashLookup.PasswordHash, changePasswordRequest);
                 }
             }
 
@@ -101,45 +141,6 @@ namespace TLMG.Services.Accounts
             else
             {
                 _log.WarnFormat("Cambio de contraseña rechazado para el jugador {0}.", userId);
-            }
-
-            return errorKey;
-        }
-
-        private static string ResolveLookupErrorKey(CredentialsLookupStatus lookupStatus)
-        {
-            string errorKey = null;
-
-            if (lookupStatus == CredentialsLookupStatus.NotFound)
-            {
-                errorKey = ErrorKeys.Common.InvalidSession;
-            }
-            else if (lookupStatus == CredentialsLookupStatus.DataFailure)
-            {
-                errorKey = ErrorKeys.Password.DataModel;
-            }
-
-            return errorKey;
-        }
-
-        private static string ResolveChangeErrorKey(PasswordChangeStatus changeStatus)
-        {
-            string errorKey;
-
-            switch (changeStatus)
-            {
-                case PasswordChangeStatus.Changed:
-                    errorKey = null;
-                    break;
-                case PasswordChangeStatus.StaleCredentials:
-                    errorKey = ErrorKeys.Password.CurrentPasswordIncorrect;
-                    break;
-                case PasswordChangeStatus.UserNotFound:
-                    errorKey = ErrorKeys.Common.InvalidSession;
-                    break;
-                default:
-                    errorKey = ErrorKeys.Password.DataModel;
-                    break;
             }
 
             return errorKey;

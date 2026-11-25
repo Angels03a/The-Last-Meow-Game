@@ -3,7 +3,6 @@ using System.ServiceModel;
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Constants;
-using TLMG.Services.Accounts;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services

@@ -10,28 +10,17 @@ using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Match
 {
-    /// <summary>
-    /// Lógica de partida del servidor: convierte las decisiones del registro en el resultado para quien pidió y en
-    /// las vistas que hay que entregar a cada suscrito. El motor y la autorización viven detrás de ISessionRegistry.
-    /// </summary>
     public sealed class MatchService
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(MatchService));
 
         private readonly ISessionRegistry _sessionRegistry;
 
-        /// <summary>Crea el servicio sobre el registro compartido.</summary>
-        /// <param name="sessionRegistry">Registro de sesiones, salas y partidas.</param>
         public MatchService(ISessionRegistry sessionRegistry)
         {
             _sessionRegistry = sessionRegistry;
         }
 
-        /// <summary>Suscribe al jugador a su partida y prepara el envío de su vista.</summary>
-        /// <param name="caller">Token y canal de partida de quien pide.</param>
-        /// <param name="matchId">Partida solicitada.</param>
-        /// <param name="callback">Callback del canal de partida.</param>
-        /// <returns>El resultado para quien pidió y su vista como aviso pendiente de entregar.</returns>
         public ResultWithNotification<OperationResult> SubscribeToMatch(
             LobbyCaller caller,
             Guid matchId,
@@ -48,22 +37,16 @@ namespace TLMG.Services.Match
             return subscribeToMatchResult;
         }
 
-        /// <summary>Valida un intento de atrapar al gatito.</summary>
         public ResultWithNotification<OperationResult> TryCatchFugitiveKitten(LobbyCaller caller)
         {
             return CreateResult(_sessionRegistry.TryCatchFugitiveKitten(caller));
         }
 
-        /// <summary>Comprueba el vencimiento del minijuego.</summary>
         public ResultWithNotification<OperationResult> CheckFugitiveKittenDeadline(LobbyCaller caller)
         {
             return CreateResult(_sessionRegistry.CheckFugitiveKittenDeadline(caller));
         }
 
-        /// <summary>Coloca una carta del jugador y prepara la vista de cada suscrito.</summary>
-        /// <param name="caller">Token y canal de partida de quien pide.</param>
-        /// <param name="card">Tipo de carta que se quiere colocar.</param>
-        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
         public ResultWithNotification<OperationResult> PlaceCard(LobbyCaller caller, MatchCardKind card)
         {
             MatchDelivery matchDelivery = _sessionRegistry.PlaceCard(caller, card);
@@ -72,10 +55,6 @@ namespace TLMG.Services.Match
             return placeCardResult;
         }
 
-        /// <summary>Abre o sube una apuesta y prepara la vista de cada suscrito.</summary>
-        /// <param name="caller">Token y canal de partida de quien pide.</param>
-        /// <param name="betValue">Cartas que declara poder voltear.</param>
-        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
         public ResultWithNotification<OperationResult> PlaceBet(LobbyCaller caller, int betValue)
         {
             MatchDelivery matchDelivery = _sessionRegistry.PlaceBet(caller, betValue);
@@ -84,9 +63,6 @@ namespace TLMG.Services.Match
             return placeBetResult;
         }
 
-        /// <summary>Retira al jugador de la apuesta y prepara la vista de cada suscrito.</summary>
-        /// <param name="caller">Token y canal de partida de quien pide.</param>
-        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
         public ResultWithNotification<OperationResult> WithdrawFromBet(LobbyCaller caller)
         {
             MatchDelivery matchDelivery = _sessionRegistry.WithdrawFromBet(caller);
@@ -95,10 +71,6 @@ namespace TLMG.Services.Match
             return withdrawFromBetResult;
         }
 
-        /// <summary>Voltea una carta del reto y prepara la vista de cada suscrito.</summary>
-        /// <param name="caller">Token y canal de partida de quien pide.</param>
-        /// <param name="pileOwnerUserId">Dueño de la pila de la que se voltea.</param>
-        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
         public ResultWithNotification<OperationResult> RevealCard(LobbyCaller caller, int pileOwnerUserId)
         {
             MatchDelivery matchDelivery = _sessionRegistry.RevealCard(caller, pileOwnerUserId);
@@ -107,10 +79,6 @@ namespace TLMG.Services.Match
             return revealCardResult;
         }
 
-        /// <summary>Elige la carta del castigo y prepara la vista de cada suscrito.</summary>
-        /// <param name="caller">Token y canal de partida de quien pide.</param>
-        /// <param name="cardIndex">Lugar mostrado (a ciegas) o posición en la mano (castigo propio).</param>
-        /// <returns>El resultado para quien pidió y una vista por cada suscrito si se aceptó.</returns>
         public ResultWithNotification<OperationResult> ChoosePunishmentCard(LobbyCaller caller, int cardIndex)
         {
             MatchDelivery matchDelivery = _sessionRegistry.ChoosePunishmentCard(caller, cardIndex);
@@ -119,9 +87,6 @@ namespace TLMG.Services.Match
             return choosePunishmentCardResult;
         }
 
-        /// <summary>Quita la suscripción de un canal de partida cerrado o fallido, sin tocar la partida.</summary>
-        /// <param name="channelId">Canal que se cerró o falló.</param>
-        /// <param name="closedCallback">Callback que tenía ese canal.</param>
         public IReadOnlyList<Action> RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback)
         {
             if (_sessionRegistry.RemoveMatchChannel(channelId, closedCallback, out var deliveries))

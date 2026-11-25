@@ -33,6 +33,7 @@ namespace TLMG.Services
         private static MatchService _matchService;
         private static PasswordChangeService _passwordChangeService;
         private static PasswordRecoveryService _passwordRecoveryService;
+        private static GuestSessionService _guestSessionService;
 
         public static void ConfigureDependencies(ServiceDependencies serviceDependencies)
         {
@@ -47,6 +48,7 @@ namespace TLMG.Services
             _matchService = serviceDependencies.MatchService;
             _passwordChangeService = serviceDependencies.PasswordChangeService;
             _passwordRecoveryService = serviceDependencies.PasswordRecoveryService;
+            _guestSessionService = serviceDependencies.GuestSessionService;
         }
 
         private static TResult CreateFailedOperationResult<TResult>(string errorKey)

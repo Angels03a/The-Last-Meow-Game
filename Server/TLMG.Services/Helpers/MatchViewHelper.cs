@@ -133,29 +133,6 @@ namespace TLMG.Services.Helpers
             return matchView;
         }
 
-        private static List<MatchStandingView> CreateFinalStandings(MatchViewContext context)
-        {
-            if (!context.AllParticipantsRegistered || context.MatchState.Phase != RoundPhase.MatchFinished)
-            {
-                return null;
-            }
-
-            FinalStandings result = FinalStandings.CalculateFromMatch(context.MatchState, new int[0]);
-            if (result.Status != FinalStandingsStatus.Calculated)
-            {
-                return null;
-            }
-
-            return result.Standings.Select(standing => new MatchStandingView
-            {
-                UserId = standing.PlayerId,
-                Nickname = context.NicknamesByUserId.TryGetValue(standing.PlayerId, out string nickname)
-                    ? nickname : string.Empty,
-                Position = standing.Position,
-                Points = standing.Points
-            }).ToList();
-        }
-
         /// <summary>Convierte una fase del motor a la del contrato.</summary>
         /// <param name="enginePhase">Fase del motor.</param>
         /// <returns>La fase equivalente del contrato.</returns>
@@ -261,6 +238,55 @@ namespace TLMG.Services.Helpers
             }
 
             return errorKey;
+        }
+
+        /// <summary>
+        /// Calcula la tabla final cuando la partida terminó. Los invitados salen en la tabla con su posición y 0
+        /// puntos; el servidor es quien aporta la lista de invitados, nunca el cliente.
+        /// </summary>
+        private static List<MatchStandingView> CreateFinalStandings(MatchViewContext context)
+        {
+            List<MatchStandingView> standingViews = null;
+
+            if (context.MatchState.Phase == RoundPhase.MatchFinished)
+            {
+                FinalStandings finalStandings =
+                    FinalStandings.CalculateFromMatch(context.MatchState, context.GuestUserIds);
+
+                if (finalStandings.Status == FinalStandingsStatus.Calculated)
+                {
+                    standingViews = ConvertToStandingViews(finalStandings, context.NicknamesByUserId);
+                }
+            }
+
+            return standingViews;
+        }
+
+        private static List<MatchStandingView> ConvertToStandingViews(
+            FinalStandings finalStandings,
+            IReadOnlyDictionary<int, string> nicknamesByUserId)
+        {
+            List<MatchStandingView> standingViews = new List<MatchStandingView>();
+
+            foreach (PlayerStanding standing in finalStandings.Standings)
+            {
+                string nickname;
+
+                if (!nicknamesByUserId.TryGetValue(standing.PlayerId, out nickname))
+                {
+                    nickname = string.Empty;
+                }
+
+                standingViews.Add(new MatchStandingView
+                {
+                    UserId = standing.PlayerId,
+                    Nickname = nickname,
+                    Position = standing.Position,
+                    Points = standing.Points
+                });
+            }
+
+            return standingViews;
         }
 
         private static List<MatchPlayerView> CreatePlayerViews(

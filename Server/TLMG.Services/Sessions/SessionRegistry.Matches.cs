@@ -3,19 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Authorization;
 using TLMG.Domain.Engine;
 
 namespace TLMG.Services.Sessions
 {
     public partial class SessionRegistry
     {
-        /// <summary>
-        /// Partidas autorizadas por su MatchId. Se conservan mientras su sala exista, aunque salgan miembros, y se
-        /// liberan al eliminarse la sala (ReleaseMatchOfRemovedRoomInLock).
-        /// </summary>
         private readonly Dictionary<Guid, MatchRecord> _matchesById = new Dictionary<Guid, MatchRecord>();
 
-        /// <summary>Versión de la primera vista de una partida; una versión mayor siempre es más reciente.</summary>
         private const int InitialMatchVersion = 1;
 
         private static readonly IReadOnlyList<MatchViewDelivery> _noMatchViewDeliveries =
@@ -48,28 +44,13 @@ namespace TLMG.Services.Sessions
             return matchSnapshot;
         }
 
-        /// <summary>
-        /// Libera la partida de una sala que se elimina, en la misma sección crítica. Es el único punto de liberación.
-        /// Hoy la sala se elimina en cuanto sale su último miembro, incluso por perder el canal o terminar la sesión,
-        /// porque aún no hay ventana de reconexión (AUD-002); cuando exista, solo cambia esta condición. Los callbacks
-        /// de partida no necesitan descarte aquí: cada salida de la sala ya quitó el del jugador que salió.
-        /// </summary>
-        /// <param name="removedStart">Estado de inicio de la sala que se elimina.</param>
-        private void ReleaseMatchOfRemovedRoomInLock(LobbyStartState removedStart)
-        {
-            if (removedStart.MatchId.HasValue)
-            {
-                _matchesById.Remove(removedStart.MatchId.Value);
-            }
-        }
-
         public ResultWithNotification<OperationRecoveryContextResult> GetRecoveryContext(string sessionToken)
         {
-            var result = new OperationRecoveryContextResult
+            OperationRecoveryContextResult recoveryContextResult = new OperationRecoveryContextResult
             {
                 ErrorKey = TLMG.Domain.Constants.ErrorKeys.Common.InvalidSession
             };
-            var notifications = new List<Action>();
+            List<Action> notifications = new List<Action>();
 
             lock (_sessionsLock)
             {
@@ -80,182 +61,120 @@ namespace TLMG.Services.Sessions
                 }
 
                 if (!string.IsNullOrEmpty(sessionToken)
-                    && _sessionsByToken.TryGetValue(sessionToken, out PlayerSession session) && session.IsRegistered)
+                    && _sessionsByToken.TryGetValue(sessionToken, out PlayerSession session))
                 {
                     session.LastActivityUtc = nowUtc;
-                    result.IsSuccess = true;
-                    result.ErrorKey = null;
+                    recoveryContextResult.IsSuccess = true;
+                    recoveryContextResult.ErrorKey = null;
                     MatchRecord match = FindRecoverableMatchInLock(session.UserId);
                     if (match != null)
                     {
-                        result.RoomId = match.RoomId;
-                        result.MatchId = match.MatchId;
+                        recoveryContextResult.RoomId = match.RoomId;
+                        recoveryContextResult.MatchId = match.MatchId;
                     }
                 }
             }
 
-            return new ResultWithNotification<OperationRecoveryContextResult>(result, notifications.AsReadOnly());
+            PersistPendingMatchFinalizations();
+            ResultWithNotification<OperationRecoveryContextResult> recoveryContext =
+                new ResultWithNotification<OperationRecoveryContextResult>(recoveryContextResult, notifications.AsReadOnly());
+
+            return recoveryContext;
         }
 
-        private MatchRecord FindRecoverableMatchInLock(int userId)
-        {
-            if (_roomIdsByUserId.TryGetValue(userId, out int roomId)
-                && _startsByRoomId[roomId].MatchId is Guid matchId
-                && _matchesById.TryGetValue(matchId, out MatchRecord match)
-                && match.MatchState.Players.Any(player => player.PlayerId == userId && !player.HasLeftMatch))
-            {
-                return match;
-            }
-
-            return null;
-        }
-
-        private bool HasActiveParticipationInLock(int userId)
-        {
-            return _roomIdsByUserId.TryGetValue(userId, out int roomId)
-                && _startsByRoomId[roomId].MatchId is Guid matchId
-                && _matchesById.TryGetValue(matchId, out MatchRecord match)
-                && match.MatchState.Phase != RoundPhase.MatchFinished
-                && match.MatchState.Players.Any(player => player.PlayerId == userId && player.IsInPlay);
-        }
-
-
-        /// <summary>
-        /// Revisa los plazos de la partida con la hora real y aplica los que ya vencieron. Hoy el único plazo es el de
-        /// 10 s del castigo (ValidationRules.PunishmentChoiceSeconds): si venció, el motor elimina una carta al azar,
-        /// con la misma probabilidad para cada carta del castigado. Es el ÚNICO punto que revisa plazos: se llama al
-        /// inicio de cada operación de partida, de SubscribeToMatch y de la salida voluntaria; el servidor no usa
-        /// temporizadores (D-54), así que un plazo vencido se aplica en cuanto llega la siguiente operación. El latido
-        /// de I4 (BL-058) solo tendrá que llamar a esta función. Requiere _sessionsLock.
-        /// </summary>
-        /// <param name="matchRecord">Partida cuyos plazos se revisan.</param>
-        /// <param name="nowUtc">Hora UTC real, leída una sola vez por operación.</param>
-        /// <returns>true si venció un plazo y el estado de la partida cambió; en caso contrario, false.</returns>
         private const int ReconnectGraceSeconds = 15;
         private const int FirstMatchLinkSeconds = 9;
 
         private bool ExpireMatchDeadlinesInLock(MatchRecord match, DateTime nowUtc)
         {
-            bool changed = false;
+            bool hasChanged = false;
             if (match.AwaitingFirstLink.Count != 0 && match.FirstLinkDeadlineUtc <= nowUtc)
             {
-                changed |= ExpireGameDeadlinesInLock(match, match.FirstLinkDeadlineUtc);
+                hasChanged |= ExpireGameDeadlinesInLock(match, match.FirstLinkDeadlineUtc);
                 foreach (int userId in match.AwaitingFirstLink)
                 {
-                    changed |= OpenMatchGraceInLock(match, userId, match.FirstLinkDeadlineUtc);
+                    hasChanged |= OpenMatchGraceInLock(match, userId, match.FirstLinkDeadlineUtc);
                 }
                 match.AwaitingFirstLink.Clear();
             }
 
-            var expired = match.Disconnections.Where(entry => entry.Value.EffectiveAtUtc <= nowUtc)
-                .GroupBy(entry => entry.Value.EffectiveAtUtc).OrderBy(group => group.Key).ToArray();
-            foreach (var group in expired)
-            {
-                changed |= ExpireGameDeadlinesInLock(match, group.Key);
-                var exits = group.Where(entry => match.MatchState.Players.Any(player =>
-                    player.PlayerId == entry.Key && player.IsInPlay)).ToDictionary(entry => entry.Key, entry => entry.Value);
-                foreach (var entry in group)
-                {
-                    match.Disconnections.Remove(entry.Key);
-                }
+            IGrouping<DateTime, KeyValuePair<int, PlayerExit>>[] expiredGroups =
+                (from disconnection in match.Disconnections
+                 where disconnection.Value.EffectiveAtUtc <= nowUtc
+                 group disconnection by disconnection.Value.EffectiveAtUtc into expiredGroup
+                 orderby expiredGroup.Key
+                 select expiredGroup).ToArray();
 
-                if (exits.Count != 0 && match.MatchState.Phase != RoundPhase.MatchFinished)
-                {
-                    PlayerExitStatus status = exits.Count == 1
-                        ? match.MatchState.RemovePlayer(exits.Keys.Single(), exits.Values.Single(), _pickRandomIndex)
-                        : match.MatchState.RemoveSimultaneousPlayers(exits, _pickRandomIndex);
-                    UpdateChallengeAfterExit(match, status);
-                    DiscardEndedBlindSlots(match);
-                }
-                UpdateKittenClockInLock(match, group.Key);
-                changed = true;
+            foreach (IGrouping<DateTime, KeyValuePair<int, PlayerExit>> expiredGroup in expiredGroups)
+            {
+                ExpireDisconnectedPlayersInLock(match, expiredGroup);
+                hasChanged = true;
             }
 
-            return ExpireGameDeadlinesInLock(match, nowUtc) || changed;
+            hasChanged = ExpireGameDeadlinesInLock(match, nowUtc) || hasChanged;
+
+            return hasChanged;
+        }
+
+        private void ExpireDisconnectedPlayersInLock(MatchRecord match,
+            IGrouping<DateTime, KeyValuePair<int, PlayerExit>> expiredGroup)
+        {
+            const int singleExitCount = 1;
+            ExpireGameDeadlinesInLock(match, expiredGroup.Key);
+            Dictionary<int, PlayerExit> activePlayerExits = new Dictionary<int, PlayerExit>();
+
+            foreach (KeyValuePair<int, PlayerExit> disconnection in expiredGroup)
+            {
+                bool hasActivePlayer = (from player in match.MatchState.Players
+                                        where player.PlayerId == disconnection.Key && player.IsInPlay
+                                        select player).Any();
+                if (hasActivePlayer)
+                {
+                    activePlayerExits.Add(disconnection.Key, disconnection.Value);
+                }
+
+                match.Disconnections.Remove(disconnection.Key);
+            }
+
+            if (activePlayerExits.Count != 0 && match.MatchState.Phase != RoundPhase.MatchFinished)
+            {
+                PlayerExitStatus exitStatus = activePlayerExits.Count == singleExitCount
+                    ? match.MatchState.RemovePlayer(activePlayerExits.Keys.Single(), activePlayerExits.Values.Single(), _pickRandomIndex)
+                    : match.MatchState.RemoveSimultaneousPlayers(activePlayerExits, _pickRandomIndex);
+                UpdateChallengeAfterExit(match, exitStatus);
+                DiscardEndedBlindSlots(match);
+            }
+
+            UpdateKittenClockInLock(match, expiredGroup.Key);
         }
 
         private static bool OpenMatchGraceInLock(MatchRecord match, int userId, DateTime nowUtc)
         {
+            bool wasGraceOpened = match.MatchState.Phase != RoundPhase.MatchFinished
+                && !match.Disconnections.ContainsKey(userId)
+                && (from player in match.MatchState.Players
+                    where player.PlayerId == userId && player.IsInPlay
+                    select player).Any();
 
-            if (match.MatchState.Phase == RoundPhase.MatchFinished
-                || match.Disconnections.ContainsKey(userId)
-                || !match.MatchState.Players.Any(player => player.PlayerId == userId && player.IsInPlay))
+            if (wasGraceOpened)
             {
-                return false;
+                match.Disconnections.Add(userId, new PlayerExit(nowUtc, nowUtc.AddSeconds(ReconnectGraceSeconds)));
+                match.MatchState.SuspendPunishment(userId, nowUtc);
+                UpdateKittenClockInLock(match, nowUtc);
             }
 
-            match.Disconnections.Add(userId, new PlayerExit(nowUtc, nowUtc.AddSeconds(ReconnectGraceSeconds)));
-            match.MatchState.SuspendPunishment(userId, nowUtc);
-            UpdateKittenClockInLock(match, nowUtc);
-            return true;
+            return wasGraceOpened;
         }
 
         private static bool UpdateKittenClockInLock(MatchRecord match, DateTime nowUtc)
         {
-            return match.Kitten != null && match.MatchState.Phase != RoundPhase.MatchFinished
+            bool hasChanged = match.Kitten != null && match.MatchState.Phase != RoundPhase.MatchFinished
                 && match.Kitten.SetPaused(match.AwaitingFirstLink.Count != 0 || match.Disconnections.Count != 0,
                     nowUtc);
+
+            return hasChanged;
         }
 
-        private bool ExpireGameDeadlinesInLock(MatchRecord matchRecord, DateTime nowUtc)
-        {
-            PunishmentStatus punishmentStatus = matchRecord.MatchState.ExpirePunishment(nowUtc, _pickRandomIndex);
-            bool wasExpired = punishmentStatus == PunishmentStatus.CardRemoved;
-
-            if (wasExpired && matchRecord.LastChallenge != null)
-            {
-                matchRecord.LastChallenge.ResolvePunishment(MatchPunishmentResolution.ChosenAtRandom);
-            }
-
-            if (matchRecord.Kitten != null && matchRecord.Kitten.Expire(nowUtc))
-            {
-                wasExpired = true;
-            }
-
-            DiscardEndedBlindSlots(matchRecord);
-
-            return wasExpired;
-        }
-
-        /// <summary>
-        /// Saca al jugador del motor de partida por una salida voluntaria inmediata (Reglas No. 3 y 4.0.6): sale por
-        /// completo, la ronda en curso se reinicia y la apuesta se anula; un castigo se cancela o se resuelve al
-        /// azar según quién salga; si queda un solo jugador activo, gana. Requiere _sessionsLock.
-        /// </summary>
-        /// <param name="userId">Jugador que sale.</param>
-        /// <param name="matchId">Partida de la sala que deja.</param>
-        /// <returns>Una vista por cada suscrito si el estado cambió; vacía en otro caso.</returns>
-        private IReadOnlyList<MatchViewDelivery> ApplyVoluntaryMatchExitInLock(int userId, Guid matchId)
-        {
-            IReadOnlyList<MatchViewDelivery> viewDeliveries = _noMatchViewDeliveries;
-            MatchRecord matchRecord;
-
-            if (_matchesById.TryGetValue(matchId, out matchRecord))
-            {
-                DateTime nowUtc = _readUtcNow();
-                bool hasChanged = ExpireMatchDeadlinesInLock(matchRecord, nowUtc);
-                PlayerExitStatus exitStatus = matchRecord.MatchState.RemovePlayer(
-                    userId,
-                    PlayerExit.Immediate(nowUtc),
-                    _pickRandomIndex);
-                matchRecord.AwaitingFirstLink.Remove(userId);
-                hasChanged |= matchRecord.Disconnections.Remove(userId);
-                hasChanged |= UpdateKittenClockInLock(matchRecord, nowUtc);
-                hasChanged = hasChanged || HasExitChangedMatch(exitStatus);
-                UpdateChallengeAfterExit(matchRecord, exitStatus);
-                DiscardEndedBlindSlots(matchRecord);
-
-                if (hasChanged)
-                {
-                    matchRecord.Version++;
-                    viewDeliveries = CreateViewDeliveriesInLock(matchRecord);
-                }
-            }
-
-            return viewDeliveries;
-        }
-
-        /// <summary>Olvida la permutación del castigo a ciegas en cuanto ya no hay un castigo pendiente.</summary>
         private static void DiscardEndedBlindSlots(MatchRecord matchRecord)
         {
             if (matchRecord.MatchState.PendingPunishment == null)
@@ -281,10 +200,6 @@ namespace TLMG.Services.Sessions
             return hasChanged;
         }
 
-        /// <summary>
-        /// Ajusta el desenlace del último reto a lo que hizo la salida: un reto en curso desaparece con la ronda y un
-        /// castigo pendiente se anota como cancelado o resuelto al azar.
-        /// </summary>
         private static void UpdateChallengeAfterExit(MatchRecord matchRecord, PlayerExitStatus exitStatus)
         {
             MatchChallengeRecord challenge = matchRecord.LastChallenge;
@@ -319,44 +234,6 @@ namespace TLMG.Services.Sessions
             }
         }
 
-        /// <summary>
-        /// Prepara la partida de la sala sin publicarla: modalidad de la sala y participantes congelados en el orden
-        /// de ingreso. Requiere _sessionsLock; puede lanzar si el motor rechaza la configuración.
-        /// </summary>
-        private MatchRecord CreateMatchRecordInLock(Guid matchId, int roomId, DateTime nowUtc)
-        {
-            int cardsPerPlayerCount = _startsByRoomId[roomId].CardsPerPlayerCount;
-            MatchModeRules modeRules = MatchModeRules.CreateFromCardsPerPlayerCount(cardsPerPlayerCount);
-            IReadOnlyList<int> participantUserIds =
-                _membersByRoomId[roomId].Select(member => member.UserId).ToList().AsReadOnly();
-            MatchState matchState = new MatchState(modeRules, participantUserIds);
-            MatchRecord matchRecord = new MatchRecord(
-                matchId,
-                roomId,
-                matchState,
-                participantUserIds,
-                cardsPerPlayerCount,
-                CopyNicknamesInLock(participantUserIds),
-                participantUserIds.All(userId => _sessionsByToken[_tokensByUserId[userId]].IsRegistered),
-                nowUtc);
-
-            return matchRecord;
-        }
-
-        /// <summary>Copia los nicknames de los participantes para congelarlos; requiere _sessionsLock.</summary>
-        private Dictionary<int, string> CopyNicknamesInLock(IReadOnlyList<int> participantUserIds)
-        {
-            Dictionary<int, string> nicknamesByUserId = new Dictionary<int, string>();
-
-            foreach (int userId in participantUserIds)
-            {
-                nicknamesByUserId[userId] = _sessionsByToken[_tokensByUserId[userId]].Nickname;
-            }
-
-            return nicknamesByUserId;
-        }
-
-        /// <summary>Copia inmutable de la partida; requiere _sessionsLock.</summary>
         private static MatchSnapshot CreateMatchSnapshotInLock(MatchRecord matchRecord)
         {
             MatchState matchState = matchRecord.MatchState;
@@ -372,7 +249,140 @@ namespace TLMG.Services.Sessions
             return matchSnapshot;
         }
 
-        /// <summary>Partida autorizada; mutable solo a través de su MatchState y solo bajo _sessionsLock.</summary>
+        private void ReleaseMatchOfRemovedRoomInLock(LobbyStartState removedStart)
+        {
+            if (removedStart.MatchId.HasValue)
+            {
+                MatchRecord matchRecord;
+
+                if (_matchesById.TryGetValue(removedStart.MatchId.Value, out matchRecord))
+                {
+                    QueueMatchFinalizationInLock(matchRecord, true);
+                    _matchesById.Remove(removedStart.MatchId.Value);
+                }
+            }
+        }
+
+        private MatchRecord FindRecoverableMatchInLock(int userId)
+        {
+            MatchRecord recoverableMatch = null;
+
+            if (_roomIdsByUserId.TryGetValue(userId, out int roomId)
+                && _startsByRoomId[roomId].MatchId is Guid matchId
+                && _matchesById.TryGetValue(matchId, out MatchRecord match))
+            {
+                bool hasRecoverablePlayer = (from player in match.MatchState.Players
+                                             where player.PlayerId == userId && !player.HasLeftMatch
+                                             select player).Any();
+                if (hasRecoverablePlayer)
+                {
+                    recoverableMatch = match;
+                }
+            }
+
+            return recoverableMatch;
+        }
+
+        private bool HasActiveParticipationInLock(int userId)
+        {
+            bool hasActiveParticipation = _roomIdsByUserId.TryGetValue(userId, out int roomId)
+                && _startsByRoomId[roomId].MatchId is Guid matchId
+                && _matchesById.TryGetValue(matchId, out MatchRecord match)
+                && match.MatchState.Phase != RoundPhase.MatchFinished
+                && (from player in match.MatchState.Players
+                    where player.PlayerId == userId && player.IsInPlay
+                    select player).Any();
+
+            return hasActiveParticipation;
+        }
+
+        private bool ExpireGameDeadlinesInLock(MatchRecord matchRecord, DateTime nowUtc)
+        {
+            PunishmentStatus punishmentStatus = matchRecord.MatchState.ExpirePunishment(nowUtc, _pickRandomIndex);
+            bool wasExpired = punishmentStatus == PunishmentStatus.CardRemoved;
+
+            if (wasExpired && matchRecord.LastChallenge != null)
+            {
+                matchRecord.LastChallenge.ResolvePunishment(MatchPunishmentResolution.ChosenAtRandom);
+            }
+
+            if (matchRecord.Kitten != null && matchRecord.Kitten.Expire(nowUtc))
+            {
+                wasExpired = true;
+            }
+
+            DiscardEndedBlindSlots(matchRecord);
+
+            return wasExpired;
+        }
+
+        private IReadOnlyList<MatchViewDelivery> ApplyVoluntaryMatchExitInLock(int userId, Guid matchId)
+        {
+            IReadOnlyList<MatchViewDelivery> viewDeliveries = _noMatchViewDeliveries;
+            MatchRecord matchRecord;
+
+            if (_matchesById.TryGetValue(matchId, out matchRecord))
+            {
+                DateTime nowUtc = _readUtcNow();
+                bool hasChanged = ExpireMatchDeadlinesInLock(matchRecord, nowUtc);
+                PlayerExitStatus exitStatus = matchRecord.MatchState.RemovePlayer(
+                    userId,
+                    PlayerExit.Immediate(nowUtc),
+                    _pickRandomIndex);
+                matchRecord.AwaitingFirstLink.Remove(userId);
+                hasChanged |= matchRecord.Disconnections.Remove(userId);
+                hasChanged |= UpdateKittenClockInLock(matchRecord, nowUtc);
+                hasChanged = hasChanged || HasExitChangedMatch(exitStatus);
+                UpdateChallengeAfterExit(matchRecord, exitStatus);
+                DiscardEndedBlindSlots(matchRecord);
+
+                if (hasChanged)
+                {
+                    matchRecord.Version++;
+                    viewDeliveries = CreateViewDeliveriesInLock(matchRecord);
+                }
+            }
+
+            return viewDeliveries;
+        }
+
+        private MatchRecord CreateMatchRecordInLock(Guid matchId, int roomId, DateTime nowUtc)
+        {
+            int cardsPerPlayerCount = _startsByRoomId[roomId].CardsPerPlayerCount;
+            MatchModeRules modeRules = MatchModeRules.CreateFromCardsPerPlayerCount(cardsPerPlayerCount);
+            IReadOnlyList<int> participantUserIds =
+                (from member in _membersByRoomId[roomId]
+                 select member.UserId).ToList().AsReadOnly();
+            IReadOnlyList<int> guestUserIds = participantUserIds
+                .Where(GuestIdentity.IsGuestUserId)
+                .ToList()
+                .AsReadOnly();
+            MatchState matchState = new MatchState(modeRules, participantUserIds);
+            MatchRecord matchRecord = new MatchRecord(
+                matchId,
+                roomId,
+                matchState,
+                participantUserIds,
+                cardsPerPlayerCount,
+                CopyNicknamesInLock(participantUserIds),
+                guestUserIds,
+                nowUtc);
+
+            return matchRecord;
+        }
+
+        private Dictionary<int, string> CopyNicknamesInLock(IReadOnlyList<int> participantUserIds)
+        {
+            Dictionary<int, string> nicknamesByUserId = new Dictionary<int, string>();
+
+            foreach (int userId in participantUserIds)
+            {
+                nicknamesByUserId[userId] = _sessionsByToken[_tokensByUserId[userId]].Nickname;
+            }
+
+            return nicknamesByUserId;
+        }
+
         private sealed class MatchRecord
         {
             public MatchRecord(
@@ -382,7 +392,7 @@ namespace TLMG.Services.Sessions
                 IReadOnlyList<int> participantUserIds,
                 int cardsPerPlayerCount,
                 IReadOnlyDictionary<int, string> participantNicknames,
-                bool allParticipantsRegistered,
+                IReadOnlyList<int> guestUserIds,
                 DateTime nowUtc)
             {
                 MatchId = matchId;
@@ -391,7 +401,7 @@ namespace TLMG.Services.Sessions
                 ParticipantUserIds = participantUserIds;
                 CardsPerPlayerCount = cardsPerPlayerCount;
                 ParticipantNicknames = participantNicknames;
-                AllParticipantsRegistered = allParticipantsRegistered;
+                GuestUserIds = guestUserIds;
                 Version = InitialMatchVersion;
                 FirstLinkDeadlineUtc = nowUtc.AddSeconds(FirstMatchLinkSeconds);
                 AwaitingFirstLink = new HashSet<int>(participantUserIds);
@@ -420,8 +430,8 @@ namespace TLMG.Services.Sessions
             /// <summary>Nicknames de los participantes al autorizar; las vistas los usan aunque salgan.</summary>
             public IReadOnlyDictionary<int, string> ParticipantNicknames { get; }
 
-            /// <summary>Indica si todas las identidades congeladas eran cuentas registradas.</summary>
-            public bool AllParticipantsRegistered { get; }
+            /// <summary>User ids of the guests frozen when the match was authorized; they never earn points.</summary>
+            public IReadOnlyList<int> GuestUserIds { get; }
 
             public FugitiveKittenState Kitten { get; }
 
@@ -433,6 +443,8 @@ namespace TLMG.Services.Sessions
 
             /// <summary>Versión de la partida; sube con cada acción aceptada y solo bajo _sessionsLock.</summary>
             public int Version { get; set; }
+
+            public bool HasQueuedFinalization { get; set; }
 
             /// <summary>
             /// Desenlace del último reto; null hasta que haya uno y otra vez null cuando se abre la siguiente apuesta

@@ -59,28 +59,6 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        public LobbyMembershipChange RequestMatchStart(LobbyCaller caller, int roomId, long countdownId)
-        {
-            LobbyMembershipChange lobbyMembershipChange;
-
-            lock (_sessionsLock)
-            {
-                PlayerSession playerSession;
-                LobbyChangeStatus lobbyChangeStatus = ValidateLobbyCallerInLock(caller, roomId, out playerSession);
-
-                if (lobbyChangeStatus != LobbyChangeStatus.Applied)
-                {
-                    lobbyMembershipChange = CreateRejectedWithoutUser(lobbyChangeStatus);
-                }
-                else
-                {
-                    lobbyMembershipChange = RequestMatchStartInLock(playerSession.UserId, roomId, countdownId);
-                }
-            }
-
-            return lobbyMembershipChange;
-        }
-
         /// <summary>Valida identidad y canal antes de consultar la sala; requiere _sessionsLock.</summary>
         /// <param name="caller">Token y canal recibidos del cliente.</param>
         /// <param name="roomId">Sala indicada por el cliente.</param>
@@ -158,46 +136,6 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        /// <summary>
-        /// Autoriza una sola partida al vencer la generación vigente y crea su MatchState; requiere _sessionsLock.
-        /// Todo lo que puede lanzar (identificador, partida, estado de inicio nuevo, destinatarios, foto de la sala y
-        /// resultado) se arma antes de cambiar nada; al final solo hay dos asignaciones: la partida y luego el estado
-        /// de inicio que ya trae su MatchId.
-        /// </summary>
-        /// <param name="userId">Jugador ya validado.</param>
-        /// <param name="roomId">Sala actual del jugador.</param>
-        /// <param name="countdownId">Generación observada por el cliente.</param>
-        /// <returns>Estado actual; incluye destinatarios únicamente cuando se autoriza la partida.</returns>
-        private LobbyMembershipChange RequestMatchStartInLock(int userId, int roomId, long countdownId)
-        {
-            LobbyStartState lobbyStartState = _startsByRoomId[roomId];
-            DateTime nowUtc = _readUtcNow();
-            LobbyMembershipChange lobbyMembershipChange;
-
-            if (CanAuthorizeMatchStartInLock(roomId, countdownId, nowUtc))
-            {
-                List<LobbyMember> lobbyMembers = _membersByRoomId[roomId];
-                Guid matchId = Guid.NewGuid();
-                MatchRecord matchRecord = CreateMatchRecordInLock(matchId, roomId, nowUtc);
-                LobbyStartState authorizedStart = CreateAuthorizedStart(lobbyStartState, matchId, nowUtc);
-                lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
-                    userId,
-                    roomId,
-                    CreateRoomSnapshot(roomId, lobbyMembers, authorizedStart),
-                    CopyCallbacks(lobbyMembers));
-
-                _matchesById[matchId] = matchRecord;
-                _startsByRoomId[roomId] = authorizedStart;
-            }
-            else
-            {
-                lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
-                    userId, roomId, CreateRoomSnapshot(roomId, _membersByRoomId[roomId]));
-            }
-
-            return lobbyMembershipChange;
-        }
-
         /// <summary>Comprueba una cuenta vigente y vencida antes de autorizar bajo _sessionsLock.</summary>
         /// <param name="roomId">Sala existente.</param>
         /// <param name="countdownId">Generación solicitada.</param>
@@ -224,6 +162,7 @@ namespace TLMG.Services.Sessions
         /// <param name="roomId">Sala cuya pertenencia o preparación cambió.</param>
         private void RefreshLobbyCountdownInLock(int roomId)
         {
+            InvalidatePendingMatchStartInLock(roomId);
             LobbyStartState lobbyStartState = _startsByRoomId[roomId];
             lobbyStartState.Version++;
 
@@ -364,6 +303,7 @@ namespace TLMG.Services.Sessions
         {
             LobbyStartState authorizedStart = new LobbyStartState
             {
+                LobbyOpenedAtUtc = currentStart.LobbyOpenedAtUtc,
                 Version = currentStart.Version + 1,
                 CountdownId = currentStart.CountdownId,
                 CountdownEndsAtUtc = null,
@@ -381,6 +321,8 @@ namespace TLMG.Services.Sessions
         {
             /// <summary>Jugadores cuyo estado actual es Listo.</summary>
             public HashSet<int> ReadyUserIds { get; } = new HashSet<int>();
+
+            public DateTime LobbyOpenedAtUtc { get; set; }
 
             /// <summary>Versión creciente de los cambios de sala.</summary>
             public long Version { get; set; }

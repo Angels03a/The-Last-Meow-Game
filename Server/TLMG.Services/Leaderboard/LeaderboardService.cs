@@ -1,40 +1,66 @@
 ﻿using System.Collections.Generic;
 
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Authorization;
 using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
+using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Leaderboard
 {
     public class LeaderboardService
     {
         private const int MaximumLeaderboardPlayerCount = 100;
+        private readonly IPlayerRepository _playerRepository;
+        private readonly ISessionRegistry _sessionRegistry;
 
-        private IPlayerRepository _playerRepository;
-
-        public LeaderboardService(IPlayerRepository playerRepository)
+        public LeaderboardService(IPlayerRepository playerRepository, ISessionRegistry sessionRegistry)
         {
             _playerRepository = playerRepository;
+            _sessionRegistry = sessionRegistry;
         }
 
-        public OperationGetLeaderboardResult GetLeaderboard()
+        public OperationGetLeaderboardResult GetLeaderboard(string sessionToken)
         {
-            OperationGetLeaderboardResult operationGetLeaderboardResult = 
-                new OperationGetLeaderboardResult();
-            LeaderboardLookup leaderboardLookup = 
-                _playerRepository.FindTopRankedPlayers(MaximumLeaderboardPlayerCount);
-
-            if (leaderboardLookup.WasLeaderboardLookupSuccessful)
+            OperationGetLeaderboardResult leaderboardResponse = new OperationGetLeaderboardResult
             {
-                operationGetLeaderboardResult.IsSuccess = true;
-                operationGetLeaderboardResult.Players = ConvertToLeaderboardPlayers(leaderboardLookup.Players);
-            }
-            else
+                Players = new List<LeaderboardPlayer>()
+            };
+            int? registeredUserId = null;
+
+            if (!string.IsNullOrEmpty(sessionToken))
             {
-                operationGetLeaderboardResult.ErrorKey = ErrorKeys.Leaderboard.ConnectionError;
+                PlayerSession playerSession;
+
+                if (!_sessionRegistry.TryFindSessionByToken(sessionToken, out playerSession))
+                {
+                    leaderboardResponse.ErrorKey = ErrorKeys.Common.InvalidSession;
+                }
+                else if (!GuestIdentity.IsGuestUserId(playerSession.UserId))
+                {
+                    registeredUserId = playerSession.UserId;
+                }
             }
 
-            return operationGetLeaderboardResult;
+            if (leaderboardResponse.ErrorKey == null)
+            {
+                LeaderboardLookup leaderboardLookup = _playerRepository.FindTopRankedPlayers(
+                    MaximumLeaderboardPlayerCount, registeredUserId);
+
+                if (leaderboardLookup.WasLeaderboardLookupSuccessful)
+                {
+                    leaderboardResponse.Players = ConvertToLeaderboardPlayers(leaderboardLookup.Players);
+                    leaderboardResponse.PersonalRank = leaderboardLookup.PersonalRank;
+                    leaderboardResponse.PersonalPoints = leaderboardLookup.PersonalPoints;
+                    leaderboardResponse.IsSuccess = true;
+                }
+                else
+                {
+                    leaderboardResponse.ErrorKey = ErrorKeys.Leaderboard.ConnectionError;
+                }
+            }
+
+            return leaderboardResponse;
         }
 
         private static List<LeaderboardPlayer> ConvertToLeaderboardPlayers(List<RankedPlayer> rankedPlayers)
