@@ -312,21 +312,9 @@ namespace TLMG.Client.Validation
 
         public static bool CanEnterChatText(string text)
         {
-            bool canEnter = text != null && text.Length <= ValidationConstants.MaximumChatMessageLength;
+            bool canEnterChatText = CanAcceptTextInput(text, ValidationInputType.ChatMessage);
 
-            if (canEnter)
-            {
-                foreach (char character in text)
-                {
-                    if (char.IsControl(character))
-                    {
-                        canEnter = false;
-                        break;
-                    }
-                }
-            }
-
-            return canEnter;
+            return canEnterChatText;
         }
     }
 }
