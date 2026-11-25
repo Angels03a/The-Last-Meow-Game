@@ -93,6 +93,7 @@
 			<DesignTime>True</DesignTime>
 			<DependentUpon>Reference.svcmap</DependentUpon>
 		</Compile>
+    <Compile Include="DisplayNameHelper.cs" />
 		<Compile Include="Models\AvatarCatalog.cs" />
 		<Compile Include="Models\ChatMessageEntry.cs" />
 		<Compile Include="Models\FriendEntry.cs" />
