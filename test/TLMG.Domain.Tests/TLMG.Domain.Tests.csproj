@@ -7,6 +7,7 @@
     <LangVersion>7.3</LangVersion>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <AssemblyName>TLMG.Domain.Tests</AssemblyName>
+    <ProjectGuid>{A65CAF37-3449-EECB-7D73-B339ECBD40D0}</ProjectGuid>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -41,6 +42,7 @@
     <Compile Include="MatchStateTests.cs" />
     <Compile Include="PlayerAccountRegistrationValidatorTests.cs" />
     <Compile Include="PlayerExitTests.cs" />
+    <Compile Include="RolePermissionMapTests.cs" />
     <Compile Include="TestAssembly.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
