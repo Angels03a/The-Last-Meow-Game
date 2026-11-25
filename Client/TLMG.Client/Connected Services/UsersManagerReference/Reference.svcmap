@@ -22,7 +22,7 @@
     <MetadataSource Address="net.tcp://localhost:8081/mex" Protocol="mex" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="service.wsdl" MetadataType="Wsdl" ID="40e7e005-0567-4c3f-a72b-50cb6f56c59d" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
+    <MetadataFile FileName="service1.wsdl" MetadataType="Wsdl" ID="d6721b6c-abbf-472e-ab19-93c333112862" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
     <MetadataFile FileName="service.xsd" MetadataType="Schema" ID="478c2ff8-6d79-4a2f-9803-07bde1f18e14" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
     <MetadataFile FileName="service1.xsd" MetadataType="Schema" ID="8595f56a-f5a0-47bc-af82-2494988a7e64" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />
     <MetadataFile FileName="TLMG.Contracts.DataContracts.xsd" MetadataType="Schema" ID="fca37d93-802f-4fa8-bb3a-512651026362" SourceId="1" SourceUrl="net.tcp://localhost:8081/mex" />

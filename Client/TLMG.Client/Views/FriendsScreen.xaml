@@ -67,7 +67,6 @@
                          Tag="{DynamicResource Friends_SearchPlaceholder}"
                          Text="{Binding NewFriendNickname, UpdateSourceTrigger=PropertyChanged}"
                          MaxLength="20"
-                         behaviors:TextInputBehavior.InputType="Nickname"
                          Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TextBox.InputBindings>
                         <KeyBinding Key="Enter" Command="{Binding AddFriendCommand}" />
@@ -106,8 +105,7 @@
 
                     <Button x:Name="btnTabPending"
                             Style="{StaticResource TabNavInactiveButtonStyle}"
-                            Click="BtnTab_Click"
-                            Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            Click="BtnTab_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Friends_TabPending}"
                                        VerticalAlignment="Center" />
@@ -169,12 +167,18 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <TextBlock Text="{DynamicResource Friends_EmptyFriends}"
-                                   Style="{StaticResource EmptyStateTextStyle}"
-                                   Visibility="{Binding IsEmptyFriendsVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                        <TextBlock Text="{DynamicResource Friends_GuestWithoutFriendsMessage}"
-                                   Style="{StaticResource EmptyStateTextStyle}"
-                                   Visibility="{Binding IsGuest, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <TextBlock Visibility="{Binding IsEmptyFriendsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource EmptyStateTextStyle}">
+                                    <Setter Property="Text" Value="{DynamicResource Friends_EmptyFriends}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsGuest}" Value="True">
+                                            <Setter Property="Text" Value="{DynamicResource Friends_GuestWithoutFriendsMessage}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </StackPanel>
 
                     <StackPanel x:Name="pnlPendingContent" Visibility="Collapsed">

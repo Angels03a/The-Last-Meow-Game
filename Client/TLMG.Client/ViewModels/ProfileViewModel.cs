@@ -52,6 +52,10 @@ namespace TLMG.Client.ViewModels
 
         public ICommand ChangePasswordCommand { get; }
 
+        public bool IsGuest => _profileConnection.IsGuestSession;
+
+        public bool IsRegisteredPlayer => !IsGuest;
+
         public bool IsEditingAvatar
         {
             get { return _isEditingAvatar; }
@@ -102,7 +106,16 @@ namespace TLMG.Client.ViewModels
 
             LanguageManager.LanguageChanged += OnLanguageChanged;
             UpdateLastPasswordChangeLabel();
-            LoadProfile();
+
+            if (IsGuest)
+            {
+                NicknameError.Hide();
+                ShowGuestIdentity();
+            }
+            else
+            {
+                LoadProfile();
+            }
         }
 
         public void Deactivate()
@@ -121,6 +134,18 @@ namespace TLMG.Client.ViewModels
         private void OnLanguageChanged(object sender, EventArgs eventArgs)
         {
             UpdateLastPasswordChangeLabel();
+
+            if (IsGuest)
+            {
+                ShowGuestIdentity();
+            }
+        }
+
+        private void ShowGuestIdentity()
+        {
+            DisplayNickname = DisplayNameHelper.Resolve(
+                _profileConnection.PlayerUserId,
+                _profileConnection.PlayerNickname);
         }
 
         private void UpdateLastPasswordChangeLabel()
@@ -155,12 +180,15 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteToggleAvatarEditMode()
         {
-            IsEditingAvatar = !IsEditingAvatar;
+            if (IsRegisteredPlayer)
+            {
+                IsEditingAvatar = !IsEditingAvatar;
+            }
         }
 
         private void ExecuteSelectAvatar(string avatarKey)
         {
-            if (!string.IsNullOrEmpty(avatarKey))
+            if (IsRegisteredPlayer && !string.IsNullOrEmpty(avatarKey))
             {
                 string errorKey = SaveProfile(DisplayNickname, avatarKey);
 
@@ -179,35 +207,44 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteBeginNicknameEdit()
         {
-            EditingNickname = DisplayNickname;
-            NicknameError.Hide();
-            IsEditingNickname = true;
+            if (IsRegisteredPlayer)
+            {
+                EditingNickname = DisplayNickname;
+                NicknameError.Hide();
+                IsEditingNickname = true;
+            }
         }
 
         private void ExecuteSaveNickname()
         {
-            string errorKey = InputValidator.GetNicknameValidationErrorKey(EditingNickname);
+            if (IsRegisteredPlayer)
+            {
+                string errorKey = InputValidator.GetNicknameValidationErrorKey(EditingNickname);
 
-            if (errorKey == null)
-            {
-                errorKey = SaveProfile(EditingNickname, _currentAvatarKey);
-            }
+                if (errorKey == null)
+                {
+                    errorKey = SaveProfile(EditingNickname, _currentAvatarKey);
+                }
 
-            if (errorKey == null)
-            {
-                NicknameError.Hide();
-                DisplayNickname = EditingNickname;
-                IsEditingNickname = false;
-            }
-            else
-            {
-                ShowProfileError(errorKey);
+                if (errorKey == null)
+                {
+                    NicknameError.Hide();
+                    DisplayNickname = EditingNickname;
+                    IsEditingNickname = false;
+                }
+                else
+                {
+                    ShowProfileError(errorKey);
+                }
             }
         }
 
         private void ExecuteChangePassword()
         {
-            _navigationManager.NavigateTo(ScreenId.ChangePassword);
+            if (IsRegisteredPlayer)
+            {
+                _navigationManager.NavigateTo(ScreenId.ChangePassword);
+            }
         }
 
         private string SaveProfile(string nickname, string avatarKey)

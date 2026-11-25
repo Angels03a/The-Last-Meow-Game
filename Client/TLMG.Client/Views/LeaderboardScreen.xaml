@@ -24,31 +24,49 @@
                             <ColumnDefinition Width="200" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="{Binding RankLabel}" Style="{StaticResource TableRankTextStyle}" />
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding RankLabel}"
+                                   Style="{StaticResource TableRankTextStyle}" />
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource PlayerAvatarCircleStyle}">
-                                <Border.Background>
-                                    <ImageBrush ImageSource="{Binding AvatarImagePath}" Stretch="UniformToFill" />
-                                </Border.Background>
+                                <TextBlock Text="{Binding AvatarEmoji}"
+                                           Style="{StaticResource PlayerAvatarEmojiStyle}" />
                             </Border>
-                            <TextBlock Text="{Binding PlayerName}" Style="{StaticResource TableRowPlayerNameStyle}" />
+                            <TextBlock Text="{Binding PlayerName}"
+                                       Style="{StaticResource TableRowPlayerNameStyle}" />
                         </StackPanel>
 
-                        <TextBlock Grid.Column="2" Text="{Binding ScoreLabel}" Style="{StaticResource SidebarStatValuePrimaryStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,16,0" />
-                        <TextBlock Grid.Column="3" Text="{Binding Wins}" Style="{StaticResource TableWinsTextStyle}" HorizontalAlignment="Right" />
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding ScoreLabel}"
+                                   Style="{StaticResource SidebarStatValuePrimaryStyle}"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,16,0" />
+
+                        <TextBlock Grid.Column="3"
+                                   Text="{Binding Wins}"
+                                   Style="{StaticResource TableWinsTextStyle}"
+                                   HorizontalAlignment="Right" />
 
                         <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource WinRateTrackStyle}">
-                                <Rectangle x:Name="rectWinRateFill" Style="{StaticResource WinRateFillStyle}" Width="{Binding WinRateBarWidth}" />
+                                <Rectangle x:Name="rectWinRateFill"
+                                           Style="{StaticResource WinRateFillStyle}"
+                                           Width="{Binding WinRateBarWidth}" />
                             </Border>
-                            <TextBlock Text="{Binding WinRateLabel}" Style="{StaticResource WinRateLabelTextStyle}" />
+
+                            <TextBlock Text="{Binding WinRateLabel}"
+                                       Style="{StaticResource WinRateLabelTextStyle}" />
                         </StackPanel>
                     </Grid>
                 </Border>
+
                 <DataTemplate.Triggers>
                     <DataTrigger Binding="{Binding IsHighWinRate}" Value="True">
-                        <Setter TargetName="rectWinRateFill" Property="Fill" Value="{StaticResource Brush_Online}" />
+                        <Setter TargetName="rectWinRateFill"
+                                Property="Fill"
+                                Value="{StaticResource Brush_Online}" />
                     </DataTrigger>
                 </DataTemplate.Triggers>
             </DataTemplate>
@@ -71,29 +89,46 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Text="{DynamicResource Leaderboard_Title}" Style="{StaticResource SidebarTitleTextStyle}" />
+                <TextBlock Grid.Row="0"
+                           Text="{DynamicResource Leaderboard_Title}"
+                           Style="{StaticResource SidebarTitleTextStyle}" />
 
-                <Button Grid.Row="1" Style="{StaticResource SidebarFilterButtonActiveStyle}" Command="{Binding FilterAllTimeCommand}">
+                <Button Grid.Row="1"
+                        Style="{StaticResource SidebarFilterButtonActiveStyle}"
+                        Command="{Binding FilterAllTimeCommand}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🏆" Style="{StaticResource FilterButtonIconStyle}" />
-                        <TextBlock Text="{DynamicResource Leaderboard_HeaderFilterAllTimeButton}" VerticalAlignment="Center" />
+                        <TextBlock Text="🏆"
+                                   Style="{StaticResource FilterButtonIconStyle}" />
+
+                        <TextBlock Text="{DynamicResource Leaderboard_HeaderFilterAllTimeButton}"
+                                   VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
 
                 <Border Grid.Row="3" Style="{StaticResource HighlightedInfoCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource Leaderboard_YourStandingLabel}" Style="{StaticResource StandingSectionTitleStyle}" />
+                        <TextBlock Text="{DynamicResource Leaderboard_YourStandingLabel}"
+                                   Style="{StaticResource StandingSectionTitleStyle}" />
+
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🐱" Style="{StaticResource StandingAvatarEmojiStyle}" />
+                            <TextBlock Text="🐱"
+                                       Style="{StaticResource StandingAvatarEmojiStyle}" />
+
                             <StackPanel>
-                                <TextBlock Text="{Binding UserStandingRankLabel}" Style="{StaticResource SidebarStatValueAccentStyle}" />
-                                <TextBlock Text="{Binding UserStandingPointsLabel}" Style="{StaticResource SubtitleTextStyle}" />
+                                <TextBlock Text="{Binding UserStandingRankLabel}"
+                                           Style="{StaticResource SidebarStatValueAccentStyle}" />
+
+                                <TextBlock Text="{Binding UserStandingPointsLabel}"
+                                           Style="{StaticResource SubtitleTextStyle}" />
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <Button Grid.Row="4" Content="{DynamicResource Leaderboard_BackButton}" Style="{StaticResource SidebarBackButtonStyle}" Command="{Binding BackCommand}" />
+                <Button Grid.Row="4"
+                        Content="{DynamicResource Leaderboard_BackButton}"
+                        Style="{StaticResource SidebarBackButtonStyle}"
+                        Command="{Binding BackCommand}" />
             </Grid>
         </Border>
 
@@ -112,11 +147,16 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="{DynamicResource Leaderboard_HeaderTitle}" Style="{StaticResource TitleTextStyle}" />
+                    <TextBlock Text="{DynamicResource Leaderboard_HeaderTitle}"
+                               Style="{StaticResource TitleTextStyle}" />
+
                     <TextBlock Style="{StaticResource LeaderboardUpdatedLabelStyle}" />
                 </StackPanel>
 
-                <Button Grid.Column="1" Content="{DynamicResource Leaderboard_HeaderFilterAllTimeButton}" Style="{StaticResource HeaderFilterButtonActiveStyle}" Command="{Binding FilterAllTimeCommand}" />
+                <Button Grid.Column="1"
+                        Content="{DynamicResource Leaderboard_HeaderFilterAllTimeButton}"
+                        Style="{StaticResource HeaderFilterButtonActiveStyle}"
+                        Command="{Binding FilterAllTimeCommand}" />
             </Grid>
 
             <Grid Grid.Row="1" Style="{StaticResource PodiumSectionStyle}">
@@ -127,35 +167,64 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" VerticalAlignment="Bottom">
-                    <Image Source="{Binding SecondPlace.AvatarImagePath}" Width="64" Height="64" Margin="0,0,0,8" Stretch="Uniform" />
-                    <TextBlock Text="{Binding SecondPlace.PlayerName}" Style="{StaticResource PodiumPlayerNameStyle}" />
-                    <TextBlock Text="{Binding SecondPlaceScoreLabel}" Style="{StaticResource PodiumPlayerPointsStyle}" />
+                    <TextBlock Text="{Binding SecondPlace.AvatarEmoji}"
+                               Style="{StaticResource PodiumAvatarStyle}"
+                               Width="64"
+                               Height="64"
+                               TextAlignment="Center" />
+
+                    <TextBlock Text="{Binding SecondPlace.PlayerName}"
+                               Style="{StaticResource PodiumPlayerNameStyle}" />
+
+                    <TextBlock Text="{Binding SecondPlaceScoreLabel}"
+                               Style="{StaticResource PodiumPlayerPointsStyle}" />
+
                     <Border Style="{StaticResource PodiumStepSecondPlaceStyle}">
-                        <TextBlock Text="🥈" Style="{StaticResource PodiumMedalEmojiStyle}" />
+                        <TextBlock Text="🥈"
+                                   Style="{StaticResource PodiumMedalEmojiStyle}" />
                     </Border>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
-                    <Image Source="{Binding FirstPlace.AvatarImagePath}" Width="80" Height="80" Margin="0,0,0,8" Stretch="Uniform" />
-                    <TextBlock Text="{Binding FirstPlace.PlayerName}" Style="{StaticResource PodiumPlayerNameStyle}" />
-                    <TextBlock Text="{Binding FirstPlaceScoreLabel}" Style="{StaticResource PodiumPlayerPointsStyle}" />
+                    <TextBlock Text="{Binding FirstPlace.AvatarEmoji}"
+                               Style="{StaticResource PodiumAvatarFirstPlaceStyle}"
+                               Width="80"
+                               Height="80"
+                               TextAlignment="Center" />
+
+                    <TextBlock Text="{Binding FirstPlace.PlayerName}"
+                               Style="{StaticResource PodiumPlayerNameStyle}" />
+
+                    <TextBlock Text="{Binding FirstPlaceScoreLabel}"
+                               Style="{StaticResource PodiumPlayerPointsStyle}" />
+
                     <Border Style="{StaticResource PodiumStepFirstPlaceStyle}">
-                        <TextBlock Text="🥇" Style="{StaticResource PodiumMedalEmojiStyle}" />
+                        <TextBlock Text="🥇"
+                                   Style="{StaticResource PodiumMedalEmojiStyle}" />
                     </Border>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
-                    <Image Source="{Binding ThirdPlace.AvatarImagePath}" Width="64" Height="64" Margin="0,0,0,8" Stretch="Uniform" />
-                    <TextBlock Text="{Binding ThirdPlace.PlayerName}" Style="{StaticResource PodiumPlayerNameStyle}" />
-                    <TextBlock Text="{Binding ThirdPlaceScoreLabel}" Style="{StaticResource PodiumPlayerPointsStyle}" />
+                    <TextBlock Text="{Binding ThirdPlace.AvatarEmoji}"
+                               Style="{StaticResource PodiumAvatarStyle}"
+                               Width="64"
+                               Height="64"
+                               TextAlignment="Center" />
+
+                    <TextBlock Text="{Binding ThirdPlace.PlayerName}"
+                               Style="{StaticResource PodiumPlayerNameStyle}" />
+
+                    <TextBlock Text="{Binding ThirdPlaceScoreLabel}"
+                               Style="{StaticResource PodiumPlayerPointsStyle}" />
+
                     <Border Style="{StaticResource PodiumStepThirdPlaceStyle}">
-                        <TextBlock Text="🥉" Style="{StaticResource PodiumMedalEmojiStyle}" />
+                        <TextBlock Text="🥉"
+                                   Style="{StaticResource PodiumMedalEmojiStyle}" />
                     </Border>
                 </StackPanel>
             </Grid>
 
             <Border Grid.Row="2" Style="{StaticResource TableHeaderBorderStyle}">
-                <!-- Las cabeceras se quedan igual -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="90" />
@@ -165,16 +234,38 @@
                         <ColumnDefinition Width="200" />
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="{DynamicResource Leaderboard_ColumnRank}" Style="{StaticResource SectionTitleStyle}" />
-                    <TextBlock Grid.Column="1" Text="{DynamicResource Leaderboard_ColumnPlayer}" Style="{StaticResource SectionTitleStyle}" />
-                    <TextBlock Grid.Column="2" Text="{DynamicResource Leaderboard_ColumnScore}" Style="{StaticResource SectionTitleStyle}" HorizontalAlignment="Left" Margin="65,0,0,0" />
-                    <TextBlock Grid.Column="3" Text="{DynamicResource Leaderboard_ColumnWins}" Style="{StaticResource SectionTitleStyle}" HorizontalAlignment="Left" Margin="43,0,0,0" />
-                    <TextBlock Grid.Column="4" Text="{DynamicResource Leaderboard_ColumnWinRate}" Style="{StaticResource SectionTitleStyle}" HorizontalAlignment="Left" Width="160" TextAlignment="Right" />
+                    <TextBlock Grid.Column="0"
+                               Text="{DynamicResource Leaderboard_ColumnRank}"
+                               Style="{StaticResource SectionTitleStyle}" />
+
+                    <TextBlock Grid.Column="1"
+                               Text="{DynamicResource Leaderboard_ColumnPlayer}"
+                               Style="{StaticResource SectionTitleStyle}" />
+
+                    <TextBlock Grid.Column="2"
+                               Text="{DynamicResource Leaderboard_ColumnScore}"
+                               Style="{StaticResource SectionTitleStyle}"
+                               HorizontalAlignment="Left"
+                               Margin="65,0,0,0" />
+
+                    <TextBlock Grid.Column="3"
+                               Text="{DynamicResource Leaderboard_ColumnWins}"
+                               Style="{StaticResource SectionTitleStyle}"
+                               HorizontalAlignment="Left"
+                               Margin="43,0,0,0" />
+
+                    <TextBlock Grid.Column="4"
+                               Text="{DynamicResource Leaderboard_ColumnWinRate}"
+                               Style="{StaticResource SectionTitleStyle}"
+                               HorizontalAlignment="Left"
+                               Width="160"
+                               TextAlignment="Right" />
                 </Grid>
             </Border>
 
             <ScrollViewer Grid.Row="3" Style="{StaticResource RankedPlayersScrollViewerStyle}">
-                <ItemsControl ItemsSource="{Binding RankedPlayers}" ItemTemplate="{StaticResource PlayerRankRowTemplate}" />
+                <ItemsControl ItemsSource="{Binding RankedPlayers}"
+                              ItemTemplate="{StaticResource PlayerRankRowTemplate}" />
             </ScrollViewer>
         </Grid>
     </Grid>

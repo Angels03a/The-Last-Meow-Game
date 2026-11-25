@@ -1,13 +1,13 @@
 using System;
 using System.Diagnostics;
 using System.ServiceModel;
+
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
 {
     internal sealed partial class ServerConnectionManager
     {
-
         private const int RecoveryReplyMilliseconds = 2000;
         private const int RecoveryWindowMilliseconds = 12000;
         private const int SecondaryRecoveryAttemptLimit = 3;
@@ -34,7 +34,7 @@ namespace TLMG.Client.Communication
 
         public void RetryMatchRecovery()
         {
-            if (HasRegisteredSession && IsMatchRecoveryExhausted)
+            if (HasSession && IsMatchRecoveryExhausted)
             {
                 IsMatchRecoveryExhausted = false;
                 RequestRecovery();
@@ -43,7 +43,7 @@ namespace TLMG.Client.Communication
 
         private void RequestRecovery()
         {
-            if (HasRegisteredSession && !_recoveryUntil.HasValue && !IsMatchRecoveryExhausted)
+            if (HasSession && !_recoveryUntil.HasValue && !IsMatchRecoveryExhausted)
             {
                 _recoveryUntil = _heartbeatClock.ElapsedMilliseconds + RecoveryWindowMilliseconds;
                 _recoveryContext = null;
@@ -77,7 +77,7 @@ namespace TLMG.Client.Communication
 
         private void DiscoverRecoveryContext()
         {
-            var context = GetRecoveryContext();
+            OperationRecoveryContextResult context = GetRecoveryContext();
             if (context.ErrorKey == InvalidSessionErrorKey)
             {
                 DisconnectAndNotifyConnectionLost();
@@ -110,6 +110,30 @@ namespace TLMG.Client.Communication
 
         private bool AdvanceConnectionRecovery(long now)
         {
+            bool hasAdvanced = false;
+
+            CloseExpiredSubscriptionChannels(now);
+
+            if (_recoveryUntil.HasValue && now >= _recoveryUntil.Value)
+            {
+                hasAdvanced = HandleExpiredRecoveryWindow();
+            }
+            else if (now >= _nextHeartbeatSendAt && now >= _nextRecoveryStepAt)
+            {
+                hasAdvanced = AdvanceScheduledRecoveryStep();
+            }
+
+            return hasAdvanced;
+        }
+
+        private void CloseExpiredSubscriptionChannels(long now)
+        {
+            CloseExpiredPrimaryRecoveryChannels(now);
+            CloseExpiredSecondaryChannels(now);
+        }
+
+        private void CloseExpiredPrimaryRecoveryChannels(long now)
+        {
             if (_matchSubscriptionUntil.HasValue && now >= _matchSubscriptionUntil.Value)
             {
                 CloseMatchChannel();
@@ -119,6 +143,10 @@ namespace TLMG.Client.Communication
                 CloseLobbyChannel();
                 _recoveryContext = null;
             }
+        }
+
+        private void CloseExpiredSecondaryChannels(long now)
+        {
             if (_friendsSubscriptionUntil.HasValue && now >= _friendsSubscriptionUntil.Value)
             {
                 CloseFriendsChannel();
@@ -127,96 +155,173 @@ namespace TLMG.Client.Communication
             {
                 CloseChatChannel();
             }
-            if (_recoveryUntil.HasValue && now >= _recoveryUntil.Value)
+        }
+
+        private bool HandleExpiredRecoveryWindow()
+        {
+            bool hasAdvanced;
+
+            if (IsReadyToFinalizeExpiredRecovery())
             {
-                if (_recoveryContext != null && !_recoveryLobbyUntil.HasValue
-                    && !_matchSubscriptionUntil.HasValue && !_enteringRoomId.HasValue
-                    && _lobbyClient != null && _lobbyBoundRoomId == _recoveryContext.RoomId
-                    && CurrentRoom?.MatchId == _recoveryContext.MatchId && IsMatchSubscribed
-                    && CurrentMatchView?.MatchId == _recoveryContext.MatchId)
-                {
-                    return AdvanceMatchRecovery();
-                }
-                if (_recoveryLobbyUntil.HasValue)
-                {
-                    CloseLobbyChannel();
-                }
-                if (_matchSubscriptionUntil.HasValue)
-                {
-                    CloseMatchChannel();
-                }
+                hasAdvanced = AdvanceMatchRecovery();
+            }
+            else
+            {
+                ResetPendingRecoveryChannels();
                 DiscoverRecoveryContext();
-                if (_recoveryUntil.HasValue)
-                {
-                    _recoveryUntil = null;
-                    IsMatchRecoveryExhausted = true;
-                    RecoveryStateChanged?.Invoke(this, EventArgs.Empty);
-                }
-                return true;
+                MarkRecoveryExhaustedIfStillPending();
+                hasAdvanced = true;
             }
 
-            if (now < _nextHeartbeatSendAt || now < _nextRecoveryStepAt)
+            return hasAdvanced;
+        }
+
+        private bool IsReadyToFinalizeExpiredRecovery()
+        {
+            bool isIdleWithContext = _recoveryContext != null
+                && !_recoveryLobbyUntil.HasValue
+                && !_matchSubscriptionUntil.HasValue
+                && !_enteringRoomId.HasValue;
+            bool isReady = isIdleWithContext && IsMatchLinkBoundToRecoveryContext();
+
+            return isReady;
+        }
+
+        private bool IsMatchLinkBoundToRecoveryContext()
+        {
+            bool isLobbyBound = _lobbyClient != null
+                && _lobbyBoundRoomId == _recoveryContext.RoomId
+                && CurrentRoom?.MatchId == _recoveryContext.MatchId;
+            bool isMatchBound = IsMatchSubscribed
+                && CurrentMatchView?.MatchId == _recoveryContext.MatchId;
+            bool isBound = isLobbyBound && isMatchBound;
+
+            return isBound;
+        }
+
+        private void ResetPendingRecoveryChannels()
+        {
+            if (_recoveryLobbyUntil.HasValue)
             {
-                return false;
+                CloseLobbyChannel();
             }
+            if (_matchSubscriptionUntil.HasValue)
+            {
+                CloseMatchChannel();
+            }
+        }
+
+        private void MarkRecoveryExhaustedIfStillPending()
+        {
+            if (_recoveryUntil.HasValue)
+            {
+                _recoveryUntil = null;
+                IsMatchRecoveryExhausted = true;
+                RecoveryStateChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private bool AdvanceScheduledRecoveryStep()
+        {
+            bool hasAdvanced = false;
 
             if (_recoveryUntil.HasValue)
             {
-                return AdvanceMatchRecovery();
+                hasAdvanced = AdvanceMatchRecovery();
             }
-
-            if (_friendsClient == null && _friendsRecoveryAttempts < SecondaryRecoveryAttemptLimit)
+            else if (_friendsClient == null && _friendsRecoveryAttempts < SecondaryRecoveryAttemptLimit)
             {
                 _friendsRecoveryAttempts++;
                 TryOpenFriendsChannel();
-                return true;
+                hasAdvanced = true;
             }
-            if (CurrentRoom != null && _chatClient == null && _chatRecoveryAttempts < SecondaryRecoveryAttemptLimit)
+            else if (CanRetryChatRecovery())
             {
                 _chatRecoveryAttempts++;
                 OpenChatForCurrentRoom();
-                return true;
+                hasAdvanced = true;
             }
 
-            return false;
+            return hasAdvanced;
+        }
+
+        private bool CanRetryChatRecovery()
+        {
+            bool hasRoomWithoutChat = CurrentRoom != null && _chatClient == null;
+            bool hasRemainingAttempts = _chatRecoveryAttempts < SecondaryRecoveryAttemptLimit;
+            bool canRetry = hasRoomWithoutChat && hasRemainingAttempts;
+
+            return canRetry;
         }
 
         private bool AdvanceMatchRecovery()
         {
+            bool hasAdvanced = false;
+
             if (_recoveryContext == null)
             {
                 DiscoverRecoveryContext();
-                return true;
+                hasAdvanced = true;
             }
-
-            if (_recoveryLobbyUntil.HasValue || _matchSubscriptionUntil.HasValue || _enteringRoomId.HasValue)
+            else if (!IsMatchRecoveryStepInFlight())
             {
-                return false;
-            }
-
-            if (_lobbyClient == null || _lobbyBoundRoomId != _recoveryContext.RoomId
-                || CurrentRoom?.MatchId != _recoveryContext.MatchId)
-            {
-                if (OpenLobbyChannel())
+                if (NeedsLobbyRebindForRecovery())
                 {
-                    int roomId = _recoveryContext.RoomId.Value;
-                    _recoveryLobbyUntil = _heartbeatClock.ElapsedMilliseconds + RecoveryReplyMilliseconds;
-                    TrySend(() => SendConnectionRequest(_lobbyChannel, () => _lobbyClient.EnterLobby(_sessionToken, roomId)),
-                        "revincular la sala", CloseLobbyChannel);
+                    RebindLobbyForRecovery();
+                    hasAdvanced = true;
                 }
-                return true;
+                else if (!IsMatchSubscribed)
+                {
+                    SubscribeToCurrentMatch();
+                    hasAdvanced = true;
+                }
+                else
+                {
+                    CompleteMatchRecovery();
+                }
             }
 
-            if (!IsMatchSubscribed)
+            return hasAdvanced;
+        }
+
+        private bool IsMatchRecoveryStepInFlight()
+        {
+            bool hasPendingChannelTimeout = _recoveryLobbyUntil.HasValue || _matchSubscriptionUntil.HasValue;
+            bool isInFlight = hasPendingChannelTimeout || _enteringRoomId.HasValue;
+
+            return isInFlight;
+        }
+
+        private bool NeedsLobbyRebindForRecovery()
+        {
+            bool isLobbyMissing = _lobbyClient == null;
+            bool isRoomMismatched = _lobbyBoundRoomId != _recoveryContext.RoomId
+                || CurrentRoom?.MatchId != _recoveryContext.MatchId;
+            bool needsRebind = isLobbyMissing || isRoomMismatched;
+
+            return needsRebind;
+        }
+
+        private void RebindLobbyForRecovery()
+        {
+            if (OpenLobbyChannel())
             {
-                SubscribeToCurrentMatch();
-                return true;
+                int roomId = _recoveryContext.RoomId.Value;
+                _recoveryLobbyUntil = _heartbeatClock.ElapsedMilliseconds + RecoveryReplyMilliseconds;
+                TrySend(
+                    () => SendConnectionRequest(
+                        _lobbyChannel,
+                        () => _lobbyClient.EnterLobby(_sessionToken, roomId)),
+                    "revincular la sala",
+                    CloseLobbyChannel);
             }
+        }
 
-            var view = CurrentMatchView;
+        private void CompleteMatchRecovery()
+        {
+            MatchView view = CurrentMatchView;
             CancelMatchRecovery();
             MatchRecoveryReady?.Invoke(this, new ServerEventArgs<MatchView>(view));
-            return false;
         }
 
         private void CompleteRecoveryLobby(OperationLobbyRoomResult result)
@@ -224,56 +329,58 @@ namespace TLMG.Client.Communication
             if (_heartbeatClock.ElapsedMilliseconds >= _recoveryLobbyUntil.Value)
             {
                 CloseLobbyChannel();
-                return;
-            }
-
-            _recoveryLobbyUntil = null;
-            if (result?.IsSuccess == true && result.Room != null && _recoveryContext != null
-                && result.Room.RoomId == _recoveryContext.RoomId
-                && result.Room.MatchId == _recoveryContext.MatchId)
-            {
-                // Publish navigation only after the match subscription is confirmed.
-                _lobbyBoundRoomId = result.Room.RoomId;
-                ApplyRoomSnapshot(result.Room, publish: false);
             }
             else
             {
-                CloseLobbyChannel();
-                _recoveryContext = null;
+                _recoveryLobbyUntil = null;
+                if (IsMatchingRecoveryLobbyResult(result))
+                {
+                    _lobbyBoundRoomId = result.Room.RoomId;
+                    ApplyRoomSnapshot(result.Room, publish: false);
+                }
+                else
+                {
+                    CloseLobbyChannel();
+                    _recoveryContext = null;
+                }
             }
+        }
+
+        private bool IsMatchingRecoveryLobbyResult(OperationLobbyRoomResult result)
+        {
+            bool isMatchingResult = false;
+            bool hasValidRoomResult = result != null && result.IsSuccess && result.Room != null;
+
+            if (hasValidRoomResult && _recoveryContext != null)
+            {
+                bool isSameRoom = result.Room.RoomId == _recoveryContext.RoomId;
+                bool isSameMatch = result.Room.MatchId == _recoveryContext.MatchId;
+                isMatchingResult = isSameRoom && isSameMatch;
+            }
+
+            return isMatchingResult;
         }
 
         private static void OpenConnection(ICommunicationObject client)
         {
-            var elapsed = Stopwatch.StartNew();
-            try
-            {
-                client.Open(_recoveryOpenTimeout);
-            }
-            finally
-            {
-                _log.DebugFormat("Apertura de canal WCF: {0:F2} ms.", elapsed.Elapsed.TotalMilliseconds);
-            }
+            Stopwatch elapsed = Stopwatch.StartNew();
+            client.Open(_recoveryOpenTimeout);
+            _log.DebugFormat("Apertura de canal WCF: {0:F2} ms.", elapsed.Elapsed.TotalMilliseconds);
         }
 
         private static void SendConnectionRequest(IClientChannel channel, Action send)
         {
             TimeSpan originalTimeout = channel.OperationTimeout;
-            var elapsed = Stopwatch.StartNew();
-            try
+            Stopwatch elapsed = Stopwatch.StartNew();
+            channel.OperationTimeout = _recoveryRequestTimeout;
+            send();
+            if (channel.State == CommunicationState.Opened)
             {
-                channel.OperationTimeout = _recoveryRequestTimeout;
-                send();
+                channel.OperationTimeout = originalTimeout;
             }
-            finally
-            {
-                if (channel.State == CommunicationState.Opened)
-                {
-                    channel.OperationTimeout = originalTimeout;
-                }
-                _log.DebugFormat("Solicitud WCF de vinculación o contexto: {0:F2} ms.",
-                    elapsed.Elapsed.TotalMilliseconds);
-            }
+            _log.DebugFormat(
+                "Solicitud WCF de vinculación o contexto: {0:F2} ms.",
+                elapsed.Elapsed.TotalMilliseconds);
         }
     }
 }

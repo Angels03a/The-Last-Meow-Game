@@ -40,6 +40,9 @@ namespace TLMG.Client.Communication
         event EventHandler<ServerEventArgs<OperationDeclineFriendRequestResult>>
             DeclineFriendRequestResultReceived;
 
+        /// <summary>Gets whether there is any session, registered or guest.</summary>
+        bool HasSession { get; }
+
         /// <summary>Obtiene si hay una sesión de jugador registrado; un invitado no la tiene.</summary>
         bool HasRegisteredSession { get; }
 
@@ -56,12 +59,12 @@ namespace TLMG.Client.Communication
         IReadOnlyList<FriendRequest> PendingFriendRequests { get; }
 
         /// <summary>Pide de nuevo la lista de amigos; la respuesta llega por FriendListReceived.</summary>
-        /// <returns>true si se envió; false si no hay sesión registrada o falló el envío.</returns>
+        /// <returns>true si se envió; false si no hay sesión o falló el envío.</returns>
         bool RequestFriendList();
 
         /// <summary>Invita a un amigo en línea a la sala; el resultado llega por InviteFriendResultReceived.</summary>
         /// <param name="friendUserId">Id de la cuenta del amigo, tal como llegó en la lista de amigos.</param>
-        /// <returns>true si se envió; false si no hay sesión registrada o falló el envío.</returns>
+        /// <returns>true si se envió; false si no hay sesión o falló el envío.</returns>
         bool InviteFriendToRoom(int friendUserId);
 
         /// <summary>
@@ -73,14 +76,14 @@ namespace TLMG.Client.Communication
 
         /// <summary>Acepta una solicitud recibida; el resultado llega por AcceptFriendRequestResultReceived.</summary>
         /// <param name="friendRequestId">Id de la solicitud, tal como llegó en las pendientes.</param>
-        /// <returns>true si se envió; false si no hay sesión registrada o falló el envío.</returns>
+        /// <returns>true si se envió; false si no hay sesión o falló el envío.</returns>
         bool AcceptFriendRequest(int friendRequestId);
 
         /// <summary>
         /// Rechaza una solicitud recibida; el resultado llega por DeclineFriendRequestResultReceived.
         /// </summary>
         /// <param name="friendRequestId">Id de la solicitud, tal como llegó en las pendientes.</param>
-        /// <returns>true si se envió; false si no hay sesión registrada o falló el envío.</returns>
+        /// <returns>true si se envió; false si no hay sesión o falló el envío.</returns>
         bool DeclineFriendRequest(int friendRequestId);
     }
 }

@@ -5,25 +5,13 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
 {
-    /// <summary>
-    /// Parte del manager que consulta la tabla de posiciones. Usa un canal propio y de corta vida, que no depende de
-    /// la sesión del jugador: un fallo aquí se informa como resultado de la consulta y no desconecta la sesión. Su
-    /// receptor es una instancia nueva de ServerCallback por consulta, que no recibe sesión; la consulta anterior
-    /// queda descartada porque su instancia deja de ser la vigente.
-    /// </summary>
     internal sealed partial class ServerConnectionManager : ILeaderboardConnection
     {
         private LeaderboardManagerClient _leaderboardClient;
         private ServerCallback _leaderboardCallback;
 
-        /// <inheritdoc />
         public event EventHandler<ServerEventArgs<OperationGetLeaderboardResult>> LeaderboardResultReceived;
 
-        /// <inheritdoc />
-        /// <remarks>
-        /// Abrir el canal bloquea el hilo de la interfaz hasta que el servidor responde o vencen los tiempos del
-        /// binding (BL-079).
-        /// </remarks>
         public bool RequestLeaderboard()
         {
             bool wasLeaderboardRequestSent = false;
@@ -33,24 +21,23 @@ namespace TLMG.Client.Communication
             {
                 _leaderboardCallback = new ServerCallback(this);
                 _leaderboardClient = new LeaderboardManagerClient(new InstanceContext(_leaderboardCallback));
-                _leaderboardClient.GetLeaderboard();
+                _leaderboardClient.GetLeaderboard(_sessionToken);
                 wasLeaderboardRequestSent = true;
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException timeoutException)
             {
-                _log.Error("Se agotó el tiempo al consultar la tabla de posiciones.", ex);
+                _log.Error("Leaderboard query timed out.", timeoutException);
                 CloseLeaderboardChannel();
             }
-            catch (CommunicationException ex)
+            catch (CommunicationException communicationException)
             {
-                _log.Error("Error de comunicación al consultar la tabla de posiciones.", ex);
+                _log.Error("Leaderboard communication failed.", communicationException);
                 CloseLeaderboardChannel();
             }
 
             return wasLeaderboardRequestSent;
         }
 
-        /// <inheritdoc />
         public void CloseLeaderboardChannel()
         {
             CloseClientSafely(_leaderboardClient);
@@ -58,24 +45,18 @@ namespace TLMG.Client.Communication
             _leaderboardCallback = null;
         }
 
-        /// <summary>
-        /// Cierra el canal de la consulta y dispara LeaderboardResultReceived, siempre que el resultado sea de la
-        /// consulta vigente; el de una consulta anterior se ignora.
-        /// </summary>
-        /// <param name="callback">Receptor que entregó el resultado.</param>
-        /// <param name="operationGetLeaderboardResult">Resultado que llegó del servidor.</param>
         internal void NotifyLeaderboardResultReceived(
             ServerCallback callback,
-            OperationGetLeaderboardResult operationGetLeaderboardResult)
+            OperationGetLeaderboardResult leaderboardResponse)
         {
             bool isCurrentCallback = ReferenceEquals(callback, _leaderboardCallback);
 
-            if (isCurrentCallback && operationGetLeaderboardResult != null)
+            if (isCurrentCallback && leaderboardResponse != null)
             {
                 CloseLeaderboardChannel();
                 LeaderboardResultReceived?.Invoke(
                     this,
-                    new ServerEventArgs<OperationGetLeaderboardResult>(operationGetLeaderboardResult));
+                    new ServerEventArgs<OperationGetLeaderboardResult>(leaderboardResponse));
             }
         }
     }

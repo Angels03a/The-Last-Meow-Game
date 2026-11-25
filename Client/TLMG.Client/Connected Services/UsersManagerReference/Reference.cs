@@ -187,6 +187,9 @@ namespace TLMG.Client.UsersManagerReference {
     public partial class OperationLogInResult : TLMG.Client.UsersManagerReference.OperationResult {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsGuestField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NicknameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -194,6 +197,19 @@ namespace TLMG.Client.UsersManagerReference {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int UserIdField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsGuest {
+            get {
+                return this.IsGuestField;
+            }
+            set {
+                if ((this.IsGuestField.Equals(value) != true)) {
+                    this.IsGuestField = value;
+                    this.RaisePropertyChanged("IsGuest");
+                }
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Nickname {
@@ -359,7 +375,39 @@ namespace TLMG.Client.UsersManagerReference {
     public partial class OperationGetLeaderboardResult : TLMG.Client.UsersManagerReference.OperationResult {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<int> PersonalPointsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<int> PersonalRankField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TLMG.Client.UsersManagerReference.LeaderboardPlayer[] PlayersField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> PersonalPoints {
+            get {
+                return this.PersonalPointsField;
+            }
+            set {
+                if ((this.PersonalPointsField.Equals(value) != true)) {
+                    this.PersonalPointsField = value;
+                    this.RaisePropertyChanged("PersonalPoints");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> PersonalRank {
+            get {
+                return this.PersonalRankField;
+            }
+            set {
+                if ((this.PersonalRankField.Equals(value) != true)) {
+                    this.PersonalRankField = value;
+                    this.RaisePropertyChanged("PersonalRank");
+                }
+            }
+        }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
         public TLMG.Client.UsersManagerReference.LeaderboardPlayer[] Players {
@@ -1534,6 +1582,9 @@ namespace TLMG.Client.UsersManagerReference {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string InviterNicknameField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int InviterUserIdField;
+        
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
             get {
@@ -1566,6 +1617,19 @@ namespace TLMG.Client.UsersManagerReference {
                 if ((object.ReferenceEquals(this.InviterNicknameField, value) != true)) {
                     this.InviterNicknameField = value;
                     this.RaisePropertyChanged("InviterNickname");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int InviterUserId {
+            get {
+                return this.InviterUserIdField;
+            }
+            set {
+                if ((this.InviterUserIdField.Equals(value) != true)) {
+                    this.InviterUserIdField = value;
+                    this.RaisePropertyChanged("InviterUserId");
                 }
             }
         }
@@ -3524,10 +3588,10 @@ namespace TLMG.Client.UsersManagerReference {
     public interface ILeaderboardManager {
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILeaderboardManager/GetLeaderboard")]
-        void GetLeaderboard();
+        void GetLeaderboard(string sessionToken);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/ILeaderboardManager/GetLeaderboard")]
-        System.Threading.Tasks.Task GetLeaderboardAsync();
+        System.Threading.Tasks.Task GetLeaderboardAsync(string sessionToken);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -3565,12 +3629,12 @@ namespace TLMG.Client.UsersManagerReference {
                 base(callbackInstance, binding, remoteAddress) {
         }
         
-        public void GetLeaderboard() {
-            base.Channel.GetLeaderboard();
+        public void GetLeaderboard(string sessionToken) {
+            base.Channel.GetLeaderboard(sessionToken);
         }
         
-        public System.Threading.Tasks.Task GetLeaderboardAsync() {
-            return base.Channel.GetLeaderboardAsync();
+        public System.Threading.Tasks.Task GetLeaderboardAsync(string sessionToken) {
+            return base.Channel.GetLeaderboardAsync(sessionToken);
         }
     }
     
@@ -4279,6 +4343,54 @@ namespace TLMG.Client.UsersManagerReference {
         
         public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationResult> ResetPasswordAsync(TLMG.Client.UsersManagerReference.OperationResetPasswordRequest resetPasswordRequest) {
             return base.Channel.ResetPasswordAsync(resetPasswordRequest);
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="UsersManagerReference.ISessionManager")]
+    public interface ISessionManager {
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ISessionManager/StartGuestSession", ReplyAction="http://tempuri.org/ISessionManager/StartGuestSessionResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(TLMG.Client.UsersManagerReference.SystemFault), Action="http://tempuri.org/ISessionManager/StartGuestSessionSystemFaultFault", Name="SystemFault", Namespace="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts")]
+        TLMG.Client.UsersManagerReference.OperationLogInResult StartGuestSession();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/ISessionManager/StartGuestSession", ReplyAction="http://tempuri.org/ISessionManager/StartGuestSessionResponse")]
+        System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationLogInResult> StartGuestSessionAsync();
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    public interface ISessionManagerChannel : TLMG.Client.UsersManagerReference.ISessionManager, System.ServiceModel.IClientChannel {
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
+    public partial class SessionManagerClient : System.ServiceModel.ClientBase<TLMG.Client.UsersManagerReference.ISessionManager>, TLMG.Client.UsersManagerReference.ISessionManager {
+        
+        public SessionManagerClient() {
+        }
+        
+        public SessionManagerClient(string endpointConfigurationName) : 
+                base(endpointConfigurationName) {
+        }
+        
+        public SessionManagerClient(string endpointConfigurationName, string remoteAddress) : 
+                base(endpointConfigurationName, remoteAddress) {
+        }
+        
+        public SessionManagerClient(string endpointConfigurationName, System.ServiceModel.EndpointAddress remoteAddress) : 
+                base(endpointConfigurationName, remoteAddress) {
+        }
+        
+        public SessionManagerClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
+                base(binding, remoteAddress) {
+        }
+        
+        public TLMG.Client.UsersManagerReference.OperationLogInResult StartGuestSession() {
+            return base.Channel.StartGuestSession();
+        }
+        
+        public System.Threading.Tasks.Task<TLMG.Client.UsersManagerReference.OperationLogInResult> StartGuestSessionAsync() {
+            return base.Channel.StartGuestSessionAsync();
         }
     }
 }

@@ -40,7 +40,7 @@ namespace TLMG.Client.Communication
         {
             bool wasAcceptFriendRequestSent = false;
 
-            if (_friendsClient != null && HasRegisteredSession)
+            if (_friendsClient != null && HasSession)
             {
                 wasAcceptFriendRequestSent = TrySend(
                     () => _friendsClient.AcceptFriendRequest(_sessionToken, friendRequestId),
@@ -55,7 +55,7 @@ namespace TLMG.Client.Communication
         {
             bool wasDeclineFriendRequestSent = false;
 
-            if (_friendsClient != null && HasRegisteredSession)
+            if (_friendsClient != null && HasSession)
             {
                 wasDeclineFriendRequestSent = TrySend(
                     () => _friendsClient.DeclineFriendRequest(_sessionToken, friendRequestId),

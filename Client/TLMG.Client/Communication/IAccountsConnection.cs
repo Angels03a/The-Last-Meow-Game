@@ -13,15 +13,23 @@ namespace TLMG.Client.Communication
     public interface IAccountsConnection
     {
         event EventHandler RecoveryStateChanged;
+
         bool IsMatchRecoveryPending { get; }
+
         bool IsMatchRecoveryExhausted { get; }
-        void RetryMatchRecovery();
 
         /// <summary>
-        /// Obtiene el nickname del jugador en sesión, o null si no hay sesión registrada (por ejemplo, un invitado).
-        /// Solo sirve para mostrar.
+        /// Obtiene el nickname del jugador en sesión, o null si no hay sesión. Solo sirve para mostrar.
         /// </summary>
         string PlayerNickname { get; }
+
+        /// <summary>Gets the user id of the session; negative for a guest and zero when there is no session.</summary>
+        int PlayerUserId { get; }
+
+        /// <summary>Gets whether the current session is a guest session, as decided by the server at log in.</summary>
+        bool IsGuestSession { get; }
+
+        void RetryMatchRecovery();
 
         /// <summary>
         /// Inicia sesión como jugador registrado y, si el servidor la acepta, deja la sesión abierta en el manager.
@@ -35,18 +43,24 @@ namespace TLMG.Client.Communication
         OperationLogInResult LogIn(string email, string password);
 
         /// <summary>
+        /// Starts a temporary guest session; nothing about it is saved, so it is lost when the session ends.
+        /// </summary>
+        /// <returns>
+        /// The server result, or a failed result with its ErrorKey; never null and its SessionToken is always null.
+        /// </returns>
+        OperationLogInResult StartGuestSession();
+
+        /// <summary>
         /// Solicita al servidor el registro de una cuenta de jugador. No inicia sesión.
         /// </summary>
         /// <param name="playerAccountRegistration">Datos capturados en el formulario de registro.</param>
         /// <returns>
         /// El resultado del servidor, o un resultado fallido con ErrorKey si no se pudo conectar. Nunca es null.
         /// </returns>
-        OperationResult RegisterPlayerAccount(
-            PlayerAccountRegistration playerAccountRegistration);
+        OperationResult RegisterPlayerAccount(PlayerAccountRegistration playerAccountRegistration);
 
         /// <summary>
-        /// Cierra la sesión: libera los canales y limpia el estado del jugador. Es seguro llamarlo sin sesión, por
-        /// ejemplo con un invitado.
+        /// Cierra la sesión: libera los canales y limpia el estado del jugador. Es seguro llamarlo sin sesión.
         /// </summary>
         LogOutResult LogOut();
 

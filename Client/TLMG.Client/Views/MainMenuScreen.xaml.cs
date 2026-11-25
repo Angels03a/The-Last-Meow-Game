@@ -4,28 +4,30 @@ using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
-    /// <summary>
-    /// Vista del menú principal. Solo toma el foco al cargarse; el
-    /// nickname y la navegación viven en <see cref="MainMenuViewModel"/>.
-    /// </summary>
     public partial class MainMenuScreen : LocalizableScreen
     {
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="MainMenuScreen"/> con su ViewModel.
-        /// </summary>
-        /// <param name="mainMenuViewModel">ViewModel que la fábrica de pantallas crea e inyecta.</param>
+        private readonly MainMenuViewModel _mainMenuViewModel;
+
         public MainMenuScreen(MainMenuViewModel mainMenuViewModel)
         {
             InitializeComponent();
             Focusable = true;
+            _mainMenuViewModel = mainMenuViewModel;
             DataContext = mainMenuViewModel;
 
             Loaded += OnScreenLoaded;
+            Unloaded += OnScreenUnloaded;
         }
 
         private void OnScreenLoaded(object sender, RoutedEventArgs e)
         {
             Focus();
+            _mainMenuViewModel.Activate();
+        }
+
+        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        {
+            _mainMenuViewModel.Deactivate();
         }
     }
 }

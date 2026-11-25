@@ -103,7 +103,7 @@ namespace TLMG.Client.Navigation
                     break;
                 case ScreenId.Login:
                     LoginViewModel loginViewModel = new LoginViewModel(
-                        _accountsConnection, _navigationManager);
+                        _accountsConnection, _navigationManager, _dialogManager);
                     screenEntry = new ScreenEntry(new LoginScreen(loginViewModel), loginViewModel);
                     break;
                 case ScreenId.Verification:

@@ -14,19 +14,14 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>
-    /// ViewModel de la tabla de posiciones: pide el ranking al servidor, reparte el podio y la lista, y regresa a la
-    /// pantalla anterior. Escucha al servidor solo entre Activate y Deactivate.
-    /// </summary>
     public class LeaderboardViewModel : ViewModelBase
     {
         private const string DefaultProfileImage = "pack://application:,,,/TLMG.Client;component/img/default.jpg";
-        private const string PackUriPrefix = "pack://application:,,,";
-        private const string AppRelativePathPrefix = "/";
         private const string DefaultPlayerName = "---";
         private const string PointsFormatKey = "Leaderboard_PointsFormat";
         private const string ConnectionErrorKey = "Leaderboard_ConnectionErrorMessage";
         private const string PlainPointsFormat = "{0}";
+        private const string PersonalRankFormat = "#{0}";
         private const string ScoreNumberFormat = "N0";
         private const int RankIndexOffset = 1;
         private const int ZeroGamesPlayed = 0;
@@ -42,9 +37,6 @@ namespace TLMG.Client.ViewModels
         private const int SecondPlaceRank = 2;
         private const int ThirdPlaceRank = 3;
 
-        // FIXME: Mostrar el puesto y los puntos del jugador en sesión cuando el cliente los conozca. (BL-091).
-        private const int CurrentUserStandingRank = 38;
-        private const int CurrentUserStandingPoints = 1840;
 
         private readonly ILeaderboardConnection _leaderboardConnection;
         private readonly INavigationManager _navigationManager;
@@ -59,13 +51,8 @@ namespace TLMG.Client.ViewModels
         private string _userStandingRankLabel;
         private string _userStandingPointsLabel;
         private string _currentPointsFormat = PlainPointsFormat;
-
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="LeaderboardViewModel"/>.
-        /// </summary>
-        /// <param name="leaderboardConnection">Área de la tabla de posiciones de la conexión con el servidor.</param>
-        /// <param name="navigationManager">Administrador de navegación.</param>
-        /// <param name="dialogManager">Administrador de diálogos.</param>
+        private int? _personalRank;
+        private int? _personalPoints;
         public LeaderboardViewModel(
             ILeaderboardConnection leaderboardConnection,
             INavigationManager navigationManager,
@@ -80,76 +67,49 @@ namespace TLMG.Client.ViewModels
             BackCommand = new RelayCommand(ExecuteBack);
             ShowEmptyLeaderboard();
         }
-
-        /// <summary>Comando para consultar nuevamente la tabla de posiciones histórica.</summary>
         public ICommand FilterAllTimeCommand { get; }
-
-        /// <summary>Comando para regresar a la pantalla anterior.</summary>
         public ICommand BackCommand { get; }
-
-        /// <summary>Colección de jugadores a partir del cuarto lugar.</summary>
         public ObservableCollection<PlayerRankEntry> RankedPlayers { get; }
-
-        /// <summary>Jugador en el primer lugar del podio.</summary>
         public PlayerRankEntry FirstPlace
         {
             get { return _firstPlace; }
             private set { SetProperty(ref _firstPlace, value); }
         }
-
-        /// <summary>Jugador en el segundo lugar del podio.</summary>
         public PlayerRankEntry SecondPlace
         {
             get { return _secondPlace; }
             private set { SetProperty(ref _secondPlace, value); }
         }
-
-        /// <summary>Jugador en el tercer lugar del podio.</summary>
         public PlayerRankEntry ThirdPlace
         {
             get { return _thirdPlace; }
             private set { SetProperty(ref _thirdPlace, value); }
         }
-
-        /// <summary>Puntos del primer lugar con el formato del idioma activo.</summary>
         public string FirstPlaceScoreLabel
         {
             get { return _firstPlaceScoreLabel; }
             private set { SetProperty(ref _firstPlaceScoreLabel, value); }
         }
-
-        /// <summary>Puntos del segundo lugar con el formato del idioma activo.</summary>
         public string SecondPlaceScoreLabel
         {
             get { return _secondPlaceScoreLabel; }
             private set { SetProperty(ref _secondPlaceScoreLabel, value); }
         }
-
-        /// <summary>Puntos del tercer lugar con el formato del idioma activo.</summary>
         public string ThirdPlaceScoreLabel
         {
             get { return _thirdPlaceScoreLabel; }
             private set { SetProperty(ref _thirdPlaceScoreLabel, value); }
         }
-
-        /// <summary>Puesto del jugador en sesión (dato fijo mientras no llegue del servidor).</summary>
         public string UserStandingRankLabel
         {
             get { return _userStandingRankLabel; }
             private set { SetProperty(ref _userStandingRankLabel, value); }
         }
-
-        /// <summary>Puntos del jugador en sesión (dato fijo mientras no lleguen del servidor).</summary>
         public string UserStandingPointsLabel
         {
             get { return _userStandingPointsLabel; }
             private set { SetProperty(ref _userStandingPointsLabel, value); }
         }
-
-        /// <summary>
-        /// Empieza a escuchar al servidor y al cambio de idioma, y pide la tabla de posiciones. La vista lo llama al
-        /// cargarse.
-        /// </summary>
         public void Activate()
         {
             Deactivate();
@@ -160,16 +120,12 @@ namespace TLMG.Client.ViewModels
             UpdateLocalizedFormats();
             RequestLeaderboardData();
         }
-
-        /// <summary>Deja de escuchar, cierra el canal de la consulta y suelta el cambio de idioma.</summary>
         public void Deactivate()
         {
             _leaderboardConnection.LeaderboardResultReceived -= OnLeaderboardResultReceived;
             LanguageManager.LanguageChanged -= OnLanguageChanged;
             _leaderboardConnection.CloseLeaderboardChannel();
         }
-
-        /// <summary>Libera las suscripciones y cierra el canal de la consulta.</summary>
         protected override void OnDisposed()
         {
             Deactivate();
@@ -195,6 +151,8 @@ namespace TLMG.Client.ViewModels
 
             if (leaderboardResult.IsSuccess)
             {
+                _personalRank = leaderboardResult.PersonalRank;
+                _personalPoints = leaderboardResult.PersonalPoints;
                 ProcessLeaderboardData(leaderboardResult.Players);
             }
             else
@@ -235,6 +193,8 @@ namespace TLMG.Client.ViewModels
 
         private void ShowEmptyLeaderboard()
         {
+            _personalRank = null;
+            _personalPoints = null;
             FirstPlace = CreateEmptyEntry(FirstPlaceRank);
             SecondPlace = CreateEmptyEntry(SecondPlaceRank);
             ThirdPlace = CreateEmptyEntry(ThirdPlaceRank);
@@ -281,8 +241,12 @@ namespace TLMG.Client.ViewModels
 
         private void UpdateUserStanding()
         {
-            UserStandingRankLabel = $"#{CurrentUserStandingRank}";
-            UserStandingPointsLabel = FormatPoints(CurrentUserStandingPoints);
+            UserStandingRankLabel = _personalRank.HasValue
+                ? string.Format(CultureInfo.CurrentCulture, PersonalRankFormat, _personalRank.Value)
+                : DefaultPlayerName;
+            UserStandingPointsLabel = _personalPoints.HasValue
+                ? FormatPoints(_personalPoints.Value)
+                : DefaultPlayerName;
         }
 
         private string FormatPoints(int points)
@@ -322,32 +286,6 @@ namespace TLMG.Client.ViewModels
             };
 
             return emptyEntry;
-        }
-
-        // HACK: Tratar como ruta de la aplicación el profile_image que guarda la BD, que no existe. (BL-045).
-        private string ResolveAvatarImagePath(string profileImage)
-        {
-            string resolvedPath;
-
-            if (string.IsNullOrWhiteSpace(profileImage))
-            {
-                resolvedPath = DefaultProfileImage;
-            }
-            else if (profileImage.StartsWith(AppRelativePathPrefix, StringComparison.Ordinal))
-            {
-                resolvedPath = PackUriPrefix + profileImage;
-            }
-            else
-            {
-                resolvedPath = profileImage;
-            }
-
-            if (!Uri.TryCreate(resolvedPath, UriKind.RelativeOrAbsolute, out _))
-            {
-                resolvedPath = DefaultProfileImage;
-            }
-
-            return resolvedPath;
         }
 
         private int CalculateWinRate(int wins, int gamesPlayed)

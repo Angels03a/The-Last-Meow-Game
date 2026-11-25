@@ -97,9 +97,10 @@ namespace TLMG.Client
         {
             RoomInvitation roomInvitation = serverEventArguments.Payload;
             string invitationFormat = TryFindResource(RoomInvitationMessageFormatKey) as string ?? "{0}";
+            string inviterName = DisplayNameHelper.Resolve(roomInvitation.InviterUserId, roomInvitation.InviterNickname);
 
             MessageBoxResult invitationAnswer = MessageBox.Show(
-                string.Format(invitationFormat, roomInvitation.InviterNickname),
+                string.Format(invitationFormat, inviterName),
                 TryFindResource(RoomInvitationTitleKey) as string,
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);

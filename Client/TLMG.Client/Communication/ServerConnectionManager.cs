@@ -70,7 +70,14 @@ namespace TLMG.Client.Communication
 
         public event EventHandler ConnectionLost;
 
-        public bool HasRegisteredSession => !string.IsNullOrEmpty(_sessionToken);
+        /// <summary>Gets whether there is any session, registered or guest.</summary>
+        public bool HasSession => !string.IsNullOrEmpty(_sessionToken);
+
+        /// <summary>Gets whether the session is a guest session, as decided by the server at log in.</summary>
+        public bool IsGuestSession { get; private set; }
+
+        /// <summary>Gets whether the session belongs to a registered account.</summary>
+        public bool HasRegisteredSession => HasSession && !IsGuestSession;
 
         public LobbyRoom CurrentRoom { get; private set; }
 
@@ -90,6 +97,7 @@ namespace TLMG.Client.Communication
             if (IsRegisteredSessionResult(operationLogInResult))
             {
                 _sessionToken = operationLogInResult.SessionToken;
+                IsGuestSession = operationLogInResult.IsGuest;
                 PlayerUserId = operationLogInResult.UserId;
                 PlayerNickname = operationLogInResult.Nickname;
                 wasRegisterSessionStarted = true;
@@ -103,7 +111,7 @@ namespace TLMG.Client.Communication
                 {
                     _startingSession = false;
                 }
-                if (HasRegisteredSession)
+                if (HasSession)
                 {
                     StartHeartbeat();
                 }
@@ -114,7 +122,7 @@ namespace TLMG.Client.Communication
             }
             else
             {
-                _log.Warn("Se ignoró un resultado de inicio de sesión que no trae una sesión registrada.");
+                _log.Warn("Se ignoró un resultado de inicio de sesión que no trae una sesión.");
             }
 
             return wasRegisterSessionStarted;
@@ -140,6 +148,7 @@ namespace TLMG.Client.Communication
             _finishedLeaveRoomId = null;
             _finishedLeaveMatchId = null;
             _sessionToken = null;
+            IsGuestSession = false;
             PlayerUserId = NoUserId;
             PlayerNickname = null;
             FriendList = null;
@@ -151,13 +160,13 @@ namespace TLMG.Client.Communication
         {
             bool wasRequestFriendListSent = false;
 
-            if (_friendsClient == null && HasRegisteredSession)
+            if (_friendsClient == null && HasSession)
             {
                 _friendsRecoveryAttempts = 0;
-                return true;
+                wasRequestFriendListSent = true;
             }
 
-            if (_friendsClient != null && HasRegisteredSession)
+            if (_friendsClient != null && HasSession)
             {
                 wasRequestFriendListSent = TrySend(() => _friendsClient.SubscribeToFriends(_sessionToken),
                     "pedir la lista de amigos", CloseFriendsChannel);
@@ -170,7 +179,7 @@ namespace TLMG.Client.Communication
         {
             bool wasInviteFriendToRoomSent = false;
 
-            if (_friendsClient != null && HasRegisteredSession)
+            if (_friendsClient != null && HasSession)
             {
                 wasInviteFriendToRoomSent = TrySend(
                     () => _friendsClient.InviteFriendToRoom(_sessionToken, friendUserId),
@@ -184,7 +193,7 @@ namespace TLMG.Client.Communication
         {
             bool wasAcceptRoomInvitationSent = false;
 
-            if (_friendsClient != null && HasRegisteredSession)
+            if (_friendsClient != null && HasSession)
             {
                 wasAcceptRoomInvitationSent = TrySend(
                     () => _friendsClient.AcceptRoomInvitation(_sessionToken, invitationId),
@@ -231,7 +240,7 @@ namespace TLMG.Client.Communication
             bool wasRequestLeaveLobbySent = false;
             if (_finishedLeaveRoomId.HasValue)
             {
-                return false;
+                wasRequestLeaveLobbySent = false;
             }
 
             ClearCurrentRoom();
@@ -295,7 +304,17 @@ namespace TLMG.Client.Communication
 
         internal void NotifyFriendPresenceChanged(Friend friend)
         {
-            UpdateFriendPresence(friend);
+            bool isGuestGoneOffline = friend != null && friend.UserId < NoUserId && !friend.IsOnline;
+
+            if (isGuestGoneOffline)
+            {
+                RemoveGuestFriend(friend.UserId);
+            }
+            else
+            {
+                UpdateFriendPresence(friend);
+            }
+
             FriendPresenceChanged?.Invoke(this, new ServerEventArgs<Friend>(friend));
         }
 
@@ -534,6 +553,26 @@ namespace TLMG.Client.Communication
             }
         }
 
+        private void RemoveGuestFriend(int guestUserId)
+        {
+            if (FriendList != null)
+            {
+                List<Friend> remainingFriends = new List<Friend>();
+
+                foreach (Friend listedFriend in FriendList)
+                {
+                    if (listedFriend.UserId != guestUserId)
+                    {
+                        remainingFriends.Add(listedFriend);
+                    }
+                }
+
+                FriendList = remainingFriends;
+            }
+
+            RemovePendingFriendRequestsOfUser(guestUserId);
+        }
+
         private void ClearCurrentRoom()
         {
             bool wasRecoveringLobby = _recoveryLobbyUntil.HasValue;
@@ -611,7 +650,7 @@ namespace TLMG.Client.Communication
         {
             bool isLobbyChannelOpen = _lobbyClient != null;
 
-            if (!isLobbyChannelOpen && HasRegisteredSession)
+            if (!isLobbyChannelOpen && HasSession)
             {
                 isLobbyChannelOpen = TryOpenLobbyChannel();
 
@@ -736,7 +775,6 @@ namespace TLMG.Client.Communication
                 ClearCurrentRoom();
             }
         }
-
 
         private void CloseFriendsChannel()
         {

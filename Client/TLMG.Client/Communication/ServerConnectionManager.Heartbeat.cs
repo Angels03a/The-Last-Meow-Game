@@ -35,69 +35,132 @@ namespace TLMG.Client.Communication
 
         private void OnHeartbeatTick(object sender, EventArgs args)
         {
-            if (!HasRegisteredSession)
+            if (!HasSession)
             {
                 _heartbeatTimer.Stop();
-                return;
             }
-
-            if (AdvanceConnectionRecovery(_heartbeatClock.ElapsedMilliseconds))
+            else if (AdvanceConnectionRecovery(_heartbeatClock.ElapsedMilliseconds))
             {
                 long now = _heartbeatClock.ElapsedMilliseconds;
                 _nextHeartbeatSendAt = now + HeartbeatIntervalMilliseconds / 6;
                 _nextRecoveryStepAt = now + HeartbeatIntervalMilliseconds / 3;
-                return;
             }
-
-            // At most one synchronous send per Dispatcher tick.
-            if (PulseLink(_friendsCallback, _friendsChannel, 0, (token, sequence, confirmed) => _friendsClient.FriendsHeartbeat(token, sequence, confirmed),
-                CloseFriendsChannel)) return;
-            if (PulseLink(_lobbyCallback, _lobbyChannel, 750, (token, sequence, confirmed) => _lobbyClient.LobbyHeartbeat(token, sequence, confirmed),
-                () => DisconnectIfCurrentChannelEnded(_lobbyChannel))) return;
-            if (PulseLink(_chatCallback, _chatClient?.InnerChannel, 1500, (token, sequence, confirmed) => _chatClient.ChatHeartbeat(token, sequence, confirmed),
-                CloseChatChannel)) return;
-            PulseLink(_matchCallback, _matchChannel, 2250, (token, sequence, confirmed) => _matchClient.MatchHeartbeat(token, sequence, confirmed),
-                () => CloseMatchChannelIfCurrent(_matchChannel));
+            else
+            {
+                PulseNextActiveLink();
+            }
         }
 
-        private bool PulseLink(ServerCallback callback, IClientChannel channel, int offset,
-            Action<string, int, int> send, Action close)
+        private void PulseNextActiveLink()
         {
-            if (callback == null || channel?.State != CommunicationState.Opened || send == null)
+            bool wasPulsed = PulseLink(
+                _friendsCallback,
+                _friendsChannel,
+                0,
+                (token, sequence, confirmed) => _friendsClient.FriendsHeartbeat(token, sequence, confirmed),
+                CloseFriendsChannel);
+
+            if (!wasPulsed)
             {
-                return false;
+                wasPulsed = PulseLink(
+                    _lobbyCallback,
+                    _lobbyChannel,
+                    750,
+                    (token, sequence, confirmed) => _lobbyClient.LobbyHeartbeat(token, sequence, confirmed),
+                    () => DisconnectIfCurrentChannelEnded(_lobbyChannel));
             }
 
-            long now = _heartbeatClock.ElapsedMilliseconds;
+            if (!wasPulsed)
+            {
+                wasPulsed = PulseLink(
+                    _chatCallback,
+                    _chatClient?.InnerChannel,
+                    1500,
+                    (token, sequence, confirmed) => _chatClient.ChatHeartbeat(token, sequence, confirmed),
+                    CloseChatChannel);
+            }
+
+            if (!wasPulsed)
+            {
+                PulseLink(
+                    _matchCallback,
+                    _matchChannel,
+                    2250,
+                    (token, sequence, confirmed) => _matchClient.MatchHeartbeat(token, sequence, confirmed),
+                    () => CloseMatchChannelIfCurrent(_matchChannel));
+            }
+        }
+
+        private bool PulseLink(
+            ServerCallback callback,
+            IClientChannel channel,
+            int offset,
+            Action<string, int, int> send,
+            Action close)
+        {
+            bool wasPulsed = false;
+
+            if (IsLinkReadyForHeartbeat(callback, channel, send))
+            {
+                long now = _heartbeatClock.ElapsedMilliseconds;
+                InitializeHeartbeatScheduleIfNeeded(callback, offset, now);
+
+                if (now - callback.LastHeartbeatEchoAt >= HeartbeatSilenceMilliseconds)
+                {
+                    channel.Abort();
+                    close();
+                    wasPulsed = true;
+                }
+                else if (now >= callback.HeartbeatDue.Value && now >= _nextHeartbeatSendAt)
+                {
+                    SendHeartbeatPacket(callback, channel, send, close, now);
+                    wasPulsed = true;
+                }
+            }
+
+            return wasPulsed;
+        }
+
+        private static bool IsLinkReadyForHeartbeat(
+            ServerCallback callback,
+            IClientChannel channel,
+            Action<string, int, int> send)
+        {
+            bool hasCallbackAndSender = callback != null && send != null;
+            bool isChannelOpened = channel != null && channel.State == CommunicationState.Opened;
+            bool isReady = hasCallbackAndSender && isChannelOpened;
+
+            return isReady;
+        }
+
+        private static void InitializeHeartbeatScheduleIfNeeded(ServerCallback callback, int offset, long now)
+        {
             if (!callback.HeartbeatDue.HasValue)
             {
                 callback.HeartbeatDue = now + offset;
                 callback.LastHeartbeatEchoAt = now;
             }
+        }
 
-            if (now - callback.LastHeartbeatEchoAt >= HeartbeatSilenceMilliseconds)
-            {
-                channel.Abort();
-                close();
-                return true;
-            }
-
-            if (now < callback.HeartbeatDue.Value || now < _nextHeartbeatSendAt)
-            {
-                return false;
-            }
-
-            // A stalled Dispatcher can make several links due. Keep their sends separated when it resumes.
+        private void SendHeartbeatPacket(
+            ServerCallback callback,
+            IClientChannel channel,
+            Action<string, int, int> send,
+            Action close,
+            long now)
+        {
             _nextHeartbeatSendAt = now + HeartbeatIntervalMilliseconds / 6;
             callback.HeartbeatDue = now + HeartbeatIntervalMilliseconds;
             callback.PendingHeartbeat = ++callback.HeartbeatSequence;
             int confirmed = callback.ConfirmedHeartbeat;
             callback.ConfirmedHeartbeat = 0;
             TimeSpan originalTimeout = channel.OperationTimeout;
+
             try
             {
                 channel.OperationTimeout = _heartbeatOperationTimeout;
                 send(_sessionToken, callback.PendingHeartbeat, confirmed);
+                RestoreOperationTimeoutIfOpened(channel, originalTimeout);
             }
             catch (CommunicationException)
             {
@@ -106,44 +169,68 @@ namespace TLMG.Client.Communication
             }
             catch (TimeoutException)
             {
-                if (channel.State != CommunicationState.Opened)
-                {
-                    channel.Abort();
-                    close();
-                }
+                HandleHeartbeatTimeout(channel, close, originalTimeout);
             }
-            finally
-            {
-                if (channel.State == CommunicationState.Opened)
-                {
-                    channel.OperationTimeout = originalTimeout;
-                }
-            }
+        }
 
-            return true;
+        private static void HandleHeartbeatTimeout(IClientChannel channel, Action close, TimeSpan originalTimeout)
+        {
+            if (channel.State != CommunicationState.Opened)
+            {
+                channel.Abort();
+                close();
+            }
+            else
+            {
+                channel.OperationTimeout = originalTimeout;
+            }
+        }
+
+        private static void RestoreOperationTimeoutIfOpened(IClientChannel channel, TimeSpan originalTimeout)
+        {
+            if (channel.State == CommunicationState.Opened)
+            {
+                channel.OperationTimeout = originalTimeout;
+            }
         }
 
         internal void NotifyHeartbeatEcho(ServerCallback callback, int sequence, string errorKey)
         {
             long now = _heartbeatClock.ElapsedMilliseconds;
-            if (callback.PendingHeartbeat != sequence || sequence <= 0
-                || !callback.HeartbeatDue.HasValue || now >= callback.HeartbeatDue.Value
-                || (!ReferenceEquals(callback, _friendsCallback) && !ReferenceEquals(callback, _lobbyCallback)
-                    && !ReferenceEquals(callback, _chatCallback) && !ReferenceEquals(callback, _matchCallback)))
-            {
-                return;
-            }
 
-            callback.PendingHeartbeat = 0;
-            if (errorKey == InvalidSessionErrorKey)
+            if (IsExpectedHeartbeatEcho(callback, sequence, now))
             {
-                DisconnectAndNotifyConnectionLost();
+                callback.PendingHeartbeat = 0;
+                if (errorKey == InvalidSessionErrorKey)
+                {
+                    DisconnectAndNotifyConnectionLost();
+                }
+                else if (errorKey == null)
+                {
+                    callback.ConfirmedHeartbeat = sequence;
+                    callback.LastHeartbeatEchoAt = now;
+                }
             }
-            else if (errorKey == null)
-            {
-                callback.ConfirmedHeartbeat = sequence;
-                callback.LastHeartbeatEchoAt = now;
-            }
+        }
+
+        private bool IsExpectedHeartbeatEcho(ServerCallback callback, int sequence, long now)
+        {
+            bool isMatchingSequence = sequence > 0 && callback.PendingHeartbeat == sequence;
+            bool isWithinDeadline = callback.HeartbeatDue.HasValue && now < callback.HeartbeatDue.Value;
+            bool isExpected = isMatchingSequence && isWithinDeadline && IsKnownHeartbeatCallback(callback);
+
+            return isExpected;
+        }
+
+        private bool IsKnownHeartbeatCallback(ServerCallback callback)
+        {
+            bool isSocialOrLobbyCallback = ReferenceEquals(callback, _friendsCallback)
+                || ReferenceEquals(callback, _lobbyCallback);
+            bool isSessionActivityCallback = ReferenceEquals(callback, _chatCallback)
+                || ReferenceEquals(callback, _matchCallback);
+            bool isKnownCallback = isSocialOrLobbyCallback || isSessionActivityCallback;
+
+            return isKnownCallback;
         }
     }
 }

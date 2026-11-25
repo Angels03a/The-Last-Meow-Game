@@ -19,12 +19,15 @@ namespace TLMG.Client.ViewModels
         private const string IncompleteFieldsErrorKey = "Login_IncompleteFieldsError";
         private const string UnknownErrorKey = "Login_DataModelError";
         private const string SuccessMessageKey = "Login_SuccessMessage";
+        private const string GuestNoSaveMessageKey = "Login_GuestNoSaveMessage";
+        private const string GuestNoSaveTitleKey = "Login_GuestNoSaveTitle";
         private const string SpanishCultureCode = "es-MX";
         private const int LoginAttemptDelayMilliseconds = 50;
         private const int RedirectDelayMilliseconds = 500;
 
         private readonly IAccountsConnection _accountsConnection;
         private readonly INavigationManager _navigationManager;
+        private readonly IDialogManager _dialogManager;
         private readonly RelayCommand _logInCommand;
         private readonly RelayCommand _playAsGuestCommand;
         private readonly RelayCommand _forgotPasswordCommand;
@@ -41,12 +44,17 @@ namespace TLMG.Client.ViewModels
         /// <summary>
         /// Inicializa una nueva instancia de la clase <see cref="LoginViewModel"/>.
         /// </summary>
+        /// <param name="accountsConnection">Área de cuentas de la conexión con el servidor.</param>
+        /// <param name="navigationManager">Administrador de navegación.</param>
+        /// <param name="dialogManager">Administrador de diálogos.</param>
         public LoginViewModel(
             IAccountsConnection accountsConnection,
-            INavigationManager navigationManager)
+            INavigationManager navigationManager,
+            IDialogManager dialogManager)
         {
             _accountsConnection = accountsConnection;
             _navigationManager = navigationManager;
+            _dialogManager = dialogManager;
 
             EmailError = new StatusMessage();
             FormMessage = new StatusMessage();
@@ -76,8 +84,6 @@ namespace TLMG.Client.ViewModels
         public ICommand RetryRecoveryCommand { get; }
 
         public bool CanRetryRecovery => _accountsConnection.IsMatchRecoveryExhausted;
-
-        private bool IsRecoveryActive => _accountsConnection.IsMatchRecoveryPending || CanRetryRecovery;
 
         /// <summary>Comando para intentar el inicio de sesión.</summary>
         public ICommand LogInCommand => _logInCommand;
@@ -166,6 +172,8 @@ namespace TLMG.Client.ViewModels
                 }
             }
         }
+
+        private bool IsRecoveryActive => _accountsConnection.IsMatchRecoveryPending || CanRetryRecovery;
 
         /// <summary>
         /// Empieza a escuchar el cambio de idioma para refrescar el botón activo. La vista lo llama al cargarse.
@@ -368,7 +376,22 @@ namespace TLMG.Client.ViewModels
 
         private void ExecutePlayAsGuest()
         {
-            _navigationManager.NavigateToWithoutHistory(ScreenId.MainMenu);
+            bool hasConfirmed = _dialogManager.Confirm(GuestNoSaveMessageKey, GuestNoSaveTitleKey);
+
+            if (hasConfirmed)
+            {
+                ClearMessages();
+                OperationLogInResult guestResult = _accountsConnection.StartGuestSession();
+
+                if (guestResult.IsSuccess)
+                {
+                    _navigationManager.NavigateToWithoutHistory(ScreenId.MainMenu);
+                }
+                else
+                {
+                    ShowServerError(guestResult.ErrorKey);
+                }
+            }
         }
 
         private bool CanExecutePlayAsGuest()

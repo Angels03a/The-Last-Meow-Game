@@ -65,6 +65,18 @@ namespace TLMG.Client.Communication
             return operationLogInResult;
         }
 
+        public OperationLogInResult StartGuestSession()
+        {
+            OperationLogInResult guestResult = SendGuestSessionRequest();
+
+            if (guestResult.IsSuccess)
+            {
+                guestResult = StartSessionFromLogIn(guestResult);
+            }
+
+            return guestResult;
+        }
+
         public OperationResult RegisterPlayerAccount(
             PlayerAccountRegistration playerAccountRegistration)
         {
@@ -75,6 +87,57 @@ namespace TLMG.Client.Communication
                 RegistrationUnexpectedErrorKey);
 
             return operationRegisterPlayerAccountResult;
+        }
+
+        public OperationResult RequestAccountVerificationCode(
+            PlayerAccountRegistration playerAccountRegistration,
+            string cultureCode)
+        {
+            OperationResult operationResult = SendUsersManagerRequest(
+                usersClient => usersClient.RequestAccountVerificationCode(
+                    playerAccountRegistration,
+                    cultureCode),
+                "solicitar el código de verificación",
+                RegistrationConnectionErrorKey,
+                RegistrationUnexpectedErrorKey);
+
+            return operationResult;
+        }
+
+        public OperationResult CompletePlayerAccountRegistration(
+            PlayerAccountRegistration playerAccountRegistration,
+            string verificationCode)
+        {
+            OperationResult operationResult = SendUsersManagerRequest(
+                usersClient => usersClient.CompletePlayerAccountRegistration(
+                    playerAccountRegistration,
+                    verificationCode),
+                "completar el registro de la cuenta",
+                RegistrationConnectionErrorKey,
+                RegistrationUnexpectedErrorKey);
+
+            return operationResult;
+        }
+
+        public OperationResult ResendAccountVerificationCode(string email, string cultureCode)
+        {
+            OperationResult operationResult = SendUsersManagerRequest(
+                usersClient => usersClient.ResendAccountVerificationCode(email, cultureCode),
+                "reenviar el código de verificación",
+                RegistrationConnectionErrorKey,
+                RegistrationUnexpectedErrorKey);
+
+            return operationResult;
+        }
+
+        private static ResultType CreateFailedResult<ResultType>(string errorKey)
+            where ResultType : OperationResult, new()
+        {
+            ResultType failedResult = new ResultType();
+            failedResult.IsSuccess = false;
+            failedResult.ErrorKey = errorKey;
+
+            return failedResult;
         }
 
         private OperationLogInResult StartSessionFromLogIn(OperationLogInResult operationLogInResult)
@@ -92,6 +155,55 @@ namespace TLMG.Client.Communication
             }
 
             return sessionResult;
+        }
+
+        private OperationLogInResult SendGuestSessionRequest()
+        {
+            SessionManagerClient sessionClient = null;
+            OperationLogInResult guestResult;
+
+            try
+            {
+                sessionClient = new SessionManagerClient();
+                guestResult = sessionClient.StartGuestSession();
+            }
+            catch (FaultException<SystemFault> systemFault)
+            {
+                _log.Error(
+                    string.Format(
+                        "El servidor reportó un error de infraestructura al iniciar sesión como invitado: {0}",
+                        systemFault.Detail.SystemErrorMessage),
+                    systemFault);
+                guestResult = CreateFailedResult<OperationLogInResult>(LogInUnexpectedErrorKey);
+            }
+            catch (FaultException faultException)
+            {
+                _log.Error("El servidor devolvió una falla inesperada al iniciar sesión como invitado.",
+                    faultException);
+                guestResult = CreateFailedResult<OperationLogInResult>(LogInUnexpectedErrorKey);
+            }
+            catch (CommunicationException communicationException)
+            {
+                _log.Error("Error de comunicación al iniciar sesión como invitado.", communicationException);
+                guestResult = CreateFailedResult<OperationLogInResult>(LogInConnectionErrorKey);
+            }
+            catch (TimeoutException timeoutException)
+            {
+                _log.Error("Se agotó el tiempo al iniciar sesión como invitado.", timeoutException);
+                guestResult = CreateFailedResult<OperationLogInResult>(LogInConnectionErrorKey);
+            }
+            finally
+            {
+                CloseClientSafely(sessionClient);
+            }
+
+            if (guestResult == null)
+            {
+                _log.Error("El servidor respondió sin resultado al iniciar sesión como invitado.");
+                guestResult = CreateFailedResult<OperationLogInResult>(LogInUnexpectedErrorKey);
+            }
+
+            return guestResult;
         }
 
         private ResultType SendUsersManagerRequest<ResultType>(
@@ -166,57 +278,6 @@ namespace TLMG.Client.Communication
             }
 
             return sendUsersManagerResult;
-        }
-
-        private static ResultType CreateFailedResult<ResultType>(string errorKey)
-            where ResultType : OperationResult, new()
-        {
-            ResultType failedResult = new ResultType();
-            failedResult.IsSuccess = false;
-            failedResult.ErrorKey = errorKey;
-
-            return failedResult;
-        }
-
-        public OperationResult RequestAccountVerificationCode(
-            PlayerAccountRegistration playerAccountRegistration,
-            string cultureCode)
-        {
-            OperationResult operationResult = SendUsersManagerRequest(
-                usersClient => usersClient.RequestAccountVerificationCode(
-                    playerAccountRegistration,
-                    cultureCode),
-                "solicitar el código de verificación",
-                RegistrationConnectionErrorKey,
-                RegistrationUnexpectedErrorKey);
-
-            return operationResult;
-        }
-
-        public OperationResult CompletePlayerAccountRegistration(
-            PlayerAccountRegistration playerAccountRegistration,
-            string verificationCode)
-        {
-            OperationResult operationResult = SendUsersManagerRequest(
-                usersClient => usersClient.CompletePlayerAccountRegistration(
-                    playerAccountRegistration,
-                    verificationCode),
-                "completar el registro de la cuenta",
-                RegistrationConnectionErrorKey,
-                RegistrationUnexpectedErrorKey);
-
-            return operationResult;
-        }
-
-        public OperationResult ResendAccountVerificationCode(string email, string cultureCode)
-        {
-            OperationResult operationResult = SendUsersManagerRequest(
-                usersClient => usersClient.ResendAccountVerificationCode(email, cultureCode),
-                "reenviar el código de verificación",
-                RegistrationConnectionErrorKey,
-                RegistrationUnexpectedErrorKey);
-
-            return operationResult;
         }
     }
 }

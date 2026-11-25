@@ -88,7 +88,9 @@ namespace TLMG.Client.ViewModels
         public ICommand CancelCountdownCommand { get; }
 
         public ICommand SendChatCommand => _sendChatCommand;
+
         public ICommand RetryChatCommand { get; }
+
         public bool IsChatUnavailable => _lobbyConnection.HasRegisteredSession
             && _lobbyConnection.CurrentRoom != null && !_lobbyConnection.IsChatSubscribed;
 
@@ -342,6 +344,7 @@ namespace TLMG.Client.ViewModels
             if (needsRoom && !_lobbyConnection.HasRegisteredSession)
             {
                 _dialogManager.ShowError(GuestCannotCreateRoomErrorKey);
+                _navigationManager.GoBack();
             }
             else if (needsRoom)
             {
@@ -418,7 +421,7 @@ namespace TLMG.Client.ViewModels
 
         private void OnLanguageChanged(object sender, EventArgs eventArgs)
         {
-            UpdateRoomInformation();
+            ShowCurrentRoom();
         }
 
         private void ApplyChatAvailability()
@@ -501,7 +504,7 @@ namespace TLMG.Client.ViewModels
                 {
                     playerEntries.Add(new LobbyPlayerEntry
                     {
-                        Nickname = roomPlayer.Nickname,
+                        Nickname = DisplayNameHelper.Resolve(roomPlayer.UserId, roomPlayer.Nickname),
                         IsLocalPlayer = roomPlayer.UserId == _lobbyConnection.PlayerUserId,
                         IsReady = roomPlayer.IsReady
                     });

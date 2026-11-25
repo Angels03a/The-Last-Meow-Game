@@ -1,15 +1,11 @@
 using System;
-using System.ServiceModel;
 using System.Diagnostics;
+using System.ServiceModel;
 
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
 {
-    /// <summary>
-    /// Parte del manager que atiende el canal de partida. Cerrar o fallar este canal solo lo limpia: no saca al
-    /// jugador de la sala ni termina su sesión.
-    /// </summary>
     internal sealed partial class ServerConnectionManager : IMatchConnection
     {
         private MatchManagerClient _matchClient;
@@ -20,81 +16,81 @@ namespace TLMG.Client.Communication
         private MatchView _pendingMatchView;
         private readonly Stopwatch _matchViewAge = new Stopwatch();
 
-        /// <inheritdoc />
         public event EventHandler<ServerEventArgs<MatchView>> MatchViewChanged;
 
-        /// <inheritdoc />
         public event EventHandler<ServerEventArgs<string>> MatchErrorReceived;
 
-        /// <inheritdoc />
         public event EventHandler<ServerEventArgs<OperationResult>> FugitiveKittenCatchResultReceived;
 
-        /// <inheritdoc />
         public event EventHandler<ServerEventArgs<OperationResult>> FugitiveKittenDeadlineResultReceived;
 
-        /// <inheritdoc />
         public event EventHandler MatchAvailabilityChanged;
 
-        /// <inheritdoc />
         public bool IsMatchSubscribed { get; private set; }
 
-        public bool CanSendGameplayAction => IsMatchSubscribed && !IsMatchRecoveryPending
-            && !IsMatchRecoveryExhausted && CurrentMatchView != null
+        public bool CanSendGameplayAction => IsMatchSubscribed
+            && !IsMatchRecoveryPending
+            && !IsMatchRecoveryExhausted
+            && CurrentMatchView != null
             && CurrentRoom?.MatchId == CurrentMatchView.MatchId;
 
-        /// <inheritdoc />
         public MatchView CurrentMatchView { get; private set; }
 
-        /// <inheritdoc />
         public TimeSpan CurrentMatchViewAge => _matchViewAge.Elapsed;
 
-        /// <inheritdoc />
         public bool SubscribeToCurrentMatch()
         {
             bool wasSubscriptionSent = false;
-            bool hasAuthorizedMatch = HasRegisteredSession && CurrentRoom != null && CurrentRoom.MatchId.HasValue;
 
-            if (hasAuthorizedMatch && (IsMatchSubscribed || _matchSubscriptionUntil.HasValue))
+            if (HasAuthorizedMatch())
             {
-                wasSubscriptionSent = true;
-            }
-            else if (hasAuthorizedMatch && OpenMatchChannel())
-            {
-                Guid matchId = CurrentRoom.MatchId.Value;
-                _matchSubscriptionUntil = _heartbeatClock.ElapsedMilliseconds + RecoveryReplyMilliseconds;
-                wasSubscriptionSent = TrySendToMatchChannel(
-                    () => SendConnectionRequest(_matchChannel, () => _matchClient.SubscribeToMatch(_sessionToken, matchId)),
-                    "suscribirse a la partida");
+                if (IsMatchSubscribed || _matchSubscriptionUntil.HasValue)
+                {
+                    wasSubscriptionSent = true;
+                }
+                else if (OpenMatchChannel())
+                {
+                    Guid matchId = CurrentRoom.MatchId.Value;
+                    _matchSubscriptionUntil = _heartbeatClock.ElapsedMilliseconds + RecoveryReplyMilliseconds;
+                    wasSubscriptionSent = TrySendToMatchChannel(
+                        () => SendConnectionRequest(
+                            _matchChannel,
+                            () => _matchClient.SubscribeToMatch(_sessionToken, matchId)),
+                        "suscribirse a la partida");
+                }
             }
 
             return wasSubscriptionSent;
         }
 
-        /// <inheritdoc />
         public bool TryCatchFugitiveKitten()
         {
             bool wasSent = false;
+
             if (_matchClient != null && IsMatchSubscribed)
             {
                 wasSent = TrySendToMatchChannel(
-                    () => _matchClient.TryCatchFugitiveKitten(_sessionToken), "intentar atrapar al gatito");
+                    () => _matchClient.TryCatchFugitiveKitten(_sessionToken),
+                    "intentar atrapar al gatito");
             }
+
             return wasSent;
         }
 
-        /// <inheritdoc />
         public bool CheckFugitiveKittenDeadline()
         {
             bool wasSent = false;
+
             if (_matchClient != null && IsMatchSubscribed)
             {
                 wasSent = TrySendToMatchChannel(
-                    () => _matchClient.CheckFugitiveKittenDeadline(_sessionToken), "comprobar el gatito");
+                    () => _matchClient.CheckFugitiveKittenDeadline(_sessionToken),
+                    "comprobar el gatito");
             }
+
             return wasSent;
         }
 
-        /// <inheritdoc />
         public bool PlaceCard(MatchCardKind cardKind)
         {
             bool wasCardSent = false;
@@ -109,53 +105,57 @@ namespace TLMG.Client.Communication
             return wasCardSent;
         }
 
-        /// <inheritdoc />
         public bool PlaceBet(int betValue)
         {
             bool wasSent = false;
+
             if (_matchClient != null && CanSendGameplayAction)
             {
                 wasSent = TrySendToMatchChannel(
-                    () => _matchClient.PlaceBet(_sessionToken, betValue), "apostar");
+                    () => _matchClient.PlaceBet(_sessionToken, betValue),
+                    "apostar");
             }
 
             return wasSent;
         }
 
-        /// <inheritdoc />
         public bool WithdrawFromBet()
         {
             bool wasSent = false;
+
             if (_matchClient != null && CanSendGameplayAction)
             {
                 wasSent = TrySendToMatchChannel(
-                    () => _matchClient.WithdrawFromBet(_sessionToken), "retirarse de la apuesta");
+                    () => _matchClient.WithdrawFromBet(_sessionToken),
+                    "retirarse de la apuesta");
             }
 
             return wasSent;
         }
 
-        /// <inheritdoc />
         public bool RevealCard(int pileOwnerUserId)
         {
             bool wasSent = false;
+
             if (_matchClient != null && CanSendGameplayAction)
             {
                 wasSent = TrySendToMatchChannel(
-                    () => _matchClient.RevealCard(_sessionToken, pileOwnerUserId), "revelar una carta");
+                    () => _matchClient.RevealCard(_sessionToken, pileOwnerUserId),
+                    "revelar una carta");
             }
 
             return wasSent;
         }
 
-        /// <inheritdoc />
         public bool ChoosePunishmentCard(int cardIndex)
         {
             bool wasSent = false;
+
             if (_matchClient != null && CanSendGameplayAction)
             {
                 wasSent = TrySendToMatchChannel(
-                    () => _matchClient.ChoosePunishmentCard(_sessionToken, cardIndex), "elegir una carta");
+                    () => _matchClient.ChoosePunishmentCard(_sessionToken, cardIndex),
+                    "elegir una carta");
             }
 
             return wasSent;
@@ -163,30 +163,18 @@ namespace TLMG.Client.Communication
 
         internal void NotifyMatchSubscriptionResult(ServerCallback callback, OperationResult subscriptionResult)
         {
-            if (!IsCurrentMatchCallback(callback) || subscriptionResult == null || !IsMatchSubscriptionPending())
+            if (IsCurrentMatchCallback(callback) && subscriptionResult != null && IsMatchSubscriptionPending())
             {
-                return;
+                if (subscriptionResult.IsSuccess)
+                {
+                    _matchSubscriptionAccepted = true;
+                    ConfirmMatchLink(callback);
+                }
+                else
+                {
+                    HandleRejectedMatchSubscription(subscriptionResult.ErrorKey);
+                }
             }
-
-            if (subscriptionResult.IsSuccess)
-            {
-                _matchSubscriptionAccepted = true;
-                ConfirmMatchLink(callback);
-                return;
-            }
-
-            CloseMatchChannel();
-            if (subscriptionResult.ErrorKey == "Match_NotInMatchError")
-            {
-                EndRecoveryContext();
-                return;
-            }
-            else if (subscriptionResult.ErrorKey == InvalidSessionErrorKey)
-            {
-                _recoveryContext = null;
-            }
-
-            MatchErrorReceived?.Invoke(this, new ServerEventArgs<string>(subscriptionResult.ErrorKey));
         }
 
         internal void NotifyMatchActionResult(ServerCallback callback, OperationResult actionResult)
@@ -216,47 +204,89 @@ namespace TLMG.Client.Communication
 
         internal void NotifyMatchViewReceived(ServerCallback callback, MatchView matchView)
         {
-            if (!IsCurrentMatchCallback(callback) || matchView == null || CurrentRoom?.MatchId != matchView.MatchId)
+            if (IsMatchViewForCurrentMatch(callback, matchView))
             {
-                return;
+                if (IsMatchSubscribed)
+                {
+                    PublishNewMatchView(matchView);
+                }
+                else if (ShouldBufferPendingMatchView(matchView))
+                {
+                    _pendingMatchView = matchView;
+                    ConfirmMatchLink(callback);
+                }
+            }
+        }
+
+        private bool HasAuthorizedMatch()
+        {
+            bool hasRoomWithMatch = CurrentRoom != null && CurrentRoom.MatchId.HasValue;
+            bool hasAuthorizedMatch = HasSession && hasRoomWithMatch;
+
+            return hasAuthorizedMatch;
+        }
+
+        private void HandleRejectedMatchSubscription(string errorKey)
+        {
+            CloseMatchChannel();
+            if (errorKey == "Match_NotInMatchError")
+            {
+                EndRecoveryContext();
+            }
+            else
+            {
+                if (errorKey == InvalidSessionErrorKey)
+                {
+                    _recoveryContext = null;
+                }
+                MatchErrorReceived?.Invoke(this, new ServerEventArgs<string>(errorKey));
+            }
+        }
+
+        private bool IsMatchViewForCurrentMatch(ServerCallback callback, MatchView matchView)
+        {
+            bool isForCurrentMatch = false;
+            bool hasValidCallbackAndView = IsCurrentMatchCallback(callback) && matchView != null;
+
+            if (hasValidCallbackAndView && CurrentRoom != null)
+            {
+                isForCurrentMatch = CurrentRoom.MatchId == matchView.MatchId;
             }
 
-            if (IsMatchSubscribed)
-            {
-                PublishNewMatchView(matchView);
-                return;
-            }
+            return isForCurrentMatch;
+        }
 
-            if (IsMatchSubscriptionPending()
-                && (CurrentMatchView == null || matchView.Version >= CurrentMatchView.Version)
-                && MatchViewVersionHelper.ShouldDisplay(_pendingMatchView, matchView))
-            {
-                _pendingMatchView = matchView;
-                ConfirmMatchLink(callback);
-            }
+        private bool ShouldBufferPendingMatchView(MatchView matchView)
+        {
+            bool isVersionCompatible = CurrentMatchView == null
+                || matchView.Version >= CurrentMatchView.Version;
+            bool isNewerThanPending = MatchViewVersionHelper.ShouldDisplay(_pendingMatchView, matchView);
+            bool shouldBuffer = IsMatchSubscriptionPending() && isVersionCompatible && isNewerThanPending;
+
+            return shouldBuffer;
         }
 
         private bool IsMatchSubscriptionPending()
         {
-            return _matchSubscriptionUntil.HasValue
+            bool isPending = _matchSubscriptionUntil.HasValue
                 && _heartbeatClock.ElapsedMilliseconds < _matchSubscriptionUntil.Value;
+
+            return isPending;
         }
 
         private void ConfirmMatchLink(ServerCallback callback)
         {
-            if (!_matchSubscriptionAccepted || _pendingMatchView == null)
+            if (_matchSubscriptionAccepted && _pendingMatchView != null)
             {
-                return;
-            }
-
-            MatchView view = _pendingMatchView;
-            _pendingMatchView = null;
-            _matchSubscriptionUntil = null;
-            IsMatchSubscribed = true;
-            PublishNewMatchView(view);
-            if (IsCurrentMatchCallback(callback))
-            {
-                MatchAvailabilityChanged?.Invoke(this, EventArgs.Empty);
+                MatchView view = _pendingMatchView;
+                _pendingMatchView = null;
+                _matchSubscriptionUntil = null;
+                IsMatchSubscribed = true;
+                PublishNewMatchView(view);
+                if (IsCurrentMatchCallback(callback))
+                {
+                    MatchAvailabilityChanged?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
 
@@ -269,7 +299,6 @@ namespace TLMG.Client.Communication
                 MatchViewChanged?.Invoke(this, new ServerEventArgs<MatchView>(view));
             }
         }
-
 
         private bool IsCurrentMatchCallback(ServerCallback callback)
         {
@@ -288,7 +317,9 @@ namespace TLMG.Client.Communication
                 _matchClient = new MatchManagerClient(new InstanceContext(_matchCallback));
                 _matchChannel = _matchClient.InnerChannel;
                 WatchMatchChannel(_matchChannel);
-                isMatchChannelOpen = TrySendToMatchChannel(() => OpenConnection(_matchClient), "abrir el canal de partida");
+                isMatchChannelOpen = TrySendToMatchChannel(
+                    () => OpenConnection(_matchClient),
+                    "abrir el canal de partida");
             }
 
             return isMatchChannelOpen;
@@ -296,9 +327,10 @@ namespace TLMG.Client.Communication
 
         private bool TrySendToMatchChannel(Action sendOperation, string operationDescription)
         {
-            return TrySend(sendOperation, operationDescription, CloseMatchChannel);
-        }
+            bool wasSent = TrySend(sendOperation, operationDescription, CloseMatchChannel);
 
+            return wasSent;
+        }
 
         private void CloseMatchChannel()
         {
@@ -344,10 +376,6 @@ namespace TLMG.Client.Communication
             RunOnInterface(() => CloseMatchChannelIfCurrent(sender));
         }
 
-        /// <summary>
-        /// Limpia solo el canal de partida si el que terminó sigue siendo el vigente. A diferencia de los canales de
-        /// amigos y de lobby, no desconecta la sesión ni avisa ConnectionLost.
-        /// </summary>
         private void CloseMatchChannelIfCurrent(object channel)
         {
             if (_matchChannel != null && ReferenceEquals(channel, _matchChannel))

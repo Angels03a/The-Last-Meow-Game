@@ -35,6 +35,7 @@
     <xs:complexContent mixed="false">
       <xs:extension base="tns:OperationResult">
         <xs:sequence>
+          <xs:element minOccurs="0" name="IsGuest" type="xs:boolean" />
           <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="SessionToken" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="UserId" type="xs:int" />
@@ -87,6 +88,8 @@
     <xs:complexContent mixed="false">
       <xs:extension base="tns:OperationResult">
         <xs:sequence>
+          <xs:element minOccurs="0" name="PersonalPoints" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" name="PersonalRank" nillable="true" type="xs:int" />
           <xs:element minOccurs="0" name="Players" nillable="true" type="tns:ArrayOfLeaderboardPlayer" />
         </xs:sequence>
       </xs:extension>
@@ -265,6 +268,7 @@
     <xs:sequence>
       <xs:element minOccurs="0" name="InvitationId" type="xs:int" />
       <xs:element minOccurs="0" name="InviterNickname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="InviterUserId" type="xs:int" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="RoomInvitation" nillable="true" type="tns:RoomInvitation" />
