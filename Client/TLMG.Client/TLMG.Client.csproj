@@ -101,6 +101,9 @@
 		<Compile Include="Models\GameNotification.cs" />
 		<Compile Include="Models\KittenSceneState.cs" />
 		<Compile Include="Models\KittenColor.cs" />
+    <Compile Include="Models\StandingEntry.cs" />
+    <Compile Include="Presentation\MatchBoardMapper.cs" />
+    <Compile Include="Presentation\MatchRecoveryMessageFormatter.cs" />
 		<Compile Include="ViewModels\FugitiveKittenViewModel.cs" />
 		<Compile Include="Models\GameDialog.cs" />
 		<Compile Include="Views\GameDialogWindow.xaml.cs">
@@ -141,13 +144,11 @@
 		<Compile Include="ViewModels\RoundResultViewModel.cs" />
 		<Compile Include="ViewModels\ModerationViewModel.cs" />
 		<Compile Include="ViewModels\GameplayViewModel.cs" />
-		<Compile Include="ViewModels\MatchBoardHelper.cs" />
 		<Compile Include="ViewModels\HowToPlayViewModel.cs" />
 		<Compile Include="ViewModels\LeaderboardViewModel.cs" />
 		<Compile Include="ViewModels\LobbyViewModel.cs" />
 		<Compile Include="ViewModels\LoginViewModel.cs" />
 		<Compile Include="ViewModels\MainMenuViewModel.cs" />
-		<Compile Include="ViewModels\MatchRecoveryText.cs" />
 		<Compile Include="ViewModels\MainWindowViewModel.cs" />
 		<Compile Include="ViewModels\NewPasswordViewModel.cs" />
 		<Compile Include="ViewModels\OptionsViewModel.cs" />

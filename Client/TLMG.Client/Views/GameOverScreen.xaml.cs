@@ -1,16 +1,16 @@
-using System.Windows;
 using TLMG.Client.ViewModels;
-using System.Windows.Controls;
 
 namespace TLMG.Client.Views
 {
     public partial class GameOverScreen : LocalizableScreen
     {
         private const string WinnerTitleFormatKey = "GameOver_WinnerTitleFormat";
+        private const string CollectiveAbandonmentKey = "GameOver_CollectiveAbandonment";
+        private const string NoWinnerAvailableKey = "GameOver_NoWinnerAvailable";
         private const string DefaultFormat = "{0}";
+
         private readonly GameOverViewModel _viewModel;
 
-        /// <summary>Inicializa la vista con su ViewModel.</summary>
         public GameOverScreen(GameOverViewModel viewModel)
         {
             InitializeComponent();
@@ -20,17 +20,23 @@ namespace TLMG.Client.Views
 
         protected override void UpdateDynamicLabels()
         {
+            string winnerTitle;
+
             if (_viewModel.EndedByCollectiveAbandonment)
             {
-                lblWinnerTitle.Text = TryFindResource("GameOver_CollectiveAbandonment") as string ?? string.Empty;
-                return;
+                winnerTitle = TryFindResource(CollectiveAbandonmentKey) as string ?? string.Empty;
+            }
+            else if (string.IsNullOrWhiteSpace(_viewModel.WinnerName))
+            {
+                winnerTitle = TryFindResource(NoWinnerAvailableKey) as string ?? string.Empty;
+            }
+            else
+            {
+                string winnerTitleFormat = TryFindResource(WinnerTitleFormatKey) as string ?? DefaultFormat;
+                winnerTitle = string.Format(winnerTitleFormat, _viewModel.WinnerName.ToUpperInvariant());
             }
 
-            string winnerTitleFormat = TryFindResource(WinnerTitleFormatKey) as string ?? DefaultFormat;
-            lblWinnerTitle.Text = string.IsNullOrWhiteSpace(_viewModel.WinnerName)
-                ? TryFindResource("GameOver_NoWinnerAvailable") as string ?? string.Empty
-                : string.Format(winnerTitleFormat, _viewModel.WinnerName.ToUpperInvariant());
+            lblWinnerTitle.Text = winnerTitle;
         }
-
     }
 }
