@@ -3,8 +3,7 @@ using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-using TLMG.Client.Constants;
-using TLMG.Client.Validation;
+
 using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
@@ -20,7 +19,6 @@ namespace TLMG.Client.Views
         public LobbyScreen(LobbyViewModel lobbyViewModel)
         {
             InitializeComponent();
-
             _viewModel = lobbyViewModel;
             DataContext = lobbyViewModel;
 
@@ -30,32 +28,30 @@ namespace TLMG.Client.Views
             };
             _toastTimer.Tick += OnToastTimerTick;
 
-            txtChatInput.MaxLength = ValidationConstants.MaximumChatMessageLength;
-
             Loaded += OnScreenLoaded;
             Unloaded += OnScreenUnloaded;
         }
 
-        private void OnScreenLoaded(object sender, RoutedEventArgs e)
+        private void OnScreenLoaded(object sender, RoutedEventArgs eventArguments)
         {
             _viewModel.ChatMessages.CollectionChanged -= OnChatMessagesChanged;
             _viewModel.ChatMessages.CollectionChanged += OnChatMessagesChanged;
             _viewModel.Activate();
         }
 
-        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        private void OnScreenUnloaded(object sender, RoutedEventArgs eventArguments)
         {
             _viewModel.ChatMessages.CollectionChanged -= OnChatMessagesChanged;
             _viewModel.Deactivate();
             _toastTimer.Stop();
         }
 
-        private void OnChatMessagesChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnChatMessagesChanged(object sender, NotifyCollectionChangedEventArgs eventArguments)
         {
             scrChat.ScrollToEnd();
         }
 
-        private void BrdPlayer_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void BrdPlayer_MouseRightButtonDown(object sender, MouseButtonEventArgs eventArguments)
         {
             if (!_viewModel.IsCountdownVisible)
             {
@@ -63,70 +59,39 @@ namespace TLMG.Client.Views
             }
         }
 
-        private void BtnMenuCancel_Click(object sender, RoutedEventArgs e)
+        private void BtnMenuCancel_Click(object sender, RoutedEventArgs eventArguments)
         {
             popPlayerOptions.IsOpen = false;
         }
 
-        private void BtnMenuKick_Click(object sender, RoutedEventArgs e)
+        private void BtnMenuKick_Click(object sender, RoutedEventArgs eventArguments)
         {
             popPlayerOptions.IsOpen = false;
             grdKickModal.Visibility = Visibility.Visible;
             grdMainCenter.IsEnabled = false;
         }
 
-        private void BtnCancelKick_Click(object sender, RoutedEventArgs e)
+        private void BtnCancelKick_Click(object sender, RoutedEventArgs eventArguments)
         {
             grdKickModal.Visibility = Visibility.Collapsed;
             grdMainCenter.IsEnabled = true;
         }
 
-        private void BtnConfirmKick_Click(object sender, RoutedEventArgs e)
+        private void BtnConfirmKick_Click(object sender, RoutedEventArgs eventArguments)
         {
             grdKickModal.Visibility = Visibility.Collapsed;
             grdMainCenter.IsEnabled = true;
 
             btnMenuKick.Content = TryFindResource(MenuKickVotedKey) as string;
             btnMenuKick.IsEnabled = false;
-
-            ShowToastNotification();
-        }
-
-        private void ShowToastNotification()
-        {
             brdToast.Visibility = Visibility.Visible;
             _toastTimer.Start();
         }
 
-        private void OnToastTimerTick(object sender, EventArgs e)
+        private void OnToastTimerTick(object sender, EventArgs eventArguments)
         {
             _toastTimer.Stop();
             brdToast.Visibility = Visibility.Collapsed;
-        }
-
-        private bool CanInsertChatText(string insertedText)
-        {
-            string proposedText = txtChatInput.Text.Remove(txtChatInput.SelectionStart, txtChatInput.SelectionLength);
-            proposedText = proposedText.Insert(txtChatInput.SelectionStart, insertedText);
-            bool canInsert = InputValidator.CanEnterChatText(proposedText);
-
-            return canInsert;
-        }
-
-        private void OnChatPreviewTextInput(object sender, TextCompositionEventArgs eventArguments)
-        {
-            eventArguments.Handled = !CanInsertChatText(eventArguments.Text);
-        }
-
-        private void OnChatPasting(object sender, DataObjectPastingEventArgs eventArguments)
-        {
-            string pastedText = eventArguments.DataObject.GetData(DataFormats.UnicodeText) as string;
-            bool canPaste = pastedText != null && CanInsertChatText(pastedText);
-
-            if (!canPaste)
-            {
-                eventArguments.CancelCommand();
-            }
         }
     }
 }
