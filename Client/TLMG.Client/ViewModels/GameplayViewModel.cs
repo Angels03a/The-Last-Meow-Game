@@ -622,7 +622,7 @@ namespace TLMG.Client.ViewModels
         {
             _navigationManager.NavigateToWithoutHistory(
                 ScreenId.Moderation,
-                Tuple.Create(SelectedPlayerName, ModerationMode.Report));
+                new ModerationNavigationParameter(SelectedPlayerName, ModerationMode.Report));
         }
 
         private void ExecuteKickPlayer()
@@ -634,7 +634,7 @@ namespace TLMG.Client.ViewModels
         {
             _navigationManager.NavigateToWithoutHistory(
                 ScreenId.Moderation,
-                Tuple.Create(SelectedPlayerName, ModerationMode.Block));
+                new ModerationNavigationParameter(SelectedPlayerName, ModerationMode.Block));
         }
 
         private void ExecuteDemoRevealCards()
