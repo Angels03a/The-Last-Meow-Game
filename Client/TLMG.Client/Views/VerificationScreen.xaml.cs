@@ -32,13 +32,6 @@ namespace TLMG.Client.Views
         private readonly DispatcherTimer _countdownTimer;
 
         public VerificationScreen(
-            Action onVerifiedCallbackAction,
-            Action onBackCallbackAction)
-            : this(new VerificationViewModel(), onVerifiedCallbackAction, onBackCallbackAction)
-        {
-        }
-
-        public VerificationScreen(
             VerificationViewModel viewModel,
             Action onVerifiedCallbackAction,
             Action onBackCallbackAction)

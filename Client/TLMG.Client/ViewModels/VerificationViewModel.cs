@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using TLMG.Client.Communication;
 using TLMG.Client.Navigation;
 using TLMG.Client.UsersManagerReference;
-using TLMG.Client.Validation;
 
 namespace TLMG.Client.ViewModels
 {
@@ -43,11 +42,6 @@ namespace TLMG.Client.ViewModels
         private bool _isCountdownRunning;
         private bool _isBusy;
         private string _expirationText;
-
-        public VerificationViewModel()
-            : this(null, null, null)
-        {
-        }
 
         public VerificationViewModel(
             IAccountsConnection accountsConnection,
@@ -227,11 +221,7 @@ namespace TLMG.Client.ViewModels
             string enteredCode = GetEnteredCode();
             ClearMessages();
 
-            if (_accountsConnection == null || _navigationParameter == null)
-            {
-                ShowFormError(UnexpectedErrorKey);
-            }
-            else if (_navigationParameter.VerificationFlow == VerificationFlow.AccountRegistration)
+            if (_navigationParameter.VerificationFlow == VerificationFlow.AccountRegistration)
             {
                 VerifyRegistrationCode(enteredCode);
             }
@@ -262,27 +252,24 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteResendCode()
         {
-            if (_accountsConnection != null && _navigationParameter != null)
+            ClearMessages();
+            IsBusy = true;
+
+            OperationResult resendResult =
+                _accountsConnection.ResendAccountVerificationCode(
+                    _navigationParameter.TargetEmail,
+                    LanguageManager.CurrentCulture);
+
+            IsBusy = false;
+
+            if (resendResult.IsSuccess)
             {
-                ClearMessages();
-                IsBusy = true;
-
-                OperationResult resendResult =
-                    _accountsConnection.ResendAccountVerificationCode(
-                        _navigationParameter.TargetEmail,
-                        LanguageManager.CurrentCulture);
-
-                IsBusy = false;
-
-                if (resendResult.IsSuccess)
-                {
-                    ResetVerificationStateAfterResend();
-                }
-                else
-                {
-                    string errorKey = resendResult.ErrorKey ?? UnexpectedErrorKey;
-                    ShowFormError(errorKey);
-                }
+                ResetVerificationStateAfterResend();
+            }
+            else
+            {
+                string errorKey = resendResult.ErrorKey ?? UnexpectedErrorKey;
+                ShowFormError(errorKey);
             }
         }
 
