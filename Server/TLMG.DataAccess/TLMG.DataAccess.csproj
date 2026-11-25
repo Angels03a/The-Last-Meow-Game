@@ -103,6 +103,7 @@
     <Compile Include="Repositories\ChatInputOutcome.cs" />
     <Compile Include="Repositories\ChatMessageRepository.cs" />
     <Compile Include="Repositories\FriendshipRepository.cs" />
+    <Compile Include="Repositories\GameHistoryRepository.cs" />
     <Compile Include="Repositories\PasswordRepository.cs" />
     <Compile Include="Repositories\PlayerProfileRepository.cs" />
     <Compile Include="Repositories\PlayerRepository.cs" />

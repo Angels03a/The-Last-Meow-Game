@@ -48,6 +48,7 @@
           <Property Name="lobby_open_date" Type="datetime2" Precision="3" Nullable="false" />
           <Property Name="game_start_date" Type="datetime2" Precision="3" />
           <Property Name="game_ending_date" Type="datetime2" Precision="3" />
+          <Property Name="match_id" Type="uniqueidentifier" />
         </EntityType>
         <EntityType Name="Game_Player">
           <Key>
@@ -115,6 +116,7 @@
           <Property Name="total_points" Type="int" Nullable="false" />
           <Property Name="total_wins" Type="int" Nullable="false" />
           <Property Name="total_games_played" Type="int" Nullable="false" />
+          <Property Name="points_reached_at_utc" Type="datetime2" Precision="7" Nullable="false" />
         </EntityType>
         <EntityType Name="Report">
           <Key>
@@ -522,6 +524,7 @@ advertencia 6002: La tabla o vista 'TLMG_DB.dbo.vw_Leaderboard' no tiene definid
           <Property Name="game_ending_date" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Game_Player" Relationship="Self.FK_GamePlayer_Game" FromRole="Game" ToRole="Game_Player" />
           <NavigationProperty Name="Message" Relationship="TLMG_DBModel.FK_Message_Game" FromRole="Game" ToRole="Message" />
+          <Property Name="match_id" Type="Guid" />
         </EntityType>
         <EntityType Name="Game_Player">
           <Key>
@@ -604,6 +607,7 @@ advertencia 6002: La tabla o vista 'TLMG_DB.dbo.vw_Leaderboard' no tiene definid
           <Property Name="total_games_played" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Game_Player" Relationship="Self.FK_GamePlayer_Player" FromRole="Player" ToRole="Game_Player" />
           <NavigationProperty Name="User" Relationship="Self.FK_Player_User" FromRole="Player" ToRole="User" />
+          <Property Name="points_reached_at_utc" Type="DateTime" Nullable="false" Precision="7" />
         </EntityType>
         <EntityType Name="Report">
           <Key>
@@ -1003,6 +1007,7 @@ advertencia 6002: La tabla o vista 'TLMG_DB.dbo.vw_Leaderboard' no tiene definid
           <EntitySetMapping Name="Game">
             <EntityTypeMapping TypeName="TLMG_DBModel.Game">
               <MappingFragment StoreEntitySet="Game">
+                <ScalarProperty Name="match_id" ColumnName="match_id" />
                 <ScalarProperty Name="id_game" ColumnName="id_game" />
                 <ScalarProperty Name="state" ColumnName="state" />
                 <ScalarProperty Name="mode" ColumnName="mode" />
@@ -1077,6 +1082,7 @@ advertencia 6002: La tabla o vista 'TLMG_DB.dbo.vw_Leaderboard' no tiene definid
           <EntitySetMapping Name="Player">
             <EntityTypeMapping TypeName="TLMG_DBModel.Player">
               <MappingFragment StoreEntitySet="Player">
+                <ScalarProperty Name="points_reached_at_utc" ColumnName="points_reached_at_utc" />
                 <ScalarProperty Name="id_player" ColumnName="id_player" />
                 <ScalarProperty Name="id_user" ColumnName="id_user" />
                 <ScalarProperty Name="total_points" ColumnName="total_points" />

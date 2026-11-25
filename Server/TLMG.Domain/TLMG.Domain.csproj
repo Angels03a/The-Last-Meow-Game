@@ -86,8 +86,15 @@
     <Compile Include="Repositories\FriendshipState.cs" />
     <Compile Include="Repositories\FriendshipWriteResult.cs" />
     <Compile Include="Repositories\FriendshipWriteStatus.cs" />
+    <Compile Include="Repositories\GameFinalization.cs" />
+    <Compile Include="Repositories\GameFinalizationStatus.cs" />
+    <Compile Include="Repositories\GameParticipantFinalStatus.cs" />
+    <Compile Include="Repositories\GameParticipantRecord.cs" />
+    <Compile Include="Repositories\GameRegistration.cs" />
+    <Compile Include="Repositories\GameStatus.cs" />
     <Compile Include="Repositories\IChatMessageRepository.cs" />
     <Compile Include="Repositories\IFriendshipRepository.cs" />
+    <Compile Include="Repositories\IGameHistoryRepository.cs" />
     <Compile Include="Repositories\IPasswordRepository.cs" />
     <Compile Include="Repositories\IPlayerProfileRepository.cs" />
     <Compile Include="Repositories\IPlayerRepository.cs" />
