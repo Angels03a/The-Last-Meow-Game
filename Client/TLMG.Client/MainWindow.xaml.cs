@@ -1,10 +1,11 @@
+using log4net;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using log4net;
 using TLMG.Client.Communication;
+using TLMG.Client.Models;
 using TLMG.Client.Navigation;
 using TLMG.Client.UsersManagerReference;
 using TLMG.Client.ViewModels;
@@ -148,8 +149,9 @@ namespace TLMG.Client
             LobbyRoom room = eventArguments.Payload;
             bool hasMatch = room != null && room.MatchId.HasValue;
             bool isAuthorized = hasMatch && room.InGame;
-            bool isKnownMode = hasMatch && (room.CardsPerPlayerCount == 4 || room.CardsPerPlayerCount == 6
-                || room.CardsPerPlayerCount == 8);
+            bool isKnownMode = hasMatch && (room.CardsPerPlayerCount == MatchModeSettings.FourCardsPerPlayer
+                || room.CardsPerPlayerCount == MatchModeSettings.SixCardsPerPlayer
+                || room.CardsPerPlayerCount == MatchModeSettings.EightCardsPerPlayer);
 
             if (!ServerConnection.IsMatchRecoveryPending && !ServerConnection.IsMatchRecoveryExhausted
                 && isAuthorized && isKnownMode && _enteredMatchIds.Add(room.MatchId.Value))
@@ -162,11 +164,14 @@ namespace TLMG.Client
         {
             _displayedMatchId = room.MatchId;
             Navigation.ClearHistory();
-            if (room.CardsPerPlayerCount == 8)
+
+            if (room.CardsPerPlayerCount == MatchModeSettings.EightCardsPerPlayer)
             {
-                Navigation.NavigateToWithoutHistory(ScreenId.FugitiveKitten, room.MatchId.Value);
+                Navigation.NavigateToWithoutHistory(
+                    ScreenId.FugitiveKitten, room.MatchId.Value);
             }
-            else if (room.CardsPerPlayerCount == 4 || room.CardsPerPlayerCount == 6)
+            else if (room.CardsPerPlayerCount == MatchModeSettings.FourCardsPerPlayer
+                || room.CardsPerPlayerCount == MatchModeSettings.SixCardsPerPlayer)
             {
                 Navigation.NavigateToWithoutHistory(ScreenId.Gameplay);
             }
