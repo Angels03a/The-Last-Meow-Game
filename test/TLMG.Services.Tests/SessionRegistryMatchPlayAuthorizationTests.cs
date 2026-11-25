@@ -10,7 +10,7 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Pruebas de la autorización de partida: ningún rechazo cambia la partida, la suscripción ni la versión.
+    /// Tests match authorization. Rejections leave the match, subscription and version unchanged.
     /// </summary>
     public class SessionRegistryMatchPlayAuthorizationTests
     {
@@ -22,8 +22,8 @@ namespace TLMG.Services.Tests
         private const string UnknownToken = "unknown-token";
         private const int UndefinedCardValue = 99;
 
-        /// <summary>Verifica SubscribeToMatch_WithInvalidToken_RejectsWithInvalidSession.</summary>
-        /// <param name="sessionToken">Token recibido del cliente.</param>
+        /// <summary>Checks SubscribeToMatch_WithInvalidToken_RejectsWithInvalidSession.</summary>
+        /// <param name="sessionToken">Token received from the client.</param>
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -32,7 +32,7 @@ namespace TLMG.Services.Tests
         {
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
-            LobbyCaller caller = MatchPlayScenario.CallerWithToken(sessionToken);
+            SessionChannelCaller caller = MatchPlayScenario.CallerWithToken(sessionToken);
 
             // Act
             MatchDelivery delivery = scenario.Registry.SubscribeToMatch(
@@ -43,13 +43,13 @@ namespace TLMG.Services.Tests
             Assert.Empty(delivery.ViewDeliveries);
         }
 
-        /// <summary>Verifica SubscribeToMatch_WithoutChannelId_RejectsWithInvalidSession.</summary>
+        /// <summary>Checks SubscribeToMatch_WithoutChannelId_RejectsWithInvalidSession.</summary>
         [Fact]
         public void SubscribeToMatch_WithoutChannelId_RejectsWithInvalidSession()
         {
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
-            LobbyCaller caller = new LobbyCaller(scenario.TokenOf(scenario.CreatorUserId), string.Empty);
+            SessionChannelCaller caller = new SessionChannelCaller(scenario.TokenOf(scenario.CreatorUserId), string.Empty);
 
             // Act
             MatchDelivery delivery = scenario.Registry.SubscribeToMatch(
@@ -59,7 +59,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(ErrorKeys.Common.InvalidSession, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica SubscribeToMatch_WithNullCallback_RejectsWithInvalidSession.</summary>
+        /// <summary>Checks SubscribeToMatch_WithNullCallback_RejectsWithInvalidSession.</summary>
         [Fact]
         public void SubscribeToMatch_WithNullCallback_RejectsWithInvalidSession()
         {
@@ -74,7 +74,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(ErrorKeys.Common.InvalidSession, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica SubscribeToMatch_WithChannelOfAnotherPlayer_RejectsWithInvalidSession.</summary>
+        /// <summary>Checks SubscribeToMatch_WithChannelOfAnotherPlayer_RejectsWithInvalidSession.</summary>
         [Fact]
         public void SubscribeToMatch_WithChannelOfAnotherPlayer_RejectsWithInvalidSession()
         {
@@ -82,7 +82,7 @@ namespace TLMG.Services.Tests
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             int guestUserId = scenario.UserIds[1];
             scenario.Subscribe(scenario.CreatorUserId);
-            LobbyCaller stolenChannel = new LobbyCaller(
+            SessionChannelCaller stolenChannel = new SessionChannelCaller(
                 scenario.TokenOf(guestUserId), MatchPlayScenario.MatchChannelPrefix + scenario.CreatorUserId);
 
             // Act
@@ -93,7 +93,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(ErrorKeys.Common.InvalidSession, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica SubscribeToMatch_WithUserOutsideMatch_RejectsWithNotInMatch.</summary>
+        /// <summary>Checks SubscribeToMatch_WithUserOutsideMatch_RejectsWithNotInMatch.</summary>
         [Fact]
         public void SubscribeToMatch_WithUserOutsideMatch_RejectsWithNotInMatch()
         {
@@ -101,7 +101,7 @@ namespace TLMG.Services.Tests
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             SessionEnd replacedSession;
             string outsiderToken = scenario.Registry.StartRegisteredSession(OutsiderUserId, "Outsider", out replacedSession);
-            LobbyCaller caller = new LobbyCaller(outsiderToken, OutsiderChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller(outsiderToken, OutsiderChannelId);
 
             // Act
             MatchDelivery delivery = scenario.Registry.SubscribeToMatch(
@@ -112,7 +112,7 @@ namespace TLMG.Services.Tests
             Assert.Empty(delivery.ViewDeliveries);
         }
 
-        /// <summary>Verifica SubscribeToMatch_WithUnknownMatchId_RejectsWithNotInMatch.</summary>
+        /// <summary>Checks SubscribeToMatch_WithUnknownMatchId_RejectsWithNotInMatch.</summary>
         [Fact]
         public void SubscribeToMatch_WithUnknownMatchId_RejectsWithNotInMatch()
         {
@@ -127,11 +127,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NotInMatch, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica SubscribeToMatch_WithMatchIdOfAnotherMatch_RejectsWithNotInMatch.</summary>
+        /// <summary>Checks SubscribeToMatch_WithMatchIdOfAnotherMatch_RejectsWithNotInMatch.</summary>
         [Fact]
         public void SubscribeToMatch_WithMatchIdOfAnotherMatch_RejectsWithNotInMatch()
         {
-            // Arrange: la otra partida existe de verdad, pero este jugador no pertenece a ella.
+            // Arrange: The other match exists, but this player does not belong to it.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             MatchPlayScenario otherMatch = scenario.CreateAnotherMatch(MinimumPlayerCount, OtherMatchFirstUserId);
 
@@ -144,11 +144,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NotInMatch, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica SubscribeToMatch_AfterPlayerLeftRoom_RejectsWithNotInMatch.</summary>
+        /// <summary>Checks SubscribeToMatch_AfterPlayerLeftRoom_RejectsWithNotInMatch.</summary>
         [Fact]
         public void SubscribeToMatch_AfterPlayerLeftRoom_RejectsWithNotInMatch()
         {
-            // Arrange: sigue siendo participante histórico, pero ya no está en la sala de la partida.
+            // Arrange: The player was an original participant but has since left the match's room.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             int leavingUserId = scenario.UserIds[1];
             scenario.Registry.LeaveRoom(scenario.TokenOf(leavingUserId), out _);
@@ -161,7 +161,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NotInMatch, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica SubscribeToMatch_AfterSessionEnded_RejectsWithInvalidSession.</summary>
+        /// <summary>Checks SubscribeToMatch_AfterSessionEnded_RejectsWithInvalidSession.</summary>
         [Fact]
         public void SubscribeToMatch_AfterSessionEnded_RejectsWithInvalidSession()
         {
@@ -177,7 +177,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(ErrorKeys.Common.InvalidSession, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceCard_WithoutSubscription_RejectsWithNotSubscribed.</summary>
+        /// <summary>Checks PlaceCard_WithoutSubscription_RejectsWithNotSubscribed.</summary>
         [Fact]
         public void PlaceCard_WithoutSubscription_RejectsWithNotSubscribed()
         {
@@ -192,8 +192,8 @@ namespace TLMG.Services.Tests
             Assert.Empty(delivery.ViewDeliveries);
         }
 
-        /// <summary>Verifica PlaceCard_WithInvalidToken_RejectsWithInvalidSession.</summary>
-        /// <param name="sessionToken">Token recibido del cliente.</param>
+        /// <summary>Checks PlaceCard_WithInvalidToken_RejectsWithInvalidSession.</summary>
+        /// <param name="sessionToken">Token received from the client.</param>
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -203,7 +203,7 @@ namespace TLMG.Services.Tests
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
-            LobbyCaller caller = MatchPlayScenario.CallerWithToken(sessionToken);
+            SessionChannelCaller caller = MatchPlayScenario.CallerWithToken(sessionToken);
 
             // Act
             MatchDelivery delivery = scenario.Registry.PlaceCard(caller, MatchCardKind.Safe);
@@ -212,14 +212,14 @@ namespace TLMG.Services.Tests
             Assert.Equal(ErrorKeys.Common.InvalidSession, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceCard_WithAnotherChannelThanSubscribed_RejectsWithInvalidSession.</summary>
+        /// <summary>Checks PlaceCard_WithAnotherChannelThanSubscribed_RejectsWithInvalidSession.</summary>
         [Fact]
         public void PlaceCard_WithAnotherChannelThanSubscribed_RejectsWithInvalidSession()
         {
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
-            LobbyCaller caller = new LobbyCaller(scenario.TokenOf(scenario.CreatorUserId), OtherChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller(scenario.TokenOf(scenario.CreatorUserId), OtherChannelId);
 
             // Act
             MatchDelivery delivery = scenario.Registry.PlaceCard(caller, MatchCardKind.Safe);
@@ -229,14 +229,14 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchPlayScenario.InitialVersion, scenario.ReadVersionAs(scenario.CreatorUserId));
         }
 
-        /// <summary>Verifica PlaceCard_WithChannelOfAnotherPlayer_RejectsWithInvalidSession.</summary>
+        /// <summary>Checks PlaceCard_WithChannelOfAnotherPlayer_RejectsWithInvalidSession.</summary>
         [Fact]
         public void PlaceCard_WithChannelOfAnotherPlayer_RejectsWithInvalidSession()
         {
-            // Arrange: el segundo jugador usa el canal suscrito del creador, a quien le toca el turno.
+            // Arrange: The second player uses the creator's subscribed channel during the creator's turn.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
-            LobbyCaller caller = new LobbyCaller(
+            SessionChannelCaller caller = new SessionChannelCaller(
                 scenario.TokenOf(scenario.UserIds[1]), MatchPlayScenario.MatchChannelPrefix + scenario.CreatorUserId);
 
             // Act
@@ -246,7 +246,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(ErrorKeys.Common.InvalidSession, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceCard_AfterPlayerLeftRoom_RejectsWithNotSubscribed.</summary>
+        /// <summary>Checks PlaceCard_AfterPlayerLeftRoom_RejectsWithNotSubscribed.</summary>
         [Fact]
         public void PlaceCard_AfterPlayerLeftRoom_RejectsWithNotSubscribed()
         {
@@ -262,7 +262,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NotSubscribed, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceCard_WithUndefinedCardKind_RejectsWithCardNotValid.</summary>
+        /// <summary>Checks PlaceCard_WithUndefinedCardKind_RejectsWithCardNotValid.</summary>
         [Fact]
         public void PlaceCard_WithUndefinedCardKind_RejectsWithCardNotValid()
         {

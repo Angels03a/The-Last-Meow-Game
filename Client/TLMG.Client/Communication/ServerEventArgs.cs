@@ -3,19 +3,19 @@ using System;
 namespace TLMG.Client.Communication
 {
     /// <summary>
-    /// Datos de un evento que el servidor originó: el DTO que llegó por el callback, sin textos traducidos.
+    /// Event data from a server callback. The DTO contains no translated text.
     /// </summary>
-    /// <typeparam name="TPayload">Tipo del DTO que llegó del servidor.</typeparam>
+    /// <typeparam name="TPayload">Type of DTO received from the server.</typeparam>
     public sealed class ServerEventArgs<TPayload> : EventArgs
     {
-        /// <summary>Crea los datos de un evento del servidor.</summary>
-        /// <param name="payload">DTO que llegó del servidor.</param>
+        /// <summary>Creates the event data for a server notification.</summary>
+        /// <param name="payload">DTO received from the server.</param>
         public ServerEventArgs(TPayload payload)
         {
             Payload = payload;
         }
 
-        /// <summary>Obtiene el DTO que llegó del servidor; si es un resultado, trae IsSuccess y ErrorKey.</summary>
+        /// <summary>DTO received from the server. Result DTOs include IsSuccess and ErrorKey.</summary>
         public TPayload Payload { get; }
     }
 }

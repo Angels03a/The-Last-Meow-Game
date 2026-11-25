@@ -1,7 +1,12 @@
 ﻿namespace TLMG.Client.Models
 {
+    /// <summary>
+    /// Match settings used by the UI include cards per player, Fatal Cats, challenges needed to win and hand layout.
+    /// These settings control presentation; the server remains authoritative for match rules.
+    /// </summary>
     public sealed class MatchModeSettings
     {
+        /// <summary>Cards per player in the smallest mode, which is also the default.</summary>
         public const int FourCardsPerPlayer = 4;
         public const int SixCardsPerPlayer = 6;
         public const int EightCardsPerPlayer = 8;
@@ -15,23 +20,33 @@
         {
         }
 
+        /// <summary>Cards dealt to each player (4, 6 or 8).</summary>
         public int CardsPerPlayer { get; private set; }
 
+        /// <summary>Fatal Cats per player.</summary>
         public int FatalCatCount { get; private set; }
 
+        /// <summary>Successful challenges needed to win.</summary>
         public int ChallengesToWin { get; private set; }
 
+        /// <summary>Whether this mode includes Fugitive Kitten. Only the eight-card mode does.</summary>
         public bool HasFugitiveKitten { get; private set; }
 
+        /// <summary>Whether to draw smaller cards so the hand fits.</summary>
         public bool IsCompactHand { get; private set; }
 
+        /// <summary>Hand columns. Eight cards use two rows.</summary>
         public int HandColumnCount { get; private set; }
 
+        /// <summary>Safe cards per player.</summary>
         public int SafeCardCount
         {
             get { return CardsPerPlayer - FatalCatCount; }
         }
 
+        /// <summary>Creates settings for the given number of cards per player.</summary>
+        /// <param name="cardsPerPlayer">Cards per player. An unknown value selects four-card mode.</param>
+        /// <returns>Mode settings, always present.</returns>
         public static MatchModeSettings FromCardsPerPlayer(int cardsPerPlayer)
         {
             MatchModeSettings matchModeSettings;

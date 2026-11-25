@@ -10,22 +10,18 @@ namespace TLMG.Services.Sessions
 {
     public partial class SessionRegistry
     {
+        /// <summary>Retains authorized matches until their rooms are removed.</summary>
         private readonly Dictionary<Guid, MatchRecord> _matchesById = new Dictionary<Guid, MatchRecord>();
 
+        /// <summary>Initial version used to order match views.</summary>
         private const int InitialMatchVersion = 1;
 
         private static readonly IReadOnlyList<MatchViewDelivery> _noMatchViewDeliveries =
             new List<MatchViewDelivery>().AsReadOnly();
 
         /// <summary>
-        /// Copia el estado básico de una partida si el usuario estaba entre sus participantes al iniciarla; el
-        /// MatchState nunca sale del candado. Es pertenencia histórica, no autorización: quien atienda acciones de
-        /// partida debe validar además el token de sesión, la identidad, la participación vigente y, cuando existan,
-        /// el abandono definitivo y la ventana de reconexión.
+        /// Copies historical participation without granting permission to act or exposing the engine state.
         /// </summary>
-        /// <param name="matchId">Partida consultada.</param>
-        /// <param name="userId">Jugador que consulta.</param>
-        /// <returns>La copia, o null si la partida no existe o el jugador no participa en ella.</returns>
         internal MatchSnapshot FindMatchOfParticipant(Guid matchId, int userId)
         {
             MatchSnapshot matchSnapshot = null;
@@ -44,6 +40,7 @@ namespace TLMG.Services.Sessions
             return matchSnapshot;
         }
 
+        /// <inheritdoc />
         public ResultWithNotification<OperationRecoveryContextResult> GetRecoveryContext(string sessionToken)
         {
             OperationRecoveryContextResult recoveryContextResult = new OperationRecoveryContextResult
@@ -65,7 +62,7 @@ namespace TLMG.Services.Sessions
                 {
                     session.LastActivityUtc = nowUtc;
                     recoveryContextResult.IsSuccess = true;
-                    recoveryContextResult.ErrorKey = null;
+                    recoveryContextResult.ErrorKey = string.Empty;
                     MatchRecord match = FindRecoverableMatchInLock(session.UserId);
                     if (match != null)
                     {
@@ -85,6 +82,7 @@ namespace TLMG.Services.Sessions
         private const int ReconnectGraceSeconds = 15;
         private const int FirstMatchLinkSeconds = 9;
 
+        /// <summary>Processes expired connection and game deadlines in chronological order under the session lock.</summary>
         private bool ExpireMatchDeadlinesInLock(MatchRecord match, DateTime nowUtc)
         {
             bool hasChanged = false;
@@ -200,6 +198,7 @@ namespace TLMG.Services.Sessions
             return hasChanged;
         }
 
+        /// <summary>Preserves the challenge outcome only while it remains relevant after a player exits.</summary>
         private static void UpdateChallengeAfterExit(MatchRecord matchRecord, PlayerExitStatus exitStatus)
         {
             MatchChallengeRecord challenge = matchRecord.LastChallenge;
@@ -244,11 +243,13 @@ namespace TLMG.Services.Sessions
                 matchState.ModeRules.CardsPerPlayerCount,
                 matchState.RoundNumber,
                 matchState.Phase,
-                matchState.PlayerInTurn.PlayerId);
+                matchState.PlayerInTurn.PlayerId,
+                matchRecord.GuestUserIds);
 
             return matchSnapshot;
         }
 
+        /// <summary>Queues durable finalization before releasing a removed room's match under the session lock.</summary>
         private void ReleaseMatchOfRemovedRoomInLock(LobbyStartState removedStart)
         {
             if (removedStart.MatchId.HasValue)
@@ -316,6 +317,7 @@ namespace TLMG.Services.Sessions
             return wasExpired;
         }
 
+        /// <summary>Applies an immediate exit and prepares updated views under the session lock.</summary>
         private IReadOnlyList<MatchViewDelivery> ApplyVoluntaryMatchExitInLock(int userId, Guid matchId)
         {
             IReadOnlyList<MatchViewDelivery> viewDeliveries = _noMatchViewDeliveries;
@@ -346,6 +348,7 @@ namespace TLMG.Services.Sessions
             return viewDeliveries;
         }
 
+        /// <summary>Prepares an unpublished match with participant identities fixed at authorization.</summary>
         private MatchRecord CreateMatchRecordInLock(Guid matchId, int roomId, DateTime nowUtc)
         {
             int cardsPerPlayerCount = _startsByRoomId[roomId].CardsPerPlayerCount;
@@ -383,6 +386,7 @@ namespace TLMG.Services.Sessions
             return nicknamesByUserId;
         }
 
+        /// <summary>Authorized match state accessed under the session lock.</summary>
         private sealed class MatchRecord
         {
             public MatchRecord(
@@ -412,22 +416,22 @@ namespace TLMG.Services.Sessions
                 }
             }
 
-            /// <summary>Identificador de la partida, el mismo que recibe la sala.</summary>
+            /// <summary>Match ID shared with the room.</summary>
             public Guid MatchId { get; }
 
-            /// <summary>Sala que autorizó la partida.</summary>
+            /// <summary>Room that authorized the match.</summary>
             public int RoomId { get; }
 
-            /// <summary>Estado autoritativo del motor; nunca sale del candado.</summary>
+            /// <summary>Authoritative engine state kept under the lock.</summary>
             public MatchState MatchState { get; }
 
-            /// <summary>Participantes congelados al autorizar, en el orden de ingreso a la sala.</summary>
+            /// <summary>Participants fixed at authorization in room entry order.</summary>
             public IReadOnlyList<int> ParticipantUserIds { get; }
 
-            /// <summary>Cartas por jugador de la sala al autorizar.</summary>
+            /// <summary>Cards per player at authorization.</summary>
             public int CardsPerPlayerCount { get; }
 
-            /// <summary>Nicknames de los participantes al autorizar; las vistas los usan aunque salgan.</summary>
+            /// <summary>Nicknames recorded at authorization and used in views after players leave.</summary>
             public IReadOnlyDictionary<int, string> ParticipantNicknames { get; }
 
             /// <summary>User ids of the guests frozen when the match was authorized; they never earn points.</summary>
@@ -441,20 +445,18 @@ namespace TLMG.Services.Sessions
 
             public HashSet<int> AwaitingFirstLink { get; }
 
-            /// <summary>Versión de la partida; sube con cada acción aceptada y solo bajo _sessionsLock.</summary>
+            /// <summary>Match version, increased for each accepted action under the session lock.</summary>
             public int Version { get; set; }
 
             public bool HasQueuedFinalization { get; set; }
 
             /// <summary>
-            /// Desenlace del último reto; null hasta que haya uno y otra vez null cuando se abre la siguiente apuesta
-            /// o se coloca la siguiente carta. Solo cambia bajo _sessionsLock.
+            /// Latest challenge outcome, cleared by the next opening bid or card placement.
             /// </summary>
             public MatchChallengeRecord LastChallenge { get; set; }
 
             /// <summary>
-            /// Mientras hay un castigo a ciegas, la permutación lugar → índice real de la mano del castigado, hecha por
-            /// el servidor; null si no hay castigo a ciegas pendiente. Nunca sale del registro.
+            /// Private server mapping from displayed blind slot to actual hand index.
             /// </summary>
             public int[] BlindSlotOrder { get; set; }
         }

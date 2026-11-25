@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 
 namespace TLMG.Client.Models
 {
+    /// <summary>Display data for a notification authorized by the server.</summary>
     public sealed class GameNotification
     {
         private const int DefaultDurationSeconds = 5;

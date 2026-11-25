@@ -9,13 +9,13 @@ using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Tests
 {
-    /// <summary>Pruebas de MatchService para revelar cartas y elegir la carta del castigo.</summary>
+    /// <summary>Tests MatchService card reveals and punishment choices.</summary>
     public class MatchServiceChallengeTests
     {
         private const int MinimumPlayerCount = 3;
         private const int PromisedTwoCards = 2;
 
-        /// <summary>Verifica RevealCard_ByTheBettor_DeliversTheRevealedCardToEverySubscribedCallback.</summary>
+        /// <summary>Checks RevealCard_ByTheBettor_DeliversTheRevealedCardToEverySubscribedCallback.</summary>
         [Fact]
         public void RevealCard_ByTheBettor_DeliversTheRevealedCardToEverySubscribedCallback()
         {
@@ -35,7 +35,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(1, scenario.CallbackOf(scenario.UserIds[2]).LastView.Challenge.RevealedCards.Count);
         }
 
-        /// <summary>Verifica RevealCard_ByAnotherPlayer_ReturnsTheErrorKeyAndNotifiesNobody.</summary>
+        /// <summary>Checks RevealCard_ByAnotherPlayer_ReturnsTheErrorKeyAndNotifiesNobody.</summary>
         [Fact]
         public void RevealCard_ByAnotherPlayer_ReturnsTheErrorKeyAndNotifiesNobody()
         {
@@ -53,7 +53,7 @@ namespace TLMG.Services.Tests
             Assert.Empty(result.Notifications);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_ByTheChooser_AcceptsAndNotifiesEveryone.</summary>
+        /// <summary>Checks ChoosePunishmentCard_ByTheChooser_AcceptsAndNotifiesEveryone.</summary>
         [Fact]
         public void ChoosePunishmentCard_ByTheChooser_AcceptsAndNotifiesEveryone()
         {
@@ -73,7 +73,7 @@ namespace TLMG.Services.Tests
             Assert.Null(scenario.CallbackOf(scenario.UserIds[2]).LastView.Punishment);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_ByTheWrongPlayer_ReturnsTheErrorKey.</summary>
+        /// <summary>Checks ChoosePunishmentCard_ByTheWrongPlayer_ReturnsTheErrorKey.</summary>
         [Fact]
         public void ChoosePunishmentCard_ByTheWrongPlayer_ReturnsTheErrorKey()
         {

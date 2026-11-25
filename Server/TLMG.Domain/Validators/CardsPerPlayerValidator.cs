@@ -3,15 +3,15 @@
 namespace TLMG.Domain.Validators
 {
     /// <summary>
-    /// Valida la cantidad de cartas por jugador que se puede elegir para una sala: 4, 6 u 8 (D-04).
+    /// Checks the room's cards per player against the allowed values of 4, 6 and 8 (D-04).
     /// </summary>
     public static class CardsPerPlayerValidator
     {
         /// <summary>
-        /// Comprueba que la cantidad sea una de las modalidades permitidas.
+        /// Checks whether the card count matches an allowed mode.
         /// </summary>
-        /// <param name="cardsPerPlayerCount">Cantidad de cartas por jugador pedida.</param>
-        /// <returns>null si es válida; en otro caso, la clave de error.</returns>
+        /// <param name="cardsPerPlayerCount">Requested number of cards per player.</param>
+        /// <returns>Null for a valid value, otherwise the error key.</returns>
         public static string ValidateCardsPerPlayerCount(int cardsPerPlayerCount)
         {
             string errorKey = null;

@@ -8,8 +8,8 @@ using TLMG.Domain.Engine;
 namespace TLMG.Domain.Tests
 {
     /// <summary>
-    /// Pruebas de la secuencia del último reto exitoso: cada éxito de la partida toma la siguiente y un reto fallido
-    /// no la cambia. Sirve para desempatar a quien alcanzó antes su número de retos (Reglas 5.0.4).
+    /// Tests the last successful challenge sequence. Each success takes the next number. Failure leaves it unchanged.
+    /// An earlier success at the same count breaks a tie (Rule 5.0.4).
     /// </summary>
     public class MatchStateChallengeSequenceTests
     {
@@ -30,7 +30,7 @@ namespace TLMG.Domain.Tests
 
         private static readonly DateTime _nowUtc = new DateTime(2026, 11, 20, 12, 0, 0, DateTimeKind.Utc);
 
-        /// <summary>Verifica MatchState_WhenCreated_HasNoSuccessSequenceForAnyPlayer.</summary>
+        /// <summary>Checks MatchState_WhenCreated_HasNoSuccessSequenceForAnyPlayer.</summary>
         [Fact]
         public void MatchState_WhenCreated_HasNoSuccessSequenceForAnyPlayer()
         {
@@ -44,7 +44,7 @@ namespace TLMG.Domain.Tests
             Assert.All(match.Players, player => Assert.Equal(NoSequence, player.LastSuccessfulChallengeSequence));
         }
 
-        /// <summary>Verifica RevealCard_WhenChallengeSucceeds_AssignsNextSuccessSequence.</summary>
+        /// <summary>Checks RevealCard_WhenChallengeSucceeds_AssignsNextSuccessSequence.</summary>
         [Fact]
         public void RevealCard_WhenChallengeSucceeds_AssignsNextSuccessSequence()
         {
@@ -61,7 +61,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(NoSequence, GetPlayer(match, PlayerAId).LastSuccessfulChallengeSequence);
         }
 
-        /// <summary>Verifica RevealCard_WhenSamePlayerSucceedsAgain_KeepsOnlyLastSequence.</summary>
+        /// <summary>Checks RevealCard_WhenSamePlayerSucceedsAgain_KeepsOnlyLastSequence.</summary>
         [Fact]
         public void RevealCard_WhenSamePlayerSucceedsAgain_KeepsOnlyLastSequence()
         {
@@ -78,7 +78,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(SecondSequence, GetPlayer(match, PlayerBId).LastSuccessfulChallengeSequence);
         }
 
-        /// <summary>Verifica RevealCard_WhenChallengeFails_KeepsBettorSequence.</summary>
+        /// <summary>Checks RevealCard_WhenChallengeFails_KeepsBettorSequence.</summary>
         [Fact]
         public void RevealCard_WhenChallengeFails_KeepsBettorSequence()
         {
@@ -94,11 +94,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(OneChallenge, GetPlayer(match, PlayerCId).SuccessfulChallengeCount);
         }
 
-        /// <summary>Verifica RevealCard_WhenChallengeFails_DoesNotConsumeSequence.</summary>
+        /// <summary>Checks RevealCard_WhenChallengeFails_DoesNotConsumeSequence.</summary>
         [Fact]
         public void RevealCard_WhenChallengeFails_DoesNotConsumeSequence()
         {
-            // Arrange: un reto fallido entre dos éxitos no gasta secuencia.
+            // Arrange: A failed challenge between two successes uses no sequence number.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             WinChallenge(match, PlayerCId);
             LoseCardOnOwnCat(match, PlayerAId);
@@ -124,7 +124,7 @@ namespace TLMG.Domain.Tests
             return match.Players.First(player => player.PlayerId == playerId);
         }
 
-        /// <summary>Quien tiene el turno abre la apuesta y todos los demás se retiran: el que abre apuesta.</summary>
+        /// <summary>The current player opens and all others fold, leaving the opener as the final bidder.</summary>
         private static void OpenAndConcede(MatchState match, int betValue)
         {
             int openingPlayerId = match.PlayerInTurn.PlayerId;
@@ -166,8 +166,8 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Los demás colocan una segura hasta el turno del jugador, él coloca la carta indicada, los demás vuelven a
-        /// colocar hasta su turno y apuesta 1 sobre su propia pila: con segura gana el reto y con Gato lo falla.
+        /// Others place safe cards until the player's turn. That player places the given card, waits another cycle and
+        /// bids 1 on their own pile. A safe card wins and a Fatal Cat fails.
         /// </summary>
         private static void BetOneOnOwnTopCard(MatchState match, int playerId, CardKind card)
         {
@@ -183,7 +183,9 @@ namespace TLMG.Domain.Tests
             BetOneOnOwnTopCard(match, playerId, SafeCard);
         }
 
-        /// <summary>Falla sobre su propio Gato y pierde una segura; si ya no tiene, la primera carta.</summary>
+        /// <summary>
+        /// Fails on the player's own Fatal Cat and loses a safe card, or the first card if no safe card remains.
+        /// </summary>
         private static void LoseCardOnOwnCat(MatchState match, int playerId)
         {
             BetOneOnOwnTopCard(match, playerId, FatalCatCard);

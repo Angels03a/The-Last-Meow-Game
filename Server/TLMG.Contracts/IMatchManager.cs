@@ -5,71 +5,70 @@ using TLMG.Contracts.DataContracts;
 
 namespace TLMG.Contracts
 {
-    /// <summary>Canal dúplex propio para seguir una partida y colocar cartas; el servidor decide.</summary>
+    /// <summary>
+    /// Dedicated duplex channel for following a match and placing cards. The server makes the decisions.
+    /// </summary>
     [ServiceContract(CallbackContract = typeof(IMatchManagerCallback))]
     public interface IMatchManager
     {
         /// <summary>
-        /// Suscribe el canal a una partida a la que pertenece el jugador; la última suscripción del jugador gana. El
-        /// resultado y la vista privada del jugador llegan por callback.
+        /// Subscribes the channel to the player's match. The player's latest subscription wins. The callback delivers
+        /// the result and the player's private view.
         /// </summary>
-        /// <param name="sessionToken">Token vigente del jugador registrado.</param>
-        /// <param name="matchId">Partida autorizada al iniciar la sala; se obtiene de la sala.</param>
+        /// <param name="sessionToken">Current token of the registered player.</param>
+        /// <param name="matchId">Match authorized at room start, identified by the room.</param>
         [OperationContract(IsOneWay = true)]
         void SubscribeToMatch(string sessionToken, Guid matchId);
 
-        /// <summary>Solicita un intento de atrapar al gatito.</summary>
+        /// <summary>Requests an attempt to catch the kitten.</summary>
         [OperationContract(IsOneWay = true)]
         void TryCatchFugitiveKitten(string sessionToken);
 
-        /// <summary>Solicita comprobar el vencimiento del minijuego.</summary>
+        /// <summary>Requests a check of the minigame deadline.</summary>
         [OperationContract(IsOneWay = true)]
         void CheckFugitiveKittenDeadline(string sessionToken);
 
         /// <summary>
-        /// Coloca una carta de la mano del jugador en su pila de la partida suscrita. El resultado solo informa la
-        /// aceptación o el rechazo; el nuevo estado llega como vista privada a cada jugador suscrito.
+        /// Requests to move a card from the player's hand to their pile in the subscribed match. The result reports
+        /// acceptance or rejection. Each subscriber receives the updated state in a private view.
         /// </summary>
-        /// <param name="sessionToken">Token vigente del jugador registrado.</param>
-        /// <param name="cardKind">Tipo de la carta que se coloca.</param>
+        /// <param name="sessionToken">Current token of the registered player.</param>
+        /// <param name="cardKind">Type of card to place.</param>
         [OperationContract(IsOneWay = true)]
         void PlaceCard(string sessionToken, MatchCardKind cardKind);
 
         /// <summary>
-        /// Abre una apuesta o sube la que está en curso, según la fase: el servidor decide cuál de las dos es. El
-        /// valor debe cumplir el rango de la vista (MinimumBetValue y MaximumBetValue). El resultado solo informa la
-        /// aceptación o el rechazo; el nuevo estado llega como vista privada a cada jugador suscrito.
+        /// Opens or raises a bid according to the phase decided by the server. The bid must be between MinimumBetValue
+        /// and MaximumBetValue in the view. The result reports acceptance or rejection. Each subscriber receives the
+        /// updated state in a private view.
         /// </summary>
-        /// <param name="sessionToken">Token vigente del jugador registrado.</param>
-        /// <param name="betValue">Cartas que el jugador declara poder voltear.</param>
+        /// <param name="sessionToken">Current token of the registered player.</param>
+        /// <param name="betValue">Number of cards the player claims they can reveal.</param>
         [OperationContract(IsOneWay = true)]
         void PlaceBet(string sessionToken, int betValue);
 
         /// <summary>
-        /// Retira al jugador de la apuesta en curso; ya no puede volver a esa apuesta. Cuando queda un solo
-        /// apostador, el reto queda listo para que lo cumpla.
+        /// Folds for the rest of this bidding round. When only one bidder remains, that player takes the challenge.
         /// </summary>
-        /// <param name="sessionToken">Token vigente del jugador registrado.</param>
+        /// <param name="sessionToken">Current token of the registered player.</param>
         [OperationContract(IsOneWay = true)]
         void WithdrawFromBet(string sessionToken);
 
         /// <summary>
-        /// Voltea la carta de arriba de la pila elegida durante el reto del jugador. Primero hay que voltear la pila
-        /// propia y después se elige una pila ajena antes de cada volteo. La revelación se detiene al cumplir la
-        /// apuesta o al voltear un Gato con Maullido Fatal.
+        /// Reveals the top card of the chosen pile during the player's challenge. Reveal the player's own pile first,
+        /// then choose another player's pile before each reveal. Stop when the bid is met or a Fatal Cat is revealed.
         /// </summary>
-        /// <param name="sessionToken">Token vigente del jugador registrado.</param>
-        /// <param name="pileOwnerUserId">Cuenta del dueño de la pila de la que se voltea.</param>
+        /// <param name="sessionToken">Current token of the registered player.</param>
+        /// <param name="pileOwnerUserId">Account of the player whose pile supplies the card.</param>
         [OperationContract(IsOneWay = true)]
         void RevealCard(string sessionToken, int pileOwnerUserId);
 
         /// <summary>
-        /// Elige la carta que pierde el jugador castigado. Si el castigo es a ciegas, el índice es el lugar que se
-        /// muestra (de 0 a CardSlotCount - 1) y el servidor lo traduce; si el castigado elige viendo su mano, es la
-        /// posición de la carta en OwnHandCards.
+        /// Chooses the card the punished player loses. For a blind choice, the server maps the displayed slot (0 to
+        /// CardSlotCount - 1). When choosing from a visible hand, use the card's position in OwnHandCards.
         /// </summary>
-        /// <param name="sessionToken">Token vigente del jugador registrado.</param>
-        /// <param name="cardIndex">Lugar o posición de la carta que se elimina.</param>
+        /// <param name="sessionToken">Current token of the registered player.</param>
+        /// <param name="cardIndex">Slot or position of the card to remove.</param>
         [OperationContract(IsOneWay = true)]
         void ChoosePunishmentCard(string sessionToken, int cardIndex);
         [OperationContract(IsOneWay = true)]

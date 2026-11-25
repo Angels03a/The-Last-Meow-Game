@@ -3,15 +3,15 @@ using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
 {
-    /// <summary>Referencias de la partida a la que aún tiene acceso el dueño del token.</summary>
+    /// <summary>References to the match the token owner can still access.</summary>
     [DataContract]
     public class OperationRecoveryContextResult : OperationResult
     {
-        /// <summary>Sala autorizada, o null si no existe una partida recuperable.</summary>
+        /// <summary>Authorized room, or null if there is no recoverable match.</summary>
         [DataMember]
         public int? RoomId { get; set; }
 
-        /// <summary>Partida autorizada, o null si no existe una partida recuperable.</summary>
+        /// <summary>Authorized match, or null if there is no recoverable match.</summary>
         [DataMember]
         public Guid? MatchId { get; set; }
     }

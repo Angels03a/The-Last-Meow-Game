@@ -9,8 +9,8 @@ using TLMG.Domain.Engine;
 namespace TLMG.Domain.Tests
 {
     /// <summary>
-    /// Pruebas de la tabla final con salidas (Reglas 5.0.1, 5.0.2 y 5.0.4; Dominio §4.3; H-11 y H-12): quienes
-    /// salieron van al final por salida efectiva, inicio y orden de turnos, cobran 0 y no cuentan para la base.
+    /// Tests final standings after exits (Rules 5.0.1, 5.0.2 and 5.0.4, Domain §4.3, H-11 and H-12). Players who left
+    /// rank last by effective exit time, exit start and turn order. They receive 0 and are excluded from the base.
     /// </summary>
     public class FinalStandingsExitTests
     {
@@ -96,11 +96,11 @@ namespace TLMG.Domain.Tests
         }
 
 
-        /// <summary>Verifica CalculateFromMatch_ScenarioE61AfterBetLeaderLeft_PutsHimLastWithZero.</summary>
+        /// <summary>Checks CalculateFromMatch_ScenarioE61AfterBetLeaderLeft_PutsHimLastWithZero.</summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE61AfterBetLeaderLeft_PutsHimLastWithZero()
         {
-            // Arrange: E6-1; B sale con el reto listo y después A gana la partida con 2 retos.
+            // Arrange: In E6-1, B leaves with the challenge ready. A then wins with two challenges.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             match.PlaceCard(PlayerAId, SafeCard);
             PlaceSafeCardsUntilTurnOf(match, PlayerAId);
@@ -119,11 +119,11 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerAId, PlayerCId, PlayerDId, PlayerBId }, new[] { 3, 1, 0, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_ScenarioE63AfterFirstPlayerLeft_PutsHimFourthWithZero.</summary>
+        /// <summary>Checks CalculateFromMatch_ScenarioE63AfterFirstPlayerLeft_PutsHimFourthWithZero.</summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE63AfterFirstPlayerLeft_PutsHimFourthWithZero()
         {
-            // Arrange: E6-3; todos colocan, A sale en su turno y después B gana la partida con 2 retos.
+            // Arrange: In E6-3, everyone places a card, A leaves on their turn and B wins with two challenges.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             match.PlaceCard(PlayerAId, SafeCard);
             PlaceSafeCardsUntilTurnOf(match, PlayerAId);
@@ -137,11 +137,12 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerBId, PlayerCId, PlayerDId, PlayerAId }, new[] { 3, 1, 0, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_ScenarioE64AfterTwoLeaves_Pays4And0And0.</summary>
+        /// <summary>Checks CalculateFromMatch_ScenarioE64AfterTwoLeaves_Pays4And0And0.</summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE64AfterTwoLeaves_Pays4And0And0()
         {
-            // Arrange: E6-4; modalidad de 6; B sale y luego C sale: A gana con base mínima 2 y bono +2.
+            // Arrange: In six-card mode E6-4, B leaves, then C leaves. A wins with the minimum base of 2 and a +2
+            // bonus.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_startUtc), _pickFirstCard);
             match.PlaceCard(PlayerAId, SafeCard);
@@ -154,11 +155,11 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerAId, PlayerCId, PlayerBId }, new[] { 4, 0, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_ScenarioE55WithTwoExits_RanksLaterExitHigher.</summary>
+        /// <summary>Checks CalculateFromMatch_ScenarioE55WithTwoExits_RanksLaterExitHigher.</summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE55WithTwoExits_RanksLaterExitHigher()
         {
-            // Arrange: E5-5; D sale voluntariamente y después E es expulsado al vencer su gracia.
+            // Arrange: In E5-5, D leaves voluntarily and E is removed when the grace period expires.
             PlayerExit exitOfD = PlayerExit.Immediate(_startUtc);
             PlayerExit exitOfE = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc);
 
@@ -170,11 +171,11 @@ namespace TLMG.Domain.Tests
                 new[] { 3, 1, 0, 0, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_ScenarioE55bSimultaneousDisconnections_RanksByTurnOrder.</summary>
+        /// <summary>Checks CalculateFromMatch_ScenarioE55bSimultaneousDisconnections_RanksByTurnOrder.</summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE55bSimultaneousDisconnections_RanksByTurnOrder()
         {
-            // Arrange: E5-5b; D y E pierden la conexión a la vez y ambos vencen a los 15 s.
+            // Arrange: In E5-5b, D and E disconnect together. Both grace periods expire at 15 seconds.
             PlayerExit exitOfD = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc);
             PlayerExit exitOfE = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc);
 
@@ -187,12 +188,12 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Verifica CalculateFromMatch_ScenarioE55bDisconnectionsAtDifferentTimes_RanksLaterExitHigher.
+        /// Checks CalculateFromMatch_ScenarioE55bDisconnectionsAtDifferentTimes_RanksLaterExitHigher.
         /// </summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE55bDisconnectionsAtDifferentTimes_RanksLaterExitHigher()
         {
-            // Arrange: E5-5b con fechas distintas; la desconexión de E empieza y vence después que la de D.
+            // Arrange: In this E5-5b variant, E disconnects later than D and E's grace period also ends later.
             PlayerExit exitOfD = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc);
             PlayerExit exitOfE = new PlayerExit(_secondDisconnectionUtc,
                 _secondDisconnectionUtc.AddSeconds(GraceSeconds));
@@ -205,11 +206,11 @@ namespace TLMG.Domain.Tests
                 new[] { 3, 1, 0, 0, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_ScenarioE55bVoluntaryExitAtGraceEnd_RanksAboveDisconnection.</summary>
+        /// <summary>Checks CalculateFromMatch_ScenarioE55bVoluntaryExitAtGraceEnd_RanksAboveDisconnection.</summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE55bVoluntaryExitAtGraceEnd_RanksAboveDisconnection()
         {
-            // Arrange: E5-5b; la gracia de D vence en el mismo instante en que E sale voluntariamente.
+            // Arrange: In E5-5b, D's grace period ends at the instant E leaves voluntarily.
             PlayerExit exitOfD = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc);
             PlayerExit exitOfE = PlayerExit.Immediate(_firstGraceEndUtc);
 
@@ -221,11 +222,11 @@ namespace TLMG.Domain.Tests
                 new[] { 3, 1, 0, 0, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_ScenarioE55cEliminatedPlayerLeft_KeepsPositionAndPoints.</summary>
+        /// <summary>Checks CalculateFromMatch_ScenarioE55cEliminatedPlayerLeft_KeepsPositionAndPoints.</summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE55cEliminatedPlayerLeft_KeepsPositionAndPoints()
         {
-            // Arrange: E5-5c en modalidad de 6; C queda eliminado, sale después y A gana: C cuenta para la base.
+            // Arrange: In six-card mode E5-5c, C is eliminated and leaves later. A wins and C counts toward the base.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             EliminateOnOwnCat(match, PlayerCId);
             LeaveNow(match, PlayerCId);
@@ -238,11 +239,12 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerAId, PlayerBId, PlayerDId, PlayerCId }, new[] { 5, 3, 2, 1 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_ScenarioE56WithOneCountedPlayer_Pays5WithMinimumBase.</summary>
+        /// <summary>Checks CalculateFromMatch_ScenarioE56WithOneCountedPlayer_Pays5WithMinimumBase.</summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE56WithOneCountedPlayer_Pays5WithMinimumBase()
         {
-            // Arrange: E5-6; modalidad de 8; B sale, C es expulsado tras su gracia y D sale: A gana con 0 retos.
+            // Arrange: In eight-card mode E5-6, B leaves, C is removed after the grace period and D leaves. A wins with
+            // no challenges.
             MatchState match = CreateMatch(EightCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_startUtc), _pickFirstCard);
             match.RemovePlayer(PlayerCId, new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc), _pickFirstCard);
@@ -257,11 +259,11 @@ namespace TLMG.Domain.Tests
             AssertStandings(finalStandings, new[] { PlayerAId, PlayerDId, PlayerCId, PlayerBId }, new[] { 5, 0, 0, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_DomainScenario8WithOneLeaver_Pays5And3And2And1And0.</summary>
+        /// <summary>Checks CalculateFromMatch_DomainScenario8WithOneLeaver_Pays5And3And2And1And0.</summary>
         [Fact]
         public void CalculateFromMatch_DomainScenario8WithOneLeaver_Pays5And3And2And1And0()
         {
-            // Arrange: Dominio escenario 8; 5 jugadores en modalidad de 6; P5 abandona a mitad de partida y gana P1.
+            // Arrange: Domain scenario 8 has five players in six-card mode. P5 leaves midway and P1 wins.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId, PlayerEId);
             WinChallenge(match, PlayerAId);
             LeaveNow(match, PlayerEId);
@@ -275,11 +277,11 @@ namespace TLMG.Domain.Tests
                 new[] { 5, 3, 2, 1, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_GuestWhoLeft_IsNotCountedForBase.</summary>
+        /// <summary>Checks CalculateFromMatch_GuestWhoLeft_IsNotCountedForBase.</summary>
         [Fact]
         public void CalculateFromMatch_GuestWhoLeft_IsNotCountedForBase()
         {
-            // Arrange: B es invitado y sale; quedan 4 contados (base 3).
+            // Arrange: Guest B leaves. Four players count toward a base of 3.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId, PlayerEId);
             LeaveNow(match, PlayerBId);
             WinChallenges(match, PlayerAId, match.ModeRules.SuccessfulChallengesToWin);
@@ -292,11 +294,11 @@ namespace TLMG.Domain.Tests
                 new[] { 4, 2, 1, 0, 0 });
         }
 
-        /// <summary>Verifica CalculateFromMatch_GuestWhoStays_IsCountedForBase.</summary>
+        /// <summary>Checks CalculateFromMatch_GuestWhoStays_IsCountedForBase.</summary>
         [Fact]
         public void CalculateFromMatch_GuestWhoStays_IsCountedForBase()
         {
-            // Arrange: C es invitado y se queda, E sale; quedan 4 contados con C (base 3, no 2).
+            // Arrange: Guest C stays and E leaves. Four players including C count toward a base of 3.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId, PlayerEId);
             LeaveNow(match, PlayerEId);
             WinChallenges(match, PlayerAId, match.ModeRules.SuccessfulChallengesToWin);
@@ -310,7 +312,7 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Cinco jugadores en modalidad de 4: salen D y después E, B gana 1 reto y A gana con 2; C queda con 0.
+        /// Five players in four-card mode. D leaves before E. B wins one challenge, A wins with two and C has none.
         /// </summary>
         private static FinalStandings FinishAfterExitsOfDAndE(PlayerExit exitOfD, PlayerExit exitOfE)
         {
@@ -324,7 +326,7 @@ namespace TLMG.Domain.Tests
             return FinalStandings.CalculateFromMatch(match, _noGuests);
         }
 
-        /// <summary>Comprueba el orden de jugadores, las posiciones consecutivas desde 1 y los puntos.</summary>
+        /// <summary>Checks player order, consecutive ranks starting at 1 and points.</summary>
         private static void AssertStandings(FinalStandings finalStandings, int[] expectedPlayerIds,
             int[] expectedPoints)
         {
@@ -348,7 +350,7 @@ namespace TLMG.Domain.Tests
             return match.Players.First(player => player.PlayerId == playerId);
         }
 
-        /// <summary>Quien tiene el turno abre la apuesta y todos los demás se retiran: el que abre apuesta.</summary>
+        /// <summary>The current player opens and all others fold, leaving the opener as the final bidder.</summary>
         private static void OpenAndConcede(MatchState match, int betValue)
         {
             match.OpenBet(match.PlayerInTurn.PlayerId, betValue);
@@ -368,8 +370,8 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Los jugadores en turno colocan una segura hasta el turno del jugador indicado. Una vuelta completa basta; si
-        /// una colocación se rechaza o se agota la vuelta, falla con el jugador y la ronda que bloquearon el avance.
+        /// Players place a safe card in turn until the target player's turn. One full cycle is enough. A rejected
+        /// placement or exhausted cycle reports the player and round that blocked progress.
         /// </summary>
         private static void PlaceSafeCardsUntilTurnOf(MatchState match, int playerId)
         {
@@ -389,8 +391,8 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Los demás colocan una segura hasta el turno del jugador, él coloca la carta indicada, los demás vuelven a
-        /// colocar hasta su turno y apuesta 1 sobre su propia pila: con segura gana el reto y con Gato lo falla.
+        /// Others place safe cards until the player's turn. That player places the given card, waits another cycle and
+        /// bids 1 on their own pile. A safe card wins and a Fatal Cat fails.
         /// </summary>
         private static void BetOneOnOwnTopCard(MatchState match, int playerId, CardKind card)
         {
@@ -418,7 +420,9 @@ namespace TLMG.Domain.Tests
                 $"El jugador {playerId} no llegó a {challengeCount} retos en la ronda {match.RoundNumber}.");
         }
 
-        /// <summary>Falla sobre su propio Gato y pierde una segura; si ya no tiene, la primera carta.</summary>
+        /// <summary>
+        /// Fails on the player's own Fatal Cat and loses a safe card, or the first card if no safe card remains.
+        /// </summary>
         private static void LoseCardOnOwnCat(MatchState match, int playerId)
         {
             BetOneOnOwnTopCard(match, playerId, FatalCatCard);

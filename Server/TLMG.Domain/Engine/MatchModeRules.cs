@@ -5,8 +5,7 @@ using TLMG.Domain.Constants;
 namespace TLMG.Domain.Engine
 {
     /// <summary>
-    /// Reglas fijas de una modalidad de partida: cartas por jugador, Gatos con Maullido Fatal, retos exitosos para
-    /// ganar y vida extra (Dominio v3 §1). Es inmutable.
+    /// Fixed mode rules for cards, Fatal Cats, challenges needed to win and the extra life (Domain v3 §1).
     /// </summary>
     public sealed class MatchModeRules
     {
@@ -28,31 +27,31 @@ namespace TLMG.Domain.Engine
             SuccessfulChallengesToWin = successfulChallengesToWin;
         }
 
-        /// <summary>Obtiene las cartas que recibe cada jugador: 4, 6 u 8.</summary>
+        /// <summary>Cards dealt to each player (4, 6 or 8).</summary>
         public int CardsPerPlayerCount { get; }
 
-        /// <summary>Obtiene los Gatos con Maullido Fatal que recibe cada jugador.</summary>
+        /// <summary>Fatal Cats dealt to each player.</summary>
         public int FatalCatCount { get; }
 
-        /// <summary>Obtiene las cartas seguras que recibe cada jugador.</summary>
+        /// <summary>Safe cards dealt to each player.</summary>
         public int SafeCardCount => CardsPerPlayerCount - FatalCatCount;
 
-        /// <summary>Obtiene los retos exitosos que se necesitan para ganar la partida.</summary>
+        /// <summary>Successful challenges needed to win.</summary>
         public int SuccessfulChallengesToWin { get; }
 
-        /// <summary>Obtiene el bono de puntos del ganador en esta modalidad: +1, +2 o +3 (Reglas 5.0.1).</summary>
+        /// <summary>Winner's bonus in this mode (+1, +2 or +3, Rule 5.0.1).</summary>
         public int WinnerBonusPoints => SelectWinnerBonusPoints(CardsPerPlayerCount);
 
-        /// <summary>Obtiene el bono de puntos de quien no gana en esta modalidad: 0, +1 o +2 (Reglas 5.0.1).</summary>
+        /// <summary>Non-winner's bonus in this mode (0, +1 or +2, Rule 5.0.1).</summary>
         public int NonWinnerBonusPoints => SelectNonWinnerBonusPoints(CardsPerPlayerCount);
 
-        /// <summary>Obtiene si la modalidad admite vida extra; solo la de 8 cartas.</summary>
+        /// <summary>Whether this mode allows an extra life. Only eight-card mode does.</summary>
         public bool AllowsExtraLife => CardsPerPlayerCount == ValidationRules.EightCardsPerPlayerCount;
 
-        /// <summary>Obtiene las reglas de la modalidad con esa cantidad de cartas por jugador.</summary>
-        /// <param name="cardsPerPlayerCount">Cartas por jugador: 4, 6 u 8; Services la valida antes.</param>
-        /// <returns>Las reglas de la modalidad.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">La cantidad no es una modalidad permitida.</exception>
+        /// <summary>Returns the mode rules for the given number of cards per player.</summary>
+        /// <param name="cardsPerPlayerCount">Cards per player (4, 6 or 8), already checked by Services.</param>
+        /// <returns>Rules for the selected mode.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">The card count does not match an allowed mode.</exception>
         public static MatchModeRules CreateFromCardsPerPlayerCount(int cardsPerPlayerCount)
         {
             MatchModeRules modeRules;
@@ -76,7 +75,7 @@ namespace TLMG.Domain.Engine
             return modeRules;
         }
 
-        /// <summary>Bono del ganador según las cartas por jugador; la fábrica ya validó la modalidad.</summary>
+        /// <summary>Winner's bonus by cards per player. The factory has already checked the mode.</summary>
         private static int SelectWinnerBonusPoints(int cardsPerPlayerCount)
         {
             int winnerBonusPoints;
@@ -99,7 +98,7 @@ namespace TLMG.Domain.Engine
             return winnerBonusPoints;
         }
 
-        /// <summary>Bono de quien no gana según las cartas por jugador; la fábrica ya validó la modalidad.</summary>
+        /// <summary>Non-winner's bonus by cards per player. The factory has already checked the mode.</summary>
         private static int SelectNonWinnerBonusPoints(int cardsPerPlayerCount)
         {
             int nonWinnerBonusPoints;

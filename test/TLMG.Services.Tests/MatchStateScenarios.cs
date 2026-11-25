@@ -7,8 +7,8 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Lleva un MatchState real a situaciones conocidas de la partida (modalidad de 4 cartas, jugadores 1, 2 y 3 en
-    /// ese orden) para probar las vistas sin pasar por el registro. La mano inicial trae el Gato primero.
+    /// Builds known states with a real four-card MatchState and players 1, 2 and 3 in turn order. Tests views without
+    /// the registry. The starting hand has the Fatal Cat first.
     /// </summary>
     internal static class MatchStateScenarios
     {
@@ -44,7 +44,7 @@ namespace TLMG.Services.Tests
             return new MatchViewContext(Guid.NewGuid(), 1, matchState, nicknames, lastChallenge, guestUserIds);
         }
 
-        /// <summary>Cada jugador coloca una carta en su turno; la del segundo la elige la prueba.</summary>
+        /// <summary>Each player places a card in turn. The test chooses the second player's card.</summary>
         internal static MatchState PlaceOneCardEach(CardKind secondPlayerCard)
         {
             MatchState matchState = CreateStarted();
@@ -55,7 +55,7 @@ namespace TLMG.Services.Tests
             return matchState;
         }
 
-        /// <summary>El primero abre una apuesta de 2 y los otros dos se retiran: el reto queda listo.</summary>
+        /// <summary>The first player opens at 2 and both others fold, leaving the challenge ready.</summary>
         internal static MatchState ReachChallengeReady(CardKind secondPlayerCard)
         {
             MatchState matchState = PlaceOneCardEach(secondPlayerCard);
@@ -66,7 +66,9 @@ namespace TLMG.Services.Tests
             return matchState;
         }
 
-        /// <summary>El primero falla con el Gato del segundo: castigo a ciegas, elige el segundo.</summary>
+        /// <summary>
+        /// The first player fails on the second player's Fatal Cat. The second player chooses blindly.
+        /// </summary>
         internal static MatchState ReachBlindPunishment()
         {
             MatchState matchState = ReachChallengeReady(CardKind.FatalCat);
@@ -76,7 +78,7 @@ namespace TLMG.Services.Tests
             return matchState;
         }
 
-        /// <summary>El primero falla con su propio Gato: castigo propio, elige él viendo sus cartas.</summary>
+        /// <summary>The first player fails on their own Fatal Cat and sees their cards when choosing.</summary>
         internal static MatchState ReachOwnPunishment()
         {
             MatchState matchState = CreateStarted();
@@ -91,7 +93,7 @@ namespace TLMG.Services.Tests
             return matchState;
         }
 
-        /// <summary>El primer jugador cumple dos retos de una carta: gana la partida.</summary>
+        /// <summary>The first player wins two one-card challenges and wins the match.</summary>
         internal static MatchState ReachMatchFinished()
         {
             MatchState matchState = CreateStarted();

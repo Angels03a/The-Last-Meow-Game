@@ -9,8 +9,8 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Sala ya iniciada con una partida autorizada: el primer jugador la crea, los demás entran en orden de id y todos
-    /// quedan Listo con la modalidad de 4 cartas. Dos escenarios pueden compartir registro y reloj.
+    /// Started room with an authorized match. The first player creates it, the others join in ID order and everyone is
+    /// ready in four-card mode. Two scenarios can share a registry and clock.
     /// </summary>
     internal sealed class MatchPlayScenario
     {
@@ -72,7 +72,7 @@ namespace TLMG.Services.Tests
 
         internal int CreatorUserId => UserIds[0];
 
-        /// <summary>Crea otra partida en el mismo registro, con jugadores de otros ids.</summary>
+        /// <summary>Creates another match in the same registry with different player IDs.</summary>
         internal MatchPlayScenario CreateAnotherMatch(int playerCount, int firstUserId)
         {
             return new MatchPlayScenario(playerCount, firstUserId, Clock, RandomSource, Registry, CardsPerPlayerCount);
@@ -109,9 +109,9 @@ namespace TLMG.Services.Tests
             return callback;
         }
 
-        internal LobbyCaller MatchCallerOf(int userId)
+        internal SessionChannelCaller MatchCallerOf(int userId)
         {
-            return new LobbyCaller(TokenOf(userId), MatchChannelPrefix + userId);
+            return new SessionChannelCaller(TokenOf(userId), MatchChannelPrefix + userId);
         }
 
         internal MatchDelivery Subscribe(int userId)
@@ -153,8 +153,8 @@ namespace TLMG.Services.Tests
         }
 
         /// <summary>
-        /// Lleva la ronda hasta el reto listo: el primer jugador coloca una carta segura, el segundo la carta indicada
-        /// y el tercero una segura; el primero apuesta y los otros dos se retiran.
+        /// Prepares a challenge. The first and third players place safe cards and the second places the given card. The
+        /// first player bids and both others fold.
         /// </summary>
         internal void ReachChallengeReady(MatchCardKind secondPlayerCard, int betValue)
         {
@@ -166,14 +166,16 @@ namespace TLMG.Services.Tests
             Withdraw(UserIds[2]);
         }
 
-        /// <summary>El primer jugador cumple un reto de una carta con su propia pila: gana la ronda.</summary>
+        /// <summary>The first player wins the round by revealing one card from their own pile.</summary>
         internal void WinRoundWithABetOfOne()
         {
             ReachChallengeReady(MatchCardKind.Safe, 1);
             Reveal(UserIds[0], UserIds[0]);
         }
 
-        /// <summary>El primer jugador falla contra el Gato del segundo: castigo a ciegas, elige el segundo.</summary>
+        /// <summary>
+        /// The first player fails on the second player's Fatal Cat. The second player chooses blindly.
+        /// </summary>
         internal void ReachBlindPunishment()
         {
             ReachChallengeReady(MatchCardKind.FatalCat, 2);
@@ -181,7 +183,7 @@ namespace TLMG.Services.Tests
             Reveal(UserIds[0], UserIds[1]);
         }
 
-        /// <summary>El primer jugador falla con su propio Gato: castigo propio, elige él viendo su mano.</summary>
+        /// <summary>The first player fails on their own Fatal Cat and chooses a card from their visible hand.</summary>
         internal void ReachOwnPunishment()
         {
             Place(UserIds[0], MatchCardKind.FatalCat);
@@ -193,7 +195,7 @@ namespace TLMG.Services.Tests
             Reveal(UserIds[0], UserIds[0]);
         }
 
-        /// <summary>Cada jugador coloca una carta segura en su turno, empezando por el creador.</summary>
+        /// <summary>Each player places a safe card in turn, starting with the creator.</summary>
         internal void PlaceOneSafeCardEach()
         {
             foreach (int userId in UserIds)
@@ -202,7 +204,7 @@ namespace TLMG.Services.Tests
             }
         }
 
-        /// <summary>Vista actual del jugador, leída al volver a suscribirlo con su callback.</summary>
+        /// <summary>Current player view obtained by subscribing again with the player's callback.</summary>
         internal MatchView ReadViewAs(int userId)
         {
             return Subscribe(userId).ViewDeliveries[0].MatchView;
@@ -213,25 +215,25 @@ namespace TLMG.Services.Tests
             return ReadViewAs(userId).Version;
         }
 
-        /// <summary>Informa al registro que el canal de partida del jugador se cerró con su callback actual.</summary>
+        /// <summary>Tells the registry that the player's match channel closed with its current callback.</summary>
         internal bool CloseMatchChannelOf(int userId)
         {
             return Registry.RemoveMatchChannel(MatchChannelPrefix + userId, CallbackOf(userId));
         }
 
-        /// <summary>Los callbacks destinatarios de una entrega, en el orden de la entrega.</summary>
+        /// <summary>Recipient callbacks in delivery order.</summary>
         internal static IEnumerable<IMatchManagerCallback> RecipientsOf(MatchDelivery delivery)
         {
             return delivery.ViewDeliveries.Select(viewDelivery => viewDelivery.Callback);
         }
 
-        /// <summary>Un llamador con el canal de partida del primer jugador y el token recibido.</summary>
-        internal static LobbyCaller CallerWithToken(string sessionToken)
+        /// <summary>Caller with the first player's match channel and the supplied token.</summary>
+        internal static SessionChannelCaller CallerWithToken(string sessionToken)
         {
-            return new LobbyCaller(sessionToken, MatchChannelPrefix + FirstUserId);
+            return new SessionChannelCaller(sessionToken, MatchChannelPrefix + FirstUserId);
         }
 
-        /// <summary>Todos los jugadores salen de la sala, en orden de ingreso.</summary>
+        /// <summary>All players leave the room in entry order.</summary>
         internal void LeaveAll()
         {
             foreach (int userId in UserIds)
@@ -240,9 +242,9 @@ namespace TLMG.Services.Tests
             }
         }
 
-        private LobbyCaller LobbyCallerOf(int userId)
+        private SessionChannelCaller LobbyCallerOf(int userId)
         {
-            return new LobbyCaller(TokenOf(userId), LobbyChannelPrefix + userId);
+            return new SessionChannelCaller(TokenOf(userId), LobbyChannelPrefix + userId);
         }
 
         private void CreateRoomWithAllPlayers()

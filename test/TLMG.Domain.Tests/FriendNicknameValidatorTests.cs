@@ -1,106 +1,88 @@
-using System;
-
 using Xunit;
 
+using TLMG.Domain.Constants;
 using TLMG.Domain.Validators;
 
 namespace TLMG.Domain.Tests
 {
-    /// <summary>Pruebas de FriendNicknameValidator.</summary>
+    /// <summary>
+    /// Tests of FriendNicknameValidator: the text is trimmed, must have 3 to 12 characters once trimmed and must not
+    /// look like an email. The limits are written here on purpose and not read from ValidationRules.
+    /// </summary>
     public class FriendNicknameValidatorTests
     {
-        /// <summary>Verifica ValidateNickname_WithValidNickname_ReturnsNoErrorAndNormalizedNickname.</summary>
+        private const int MinimumNicknameLength = 3;
+        private const int MaximumNicknameLength = 12;
+
+        /// <summary>A valid nickname is accepted and returned without the surrounding blanks.</summary>
+        /// <param name="nickname">Nickname as typed.</param>
+        /// <param name="expectedNormalizedNickname">Nickname once trimmed.</param>
         [Theory]
         [InlineData("abc", "abc")]
         [InlineData("Gato_01", "Gato_01")]
         [InlineData("abcdefghijkl", "abcdefghijkl")]
         [InlineData("  abc  ", "abc")]
-        public void ValidateNickname_WithValidNickname_ReturnsNoErrorAndNormalizedNickname(string nickname,
-            string expected)
+        [InlineData("\tabc\n", "abc")]
+        [InlineData("  abcdefghijkl  ", "abcdefghijkl")]
+        public void ValidateNickname_WithValidNickname_ReturnsNullAndTrimmedNickname(
+            string nickname,
+            string expectedNormalizedNickname)
         {
             // Arrange
-            string normalizedNickname;
 
             // Act
-            string errorKey = FriendNicknameValidator.ValidateNickname(nickname, out normalizedNickname);
+            string errorKey = FriendNicknameValidator.ValidateNickname(nickname, out string normalizedNickname);
 
             // Assert
             Assert.Null(errorKey);
-            Assert.Equal(expected, normalizedNickname);
+            Assert.Equal(expectedNormalizedNickname, normalizedNickname);
         }
 
-        /// <summary>Verifica ValidateNickname_WithLengthBoundary_ReturnsExpectedError.</summary>
+        /// <summary>The length limits apply to the trimmed text and are inclusive.</summary>
+        /// <param name="length">Length of the nickname without blanks.</param>
         [Theory]
-        [InlineData(2, "Friends_NicknameFormatError")]
-        [InlineData(3, null)]
-        [InlineData(12, null)]
-        [InlineData(13, "Friends_NicknameFormatError")]
-        public void ValidateNickname_WithLengthBoundary_ReturnsExpectedError(int length, string expected)
+        [InlineData(MinimumNicknameLength)]
+        [InlineData(MaximumNicknameLength)]
+        public void ValidateNickname_AtLengthLimits_ReturnsNullAndSameNickname(int length)
         {
             // Arrange
             string nickname = new string('a', length);
-            string normalizedNickname;
 
             // Act
-            string errorKey = FriendNicknameValidator.ValidateNickname(nickname, out normalizedNickname);
+            string errorKey = FriendNicknameValidator.ValidateNickname(nickname, out string normalizedNickname);
 
             // Assert
-            Assert.Equal(expected, errorKey);
+            Assert.Null(errorKey);
+            Assert.Equal(nickname, normalizedNickname);
         }
 
-        /// <summary>Verifica ValidateNickname_WithEmail_ReturnsError.</summary>
+        /// <summary>Missing, blank, too short, too long and email-like nicknames are rejected.</summary>
+        /// <param name="nickname">Nickname as typed.</param>
         [Theory]
-        [InlineData("a@b.com")]
-        [InlineData("@abc")]
-        [InlineData("abc@")]
-        [InlineData("jugador@uv.mx")]
-        public void ValidateNickname_WithEmail_ReturnsError(string nickname)
-        {
-            // Arrange
-            string normalizedNickname;
-
-            // Act
-            string errorKey = FriendNicknameValidator.ValidateNickname(nickname, out normalizedNickname);
-
-            // Assert
-            Assert.Equal("Friends_NicknameFormatError", errorKey);
-            Assert.Null(normalizedNickname);
-        }
-
-        /// <summary>Verifica ValidateNickname_WithEmptyOrBlankNickname_ReturnsError.</summary>
-        [Theory]
+        [InlineData(null)]
         [InlineData("")]
         [InlineData(" ")]
         [InlineData("     ")]
         [InlineData("\t")]
-        public void ValidateNickname_WithEmptyOrBlankNickname_ReturnsError(string nickname)
+        [InlineData("ab")]
+        [InlineData("  ab  ")]
+        [InlineData("abcdefghijklm")]
+        [InlineData("  abcdefghijklm  ")]
+        [InlineData("a@b.com")]
+        [InlineData("@abc")]
+        [InlineData("abc@")]
+        [InlineData("jugador@uv.mx")]
+        [InlineData("  a@b  ")]
+        public void ValidateNickname_WithInvalidNickname_ReturnsNicknameFormatErrorAndNoNickname(string nickname)
         {
             // Arrange
-            string normalizedNickname;
 
             // Act
-            string errorKey = FriendNicknameValidator.ValidateNickname(nickname, out normalizedNickname);
+            string errorKey = FriendNicknameValidator.ValidateNickname(nickname, out string normalizedNickname);
 
             // Assert
-            Assert.Equal("Friends_NicknameFormatError", errorKey);
+            Assert.Equal(ErrorKeys.Friends.NicknameFormat, errorKey);
             Assert.Null(normalizedNickname);
-        }
-
-        /// <summary>Verifica ValidateNickname_WithNullNickname_DoesNotThrowAndReturnsError.</summary>
-        [Fact]
-        public void ValidateNickname_WithNullNickname_DoesNotThrowAndReturnsError()
-        {
-            // Arrange
-            string normalizedNickname = null;
-            string errorKey = null;
-
-            // Act
-            Exception thrown = Record.Exception(
-                () => errorKey = FriendNicknameValidator.ValidateNickname(null, out normalizedNickname));
-
-            // Assert
-            Assert.Null(thrown);
-            Assert.Equal("Friends_NicknameFormatError", errorKey);
         }
     }
 }

@@ -1,12 +1,12 @@
 namespace TLMG.Domain.Engine
 {
-    /// <summary>Tipo de una carta de la mano o de la pila de un jugador.</summary>
+    /// <summary>Type of card in a player's hand or pile.</summary>
     public enum CardKind
     {
-        /// <summary>Carta segura.</summary>
+        /// <summary>Safe card.</summary>
         Safe,
 
-        /// <summary>Gato con Maullido Fatal.</summary>
+        /// <summary>Fatal Cat card.</summary>
         FatalCat
     }
 }

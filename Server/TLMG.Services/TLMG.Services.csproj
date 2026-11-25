@@ -82,10 +82,10 @@
     <Compile Include="Sessions\IMatchStartRegistry.cs" />
     <Compile Include="Sessions\ISessionAuthorizer.cs" />
     <Compile Include="Sessions\ISessionIdentityProvider.cs" />
-    <Compile Include="Sessions\LobbyCaller.cs" />
     <Compile Include="Sessions\MatchStartPreparation.cs" />
     <Compile Include="Sessions\SessionAuthorization.cs" />
     <Compile Include="Sessions\SessionRegistry.Authorization.cs" />
+    <Compile Include="Sessions\SessionChannelCaller.cs" />
     <Compile Include="Sessions\SessionRegistry.Chat.cs" />
     <Compile Include="Sessions\ChatDelivery.cs" />
     <Compile Include="Sessions\ChatChannel.cs" />
@@ -147,9 +147,9 @@
     <Compile Include="Match\MatchErrorKeys.cs" />
     <Compile Include="Match\MatchService.cs" />
     <Compile Include="Helpers\MatchViewHelper.cs" />
-    <Compile Include="SessionRegistry.MatchManager.cs" />
+    <Compile Include="ServiceImplementation.MatchManager.cs" />
     <Compile Include="Sessions\MatchSnapshot.cs" />
-    <Compile Include="Utilities\CodeGeneratorUtility.cs" />
+    <Compile Include="Utilities\VerificationCodeGenerator.cs" />
     <Compile Include="Utilities\EmailTemplates.cs" />
     <Compile Include="Utilities\EmailUtility.cs" />
     <Compile Include="Utilities\Languages\EmailLanguageStrategyFactory.cs" />

@@ -2,7 +2,7 @@ using System;
 
 namespace TLMG.Services.Tests
 {
-    /// <summary>Reloj UTC que la prueba avanza a mano, para vencer la cuenta regresiva sin esperar.</summary>
+    /// <summary>UTC clock advanced by the test to expire a countdown without waiting.</summary>
     internal sealed class ManualUtcClock
     {
         private static readonly DateTime _startUtc = new DateTime(2026, 11, 20, 12, 0, 0, DateTimeKind.Utc);

@@ -1,4 +1,4 @@
-using TLMG.Client.ViewModels;
+﻿using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
@@ -11,6 +11,7 @@ namespace TLMG.Client.Views
 
         private readonly GameOverViewModel _viewModel;
 
+        /// <summary>Sets up the view with its ViewModel.</summary>
         public GameOverScreen(GameOverViewModel viewModel)
         {
             InitializeComponent();

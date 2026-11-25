@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using TLMG.Client.Communication;
@@ -9,9 +10,11 @@ using TLMG.Client.Validation;
 
 namespace TLMG.Client.ViewModels
 {
+    /// <summary>Displays the current player's identity and permits profile changes only for registered players.</summary>
     public class ProfileViewModel : ViewModelBase
     {
         private const string LastPasswordChangeFormatKey = "Profile_LastPasswordChange";
+        private const string UnexpectedErrorKey = "Common_UnexpectedError";
 
         private readonly INavigationManager _navigationManager;
         private readonly IProfileConnection _profileConnection;
@@ -157,8 +160,9 @@ namespace TLMG.Client.ViewModels
         private void LoadProfile()
         {
             OperationPlayerProfileResult profileResult = _profileConnection.GetPlayerProfile();
+            string errorKey = ResolveProfileErrorKey(profileResult);
 
-            if (profileResult.IsSuccess)
+            if (errorKey == string.Empty)
             {
                 NicknameError.Hide();
                 DisplayNickname = profileResult.Nickname;
@@ -169,7 +173,7 @@ namespace TLMG.Client.ViewModels
             }
             else
             {
-                ShowProfileError(profileResult.ErrorKey);
+                ShowProfileError(errorKey);
             }
         }
 
@@ -192,7 +196,7 @@ namespace TLMG.Client.ViewModels
             {
                 string errorKey = SaveProfile(DisplayNickname, avatarKey);
 
-                if (errorKey == null)
+                if (errorKey == string.Empty)
                 {
                     NicknameError.Hide();
                     ApplyAvatar(avatarKey);
@@ -226,7 +230,7 @@ namespace TLMG.Client.ViewModels
                     errorKey = SaveProfile(EditingNickname, _currentAvatarKey);
                 }
 
-                if (errorKey == null)
+                if (errorKey == string.Empty)
                 {
                     NicknameError.Hide();
                     DisplayNickname = EditingNickname;
@@ -249,12 +253,27 @@ namespace TLMG.Client.ViewModels
 
         private string SaveProfile(string nickname, string avatarKey)
         {
-            string errorKey = null;
             OperationResult updateResult = _profileConnection.UpdatePlayerProfile(nickname, avatarKey);
+            string errorKey = ResolveProfileErrorKey(updateResult);
 
-            if (!updateResult.IsSuccess)
+            return errorKey;
+        }
+
+        private static string ResolveProfileErrorKey(OperationResult result)
+        {
+            string errorKey = UnexpectedErrorKey;
+
+            if (result != null)
             {
-                errorKey = updateResult.ErrorKey;
+                if (result.IsSuccess && string.IsNullOrEmpty(result.ErrorKey))
+                {
+                    errorKey = string.Empty;
+                }
+                else if (!result.IsSuccess && !string.IsNullOrWhiteSpace(result.ErrorKey)
+                    && (Application.Current == null || Application.Current.TryFindResource(result.ErrorKey) is string))
+                {
+                    errorKey = result.ErrorKey;
+                }
             }
 
             return errorKey;

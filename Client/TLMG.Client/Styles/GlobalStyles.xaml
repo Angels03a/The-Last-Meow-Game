@@ -459,7 +459,7 @@
         <Setter Property="Margin" Value="0,4,0,0" />
         <Setter Property="Visibility" Value="Hidden" />
     </Style>
-    
+
     <Style x:Key="FormMessageTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="12" />
         <Setter Property="FontWeight" Value="SemiBold" />
@@ -1969,8 +1969,8 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
-    <!-- Deja libre arriba la fila de rivales (unos 155 px) y abajo un margen; el óvalo y lo centrado en él se
-         ajustan al espacio restante. -->
+    <!-- Leaves about 155 px above the table for opponents and a margin below. The oval and its contents fit the
+         remaining space. -->
     <Style x:Key="GameplayTableAreaGridStyle" TargetType="Grid">
         <Setter Property="Margin" Value="0,165,0,20" />
     </Style>
@@ -3073,7 +3073,7 @@
     <SolidColorBrush x:Key="Brush_FugitiveKittenInnerEar" Color="#E58F8F" />
     <SolidColorBrush x:Key="Brush_FugitiveKittenNose" Color="#A8505A" />
 
-    <!-- TODO: Reemplazar los colores provisionales del gatito por el sprite final. (BL-120). -->
+    <!-- TODO: Replace the kitten's temporary colors with the final sprite. (BL-120). -->
     <SolidColorBrush x:Key="Brush_FugitiveKittenOrangeBody" Color="#F2A65A" />
     <SolidColorBrush x:Key="Brush_FugitiveKittenOrangeStripe" Color="#C97A35" />
     <SolidColorBrush x:Key="Brush_FugitiveKittenOrangeCream" Color="#FBE3C4" />
@@ -3088,7 +3088,7 @@
     <StaticResource x:Key="Brush_FugitiveKittenStripe" ResourceKey="Brush_FugitiveKittenOrangeStripe" />
     <StaticResource x:Key="Brush_FugitiveKittenCream" ResourceKey="Brush_FugitiveKittenOrangeCream" />
 
-    <!-- TODO: Usar Cinzel en lugar de Georgia y Outfit en lugar de la fuente por defecto. (BL-121). -->
+    <!-- TODO: Use Cinzel for Georgia text and Outfit for text in the default font. (BL-121). -->
     <Style x:Key="FugitiveKittenHeaderTitleTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="11" />
         <Setter Property="Foreground" Value="{StaticResource Brush_TextFaint}" />

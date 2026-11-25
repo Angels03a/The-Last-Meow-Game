@@ -4,11 +4,11 @@ using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
 {
-    /// <summary>Estado público del minijuego previo a la partida.</summary>
+    /// <summary>Public state of the pre-match minigame.</summary>
     [DataContract]
     public class FugitiveKittenView
     {
-        /// <summary>Hora UTC del servidor al construir esta vista.</summary>
+        /// <summary>Server time in UTC when this view was built.</summary>
         [DataMember] public DateTime ServerTimeUtc { get; set; }
         [DataMember] public DateTime StartedAtUtc { get; set; }
         [DataMember] public DateTime? PausedAtUtc { get; set; }

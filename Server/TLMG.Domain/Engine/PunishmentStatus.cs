@@ -1,42 +1,44 @@
 namespace TLMG.Domain.Engine
 {
-    /// <summary>Resultado de elegir o vencer un castigo pendiente; Services lo traduce a ErrorKey.</summary>
+    /// <summary>
+    /// Result of choosing a punishment card or reaching the deadline. Services maps it to an ErrorKey.
+    /// </summary>
     public enum PunishmentStatus
     {
-        /// <summary>Se eliminó la carta del castigado; Phase indica cómo sigue la partida.</summary>
+        /// <summary>The punished player lost a card. Phase indicates what happens next.</summary>
         CardRemoved,
 
-        /// <summary>El castigo quedó suspendido: su plazo se detuvo y se guardó el tiempo restante.</summary>
+        /// <summary>Punishment paused, its clock stopped and the remaining time was saved.</summary>
         Suspended,
 
-        /// <summary>El castigo se reanudó con el tiempo que le quedaba, sin reiniciar el plazo.</summary>
+        /// <summary>Punishment resumed with its remaining time.</summary>
         Resumed,
 
-        /// <summary>El jugador que pide elegir no forma parte de la partida.</summary>
+        /// <summary>The player requesting the choice is outside the match.</summary>
         PlayerNotInMatch,
 
-        /// <summary>No hay un castigo pendiente: ya se resolvió o no hubo reto fallido.</summary>
+        /// <summary>There is no pending punishment. It was resolved or there was no failed challenge.</summary>
         NoPunishmentPending,
 
-        /// <summary>Solo el jugador que debe elegir puede elegir la carta que se pierde.</summary>
+        /// <summary>Only the designated player can choose the lost card.</summary>
         NotTheChooser,
 
-        /// <summary>El índice no corresponde a ninguna carta del castigado.</summary>
+        /// <summary>The index does not match a card in the punished player's hand.</summary>
         CardIndexNotValid,
 
-        /// <summary>El plazo para elegir ya venció: la carta la elige el sistema al azar.</summary>
+        /// <summary>The choice deadline expired. The system picks a random card.</summary>
         DeadlineExpired,
 
-        /// <summary>El plazo para elegir todavía no vence: aún no puede elegir el sistema.</summary>
+        /// <summary>The deadline is still open. The system cannot choose yet.</summary>
         DeadlineNotReached,
 
-        /// <summary>El castigo está suspendido: no se puede elegir, vencer ni volver a suspender.</summary>
+        /// <summary>Suspended punishment cannot accept a choice, expire or pause again.</summary>
         PunishmentSuspended,
 
-        /// <summary>El castigo no está suspendido: no hay nada que reanudar.</summary>
+        /// <summary>Punishment is active, so there is nothing to resume.</summary>
         PunishmentNotSuspended,
 
-        /// <summary>Solo el jugador castigado puede suspender o reanudar su castigo.</summary>
+        /// <summary>Only the punished player can pause or resume their punishment.</summary>
         NotThePunished
     }
 }

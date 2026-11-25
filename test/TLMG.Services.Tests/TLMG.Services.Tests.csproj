@@ -26,6 +26,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FailingPasswordHasherStub.cs" />
+    <Compile Include="PasswordRecoveryServiceTests.cs" />
+    <Compile Include="PasswordResetDispatcherTests.cs" />
+    <Compile Include="VerificationCodeRepositoryStub.cs" />
+    <Compile Include="VerificationCodeStoreTests.cs" />
     <Compile Include="FailingSessionRegistryStub.cs" />
     <Compile Include="FriendsCallbackStub.cs" />
     <Compile Include="FriendshipRepositoryStub.cs" />
@@ -33,10 +37,12 @@
     <Compile Include="FriendsServiceAcceptRequestTests.cs" />
     <Compile Include="FriendsServiceDeclineRequestTests.cs" />
     <Compile Include="FriendsServiceSendRequestTests.cs" />
+    <Compile Include="FriendsServiceRoomInvitationTests.cs" />
     <Compile Include="FriendsServiceSubscribeTests.cs" />
     <Compile Include="LobbyCallbackStub.cs" />
     <Compile Include="LobbyReadinessHelper.cs" />
     <Compile Include="LobbyScenario.cs" />
+    <Compile Include="PlayerProfileServiceTests.cs" />
     <Compile Include="LobbyServiceCardsPerPlayerTests.cs" />
     <Compile Include="ManualUtcClock.cs" />
     <Compile Include="MatchCallbackStub.cs" />
@@ -57,9 +63,11 @@
     <Compile Include="SessionRegistryMatchExitTests.cs" />
     <Compile Include="MatchServiceTests.cs" />
     <Compile Include="MatchViewHelperTests.cs" />
+    <Compile Include="ChatServiceTests.cs" />
     <Compile Include="SessionRegistryMatchPlayAuthorizationTests.cs" />
     <Compile Include="SessionRegistryMatchPlayTests.cs" />
     <Compile Include="SessionRegistryFugitiveKittenTests.cs" />
+    <Compile Include="PasswordChangeServiceTests.cs" />
     <Compile Include="PasswordHasherTests.cs" />
     <Compile Include="PlayerAccountRegistrationServiceTests.cs" />
     <Compile Include="PlayerLogInServiceTests.cs" />
@@ -67,6 +75,7 @@
     <Compile Include="SessionNotificationHelperTests.cs" />
     <Compile Include="SessionRegistryCardsPerPlayerTests.cs" />
     <Compile Include="SessionRegistryFriendsTests.cs" />
+    <Compile Include="LeaderboardServiceTests.cs" />
     <Compile Include="SessionRegistryMatchesTests.cs" />
     <Compile Include="SessionRegistryReplacedSessionTests.cs" />
     <Compile Include="SessionRegistryChannelIdentityTests.cs" />

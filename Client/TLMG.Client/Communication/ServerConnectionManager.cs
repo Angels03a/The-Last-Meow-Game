@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ServiceModel;
 using System.Windows.Threading;
@@ -207,7 +207,7 @@ namespace TLMG.Client.Communication
         {
             bool wasCreateRoomSent = false;
 
-            if (OpenLobbyChannel())
+            if (HasRegisteredSession && OpenLobbyChannel())
             {
                 wasCreateRoomSent = TrySend(() => _lobbyClient.CreateRoom(_sessionToken),
                     "crear una sala", CloseLobbyChannel);
@@ -238,18 +238,16 @@ namespace TLMG.Client.Communication
         public bool LeaveLobby()
         {
             bool wasRequestLeaveLobbySent = false;
-            if (_finishedLeaveRoomId.HasValue)
+            if (!_finishedLeaveRoomId.HasValue)
             {
-                wasRequestLeaveLobbySent = false;
-            }
+                ClearCurrentRoom();
 
-            ClearCurrentRoom();
-
-            if (OpenLobbyChannel())
-            {
-                _pendingLeaveRequests++;
-                wasRequestLeaveLobbySent = TrySend(() => _lobbyClient.LeaveLobby(_sessionToken),
-                    "salir de una sala", CloseLobbyChannel);
+                if (OpenLobbyChannel())
+                {
+                    _pendingLeaveRequests++;
+                    wasRequestLeaveLobbySent = TrySend(() => _lobbyClient.LeaveLobby(_sessionToken),
+                        "salir de una sala", CloseLobbyChannel);
+                }
             }
 
             return wasRequestLeaveLobbySent;
@@ -276,11 +274,11 @@ namespace TLMG.Client.Communication
         }
 
         /// <summary>
-        /// Pasa al hilo de la interfaz un aviso de los canales de amigos o de lobby. La vigencia se comprueba al
-        /// ejecutarse en el hilo de la interfaz, no al llegar, porque entre ambos momentos el canal pudo cerrarse.
+        /// Passes a friends or lobby notification to the UI thread. It checks the channel when the notification runs
+        /// because the channel may close after the notification arrives.
         /// </summary>
-        /// <param name="callback">Receptor que entregó el aviso.</param>
-        /// <param name="notification">Aviso que se aplica solo si el receptor sigue vigente.</param>
+        /// <param name="callback">Receiver that delivered the notification.</param>
+        /// <param name="notification">Notification to apply only if the receiver is still current.</param>
         internal void RunOnInterfaceIfCurrent(ServerCallback callback, Action notification)
         {
             RunOnInterface(() => RunIfCurrentCallback(callback, notification));
@@ -289,6 +287,7 @@ namespace TLMG.Client.Communication
         internal void NotifyFriendListReceived(
             OperationSubscribeToFriendsResult operationSubscribeToFriendsResult)
         {
+            operationSubscribeToFriendsResult = NormalizeOperationResult(operationSubscribeToFriendsResult);
             if (operationSubscribeToFriendsResult.IsSuccess)
             {
                 _friendsSubscriptionUntil = null;
@@ -338,6 +337,7 @@ namespace TLMG.Client.Communication
 
         internal void NotifySendFriendRequestResultReceived(OperationSendFriendRequestResult result)
         {
+            result = NormalizeOperationResult(result);
             if (result != null)
             {
                 if (result.IsSuccess && result.SentFriendRequest != null)
@@ -358,6 +358,7 @@ namespace TLMG.Client.Communication
 
         internal void NotifyAcceptFriendRequestResultReceived(OperationAcceptFriendRequestResult result)
         {
+            result = NormalizeOperationResult(result);
             if (result != null)
             {
                 if (result.IsSuccess)
@@ -378,6 +379,7 @@ namespace TLMG.Client.Communication
 
         internal void NotifyDeclineFriendRequestResultReceived(OperationDeclineFriendRequestResult result)
         {
+            result = NormalizeOperationResult(result);
             if (result != null)
             {
                 if (result.IsSuccess)
@@ -393,6 +395,7 @@ namespace TLMG.Client.Communication
 
         internal void NotifyChangeCardsPerPlayerResultReceived(OperationLobbyRoomResult result)
         {
+            result = NormalizeOperationResult(result);
             if (result != null)
             {
                 if (result.Room != null)
@@ -414,6 +417,7 @@ namespace TLMG.Client.Communication
         internal void NotifyInviteFriendResultReceived(
             OperationResult operationInviteFriendToRoomResult)
         {
+            operationInviteFriendToRoomResult = NormalizeOperationResult(operationInviteFriendToRoomResult);
             InviteFriendResultReceived?.Invoke(
                 this,
                 new ServerEventArgs<OperationResult>(operationInviteFriendToRoomResult));
@@ -422,13 +426,32 @@ namespace TLMG.Client.Communication
         internal void NotifyAcceptInvitationResultReceived(
             OperationAcceptRoomInvitationResult operationAcceptRoomInvitationResult)
         {
+            operationAcceptRoomInvitationResult = NormalizeOperationResult(operationAcceptRoomInvitationResult);
             AcceptInvitationResultReceived?.Invoke(
                 this,
                 new ServerEventArgs<OperationAcceptRoomInvitationResult>(operationAcceptRoomInvitationResult));
         }
 
+        private static ResultType NormalizeOperationResult<ResultType>(ResultType result)
+            where ResultType : OperationResult, new()
+        {
+            const string unexpectedErrorKey = "Common_UnexpectedError";
+
+            if (result == null)
+            {
+                result = CreateFailedResult<ResultType>(unexpectedErrorKey);
+            }
+            else
+            {
+                NormalizeAccountResult(result, unexpectedErrorKey);
+            }
+
+            return result;
+        }
+
         internal void NotifyCreateRoomResultReceived(OperationLobbyRoomResult operationCreateRoomResult)
         {
+            operationCreateRoomResult = NormalizeOperationResult(operationCreateRoomResult);
             if (IsRoomCreationPending && operationCreateRoomResult.IsSuccess)
             {
                 _lobbyBoundRoomId = operationCreateRoomResult.Room?.RoomId;
@@ -444,31 +467,34 @@ namespace TLMG.Client.Communication
 
         internal void NotifyEnterLobbyResultReceived(OperationLobbyRoomResult operationEnterLobbyResult)
         {
+            operationEnterLobbyResult = NormalizeOperationResult(operationEnterLobbyResult);
             if (_recoveryLobbyUntil.HasValue)
             {
                 CompleteRecoveryLobby(operationEnterLobbyResult);
-                return;
             }
-
-            LobbyRoom enteredRoom = operationEnterLobbyResult.Room;
-            bool isExpectedEntry = operationEnterLobbyResult.IsSuccess && IsEnteringRoom(enteredRoom);
-            bool isAlreadyShowingRoom = IsSameRoom(CurrentRoom, enteredRoom);
-
-            if (isExpectedEntry || isAlreadyShowingRoom)
+            else
             {
-                _lobbyBoundRoomId = enteredRoom.RoomId;
-                ApplyRoomSnapshot(enteredRoom);
+                LobbyRoom enteredRoom = operationEnterLobbyResult.Room;
+                bool isExpectedEntry = operationEnterLobbyResult.IsSuccess && IsEnteringRoom(enteredRoom);
+                bool isAlreadyShowingRoom = IsSameRoom(CurrentRoom, enteredRoom);
+
+                if (isExpectedEntry || isAlreadyShowingRoom)
+                {
+                    _lobbyBoundRoomId = enteredRoom.RoomId;
+                    ApplyRoomSnapshot(enteredRoom);
+                }
+
+                _enteringRoomId = null;
+
+                EnterLobbyResultReceived?.Invoke(
+                    this,
+                    new ServerEventArgs<OperationLobbyRoomResult>(operationEnterLobbyResult));
             }
-
-            _enteringRoomId = null;
-
-            EnterLobbyResultReceived?.Invoke(
-                this,
-                new ServerEventArgs<OperationLobbyRoomResult>(operationEnterLobbyResult));
         }
 
         internal void NotifyLeaveLobbyResultReceived(OperationResult operationLeaveLobbyResult)
         {
+            operationLeaveLobbyResult = NormalizeOperationResult(operationLeaveLobbyResult);
             bool isFinishedLeave = _finishedLeaveRoomId.HasValue && _pendingLeaveRequests == 1;
             if (_pendingLeaveRequests > 0)
             {
@@ -521,8 +547,8 @@ namespace TLMG.Client.Communication
         }
 
         /// <summary>
-        /// Aplica el aviso solo si viene del receptor vigente del canal de amigos o del de lobby; cada apertura crea
-        /// un receptor distinto, así que lo que llegue de un canal anterior se ignora sin cambiar nada.
+        /// Applies notifications only from the current friends or lobby receiver. Each new channel has its own
+        /// receiver, so old callbacks leave the current state unchanged.
         /// </summary>
         private void RunIfCurrentCallback(ServerCallback callback, Action notification)
         {
@@ -753,7 +779,7 @@ namespace TLMG.Client.Communication
 
         private void CloseLobbyChannel()
         {
-            var client = _lobbyClient;
+            LobbyManagerClient client = _lobbyClient;
             UnwatchChannel(_lobbyChannel);
             _lobbyClient = null;
             _lobbyCallback = null;
@@ -778,7 +804,7 @@ namespace TLMG.Client.Communication
 
         private void CloseFriendsChannel()
         {
-            var client = _friendsClient;
+            FriendsManagerClient client = _friendsClient;
             UnwatchChannel(_friendsChannel);
             _friendsClient = null;
             _friendsChannel = null;

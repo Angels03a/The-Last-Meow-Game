@@ -8,9 +8,9 @@ using TLMG.Domain.Engine;
 namespace TLMG.Domain.Tests
 {
     /// <summary>
-    /// Pruebas de la suspensión y la reanudación del castigo pendiente (Reglas 4.0.6, H-06 y H-14): solo el castigado
-    /// suspende y reanuda, la suspensión no consume tiempo, la reanudación no reinicia el plazo y un castigo vencido
-    /// no se recupera.
+    /// Tests punishment suspension and resumption (Rule 4.0.6, H-06 and H-14). Only the punished player can pause or
+    /// resume. Paused time does not count, resuming preserves the remaining time and an expired punishment cannot be
+    /// recovered.
     /// </summary>
     public class MatchStatePunishmentSuspensionTests
     {
@@ -46,11 +46,11 @@ namespace TLMG.Domain.Tests
         private static readonly DateTime _resumedDeadlineUtc = _nowUtc.AddSeconds(ResumedDeadlineAfterSeconds);
         private static readonly TimeSpan _remainingAtDisconnect = TimeSpan.FromSeconds(RemainingSecondsAtDisconnect);
 
-        /// <summary>Verifica SuspendPunishment_ByPunishedOnForeignCat_StoresRemainingTimeWithoutDeadline.</summary>
+        /// <summary>Checks SuspendPunishment_ByPunishedOnForeignCat_StoresRemainingTimeWithoutDeadline.</summary>
         [Fact]
         public void SuspendPunishment_ByPunishedOnForeignCat_StoresRemainingTimeWithoutDeadline()
         {
-            // Arrange: B elige a ciegas una carta de A; A, el castigado, se desconecta.
+            // Arrange: B chooses blindly from A's cards. A, the punished player, disconnects.
             MatchState match = CreateBlindPunishment();
 
             // Act
@@ -63,11 +63,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(RoundPhase.PunishmentPending, match.Phase);
         }
 
-        /// <summary>Verifica SuspendPunishment_ByChooserOfForeignCat_ReturnsNotThePunishedAndKeepsDeadline.</summary>
+        /// <summary>Checks SuspendPunishment_ByChooserOfForeignCat_ReturnsNotThePunishedAndKeepsDeadline.</summary>
         [Fact]
         public void SuspendPunishment_ByChooserOfForeignCat_ReturnsNotThePunishedAndKeepsDeadline()
         {
-            // Arrange: B, quien elige, se desconecta; sus 10 segundos siguen corriendo.
+            // Arrange: B, the chooser, disconnects. The ten-second clock keeps running.
             MatchState match = CreateBlindPunishment();
 
             // Act
@@ -79,7 +79,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment.RemainingTime);
         }
 
-        /// <summary>Verifica ExpirePunishment_AfterChooserDisconnects_RemovesRandomCardAtOriginalDeadline.</summary>
+        /// <summary>Checks ExpirePunishment_AfterChooserDisconnects_RemovesRandomCardAtOriginalDeadline.</summary>
         [Fact]
         public void ExpirePunishment_AfterChooserDisconnects_RemovesRandomCardAtOriginalDeadline()
         {
@@ -95,7 +95,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ThreeLives, GetPlayer(match, PlayerAId).Lives);
         }
 
-        /// <summary>Verifica SuspendPunishment_ByPlayerOutsidePunishment_ReturnsNotThePunished.</summary>
+        /// <summary>Checks SuspendPunishment_ByPlayerOutsidePunishment_ReturnsNotThePunished.</summary>
         [Fact]
         public void SuspendPunishment_ByPlayerOutsidePunishment_ReturnsNotThePunished()
         {
@@ -110,7 +110,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(_deadlineUtc, match.PendingPunishment.DeadlineUtc);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_WhileSuspended_ReturnsPunishmentSuspendedAndKeepsHand.</summary>
+        /// <summary>Checks ChoosePunishmentCard_WhileSuspended_ReturnsPunishmentSuspendedAndKeepsHand.</summary>
         [Fact]
         public void ChoosePunishmentCard_WhileSuspended_ReturnsPunishmentSuspendedAndKeepsHand()
         {
@@ -128,11 +128,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(_remainingAtDisconnect, match.PendingPunishment.RemainingTime);
         }
 
-        /// <summary>Verifica ExpirePunishment_WhileSuspendedPastOriginalDeadline_ReturnsPunishmentSuspended.</summary>
+        /// <summary>Checks ExpirePunishment_WhileSuspendedPastOriginalDeadline_ReturnsPunishmentSuspended.</summary>
         [Fact]
         public void ExpirePunishment_WhileSuspendedPastOriginalDeadline_ReturnsPunishmentSuspended()
         {
-            // Arrange: la suspensión no consume tiempo; el plazo original ya pasó y aun así no vence.
+            // Arrange: Time spent paused does not count. Passing the original deadline does not end the punishment.
             MatchState match = CreateBlindPunishment();
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
 
@@ -146,11 +146,11 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment.DeadlineUtc);
         }
 
-        /// <summary>Verifica SuspendPunishment_OnOwnCat_SuspendsBecausePunishedConditionPrevails.</summary>
+        /// <summary>Checks SuspendPunishment_OnOwnCat_SuspendsBecausePunishedConditionPrevails.</summary>
         [Fact]
         public void SuspendPunishment_OnOwnCat_SuspendsBecausePunishedConditionPrevails()
         {
-            // Arrange: con Gato propio A elige y es castigado a la vez (H-14).
+            // Arrange: With their own Fatal Cat, A both chooses and receives punishment (H-14).
             MatchState match = CreateOwnPunishment();
 
             // Act
@@ -162,7 +162,7 @@ namespace TLMG.Domain.Tests
             AssertExactlyOneTimeValue(match.PendingPunishment);
         }
 
-        /// <summary>Verifica ResumePunishment_OnOwnCat_ContinuesWithRemainingTimeInsteadOfFullPeriod.</summary>
+        /// <summary>Checks ResumePunishment_OnOwnCat_ContinuesWithRemainingTimeInsteadOfFullPeriod.</summary>
         [Fact]
         public void ResumePunishment_OnOwnCat_ContinuesWithRemainingTimeInsteadOfFullPeriod()
         {
@@ -180,11 +180,11 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment.RemainingTime);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_OnOwnCatAfterResume_RemovesTheCardSeenAndChosen.</summary>
+        /// <summary>Checks ChoosePunishmentCard_OnOwnCatAfterResume_RemovesTheCardSeenAndChosen.</summary>
         [Fact]
         public void ChoosePunishmentCard_OnOwnCatAfterResume_RemovesTheCardSeenAndChosen()
         {
-            // Arrange: A regresa y elige viendo sus cartas una segura.
+            // Arrange: A returns, sees the hand and chooses a safe card.
             MatchState match = CreateOwnPunishment();
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
             match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
@@ -200,7 +200,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ThreeLives, GetPlayer(match, PlayerAId).Lives);
         }
 
-        /// <summary>Verifica SuspendPunishment_OneTickBeforeDeadline_KeepsOneTickRemaining.</summary>
+        /// <summary>Checks SuspendPunishment_OneTickBeforeDeadline_KeepsOneTickRemaining.</summary>
         [Fact]
         public void SuspendPunishment_OneTickBeforeDeadline_KeepsOneTickRemaining()
         {
@@ -215,15 +215,15 @@ namespace TLMG.Domain.Tests
             Assert.Equal(TimeSpan.FromTicks(OneTick), match.PendingPunishment.RemainingTime);
         }
 
-        /// <summary>Verifica SuspendPunishment_AtOrAfterDeadline_ReturnsDeadlineExpiredAndKeepsDeadline.</summary>
-        /// <param name="ticksAfterDeadline">Ticks transcurridos desde la hora límite.</param>
+        /// <summary>Checks SuspendPunishment_AtOrAfterDeadline_ReturnsDeadlineExpiredAndKeepsDeadline.</summary>
+        /// <param name="ticksAfterDeadline">Ticks elapsed since the deadline.</param>
         [Theory]
         [InlineData(NoTicks)]
         [InlineData(OneTick)]
         [InlineData(OneSecondInTicks)]
         public void SuspendPunishment_AtOrAfterDeadline_ReturnsDeadlineExpiredAndKeepsDeadline(long ticksAfterDeadline)
         {
-            // Arrange: una desconexión tardía no recupera un castigo vencido.
+            // Arrange: A late disconnection cannot recover an expired punishment.
             MatchState match = CreateBlindPunishment();
 
             // Act
@@ -235,7 +235,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment.RemainingTime);
         }
 
-        /// <summary>Verifica ExpirePunishment_AfterLateSuspensionRejected_RemovesRandomCard.</summary>
+        /// <summary>Checks ExpirePunishment_AfterLateSuspensionRejected_RemovesRandomCard.</summary>
         [Fact]
         public void ExpirePunishment_AfterLateSuspensionRejected_RemovesRandomCard()
         {
@@ -252,7 +252,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ThreeLives, GetPlayer(match, PlayerAId).Lives);
         }
 
-        /// <summary>Verifica SuspendPunishment_Twice_ReturnsPunishmentSuspendedAndKeepsRemainingTime.</summary>
+        /// <summary>Checks SuspendPunishment_Twice_ReturnsPunishmentSuspendedAndKeepsRemainingTime.</summary>
         [Fact]
         public void SuspendPunishment_Twice_ReturnsPunishmentSuspendedAndKeepsRemainingTime()
         {
@@ -269,7 +269,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment.DeadlineUtc);
         }
 
-        /// <summary>Verifica ResumePunishment_WhileActive_ReturnsPunishmentNotSuspendedAndKeepsDeadline.</summary>
+        /// <summary>Checks ResumePunishment_WhileActive_ReturnsPunishmentNotSuspendedAndKeepsDeadline.</summary>
         [Fact]
         public void ResumePunishment_WhileActive_ReturnsPunishmentNotSuspendedAndKeepsDeadline()
         {
@@ -285,7 +285,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment.RemainingTime);
         }
 
-        /// <summary>Verifica ResumePunishment_Twice_ReturnsPunishmentNotSuspendedAndKeepsDeadline.</summary>
+        /// <summary>Checks ResumePunishment_Twice_ReturnsPunishmentNotSuspendedAndKeepsDeadline.</summary>
         [Fact]
         public void ResumePunishment_Twice_ReturnsPunishmentNotSuspendedAndKeepsDeadline()
         {
@@ -304,8 +304,8 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment.RemainingTime);
         }
 
-        /// <summary>Verifica ResumePunishment_ByOtherPlayer_ReturnsNotThePunishedAndStaysSuspended.</summary>
-        /// <param name="playerId">Jugador de la partida que no es el castigado.</param>
+        /// <summary>Checks ResumePunishment_ByOtherPlayer_ReturnsNotThePunishedAndStaysSuspended.</summary>
+        /// <param name="playerId">Match player other than the punished player.</param>
         [Theory]
         [InlineData(PlayerBId)]
         [InlineData(PlayerCId)]
@@ -324,7 +324,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment.DeadlineUtc);
         }
 
-        /// <summary>Verifica SuspendPunishment_WithUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
+        /// <summary>Checks SuspendPunishment_WithUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
         [Fact]
         public void SuspendPunishment_WithUnknownPlayer_ReturnsPlayerNotInMatch()
         {
@@ -339,7 +339,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(_deadlineUtc, match.PendingPunishment.DeadlineUtc);
         }
 
-        /// <summary>Verifica ResumePunishment_WithUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
+        /// <summary>Checks ResumePunishment_WithUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
         [Fact]
         public void ResumePunishment_WithUnknownPlayer_ReturnsPlayerNotInMatch()
         {
@@ -355,7 +355,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(_remainingAtDisconnect, match.PendingPunishment.RemainingTime);
         }
 
-        /// <summary>Verifica SuspendPunishment_WithoutPunishmentPending_ReturnsNoPunishmentPending.</summary>
+        /// <summary>Checks SuspendPunishment_WithoutPunishmentPending_ReturnsNoPunishmentPending.</summary>
         [Fact]
         public void SuspendPunishment_WithoutPunishmentPending_ReturnsNoPunishmentPending()
         {
@@ -370,7 +370,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(RoundPhase.PlacingCards, match.Phase);
         }
 
-        /// <summary>Verifica ResumePunishment_WithoutPunishmentPending_ReturnsNoPunishmentPending.</summary>
+        /// <summary>Checks ResumePunishment_WithoutPunishmentPending_ReturnsNoPunishmentPending.</summary>
         [Fact]
         public void ResumePunishment_WithoutPunishmentPending_ReturnsNoPunishmentPending()
         {
@@ -385,11 +385,11 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment);
         }
 
-        /// <summary>Verifica SuspendPunishment_AfterPunishmentResolved_ReturnsNoPunishmentPending.</summary>
+        /// <summary>Checks SuspendPunishment_AfterPunishmentResolved_ReturnsNoPunishmentPending.</summary>
         [Fact]
         public void SuspendPunishment_AfterPunishmentResolved_ReturnsNoPunishmentPending()
         {
-            // Arrange: B ya eligió; el castigo terminó antes de la desconexión de A.
+            // Arrange: B already chose. Punishment ended before A disconnected.
             MatchState match = CreateBlindPunishment();
             match.ChoosePunishmentCard(PlayerBId, FirstCardIndex, _nowUtc);
 
@@ -401,7 +401,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment);
         }
 
-        /// <summary>Verifica SuspendPunishment_AfterMatchFinished_ReturnsNoPunishmentPending.</summary>
+        /// <summary>Checks SuspendPunishment_AfterMatchFinished_ReturnsNoPunishmentPending.</summary>
         [Fact]
         public void SuspendPunishment_AfterMatchFinished_ReturnsNoPunishmentPending()
         {
@@ -416,7 +416,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(RoundPhase.MatchFinished, match.Phase);
         }
 
-        /// <summary>Verifica ResumePunishment_AfterMatchFinished_ReturnsNoPunishmentPending.</summary>
+        /// <summary>Checks ResumePunishment_AfterMatchFinished_ReturnsNoPunishmentPending.</summary>
         [Fact]
         public void ResumePunishment_AfterMatchFinished_ReturnsNoPunishmentPending()
         {
@@ -431,11 +431,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(RoundPhase.MatchFinished, match.Phase);
         }
 
-        /// <summary>Verifica ResumePunishment_AfterSuspension_SetsDeadlineFromRemainingTime.</summary>
+        /// <summary>Checks ResumePunishment_AfterSuspension_SetsDeadlineFromRemainingTime.</summary>
         [Fact]
         public void ResumePunishment_AfterSuspension_SetsDeadlineFromRemainingTime()
         {
-            // Arrange: A se desconecta con 7 s restantes y regresa después del plazo original.
+            // Arrange: A disconnects with seven seconds left and returns after the original deadline.
             MatchState match = CreateBlindPunishment();
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
 
@@ -449,7 +449,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(RoundPhase.PunishmentPending, match.Phase);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_AfterResume_RemovesChosenCard.</summary>
+        /// <summary>Checks ChoosePunishmentCard_AfterResume_RemovesChosenCard.</summary>
         [Fact]
         public void ChoosePunishmentCard_AfterResume_RemovesChosenCard()
         {
@@ -467,7 +467,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment);
         }
 
-        /// <summary>Verifica ExpirePunishment_AfterResumeBeforeNewDeadline_ReturnsDeadlineNotReached.</summary>
+        /// <summary>Checks ExpirePunishment_AfterResumeBeforeNewDeadline_ReturnsDeadlineNotReached.</summary>
         [Fact]
         public void ExpirePunishment_AfterResumeBeforeNewDeadline_ReturnsDeadlineNotReached()
         {
@@ -485,7 +485,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FourLives, GetPlayer(match, PlayerAId).Lives);
         }
 
-        /// <summary>Verifica ExpirePunishment_AtNewDeadlineAfterResume_RemovesRandomCard.</summary>
+        /// <summary>Checks ExpirePunishment_AtNewDeadlineAfterResume_RemovesRandomCard.</summary>
         [Fact]
         public void ExpirePunishment_AtNewDeadlineAfterResume_RemovesRandomCard()
         {
@@ -502,7 +502,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ThreeLives, GetPlayer(match, PlayerAId).Lives);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_AtNewDeadlineAfterResume_ReturnsDeadlineExpired.</summary>
+        /// <summary>Checks ChoosePunishmentCard_AtNewDeadlineAfterResume_ReturnsDeadlineExpired.</summary>
         [Fact]
         public void ChoosePunishmentCard_AtNewDeadlineAfterResume_ReturnsDeadlineExpired()
         {
@@ -519,11 +519,12 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FourLives, GetPlayer(match, PlayerAId).Lives);
         }
 
-        /// <summary>Verifica ResumePunishment_AfterSecondSuspension_ConsumesOnlyActiveTime.</summary>
+        /// <summary>Checks ResumePunishment_AfterSecondSuspension_ConsumesOnlyActiveTime.</summary>
         [Fact]
         public void ResumePunishment_AfterSecondSuspension_ConsumesOnlyActiveTime()
         {
-            // Arrange: 3 s activos, pausa, 2 s activos, pausa; quedan 5 s al regresar por segunda vez.
+            // Arrange: Three active seconds, pause, two active seconds, pause. Five seconds remain on the second
+            // return.
             MatchState match = CreateBlindPunishment();
             match.SuspendPunishment(PlayerAId, _disconnectUtc);
             match.ResumePunishment(PlayerAId, _returnUtc, cardCount => FirstCardIndex);
@@ -539,7 +540,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment.RemainingTime);
         }
 
-        /// <summary>Verifica SuspendPunishment_WhileSuspended_PreservesCardsLivesChallengesPhaseTurnAndBet.</summary>
+        /// <summary>Checks SuspendPunishment_WhileSuspended_PreservesCardsLivesChallengesPhaseTurnAndBet.</summary>
         [Fact]
         public void SuspendPunishment_WhileSuspended_PreservesCardsLivesChallengesPhaseTurnAndBet()
         {
@@ -557,7 +558,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeSuspension, DescribeMatch(match));
         }
 
-        /// <summary>Verifica SuspendAndResume_InEveryStep_KeepsExactlyOneTimeValue.</summary>
+        /// <summary>Checks SuspendAndResume_InEveryStep_KeepsExactlyOneTimeValue.</summary>
         [Fact]
         public void SuspendAndResume_InEveryStep_KeepsExactlyOneTimeValue()
         {
@@ -579,8 +580,8 @@ namespace TLMG.Domain.Tests
             AssertExactlyOneTimeValue(punishment);
         }
 
-        /// <summary>Verifica SuspendPunishment_WithTimeThatIsNotUtc_ThrowsArgumentException.</summary>
-        /// <param name="timeKind">Tipo de hora distinto de UTC.</param>
+        /// <summary>Checks SuspendPunishment_WithTimeThatIsNotUtc_ThrowsArgumentException.</summary>
+        /// <param name="timeKind">Time kind other than UTC.</param>
         [Theory]
         [InlineData(DateTimeKind.Local)]
         [InlineData(DateTimeKind.Unspecified)]
@@ -598,8 +599,8 @@ namespace TLMG.Domain.Tests
             Assert.Equal(_deadlineUtc, match.PendingPunishment.DeadlineUtc);
         }
 
-        /// <summary>Verifica ResumePunishment_WithTimeThatIsNotUtc_ThrowsArgumentException.</summary>
-        /// <param name="timeKind">Tipo de hora distinto de UTC.</param>
+        /// <summary>Checks ResumePunishment_WithTimeThatIsNotUtc_ThrowsArgumentException.</summary>
+        /// <param name="timeKind">Time kind other than UTC.</param>
         [Theory]
         [InlineData(DateTimeKind.Local)]
         [InlineData(DateTimeKind.Unspecified)]
@@ -644,7 +645,7 @@ namespace TLMG.Domain.Tests
             }
         }
 
-        /// <summary>Quien tiene el turno abre la apuesta y todos los demás se retiran: el que abre apuesta.</summary>
+        /// <summary>The current player opens and all others fold, leaving the opener as the final bidder.</summary>
         private static void OpenAndConcede(MatchState match, int betValue)
         {
             int openingPlayerId = match.PlayerInTurn.PlayerId;
@@ -668,7 +669,9 @@ namespace TLMG.Domain.Tests
                 + $"{match.PlayerInTurn.PlayerId}.");
         }
 
-        /// <summary>4 cartas, A[S], B[G], C[S]; A apuesta 2 y voltea su S y el Gato de B: B elige a ciegas.</summary>
+        /// <summary>
+        /// Four cards, A[S], B[G], C[S]. A bids 2 and reveals S and B's Fatal Cat. B chooses blindly.
+        /// </summary>
         private static MatchState CreateBlindPunishment()
         {
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
@@ -680,7 +683,9 @@ namespace TLMG.Domain.Tests
             return match;
         }
 
-        /// <summary>4 cartas, A[G], B[S], C[S]; A apuesta 1 y voltea su Gato: A elige viendo sus cartas.</summary>
+        /// <summary>
+        /// Four cards, A[G], B[S], C[S]. A bids 1 and reveals their own Fatal Cat. A sees the hand when choosing.
+        /// </summary>
         private static MatchState CreateOwnPunishment()
         {
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
@@ -692,7 +697,7 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Orden A, B, C: B se elimina sobre su propio Gato, C gana un reto y A pierde su última carta: gana C.
+        /// Order A, B, C. B is eliminated on their own Fatal Cat, C wins a challenge and A loses the last card. C wins.
         /// </summary>
         private static MatchState CreateMatchFinishedByLastSurvivor()
         {
@@ -712,7 +717,7 @@ namespace TLMG.Domain.Tests
             return match;
         }
 
-        /// <summary>Hasta que B queda eliminado: en cada ronda B apuesta 1 sobre su Gato y pierde una carta.</summary>
+        /// <summary>Each round B bids 1 on their own Fatal Cat and loses a card until eliminated.</summary>
         private static void EliminateSecondPlayer(MatchState match)
         {
             int maximumLosses = match.ModeRules.CardsPerPlayerCount;
@@ -730,8 +735,8 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Con A primero del orden, A coloca su Gato, los demás una segura, A apuesta 1, revela su Gato y elige perder
-        /// una carta segura; se repite las veces indicadas.
+        /// With A first, A places a Fatal Cat and the others place safe cards. A bids 1, reveals the cat and chooses to
+        /// lose a safe card. Repeat the given number of times.
         /// </summary>
         private static void LoseSafeCardsOnOwnCat(MatchState match, int roundCount)
         {
@@ -770,7 +775,7 @@ namespace TLMG.Domain.Tests
             }
         }
 
-        /// <summary>Resume en texto cartas, vidas y retos de cada jugador, la fase, el turno y la apuesta.</summary>
+        /// <summary>Summarizes each player's cards, lives and challenges plus phase, turn and bid.</summary>
         private static string DescribeMatch(MatchState match)
         {
             string players = string.Join(";", match.Players.Select(player =>
@@ -783,7 +788,7 @@ namespace TLMG.Domain.Tests
             return $"{players}#{round}";
         }
 
-        /// <summary>Comprueba que exactamente uno de DeadlineUtc y RemainingTime tenga valor.</summary>
+        /// <summary>Checks that exactly one of DeadlineUtc and RemainingTime has a value.</summary>
         private static void AssertExactlyOneTimeValue(PendingPunishment punishment)
         {
             Assert.NotEqual(punishment.DeadlineUtc.HasValue, punishment.RemainingTime.HasValue);

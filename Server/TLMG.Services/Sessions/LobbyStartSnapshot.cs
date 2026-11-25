@@ -3,21 +3,21 @@ using System.Collections.Generic;
 
 namespace TLMG.Services.Sessions
 {
-    /// <summary>Copia inmutable de preparación, cuenta e inicio; no contiene callbacks ni tokens.</summary>
+    /// <summary>Immutable readiness, countdown and start snapshot without tokens or callbacks.</summary>
     public sealed class LobbyStartSnapshot
     {
-        /// <summary>Crea la copia; la lista recibida debe ser una copia de solo lectura.</summary>
-        /// <param name="readyUserIds">Jugadores Listo en el instante de la copia.</param>
-        /// <param name="version">Versión creciente del estado; permite descartar avisos atrasados de esta sala.</param>
+        /// <summary>Creates the snapshot from a read-only copy of the list.</summary>
+        /// <param name="readyUserIds">Ready players at the time of the snapshot.</param>
+        /// <param name="version">Increasing version used to discard late updates for this room.</param>
         /// <param name="countdownId">
-        /// Última generación creada; solo está activa si CountdownEndsAtUtc tiene valor.
+        /// Latest countdown generation. Active only when CountdownEndsAtUtc has a value.
         /// </param>
-        /// <param name="countdownEndsAtUtc">Hora límite UTC del servidor; null cuando no hay cuenta activa.</param>
-        /// <param name="serverTimeUtc">Hora UTC de la copia; el cliente no decide el vencimiento de la cuenta.</param>
-        /// <param name="matchId">Identificador estable de la partida autorizada; null antes del inicio.</param>
-        /// <param name="matchStartedAtUtc">Hora UTC de autorización; null antes del inicio.</param>
+        /// <param name="countdownEndsAtUtc">Server deadline in UTC, or null without an active countdown.</param>
+        /// <param name="serverTimeUtc">Snapshot time in UTC. The server decides when the countdown expires.</param>
+        /// <param name="matchId">Stable ID of the authorized match, or null before the start.</param>
+        /// <param name="matchStartedAtUtc">Authorization time in UTC, or null before the start.</param>
         /// <param name="cardsPerPlayerCount">
-        /// Cantidad de cartas por jugador de la partida autorizada o por iniciar.
+        /// Cards per player for the authorized or upcoming match.
         /// </param>
         public LobbyStartSnapshot(
             IReadOnlyList<int> readyUserIds,
@@ -39,28 +39,28 @@ namespace TLMG.Services.Sessions
             CardsPerPlayerCount = cardsPerPlayerCount;
         }
 
-        /// <summary>Jugadores Listo en el instante de la copia.</summary>
+        /// <summary>Ready players at the time of the snapshot.</summary>
         public IReadOnlyList<int> ReadyUserIds { get; }
 
-        /// <summary>Versión creciente del estado; permite descartar avisos atrasados de esta sala.</summary>
+        /// <summary>Increasing version used to discard late updates for this room.</summary>
         public long Version { get; }
 
-        /// <summary>Última generación creada; solo está activa si CountdownEndsAtUtc tiene valor.</summary>
+        /// <summary>Latest countdown generation. Active only when CountdownEndsAtUtc has a value.</summary>
         public long CountdownId { get; }
 
-        /// <summary>Hora límite UTC del servidor; null cuando no hay cuenta activa.</summary>
+        /// <summary>Server deadline in UTC, or null without an active countdown.</summary>
         public DateTime? CountdownEndsAtUtc { get; }
 
-        /// <summary>Hora UTC de la copia; el cliente no decide el vencimiento de la cuenta.</summary>
+        /// <summary>Snapshot time in UTC. The server decides when the countdown expires.</summary>
         public DateTime ServerTimeUtc { get; }
 
-        /// <summary>Identificador estable de la partida autorizada; null antes del inicio.</summary>
+        /// <summary>Stable ID of the authorized match, or null before the start.</summary>
         public Guid? MatchId { get; }
 
-        /// <summary>Hora UTC de autorización; null antes del inicio.</summary>
+        /// <summary>Authorization time in UTC, or null before the start.</summary>
         public DateTime? MatchStartedAtUtc { get; }
 
-        /// <summary>Cantidad de cartas por jugador de la partida autorizada o por iniciar.</summary>
+        /// <summary>Cards per player for the authorized or upcoming match.</summary>
         public int CardsPerPlayerCount { get; }
     }
 }

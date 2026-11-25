@@ -46,7 +46,7 @@ namespace TLMG.Services.Tests
         public void CreateRoom_WithUnknownToken_RejectsRequest(string token)
         {
             SessionRegistry registry = new SessionRegistry();
-            LobbyCaller caller = new LobbyCaller(token, LobbyChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller(token, LobbyChannelId);
 
             LobbyMembershipChange actual = registry.CreateRoom(caller, null);
 
@@ -106,7 +106,7 @@ namespace TLMG.Services.Tests
         {
             SessionRegistry registry = new SessionRegistry();
             string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
-            LobbyCaller caller = new LobbyCaller(token, LobbyChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller(token, LobbyChannelId);
 
             LobbyMembershipChange change = registry.CreateRoom(caller, null);
 
@@ -118,8 +118,8 @@ namespace TLMG.Services.Tests
         {
             SessionRegistry registry = new SessionRegistry();
             string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
-            LobbyCaller firstCaller = new LobbyCaller(token, LobbyChannelId);
-            LobbyCaller secondCaller = new LobbyCaller(token, SecondChannelId);
+            SessionChannelCaller firstCaller = new SessionChannelCaller(token, LobbyChannelId);
+            SessionChannelCaller secondCaller = new SessionChannelCaller(token, SecondChannelId);
             registry.CreateRoom(firstCaller, null);
 
             LobbyMembershipChange change = registry.CreateRoom(secondCaller, null);
@@ -132,7 +132,7 @@ namespace TLMG.Services.Tests
         {
             SessionRegistry registry = new SessionRegistry();
             string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
-            LobbyCaller caller = new LobbyCaller(token, LobbyChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller(token, LobbyChannelId);
             registry.CreateRoom(caller, null);
 
             LobbyMembershipChange change = registry.LeaveRoom(token, out _);
@@ -156,7 +156,7 @@ namespace TLMG.Services.Tests
         {
             SessionRegistry registry = new SessionRegistry();
             string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
-            LobbyCaller caller = new LobbyCaller(token, LobbyChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller(token, LobbyChannelId);
 
             LobbyMembershipChange change = registry.EnterRoom(caller, 1, null);
 
@@ -179,7 +179,7 @@ namespace TLMG.Services.Tests
         {
             LobbyScenario lobby = new LobbyScenario();
             string token = lobby.Authorize(2);
-            LobbyCaller caller = new LobbyCaller(token, GuestChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller(token, GuestChannelId);
 
             LobbyMembershipChange change = lobby.Registry.EnterRoom(caller, lobby.RoomId, null);
 
@@ -191,7 +191,7 @@ namespace TLMG.Services.Tests
         {
             LobbyScenario lobby = new LobbyScenario();
             string token = lobby.Authorize(2);
-            LobbyCaller caller = new LobbyCaller(token, GuestChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller(token, GuestChannelId);
             lobby.Registry.EnterRoom(caller, lobby.RoomId, null);
             lobby.Registry.LeaveRoom(token, out _);
 
@@ -205,7 +205,7 @@ namespace TLMG.Services.Tests
         {
             LobbyScenario lobby = new LobbyScenario();
             string token = lobby.Authorize(7);
-            LobbyCaller caller = new LobbyCaller(token, SeventhChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller(token, SeventhChannelId);
             lobby.FillRoom();
 
             LobbyMembershipChange change = lobby.Registry.EnterRoom(caller, lobby.RoomId, null);
@@ -218,7 +218,7 @@ namespace TLMG.Services.Tests
         {
             LobbyScenario lobby = new LobbyScenario();
             string token = lobby.Authorize(2);
-            LobbyCaller caller = new LobbyCaller(token, GuestChannelId);
+            SessionChannelCaller caller = new SessionChannelCaller(token, GuestChannelId);
             lobby.Registry.EnterRoom(caller, lobby.RoomId, null);
 
             LobbyMembershipChange change = lobby.Registry.LeaveRoom(lobby.CreatorToken, out _);

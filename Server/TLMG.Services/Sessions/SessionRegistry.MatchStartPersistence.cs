@@ -12,7 +12,7 @@ namespace TLMG.Services.Sessions
             new Dictionary<int, PendingMatchStart>();
         private readonly HashSet<Guid> _cancelledMatchIds = new HashSet<Guid>();
 
-        public MatchStartPreparation PrepareMatchStart(LobbyCaller caller, int roomId, long countdownId)
+        public MatchStartPreparation PrepareMatchStart(SessionChannelCaller caller, int roomId, long countdownId)
         {
             MatchStartPreparation macthStartPreparation;
 
@@ -35,7 +35,7 @@ namespace TLMG.Services.Sessions
         }
 
         public LobbyMembershipChange CompleteMatchStart(
-            LobbyCaller caller, MatchStartPreparation matchStartPreparation, GameRegistrationResult gameRegistrationResult)
+            SessionChannelCaller caller, MatchStartPreparation matchStartPreparation, GameRegistrationResult gameRegistrationResult)
         {
             LobbyMembershipChange lobbyMemberChange;
 
@@ -125,7 +125,7 @@ namespace TLMG.Services.Sessions
         }
 
         private LobbyMembershipChange CompleteMatchStartInLock(
-            LobbyCaller caller, MatchStartPreparation matchStartPreparation, GameRegistrationResult gameRegistrationResult)
+            SessionChannelCaller caller, MatchStartPreparation matchStartPreparation, GameRegistrationResult gameRegistrationResult)
         {
             LobbyMembershipChange lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.NotAuthorized);
 

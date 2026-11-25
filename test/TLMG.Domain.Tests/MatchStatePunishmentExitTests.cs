@@ -8,9 +8,9 @@ using TLMG.Domain.Engine;
 namespace TLMG.Domain.Tests
 {
     /// <summary>
-    /// Pruebas de la salida de jugadores durante un castigo pendiente (Reglas 2.0.3.1 y 4.0.6; H-06, H-07, H-08 y
-    /// H-14): cancelación si sale el castigado, azar inmediato si sale quien elige con el castigo activo, registro
-    /// sin cambios en los demás casos y reanudación atómica con quien elige ausente.
+    /// Tests exits during punishment (Rules 2.0.3.1 and 4.0.6, H-06, H-07, H-08 and H-14). The punished player's exit
+    /// cancels it. An active chooser's exit triggers a random choice. Other exits are recorded without changing
+    /// punishment. Resuming without the chooser resolves it in one step.
     /// </summary>
     public class MatchStatePunishmentExitTests
     {
@@ -46,11 +46,11 @@ namespace TLMG.Domain.Tests
         private static readonly Func<int, int> _failIfRandomIsUsed =
             cardCount => throw new InvalidOperationException("No se debía usar el azar.");
 
-        /// <summary>Verifica RemovePlayer_ScenarioE41ChooserLeavesActivePunishment_ResolvesAtRandomOnce.</summary>
+        /// <summary>Checks RemovePlayer_ScenarioE41ChooserLeavesActivePunishment_ResolvesAtRandomOnce.</summary>
         [Fact]
         public void RemovePlayer_ScenarioE41ChooserLeavesActivePunishment_ResolvesAtRandomOnce()
         {
-            // Arrange: E4-1; A falla con el Gato de B y, a los 3 s de la elección, B pulsa Salir.
+            // Arrange: In E4-1, A fails on B's Fatal Cat. B leaves three seconds into the choice.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
             int previousRoundNumber = match.RoundNumber;
 
@@ -69,11 +69,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(RoundPhase.PlacingCards, match.Phase);
         }
 
-        /// <summary>Verifica CalculateFromMatch_ScenarioE41AfterChooserLeft_PutsHimLastWithZero.</summary>
+        /// <summary>Checks CalculateFromMatch_ScenarioE41AfterChooserLeft_PutsHimLastWithZero.</summary>
         [Fact]
         public void CalculateFromMatch_ScenarioE41AfterChooserLeft_PutsHimLastWithZero()
         {
-            // Arrange: E4-1 continúa; A gana la partida con 2 retos y B queda último.
+            // Arrange: E4-1 continues. A wins with two challenges and B ranks last.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
             match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc), _pickFirstCard);
             WinChallenges(match, PlayerAId, match.ModeRules.SuccessfulChallengesToWin);
@@ -87,11 +87,12 @@ namespace TLMG.Domain.Tests
             Assert.Equal(new[] { 3, 1, 0 }, finalStandings.Standings.Select(standing => standing.Points));
         }
 
-        /// <summary>Verifica RemovePlayer_ScenarioE41bChooserExpelledAfterExpiration_RestartsStartedRound.</summary>
+        /// <summary>Checks RemovePlayer_ScenarioE41bChooserExpelledAfterExpiration_RestartsStartedRound.</summary>
         [Fact]
         public void RemovePlayer_ScenarioE41bChooserExpelledAfterExpiration_RestartsStartedRound()
         {
-            // Arrange: E4-1b; B se desconecta a los 3 s, su plazo sigue, vence a los 10 s y lo expulsan a los 18 s.
+            // Arrange: In E4-1b, B disconnects at 3 seconds. The choice expires at 10 seconds and B is removed at 18
+            // seconds.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
             int previousRoundNumber = match.RoundNumber;
             PunishmentStatus suspendStatus = match.SuspendPunishment(PlayerBId, _chooserLeavesUtc);
@@ -111,12 +112,12 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Verifica ExpirePunishment_AfterChooserLeftFirst_ReturnsNoPunishmentPendingWithoutSecondResolution.
+        /// Checks ExpirePunishment_AfterChooserLeftFirst_ReturnsNoPunishmentPendingWithoutSecondResolution.
         /// </summary>
         [Fact]
         public void ExpirePunishment_AfterChooserLeftFirst_ReturnsNoPunishmentPendingWithoutSecondResolution()
         {
-            // Arrange: orden alterno de E4-1b; la expulsión de B llega antes que el vencimiento.
+            // Arrange: Alternate E4-1b order. B's removal arrives before the deadline check.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
             int previousRoundNumber = match.RoundNumber;
             match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc), _pickFirstCard);
@@ -132,11 +133,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(previousRoundNumber + OneRound, match.RoundNumber);
         }
 
-        /// <summary>Verifica RemovePlayer_ScenarioE62PunishedLeavesActivePunishment_CancelsWithoutLosingLife.</summary>
+        /// <summary>Checks RemovePlayer_ScenarioE62PunishedLeavesActivePunishment_CancelsWithoutLosingLife.</summary>
         [Fact]
         public void RemovePlayer_ScenarioE62PunishedLeavesActivePunishment_CancelsWithoutLosingLife()
         {
-            // Arrange: E6-2 caso 2; A pulsa Salir mientras B elige.
+            // Arrange: In E6-2 case 2, A leaves while B is choosing.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
             int previousRoundNumber = match.RoundNumber;
 
@@ -155,11 +156,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(PlayerBId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica RemovePlayer_ScenarioE62PunishedExpelledWhileSuspended_CancelsWithoutLosingLife.</summary>
+        /// <summary>Checks RemovePlayer_ScenarioE62PunishedExpelledWhileSuspended_CancelsWithoutLosingLife.</summary>
         [Fact]
         public void RemovePlayer_ScenarioE62PunishedExpelledWhileSuspended_CancelsWithoutLosingLife()
         {
-            // Arrange: E6-2 punto 5; A se desconecta, el castigo se suspende y A no regresa en 15 s.
+            // Arrange: In E6-2 point 5, A disconnects, punishment pauses and A does not return within 15 seconds.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
             int previousRoundNumber = match.RoundNumber;
             match.SuspendPunishment(PlayerAId, _chooserLeavesUtc);
@@ -176,11 +177,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(PlayerBId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica RemovePlayer_ChooserLeavesSuspendedPunishment_RecordsExitOnly.</summary>
+        /// <summary>Checks RemovePlayer_ChooserLeavesSuspendedPunishment_RecordsExitOnly.</summary>
         [Fact]
         public void RemovePlayer_ChooserLeavesSuspendedPunishment_RecordsExitOnly()
         {
-            // Arrange: el castigo de A está suspendido cuando B, quien elige, sale.
+            // Arrange: A's punishment is suspended when B, the chooser, leaves.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             int previousRoundNumber = match.RoundNumber;
             match.SuspendPunishment(PlayerAId, _chooserLeavesUtc);
@@ -198,7 +199,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(previousRoundNumber, match.RoundNumber);
         }
 
-        /// <summary>Verifica ResumePunishment_AfterChooserLeftWhileSuspended_ResolvesAtRandomInSameOperation.</summary>
+        /// <summary>Checks ResumePunishment_AfterChooserLeftWhileSuspended_ResolvesAtRandomInSameOperation.</summary>
         [Fact]
         public void ResumePunishment_AfterChooserLeftWhileSuspended_ResolvesAtRandomInSameOperation()
         {
@@ -220,12 +221,12 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Verifica RemovePlayer_PunishedLeavesAfterChooserLeftWhileSuspended_CancelsWithoutLosingLife.
+        /// Checks RemovePlayer_PunishedLeavesAfterChooserLeftWhileSuspended_CancelsWithoutLosingLife.
         /// </summary>
         [Fact]
         public void RemovePlayer_PunishedLeavesAfterChooserLeftWhileSuspended_CancelsWithoutLosingLife()
         {
-            // Arrange: A se desconecta y su castigo se suspende, B sale y A no regresa en los 15 s de gracia.
+            // Arrange: A disconnects and punishment pauses. B leaves and A misses the 15-second grace period.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             int previousRoundNumber = match.RoundNumber;
             match.SuspendPunishment(PlayerAId, _chooserLeavesUtc);
@@ -242,7 +243,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(previousRoundNumber + OneRound, match.RoundNumber);
         }
 
-        /// <summary>Verifica ResumePunishment_WithChooserPresent_KeepsExactRemainingTimeWithoutRandom.</summary>
+        /// <summary>Checks ResumePunishment_WithChooserPresent_KeepsExactRemainingTimeWithoutRandom.</summary>
         [Fact]
         public void ResumePunishment_WithChooserPresent_KeepsExactRemainingTimeWithoutRandom()
         {
@@ -260,7 +261,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FourLives, GetPlayer(match, PlayerAId).Lives);
         }
 
-        /// <summary>Verifica ResumePunishment_WithChooserAbsentAndInvalidRandomIndex_ThrowsWithoutChange.</summary>
+        /// <summary>Checks ResumePunishment_WithChooserAbsentAndInvalidRandomIndex_ThrowsWithoutChange.</summary>
         [Fact]
         public void ResumePunishment_WithChooserAbsentAndInvalidRandomIndex_ThrowsWithoutChange()
         {
@@ -279,7 +280,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(_remainingAtSuspension, match.PendingPunishment.RemainingTime);
         }
 
-        /// <summary>Verifica RemovePlayer_ChooserLeavesWithInvalidRandomIndex_ThrowsWithoutChange.</summary>
+        /// <summary>Checks RemovePlayer_ChooserLeavesWithInvalidRandomIndex_ThrowsWithoutChange.</summary>
         [Fact]
         public void RemovePlayer_ChooserLeavesWithInvalidRandomIndex_ThrowsWithoutChange()
         {
@@ -296,7 +297,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeExit, DescribeMatch(match));
         }
 
-        /// <summary>Verifica ResumePunishment_WithNullRandom_ThrowsArgumentNullExceptionWithoutChange.</summary>
+        /// <summary>Checks ResumePunishment_WithNullRandom_ThrowsArgumentNullExceptionWithoutChange.</summary>
         [Fact]
         public void ResumePunishment_WithNullRandom_ThrowsArgumentNullExceptionWithoutChange()
         {
@@ -315,7 +316,7 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Verifica RemovePlayer_WithNullRandomDuringPunishment_ThrowsArgumentNullExceptionWithoutChange.
+        /// Checks RemovePlayer_WithNullRandomDuringPunishment_ThrowsArgumentNullExceptionWithoutChange.
         /// </summary>
         [Fact]
         public void RemovePlayer_WithNullRandomDuringPunishment_ThrowsArgumentNullExceptionWithoutChange()
@@ -333,11 +334,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeExit, DescribeMatch(match));
         }
 
-        /// <summary>Verifica SuspendAndResumePunishment_OnOwnCat_ResumesWithRemainingTimeWithoutRandom.</summary>
+        /// <summary>Checks SuspendAndResumePunishment_OnOwnCat_ResumesWithRemainingTimeWithoutRandom.</summary>
         [Fact]
         public void SuspendAndResumePunishment_OnOwnCat_ResumesWithRemainingTimeWithoutRandom()
         {
-            // Arrange: H-14; A elige y es castigado a la vez.
+            // Arrange: In H-14, A is both the chooser and the punished player.
             MatchState match = CreateMatchWithOwnPunishment();
             PunishmentStatus suspendStatus = match.SuspendPunishment(PlayerAId, _chooserLeavesUtc);
 
@@ -350,11 +351,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(_returnUtc + _remainingAtSuspension, match.PendingPunishment.DeadlineUtc);
         }
 
-        /// <summary>Verifica RemovePlayer_OnOwnCat_CancelsBecausePunishedConditionPrevails.</summary>
+        /// <summary>Checks RemovePlayer_OnOwnCat_CancelsBecausePunishedConditionPrevails.</summary>
         [Fact]
         public void RemovePlayer_OnOwnCat_CancelsBecausePunishedConditionPrevails()
         {
-            // Arrange: H-14; A, castigado y quien elige, sale.
+            // Arrange: In H-14, A leaves while both choosing and receiving punishment.
             MatchState match = CreateMatchWithOwnPunishment();
             int previousRoundNumber = match.RoundNumber;
 
@@ -368,11 +369,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(previousRoundNumber + OneRound, match.RoundNumber);
         }
 
-        /// <summary>Verifica RemovePlayer_ThirdPlayerLeavesActivePunishment_RecordsExitOnly.</summary>
+        /// <summary>Checks RemovePlayer_ThirdPlayerLeavesActivePunishment_RecordsExitOnly.</summary>
         [Fact]
         public void RemovePlayer_ThirdPlayerLeavesActivePunishment_RecordsExitOnly()
         {
-            // Arrange: H-07; C no participa en el castigo de A.
+            // Arrange: In H-07, C has no role in A's punishment.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             int previousRoundNumber = match.RoundNumber;
             DateTime? deadlineUtc = match.PendingPunishment.DeadlineUtc;
@@ -390,11 +391,11 @@ namespace TLMG.Domain.Tests
                 match.ChoosePunishmentCard(PlayerBId, FirstCardIndex, _chooserLeavesUtc));
         }
 
-        /// <summary>Verifica RemovePlayer_ThirdPlayerLeavesSuspendedPunishment_RecordsExitOnly.</summary>
+        /// <summary>Checks RemovePlayer_ThirdPlayerLeavesSuspendedPunishment_RecordsExitOnly.</summary>
         [Fact]
         public void RemovePlayer_ThirdPlayerLeavesSuspendedPunishment_RecordsExitOnly()
         {
-            // Arrange: H-07 con el castigo suspendido.
+            // Arrange: H-07 with punishment suspended.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             int previousRoundNumber = match.RoundNumber;
             match.SuspendPunishment(PlayerAId, _chooserLeavesUtc);
@@ -409,16 +410,16 @@ namespace TLMG.Domain.Tests
             Assert.Equal(previousRoundNumber, match.RoundNumber);
         }
 
-        /// <summary>Verifica RemovePlayer_LeaveDuringPunishmentLeavesOnePlayer_FinishesWithCleanState.</summary>
-        /// <param name="leavingPlayerId">Quien sale: el castigado (A) o quien elige (B).</param>
-        /// <param name="winnerId">Quien queda como único jugador en juego.</param>
+        /// <summary>Checks RemovePlayer_LeaveDuringPunishmentLeavesOnePlayer_FinishesWithCleanState.</summary>
+        /// <param name="leavingPlayerId">Player leaving, either the punished player (A) or the chooser (B).</param>
+        /// <param name="winnerId">Sole remaining active player.</param>
         [Theory]
         [InlineData(PlayerAId, PlayerBId)]
         [InlineData(PlayerBId, PlayerAId)]
         public void RemovePlayer_LeaveDuringPunishmentLeavesOnePlayer_FinishesWithCleanState(int leavingPlayerId,
             int winnerId)
         {
-            // Arrange: C ya salió; A falla con el Gato de B.
+            // Arrange: C already left. A fails on B's Fatal Cat.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             LeaveNow(match, PlayerCId);
             FailOnCatOfB(match);
@@ -439,7 +440,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(previousRoundNumber, match.RoundNumber);
         }
 
-        /// <summary>Verifica RemovePlayer_SameChooserLeavesTwice_ReturnsPlayerAlreadyLeftWithoutChange.</summary>
+        /// <summary>Checks RemovePlayer_SameChooserLeavesTwice_ReturnsPlayerAlreadyLeftWithoutChange.</summary>
         [Fact]
         public void RemovePlayer_SameChooserLeavesTwice_ReturnsPlayerAlreadyLeftWithoutChange()
         {
@@ -457,11 +458,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchAfterExit, DescribeMatch(match));
         }
 
-        /// <summary>Verifica PunishmentActions_AfterCancellation_ReturnExistingStatusesWithoutChange.</summary>
+        /// <summary>Checks PunishmentActions_AfterCancellation_ReturnExistingStatusesWithoutChange.</summary>
         [Fact]
         public void PunishmentActions_AfterCancellation_ReturnExistingStatusesWithoutChange()
         {
-            // Arrange: A salió y su castigo se canceló.
+            // Arrange: A left and their punishment was canceled.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
             match.RemovePlayer(PlayerAId, PlayerExit.Immediate(_chooserLeavesUtc), _failIfRandomIsUsed);
             string matchAfterExit = DescribeMatch(match);
@@ -484,11 +485,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchAfterExit, DescribeMatch(match));
         }
 
-        /// <summary>Verifica PunishmentActions_AfterRandomResolution_ReturnExistingStatusesWithoutChange.</summary>
+        /// <summary>Checks PunishmentActions_AfterRandomResolution_ReturnExistingStatusesWithoutChange.</summary>
         [Fact]
         public void PunishmentActions_AfterRandomResolution_ReturnExistingStatusesWithoutChange()
         {
-            // Arrange: B salió y el castigo de A se resolvió al azar.
+            // Arrange: B left and A's punishment was resolved at random.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
             match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc), _pickFirstCard);
             string matchAfterExit = DescribeMatch(match);
@@ -508,7 +509,9 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchAfterExit, DescribeMatch(match));
         }
 
-        /// <summary>A coloca una segura, B su Gato y los demás una segura; A apuesta 2 y falla con el de B.</summary>
+        /// <summary>
+        /// A places a safe card, B their Fatal Cat and the others safe cards. A bids 2 and fails on B's cat.
+        /// </summary>
         private static void FailOnCatOfB(MatchState match)
         {
             match.PlaceCard(PlayerAId, SafeCard);
@@ -519,7 +522,7 @@ namespace TLMG.Domain.Tests
             match.RevealCard(PlayerAId, PlayerBId, _startUtc);
         }
 
-        /// <summary>Modalidad de 4 con el orden indicado (A y B primero); B elige a ciegas entre las de A.</summary>
+        /// <summary>Four-card mode in the given order, with A and B first. B chooses blindly from A's cards.</summary>
         private static MatchState CreateMatchWithBlindPunishment(params int[] playerIdsInOrder)
         {
             MatchState match = CreateMatch(FourCardsPerPlayer, playerIdsInOrder);
@@ -528,7 +531,9 @@ namespace TLMG.Domain.Tests
             return match;
         }
 
-        /// <summary>Modalidad de 4, orden A, B, C, D; A apuesta 1 sobre su Gato y elige viendo sus cartas.</summary>
+        /// <summary>
+        /// Four-card mode in order A, B, C, D. A bids 1 on their own Fatal Cat and sees their cards when choosing.
+        /// </summary>
         private static MatchState CreateMatchWithOwnPunishment()
         {
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
@@ -537,7 +542,7 @@ namespace TLMG.Domain.Tests
             return match;
         }
 
-        /// <summary>Resume en texto el estado observable de la partida para comparar antes y después.</summary>
+        /// <summary>Summarizes visible match state as text for a before-and-after comparison.</summary>
         private static string DescribeMatch(MatchState match)
         {
             string players = string.Join(";", match.Players.Select(player =>
@@ -565,7 +570,7 @@ namespace TLMG.Domain.Tests
             return match.Players.First(player => player.PlayerId == playerId);
         }
 
-        /// <summary>Quien tiene el turno abre la apuesta y todos los demás se retiran: el que abre apuesta.</summary>
+        /// <summary>The current player opens and all others fold, leaving the opener as the final bidder.</summary>
         private static void OpenAndConcede(MatchState match, int betValue)
         {
             match.OpenBet(match.PlayerInTurn.PlayerId, betValue);
@@ -585,8 +590,8 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Los jugadores en turno colocan una segura hasta el turno del jugador indicado. Una vuelta completa basta; si
-        /// una colocación se rechaza o se agota la vuelta, falla con el jugador y la ronda que bloquearon el avance.
+        /// Players place a safe card in turn until the target player's turn. One full cycle is enough. A rejected
+        /// placement or exhausted cycle reports the player and round that blocked progress.
         /// </summary>
         private static void PlaceSafeCardsUntilTurnOf(MatchState match, int playerId)
         {
@@ -606,8 +611,8 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Los demás colocan una segura hasta el turno del jugador, él coloca la carta indicada, los demás vuelven a
-        /// colocar hasta su turno y apuesta 1 sobre su propia pila: con segura gana el reto y con Gato lo falla.
+        /// Others place safe cards until the player's turn. That player places the given card, waits another cycle and
+        /// bids 1 on their own pile. A safe card wins and a Fatal Cat fails.
         /// </summary>
         private static void BetOneOnOwnTopCard(MatchState match, int playerId, CardKind card)
         {
@@ -619,8 +624,8 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Hora de las acciones de la ronda en curso: la ronda 1 empieza en _startUtc y cada ronda siguiente un minuto
-        /// después, así una ronda posterior nunca usa una hora anterior a lo ya ocurrido.
+        /// Round 1 starts at _startUtc. Each new round starts one minute later so that later rounds never use an
+        /// earlier time.
         /// </summary>
         private static DateTime GetRoundTime(MatchState match)
         {

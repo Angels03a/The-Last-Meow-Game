@@ -7,7 +7,7 @@ using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Tests
 {
-    /// <summary>Pruebas del registro del desenlace del último reto, que el motor no conserva.</summary>
+    /// <summary>Tests the last challenge outcome stored by the registry after the engine moves on.</summary>
     public class MatchChallengeRecordTests
     {
         private const int BettorUserId = 1;
@@ -15,7 +15,7 @@ namespace TLMG.Services.Tests
         private const int PromisedCount = 2;
         private const int SingleCard = 1;
 
-        /// <summary>Verifica Begin_WithBettorAndPromise_StartsInProgressWithoutCards.</summary>
+        /// <summary>Checks Begin_WithBettorAndPromise_StartsInProgressWithoutCards.</summary>
         [Fact]
         public void Begin_WithBettorAndPromise_StartsInProgressWithoutCards()
         {
@@ -30,7 +30,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchPunishmentResolution.None, record.PunishmentResolution);
         }
 
-        /// <summary>Verifica RecordReveal_WithSeveralCards_KeepsOrderAndOwners.</summary>
+        /// <summary>Checks RecordReveal_WithSeveralCards_KeepsOrderAndOwners.</summary>
         [Fact]
         public void RecordReveal_WithSeveralCards_KeepsOrderAndOwners()
         {
@@ -47,7 +47,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchCardKind.FatalCat, record.RevealedCards.Last().Card);
         }
 
-        /// <summary>Verifica MarkSucceeded_AfterReveals_LeavesNoPunishment.</summary>
+        /// <summary>Checks MarkSucceeded_AfterReveals_LeavesNoPunishment.</summary>
         [Fact]
         public void MarkSucceeded_AfterReveals_LeavesNoPunishment()
         {
@@ -62,7 +62,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchPunishmentResolution.None, record.PunishmentResolution);
         }
 
-        /// <summary>Verifica MarkFailed_ThenResolvePunishment_KeepsWhoChoseAndHowItEnded.</summary>
+        /// <summary>Checks MarkFailed_ThenResolvePunishment_KeepsWhoChoseAndHowItEnded.</summary>
         [Fact]
         public void MarkFailed_ThenResolvePunishment_KeepsWhoChoseAndHowItEnded()
         {
@@ -80,7 +80,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchPunishmentResolution.ChosenByChooser, record.PunishmentResolution);
         }
 
-        /// <summary>Verifica MarkFailed_WithSingleLife_RecordsNoChoice.</summary>
+        /// <summary>Checks MarkFailed_WithSingleLife_RecordsNoChoice.</summary>
         [Fact]
         public void MarkFailed_WithSingleLife_RecordsNoChoice()
         {

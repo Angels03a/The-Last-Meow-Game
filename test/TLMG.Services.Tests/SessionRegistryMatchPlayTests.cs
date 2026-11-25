@@ -1,17 +1,19 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
 using Xunit;
 
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Constants;
 using TLMG.Services.Match;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Pruebas de suscripción, colocación de cartas y vistas privadas de una partida autorizada.
+    /// Tests subscriptions, card placement and private views for an authorized match.
     /// </summary>
     public class SessionRegistryMatchPlayTests
     {
@@ -28,7 +30,6 @@ namespace TLMG.Services.Tests
         private const int SurvivorFirstUserId = 6;
         private const string SecondChannelId = "second";
 
-        /// <summary>Verifica SubscribeToMatch_WithParticipant_AcceptsAndDeliversOwnView.</summary>
         [Fact]
         public void SubscribeToMatch_WithParticipant_AcceptsAndDeliversOwnView()
         {
@@ -50,7 +51,6 @@ namespace TLMG.Services.Tests
             Assert.Equal(scenario.CreatorUserId, view.PlayerInTurnUserId);
         }
 
-        /// <summary>Verifica SubscribeToMatch_WithParticipant_ViewListsPlayersWithCountsInTurnOrder.</summary>
         [Fact]
         public void SubscribeToMatch_WithParticipant_ViewListsPlayersWithCountsInTurnOrder()
         {
@@ -70,7 +70,6 @@ namespace TLMG.Services.Tests
                 view.Players.Select(player => player.Nickname));
         }
 
-        /// <summary>Verifica SubscribeToMatch_WithParticipant_ViewContainsOwnHandInOrder.</summary>
         [Fact]
         public void SubscribeToMatch_WithParticipant_ViewContainsOwnHandInOrder()
         {
@@ -86,7 +85,6 @@ namespace TLMG.Services.Tests
             Assert.Empty(view.OwnPileCards);
         }
 
-        /// <summary>Verifica SubscribeToMatch_WithSeveralRecipients_EachViewBelongsToItsRecipient.</summary>
         [Fact]
         public void SubscribeToMatch_WithSeveralRecipients_EachViewBelongsToItsRecipient()
         {
@@ -106,7 +104,6 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchPlayScenario.CardsPerPlayerCount, guestView.OwnHandCards.Count);
         }
 
-        /// <summary>Verifica MatchPlayerView_Properties_OnlyRevealedPileCardsCarryCardKinds.</summary>
         [Fact]
         public void MatchPlayerView_Properties_OnlyRevealedPileCardsCarryCardKinds()
         {
@@ -119,11 +116,10 @@ namespace TLMG.Services.Tests
                 .Select(property => property.Name)
                 .ToArray();
 
-            // Assert: las cartas volteadas son públicas; ninguna otra propiedad del jugador lleva tipos de carta.
+            // Assert: Revealed cards are public. No other player property exposes card types.
             Assert.Equal(new[] { nameof(MatchPlayerView.RevealedPileCards) }, propertiesWithCards);
         }
 
-        /// <summary>Verifica SubscribeToMatch_TwiceSequentially_KeepsOneSubscriptionAndSameVersion.</summary>
         [Fact]
         public void SubscribeToMatch_TwiceSequentially_KeepsOneSubscriptionAndSameVersion()
         {
@@ -140,7 +136,6 @@ namespace TLMG.Services.Tests
             Assert.Single(placement.ViewDeliveries);
         }
 
-        /// <summary>Verifica SubscribeToMatch_WithNewCallback_ReplacesPreviousCallback.</summary>
         [Fact]
         public void SubscribeToMatch_WithNewCallback_ReplacesPreviousCallback()
         {
@@ -148,8 +143,8 @@ namespace TLMG.Services.Tests
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             MatchCallbackStub oldCallback = new MatchCallbackStub();
             MatchCallbackStub newCallback = new MatchCallbackStub();
-            LobbyCaller oldCaller = scenario.MatchCallerOf(scenario.CreatorUserId);
-            LobbyCaller newCaller = new LobbyCaller(scenario.TokenOf(scenario.CreatorUserId), SecondChannelId);
+            SessionChannelCaller oldCaller = scenario.MatchCallerOf(scenario.CreatorUserId);
+            SessionChannelCaller newCaller = new SessionChannelCaller(scenario.TokenOf(scenario.CreatorUserId), SecondChannelId);
             scenario.Registry.SubscribeToMatch(oldCaller, scenario.MatchId, oldCallback);
             scenario.Registry.SubscribeToMatch(newCaller, scenario.MatchId, newCallback);
 
@@ -162,25 +157,23 @@ namespace TLMG.Services.Tests
             Assert.Same(newCallback, viewDelivery.Callback);
         }
 
-        /// <summary>Verifica PlaceCard_WithOldChannelAfterReplacement_RejectsWithInvalidSession.</summary>
         [Fact]
         public void PlaceCard_WithOldChannelAfterReplacement_RejectsWithInvalidSession()
         {
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.Subscribe(scenario.CreatorUserId);
-            LobbyCaller newCaller = new LobbyCaller(scenario.TokenOf(scenario.CreatorUserId), SecondChannelId);
+            SessionChannelCaller newCaller = new SessionChannelCaller(scenario.TokenOf(scenario.CreatorUserId), SecondChannelId);
             scenario.Registry.SubscribeToMatch(newCaller, scenario.MatchId, new MatchCallbackStub());
 
             // Act
             MatchDelivery delivery = scenario.Place(scenario.CreatorUserId, MatchCardKind.Safe);
 
             // Assert
-            Assert.NotNull(delivery.ErrorKey);
+            Assert.Equal(ErrorKeys.Common.InvalidSession, delivery.ErrorKey);
             Assert.Empty(delivery.ViewDeliveries);
         }
 
-        /// <summary>Verifica PlaceCard_OutOfTurn_RejectsWithoutChangingVersion.</summary>
         [Fact]
         public void PlaceCard_OutOfTurn_RejectsWithoutChangingVersion()
         {
@@ -199,11 +192,10 @@ namespace TLMG.Services.Tests
             Assert.Equal(scenario.CreatorUserId, scenario.ReadViewAs(guestUserId).PlayerInTurnUserId);
         }
 
-        /// <summary>Verifica PlaceCard_WithCardAlreadyPlaced_RejectsWithCardNotInHand.</summary>
         [Fact]
         public void PlaceCard_WithCardAlreadyPlaced_RejectsWithCardNotInHand()
         {
-            // Arrange: una vuelta completa; el creador ya colocó su único Gato con Maullido Fatal.
+            // Arrange: After a full turn cycle, the creator has placed their only Fatal Cat.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             PlaceInTurnOrder(scenario, MatchCardKind.FatalCat, MinimumPlayerCount);
@@ -216,11 +208,10 @@ namespace TLMG.Services.Tests
             Assert.Equal(AfterFirstLapVersion, scenario.ReadVersionAs(scenario.CreatorUserId));
         }
 
-        /// <summary>Verifica PlaceCard_WithEmptyHand_RejectsWithHandEmpty.</summary>
         [Fact]
         public void PlaceCard_WithEmptyHand_RejectsWithHandEmpty()
         {
-            // Arrange: todos colocan sus 4 cartas y al creador le vuelve a tocar con la mano vacía.
+            // Arrange: Everyone places four cards. The creator's turn comes around with an empty hand.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             PlaceInTurnOrder(scenario, MatchCardKind.FatalCat, MinimumPlayerCount);
@@ -233,7 +224,6 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.HandEmpty, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceCard_InTurn_RaisesVersionAndPassesTurn.</summary>
         [Fact]
         public void PlaceCard_InTurn_RaisesVersionAndPassesTurn()
         {
@@ -251,7 +241,6 @@ namespace TLMG.Services.Tests
             Assert.All(delivery.ViewDeliveries, item => Assert.Equal(guestUserId, item.MatchView.PlayerInTurnUserId));
         }
 
-        /// <summary>Verifica PlaceCard_InTurn_NotifiesEverySubscribedPlayerWithDifferentViews.</summary>
         [Fact]
         public void PlaceCard_InTurn_NotifiesEverySubscribedPlayerWithDifferentViews()
         {
@@ -273,7 +262,6 @@ namespace TLMG.Services.Tests
             Assert.NotEqual(creatorView.OwnHandCards.Count, guestView.OwnHandCards.Count);
         }
 
-        /// <summary>Verifica PlaceCard_InTurn_PublicPartOfEveryViewIsTheSame.</summary>
         [Fact]
         public void PlaceCard_InTurn_PublicPartOfEveryViewIsTheSame()
         {
@@ -291,7 +279,6 @@ namespace TLMG.Services.Tests
             Assert.All(delivery.ViewDeliveries, item => Assert.Equal(OneCard, item.MatchView.Players[0].PileCardCount));
         }
 
-        /// <summary>Verifica PlaceCard_WithOnlySomePlayersSubscribed_NotifiesOnlySubscribed.</summary>
         [Fact]
         public void PlaceCard_WithOnlySomePlayersSubscribed_NotifiesOnlySubscribed()
         {
@@ -309,11 +296,10 @@ namespace TLMG.Services.Tests
                 delivery.ViewDeliveries.Select(item => item.Callback));
         }
 
-        /// <summary>Verifica PlaceCard_RepeatedByTheSamePlayer_RejectsSecondAndKeepsVersion.</summary>
         [Fact]
         public void PlaceCard_RepeatedByTheSamePlayer_RejectsSecondAndKeepsVersion()
         {
-            // Arrange: reentrada secuencial; la segunda llamada llega cuando el turno ya pasó.
+            // Arrange: The second call arrives in sequence after the turn has passed.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             scenario.Place(scenario.CreatorUserId, MatchCardKind.Safe);
@@ -326,7 +312,6 @@ namespace TLMG.Services.Tests
             Assert.Equal(SecondVersion, scenario.ReadVersionAs(scenario.CreatorUserId));
         }
 
-        /// <summary>Verifica PlaceCard_InConsecutiveTurns_RaisesVersionByOneEach.</summary>
         [Fact]
         public void PlaceCard_InConsecutiveTurns_RaisesVersionByOneEach()
         {
@@ -342,15 +327,14 @@ namespace TLMG.Services.Tests
             Assert.All(delivery.ViewDeliveries, item => Assert.Equal(ThirdVersion, item.MatchView.Version));
         }
 
-        /// <summary>Verifica RemoveMatchChannel_WithOldCallbackAfterReplacement_KeepsNewSubscription.</summary>
         [Fact]
         public void RemoveMatchChannel_WithOldCallbackAfterReplacement_KeepsNewSubscription()
         {
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             MatchCallbackStub oldCallback = new MatchCallbackStub();
-            LobbyCaller oldCaller = scenario.MatchCallerOf(scenario.CreatorUserId);
-            LobbyCaller newCaller = new LobbyCaller(scenario.TokenOf(scenario.CreatorUserId), SecondChannelId);
+            SessionChannelCaller oldCaller = scenario.MatchCallerOf(scenario.CreatorUserId);
+            SessionChannelCaller newCaller = new SessionChannelCaller(scenario.TokenOf(scenario.CreatorUserId), SecondChannelId);
             scenario.Registry.SubscribeToMatch(oldCaller, scenario.MatchId, oldCallback);
             MatchCallbackStub newCallback = scenario.CallbackOf(scenario.CreatorUserId);
             scenario.Registry.SubscribeToMatch(newCaller, scenario.MatchId, newCallback);
@@ -363,14 +347,13 @@ namespace TLMG.Services.Tests
             Assert.Null(scenario.Registry.PlaceCard(newCaller, MatchCardKind.Safe).ErrorKey);
         }
 
-        /// <summary>Verifica RemoveMatchChannel_WithOldCallbackOnSameChannel_KeepsNewCallback.</summary>
         [Fact]
         public void RemoveMatchChannel_WithOldCallbackOnSameChannel_KeepsNewCallback()
         {
-            // Arrange: mismo canal, otro callback; comparar solo el canal borraría la suscripción nueva.
+            // Arrange: Same channel, different callback. Checking only the channel would remove the newer subscription.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             MatchCallbackStub oldCallback = new MatchCallbackStub();
-            LobbyCaller caller = scenario.MatchCallerOf(scenario.CreatorUserId);
+            SessionChannelCaller caller = scenario.MatchCallerOf(scenario.CreatorUserId);
             scenario.Registry.SubscribeToMatch(caller, scenario.MatchId, oldCallback);
             scenario.Subscribe(scenario.CreatorUserId);
 
@@ -384,7 +367,6 @@ namespace TLMG.Services.Tests
             Assert.Same(scenario.CallbackOf(scenario.CreatorUserId), viewDelivery.Callback);
         }
 
-        /// <summary>Verifica RemoveMatchChannel_AfterSameChannelResubscribed_LeavesRegistryClean.</summary>
         [Fact]
         public void RemoveMatchChannel_AfterSameChannelResubscribed_LeavesRegistryClean()
         {
@@ -402,14 +384,13 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NotSubscribed, PlaceAsCreator(scenario).ErrorKey);
         }
 
-        /// <summary>Verifica RemoveMatchChannel_AfterSameChannelNewCallback_LeavesRegistryClean.</summary>
         [Fact]
         public void RemoveMatchChannel_AfterSameChannelNewCallback_LeavesRegistryClean()
         {
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             MatchCallbackStub firstCallback = new MatchCallbackStub();
-            LobbyCaller caller = scenario.MatchCallerOf(scenario.CreatorUserId);
+            SessionChannelCaller caller = scenario.MatchCallerOf(scenario.CreatorUserId);
             scenario.Registry.SubscribeToMatch(caller, scenario.MatchId, firstCallback);
             scenario.Subscribe(scenario.CreatorUserId);
 
@@ -423,7 +404,6 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NotSubscribed, PlaceAsCreator(scenario).ErrorKey);
         }
 
-        /// <summary>Verifica RemoveMatchChannel_WithCurrentCallback_OnlyRemovesThatSubscription.</summary>
         [Fact]
         public void RemoveMatchChannel_WithCurrentCallback_OnlyRemovesThatSubscription()
         {
@@ -431,7 +411,7 @@ namespace TLMG.Services.Tests
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             int closingUserId = scenario.UserIds[2];
-            LobbyCaller closingCaller = scenario.MatchCallerOf(closingUserId);
+            SessionChannelCaller closingCaller = scenario.MatchCallerOf(closingUserId);
 
             // Act
             bool wasRemoved = scenario.CloseMatchChannelOf(closingUserId);
@@ -444,9 +424,8 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NotSubscribed, scenario.Place(closingUserId, MatchCardKind.Safe).ErrorKey);
         }
 
-        /// <summary>Verifica RemoveMatchChannel_WhenChannelCloses_DoesNotChangeMatchNorRoom.</summary>
         [Fact]
-        public void RemoveMatchChannel_WhenChannelCloses_DoesNotChangeMatchNorRoom()
+        public void RemoveMatchChannel_WhenChannelCloses_KeepsTurnRoundAndParticipantsOfTheMatch()
         {
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
@@ -463,11 +442,35 @@ namespace TLMG.Services.Tests
             Assert.Equal(before.PlayerInTurnUserId, after.PlayerInTurnUserId);
             Assert.Equal(before.RoundNumber, after.RoundNumber);
             Assert.Equal(before.ParticipantUserIds, after.ParticipantUserIds);
-            Assert.Equal(SecondVersion + 2, scenario.ReadVersionAs(closingUserId));
         }
 
-        /// <summary>Verifica RemoveMatchChannel_WithUnknownOrEmptyChannel_ReturnsFalse.</summary>
-        /// <param name="channelId">Canal que se reporta como cerrado.</param>
+        /// <summary>
+        /// Closing the channel opens the grace and publishes one new version to the players who stay; subscribing
+        /// again resumes the player and publishes one more. Subscribing is not a neutral read after a loss.
+        /// </summary>
+        [Fact]
+        public void RemoveMatchChannel_ThenSubscribeAgain_RaisesTheVersionOncePerTransition()
+        {
+            // Arrange
+            MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
+            scenario.SubscribeAll();
+            scenario.Place(scenario.CreatorUserId, MatchCardKind.Safe);
+            int closingUserId = scenario.UserIds[1];
+
+            // Act
+            scenario.Registry.RemoveMatchChannel(
+                MatchPlayScenario.MatchChannelPrefix + closingUserId,
+                scenario.CallbackOf(closingUserId),
+                out IReadOnlyList<MatchViewDelivery> closeDeliveries);
+            MatchDelivery returned = scenario.Subscribe(closingUserId);
+
+            // Assert
+            Assert.Equal(MinimumPlayerCount - 1, closeDeliveries.Count);
+            Assert.All(closeDeliveries, item => Assert.Equal(SecondVersion + 1, item.MatchView.Version));
+            Assert.Equal(MinimumPlayerCount, returned.ViewDeliveries.Count);
+            Assert.All(returned.ViewDeliveries, item => Assert.Equal(SecondVersion + 2, item.MatchView.Version));
+        }
+
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -485,7 +488,6 @@ namespace TLMG.Services.Tests
             Assert.False(wasRemoved);
         }
 
-        /// <summary>Verifica LeaveRoom_OfSubscribedPlayer_RemovesItsCallbackButKeepsMatch.</summary>
         [Fact]
         public void LeaveRoom_OfSubscribedPlayer_RemovesItsCallbackButKeepsMatch()
         {
@@ -503,7 +505,6 @@ namespace TLMG.Services.Tests
             Assert.Equal(MinimumPlayerCount - OneCard, placement.ViewDeliveries.Count);
         }
 
-        /// <summary>Verifica EndSession_OfSubscribedPlayer_RemovesItsCallback.</summary>
         [Fact]
         public void EndSession_OfSubscribedPlayer_RemovesItsCallback()
         {
@@ -521,7 +522,6 @@ namespace TLMG.Services.Tests
             Assert.DoesNotContain(scenario.CallbackOf(endingUserId), MatchPlayScenario.RecipientsOf(placement));
         }
 
-        /// <summary>Verifica LeaveRoom_WhenRoomBecomesEmpty_ReleasesMatchForSubscription.</summary>
         [Fact]
         public void LeaveRoom_WhenRoomBecomesEmpty_ReleasesMatchForSubscription()
         {
@@ -539,7 +539,6 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NotInMatch, scenario.Subscribe(scenario.CreatorUserId).ErrorKey);
         }
 
-        /// <summary>Verifica SubscribeToMatch_AfterMutatingDeliveredView_DoesNotAffectServerState.</summary>
         [Fact]
         public void SubscribeToMatch_AfterMutatingDeliveredView_DoesNotAffectServerState()
         {

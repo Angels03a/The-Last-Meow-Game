@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using log4net;
@@ -10,6 +10,7 @@ using TLMG.Client.Views;
 
 namespace TLMG.Client.Navigation
 {
+    /// <summary>Composes screens with their view models and required dependencies.</summary>
     public class ScreenFactory : IScreenFactory
     {
         private const string AccountCreatedMessageKey = "CreateAccount_SuccessMessage";
@@ -48,6 +49,7 @@ namespace TLMG.Client.Navigation
         private readonly IPasswordConnection _passwordConnection;
         private VerificationNavigationParameter _activeRecoveryParameter;
 
+        /// <summary>Provides the dependencies shared by the screen composition root.</summary>
         public ScreenFactory(
             INavigationManager navigation,
             IDialogManager dialogs,
@@ -70,6 +72,7 @@ namespace TLMG.Client.Navigation
             _passwordConnection = passwordConnection;
         }
 
+        /// <inheritdoc />
         public ScreenEntry Create(ScreenId screenId, object parameter)
         {
             ScreenEntry screenEntry;
@@ -107,7 +110,7 @@ namespace TLMG.Client.Navigation
                     screenEntry = new ScreenEntry(new LoginScreen(loginViewModel), loginViewModel);
                     break;
                 case ScreenId.Verification:
-                    screenEntry = CreateVerificationEntry((VerificationNavigationParameter)parameter);
+                    screenEntry = CreateVerificationEntry(parameter as VerificationNavigationParameter);
                     break;
                 case ScreenId.ForgotPassword:
                     ForgotPasswordViewModel forgotPasswordViewModel = new ForgotPasswordViewModel(
@@ -119,10 +122,18 @@ namespace TLMG.Client.Navigation
                     screenEntry = new ScreenEntry(new ProfileScreen(profileViewModel), profileViewModel);
                     break;
                 case ScreenId.NewPassword:
-                    NewPasswordNavigationParameter newPasswordParameter = (NewPasswordNavigationParameter)parameter;
-                    NewPasswordViewModel newPasswordViewModel = new NewPasswordViewModel(
-                        _navigationManager, _passwordConnection, newPasswordParameter);
-                    screenEntry = new ScreenEntry(new NewPasswordScreen(newPasswordViewModel), newPasswordViewModel);
+                    NewPasswordNavigationParameter newPasswordParameter = parameter as NewPasswordNavigationParameter;
+                    screenEntry = new ScreenEntry(null, null);
+                    if (newPasswordParameter != null)
+                    {
+                        NewPasswordViewModel newPasswordViewModel = new NewPasswordViewModel(
+                            _navigationManager, _passwordConnection, newPasswordParameter);
+                        screenEntry = new ScreenEntry(new NewPasswordScreen(newPasswordViewModel), newPasswordViewModel);
+                    }
+                    else
+                    {
+                        _log.Warn("No se recibió el parámetro de recuperación de contraseña.");
+                    }
                     break;
                 case ScreenId.ChangePassword:
                     ChangePasswordViewModel changePasswordViewModel = new ChangePasswordViewModel(
@@ -163,10 +174,17 @@ namespace TLMG.Client.Navigation
                     screenEntry = new ScreenEntry(new RoundResultScreen(roundResultViewModel), roundResultViewModel);
                     break;
                 case ScreenId.FugitiveKitten:
-                    Guid matchId = (Guid)parameter;
-                    FugitiveKittenViewModel fugitiveKittenViewModel = new FugitiveKittenViewModel(
-                        _navigationManager, _matchConnection, _lobbyConnection, matchId);
-                    screenEntry = new ScreenEntry(new FugitiveKittenScreen(fugitiveKittenViewModel), fugitiveKittenViewModel);
+                    screenEntry = new ScreenEntry(null, null);
+                    if (parameter is Guid matchId)
+                    {
+                        FugitiveKittenViewModel fugitiveKittenViewModel = new FugitiveKittenViewModel(
+                            _navigationManager, _matchConnection, _lobbyConnection, matchId);
+                        screenEntry = new ScreenEntry(new FugitiveKittenScreen(fugitiveKittenViewModel), fugitiveKittenViewModel);
+                    }
+                    else
+                    {
+                        _log.Warn("No se recibió el identificador de partida del gatito fugitivo.");
+                    }
                     break;
                 case ScreenId.MatchClosed:
                     MatchClosedViewModel matchClosedViewModel = new MatchClosedViewModel(_navigationManager);
@@ -209,10 +227,18 @@ namespace TLMG.Client.Navigation
                     screenEntry = new ScreenEntry(new LeaderboardScreen(leaderboardViewModel), leaderboardViewModel);
                     break;
                 case ScreenId.Moderation:
-                    ModerationNavigationParameter moderationParameter = (ModerationNavigationParameter)parameter;
-                    ModerationViewModel moderationViewModel = new ModerationViewModel(
-                        _navigationManager, moderationParameter.PlayerName, moderationParameter.TypeOfModerationMode);
-                    screenEntry = new ScreenEntry(new ModerationScreen(moderationViewModel), moderationViewModel);
+                    ModerationNavigationParameter moderationParameter = parameter as ModerationNavigationParameter;
+                    screenEntry = new ScreenEntry(null, null);
+                    if (moderationParameter != null)
+                    {
+                        ModerationViewModel moderationViewModel = new ModerationViewModel(
+                            _navigationManager, moderationParameter.PlayerName, moderationParameter.TypeOfModerationMode);
+                        screenEntry = new ScreenEntry(new ModerationScreen(moderationViewModel), moderationViewModel);
+                    }
+                    else
+                    {
+                        _log.Warn("No se recibieron los parámetros de moderación.");
+                    }
                     break;
                 default:
                     _log.WarnFormat("No screen is registered for destination {0}.", screenId);
@@ -227,7 +253,12 @@ namespace TLMG.Client.Navigation
         {
             ScreenEntry screenEntry;
 
-            if (verificationParameter.VerificationFlow == VerificationFlow.AccountRegistration)
+            if (verificationParameter == null)
+            {
+                _log.Warn("No se recibieron los parámetros de verificación.");
+                screenEntry = new ScreenEntry(null, null);
+            }
+            else if (verificationParameter.VerificationFlow == VerificationFlow.AccountRegistration)
             {
                 VerificationViewModel verificationViewModel = new VerificationViewModel(
                     _accountsConnection, _passwordConnection, verificationParameter);

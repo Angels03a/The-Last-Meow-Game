@@ -12,8 +12,8 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Pruebas de la vista privada de cada destinatario (Regla No. 2): lo público lo ven todos, lo oculto solo su
-    /// dueño, y las banderas de acciones salen del estado del motor.
+    /// Tests each recipient's private view (Rule No. 2). Everyone sees public information, only the owner sees hidden
+    /// cards and action flags come from the engine state.
     /// </summary>
     public class MatchViewVisibilityTests
     {
@@ -28,7 +28,7 @@ namespace TLMG.Services.Tests
         private const int ThreeCardsOnTable = 3;
         private const int UnknownUserId = 99;
 
-        /// <summary>Verifica CreateMatchView_AtMatchStart_ShowsEmptyTableAndFirstPlayerTurn.</summary>
+        /// <summary>Checks CreateMatchView_AtMatchStart_ShowsEmptyTableAndFirstPlayerTurn.</summary>
         [Fact]
         public void CreateMatchView_AtMatchStart_ShowsEmptyTableAndFirstPlayerTurn()
         {
@@ -50,7 +50,7 @@ namespace TLMG.Services.Tests
             Assert.All(view.Players, player => Assert.Empty(player.RevealedPileCards));
         }
 
-        /// <summary>Verifica CreateMatchView_AtMatchStart_OnlyTheFirstPlayerCanPlaceACard.</summary>
+        /// <summary>Checks CreateMatchView_AtMatchStart_OnlyTheFirstPlayerCanPlaceACard.</summary>
         [Fact]
         public void CreateMatchView_AtMatchStart_OnlyTheFirstPlayerCanPlaceACard()
         {
@@ -67,7 +67,7 @@ namespace TLMG.Services.Tests
             Assert.False(secondView.CanPlaceCard);
         }
 
-        /// <summary>Verifica CreateMatchView_AfterEachPlayerPlacedACard_AllowsOpeningUpToTableCards.</summary>
+        /// <summary>Checks CreateMatchView_AfterEachPlayerPlacedACard_AllowsOpeningUpToTableCards.</summary>
         [Fact]
         public void CreateMatchView_AfterEachPlayerPlacedACard_AllowsOpeningUpToTableCards()
         {
@@ -84,11 +84,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(ThreeCardsOnTable, view.CardsOnTable);
         }
 
-        /// <summary>Verifica CreateMatchView_WithEmptyHand_AllowsOnlyABetOfOne.</summary>
+        /// <summary>Checks CreateMatchView_WithEmptyHand_AllowsOnlyABetOfOne.</summary>
         [Fact]
         public void CreateMatchView_WithEmptyHand_AllowsOnlyABetOfOne()
         {
-            // Arrange: el primer jugador coloca sus 4 cartas; los demás, una vuelta cada vez.
+            // Arrange: The first player places all four cards. The others play once per turn around the table.
             MatchState matchState = MatchStateScenarios.CreateStarted();
             PlaceFullLaps(matchState);
 
@@ -102,7 +102,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(1, view.MaximumBetValue);
         }
 
-        /// <summary>Verifica CreateMatchView_WhileBetting_ShowsBetToEveryoneAndRaiseRangeToTheOneInTurn.</summary>
+        /// <summary>Checks CreateMatchView_WhileBetting_ShowsBetToEveryoneAndRaiseRangeToTheOneInTurn.</summary>
         [Fact]
         public void CreateMatchView_WhileBetting_ShowsBetToEveryoneAndRaiseRangeToTheOneInTurn()
         {
@@ -125,7 +125,7 @@ namespace TLMG.Services.Tests
             Assert.False(leaderView.CanPlaceBet);
         }
 
-        /// <summary>Verifica CreateMatchView_WhenSomeoneWithdraws_MarksOnlyThatPlayerAsWithdrawn.</summary>
+        /// <summary>Checks CreateMatchView_WhenSomeoneWithdraws_MarksOnlyThatPlayerAsWithdrawn.</summary>
         [Fact]
         public void CreateMatchView_WhenSomeoneWithdraws_MarksOnlyThatPlayerAsWithdrawn()
         {
@@ -142,7 +142,7 @@ namespace TLMG.Services.Tests
                 .Select(player => player.UserId).ToArray());
         }
 
-        /// <summary>Verifica CreateMatchView_WithChallengeReady_OnlyTheBettorCanReveal.</summary>
+        /// <summary>Checks CreateMatchView_WithChallengeReady_OnlyTheBettorCanReveal.</summary>
         [Fact]
         public void CreateMatchView_WithChallengeReady_OnlyTheBettorCanReveal()
         {
@@ -162,11 +162,11 @@ namespace TLMG.Services.Tests
             Assert.False(bettorView.CanPlaceCard);
         }
 
-        /// <summary>Verifica CreateMatchView_AfterAReveal_ShowsRevealedCardsToEveryoneButNotHiddenOnes.</summary>
+        /// <summary>Checks CreateMatchView_AfterAReveal_ShowsRevealedCardsToEveryoneButNotHiddenOnes.</summary>
         [Fact]
         public void CreateMatchView_AfterAReveal_ShowsRevealedCardsToEveryoneButNotHiddenOnes()
         {
-            // Arrange: el primer jugador voltea su carta de arriba (segura); el Gato del segundo sigue oculto.
+            // Arrange: The first player reveals a safe top card. The second player's Fatal Cat stays hidden.
             MatchState matchState = MatchStateScenarios.ReachChallengeReady(CardKind.FatalCat);
             matchState.RevealCard(First, First, MatchStateScenarios.StartUtc);
 
@@ -182,11 +182,12 @@ namespace TLMG.Services.Tests
             Assert.Equal(new[] { MatchCardKind.Safe }, otherView.OwnPileCards);
         }
 
-        /// <summary>Verifica CreateMatchView_WithBlindPunishment_ExposesNoCardKindsToTheChooserNorOthers.</summary>
+        /// <summary>Checks CreateMatchView_WithBlindPunishment_ExposesNoCardKindsToTheChooserNorOthers.</summary>
         [Fact]
         public void CreateMatchView_WithBlindPunishment_ExposesNoCardKindsToTheChooserNorOthers()
         {
-            // Arrange: el primero falla con el Gato del segundo; elige el segundo a ciegas entre 4 cartas.
+            // Arrange: The first player fails on the second player's Fatal Cat. The second chooses blindly from four
+            // cards.
             MatchState matchState = MatchStateScenarios.ReachBlindPunishment();
 
             // Act
@@ -208,7 +209,7 @@ namespace TLMG.Services.Tests
                 property => property.PropertyType.IsGenericType || property.PropertyType == typeof(MatchCardKind));
         }
 
-        /// <summary>Verifica CreateMatchView_WithBlindPunishment_PunishedPlayerSeesOnlyHisOwnHand.</summary>
+        /// <summary>Checks CreateMatchView_WithBlindPunishment_PunishedPlayerSeesOnlyHisOwnHand.</summary>
         [Fact]
         public void CreateMatchView_WithBlindPunishment_PunishedPlayerSeesOnlyHisOwnHand()
         {
@@ -219,7 +220,7 @@ namespace TLMG.Services.Tests
             MatchView punishedView = ViewOf(matchState, First);
             MatchView chooserView = ViewOf(matchState, Second);
 
-            // Assert: sus 4 cartas (volvieron a la mano); el que elige a ciegas no recibe ninguna de ellas.
+            // Assert: All four cards returned to their owner's hand. The blind chooser receives none of them.
             Assert.Equal(CardsInHand, punishedView.OwnHandCards.Count);
             Assert.False(punishedView.CanChoosePunishmentCard);
             Assert.Empty(chooserView.OwnPileCards);
@@ -228,7 +229,7 @@ namespace TLMG.Services.Tests
                 chooserView.Players.Single(player => player.UserId == First).HandCardCount);
         }
 
-        /// <summary>Verifica CreateMatchView_WithOwnPunishment_TheBettorChoosesSeeingHisHand.</summary>
+        /// <summary>Checks CreateMatchView_WithOwnPunishment_TheBettorChoosesSeeingHisHand.</summary>
         [Fact]
         public void CreateMatchView_WithOwnPunishment_TheBettorChoosesSeeingHisHand()
         {
@@ -245,7 +246,7 @@ namespace TLMG.Services.Tests
             Assert.Contains(MatchCardKind.FatalCat, bettorView.OwnHandCards);
         }
 
-        /// <summary>Verifica CreateMatchView_AfterTwoSuccessfulChallenges_ShowsWinnerAndNoActions.</summary>
+        /// <summary>Checks CreateMatchView_AfterTwoSuccessfulChallenges_ShowsWinnerAndNoActions.</summary>
         [Fact]
         public void CreateMatchView_AfterTwoSuccessfulChallenges_ShowsWinnerAndNoActions()
         {
@@ -267,7 +268,7 @@ namespace TLMG.Services.Tests
                 winnerView.Players.Single(player => player.UserId == First).SuccessfulChallengeCount);
         }
 
-        /// <summary>Verifica CreateMatchView_ForAPlayerWhoLeft_ShowsHimAsLeftWithNoActions.</summary>
+        /// <summary>Checks CreateMatchView_ForAPlayerWhoLeft_ShowsHimAsLeftWithNoActions.</summary>
         [Fact]
         public void CreateMatchView_ForAPlayerWhoLeft_ShowsHimAsLeftWithNoActions()
         {
@@ -289,7 +290,7 @@ namespace TLMG.Services.Tests
             Assert.False(leaverView.CanPlaceBet);
         }
 
-        /// <summary>Verifica CreateMatchView_ForUnknownViewer_HasNoHandNorActions.</summary>
+        /// <summary>Checks CreateMatchView_ForUnknownViewer_HasNoHandNorActions.</summary>
         [Fact]
         public void CreateMatchView_ForUnknownViewer_HasNoHandNorActions()
         {
@@ -307,7 +308,7 @@ namespace TLMG.Services.Tests
             Assert.False(view.CanWithdrawFromBet);
         }
 
-        /// <summary>Verifica CreateMatchView_WithChallengeRecord_ProjectsItWithoutExtraInformation.</summary>
+        /// <summary>Checks CreateMatchView_WithChallengeRecord_ProjectsItWithoutExtraInformation.</summary>
         [Fact]
         public void CreateMatchView_WithChallengeRecord_ProjectsItWithoutExtraInformation()
         {
@@ -335,7 +336,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchPunishmentResolution.Pending, challenge.PunishmentResolution);
         }
 
-        /// <summary>La tabla se proyecta desde el motor solo con identidades verificadas.</summary>
+        /// <summary>Builds standings from the engine only when identities are verified.</summary>
         [Fact]
         public void CreateMatchView_WithRegisteredParticipants_ProjectsFinalStandings()
         {
@@ -355,7 +356,7 @@ namespace TLMG.Services.Tests
             }
         }
 
-        /// <summary>Una identidad no verificada no se trata como cuenta registrada.</summary>
+        /// <summary>An unverified identity cannot count as a registered account.</summary>
         [Fact]
         public void CreateMatchView_WithUnknownIdentity_DoesNotPublishStandings()
         {
@@ -363,7 +364,7 @@ namespace TLMG.Services.Tests
             Assert.Null(ViewOf(match, First).FinalStandings);
         }
 
-        /// <summary>Al quedar una persona activa, el motor asigna cero a quienes salieron.</summary>
+        /// <summary>With one active player remaining, the engine awards zero to players who left.</summary>
         [Fact]
         public void CreateMatchView_LastActivePlayer_ProjectsWinnerAndDepartures()
         {
@@ -378,7 +379,7 @@ namespace TLMG.Services.Tests
             Assert.All(view.FinalStandings.Where(row => row.UserId != First), row => Assert.Equal(0, row.Points));
         }
 
-        /// <summary>El contrato conserva la diferencia entre tabla ausente y tabla vacía.</summary>
+        /// <summary>The contract distinguishes missing standings from empty standings.</summary>
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -405,7 +406,7 @@ namespace TLMG.Services.Tests
             }
         }
 
-        /// <summary>El resultado serializado solo contiene los datos públicos de las filas.</summary>
+        /// <summary>The serialized result contains only the rows' public data.</summary>
         [Fact]
         public void MatchStandingSerialization_ContainsOnlyPublicFields()
         {

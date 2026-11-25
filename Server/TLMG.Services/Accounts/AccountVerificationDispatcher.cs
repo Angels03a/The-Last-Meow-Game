@@ -9,7 +9,7 @@ namespace TLMG.Services.Accounts
         private static readonly ILog _log = LogManager.GetLogger(typeof(AccountVerificationDispatcher));
         private readonly VerificationCodeStore _verificationCodeStore;
         private readonly EmailUtility _emailUtility;
-        private readonly CodeGeneratorUtility _codeGeneratorUtility;
+        private readonly VerificationCodeGenerator _codeGeneratorUtility;
 
         public AccountVerificationDispatcher(
             VerificationCodeStore verificationCodeStore,
@@ -17,7 +17,7 @@ namespace TLMG.Services.Accounts
         {
             _verificationCodeStore = verificationCodeStore;
             _emailUtility = emailUtility;
-            _codeGeneratorUtility = new CodeGeneratorUtility();
+            _codeGeneratorUtility = new VerificationCodeGenerator();
         }
 
         public int? SavePendingRegistration(string nickname, string normalizedEmail, string passwordHash)
@@ -25,9 +25,9 @@ namespace TLMG.Services.Accounts
             return _verificationCodeStore.SavePendingRegistration(nickname, normalizedEmail, passwordHash);
         }
 
-        public PendingRegistrationRecord FindValidPendingRegistration(string normalizedEmail)
+        public PlayerExistenceLookupStatus FindValidPendingRegistration(string normalizedEmail, out PendingRegistrationRecord record)
         {
-            return _verificationCodeStore.FindValidPendingRegistration(normalizedEmail);
+            return _verificationCodeStore.FindValidPendingRegistration(normalizedEmail, out record);
         }
 
         public void DeletePendingRegistration(int pendingId)

@@ -1,12 +1,12 @@
 namespace TLMG.Domain.Engine
 {
-    /// <summary>Resultado de calcular la tabla final de una partida; los demás valores son rechazos.</summary>
+    /// <summary>Result of calculating final standings. Other values indicate rejection.</summary>
     public enum FinalStandingsStatus
     {
-        /// <summary>La tabla se calculó: cada jugador tiene posición y puntos.</summary>
+        /// <summary>Standings are ready with a rank and points for each player.</summary>
         Calculated,
 
-        /// <summary>La partida no ha terminado: todavía no hay tabla final.</summary>
+        /// <summary>The match is still running and has no final standings.</summary>
         MatchNotFinished
     }
 }

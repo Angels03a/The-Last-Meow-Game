@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using TLMG.Domain.Engine;
@@ -6,20 +6,19 @@ using TLMG.Domain.Engine;
 namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Copia inmutable del estado básico de una partida autorizada, tomada bajo _sessionsLock; no guarda referencias
-    /// al MatchState.
+    /// Immutable snapshot of an authorized match taken under _sessionsLock, without MatchState references.
     /// </summary>
     internal sealed class MatchSnapshot
     {
-        /// <summary>Crea la copia.</summary>
-        /// <param name="matchId">Identificador de la partida.</param>
-        /// <param name="roomId">Sala que la autorizó.</param>
-        /// <param name="participantUserIds">Participantes en orden de ingreso; lista ya congelada.</param>
-        /// <param name="cardsPerPlayerCount">Cartas por jugador de la modalidad del motor.</param>
-        /// <param name="roundNumber">Ronda en curso del motor.</param>
-        /// <param name="phase">Fase en curso del motor.</param>
-        /// <param name="playerInTurnUserId">Jugador en turno.</param>
-        /// <param name="guestUserIds">Invitados congelados al autorizar; no se persisten en Game_Player.</param>
+        /// <summary>Creates the snapshot.</summary>
+        /// <param name="matchId">Match ID.</param>
+        /// <param name="roomId">Room that authorized the match.</param>
+        /// <param name="participantUserIds">Participants in entry order, already fixed.</param>
+        /// <param name="cardsPerPlayerCount">Cards per player in the engine's mode.</param>
+        /// <param name="roundNumber">Current engine round.</param>
+        /// <param name="phase">Current engine phase.</param>
+        /// <param name="playerInTurnUserId">Current player.</param>
+        /// <param name="guestUserIds">Guest identifiers fixed at authorization; excluded from Game_Player persistence.</param>
         internal MatchSnapshot(
             Guid matchId,
             int roomId,
@@ -40,28 +39,28 @@ namespace TLMG.Services.Sessions
             PlayerInTurnUserId = playerInTurnUserId;
         }
 
-        /// <summary>Obtiene el identificador de la partida.</summary>
+        /// <summary>Match ID.</summary>
         internal Guid MatchId { get; }
 
-        /// <summary>Obtiene la sala que autorizó la partida.</summary>
+        /// <summary>Room that authorized the match.</summary>
         internal int RoomId { get; }
 
-        /// <summary>Obtiene los participantes en el orden de ingreso a la sala.</summary>
+        /// <summary>Participants in room entry order.</summary>
         internal IReadOnlyList<int> ParticipantUserIds { get; }
 
-        /// <summary>Obtiene los identificadores de los invitados congelados al autorizar la partida.</summary>
+        /// <summary>Guest identifiers fixed at authorization.</summary>
         internal IReadOnlyList<int> GuestUserIds { get; }
 
-        /// <summary>Obtiene las cartas por jugador de la modalidad con la que se creó el motor.</summary>
+        /// <summary>Cards per player for the mode used to create the engine.</summary>
         internal int CardsPerPlayerCount { get; }
 
-        /// <summary>Obtiene la ronda en curso.</summary>
+        /// <summary>Current round.</summary>
         internal int RoundNumber { get; }
 
-        /// <summary>Obtiene la fase en curso.</summary>
+        /// <summary>Current phase.</summary>
         internal RoundPhase Phase { get; }
 
-        /// <summary>Obtiene el jugador en turno.</summary>
+        /// <summary>Current player.</summary>
         internal int PlayerInTurnUserId { get; }
     }
 }

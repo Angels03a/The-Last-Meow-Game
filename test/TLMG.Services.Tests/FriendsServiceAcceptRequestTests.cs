@@ -1,24 +1,27 @@
 using System;
+
+using Xunit;
+
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
 using TLMG.Services.Sessions;
-using Xunit;
 
 namespace TLMG.Services.Tests
 {
-    /// <summary>Pruebas de FriendsService.AcceptFriendRequest.</summary>
+    /// <summary>
+    /// Tests of FriendsService.AcceptFriendRequest. Only the receiver of a pending request can accept it; every
+    /// rejection must leave the request as it was and notify nobody.
+    /// </summary>
     public class FriendsServiceAcceptRequestTests
     {
-        private const string NotValidKey = "Friends_RequestNotValidError";
-
-        /// <summary>Verifica AcceptFriendRequest_ByReceiver_AcceptsAndNotifiesBothPlayers.</summary>
         [Fact]
-        public void AcceptFriendRequest_ByReceiver_AcceptsAndNotifiesBothPlayers()
+        public void AcceptFriendRequest_ByReceiver_AcceptsAndTellsEachPlayerAboutTheOther()
         {
             // Arrange
             FriendsScenario scenario = new FriendsScenario();
-            int friendshipId = scenario.Repository.Seed(FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId,
-                FriendshipState.Pending);
+            int friendshipId = scenario.Repository.Seed(
+                FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId, FriendshipState.Pending);
 
             // Act
             ResultWithNotification<OperationAcceptFriendRequestResult> actual =
@@ -27,23 +30,27 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(actual.OperationResult.IsSuccess);
-            Assert.Null(actual.OperationResult.ErrorKey);
+            Assert.Equal(string.Empty, actual.OperationResult.ErrorKey);
             Assert.Equal(friendshipId, actual.OperationResult.FriendRequestId);
             Assert.Equal(FriendsScenario.AlphaUserId, actual.OperationResult.NewFriend.UserId);
+            Assert.Equal(FriendsScenario.AlphaNickname, actual.OperationResult.NewFriend.Nickname);
             Assert.True(actual.OperationResult.NewFriend.IsOnline);
             Assert.Equal(FriendshipState.Accepted, scenario.Repository.Find(friendshipId).State);
-            Assert.Equal(FriendsScenario.BravoUserId, Assert.Single(scenario.AlphaCallback.AddedFriends).UserId);
-            Assert.Equal(FriendsScenario.AlphaUserId, Assert.Single(scenario.BravoCallback.AddedFriends).UserId);
+            Friend addedForAlpha = Assert.Single(scenario.AlphaCallback.AddedFriends);
+            Assert.Equal(FriendsScenario.BravoUserId, addedForAlpha.UserId);
+            Assert.Equal(FriendsScenario.BravoNickname, addedForAlpha.Nickname);
+            Friend addedForBravo = Assert.Single(scenario.BravoCallback.AddedFriends);
+            Assert.Equal(FriendsScenario.AlphaUserId, addedForBravo.UserId);
+            Assert.Equal(FriendsScenario.AlphaNickname, addedForBravo.Nickname);
         }
 
-        /// <summary>Verifica AcceptFriendRequest_WithOfflineSender_NotifiesOnlyTheReceiver.</summary>
         [Fact]
-        public void AcceptFriendRequest_WithOfflineSender_NotifiesOnlyTheReceiver()
+        public void AcceptFriendRequest_WithOfflineSender_ReportsHimOfflineAndNotifiesOnlyTheReceiver()
         {
             // Arrange
             FriendsScenario scenario = new FriendsScenario();
-            int friendshipId = scenario.Repository.Seed(FriendsScenario.CharlieUserId, FriendsScenario.AlphaUserId,
-                FriendshipState.Pending);
+            int friendshipId = scenario.Repository.Seed(
+                FriendsScenario.CharlieUserId, FriendsScenario.AlphaUserId, FriendshipState.Pending);
 
             // Act
             ResultWithNotification<OperationAcceptFriendRequestResult> actual =
@@ -52,19 +59,23 @@ namespace TLMG.Services.Tests
 
             // Assert
             Assert.True(actual.OperationResult.IsSuccess);
+            Assert.Equal(FriendsScenario.CharlieUserId, actual.OperationResult.NewFriend.UserId);
             Assert.False(actual.OperationResult.NewFriend.IsOnline);
-            Assert.Equal(1, actual.Notifications.Count);
-            Assert.Single(scenario.AlphaCallback.AddedFriends);
+            Assert.Equal(FriendshipState.Accepted, scenario.Repository.Find(friendshipId).State);
+            Assert.Single(actual.Notifications);
+            Friend addedForAlpha = Assert.Single(scenario.AlphaCallback.AddedFriends);
+            Assert.Equal(FriendsScenario.CharlieUserId, addedForAlpha.UserId);
+            Assert.False(addedForAlpha.IsOnline);
+            Assert.Empty(scenario.BravoCallback.AddedFriends);
         }
 
-        /// <summary>Verifica AcceptFriendRequest_ByPlayerWhoIsNotTheReceiver_ReturnsNotValidError.</summary>
         [Fact]
-        public void AcceptFriendRequest_ByPlayerWhoIsNotTheReceiver_ReturnsNotValidError()
+        public void AcceptFriendRequest_ByPlayerWhoIsNotTheReceiver_RejectsAndLeavesTheRequestPending()
         {
             // Arrange
             FriendsScenario scenario = new FriendsScenario();
-            int friendshipId = scenario.Repository.Seed(FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId,
-                FriendshipState.Pending);
+            int friendshipId = scenario.Repository.Seed(
+                FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId, FriendshipState.Pending);
 
             // Act
             ResultWithNotification<OperationAcceptFriendRequestResult> bySender =
@@ -73,91 +84,161 @@ namespace TLMG.Services.Tests
                 scenario.Service.AcceptFriendRequest(scenario.CharlieToken, friendshipId);
 
             // Assert
-            Assert.Equal(NotValidKey, bySender.OperationResult.ErrorKey);
-            Assert.Equal(NotValidKey, byThirdPlayer.OperationResult.ErrorKey);
-            Assert.Empty(bySender.Notifications);
+            AssertRejected(bySender, ErrorKeys.Friends.RequestNotValid);
+            AssertRejected(byThirdPlayer, ErrorKeys.Friends.RequestNotValid);
             Assert.Equal(FriendshipState.Pending, scenario.Repository.Find(friendshipId).State);
+            Assert.Equal(0, scenario.Repository.AnswerWriteCount);
         }
 
-        /// <summary>Verifica AcceptFriendRequest_Twice_ReturnsNotValidErrorTheSecondTime.</summary>
         [Fact]
-        public void AcceptFriendRequest_Twice_ReturnsNotValidErrorTheSecondTime()
+        public void AcceptFriendRequest_Twice_RejectsTheSecondTimeWithoutDuplicatingTheFriendship()
         {
             // Arrange
             FriendsScenario scenario = new FriendsScenario();
-            int friendshipId = scenario.Repository.Seed(FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId,
-                FriendshipState.Pending);
+            int friendshipId = scenario.Repository.Seed(
+                FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId, FriendshipState.Pending);
 
             // Act
             ResultWithNotification<OperationAcceptFriendRequestResult> first =
                 scenario.Service.AcceptFriendRequest(scenario.BravoToken, friendshipId);
             ResultWithNotification<OperationAcceptFriendRequestResult> second =
                 scenario.Service.AcceptFriendRequest(scenario.BravoToken, friendshipId);
+            FriendsScenario.Deliver(first.Notifications);
+            FriendsScenario.Deliver(second.Notifications);
 
             // Assert
             Assert.True(first.OperationResult.IsSuccess);
-            Assert.False(second.OperationResult.IsSuccess);
-            Assert.Equal(NotValidKey, second.OperationResult.ErrorKey);
-            Assert.Empty(second.Notifications);
+            AssertRejected(second, ErrorKeys.Friends.RequestNotValid);
+            Assert.Single(scenario.Repository.Rows);
+            Assert.Single(scenario.AlphaCallback.AddedFriends);
+            Assert.Single(scenario.BravoCallback.AddedFriends);
         }
 
-        /// <summary>Verifica AcceptFriendRequest_WithUnknownRequestOrInvalidSession_ReturnsError.</summary>
         [Theory]
-        [InlineData(999, true, NotValidKey)]
-        [InlineData(0, true, NotValidKey)]
-        [InlineData(-1, true, NotValidKey)]
-        [InlineData(1, false, "Common_InvalidSessionError")]
-        public void AcceptFriendRequest_WithUnknownRequestOrInvalidSession_ReturnsError(
-            int friendRequestId,
-            bool hasValidSession,
-            string expectedKey)
+        [InlineData(FriendshipState.Accepted)]
+        [InlineData(FriendshipState.Rejected)]
+        public void AcceptFriendRequest_WhenAlreadyResolved_RejectsAndKeepsItsState(FriendshipState state)
         {
             // Arrange
             FriendsScenario scenario = new FriendsScenario();
-            scenario.Repository.Seed(FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId,
-                FriendshipState.Pending);
-            string token = hasValidSession ? scenario.BravoToken : "unknown";
-
-            // Act
-            ResultWithNotification<OperationAcceptFriendRequestResult> actual =
-                scenario.Service.AcceptFriendRequest(token, friendRequestId);
-
-            // Assert
-            Assert.False(actual.OperationResult.IsSuccess);
-            Assert.Equal(expectedKey, actual.OperationResult.ErrorKey);
-            Assert.Equal(FriendshipState.Pending, scenario.Repository.Find(1).State);
-        }
-
-        /// <summary>Verifica AcceptFriendRequest_WhenAnotherChangeWinsTheRace_ReturnsNotValidError.</summary>
-        [Fact]
-        public void AcceptFriendRequest_WhenAnotherChangeWinsTheRace_ReturnsNotValidError()
-        {
-            // Arrange
-            FriendsScenario scenario = new FriendsScenario();
-            int friendshipId = scenario.Repository.Seed(FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId,
-                FriendshipState.Pending);
-            scenario.Repository.ForceStateChangedOnWrite = true;
+            int friendshipId = scenario.Repository.Seed(
+                FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId, state);
 
             // Act
             ResultWithNotification<OperationAcceptFriendRequestResult> actual =
                 scenario.Service.AcceptFriendRequest(scenario.BravoToken, friendshipId);
 
             // Assert
-            Assert.False(actual.OperationResult.IsSuccess);
-            Assert.Equal(NotValidKey, actual.OperationResult.ErrorKey);
-            Assert.Empty(actual.Notifications);
+            AssertRejected(actual, ErrorKeys.Friends.RequestNotValid);
+            Assert.Equal(state, scenario.Repository.Find(friendshipId).State);
+            Assert.Equal(0, scenario.Repository.AnswerWriteCount);
+        }
+
+        [Theory]
+        [InlineData(999)]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public void AcceptFriendRequest_WithUnknownRequestId_RejectsAndLeavesOthersPending(int friendRequestId)
+        {
+            // Arrange
+            FriendsScenario scenario = new FriendsScenario();
+            int existingId = scenario.Repository.Seed(
+                FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId, FriendshipState.Pending);
+
+            // Act
+            ResultWithNotification<OperationAcceptFriendRequestResult> actual =
+                scenario.Service.AcceptFriendRequest(scenario.BravoToken, friendRequestId);
+
+            // Assert
+            AssertRejected(actual, ErrorKeys.Friends.RequestNotValid);
+            Assert.Equal(FriendshipState.Pending, scenario.Repository.Find(existingId).State);
+            Assert.Equal(0, scenario.Repository.AnswerWriteCount);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("unknown")]
+        public void AcceptFriendRequest_WithInvalidSession_RejectsAndLeavesTheRequestPending(string token)
+        {
+            // Arrange
+            FriendsScenario scenario = new FriendsScenario();
+            int friendshipId = scenario.Repository.Seed(
+                FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId, FriendshipState.Pending);
+
+            // Act
+            ResultWithNotification<OperationAcceptFriendRequestResult> actual =
+                scenario.Service.AcceptFriendRequest(token, friendshipId);
+
+            // Assert
+            AssertRejected(actual, ErrorKeys.Common.InvalidSession);
+            Assert.Equal(FriendshipState.Pending, scenario.Repository.Find(friendshipId).State);
+            Assert.Equal(0, scenario.Repository.AnswerWriteCount);
         }
 
         [Fact]
-        public void AcceptFriendRequest_WhenRepositoryFails_ThrowsInvalidOperationException()
+        public void AcceptFriendRequest_WhenAnotherChangeWinsTheRace_RejectsWithoutNotifying()
         {
+            // Arrange
             FriendsScenario scenario = new FriendsScenario();
-            int friendshipId = scenario.Repository.Seed(FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId,
-                FriendshipState.Pending);
+            int friendshipId = scenario.Repository.Seed(
+                FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId, FriendshipState.Pending);
+            scenario.Repository.ForceStateChangedOnWrite = true;
+
+            // Act
+            ResultWithNotification<OperationAcceptFriendRequestResult> actual =
+                scenario.Service.AcceptFriendRequest(scenario.BravoToken, friendshipId);
+            FriendsScenario.Deliver(actual.Notifications);
+
+            // Assert
+            AssertRejected(actual, ErrorKeys.Friends.RequestNotValid);
+            Assert.Empty(scenario.AlphaCallback.AddedFriends);
+            Assert.Empty(scenario.BravoCallback.AddedFriends);
+        }
+
+        [Fact]
+        public void AcceptFriendRequest_WhenTheRequestLookupFails_RejectsWithUnexpectedErrorAndKeepsItPending()
+        {
+            // Arrange
+            FriendsScenario scenario = new FriendsScenario();
+            int friendshipId = scenario.Repository.Seed(
+                FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId, FriendshipState.Pending);
+            scenario.Repository.FailRecordLookup = true;
+
+            // Act
+            ResultWithNotification<OperationAcceptFriendRequestResult> actual =
+                scenario.Service.AcceptFriendRequest(scenario.BravoToken, friendshipId);
+
+            // Assert
+            AssertRejected(actual, ErrorKeys.Common.Unexpected);
+            Assert.Equal(FriendshipState.Pending, scenario.Repository.Find(friendshipId).State);
+        }
+
+        [Fact]
+        public void AcceptFriendRequest_WhenTheRepositoryThrows_PropagatesTheExceptionAndKeepsTheRequestPending()
+        {
+            // Arrange
+            FriendsScenario scenario = new FriendsScenario();
+            int friendshipId = scenario.Repository.Seed(
+                FriendsScenario.AlphaUserId, FriendsScenario.BravoUserId, FriendshipState.Pending);
             scenario.Repository.ThrowOnAnyCall = true;
 
-            Assert.Throws<InvalidOperationException>(() =>
-                scenario.Service.AcceptFriendRequest(scenario.BravoToken, friendshipId));
+            // Act
+            Action accept = () => scenario.Service.AcceptFriendRequest(scenario.BravoToken, friendshipId);
+
+            // Assert
+            Assert.Throws<InvalidOperationException>(accept);
+            Assert.Equal(FriendshipState.Pending, scenario.Repository.Find(friendshipId).State);
+        }
+
+        private static void AssertRejected(
+            ResultWithNotification<OperationAcceptFriendRequestResult> actual,
+            string expectedErrorKey)
+        {
+            Assert.False(actual.OperationResult.IsSuccess);
+            Assert.Equal(expectedErrorKey, actual.OperationResult.ErrorKey);
+            Assert.Null(actual.OperationResult.NewFriend);
+            Assert.Empty(actual.Notifications);
         }
     }
 }

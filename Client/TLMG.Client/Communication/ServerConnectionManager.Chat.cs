@@ -48,8 +48,9 @@ namespace TLMG.Client.Communication
 
         internal void NotifyChatSubscriptionResult(ServerCallback callback, OperationResult chatResult)
         {
-            if (IsCurrentChatCallback(callback) && chatResult != null)
+            if (IsCurrentChatCallback(callback))
             {
+                chatResult = NormalizeOperationResult(chatResult);
                 IsChatSubscribed = chatResult.IsSuccess;
                 _chatSubscriptionUntil = null;
                 if (IsChatSubscribed)
@@ -69,6 +70,15 @@ namespace TLMG.Client.Communication
         {
             if (IsCurrentChatCallback(callback) && chatResult != null)
             {
+                chatResult = NormalizeOperationResult(chatResult);
+                if (chatResult.IsSuccess)
+                {
+                    chatResult = new OperationSendChatMessageResult
+                    {
+                        IsSuccess = false,
+                        ErrorKey = "Common_UnexpectedError"
+                    };
+                }
                 ChatErrorReceived?.Invoke(this, new ServerEventArgs<string>(chatResult.ErrorKey));
             }
         }

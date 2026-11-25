@@ -15,12 +15,12 @@ namespace TLMG.Services.Tests
         {
         }
 
-        /// <summary>Crea la sala con un registro dado, por ejemplo uno con reloj controlado por la prueba.</summary>
+        /// <summary>Creates a room using the supplied registry, which can use a test clock.</summary>
         internal LobbyScenario(SessionRegistry registry)
         {
             Registry = registry;
             CreatorToken = Registry.StartRegisteredSession(1, "Creator", out SessionEnd replaced);
-            LobbyCaller creatorCaller = new LobbyCaller(CreatorToken, "creator");
+            SessionChannelCaller creatorCaller = new SessionChannelCaller(CreatorToken, "creator");
             RoomId = Registry.CreateRoom(creatorCaller, null).RoomId;
         }
 
@@ -39,7 +39,7 @@ namespace TLMG.Services.Tests
             for (int userId = 2; userId <= 6; userId++)
             {
                 string token = Authorize(userId);
-                LobbyCaller caller = new LobbyCaller(token, "lobby" + userId);
+                SessionChannelCaller caller = new SessionChannelCaller(token, "lobby" + userId);
                 Registry.EnterRoom(caller, RoomId, null);
             }
         }

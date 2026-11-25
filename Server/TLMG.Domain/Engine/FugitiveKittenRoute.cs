@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TLMG.Domain.Engine
 {
-    /// <summary>Catálogo autoritativo de la ruta del gatito fugitivo.</summary>
+    /// <summary>Server-defined route for Fugitive Kitten.</summary>
     public sealed class FugitiveKittenRoute
     {
         public const int WindowMilliseconds = 15000;
@@ -38,7 +38,7 @@ namespace TLMG.Domain.Engine
 
         public IReadOnlyList<KittenRouteSegment> Segments => _segments;
 
-        /// <summary>Indica si la hora del servidor permite atrapar, incluida la tolerancia.</summary>
+        /// <summary>Whether the server time falls within the catch window, including its tolerance.</summary>
         public bool CanCatchAt(TimeSpan elapsed)
         {
             bool canCatch = false;

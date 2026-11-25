@@ -111,13 +111,17 @@ namespace TLMG.Services
             return _matchCallback;
         }
 
-        private LobbyCaller CreateMatchCaller(string sessionToken)
+        private SessionChannelCaller CreateMatchCaller(string sessionToken)
         {
-            LobbyCaller matchCaller = new LobbyCaller(sessionToken, _matchChannelId);
+            SessionChannelCaller matchCaller = new SessionChannelCaller(sessionToken, _matchChannelId);
 
             return matchCaller;
         }
 
+        /// <summary>
+        /// Saves the session callback on the first operation. All operations and cleanup reuse that object so closing
+        /// the channel can compare references regardless of what WCF returns later.
+        /// </summary>
         private void ObserveMatchChannel()
         {
             if (!_isMatchChannelObserved)
@@ -131,6 +135,10 @@ namespace TLMG.Services
             }
         }
 
+        /// <summary>
+        /// Losing the channel removes its callback and can start a reconnection window. It does not count as a
+        /// voluntary exit.
+        /// </summary>
         private void OnMatchChannelClosed(object sender, EventArgs eventArguments)
         {
             LogChannelEnd("Match", "Closed", sender);
@@ -149,7 +157,7 @@ namespace TLMG.Services
         }
         void IMatchManager.MatchHeartbeat(string sessionToken, int sequence, int confirmedSequence)
         {
-            var callback = OperationContext.Current.GetCallbackChannel<IMatchManagerCallback>();
+            IMatchManagerCallback callback = OperationContext.Current.GetCallbackChannel<IMatchManagerCallback>();
             SafeNotifyAll(_sessionRegistry.ProcessHeartbeat(sessionToken, _matchChannelId, HeartbeatChannel.Match,
                 sequence, confirmedSequence, callback.MatchHeartbeatEcho));
         }

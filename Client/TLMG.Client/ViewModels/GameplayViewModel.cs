@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -129,12 +129,14 @@ namespace TLMG.Client.ViewModels
             private set => SetProperty(ref _recoveryMessage, value);
         }
 
+        /// <summary>Indicates that the board may be out of date while the match channel is unavailable.</summary>
         public bool IsMatchUnavailable
         {
             get { return _isMatchUnavailable; }
             private set { SetProperty(ref _isMatchUnavailable, value); }
         }
 
+        /// <summary>Keeps demo controls hidden during an authorized match.</summary>
         public bool IsDemoPanelVisible
         {
             get
@@ -149,6 +151,7 @@ namespace TLMG.Client.ViewModels
         public int HandColumnCount => _matchModeSettings.HandColumnCount;
         public ObservableCollection<ChatMessageEntry> ChatMessages => _chatMessages;
 
+        /// <summary>Exposes the board from the last accepted server view.</summary>
         public MatchBoard Board
         {
             get { return _board; }

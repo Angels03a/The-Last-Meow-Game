@@ -1,30 +1,30 @@
 namespace TLMG.Domain.Engine
 {
-    /// <summary>Resultado de pedir al motor que un jugador coloque una carta; Services lo traduce a ErrorKey.</summary>
+    /// <summary>Card placement result. Services maps it to an ErrorKey.</summary>
     public enum CardPlacementStatus
     {
-        /// <summary>La carta quedó arriba de la pila del jugador y el turno pasó al siguiente.</summary>
+        /// <summary>The card is on top of the player's pile and the next player takes the turn.</summary>
         Placed,
 
-        /// <summary>El jugador no forma parte de la partida.</summary>
+        /// <summary>The player is outside this match.</summary>
         PlayerNotInMatch,
 
-        /// <summary>Hay una apuesta en curso o un reto listo para resolver: nadie puede colocar cartas.</summary>
+        /// <summary>Bidding or a pending challenge blocks card placement.</summary>
         BetInProgress,
 
-        /// <summary>Juega otro jugador: solo puede actuar quien tiene el turno.</summary>
+        /// <summary>It is another player's turn. Only the current player can act.</summary>
         NotPlayersTurn,
 
-        /// <summary>El jugador no tiene cartas en la mano, así que no puede colocar.</summary>
+        /// <summary>The player has no cards in hand to place.</summary>
         HandEmpty,
 
-        /// <summary>La mano del jugador no contiene una carta de ese tipo.</summary>
+        /// <summary>The hand has no card of that type.</summary>
         CardNotInHand,
 
-        /// <summary>Hay un castigo pendiente: no se admite ninguna acción de juego.</summary>
+        /// <summary>A pending punishment blocks game actions.</summary>
         PunishmentPending,
 
-        /// <summary>La partida terminó: no se admite ninguna acción de juego.</summary>
+        /// <summary>The finished match accepts no game actions.</summary>
         MatchFinished
     }
 }

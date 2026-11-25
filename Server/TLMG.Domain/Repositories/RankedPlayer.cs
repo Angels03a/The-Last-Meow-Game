@@ -1,23 +1,23 @@
 ﻿namespace TLMG.Domain.Repositories
 {
     /// <summary>
-    /// Datos mínimos de un jugador para la tabla de posiciones; no expone la entidad de Entity Framework.
+    /// Player details needed by the leaderboard, without exposing the Entity Framework entity.
     /// </summary>
     public class RankedPlayer
     {
-        /// <summary>Nickname del jugador.</summary>
+        /// <summary>Player's nickname.</summary>
         public string Nickname { get; set; }
 
-        /// <summary>Imagen de perfil del jugador; puede ser null.</summary>
+        /// <summary>Player's profile image, which may be null.</summary>
         public string ProfileImage { get; set; }
 
-        /// <summary>Puntos totales acumulados.</summary>
+        /// <summary>Total accumulated points.</summary>
         public int TotalPoints { get; set; }
 
-        /// <summary>Partidas ganadas.</summary>
+        /// <summary>Matches won.</summary>
         public int TotalWins { get; set; }
 
-        /// <summary>Partidas jugadas.</summary>
+        /// <summary>Matches played.</summary>
         public int TotalGamesPlayed { get; set; }
     }
 }

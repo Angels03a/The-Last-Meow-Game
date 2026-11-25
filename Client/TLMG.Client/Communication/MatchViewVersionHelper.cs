@@ -2,16 +2,16 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
 {
-    /// <summary>Decide si una vista de partida recibida debe mostrarse o ya quedó obsoleta.</summary>
+    /// <summary>Checks whether an incoming match view is current enough to display.</summary>
     public static class MatchViewVersionHelper
     {
         /// <summary>
-        /// Compara la vista recibida con la que ya se muestra: solo una versión estrictamente mayor la reemplaza, así
-        /// una vista repetida o que llega tarde nunca regresa el estado.
+        /// Replaces the displayed view only with a strictly newer version, so late or duplicate views cannot roll back
+        /// the board.
         /// </summary>
-        /// <param name="displayedView">Vista que ya se muestra; null si todavía no hay ninguna.</param>
-        /// <param name="incomingView">Vista recién recibida; puede ser null.</param>
-        /// <returns>true si la vista recibida debe mostrarse; en caso contrario, false.</returns>
+        /// <param name="displayedView">Displayed view, or null before the first view arrives.</param>
+        /// <param name="incomingView">Incoming view, which may be null.</param>
+        /// <returns>True if the incoming view should be displayed.</returns>
         public static bool ShouldDisplay(MatchView displayedView, MatchView incomingView)
         {
             bool shouldDisplay = false;

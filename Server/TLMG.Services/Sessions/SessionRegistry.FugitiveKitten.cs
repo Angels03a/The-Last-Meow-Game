@@ -81,19 +81,19 @@ namespace TLMG.Services.Sessions
             }
         }
 
-        /// <summary>Procesa un intento autorizado usando exclusivamente el reloj del servidor.</summary>
-        public MatchDelivery TryCatchFugitiveKitten(LobbyCaller caller)
+        /// <summary>Processes an authorized catch attempt using only the server clock.</summary>
+        public MatchDelivery TryCatchFugitiveKitten(SessionChannelCaller caller)
         {
             return RunFugitiveKittenOperation(caller, true);
         }
 
-        /// <summary>Comprueba el vencimiento sin volver a resolver una partida terminada.</summary>
-        public MatchDelivery CheckFugitiveKittenDeadline(LobbyCaller caller)
+        /// <summary>Checks the deadline without resolving a finished match a second time.</summary>
+        public MatchDelivery CheckFugitiveKittenDeadline(SessionChannelCaller caller)
         {
             return RunFugitiveKittenOperation(caller, false);
         }
 
-        private MatchDelivery RunFugitiveKittenOperation(LobbyCaller caller, bool tryCatch)
+        private MatchDelivery RunFugitiveKittenOperation(SessionChannelCaller caller, bool tryCatch)
         {
             MatchDelivery delivery;
             lock (_sessionsLock)
@@ -180,7 +180,7 @@ namespace TLMG.Services.Sessions
             return view;
         }
 
-        /// <summary>Copia interna para pruebas y futura proyección del contrato.</summary>
+        /// <summary>Internal snapshot for tests and future contract mapping.</summary>
         internal FugitiveKittenSnapshot FindFugitiveKitten(Guid matchId, int userId)
         {
             FugitiveKittenSnapshot snapshot = null;

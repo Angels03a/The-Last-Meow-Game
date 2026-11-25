@@ -11,7 +11,8 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Pruebas de PlaceBet y WithdrawFromBet en el registro: autorización, árbitro del motor, versión y vistas.
+    /// Tests PlaceBet and WithdrawFromBet in the registry, including authorization, engine decisions, version and
+    /// views.
     /// </summary>
     public class SessionRegistryMatchBettingTests
     {
@@ -24,7 +25,7 @@ namespace TLMG.Services.Tests
         private const int OutOfRangeBet = 0;
         private const int FullLaps = CardsPerPlayer;
 
-        /// <summary>Verifica PlaceBet_ByThePlayerInTurnWithACardPlaced_OpensTheBetForEveryone.</summary>
+        /// <summary>Checks PlaceBet_ByThePlayerInTurnWithACardPlaced_OpensTheBetForEveryone.</summary>
         [Fact]
         public void PlaceBet_ByThePlayerInTurnWithACardPlaced_OpensTheBetForEveryone()
         {
@@ -47,7 +48,7 @@ namespace TLMG.Services.Tests
                 item => Assert.Equal(nextBettorUserId, item.MatchView.PlayerInTurnUserId));
         }
 
-        /// <summary>Verifica PlaceBet_ByTheNextPlayerWithAHigherValue_RaisesTheBet.</summary>
+        /// <summary>Checks PlaceBet_ByTheNextPlayerWithAHigherValue_RaisesTheBet.</summary>
         [Fact]
         public void PlaceBet_ByTheNextPlayerWithAHigherValue_RaisesTheBet()
         {
@@ -66,7 +67,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(scenario.UserIds[2], view.PlayerInTurnUserId);
         }
 
-        /// <summary>Verifica WithdrawFromBet_ByEveryoneButTheBettor_LeavesTheChallengeReadyAndRecordsIt.</summary>
+        /// <summary>Checks WithdrawFromBet_ByEveryoneButTheBettor_LeavesTheChallengeReadyAndRecordsIt.</summary>
         [Fact]
         public void WithdrawFromBet_ByEveryoneButTheBettor_LeavesTheChallengeReadyAndRecordsIt()
         {
@@ -91,7 +92,7 @@ namespace TLMG.Services.Tests
             Assert.Empty(bettorView.Challenge.RevealedCards);
         }
 
-        /// <summary>Verifica WithdrawFromBet_WhileOthersStillBet_KeepsBettingAndMarksTheWithdrawal.</summary>
+        /// <summary>Checks WithdrawFromBet_WhileOthersStillBet_KeepsBettingAndMarksTheWithdrawal.</summary>
         [Fact]
         public void WithdrawFromBet_WhileOthersStillBet_KeepsBettingAndMarksTheWithdrawal()
         {
@@ -110,11 +111,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(scenario.UserIds[2], view.PlayerInTurnUserId);
         }
 
-        /// <summary>Verifica PlaceBet_WithEmptyHand_AcceptsOnlyABetOfOne.</summary>
+        /// <summary>Checks PlaceBet_WithEmptyHand_AcceptsOnlyABetOfOne.</summary>
         [Fact]
         public void PlaceBet_WithEmptyHand_AcceptsOnlyABetOfOne()
         {
-            // Arrange: todos colocan sus 4 cartas y el creador se queda con la mano vacía.
+            // Arrange: Everyone places four cards, leaving the creator with an empty hand.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             PlaceAllCards(scenario);
@@ -129,7 +130,7 @@ namespace TLMG.Services.Tests
             Assert.Null(accepted.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceBet_OutOfTurn_IsRejectedWithoutChangingTheVersion.</summary>
+        /// <summary>Checks PlaceBet_OutOfTurn_IsRejectedWithoutChangingTheVersion.</summary>
         [Fact]
         public void PlaceBet_OutOfTurn_IsRejectedWithoutChangingTheVersion()
         {
@@ -146,11 +147,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(versionBefore, scenario.ReadVersionAs(scenario.UserIds[0]));
         }
 
-        /// <summary>Verifica PlaceBet_WithoutAPlacedCard_IsRejectedWithNoCardPlaced.</summary>
+        /// <summary>Checks PlaceBet_WithoutAPlacedCard_IsRejectedWithNoCardPlaced.</summary>
         [Fact]
         public void PlaceBet_WithoutAPlacedCard_IsRejectedWithNoCardPlaced()
         {
-            // Arrange: el primero colocó una carta; el segundo, en su turno, todavía no tiene ninguna colocada.
+            // Arrange: The first player placed one card. The second player's turn begins before they have placed any.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             scenario.Place(scenario.UserIds[0], MatchCardKind.Safe);
@@ -162,7 +163,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NoCardPlaced, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceBet_OnAnEmptyTable_IsRejectedWithTableEmpty.</summary>
+        /// <summary>Checks PlaceBet_OnAnEmptyTable_IsRejectedWithTableEmpty.</summary>
         [Fact]
         public void PlaceBet_OnAnEmptyTable_IsRejectedWithTableEmpty()
         {
@@ -177,8 +178,8 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.TableEmpty, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceBet_WithValueOutOfRange_IsRejectedWithBetValueNotValid.</summary>
-        /// <param name="betValue">Valor fuera del rango de la mesa.</param>
+        /// <summary>Checks PlaceBet_WithValueOutOfRange_IsRejectedWithBetValueNotValid.</summary>
+        /// <param name="betValue">Value outside the table's bid range.</param>
         [Theory]
         [InlineData(OutOfRangeBet)]
         [InlineData(-1)]
@@ -195,7 +196,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.BetValueNotValid, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceBet_RaisingWithoutExceedingTheCurrentBet_IsRejected.</summary>
+        /// <summary>Checks PlaceBet_RaisingWithoutExceedingTheCurrentBet_IsRejected.</summary>
         [Fact]
         public void PlaceBet_RaisingWithoutExceedingTheCurrentBet_IsRejected()
         {
@@ -210,7 +211,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.BetValueNotValid, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica WithdrawFromBet_WithoutABetInProgress_IsRejectedWithNoBetInProgress.</summary>
+        /// <summary>Checks WithdrawFromBet_WithoutABetInProgress_IsRejectedWithNoBetInProgress.</summary>
         [Fact]
         public void WithdrawFromBet_WithoutABetInProgress_IsRejectedWithNoBetInProgress()
         {
@@ -224,7 +225,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NoBetInProgress, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceCard_WhileTheBetIsOpen_IsRejectedWithBetInProgress.</summary>
+        /// <summary>Checks PlaceCard_WhileTheBetIsOpen_IsRejectedWithBetInProgress.</summary>
         [Fact]
         public void PlaceCard_WhileTheBetIsOpen_IsRejectedWithBetInProgress()
         {
@@ -239,7 +240,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.BetInProgress, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceBet_WithoutSubscription_IsRejectedWithNotSubscribed.</summary>
+        /// <summary>Checks PlaceBet_WithoutSubscription_IsRejectedWithNotSubscribed.</summary>
         [Fact]
         public void PlaceBet_WithoutSubscription_IsRejectedWithNotSubscribed()
         {
@@ -253,7 +254,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NotSubscribed, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceBet_WithInvalidToken_IsRejectedWithInvalidSession.</summary>
+        /// <summary>Checks PlaceBet_WithInvalidToken_IsRejectedWithInvalidSession.</summary>
         [Fact]
         public void PlaceBet_WithInvalidToken_IsRejectedWithInvalidSession()
         {
@@ -267,7 +268,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(ErrorKeys.Common.InvalidSession, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceBet_AtTheMaximumOfTheViewRange_IsAcceptedAndOneMoreIsRejected.</summary>
+        /// <summary>Checks PlaceBet_AtTheMaximumOfTheViewRange_IsAcceptedAndOneMoreIsRejected.</summary>
         [Fact]
         public void PlaceBet_AtTheMaximumOfTheViewRange_IsAcceptedAndOneMoreIsRejected()
         {
@@ -286,7 +287,7 @@ namespace TLMG.Services.Tests
             Assert.Null(atTheMaximum.ErrorKey);
         }
 
-        /// <summary>Verifica LeaveRoom_VoluntaryDuringABet_CancelsTheBetAndRestartsTheRound.</summary>
+        /// <summary>Checks LeaveRoom_VoluntaryDuringABet_CancelsTheBetAndRestartsTheRound.</summary>
         [Fact]
         public void LeaveRoom_VoluntaryDuringABet_CancelsTheBetAndRestartsTheRound()
         {
@@ -311,7 +312,7 @@ namespace TLMG.Services.Tests
             Assert.Null(bettorView.Challenge);
         }
 
-        /// <summary>Verifica LeaveRoom_VoluntaryByTheBettorWithTheChallengeReady_DropsTheChallenge.</summary>
+        /// <summary>Checks LeaveRoom_VoluntaryByTheBettorWithTheChallengeReady_DropsTheChallenge.</summary>
         [Fact]
         public void LeaveRoom_VoluntaryByTheBettorWithTheChallengeReady_DropsTheChallenge()
         {

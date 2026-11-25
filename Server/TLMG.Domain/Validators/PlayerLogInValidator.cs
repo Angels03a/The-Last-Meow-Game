@@ -7,7 +7,7 @@ namespace TLMG.Domain.Validators
     {
         public static string ValidateLogIn(PlayerLogin playerLogIn)
         {
-            string errorKey = null;
+            string errorKey = string.Empty;
 
             if (playerLogIn == null
                 || string.IsNullOrWhiteSpace(playerLogIn.Email)

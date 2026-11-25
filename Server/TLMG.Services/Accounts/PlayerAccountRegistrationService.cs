@@ -40,7 +40,7 @@ namespace TLMG.Services.Accounts
                 playerAccountRegistration,
                 out PlayerRegistration playerRegistration);
 
-            if (validationErrorKey != null)
+            if (validationErrorKey != string.Empty)
             {
                 operationRegisterPlayerAccountResult.ErrorKey = validationErrorKey;
             }
@@ -59,7 +59,7 @@ namespace TLMG.Services.Accounts
             string errorKey = ValidateRegisterPlayerAccountRequest(playerAccountRegistration,
                 out PlayerRegistration playerRegistration);
 
-            if (errorKey == null)
+            if (errorKey == string.Empty)
             {
                 string normalizedEmail = playerRegistration.Email;
                 errorKey = FindDuplicateAccountErrorKey(normalizedEmail, playerRegistration.Nickname);
@@ -71,7 +71,7 @@ namespace TLMG.Services.Accounts
             }
 
             operationResult.IsSuccess = errorKey == null;
-            operationResult.ErrorKey = errorKey;
+            operationResult.ErrorKey = operationResult.IsSuccess ? string.Empty : errorKey;
 
             return operationResult;
         }
@@ -81,6 +81,7 @@ namespace TLMG.Services.Accounts
         {
             OperationResult operationResult = new OperationResult();
             string errorKey = null;
+            bool isSuccess = false;
 
             if (playerAccountRegistration == null || string.IsNullOrWhiteSpace(playerAccountRegistration.Email))
             {
@@ -99,21 +100,25 @@ namespace TLMG.Services.Accounts
             if (errorKey == null)
             {
                 string normalizedEmail = AccountFieldValidator.NormalizeEmail(playerAccountRegistration.Email);
-                PendingRegistrationRecord pendingRecord =
-                    _verificationDispatcher.FindValidPendingRegistration(normalizedEmail);
+                PlayerExistenceLookupStatus pendingStatus =
+                    _verificationDispatcher.FindValidPendingRegistration(normalizedEmail, out PendingRegistrationRecord pendingRecord);
 
-                if (pendingRecord == null)
+                if (pendingStatus == PlayerExistenceLookupStatus.NotFound)
                 {
                     errorKey = ErrorKeys.Verification.ExpiredCode;
                 }
+                else if (pendingStatus == PlayerExistenceLookupStatus.Exists && pendingRecord != null)
+                {
+                    errorKey = VerifyCodeAndFinalizePlayer(pendingRecord, verificationCode.Trim(), out isSuccess);
+                }
                 else
                 {
-                    errorKey = VerifyCodeAndFinalizePlayer(pendingRecord, verificationCode.Trim());
+                    errorKey = ErrorKeys.CreateAccount.DataModel;
                 }
             }
 
-            operationResult.IsSuccess = errorKey == null;
-            operationResult.ErrorKey = errorKey;
+            operationResult.IsSuccess = isSuccess;
+            operationResult.ErrorKey = isSuccess ? string.Empty : errorKey;
 
             return operationResult;
         }
@@ -122,6 +127,7 @@ namespace TLMG.Services.Accounts
         {
             OperationResult operationResult = new OperationResult();
             string errorKey = null;
+            bool isSuccess = false;
 
             if (string.IsNullOrWhiteSpace(email))
             {
@@ -135,12 +141,16 @@ namespace TLMG.Services.Accounts
             else
             {
                 string normalizedEmail = AccountFieldValidator.NormalizeEmail(email);
-                PendingRegistrationRecord pendingRecord =
-                    _verificationDispatcher.FindValidPendingRegistration(normalizedEmail);
+                PlayerExistenceLookupStatus pendingStatus =
+                    _verificationDispatcher.FindValidPendingRegistration(normalizedEmail, out PendingRegistrationRecord pendingRecord);
 
-                if (pendingRecord == null)
+                if (pendingStatus == PlayerExistenceLookupStatus.NotFound)
                 {
                     errorKey = ErrorKeys.Verification.ExpiredCode;
+                }
+                else if (pendingStatus != PlayerExistenceLookupStatus.Exists || pendingRecord == null)
+                {
+                    errorKey = ErrorKeys.CreateAccount.DataModel;
                 }
                 else if (!_verificationDispatcher.SendRegistrationCode(
                     pendingRecord.PendingId,
@@ -149,10 +159,14 @@ namespace TLMG.Services.Accounts
                 {
                     errorKey = ErrorKeys.CreateAccount.DataModel;
                 }
+                else
+                {
+                    isSuccess = true;
+                }
             }
 
-            operationResult.IsSuccess = errorKey == null;
-            operationResult.ErrorKey = errorKey;
+            operationResult.IsSuccess = isSuccess;
+            operationResult.ErrorKey = isSuccess ? string.Empty : errorKey;
 
             return operationResult;
         }
@@ -207,16 +221,24 @@ namespace TLMG.Services.Accounts
             return errorKey;
         }
 
-        private string VerifyCodeAndFinalizePlayer(PendingRegistrationRecord pendingRecord, string plainCode)
+        private string VerifyCodeAndFinalizePlayer(PendingRegistrationRecord pendingRecord, string plainCode,
+            out bool isSuccess)
         {
-            string errorKey;
+            string errorKey = ErrorKeys.CreateAccount.DataModel;
+            isSuccess = false;
             VerificationCodeValidationResult validationResult =
                 _verificationDispatcher.ValidateRegistrationCode(pendingRecord.PendingId, plainCode);
+
+            if (validationResult == null)
+            {
+                _log.Warn("La validación del código de registro no devolvió resultado.");
+                return errorKey;
+            }
 
             switch (validationResult.Status)
             {
                 case VerificationCodeStatus.Valid:
-                    errorKey = FinalizePlayer(pendingRecord);
+                    errorKey = FinalizePlayer(pendingRecord, out isSuccess);
                     break;
                 case VerificationCodeStatus.Invalid:
                     errorKey = ErrorKeys.Verification.IncorrectCode;
@@ -237,9 +259,10 @@ namespace TLMG.Services.Accounts
             return errorKey;
         }
 
-        private string FinalizePlayer(PendingRegistrationRecord pendingRecord)
+        private string FinalizePlayer(PendingRegistrationRecord pendingRecord, out bool isSuccess)
         {
             string errorKey = FindDuplicateAccountErrorKey(pendingRecord.Email, pendingRecord.Nickname);
+            isSuccess = false;
 
             if (errorKey == null)
             {
@@ -250,6 +273,7 @@ namespace TLMG.Services.Accounts
 
                 if (wasCreated)
                 {
+                    isSuccess = true;
                     _verificationDispatcher.DeletePendingRegistration(pendingRecord.PendingId);
                 }
                 else
@@ -298,6 +322,7 @@ namespace TLMG.Services.Accounts
             if (errorKey == null)
             {
                 operationRegisterPlayerAccountResult.IsSuccess = true;
+                operationRegisterPlayerAccountResult.ErrorKey = string.Empty;
             }
             else
             {
@@ -335,6 +360,11 @@ namespace TLMG.Services.Accounts
             }
             else if (playerExistenceLookupStatus == PlayerExistenceLookupStatus.DataFailure)
             {
+                errorKey = ErrorKeys.CreateAccount.DataModel;
+            }
+            else if (playerExistenceLookupStatus != PlayerExistenceLookupStatus.NotFound)
+            {
+                _log.Warn("La consulta de existencia de cuenta devolvió un estado desconocido.");
                 errorKey = ErrorKeys.CreateAccount.DataModel;
             }
 

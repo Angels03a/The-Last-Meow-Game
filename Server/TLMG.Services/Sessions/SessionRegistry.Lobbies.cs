@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,7 +22,7 @@ namespace TLMG.Services.Sessions
             new Dictionary<int, HashSet<int>>();
         private int _lastRoomId;
 
-        public LobbyMembershipChange CreateRoom(LobbyCaller caller, ILobbyManagerCallback lobbyCallback)
+        public LobbyMembershipChange CreateRoom(SessionChannelCaller caller, ILobbyManagerCallback lobbyCallback)
         {
             LobbyMembershipChange lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.InvalidSession);
 
@@ -37,7 +37,7 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        public LobbyMembershipChange EnterRoom(LobbyCaller caller, int roomId, ILobbyManagerCallback lobbyCallback)
+        public LobbyMembershipChange EnterRoom(SessionChannelCaller caller, int roomId, ILobbyManagerCallback lobbyCallback)
         {
             LobbyMembershipChange lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.InvalidSession);
 
@@ -156,7 +156,7 @@ namespace TLMG.Services.Sessions
             return wasIssued;
         }
 
-        private LobbyMembershipChange CreateRoomInLock(LobbyCaller caller, ILobbyManagerCallback lobbyCallback)
+        private LobbyMembershipChange CreateRoomInLock(SessionChannelCaller caller, ILobbyManagerCallback lobbyCallback)
         {
             LobbyMembershipChange lobbyMembershipChange;
             PlayerSession playerSession;
@@ -219,7 +219,7 @@ namespace TLMG.Services.Sessions
         }
 
         private LobbyMembershipChange EnterRoomInLock(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             int roomId,
             ILobbyManagerCallback lobbyCallback)
         {
@@ -280,6 +280,13 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
+        /// <summary>
+        /// Removes the player for the given reason. A voluntary exit also removes the player from the
+        /// match engine immediately. A disconnection follows the reconnection rules (C2).
+        /// </summary>
+        /// <param name="userId">Player leaving.</param>
+        /// <param name="exitCause">Exit cause.</param>
+        /// <param name="matchViewDeliveries">Views for other match subscribers, empty if none.</param>
         private LobbyMembershipChange RemoveUserFromRoom(
             int userId,
             RoomExitCause exitCause,
@@ -452,6 +459,7 @@ namespace TLMG.Services.Sessions
             return roomSnapshot;
         }
 
+        /// <summary>Copies the room with its published or pending start state. Requires _sessionsLock.</summary>
         private LobbyRoomSnapshot CreateRoomSnapshot(
             int roomId,
             List<LobbyMember> members,

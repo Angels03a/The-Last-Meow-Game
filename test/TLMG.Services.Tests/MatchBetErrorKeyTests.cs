@@ -7,12 +7,12 @@ using TLMG.Services.Match;
 
 namespace TLMG.Services.Tests
 {
-    /// <summary>Pruebas del mapa de los estados de apuesta del motor a ErrorKey.</summary>
+    /// <summary>Tests how engine bidding results map to ErrorKey.</summary>
     public class MatchBetErrorKeyTests
     {
         private const int UndefinedStatusValue = 99;
 
-        /// <summary>Verifica ConvertToErrorKey_WithAcceptedBetStatus_ReturnsNull.</summary>
+        /// <summary>Checks ConvertToErrorKey_WithAcceptedBetStatus_ReturnsNull.</summary>
         [Fact]
         public void ConvertToErrorKey_WithAcceptedBetStatus_ReturnsNull()
         {
@@ -23,9 +23,9 @@ namespace TLMG.Services.Tests
             Assert.Null(errorKey);
         }
 
-        /// <summary>Verifica ConvertToErrorKey_WithRejectedBetStatus_ReturnsItsOwnKey.</summary>
-        /// <param name="betStatus">Rechazo del motor.</param>
-        /// <param name="expectedErrorKey">Clave que el cliente traduce.</param>
+        /// <summary>Checks ConvertToErrorKey_WithRejectedBetStatus_ReturnsItsOwnKey.</summary>
+        /// <param name="betStatus">Engine rejection.</param>
+        /// <param name="expectedErrorKey">Error key translated by the client.</param>
         [Theory]
         [InlineData(BetActionStatus.PlayerNotInMatch, MatchErrorKeys.NotInMatch)]
         [InlineData(BetActionStatus.NotPlayersTurn, MatchErrorKeys.NotYourTurn)]
@@ -41,7 +41,7 @@ namespace TLMG.Services.Tests
             BetActionStatus betStatus,
             string expectedErrorKey)
         {
-            // Arrange: el estado viene del motor.
+            // Arrange: The status comes from the engine.
 
             // Act
             string errorKey = MatchViewHelper.ConvertToErrorKey(betStatus);
@@ -50,7 +50,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(expectedErrorKey, errorKey);
         }
 
-        /// <summary>Verifica ConvertToErrorKey_WithUnknownBetStatus_ReturnsUnexpectedError.</summary>
+        /// <summary>Checks ConvertToErrorKey_WithUnknownBetStatus_ReturnsUnexpectedError.</summary>
         [Fact]
         public void ConvertToErrorKey_WithUnknownBetStatus_ReturnsUnexpectedError()
         {
@@ -64,11 +64,12 @@ namespace TLMG.Services.Tests
             Assert.Equal(ErrorKeys.Common.Unexpected, errorKey);
         }
 
-        /// <summary>Verifica BetActionStatus_Members_AreElevenSoTheMapStaysInSync.</summary>
+        /// <summary>Checks BetActionStatus_Members_AreElevenSoTheMapStaysInSync.</summary>
         [Fact]
         public void BetActionStatus_Members_AreElevenSoTheMapStaysInSync()
         {
-            // Arrange: diez rechazos con clave más la aceptación; si el motor agrega uno, esta prueba avisa.
+            // Arrange: Ten rejections have error keys, plus one accepted result. A new engine status should fail this
+            // test.
             const int EngineStatusCount = 11;
 
             // Act

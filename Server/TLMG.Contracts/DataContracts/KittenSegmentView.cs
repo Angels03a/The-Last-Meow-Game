@@ -2,7 +2,7 @@ using System.Runtime.Serialization;
 
 namespace TLMG.Contracts.DataContracts
 {
-    /// <summary>Tramo público de la ruta autorizada.</summary>
+    /// <summary>Public segment of the authorized route.</summary>
     [DataContract]
     public class KittenSegmentView
     {

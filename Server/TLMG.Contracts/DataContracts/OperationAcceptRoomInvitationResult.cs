@@ -3,12 +3,12 @@
 namespace TLMG.Contracts.DataContracts
 {
     /// <summary>
-    /// Resultado de aceptar una invitación: el id de la sala a la que llamar EnterLobby o la clave de error.
+    /// Result of accepting an invitation. Returns the room ID for EnterLobby or an error key.
     /// </summary>
     [DataContract]
     public class OperationAcceptRoomInvitationResult : OperationResult
     {
-        /// <summary>Identificador de la sala a la que el jugador ya puede entrar; 0 si la operación falló.</summary>
+        /// <summary>ID of the room the player may now enter, or 0 on failure.</summary>
         [DataMember]
         public int RoomId { get; set; }
     }

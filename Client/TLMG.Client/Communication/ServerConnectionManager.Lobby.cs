@@ -5,8 +5,7 @@ using TLMG.Client.UsersManagerReference;
 namespace TLMG.Client.Communication
 {
     /// <summary>
-    /// Parte del manager que completa el área de sala para las pantallas: el cambio de cartas por jugador y la
-    /// cuenta regresiva expuesta sin revelar LobbyCountdown.
+    /// Lets screens change cards per player and display the countdown without accessing LobbyCountdown directly.
     /// </summary>
     internal sealed partial class ServerConnectionManager : ILobbyConnection
     {

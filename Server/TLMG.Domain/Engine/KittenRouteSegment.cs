@@ -1,6 +1,6 @@
 namespace TLMG.Domain.Engine
 {
-    /// <summary>Tramo inmutable de la ruta del gatito.</summary>
+    /// <summary>Fixed segment of the kitten's route.</summary>
     public sealed class KittenRouteSegment
     {
         internal KittenRouteSegment(string kind, string origin, string destination, int startMilliseconds,

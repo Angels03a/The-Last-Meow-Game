@@ -3,14 +3,14 @@
 namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Copia inmutable de una sala en un instante: su identificador y sus jugadores en orden de entrada.
+    /// Immutable room snapshot with its ID and players in entry order.
     /// </summary>
     public sealed class LobbyRoomSnapshot
     {
-        /// <summary>Crea la copia de una sala.</summary>
-        /// <param name="roomId">Identificador de la sala.</param>
-        /// <param name="players">Jugadores de la sala; la lista recibida no debe modificarse después.</param>
-        /// <param name="start">Copia de preparación e inicio de la sala.</param>
+        /// <summary>Creates a room snapshot.</summary>
+        /// <param name="roomId">Room ID.</param>
+        /// <param name="players">Room players. Leave the supplied list unchanged afterward.</param>
+        /// <param name="start">Snapshot of room readiness and match start.</param>
         public LobbyRoomSnapshot(int roomId, IReadOnlyList<PlayerSession> players, LobbyStartSnapshot start)
         {
             RoomId = roomId;
@@ -18,13 +18,13 @@ namespace TLMG.Services.Sessions
             Start = start;
         }
 
-        /// <summary>Obtiene el identificador de la sala.</summary>
+        /// <summary>Room ID.</summary>
         public int RoomId { get; }
 
-        /// <summary>Obtiene los jugadores de la sala, en el orden en que entraron.</summary>
+        /// <summary>Players in room entry order.</summary>
         public IReadOnlyList<PlayerSession> Players { get; }
 
-        /// <summary>Obtiene la copia de preparación e inicio de la sala.</summary>
+        /// <summary>Snapshot of room readiness and match start.</summary>
         public LobbyStartSnapshot Start { get; }
     }
 }

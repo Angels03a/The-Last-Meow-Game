@@ -3,25 +3,28 @@ using System.Runtime.Serialization;
 namespace TLMG.Contracts.DataContracts
 {
     /// <summary>
-    /// Castigo pendiente, público para todos: quién elige y a quién castigan. No lleva ninguna carta; el castigado ve
-    /// su mano por la vista propia y quien elige a ciegas solo recibe la cantidad de lugares.
+    /// Public pending punishment showing who chooses and who loses a card. It contains no cards. The punished player
+    /// sees their own hand in their private view. A player choosing blindly receives only the number of slots.
     /// </summary>
     [DataContract]
     public class MatchPunishmentView
     {
-        /// <summary>Cuenta de quien elige la carta que se pierde.</summary>
+        /// <summary>Account of the player choosing the lost card.</summary>
         [DataMember]
         public int ChooserUserId { get; set; }
 
-        /// <summary>Cuenta del jugador que pierde la carta.</summary>
+        /// <summary>Account of the player losing the card.</summary>
         [DataMember]
         public int PunishedUserId { get; set; }
 
-        /// <summary>Indica si se elige a ciegas (Gato ajeno); si no, el castigado elige viendo su mano.</summary>
+        /// <summary>
+        /// Whether the choice is blind because another player's Fatal Cat was revealed. Otherwise the punished player
+        /// sees their hand when choosing.
+        /// </summary>
         [DataMember]
         public bool IsBlindChoice { get; set; }
 
-        /// <summary>Cantidad de cartas entre las que se elige; coincide con las vidas del castigado.</summary>
+        /// <summary>Available choices, equal to the punished player's lives.</summary>
         [DataMember]
         public int CardSlotCount { get; set; }
     }

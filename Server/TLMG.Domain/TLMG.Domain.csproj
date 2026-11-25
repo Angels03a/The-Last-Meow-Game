@@ -126,7 +126,7 @@
     <Compile Include="Validators\FriendNicknameValidator.cs" />
     <Compile Include="Validators\PasswordChangeValidator.cs" />
     <Compile Include="Validators\PlayerAccountRegistrationValidator.cs" />
-    <Compile Include="Validators\PlayerLoginValidator.cs" />
+    <Compile Include="Validators\PlayerLogInValidator.cs" />
     <Compile Include="Validators\PlayerProfileValidator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -4,37 +4,39 @@ using System.Runtime.Serialization;
 namespace TLMG.Contracts.DataContracts
 {
     /// <summary>
-    /// Desenlace del último reto, público para todos los jugadores. Sigue disponible tras terminar el reto, hasta
-    /// que se abra la siguiente apuesta o se coloque la siguiente carta; en cualquier otro momento es null.
+    /// Latest challenge outcome, visible to all players. It stays available after the challenge until the next opening
+    /// bid or card placement. Otherwise null.
     /// </summary>
     [DataContract]
     public class MatchChallengeView
     {
-        /// <summary>Cuenta del apostador que cumple el reto.</summary>
+        /// <summary>Account of the bidder taking the challenge.</summary>
         [DataMember]
         public int BettorUserId { get; set; }
 
-        /// <summary>Cartas que prometió voltear.</summary>
+        /// <summary>Number of cards the bidder promised to reveal.</summary>
         [DataMember]
         public int PromisedCount { get; set; }
 
-        /// <summary>Estado o resultado del reto.</summary>
+        /// <summary>Challenge status or outcome.</summary>
         [DataMember]
         public MatchChallengeOutcome Outcome { get; set; }
 
-        /// <summary>Cartas volteadas en orden; la última es la que detuvo la revelación.</summary>
+        /// <summary>Cards in reveal order. The last card stopped the reveal.</summary>
         [DataMember]
         public List<MatchRevealedCardView> RevealedCards { get; set; }
 
-        /// <summary>Cuenta del jugador castigado; 0 si el reto no falló.</summary>
+        /// <summary>Punished player's account, or 0 unless the challenge failed.</summary>
         [DataMember]
         public int PunishedUserId { get; set; }
 
-        /// <summary>Cuenta de quien eligió o debe elegir la carta que se pierde; 0 si el reto no falló.</summary>
+        /// <summary>
+        /// Account of the player who chose or must choose the lost card, or 0 unless the challenge failed.
+        /// </summary>
         [DataMember]
         public int PunishmentChooserUserId { get; set; }
 
-        /// <summary>Estado del castigo del reto.</summary>
+        /// <summary>Punishment status for the challenge.</summary>
         [DataMember]
         public MatchPunishmentResolution PunishmentResolution { get; set; }
     }

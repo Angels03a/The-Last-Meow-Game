@@ -1,21 +1,21 @@
 namespace TLMG.Domain.Engine
 {
-    /// <summary>Fase en la que está la ronda actual de una partida.</summary>
+    /// <summary>Current phase of a match round.</summary>
     public enum RoundPhase
     {
-        /// <summary>Los jugadores colocan cartas por turnos; quien tiene el turno puede abrir una apuesta.</summary>
+        /// <summary>Players take turns placing cards. The current player may open a bid.</summary>
         PlacingCards,
 
-        /// <summary>Hay una apuesta en curso; nadie coloca y cada jugador sube o se retira en su turno.</summary>
+        /// <summary>During bidding, nobody places cards. Each player raises or folds on their turn.</summary>
         Betting,
 
-        /// <summary>Queda un solo apostador: el reto está listo y en resolución, carta por carta.</summary>
+        /// <summary>One bidder remains and resolves the challenge one card at a time.</summary>
         ChallengeReady,
 
-        /// <summary>El reto falló: hay un castigo pendiente y el motor rechaza toda acción de juego.</summary>
+        /// <summary>The challenge failed. Pending punishment blocks game actions.</summary>
         PunishmentPending,
 
-        /// <summary>Un jugador alcanzó los retos exitosos de la modalidad y la partida terminó.</summary>
+        /// <summary>A player reached the mode's target for successful challenges and won the match.</summary>
         MatchFinished
     }
 }

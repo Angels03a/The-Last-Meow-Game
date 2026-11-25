@@ -1,33 +1,33 @@
 namespace TLMG.Domain.Engine
 {
-    /// <summary>Resultado de voltear una carta al resolver un reto; Services lo traduce a ErrorKey.</summary>
+    /// <summary>Challenge reveal result. Services maps it to an ErrorKey.</summary>
     public enum ChallengeRevealStatus
     {
-        /// <summary>Se volteó una carta y el reto continúa.</summary>
+        /// <summary>A card was revealed and the challenge continues.</summary>
         Revealed,
 
-        /// <summary>Se volteó una carta y con ella se alcanzó el número prometido: el reto fue exitoso.</summary>
+        /// <summary>The revealed card met the promised count and the challenge succeeded.</summary>
         ChallengeSucceeded,
 
-        /// <summary>Se volteó un Gato con Maullido Fatal sin vida extra que lo absorbiera: el reto falló.</summary>
+        /// <summary>A Fatal Cat was revealed without an extra life to absorb it. The challenge failed.</summary>
         ChallengeFailed,
 
-        /// <summary>El jugador que pide voltear no forma parte de la partida.</summary>
+        /// <summary>The player requesting the reveal is outside the match.</summary>
         PlayerNotInMatch,
 
-        /// <summary>No hay un reto en resolución: no se puede voltear ninguna carta.</summary>
+        /// <summary>There is no active challenge in which to reveal a card.</summary>
         NoChallengeInProgress,
 
-        /// <summary>Solo el apostador con la apuesta más alta puede voltear cartas.</summary>
+        /// <summary>Only the highest bidder may reveal cards.</summary>
         NotTheBettor,
 
-        /// <summary>El dueño de la pila elegida no forma parte de la partida.</summary>
+        /// <summary>The chosen pile's owner is outside the match.</summary>
         PileOwnerNotInMatch,
 
-        /// <summary>El apostador debe voltear primero las cartas de su propia pila.</summary>
+        /// <summary>The bidder must reveal their own pile first.</summary>
         OwnPileFirst,
 
-        /// <summary>La pila elegida no tiene cartas por voltear.</summary>
+        /// <summary>The chosen pile has no hidden cards left.</summary>
         PileFullyRevealed
     }
 }

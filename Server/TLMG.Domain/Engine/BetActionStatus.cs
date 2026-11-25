@@ -1,39 +1,39 @@
 namespace TLMG.Domain.Engine
 {
-    /// <summary>Resultado de abrir, subir o retirarse de una apuesta; Services lo traduce a ErrorKey.</summary>
+    /// <summary>Result of opening a bid, raising or folding. Services maps it to an ErrorKey.</summary>
     public enum BetActionStatus
     {
-        /// <summary>La acción se aplicó.</summary>
+        /// <summary>The action was applied.</summary>
         Accepted,
 
-        /// <summary>El jugador no forma parte de la partida.</summary>
+        /// <summary>The player is outside this match.</summary>
         PlayerNotInMatch,
 
-        /// <summary>Juega otro jugador: solo puede actuar quien tiene el turno.</summary>
+        /// <summary>It is another player's turn. Only the current player can act.</summary>
         NotPlayersTurn,
 
-        /// <summary>No se puede abrir porque ya hay una apuesta en curso o un reto listo para resolver.</summary>
+        /// <summary>A bid is already open or a challenge is ready, so bidding cannot open.</summary>
         BetInProgress,
 
-        /// <summary>No se puede subir ni retirarse porque no hay una ronda de apuestas en curso.</summary>
+        /// <summary>There is no bidding round in which to raise or fold.</summary>
         NoBetInProgress,
 
-        /// <summary>No se puede abrir porque no hay cartas boca abajo en la mesa.</summary>
+        /// <summary>There are no face-down cards on the table to bid on.</summary>
         TableEmpty,
 
-        /// <summary>Con la mano vacía solo se puede abrir una apuesta de exactamente 1.</summary>
+        /// <summary>With an empty hand, the opening bid must be exactly 1.</summary>
         EmptyHandRequiresBetOfOne,
 
-        /// <summary>El valor está fuera del rango permitido o no supera la apuesta actual.</summary>
+        /// <summary>The bid is outside the allowed range or does not exceed the current bid.</summary>
         BetValueNotValid,
 
-        /// <summary>Para abrir una apuesta hay que haber colocado antes una carta propia en la ronda.</summary>
+        /// <summary>The player must place a card this round before opening a bid.</summary>
         NoCardPlacedInRound,
 
-        /// <summary>Hay un castigo pendiente: no se admite ninguna acción de juego.</summary>
+        /// <summary>A pending punishment blocks game actions.</summary>
         PunishmentPending,
 
-        /// <summary>La partida terminó: no se admite ninguna acción de juego.</summary>
+        /// <summary>The finished match accepts no game actions.</summary>
         MatchFinished
     }
 }

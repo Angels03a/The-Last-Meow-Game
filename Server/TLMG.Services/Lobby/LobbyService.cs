@@ -41,8 +41,8 @@ namespace TLMG.Services.Lobby
         }
 
         public ResultWithNotification<OperationLobbyRoomResult> CreateRoom(
-     LobbyCaller caller,
-     ILobbyManagerCallback lobbyCallback)
+            SessionChannelCaller caller,
+            ILobbyManagerCallback lobbyCallback)
         {
             OperationLobbyRoomResult operationCreateRoomResult = new OperationLobbyRoomResult();
             SessionAuthorization authorization = _sessionAuthorizer.Authorize(
@@ -74,7 +74,7 @@ namespace TLMG.Services.Lobby
         }
 
         private void ApplyRoomCreation(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             ILobbyManagerCallback lobbyCallback,
             OperationLobbyRoomResult operationCreateRoomResult)
         {
@@ -83,6 +83,7 @@ namespace TLMG.Services.Lobby
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
                 operationCreateRoomResult.IsSuccess = true;
+                operationCreateRoomResult.ErrorKey = string.Empty;
                 operationCreateRoomResult.Room = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
                 _log.InfoFormat(
                     "El jugador {0} creó la sala {1}.",
@@ -97,7 +98,7 @@ namespace TLMG.Services.Lobby
         }
 
         public ResultWithNotification<OperationLobbyRoomResult> EnterLobby(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             int roomId,
             ILobbyManagerCallback lobbyCallback)
         {
@@ -109,6 +110,7 @@ namespace TLMG.Services.Lobby
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
                 operationEnterLobbyResult.IsSuccess = true;
+                operationEnterLobbyResult.ErrorKey = string.Empty;
                 operationEnterLobbyResult.Room = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
                 _log.InfoFormat("El jugador {0} entró a la sala {1}.", lobbyMembershipChange.UserId, roomId);
             }
@@ -145,6 +147,7 @@ namespace TLMG.Services.Lobby
             if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
                 operationLeaveLobbyResult.IsSuccess = true;
+                operationLeaveLobbyResult.ErrorKey = string.Empty;
                 _log.InfoFormat(
                     "El jugador {0} salió de la sala {1}.",
                     lobbyMembershipChange.UserId,
@@ -154,6 +157,7 @@ namespace TLMG.Services.Lobby
             else if (lobbyMembershipChange.Status == LobbyChangeStatus.NotInRoom)
             {
                 operationLeaveLobbyResult.IsSuccess = true;
+                operationLeaveLobbyResult.ErrorKey = string.Empty;
             }
             else
             {
@@ -227,7 +231,7 @@ namespace TLMG.Services.Lobby
         private static void ApplyOutcome(OperationResult operationResult, LobbyMembershipChange lobbyMembershipChange)
         {
             operationResult.IsSuccess = lobbyMembershipChange.Status == LobbyChangeStatus.Applied;
-            operationResult.ErrorKey = null;
+            operationResult.ErrorKey = string.Empty;
 
             if (!operationResult.IsSuccess)
             {

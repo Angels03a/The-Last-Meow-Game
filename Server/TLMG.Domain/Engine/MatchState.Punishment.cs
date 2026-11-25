@@ -5,22 +5,24 @@ namespace TLMG.Domain.Engine
 {
     public sealed partial class MatchState
     {
-        /// <summary>Obtiene el último castigo aplicado, con la carta que se perdió, o null si no hubo.</summary>
+        /// <summary>Last completed punishment and card lost, or null if none.</summary>
         public PendingPunishment LastPunishment { get; private set; }
 
-        /// <summary>Obtiene a los jugadores eliminados, en el orden en que quedaron sin vidas.</summary>
+        /// <summary>Eliminated players in the order they ran out of lives.</summary>
         public IReadOnlyList<MatchPlayer> EliminatedPlayers { get; }
 
         /// <summary>
-        /// Elige, una sola vez y antes de que venza el plazo, la carta que pierde el castigado. Solo puede elegir quien
-        /// indica PendingPunishment. Después se aplica la eliminación si quedó sin vidas, se comprueba el fin de la
-        /// partida y, si no termina, empieza una ronda con el primer jugador activo. Si rechaza, nada cambia.
+        /// Allows the player named by PendingPunishment to choose the lost card once before the deadline. Eliminates
+        /// the punished player if out of lives, checks for a winner and otherwise starts a round with the first active
+        /// player. Rejection leaves state unchanged.
         /// </summary>
-        /// <param name="playerId">Jugador que elige.</param>
-        /// <param name="cardIndex">Índice en la mano real del castigado; llega del cliente y no es confiable.</param>
-        /// <param name="nowUtc">Hora UTC del servidor.</param>
-        /// <returns>CardRemoved si se eliminó la carta; en otro caso, el motivo del rechazo.</returns>
-        /// <exception cref="ArgumentException">nowUtc no es una hora UTC.</exception>
+        /// <param name="playerId">Player making the choice.</param>
+        /// <param name="cardIndex">
+        /// Index in the punished player's actual hand. The client supplies it and it must be checked.
+        /// </param>
+        /// <param name="nowUtc">Server time in UTC.</param>
+        /// <returns>CardRemoved if the card was removed, otherwise the rejection reason.</returns>
+        /// <exception cref="ArgumentException">nowUtc is not a UTC time.</exception>
         public PunishmentStatus ChoosePunishmentCard(int playerId, int cardIndex, DateTime nowUtc)
         {
             ValidateUtc(nowUtc);
@@ -48,19 +50,18 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Resuelve el castigo cuando venció el plazo (nowUtc igual o posterior a DeadlineUtc): el sistema elige al
-        /// azar, con la misma probabilidad para cada carta del castigado, incluido el Gato. Antes del plazo o con el
-        /// castigo suspendido se rechaza. Si rechaza, nada cambia.
+        /// Resolves punishment when nowUtc reaches or passes DeadlineUtc. Every card, including a Fatal Cat, has the
+        /// same chance of removal. Before the deadline or during suspension, rejects without changing state.
         /// </summary>
-        /// <param name="nowUtc">Hora UTC del servidor.</param>
+        /// <param name="nowUtc">Server time in UTC.</param>
         /// <param name="pickRandomIndex">
-        /// Azar que provee Services: recibe la cantidad n de cartas y devuelve un índice uniforme en [0, n).
-        /// Nunca debe venir del cliente.
+        /// Random choice supplied by Services. Takes the card count n and returns a uniform index in [0, n). The client
+        /// must never supply it.
         /// </param>
-        /// <returns>CardRemoved si se eliminó la carta; en otro caso, el motivo del rechazo.</returns>
-        /// <exception cref="ArgumentException">nowUtc no es una hora UTC.</exception>
-        /// <exception cref="ArgumentNullException">pickRandomIndex es null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">El azar devolvió un índice fuera de [0, n).</exception>
+        /// <returns>CardRemoved if the card was removed, otherwise the rejection reason.</returns>
+        /// <exception cref="ArgumentException">nowUtc is not a UTC time.</exception>
+        /// <exception cref="ArgumentNullException">pickRandomIndex is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The random index is outside [0, n).</exception>
         public PunishmentStatus ExpirePunishment(DateTime nowUtc, Func<int, int> pickRandomIndex)
         {
             ValidateUtc(nowUtc);
@@ -90,15 +91,15 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Suspende el castigo pendiente porque el jugador castigado se desconectó (Reglas 4.0.6): su plazo deja de
-        /// correr y se guarda el tiempo restante. Si quien se desconecta es quien elige y no es el castigado, se
-        /// rechaza y su plazo sigue corriendo; con Gato propio ambos son el mismo jugador y sí se suspende (H-14). Un
-        /// castigo vencido no se suspende. La fase sigue en PunishmentPending. Si rechaza, nada cambia.
+        /// Pauses punishment when the punished player disconnects (Rule 4.0.6). Saves the remaining time and stops the
+        /// deadline. If only a different chooser disconnects, the deadline keeps running. With the bidder's own Fatal
+        /// Cat, both roles belong to the same player and punishment pauses (H-14). Expired punishment cannot pause. The
+        /// phase stays PunishmentPending. Rejection leaves state unchanged.
         /// </summary>
-        /// <param name="playerId">Jugador que se desconectó; lo detecta Services.</param>
-        /// <param name="nowUtc">Hora UTC del servidor; el motor nunca lee el reloj.</param>
-        /// <returns>Suspended si se suspendió; en otro caso, el motivo del rechazo.</returns>
-        /// <exception cref="ArgumentException">nowUtc no es una hora UTC.</exception>
+        /// <param name="playerId">Player whose disconnection Services detected.</param>
+        /// <param name="nowUtc">Server time in UTC. The engine never reads the clock.</param>
+        /// <returns>Suspended on success, otherwise the rejection reason.</returns>
+        /// <exception cref="ArgumentException">nowUtc is not a UTC time.</exception>
         public PunishmentStatus SuspendPunishment(int playerId, DateTime nowUtc)
         {
             ValidateUtc(nowUtc);
@@ -121,19 +122,22 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Reanuda el castigo suspendido porque el jugador castigado regresó a tiempo, en una sola transición. Si quien
-        /// elige sigue en la partida, la nueva hora límite es nowUtc más el tiempo que quedaba, nunca el plazo
-        /// completo, y el azar no se usa. Si quien elige ya salió, el plazo no se reanuda: el sistema elige al azar y
-        /// el castigo se completa (Reglas 2.0.3.1). La ventana de reconexión la mide Services. Si rechaza o el azar
-        /// devuelve un índice inválido, nada cambia.
+        /// Resumes suspended punishment in one step when the punished player returns in time. If the chooser remains,
+        /// the deadline becomes nowUtc plus the saved time and no random choice is used. If the chooser left, a random
+        /// card completes punishment without restarting the deadline (Rule 2.0.3.1). Services measures the reconnection
+        /// window. Rejection or an invalid random index leaves state unchanged.
         /// </summary>
-        /// <param name="playerId">Jugador que regresó; debe ser el castigado.</param>
-        /// <param name="nowUtc">Hora UTC del servidor; el motor nunca lee el reloj.</param>
-        /// <param name="chooseRandomCardIndex">Azar uniforme sobre la mano del castigado: recibe n, da [0, n).</param>
-        /// <returns>Resumed si se reanudó, CardRemoved si se resolvió al azar; si no, el motivo del rechazo.</returns>
-        /// <exception cref="ArgumentException">nowUtc no es una hora UTC.</exception>
-        /// <exception cref="ArgumentNullException">chooseRandomCardIndex es null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">El azar devolvió un índice fuera de [0, n).</exception>
+        /// <param name="playerId">Returning player. Must be the punished player.</param>
+        /// <param name="nowUtc">Server time in UTC. The engine never reads the clock.</param>
+        /// <param name="chooseRandomCardIndex">
+        /// Uniform choice from the punished player's hand. Takes n and returns an index in [0, n).
+        /// </param>
+        /// <returns>
+        /// Resumed if the deadline restarted, CardRemoved for a random choice, otherwise the rejection reason.
+        /// </returns>
+        /// <exception cref="ArgumentException">nowUtc is not a UTC time.</exception>
+        /// <exception cref="ArgumentNullException">chooseRandomCardIndex is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The random index is outside [0, n).</exception>
         public PunishmentStatus ResumePunishment(int playerId, DateTime nowUtc, Func<int, int> chooseRandomCardIndex)
         {
             ValidateUtc(nowUtc);
@@ -166,7 +170,7 @@ namespace TLMG.Domain.Engine
             return punishmentStatus;
         }
 
-        /// <summary>Reanuda el plazo si quien elige sigue en la partida; si ya salió, resuelve al azar.</summary>
+        /// <summary>Resumes the deadline if the chooser remains. Otherwise completes punishment at random.</summary>
         private PunishmentStatus ContinueResumedPunishment(int playerId, DateTime nowUtc,
             Func<int, int> chooseRandomCardIndex)
         {
@@ -186,15 +190,15 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Elige al azar la carta del castigado y aplica el castigo. Lo usan el vencimiento del plazo y la reanudación
-        /// cuando quien elige ya salió. Valida el índice antes de cambiar cualquier estado.
+        /// Chooses a random card and applies punishment after expiry or on return when the chooser has left. Checks the
+        /// index before changing state.
         /// </summary>
         private void ResolvePunishmentAtRandom(Func<int, int> pickRandomIndex)
         {
             ApplyPunishment(PickRandomCardIndex(pickRandomIndex));
         }
 
-        /// <summary>Pide al azar un índice de la mano del castigado y lo valida; no cambia nada.</summary>
+        /// <summary>Requests and checks a random index in the punished player's hand without changing state.</summary>
         private int PickRandomCardIndex(Func<int, int> pickRandomIndex)
         {
             int cardIndex = pickRandomIndex(PendingPunishment.PunishedCardCount);
@@ -208,8 +212,8 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Quita la carta, registra la eliminación si el castigado quedó sin vidas y comprueba el fin: con un solo
-        /// jugador en juego gana él; si no, empieza la siguiente ronda con el primer jugador en juego del orden.
+        /// Removes the card and records elimination if the player has no lives. A sole remaining player wins. Otherwise
+        /// the next round starts with the first active player in turn order.
         /// </summary>
         private void ApplyPunishment(int cardIndex)
         {

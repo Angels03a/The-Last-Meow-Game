@@ -1,6 +1,6 @@
 ﻿namespace TLMG.Client.Models
 {
-    /// <summary>Tipo de carta de la mano que decide su aspecto en pantalla.</summary>
+    /// <summary>Hand card type that controls its appearance.</summary>
     public enum HandCardKind
     {
         Egyptian,

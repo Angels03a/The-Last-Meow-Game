@@ -54,6 +54,9 @@ namespace TLMG.Client.ViewModels
 
         public ICommand BackCommand { get; }
 
+        /// <summary>
+        /// Invites an online friend to the room using the supplied <see cref="FriendEntry"/>.
+        /// </summary>
         public ICommand InviteFriendCommand { get; }
 
         public ICommand AddFriendCommand => _addFriendCommand;

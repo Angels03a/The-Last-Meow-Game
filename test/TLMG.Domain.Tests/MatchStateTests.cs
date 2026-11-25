@@ -9,7 +9,7 @@ using TLMG.Domain.Engine;
 
 namespace TLMG.Domain.Tests
 {
-    /// <summary>Pruebas de MatchState: creación de la partida y colocación de una carta.</summary>
+    /// <summary>Tests MatchState creation and card placement.</summary>
     public class MatchStateTests
     {
         private const int FourCardsPerPlayer = 4;
@@ -24,7 +24,7 @@ namespace TLMG.Domain.Tests
         private const string ModeRulesParameterName = "modeRules";
         private const string PlayersParameterName = "playerIdsInJoinOrder";
 
-        /// <summary>Verifica Constructor_WithSupportedMode_DealsFatalCatsAndSafeCardsToEveryPlayer.</summary>
+        /// <summary>Checks Constructor_WithSupportedMode_DealsFatalCatsAndSafeCardsToEveryPlayer.</summary>
         [Theory]
         [InlineData(4, 1, 3)]
         [InlineData(6, 1, 5)]
@@ -44,7 +44,7 @@ namespace TLMG.Domain.Tests
                 expectedSafeCardCount, player.HandCards.Count(card => card == CardKind.Safe)));
         }
 
-        /// <summary>Verifica Constructor_WithSupportedMode_StartsWithLivesEqualToCardsPerPlayer.</summary>
+        /// <summary>Checks Constructor_WithSupportedMode_StartsWithLivesEqualToCardsPerPlayer.</summary>
         [Theory]
         [InlineData(4)]
         [InlineData(6)]
@@ -58,7 +58,7 @@ namespace TLMG.Domain.Tests
             Assert.All(match.Players, player => Assert.Equal(cardsPerPlayerCount, player.Lives));
         }
 
-        /// <summary>Verifica Constructor_WithValidPlayers_StartsWithEmptyPileAndNoChallenges.</summary>
+        /// <summary>Checks Constructor_WithValidPlayers_StartsWithEmptyPileAndNoChallenges.</summary>
         [Fact]
         public void Constructor_WithValidPlayers_StartsWithEmptyPileAndNoChallenges()
         {
@@ -70,7 +70,7 @@ namespace TLMG.Domain.Tests
             Assert.All(match.Players, player => Assert.Equal(0, player.SuccessfulChallengeCount));
         }
 
-        /// <summary>Verifica Constructor_WithValidPlayers_FreezesTurnOrderAsJoinOrder.</summary>
+        /// <summary>Checks Constructor_WithValidPlayers_FreezesTurnOrderAsJoinOrder.</summary>
         [Fact]
         public void Constructor_WithValidPlayers_FreezesTurnOrderAsJoinOrder()
         {
@@ -85,7 +85,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(joinOrder, match.Players.Select(player => player.PlayerId));
         }
 
-        /// <summary>Verifica Constructor_WithValidPlayers_StartsWithFirstPlayerActive.</summary>
+        /// <summary>Checks Constructor_WithValidPlayers_StartsWithFirstPlayerActive.</summary>
         [Fact]
         public void Constructor_WithValidPlayers_StartsWithFirstPlayerActive()
         {
@@ -96,7 +96,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FirstPlayerId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica Constructor_WithBoundaryPlayerCount_CreatesMatch.</summary>
+        /// <summary>Checks Constructor_WithBoundaryPlayerCount_CreatesMatch.</summary>
         [Theory]
         [InlineData(3)]
         [InlineData(6)]
@@ -109,7 +109,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(playerCount, match.Players.Count);
         }
 
-        /// <summary>Verifica Constructor_WithTooFewPlayers_ThrowsArgumentOutOfRange.</summary>
+        /// <summary>Checks Constructor_WithTooFewPlayers_ThrowsArgumentOutOfRange.</summary>
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
@@ -123,7 +123,7 @@ namespace TLMG.Domain.Tests
             Assert.IsType<ArgumentOutOfRangeException>(thrown);
         }
 
-        /// <summary>Verifica Constructor_WithTooManyPlayers_ThrowsArgumentOutOfRange.</summary>
+        /// <summary>Checks Constructor_WithTooManyPlayers_ThrowsArgumentOutOfRange.</summary>
         [Theory]
         [InlineData(7)]
         [InlineData(10)]
@@ -136,7 +136,7 @@ namespace TLMG.Domain.Tests
             Assert.IsType<ArgumentOutOfRangeException>(thrown);
         }
 
-        /// <summary>Verifica Constructor_WithDuplicatePlayerIds_ThrowsArgumentException.</summary>
+        /// <summary>Checks Constructor_WithDuplicatePlayerIds_ThrowsArgumentException.</summary>
         [Fact]
         public void Constructor_WithDuplicatePlayerIds_ThrowsArgumentException()
         {
@@ -151,7 +151,7 @@ namespace TLMG.Domain.Tests
             Assert.IsType<ArgumentException>(thrown);
         }
 
-        /// <summary>Verifica Constructor_WithNullModeRules_ThrowsArgumentNullException.</summary>
+        /// <summary>Checks Constructor_WithNullModeRules_ThrowsArgumentNullException.</summary>
         [Fact]
         public void Constructor_WithNullModeRules_ThrowsArgumentNullException()
         {
@@ -162,7 +162,7 @@ namespace TLMG.Domain.Tests
             Assert.IsType<ArgumentNullException>(thrown);
         }
 
-        /// <summary>Verifica Constructor_WithNullPlayers_ThrowsArgumentNullException.</summary>
+        /// <summary>Checks Constructor_WithNullPlayers_ThrowsArgumentNullException.</summary>
         [Fact]
         public void Constructor_WithNullPlayers_ThrowsArgumentNullException()
         {
@@ -174,7 +174,7 @@ namespace TLMG.Domain.Tests
             Assert.IsType<ArgumentNullException>(thrown);
         }
 
-        /// <summary>Verifica PlaceCard_WithSafeCardOnTurn_ReturnsPlacedAndMovesCardToPile.</summary>
+        /// <summary>Checks PlaceCard_WithSafeCardOnTurn_ReturnsPlacedAndMovesCardToPile.</summary>
         [Fact]
         public void PlaceCard_WithSafeCardOnTurn_ReturnsPlacedAndMovesCardToPile()
         {
@@ -190,7 +190,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(new[] { CardKind.Safe }, match.Players[0].PileCards);
         }
 
-        /// <summary>Verifica PlaceCard_WithFatalCatOnTurn_LeavesCatOnTopOfPile.</summary>
+        /// <summary>Checks PlaceCard_WithFatalCatOnTurn_LeavesCatOnTopOfPile.</summary>
         [Fact]
         public void PlaceCard_WithFatalCatOnTurn_LeavesCatOnTopOfPile()
         {
@@ -206,7 +206,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(new[] { CardKind.FatalCat }, match.Players[0].PileCards);
         }
 
-        /// <summary>Verifica PlaceCard_OnTurn_DoesNotChangeLives.</summary>
+        /// <summary>Checks PlaceCard_OnTurn_DoesNotChangeLives.</summary>
         [Theory]
         [InlineData(4)]
         [InlineData(6)]
@@ -223,7 +223,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(cardsPerPlayerCount, match.Players[0].Lives);
         }
 
-        /// <summary>Verifica PlaceCard_OnTurn_PassesTurnToNextPlayer.</summary>
+        /// <summary>Checks PlaceCard_OnTurn_PassesTurnToNextPlayer.</summary>
         [Fact]
         public void PlaceCard_OnTurn_PassesTurnToNextPlayer()
         {
@@ -237,7 +237,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(SecondPlayerId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica PlaceCard_ByLastPlayerOfOrder_PassesTurnToFirstPlayer.</summary>
+        /// <summary>Checks PlaceCard_ByLastPlayerOfOrder_PassesTurnToFirstPlayer.</summary>
         [Fact]
         public void PlaceCard_ByLastPlayerOfOrder_PassesTurnToFirstPlayer()
         {
@@ -251,7 +251,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FirstPlayerId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica PlaceCard_WithSixPlayers_PassesTurnInJoinOrder.</summary>
+        /// <summary>Checks PlaceCard_WithSixPlayers_PassesTurnInJoinOrder.</summary>
         [Fact]
         public void PlaceCard_WithSixPlayers_PassesTurnInJoinOrder()
         {
@@ -266,7 +266,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FirstPlayerId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica PlaceCard_WithSecondCard_KeepsLatestCardOnTop.</summary>
+        /// <summary>Checks PlaceCard_WithSecondCard_KeepsLatestCardOnTop.</summary>
         [Fact]
         public void PlaceCard_WithSecondCard_KeepsLatestCardOnTop()
         {
@@ -281,7 +281,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(new[] { CardKind.Safe, CardKind.FatalCat }, match.Players[0].PileCards);
         }
 
-        /// <summary>Verifica PlaceCard_ByPlayerOutOfTurn_ReturnsNotPlayersTurn.</summary>
+        /// <summary>Checks PlaceCard_ByPlayerOutOfTurn_ReturnsNotPlayersTurn.</summary>
         [Fact]
         public void PlaceCard_ByPlayerOutOfTurn_ReturnsNotPlayersTurn()
         {
@@ -295,7 +295,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(CardPlacementStatus.NotPlayersTurn, status);
         }
 
-        /// <summary>Verifica PlaceCard_ByPlayerOutOfTurn_KeepsStateUnchanged.</summary>
+        /// <summary>Checks PlaceCard_ByPlayerOutOfTurn_KeepsStateUnchanged.</summary>
         [Fact]
         public void PlaceCard_ByPlayerOutOfTurn_KeepsStateUnchanged()
         {
@@ -311,7 +311,7 @@ namespace TLMG.Domain.Tests
             Assert.Empty(match.Players[1].PileCards);
         }
 
-        /// <summary>Verifica PlaceCard_ByUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
+        /// <summary>Checks PlaceCard_ByUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
         [Fact]
         public void PlaceCard_ByUnknownPlayer_ReturnsPlayerNotInMatch()
         {
@@ -325,7 +325,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(CardPlacementStatus.PlayerNotInMatch, status);
         }
 
-        /// <summary>Verifica PlaceCard_WithEmptyHand_ReturnsHandEmpty.</summary>
+        /// <summary>Checks PlaceCard_WithEmptyHand_ReturnsHandEmpty.</summary>
         [Fact]
         public void PlaceCard_WithEmptyHand_ReturnsHandEmpty()
         {
@@ -340,7 +340,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(CardPlacementStatus.HandEmpty, status);
         }
 
-        /// <summary>Verifica PlaceCard_WithEmptyHand_KeepsLivesInThePile.</summary>
+        /// <summary>Checks PlaceCard_WithEmptyHand_KeepsLivesInThePile.</summary>
         [Fact]
         public void PlaceCard_WithEmptyHand_KeepsLivesInThePile()
         {
@@ -355,7 +355,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FourCardsPerPlayer, match.Players[0].Lives);
         }
 
-        /// <summary>Verifica PlaceCard_WithFatalCatAlreadyPlaced_ReturnsCardNotInHand.</summary>
+        /// <summary>Checks PlaceCard_WithFatalCatAlreadyPlaced_ReturnsCardNotInHand.</summary>
         [Fact]
         public void PlaceCard_WithFatalCatAlreadyPlaced_ReturnsCardNotInHand()
         {
@@ -370,7 +370,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(CardPlacementStatus.CardNotInHand, status);
         }
 
-        /// <summary>Verifica PlaceCard_WithEightCards_PlacesBothFatalCats.</summary>
+        /// <summary>Checks PlaceCard_WithEightCards_PlacesBothFatalCats.</summary>
         [Fact]
         public void PlaceCard_WithEightCards_PlacesBothFatalCats()
         {
@@ -385,7 +385,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(new[] { CardKind.FatalCat, CardKind.FatalCat }, match.Players[0].PileCards);
         }
 
-        /// <summary>Verifica PlaceCard_WithEightCardsAndTwoCatsPlaced_ReturnsCardNotInHandForThird.</summary>
+        /// <summary>Checks PlaceCard_WithEightCardsAndTwoCatsPlaced_ReturnsCardNotInHandForThird.</summary>
         [Fact]
         public void PlaceCard_WithEightCardsAndTwoCatsPlaced_ReturnsCardNotInHandForThird()
         {
@@ -401,7 +401,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(CardPlacementStatus.CardNotInHand, status);
         }
 
-        /// <summary>Verifica PlaceCard_WithUndefinedCardKind_ReturnsCardNotInHand.</summary>
+        /// <summary>Checks PlaceCard_WithUndefinedCardKind_ReturnsCardNotInHand.</summary>
         [Fact]
         public void PlaceCard_WithUndefinedCardKind_ReturnsCardNotInHand()
         {
@@ -415,7 +415,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(CardPlacementStatus.CardNotInHand, status);
         }
 
-        /// <summary>Verifica PlaceCard_WhenCardIsNotInHand_KeepsTurnWithSamePlayer.</summary>
+        /// <summary>Checks PlaceCard_WhenCardIsNotInHand_KeepsTurnWithSamePlayer.</summary>
         [Fact]
         public void PlaceCard_WhenCardIsNotInHand_KeepsTurnWithSamePlayer()
         {
@@ -430,7 +430,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FourCardsPerPlayer, match.Players[0].HandCards.Count);
         }
 
-        /// <summary>Verifica Constructor_WithBothArgumentsNull_ReportsModeRulesFirst.</summary>
+        /// <summary>Checks Constructor_WithBothArgumentsNull_ReportsModeRulesFirst.</summary>
         [Fact]
         public void Constructor_WithBothArgumentsNull_ReportsModeRulesFirst()
         {
@@ -442,7 +442,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ModeRulesParameterName, nullException.ParamName);
         }
 
-        /// <summary>Verifica Constructor_WithTooFewPlayersThatRepeat_ReportsCountBeforeDuplicates.</summary>
+        /// <summary>Checks Constructor_WithTooFewPlayersThatRepeat_ReportsCountBeforeDuplicates.</summary>
         [Fact]
         public void Constructor_WithTooFewPlayersThatRepeat_ReportsCountBeforeDuplicates()
         {
@@ -457,7 +457,7 @@ namespace TLMG.Domain.Tests
             Assert.IsType<ArgumentOutOfRangeException>(thrown);
         }
 
-        /// <summary>Verifica Constructor_WithDuplicatePlayerIds_ReportsPlayersParameter.</summary>
+        /// <summary>Checks Constructor_WithDuplicatePlayerIds_ReportsPlayersParameter.</summary>
         [Fact]
         public void Constructor_WithDuplicatePlayerIds_ReportsPlayersParameter()
         {
@@ -473,7 +473,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(PlayersParameterName, duplicateException.ParamName);
         }
 
-        /// <summary>Verifica ModeRules_Always_HasNoPublicSetter.</summary>
+        /// <summary>Checks ModeRules_Always_HasNoPublicSetter.</summary>
         [Fact]
         public void ModeRules_Always_HasNoPublicSetter()
         {
@@ -487,7 +487,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(publicSetter);
         }
 
-        /// <summary>Verifica PublicMethods_Always_DoNotAcceptModeRules.</summary>
+        /// <summary>Checks PublicMethods_Always_DoNotAcceptModeRules.</summary>
         [Fact]
         public void PublicMethods_Always_DoNotAcceptModeRules()
         {

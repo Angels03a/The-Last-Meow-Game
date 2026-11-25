@@ -1,24 +1,24 @@
 namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Causa por la que un jugador deja su sala. Solo la salida voluntaria saca al jugador del motor de partida; las
-    /// demás quedan registradas y esperan la ventana de reconexión (C2).
+    /// Reason for leaving a room. A voluntary exit removes the player immediately from the match engine. A
+    /// disconnection is handled through the reconnection window (C2).
     /// </summary>
     public enum RoomExitCause
     {
-        /// <summary>No es una salida: crear, entrar o cambiar la sala.</summary>
+        /// <summary>Room change other than an exit, such as creating, entering or updating a room.</summary>
         None,
 
-        /// <summary>El jugador pulsó Salir (LeaveLobby).</summary>
+        /// <summary>The player chose to leave (LeaveLobby).</summary>
         Voluntary,
 
-        /// <summary>El canal de lobby del jugador se cerró o falló.</summary>
+        /// <summary>The player's lobby channel closed or failed.</summary>
         LobbyChannelClosed,
 
-        /// <summary>La sesión terminó: cierre de sesión o canal de amigos perdido.</summary>
+        /// <summary>The session ended after logout or loss of the friends channel.</summary>
         SessionEnded,
 
-        /// <summary>La sesión se reemplazó por un nuevo inicio de sesión de la misma cuenta.</summary>
+        /// <summary>A new login to the same account replaced the session.</summary>
         SessionReplaced
     }
 }

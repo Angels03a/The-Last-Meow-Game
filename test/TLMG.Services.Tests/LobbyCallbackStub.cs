@@ -3,7 +3,7 @@ using TLMG.Contracts.DataContracts;
 
 namespace TLMG.Services.Tests
 {
-    /// <summary>Callback de lobby de prueba: cuenta las invocaciones y guarda la última sala avisada.</summary>
+    /// <summary>Lobby callback that counts calls and saves the last room received.</summary>
     internal sealed class LobbyCallbackStub : ILobbyManagerCallback
     {
         internal int CallCount { get; private set; }

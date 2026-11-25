@@ -6,7 +6,7 @@ using TLMG.Domain.Engine;
 
 namespace TLMG.Domain.Tests
 {
-    /// <summary>Pruebas de MatchState.GrantExtraLife: quién puede recibir la vida extra y cuántas veces.</summary>
+    /// <summary>Tests who can receive an extra life from MatchState.GrantExtraLife and how often.</summary>
     public class MatchStateExtraLifeTests
     {
         private const int FourCardsPerPlayer = 4;
@@ -20,7 +20,7 @@ namespace TLMG.Domain.Tests
 
         private static readonly DateTime _nowUtc = new DateTime(2026, 11, 20, 12, 0, 0, DateTimeKind.Utc);
 
-        /// <summary>Verifica GrantExtraLife_WithEightCardMode_GrantsItToThePlayer.</summary>
+        /// <summary>Checks GrantExtraLife_WithEightCardMode_GrantsItToThePlayer.</summary>
         [Fact]
         public void GrantExtraLife_WithEightCardMode_GrantsItToThePlayer()
         {
@@ -36,7 +36,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(EightCardsPerPlayer, match.Players[0].Lives);
         }
 
-        /// <summary>Verifica GrantExtraLife_WithModeWithoutExtraLife_ReturnsModeDoesNotAllowExtraLife.</summary>
+        /// <summary>Checks GrantExtraLife_WithModeWithoutExtraLife_ReturnsModeDoesNotAllowExtraLife.</summary>
         [Theory]
         [InlineData(FourCardsPerPlayer)]
         [InlineData(SixCardsPerPlayer)]
@@ -53,7 +53,7 @@ namespace TLMG.Domain.Tests
             Assert.False(match.Players[0].HasExtraLife);
         }
 
-        /// <summary>Verifica GrantExtraLife_WithAnotherPlayerAfterTheFirst_ReturnsExtraLifeAlreadyGranted.</summary>
+        /// <summary>Checks GrantExtraLife_WithAnotherPlayerAfterTheFirst_ReturnsExtraLifeAlreadyGranted.</summary>
         [Fact]
         public void GrantExtraLife_WithAnotherPlayerAfterTheFirst_ReturnsExtraLifeAlreadyGranted()
         {
@@ -69,7 +69,7 @@ namespace TLMG.Domain.Tests
             Assert.False(match.Players[1].HasExtraLife);
         }
 
-        /// <summary>Verifica GrantExtraLife_WithTheSamePlayerTwice_DoesNotAccumulateIt.</summary>
+        /// <summary>Checks GrantExtraLife_WithTheSamePlayerTwice_DoesNotAccumulateIt.</summary>
         [Fact]
         public void GrantExtraLife_WithTheSamePlayerTwice_DoesNotAccumulateIt()
         {
@@ -85,11 +85,11 @@ namespace TLMG.Domain.Tests
             Assert.True(match.Players[0].HasExtraLife);
         }
 
-        /// <summary>Verifica GrantExtraLife_AfterTheExtraLifeWasConsumed_ReturnsExtraLifeAlreadyGranted.</summary>
+        /// <summary>Checks GrantExtraLife_AfterTheExtraLifeWasConsumed_ReturnsExtraLifeAlreadyGranted.</summary>
         [Fact]
         public void GrantExtraLife_AfterTheExtraLifeWasConsumed_ReturnsExtraLifeAlreadyGranted()
         {
-            // Arrange: A[G] con vida extra apuesta 1 y el Gato la consume.
+            // Arrange: A[G] bids 1 with an extra life. The Fatal Cat uses it.
             MatchState match = CreateMatch(EightCardsPerPlayer);
             match.GrantExtraLife(FirstPlayerId);
             match.PlaceCard(FirstPlayerId, CardKind.FatalCat);
@@ -109,7 +109,7 @@ namespace TLMG.Domain.Tests
             Assert.False(match.Players[1].HasExtraLife);
         }
 
-        /// <summary>Verifica GrantExtraLife_WithUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
+        /// <summary>Checks GrantExtraLife_WithUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
         [Fact]
         public void GrantExtraLife_WithUnknownPlayer_ReturnsPlayerNotInMatch()
         {

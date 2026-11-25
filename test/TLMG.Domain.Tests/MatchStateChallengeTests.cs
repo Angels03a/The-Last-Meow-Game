@@ -7,9 +7,8 @@ using TLMG.Domain.Engine;
 namespace TLMG.Domain.Tests
 {
     /// <summary>
-    /// Pruebas de la resolución del reto en MatchState: volteo de cartas, éxito, fallo con castigo pendiente, vida
-    /// extra, fin de la partida y bloqueo de acciones. Los escenarios 1 a 4 del Dominio v3 (§4.4) se usan en su parte
-    /// de colocación, apuesta y resolución, sin el castigo mismo.
+    /// Tests challenge reveals, success, failure with pending punishment, extra life, match end and blocked actions.
+    /// Uses placement, bidding and resolution from Domain v3 scenarios 1 to 4 (§4.4), up to the punishment itself.
     /// </summary>
     public class MatchStateChallengeTests
     {
@@ -42,11 +41,11 @@ namespace TLMG.Domain.Tests
 
         private static readonly DateTime _nowUtc = new DateTime(2026, 11, 20, 12, 0, 0, DateTimeKind.Utc);
 
-        /// <summary>Verifica RevealCard_Scenario1WithThreeSafePiles_SucceedsOnThirdReveal.</summary>
+        /// <summary>Checks RevealCard_Scenario1WithThreeSafePiles_SucceedsOnThirdReveal.</summary>
         [Fact]
         public void RevealCard_Scenario1WithThreeSafePiles_SucceedsOnThirdReveal()
         {
-            // Arrange: pilas A[S], B[S], C[S]; A apuesta 3 y los demás se retiran.
+            // Arrange: Piles A[S], B[S], C[S]. A bids 3 and the others fold.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             PlaceInTurn(match, SafeCard, SafeCard, SafeCard);
             OpenAndConcede(match, ThreeCardBet);
@@ -62,7 +61,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ChallengeRevealStatus.ChallengeSucceeded, thirdPileStatus);
         }
 
-        /// <summary>Verifica RevealCard_WhenChallengeSucceeds_AddsOneChallengeAndReturnsCardsToHands.</summary>
+        /// <summary>Checks RevealCard_WhenChallengeSucceeds_AddsOneChallengeAndReturnsCardsToHands.</summary>
         [Fact]
         public void RevealCard_WhenChallengeSucceeds_AddsOneChallengeAndReturnsCardsToHands()
         {
@@ -80,11 +79,11 @@ namespace TLMG.Domain.Tests
             Assert.All(match.Players, player => Assert.Equal(FourCardsPerPlayer, player.Lives));
         }
 
-        /// <summary>Verifica RevealCard_Scenario3WhenBettorIsNotFirstOfOrder_StartsNextRoundWithFirstPlayer.</summary>
+        /// <summary>Checks RevealCard_Scenario3WhenBettorIsNotFirstOfOrder_StartsNextRoundWithFirstPlayer.</summary>
         [Fact]
         public void RevealCard_Scenario3WhenBettorIsNotFirstOfOrder_StartsNextRoundWithFirstPlayer()
         {
-            // Arrange: orden C, A, B; pilas C[S,S], A[S], B[S]; A apuesta 4.
+            // Arrange: Order C, A, B. Piles C[S,S], A[S], B[S]. A bids 4.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerCId, PlayerAId, PlayerBId);
             PlaceInTurn(match, SafeCard, SafeCard, SafeCard, SafeCard);
             OpenAndConcede(match, FourCardBet);
@@ -103,7 +102,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.BetLeader);
         }
 
-        /// <summary>Verifica RevealCard_Scenario3WithPileFullyRevealed_RejectsWithoutChangingState.</summary>
+        /// <summary>Checks RevealCard_Scenario3WithPileFullyRevealed_RejectsWithoutChangingState.</summary>
         [Fact]
         public void RevealCard_Scenario3WithPileFullyRevealed_RejectsWithoutChangingState()
         {
@@ -124,11 +123,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(RoundPhase.ChallengeReady, match.Phase);
         }
 
-        /// <summary>Verifica RevealCard_Scenario2WithTwoOwnCards_SucceedsAfterOwnPileThenOtherPile.</summary>
+        /// <summary>Checks RevealCard_Scenario2WithTwoOwnCards_SucceedsAfterOwnPileThenOtherPile.</summary>
         [Fact]
         public void RevealCard_Scenario2WithTwoOwnCards_SucceedsAfterOwnPileThenOtherPile()
         {
-            // Arrange: pilas A[S,S], B[S,S], C[S]; C abre con 1, A sube a 4 y los demás se retiran.
+            // Arrange: Piles A[S,S], B[S,S], C[S]. C opens at 1, A raises to 4 and the others fold.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             PlaceInTurn(match, SafeCard, SafeCard, SafeCard, SafeCard, SafeCard);
             RaiseAndConcede(match, OneCardBet, FourCardBet);
@@ -146,11 +145,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ChallengeRevealStatus.ChallengeSucceeded, secondOtherStatus);
         }
 
-        /// <summary>Verifica RevealCard_Scenario2bWithCatUnderSafeCard_FailsOnSecondCardOfOtherPile.</summary>
+        /// <summary>Checks RevealCard_Scenario2bWithCatUnderSafeCard_FailsOnSecondCardOfOtherPile.</summary>
         [Fact]
         public void RevealCard_Scenario2bWithCatUnderSafeCard_FailsOnSecondCardOfOtherPile()
         {
-            // Arrange: B[G,S] (S arriba); la cuarta carta que se voltea es el Gato de B.
+            // Arrange: B[G,S] has S on top. B's Fatal Cat is the fourth card revealed.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             PlaceInTurn(match, SafeCard, FatalCatCard, SafeCard, SafeCard, SafeCard);
             RaiseAndConcede(match, OneCardBet, FourCardBet);
@@ -166,7 +165,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(RoundPhase.PunishmentPending, match.Phase);
         }
 
-        /// <summary>Verifica RevealCard_Scenario2bWhenChallengeFails_RegistersBlindPunishmentForPileOwner.</summary>
+        /// <summary>Checks RevealCard_Scenario2bWhenChallengeFails_RegistersBlindPunishmentForPileOwner.</summary>
         [Fact]
         public void RevealCard_Scenario2bWhenChallengeFails_RegistersBlindPunishmentForPileOwner()
         {
@@ -187,7 +186,7 @@ namespace TLMG.Domain.Tests
             Assert.True(match.PendingPunishment.IsBlindChoice);
         }
 
-        /// <summary>Verifica RevealCard_WhenChallengeFails_ReturnsEveryPlayedCardToHands.</summary>
+        /// <summary>Checks RevealCard_WhenChallengeFails_ReturnsEveryPlayedCardToHands.</summary>
         [Fact]
         public void RevealCard_WhenChallengeFails_ReturnsEveryPlayedCardToHands()
         {
@@ -207,7 +206,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(NoChallenges, GetPlayer(match, PlayerAId).SuccessfulChallengeCount);
         }
 
-        /// <summary>Verifica RevealCard_WithOtherPileBeforeOwnPile_ReturnsOwnPileFirstWithoutChangingState.</summary>
+        /// <summary>Checks RevealCard_WithOtherPileBeforeOwnPile_ReturnsOwnPileFirstWithoutChangingState.</summary>
         [Fact]
         public void RevealCard_WithOtherPileBeforeOwnPile_ReturnsOwnPileFirstWithoutChangingState()
         {
@@ -225,11 +224,12 @@ namespace TLMG.Domain.Tests
             Assert.All(match.Players, player => Assert.Equal(NoCards, player.RevealedCardCount));
         }
 
-        /// <summary>Verifica RevealCard_Scenario4WithCatUnderSafeCard_FailsOnCatEvenIfNumberWouldBeReached.</summary>
+        /// <summary>Checks RevealCard_Scenario4WithCatUnderSafeCard_FailsOnCatEvenIfNumberWouldBeReached.</summary>
         [Fact]
         public void RevealCard_Scenario4WithCatUnderSafeCard_FailsOnCatEvenIfNumberWouldBeReached()
         {
-            // Arrange: A[G,S] (S arriba) apuesta 2: el Gato completaría el número, pero el Gato se evalúa primero.
+            // Arrange: A[G,S] has S on top and bids 2. The Fatal Cat would meet the bid, but its effect is checked
+            // first.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             PlaceInTurn(match, FatalCatCard, SafeCard, SafeCard, SafeCard, SafeCard, SafeCard);
             OpenAndConcede(match, TwoCardBet);
@@ -243,7 +243,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ChallengeRevealStatus.ChallengeFailed, catStatus);
         }
 
-        /// <summary>Verifica RevealCard_Scenario4WhenBettorOwnsTheCat_RegistersOwnChoicePunishment.</summary>
+        /// <summary>Checks RevealCard_Scenario4WhenBettorOwnsTheCat_RegistersOwnChoicePunishment.</summary>
         [Fact]
         public void RevealCard_Scenario4WhenBettorOwnsTheCat_RegistersOwnChoicePunishment()
         {
@@ -262,7 +262,7 @@ namespace TLMG.Domain.Tests
             Assert.False(match.PendingPunishment.IsBlindChoice);
         }
 
-        /// <summary>Verifica RevealCard_Scenario4bWithBetOfOne_SucceedsWithoutRevealingTheCat.</summary>
+        /// <summary>Checks RevealCard_Scenario4bWithBetOfOne_SucceedsWithoutRevealingTheCat.</summary>
         [Fact]
         public void RevealCard_Scenario4bWithBetOfOne_SucceedsWithoutRevealingTheCat()
         {
@@ -281,11 +281,11 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment);
         }
 
-        /// <summary>Verifica RevealCard_Scenario5WithExtraLife_ConsumesItAndCountsTheCat.</summary>
+        /// <summary>Checks RevealCard_Scenario5WithExtraLife_ConsumesItAndCountsTheCat.</summary>
         [Fact]
         public void RevealCard_Scenario5WithExtraLife_ConsumesItAndCountsTheCat()
         {
-            // Arrange: orden B, C, A; A[S], B[S,G], C[S]; C abre con 1, A sube a 3 y tiene la vida extra.
+            // Arrange: Order B, C, A. Piles A[S], B[S,G], C[S]. C opens at 1 and A raises to 3 with the extra life.
             MatchState match = CreateMatch(EightCardsPerPlayer, PlayerBId, PlayerCId, PlayerAId);
             match.GrantExtraLife(PlayerAId);
             PlaceInTurn(match, SafeCard, SafeCard, SafeCard, FatalCatCard);
@@ -305,11 +305,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(EightCardsPerPlayer, GetPlayer(match, PlayerBId).HandCards.Count);
         }
 
-        /// <summary>Verifica RevealCard_Scenario5bWithTableExhausted_SucceedsOnFourthReveal.</summary>
+        /// <summary>Checks RevealCard_Scenario5bWithTableExhausted_SucceedsOnFourthReveal.</summary>
         [Fact]
         public void RevealCard_Scenario5bWithTableExhausted_SucceedsOnFourthReveal()
         {
-            // Arrange: apuesta de 4 con 4 cartas en la mesa: S, G (consumido), S y S.
+            // Arrange: Bid 4 with four cards on the table. Reveals are S, G (absorbed), S and S.
             MatchState match = CreateMatch(EightCardsPerPlayer, PlayerBId, PlayerCId, PlayerAId);
             match.GrantExtraLife(PlayerAId);
             PlaceInTurn(match, SafeCard, SafeCard, SafeCard, FatalCatCard);
@@ -326,11 +326,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(OneChallenge, GetPlayer(match, PlayerAId).SuccessfulChallengeCount);
         }
 
-        /// <summary>Verifica RevealCard_Scenario5cWithSingleCatOnOwnPile_SucceedsWithConsumedCat.</summary>
+        /// <summary>Checks RevealCard_Scenario5cWithSingleCatOnOwnPile_SucceedsWithConsumedCat.</summary>
         [Fact]
         public void RevealCard_Scenario5cWithSingleCatOnOwnPile_SucceedsWithConsumedCat()
         {
-            // Arrange: A[G] con vida extra apuesta 1.
+            // Arrange: A[G] bids 1 with an extra life.
             MatchState match = CreateMatch(EightCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             match.GrantExtraLife(PlayerAId);
             PlaceInTurn(match, FatalCatCard, SafeCard, SafeCard);
@@ -346,11 +346,11 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.PendingPunishment);
         }
 
-        /// <summary>Verifica RevealCard_Scenario6WithoutExtraLife_FailsOnFirstCat.</summary>
+        /// <summary>Checks RevealCard_Scenario6WithoutExtraLife_FailsOnFirstCat.</summary>
         [Fact]
         public void RevealCard_Scenario6WithoutExtraLife_FailsOnFirstCat()
         {
-            // Arrange: A[S,G,G] sin vida extra apuesta 2.
+            // Arrange: A[S,G,G] bids 2 without an extra life.
             MatchState match = CreateMatch(EightCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             PlaceCatsOnOwnPileOfFirstPlayer(match);
             OpenAndConcede(match, TwoCardBet);
@@ -364,11 +364,11 @@ namespace TLMG.Domain.Tests
             Assert.False(match.PendingPunishment.IsBlindChoice);
         }
 
-        /// <summary>Verifica RevealCard_Scenario6WithExtraLife_FailsOnSecondCatBeforeCompleting.</summary>
+        /// <summary>Checks RevealCard_Scenario6WithExtraLife_FailsOnSecondCatBeforeCompleting.</summary>
         [Fact]
         public void RevealCard_Scenario6WithExtraLife_FailsOnSecondCatBeforeCompleting()
         {
-            // Arrange: A[S,G,G] con vida extra apuesta 3; el primer Gato se absorbe.
+            // Arrange: A[S,G,G] bids 3 with an extra life that absorbs the first Fatal Cat.
             MatchState match = CreateMatch(EightCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             match.GrantExtraLife(PlayerAId);
             PlaceCatsOnOwnPileOfFirstPlayer(match);
@@ -383,7 +383,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ChallengeRevealStatus.ChallengeFailed, secondCatStatus);
         }
 
-        /// <summary>Verifica RevealCard_Scenario6WhenChallengeFailsAfterExtraLife_KeepsExtraLifeConsumed.</summary>
+        /// <summary>Checks RevealCard_Scenario6WhenChallengeFailsAfterExtraLife_KeepsExtraLifeConsumed.</summary>
         [Fact]
         public void RevealCard_Scenario6WhenChallengeFailsAfterExtraLife_KeepsExtraLifeConsumed()
         {
@@ -403,11 +403,12 @@ namespace TLMG.Domain.Tests
             Assert.False(match.PendingPunishment.IsBlindChoice);
         }
 
-        /// <summary>Verifica RevealCard_Scenario6bWithCatsOnOtherPile_RegistersBlindPunishmentForPileOwner.</summary>
+        /// <summary>Checks RevealCard_Scenario6bWithCatsOnOtherPile_RegistersBlindPunishmentForPileOwner.</summary>
         [Fact]
         public void RevealCard_Scenario6bWithCatsOnOtherPile_RegistersBlindPunishmentForPileOwner()
         {
-            // Arrange: orden B, C, A; A[S], B[G,G]; con vida extra A apuesta 3: S, G (absorbido) y G (falla).
+            // Arrange: Order B, C, A with A[S] and B[G,G]. A bids 3 with the extra life. S counts, the first G is
+            // absorbed and the second G fails.
             MatchState match = CreateMatch(EightCardsPerPlayer, PlayerBId, PlayerCId, PlayerAId);
             match.GrantExtraLife(PlayerAId);
             PlaceInTurn(match, FatalCatCard, SafeCard, SafeCard, FatalCatCard);
@@ -425,7 +426,7 @@ namespace TLMG.Domain.Tests
             Assert.True(match.PendingPunishment.IsBlindChoice);
         }
 
-        /// <summary>Verifica RevealCard_WithSecondSuccessInShortMode_FinishesMatchWithWinner.</summary>
+        /// <summary>Checks RevealCard_WithSecondSuccessInShortMode_FinishesMatchWithWinner.</summary>
         [Fact]
         public void RevealCard_WithSecondSuccessInShortMode_FinishesMatchWithWinner()
         {
@@ -443,7 +444,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(TwoChallenges, GetPlayer(match, PlayerAId).SuccessfulChallengeCount);
         }
 
-        /// <summary>Verifica RevealCard_WithFourthSuccessInEightCardMode_FinishesMatchWithWinner.</summary>
+        /// <summary>Checks RevealCard_WithFourthSuccessInEightCardMode_FinishesMatchWithWinner.</summary>
         [Fact]
         public void RevealCard_WithFourthSuccessInEightCardMode_FinishesMatchWithWinner()
         {
@@ -460,7 +461,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FourChallenges, match.Winner.SuccessfulChallengeCount);
         }
 
-        /// <summary>Verifica RevealCard_WithThirdSuccessInEightCardMode_KeepsMatchInProgress.</summary>
+        /// <summary>Checks RevealCard_WithThirdSuccessInEightCardMode_KeepsMatchInProgress.</summary>
         [Fact]
         public void RevealCard_WithThirdSuccessInEightCardMode_KeepsMatchInProgress()
         {
@@ -476,7 +477,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.Winner);
         }
 
-        /// <summary>Verifica RevealCard_WithoutChallenge_ReturnsNoChallengeInProgress.</summary>
+        /// <summary>Checks RevealCard_WithoutChallenge_ReturnsNoChallengeInProgress.</summary>
         [Fact]
         public void RevealCard_WithoutChallenge_ReturnsNoChallengeInProgress()
         {
@@ -490,7 +491,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ChallengeRevealStatus.NoChallengeInProgress, status);
         }
 
-        /// <summary>Verifica RevealCard_ByPlayerWhoIsNotTheBettor_ReturnsNotTheBettor.</summary>
+        /// <summary>Checks RevealCard_ByPlayerWhoIsNotTheBettor_ReturnsNotTheBettor.</summary>
         [Fact]
         public void RevealCard_ByPlayerWhoIsNotTheBettor_ReturnsNotTheBettor()
         {
@@ -507,7 +508,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(NoCountedCards, match.Resolution.CountedCardCount);
         }
 
-        /// <summary>Verifica RevealCard_ByUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
+        /// <summary>Checks RevealCard_ByUnknownPlayer_ReturnsPlayerNotInMatch.</summary>
         [Fact]
         public void RevealCard_ByUnknownPlayer_ReturnsPlayerNotInMatch()
         {
@@ -523,7 +524,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ChallengeRevealStatus.PlayerNotInMatch, status);
         }
 
-        /// <summary>Verifica RevealCard_WithUnknownPileOwner_ReturnsPileOwnerNotInMatch.</summary>
+        /// <summary>Checks RevealCard_WithUnknownPileOwner_ReturnsPileOwnerNotInMatch.</summary>
         [Fact]
         public void RevealCard_WithUnknownPileOwner_ReturnsPileOwnerNotInMatch()
         {
@@ -540,7 +541,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(NoCountedCards, match.Resolution.CountedCardCount);
         }
 
-        /// <summary>Verifica RevealCard_AfterSuccess_ReturnsNoChallengeInProgress.</summary>
+        /// <summary>Checks RevealCard_AfterSuccess_ReturnsNoChallengeInProgress.</summary>
         [Fact]
         public void RevealCard_AfterSuccess_ReturnsNoChallengeInProgress()
         {
@@ -555,7 +556,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ChallengeRevealStatus.NoChallengeInProgress, status);
         }
 
-        /// <summary>Verifica RevealCard_WithPunishmentPending_ReturnsNoChallengeInProgress.</summary>
+        /// <summary>Checks RevealCard_WithPunishmentPending_ReturnsNoChallengeInProgress.</summary>
         [Fact]
         public void RevealCard_WithPunishmentPending_ReturnsNoChallengeInProgress()
         {
@@ -569,7 +570,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(ChallengeRevealStatus.NoChallengeInProgress, status);
         }
 
-        /// <summary>Verifica PlaceCard_WithPunishmentPending_ReturnsPunishmentPending.</summary>
+        /// <summary>Checks PlaceCard_WithPunishmentPending_ReturnsPunishmentPending.</summary>
         [Fact]
         public void PlaceCard_WithPunishmentPending_ReturnsPunishmentPending()
         {
@@ -584,7 +585,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FourCardsPerPlayer, GetPlayer(match, PlayerAId).HandCards.Count);
         }
 
-        /// <summary>Verifica OpenBet_WithPunishmentPending_ReturnsPunishmentPending.</summary>
+        /// <summary>Checks OpenBet_WithPunishmentPending_ReturnsPunishmentPending.</summary>
         [Fact]
         public void OpenBet_WithPunishmentPending_ReturnsPunishmentPending()
         {
@@ -599,7 +600,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(RoundPhase.PunishmentPending, match.Phase);
         }
 
-        /// <summary>Verifica RaiseBet_WithPunishmentPending_ReturnsPunishmentPending.</summary>
+        /// <summary>Checks RaiseBet_WithPunishmentPending_ReturnsPunishmentPending.</summary>
         [Fact]
         public void RaiseBet_WithPunishmentPending_ReturnsPunishmentPending()
         {
@@ -613,7 +614,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.PunishmentPending, status);
         }
 
-        /// <summary>Verifica WithdrawFromBet_WithPunishmentPending_ReturnsPunishmentPending.</summary>
+        /// <summary>Checks WithdrawFromBet_WithPunishmentPending_ReturnsPunishmentPending.</summary>
         [Fact]
         public void WithdrawFromBet_WithPunishmentPending_ReturnsPunishmentPending()
         {
@@ -627,7 +628,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.PunishmentPending, status);
         }
 
-        /// <summary>Verifica PlaceCard_WithMatchFinished_ReturnsMatchFinished.</summary>
+        /// <summary>Checks PlaceCard_WithMatchFinished_ReturnsMatchFinished.</summary>
         [Fact]
         public void PlaceCard_WithMatchFinished_ReturnsMatchFinished()
         {
@@ -641,7 +642,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(CardPlacementStatus.MatchFinished, status);
         }
 
-        /// <summary>Verifica OpenBet_WithMatchFinished_ReturnsMatchFinished.</summary>
+        /// <summary>Checks OpenBet_WithMatchFinished_ReturnsMatchFinished.</summary>
         [Fact]
         public void OpenBet_WithMatchFinished_ReturnsMatchFinished()
         {
@@ -655,7 +656,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(BetActionStatus.MatchFinished, status);
         }
 
-        /// <summary>Verifica Resolution_BeforeAnyChallenge_IsNull.</summary>
+        /// <summary>Checks Resolution_BeforeAnyChallenge_IsNull.</summary>
         [Fact]
         public void Resolution_BeforeAnyChallenge_IsNull()
         {
@@ -668,7 +669,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.Winner);
         }
 
-        /// <summary>Verifica Resolution_WhenChallengeIsReady_StartsWithoutCountedCards.</summary>
+        /// <summary>Checks Resolution_WhenChallengeIsReady_StartsWithoutCountedCards.</summary>
         [Fact]
         public void Resolution_WhenChallengeIsReady_StartsWithoutCountedCards()
         {
@@ -685,7 +686,7 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.Resolution.LastRevealedPlayerId);
         }
 
-        /// <summary>Verifica RevealCard_WithSafeCard_RecordsLastRevealedCardAndItsOwner.</summary>
+        /// <summary>Checks RevealCard_WithSafeCard_RecordsLastRevealedCardAndItsOwner.</summary>
         [Fact]
         public void RevealCard_WithSafeCard_RecordsLastRevealedCardAndItsOwner()
         {
@@ -753,7 +754,7 @@ namespace TLMG.Domain.Tests
                 + $"{match.PlayerInTurn.PlayerId}.");
         }
 
-        /// <summary>Quien tiene el turno abre la apuesta y todos los demás se retiran: el que abre apuesta.</summary>
+        /// <summary>The current player opens and all others fold, leaving the opener as the final bidder.</summary>
         private static void OpenAndConcede(MatchState match, int betValue)
         {
             int openingPlayerId = match.PlayerInTurn.PlayerId;
@@ -764,7 +765,9 @@ namespace TLMG.Domain.Tests
             WithdrawUntilChallengeReady(match);
         }
 
-        /// <summary>Quien tiene el turno abre, el siguiente sube y los demás se retiran: el que sube apuesta.</summary>
+        /// <summary>
+        /// The current player opens, the next raises and the others fold. The player who raised takes the challenge.
+        /// </summary>
         private static void RaiseAndConcede(MatchState match, int openingBet, int raisedBet)
         {
             match.OpenBet(match.PlayerInTurn.PlayerId, openingBet);
@@ -772,7 +775,7 @@ namespace TLMG.Domain.Tests
             WithdrawUntilChallengeReady(match);
         }
 
-        /// <summary>Coloca A[S,G,G], B[S,S,S] y C[S,S,S]: el Gato de A queda arriba de su pila.</summary>
+        /// <summary>Places A[S,G,G], B[S,S,S] and C[S,S,S], leaving A's Fatal Cat on top.</summary>
         private static void PlaceCatsOnOwnPileOfFirstPlayer(MatchState match)
         {
             PlaceInTurn(
@@ -788,7 +791,7 @@ namespace TLMG.Domain.Tests
                 SafeCard);
         }
 
-        /// <summary>Juega una ronda con tres pilas de una carta segura en la que A apuesta 3 y la cumple.</summary>
+        /// <summary>Plays a round with one safe card per pile. A bids 3 and succeeds.</summary>
         private static ChallengeRevealStatus PlaySuccessfulRound(MatchState match)
         {
             PlaceInTurn(match, SafeCard, SafeCard, SafeCard);

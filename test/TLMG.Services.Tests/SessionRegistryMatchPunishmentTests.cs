@@ -10,8 +10,7 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Pruebas del castigo en el registro: elección propia y a ciegas con la permutación del servidor, una sola vida,
-    /// eliminación y salida de los jugadores durante el castigo.
+    /// Tests own and blind punishment choices, server slot mapping, last life, elimination and exits during punishment.
     /// </summary>
     public class SessionRegistryMatchPunishmentTests
     {
@@ -24,11 +23,11 @@ namespace TLMG.Services.Tests
         private const int FatalCatHandIndex = 0;
         private const int RoundsBeforeSingleLife = CardsPerPlayer - 1;
 
-        /// <summary>Verifica ChoosePunishmentCard_BlindWithAScrambledOrder_TranslatesTheSlotAndKeepsTheCat.</summary>
+        /// <summary>Checks ChoosePunishmentCard_BlindWithAScrambledOrder_TranslatesTheSlotAndKeepsTheCat.</summary>
         [Fact]
         public void ChoosePunishmentCard_BlindWithAScrambledOrder_TranslatesTheSlotAndKeepsTheCat()
         {
-            // Arrange: sin índices encolados la permutación queda [1, 2, 3, 0]: el lugar 0 es la carta 1 (segura).
+            // Arrange: With no queued indices, the mapping is [1, 2, 3, 0]. Slot 0 means card 1, a safe card.
             MatchPlayScenario scenario = StartBlindPunishment();
 
             // Act
@@ -42,11 +41,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchPunishmentResolution.ChosenByChooser, punishedView.Challenge.PunishmentResolution);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_BlindWithTheIdentityOrder_RemovesTheFatalCatAtSlotZero.</summary>
+        /// <summary>Checks ChoosePunishmentCard_BlindWithTheIdentityOrder_RemovesTheFatalCatAtSlotZero.</summary>
         [Fact]
         public void ChoosePunishmentCard_BlindWithTheIdentityOrder_RemovesTheFatalCatAtSlotZero()
         {
-            // Arrange: los índices 3, 2 y 1 dejan la permutación sin cambios: el lugar 0 es la carta 0 (el Gato).
+            // Arrange: Indices 3, 2 and 1 keep the mapping unchanged. Slot 0 means card 0, the Fatal Cat.
             MatchPlayScenario scenario = StartBlindPunishment(3, 2, 1);
 
             // Act
@@ -58,7 +57,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(LivesAfterOnePunishment, punishedView.OwnHandCards.Count);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_Blind_AdvancesToTheNextRoundWithTheFirstActivePlayer.</summary>
+        /// <summary>Checks ChoosePunishmentCard_Blind_AdvancesToTheNextRoundWithTheFirstActivePlayer.</summary>
         [Fact]
         public void ChoosePunishmentCard_Blind_AdvancesToTheNextRoundWithTheFirstActivePlayer()
         {
@@ -75,7 +74,7 @@ namespace TLMG.Services.Tests
             Assert.All(delivery.ViewDeliveries, item => Assert.Null(item.MatchView.Punishment));
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_Blind_OthersSeeOnlyTheLivesGoingDown.</summary>
+        /// <summary>Checks ChoosePunishmentCard_Blind_OthersSeeOnlyTheLivesGoingDown.</summary>
         [Fact]
         public void ChoosePunishmentCard_Blind_OthersSeeOnlyTheLivesGoingDown()
         {
@@ -92,11 +91,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(CardsPerPlayer, otherView.OwnHandCards.Count);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_OwnChoice_RemovesTheChosenHandCard.</summary>
+        /// <summary>Checks ChoosePunishmentCard_OwnChoice_RemovesTheChosenHandCard.</summary>
         [Fact]
         public void ChoosePunishmentCard_OwnChoice_RemovesTheChosenHandCard()
         {
-            // Arrange: tras el reto fallido la mano del apostador es [Safe, Safe, Safe, Gato].
+            // Arrange: After the failed challenge the bidder's hand is [Safe, Safe, Safe, FatalCat].
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             scenario.ReachOwnPunishment();
@@ -112,7 +111,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchPunishmentResolution.ChosenByChooser, bettorView.Challenge.PunishmentResolution);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_ByAPlayerWhoIsNotTheChooser_IsRejectedWithoutChanges.</summary>
+        /// <summary>Checks ChoosePunishmentCard_ByAPlayerWhoIsNotTheChooser_IsRejectedWithoutChanges.</summary>
         [Fact]
         public void ChoosePunishmentCard_ByAPlayerWhoIsNotTheChooser_IsRejectedWithoutChanges()
         {
@@ -129,8 +128,8 @@ namespace TLMG.Services.Tests
             Assert.Equal(versionBefore, scenario.ReadVersionAs(scenario.UserIds[2]));
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_BlindWithASlotOutOfRange_IsRejected.</summary>
-        /// <param name="slot">Lugar fuera del rango de cartas.</param>
+        /// <summary>Checks ChoosePunishmentCard_BlindWithASlotOutOfRange_IsRejected.</summary>
+        /// <param name="slot">Slot outside the available card range.</param>
         [Theory]
         [InlineData(-1)]
         [InlineData(OutOfRangeSlot)]
@@ -146,7 +145,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.CardIndexNotValid, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_WithoutAPendingPunishment_IsRejected.</summary>
+        /// <summary>Checks ChoosePunishmentCard_WithoutAPendingPunishment_IsRejected.</summary>
         [Fact]
         public void ChoosePunishmentCard_WithoutAPendingPunishment_IsRejected()
         {
@@ -161,7 +160,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NoPunishmentPending, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceCardAndPlaceBet_DuringAPunishment_AreRejectedWithPunishmentPending.</summary>
+        /// <summary>Checks PlaceCardAndPlaceBet_DuringAPunishment_AreRejectedWithPunishmentPending.</summary>
         [Fact]
         public void PlaceCardAndPlaceBet_DuringAPunishment_AreRejectedWithPunishmentPending()
         {
@@ -177,11 +176,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.PunishmentPending, betDelivery.ErrorKey);
         }
 
-        /// <summary>Verifica RevealCard_FailingWithASingleLife_EliminatesWithoutAskingForAChoice.</summary>
+        /// <summary>Checks RevealCard_FailingWithASingleLife_EliminatesWithoutAskingForAChoice.</summary>
         [Fact]
         public void RevealCard_FailingWithASingleLife_EliminatesWithoutAskingForAChoice()
         {
-            // Arrange: tras tres castigos a ciegas el primer jugador solo conserva su Gato.
+            // Arrange: After three blind punishments, the first player has only their Fatal Cat left.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             LoseSafeCardsToBlindPunishments(scenario);
@@ -207,7 +206,7 @@ namespace TLMG.Services.Tests
             Assert.Empty(eliminatedView.OwnHandCards);
         }
 
-        /// <summary>Verifica LeaveRoom_WhenAnEliminatedPlayerLeaves_ChangesNothing.</summary>
+        /// <summary>Checks LeaveRoom_WhenAnEliminatedPlayerLeaves_ChangesNothing.</summary>
         [Fact]
         public void LeaveRoom_WhenAnEliminatedPlayerLeaves_ChangesNothing()
         {
@@ -224,7 +223,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(versionBefore, scenario.ReadVersionAs(scenario.UserIds[1]));
         }
 
-        /// <summary>Verifica LeaveRoom_AfterAnEliminationWhenAnotherLeaves_TheLastActivePlayerWins.</summary>
+        /// <summary>Checks LeaveRoom_AfterAnEliminationWhenAnotherLeaves_TheLastActivePlayerWins.</summary>
         [Fact]
         public void LeaveRoom_AfterAnEliminationWhenAnotherLeaves_TheLastActivePlayerWins()
         {
@@ -242,7 +241,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(scenario.UserIds[2], lastPlayerView.WinnerUserId);
         }
 
-        /// <summary>Verifica LeaveRoom_WhenThePunishedPlayerLeaves_CancelsThePunishmentAndRestartsTheRound.</summary>
+        /// <summary>Checks LeaveRoom_WhenThePunishedPlayerLeaves_CancelsThePunishmentAndRestartsTheRound.</summary>
         [Fact]
         public void LeaveRoom_WhenThePunishedPlayerLeaves_CancelsThePunishmentAndRestartsTheRound()
         {
@@ -263,11 +262,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(scenario.UserIds[1], chooserView.PlayerInTurnUserId);
         }
 
-        /// <summary>Verifica LeaveRoom_WhenTheChooserLeaves_ResolvesThePunishmentAtRandom.</summary>
+        /// <summary>Checks LeaveRoom_WhenTheChooserLeaves_ResolvesThePunishmentAtRandom.</summary>
         [Fact]
         public void LeaveRoom_WhenTheChooserLeaves_ResolvesThePunishmentAtRandom()
         {
-            // Arrange: el azar elige el índice 0 de la mano del castigado, que es su Gato.
+            // Arrange: The random choice picks index 0, the Fatal Cat in the punished player's hand.
             MatchPlayScenario scenario = StartBlindPunishment();
             scenario.RandomSource.Enqueue(FatalCatHandIndex);
             IReadOnlyList<MatchViewDelivery> deliveries;
@@ -284,7 +283,7 @@ namespace TLMG.Services.Tests
             Assert.Null(punishedView.Punishment);
         }
 
-        /// <summary>Verifica LeaveRoom_WhenAnUninvolvedPlayerLeaves_KeepsThePunishmentPending.</summary>
+        /// <summary>Checks LeaveRoom_WhenAnUninvolvedPlayerLeaves_KeepsThePunishmentPending.</summary>
         [Fact]
         public void LeaveRoom_WhenAnUninvolvedPlayerLeaves_KeepsThePunishmentPending()
         {
@@ -304,6 +303,62 @@ namespace TLMG.Services.Tests
             Assert.True(chooserView.Players.Single(player => player.UserId == scenario.UserIds[2]).HasLeftMatch);
         }
 
+        /// <summary>
+        /// Losing the link of a player who is neither the punished one nor the chooser does not suspend the
+        /// punishment, and the chooser is not blocked by that reconnection: the choice is accepted and the round
+        /// advances while the third player's grace stays open.
+        /// </summary>
+        [Fact]
+        public void ChoosePunishmentCard_WhenAnUninvolvedPlayerIsDisconnected_IsAcceptedForTheChooser()
+        {
+            // Arrange
+            MatchPlayScenario scenario = StartBlindPunishment();
+            int punishedUserId = scenario.UserIds[0];
+            int chooserUserId = scenario.UserIds[1];
+            int bystanderUserId = scenario.UserIds[2];
+            int versionBefore = scenario.ReadVersionAs(chooserUserId);
+            IReadOnlyList<MatchViewDelivery> loss;
+            bool wasRemoved = scenario.Registry.RemoveMatchChannel(
+                MatchPlayScenario.MatchChannelPrefix + bystanderUserId, scenario.CallbackOf(bystanderUserId), out loss);
+            Assert.True(wasRemoved);
+            Assert.All(loss, item => Assert.Equal(MatchRoundPhase.PunishmentPending, item.MatchView.Phase));
+            Assert.All(loss, item => Assert.Equal(MatchPunishmentResolution.Pending,
+                item.MatchView.Challenge.PunishmentResolution));
+
+            // Act
+            MatchDelivery delivery = scenario.Choose(chooserUserId, 0);
+
+            // Assert
+            Assert.Null(delivery.ErrorKey);
+            Assert.Equal(2, delivery.ViewDeliveries.Count);
+            Assert.DoesNotContain(scenario.CallbackOf(bystanderUserId), MatchPlayScenario.RecipientsOf(delivery));
+            Assert.All(delivery.ViewDeliveries, item => Assert.Equal(versionBefore + 2, item.MatchView.Version));
+            Assert.All(delivery.ViewDeliveries, item => Assert.Equal(SecondRound, item.MatchView.RoundNumber));
+            Assert.All(delivery.ViewDeliveries, item => Assert.Null(item.MatchView.Punishment));
+            MatchView punishedView = ViewOf(delivery, scenario, punishedUserId);
+            Assert.Equal(LivesAfterOnePunishment, punishedView.OwnHandCards.Count);
+            Assert.Equal(MatchPunishmentResolution.ChosenByChooser, punishedView.Challenge.PunishmentResolution);
+        }
+
+        /// <summary>
+        /// The reconnection guard keeps blocking everyone who is not the chooser: while a third player is
+        /// disconnected, the punished player cannot act and nothing changes.
+        /// </summary>
+        [Fact]
+        public void PlaceCard_ByThePunishedPlayerWithAnUninvolvedOneDisconnected_IsRejectedWithReconnectionPending()
+        {
+            // Arrange
+            MatchPlayScenario scenario = StartBlindPunishment();
+            Assert.True(scenario.CloseMatchChannelOf(scenario.UserIds[2]));
+
+            // Act
+            MatchDelivery attempt = scenario.Place(scenario.UserIds[0], MatchCardKind.Safe);
+
+            // Assert
+            Assert.Equal("Match_ReconnectionPending", attempt.ErrorKey);
+            Assert.Empty(attempt.ViewDeliveries);
+        }
+
         private static MatchPlayScenario StartBlindPunishment(params int[] shuffleIndexes)
         {
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
@@ -321,7 +376,9 @@ namespace TLMG.Services.Tests
             return scenario;
         }
 
-        /// <summary>Tres rondas en que el primer jugador pierde una carta segura (lugar 0 de la permutación).</summary>
+        /// <summary>
+        /// Three rounds in which the first player loses a safe card from slot 0 of the shuffled choices.
+        /// </summary>
         private static void LoseSafeCardsToBlindPunishments(MatchPlayScenario scenario)
         {
             for (int roundNumber = 0; roundNumber < RoundsBeforeSingleLife; roundNumber++)
@@ -343,7 +400,7 @@ namespace TLMG.Services.Tests
             var context = scenario.Registry.GetRecoveryContext(replacement).OperationResult;
 
             Assert.Equal(scenario.MatchId, context.MatchId);
-            var delivery = scenario.Registry.SubscribeToMatch(new LobbyCaller(replacement, "spectator"),
+            var delivery = scenario.Registry.SubscribeToMatch(new SessionChannelCaller(replacement, "spectator"),
                 context.MatchId.Value, new MatchCallbackStub());
             var view = Assert.Single(delivery.ViewDeliveries).MatchView;
             Assert.True(view.Players.Single(player => player.UserId == userId).IsEliminated);

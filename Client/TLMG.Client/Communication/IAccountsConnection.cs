@@ -64,7 +64,7 @@ namespace TLMG.Client.Communication
         /// </summary>
         LogOutResult LogOut();
 
-        /// <summary>Consulta la sala y partida recuperables con la sesión actual.</summary>
+        /// <summary>Looks up the room and match the current session can recover.</summary>
         OperationRecoveryContextResult GetRecoveryContext();
 
         OperationResult RequestAccountVerificationCode(

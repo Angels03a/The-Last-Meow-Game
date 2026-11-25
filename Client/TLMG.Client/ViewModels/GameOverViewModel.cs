@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 
@@ -11,6 +11,7 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
+    /// <summary>Displays the server-authorized final result and coordinates departure from the match.</summary>
     public class GameOverViewModel : ViewModelBase
     {
         private const int NoWinnerUserId = 0;
@@ -27,6 +28,7 @@ namespace TLMG.Client.ViewModels
         private bool _isLeavingMatch;
         private bool _isDisposed;
 
+        /// <summary>Prepares final standings and navigation for the completed match.</summary>
         public GameOverViewModel(
             INavigationManager navigationManager,
             ILobbyConnection lobbyConnection,
@@ -61,18 +63,24 @@ namespace TLMG.Client.ViewModels
             _lobbyConnection.FinishedMatchLeaveResultReceived += OnFinishedMatchLeaveResultReceived;
         }
 
+        /// <summary>Victory notification for the winner named in the server view.</summary>
         public GameNotification Notification { get; }
 
+        /// <summary>Returns to the main menu after the server confirms departure.</summary>
         public ICommand MainMenuCommand => _mainMenuCommand;
 
+        /// <summary>Localized winner name, or an empty string if unavailable.</summary>
         public string WinnerName { get; }
 
         public bool EndedByCollectiveAbandonment { get; }
 
+        /// <summary>Final standings from the server, or null if unavailable.</summary>
         public MatchStandingView[] Standings { get; }
 
+        /// <summary>Provides the standings with display names suitable for the current language.</summary>
         public IReadOnlyList<StandingEntry> StandingEntries { get; }
 
+        /// <summary>Whether the server supplied standings, even if empty.</summary>
         public bool HasStandings => Standings != null;
 
         protected override void OnDisposed()

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.ServiceModel;
 
@@ -78,7 +78,7 @@ namespace TLMG.Client.Communication
         private void DiscoverRecoveryContext()
         {
             OperationRecoveryContextResult context = GetRecoveryContext();
-            if (context.ErrorKey == InvalidSessionErrorKey)
+            if (!context.IsSuccess && context.ErrorKey == InvalidSessionErrorKey)
             {
                 DisconnectAndNotifyConnectionLost();
             }
@@ -249,7 +249,7 @@ namespace TLMG.Client.Communication
         {
             bool hasRoomWithoutChat = CurrentRoom != null && _chatClient == null;
             bool hasRemainingAttempts = _chatRecoveryAttempts < SecondaryRecoveryAttemptLimit;
-            bool canRetry = hasRoomWithoutChat && hasRemainingAttempts;
+            bool canRetry = HasRegisteredSession && hasRoomWithoutChat && hasRemainingAttempts;
 
             return canRetry;
         }
@@ -364,23 +364,32 @@ namespace TLMG.Client.Communication
         private static void OpenConnection(ICommunicationObject client)
         {
             Stopwatch elapsed = Stopwatch.StartNew();
-            client.Open(_recoveryOpenTimeout);
-            _log.DebugFormat("Apertura de canal WCF: {0:F2} ms.", elapsed.Elapsed.TotalMilliseconds);
+            try
+            {
+                client.Open(_recoveryOpenTimeout);
+            }
+            finally
+            {
+                _log.DebugFormat("Apertura de canal WCF: {0:F2} ms.", elapsed.Elapsed.TotalMilliseconds);
+            }
         }
 
         private static void SendConnectionRequest(IClientChannel channel, Action send)
         {
             TimeSpan originalTimeout = channel.OperationTimeout;
             Stopwatch elapsed = Stopwatch.StartNew();
-            channel.OperationTimeout = _recoveryRequestTimeout;
-            send();
-            if (channel.State == CommunicationState.Opened)
+            try
             {
-                channel.OperationTimeout = originalTimeout;
+                channel.OperationTimeout = _recoveryRequestTimeout;
+                send();
             }
-            _log.DebugFormat(
-                "Solicitud WCF de vinculación o contexto: {0:F2} ms.",
-                elapsed.Elapsed.TotalMilliseconds);
+            finally
+            {
+                RestoreOperationTimeoutIfOpened(channel, originalTimeout);
+                _log.DebugFormat(
+                    "Solicitud WCF de vinculación o contexto: {0:F2} ms.",
+                    elapsed.Elapsed.TotalMilliseconds);
+            }
         }
     }
 }

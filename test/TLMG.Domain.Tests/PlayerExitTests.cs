@@ -6,7 +6,7 @@ using TLMG.Domain.Engine;
 
 namespace TLMG.Domain.Tests
 {
-    /// <summary>Pruebas de PlayerExit: horas UTC, inicio no posterior a la efectiva y salida inmediata.</summary>
+    /// <summary>Tests UTC exit times, start at or before effective exit and immediate exits.</summary>
     public class PlayerExitTests
     {
         private const int GraceSeconds = 15;
@@ -14,7 +14,7 @@ namespace TLMG.Domain.Tests
         private static readonly DateTime _startedAtUtc = new DateTime(2026, 11, 20, 12, 0, 0, DateTimeKind.Utc);
         private static readonly DateTime _effectiveAtUtc = _startedAtUtc.AddSeconds(GraceSeconds);
 
-        /// <summary>Verifica PlayerExit_WithStartBeforeEffective_KeepsBothTimes.</summary>
+        /// <summary>Checks PlayerExit_WithStartBeforeEffective_KeepsBothTimes.</summary>
         [Fact]
         public void PlayerExit_WithStartBeforeEffective_KeepsBothTimes()
         {
@@ -29,7 +29,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(_effectiveAtUtc, exit.EffectiveAtUtc);
         }
 
-        /// <summary>Verifica Immediate_WithUtcTime_UsesSameStartAndEffectiveTime.</summary>
+        /// <summary>Checks Immediate_WithUtcTime_UsesSameStartAndEffectiveTime.</summary>
         [Fact]
         public void Immediate_WithUtcTime_UsesSameStartAndEffectiveTime()
         {
@@ -44,7 +44,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(atUtc, exit.EffectiveAtUtc);
         }
 
-        /// <summary>Verifica PlayerExit_WithStartAfterEffective_ThrowsArgumentException.</summary>
+        /// <summary>Checks PlayerExit_WithStartAfterEffective_ThrowsArgumentException.</summary>
         [Fact]
         public void PlayerExit_WithStartAfterEffective_ThrowsArgumentException()
         {
@@ -59,8 +59,8 @@ namespace TLMG.Domain.Tests
             Assert.Equal("startedAtUtc", exception.ParamName);
         }
 
-        /// <summary>Verifica PlayerExit_WithStartThatIsNotUtc_ThrowsArgumentException.</summary>
-        /// <param name="timeKind">Tipo de hora distinto de UTC.</param>
+        /// <summary>Checks PlayerExit_WithStartThatIsNotUtc_ThrowsArgumentException.</summary>
+        /// <param name="timeKind">Time kind other than UTC.</param>
         [Theory]
         [InlineData(DateTimeKind.Local)]
         [InlineData(DateTimeKind.Unspecified)]
@@ -77,8 +77,8 @@ namespace TLMG.Domain.Tests
             Assert.Equal("startedAtUtc", exception.ParamName);
         }
 
-        /// <summary>Verifica PlayerExit_WithEffectiveTimeThatIsNotUtc_ThrowsArgumentException.</summary>
-        /// <param name="timeKind">Tipo de hora distinto de UTC.</param>
+        /// <summary>Checks PlayerExit_WithEffectiveTimeThatIsNotUtc_ThrowsArgumentException.</summary>
+        /// <param name="timeKind">Time kind other than UTC.</param>
         [Theory]
         [InlineData(DateTimeKind.Local)]
         [InlineData(DateTimeKind.Unspecified)]
@@ -95,8 +95,8 @@ namespace TLMG.Domain.Tests
             Assert.Equal("effectiveAtUtc", exception.ParamName);
         }
 
-        /// <summary>Verifica Immediate_WithTimeThatIsNotUtc_ThrowsArgumentException.</summary>
-        /// <param name="timeKind">Tipo de hora distinto de UTC.</param>
+        /// <summary>Checks Immediate_WithTimeThatIsNotUtc_ThrowsArgumentException.</summary>
+        /// <param name="timeKind">Time kind other than UTC.</param>
         [Theory]
         [InlineData(DateTimeKind.Local)]
         [InlineData(DateTimeKind.Unspecified)]

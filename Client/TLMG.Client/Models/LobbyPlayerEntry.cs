@@ -1,22 +1,22 @@
 namespace TLMG.Client.Models
 {
     /// <summary>
-    /// Representa un jugador tal como se muestra en LobbyScreen: su nickname y si es el jugador de este cliente.
+    /// Player shown on LobbyScreen, with their nickname and whether they are the local player.
     /// </summary>
     public class LobbyPlayerEntry
     {
         /// <summary>
-        /// Obtiene o establece el nickname del jugador, tal como llegó del servidor.
+        /// Player's nickname as received from the server.
         /// </summary>
         public string Nickname { get; set; } = string.Empty;
 
         /// <summary>
-        /// Obtiene o establece si el jugador es el que tiene la sesión en este cliente. Solo cambia cómo se muestra
-        /// la tarjeta; no da ningún permiso.
+        /// Whether this player owns the local session. This changes only how the player card looks and grants no
+        /// permissions.
         /// </summary>
         public bool IsLocalPlayer { get; set; }
 
-        /// <summary>Obtiene o establece el estado Listo recibido del servidor.</summary>
+        /// <summary>Ready state received from the server.</summary>
         public bool IsReady { get; set; }
     }
 }

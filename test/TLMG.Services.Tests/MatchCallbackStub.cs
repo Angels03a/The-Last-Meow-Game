@@ -6,7 +6,7 @@ using TLMG.Contracts.DataContracts;
 
 namespace TLMG.Services.Tests
 {
-    /// <summary>Callback de partida de prueba: guarda los resultados y las vistas que recibe, en orden.</summary>
+    /// <summary>Test match callback that saves results and views in arrival order.</summary>
     internal sealed class MatchCallbackStub : IMatchManagerCallback
     {
         internal List<OperationResult> SubscribeResults { get; } = new List<OperationResult>();

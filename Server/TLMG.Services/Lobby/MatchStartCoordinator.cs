@@ -38,7 +38,7 @@ namespace TLMG.Services.Lobby
         }
 
         public LobbyMembershipChange RequestMatchStart(
-            LobbyCaller caller, int roomId, long countdownId)
+            SessionChannelCaller caller, int roomId, long countdownId)
         {
             LobbyMembershipChange lobbyMembershipChange;
 

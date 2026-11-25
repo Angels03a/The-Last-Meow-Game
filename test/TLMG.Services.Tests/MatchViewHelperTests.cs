@@ -4,19 +4,20 @@ using Xunit;
 
 using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Engine;
+using TLMG.Domain.Constants;
 using TLMG.Services.Helpers;
 using TLMG.Services.Match;
 
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Pruebas de las conversiones entre el motor y el contrato; cada valor del motor debe tener su equivalente.
+    /// Tests engine-to-contract conversions. Every engine value needs a matching contract value.
     /// </summary>
     public class MatchViewHelperTests
     {
         private const int UndefinedCardValue = 99;
 
-        /// <summary>Verifica ConvertToErrorKey_WithPlacedStatus_ReturnsNull.</summary>
+        /// <summary>Checks ConvertToErrorKey_WithPlacedStatus_ReturnsNull.</summary>
         [Fact]
         public void ConvertToErrorKey_WithPlacedStatus_ReturnsNull()
         {
@@ -30,9 +31,9 @@ namespace TLMG.Services.Tests
             Assert.Null(errorKey);
         }
 
-        /// <summary>Verifica ConvertToErrorKey_WithRejectedStatus_ReturnsItsOwnKey.</summary>
-        /// <param name="placementStatus">Rechazo del motor.</param>
-        /// <param name="expectedErrorKey">Clave que el cliente traduce.</param>
+        /// <summary>Checks ConvertToErrorKey_WithRejectedStatus_ReturnsItsOwnKey.</summary>
+        /// <param name="placementStatus">Engine rejection.</param>
+        /// <param name="expectedErrorKey">Error key translated by the client.</param>
         [Theory]
         [InlineData(CardPlacementStatus.PlayerNotInMatch, MatchErrorKeys.NotInMatch)]
         [InlineData(CardPlacementStatus.BetInProgress, MatchErrorKeys.BetInProgress)]
@@ -45,7 +46,7 @@ namespace TLMG.Services.Tests
             CardPlacementStatus placementStatus,
             string expectedErrorKey)
         {
-            // Arrange: el estado viene del motor.
+            // Arrange: The status comes from the engine.
 
             // Act
             string errorKey = MatchViewHelper.ConvertToErrorKey(placementStatus);
@@ -54,9 +55,9 @@ namespace TLMG.Services.Tests
             Assert.Equal(expectedErrorKey, errorKey);
         }
 
-        /// <summary>Verifica ConvertToErrorKey_WithUnknownStatus_ReturnsNotInMatchWithoutThrowing.</summary>
+        /// <summary>Checks that an unknown status returns the generic error.</summary>
         [Fact]
-        public void ConvertToErrorKey_WithUnknownStatus_ReturnsNotInMatchWithoutThrowing()
+        public void ConvertToErrorKey_WithUnknownStatus_ReturnsUnexpectedError()
         {
             // Arrange
             CardPlacementStatus unknownStatus = (CardPlacementStatus)UndefinedCardValue;
@@ -65,12 +66,12 @@ namespace TLMG.Services.Tests
             string errorKey = MatchViewHelper.ConvertToErrorKey(unknownStatus);
 
             // Assert
-            Assert.Equal(MatchErrorKeys.NotInMatch, errorKey);
+            Assert.Equal(ErrorKeys.Common.Unexpected, errorKey);
         }
 
-        /// <summary>Verifica ConvertToContractPhase_WithEnginePhase_ReturnsSameNamedPhase.</summary>
-        /// <param name="enginePhase">Fase del motor.</param>
-        /// <param name="expectedPhase">Fase equivalente del contrato.</param>
+        /// <summary>Checks ConvertToContractPhase_WithEnginePhase_ReturnsSameNamedPhase.</summary>
+        /// <param name="enginePhase">Engine phase.</param>
+        /// <param name="expectedPhase">Equivalent contract phase.</param>
         [Theory]
         [InlineData(RoundPhase.PlacingCards, MatchRoundPhase.PlacingCards)]
         [InlineData(RoundPhase.Betting, MatchRoundPhase.Betting)]
@@ -81,7 +82,7 @@ namespace TLMG.Services.Tests
             RoundPhase enginePhase,
             MatchRoundPhase expectedPhase)
         {
-            // Arrange: la fase viene del motor.
+            // Arrange: The phase comes from the engine.
 
             // Act
             MatchRoundPhase contractPhase = MatchViewHelper.ConvertToContractPhase(enginePhase);
@@ -90,9 +91,9 @@ namespace TLMG.Services.Tests
             Assert.Equal(expectedPhase, contractPhase);
         }
 
-        /// <summary>Verifica ConvertToContractCard_WithEngineCard_ReturnsSameNamedCard.</summary>
-        /// <param name="engineCard">Carta del motor.</param>
-        /// <param name="expectedCard">Carta equivalente del contrato.</param>
+        /// <summary>Checks ConvertToContractCard_WithEngineCard_ReturnsSameNamedCard.</summary>
+        /// <param name="engineCard">Engine card.</param>
+        /// <param name="expectedCard">Equivalent contract card.</param>
         [Theory]
         [InlineData(CardKind.Safe, MatchCardKind.Safe)]
         [InlineData(CardKind.FatalCat, MatchCardKind.FatalCat)]
@@ -100,7 +101,7 @@ namespace TLMG.Services.Tests
             CardKind engineCard,
             MatchCardKind expectedCard)
         {
-            // Arrange: la carta viene del motor.
+            // Arrange: The card comes from the engine.
 
             // Act
             MatchCardKind contractCard = MatchViewHelper.ConvertToContractCard(engineCard);
@@ -109,9 +110,9 @@ namespace TLMG.Services.Tests
             Assert.Equal(expectedCard, contractCard);
         }
 
-        /// <summary>Verifica TryConvertToEngineCard_WithDefinedCard_ReturnsEngineCard.</summary>
-        /// <param name="contractCard">Carta recibida del cliente.</param>
-        /// <param name="expectedCard">Carta equivalente del motor.</param>
+        /// <summary>Checks TryConvertToEngineCard_WithDefinedCard_ReturnsEngineCard.</summary>
+        /// <param name="contractCard">Card received from the client.</param>
+        /// <param name="expectedCard">Equivalent engine card.</param>
         [Theory]
         [InlineData(MatchCardKind.Safe, CardKind.Safe)]
         [InlineData(MatchCardKind.FatalCat, CardKind.FatalCat)]
@@ -119,7 +120,7 @@ namespace TLMG.Services.Tests
             MatchCardKind contractCard,
             CardKind expectedCard)
         {
-            // Arrange: la carta viene del cliente.
+            // Arrange: The card comes from the client.
             CardKind engineCard;
 
             // Act
@@ -130,7 +131,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(expectedCard, engineCard);
         }
 
-        /// <summary>Verifica TryConvertToEngineCard_WithUndefinedCard_ReturnsFalse.</summary>
+        /// <summary>Checks TryConvertToEngineCard_WithUndefinedCard_ReturnsFalse.</summary>
         [Fact]
         public void TryConvertToEngineCard_WithUndefinedCard_ReturnsFalse()
         {
@@ -144,15 +145,15 @@ namespace TLMG.Services.Tests
             Assert.False(isValid);
         }
 
-        /// <summary>Verifica ContractEnums_AgainstEngineEnums_HaveSameMemberCount.</summary>
-        /// <param name="engineEnum">Enum del motor.</param>
-        /// <param name="contractEnum">Enum equivalente del contrato.</param>
+        /// <summary>Checks ContractEnums_AgainstEngineEnums_HaveSameMemberCount.</summary>
+        /// <param name="engineEnum">Engine enum.</param>
+        /// <param name="contractEnum">Equivalent contract enum.</param>
         [Theory]
         [InlineData(typeof(RoundPhase), typeof(MatchRoundPhase))]
         [InlineData(typeof(CardKind), typeof(MatchCardKind))]
         public void ContractEnums_AgainstEngineEnums_HaveSameMemberCount(Type engineEnum, Type contractEnum)
         {
-            // Arrange: si el motor agrega un valor, esta prueba avisa antes de que falle una partida.
+            // Arrange: A new engine value should fail this test before it can break a match.
 
             // Act
             int engineCount = Enum.GetNames(engineEnum).Length;
@@ -162,11 +163,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(engineCount, contractCount);
         }
 
-        /// <summary>Verifica CardPlacementStatus_Members_AreEightSoMappingStaysInSync.</summary>
+        /// <summary>Checks CardPlacementStatus_Members_AreEightSoMappingStaysInSync.</summary>
         [Fact]
         public void CardPlacementStatus_Members_AreEightSoMappingStaysInSync()
         {
-            // Arrange: ocho estados del motor, uno de ellos la aceptación.
+            // Arrange: Eight engine statuses, including one accepted status.
             const int EngineStatusCount = 8;
 
             // Act

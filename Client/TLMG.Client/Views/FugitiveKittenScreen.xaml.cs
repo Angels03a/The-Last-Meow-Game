@@ -14,7 +14,7 @@ using System.Windows.Shapes;
 namespace TLMG.Client.Views
 {
     /// <summary>
-    /// Pantalla del minijuego El Gatito Fugitivo. Las decisiones llegan del servidor a través del ViewModel.
+    /// Shows Fugitive Kitten. The ViewModel receives the server's decisions.
     /// </summary>
     public partial class FugitiveKittenScreen : LocalizableScreen
     {
@@ -80,7 +80,7 @@ namespace TLMG.Client.Views
         private readonly FugitiveKittenViewModel _viewModel;
 
         /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="FugitiveKittenScreen"/> en el estado Arranque.
+        /// Creates a <see cref="FugitiveKittenScreen"/> in its startup state.
         /// </summary>
         public FugitiveKittenScreen(FugitiveKittenViewModel viewModel)
         {
@@ -401,7 +401,7 @@ namespace TLMG.Client.Views
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;
             _viewModel.Activate();
             UpdatePosition();
-            UpdateConnection();
+            UpdateConnectionDisplay();
             ApplyKittenColor(_viewModel.KittenColor);
             ShowSceneState(_viewModel.SceneState);
             Focus();
@@ -441,7 +441,7 @@ namespace TLMG.Client.Views
             else if (eventArgs.PropertyName == nameof(FugitiveKittenViewModel.IsConnected)
                 || eventArgs.PropertyName == nameof(FugitiveKittenViewModel.IsWaiting))
             {
-                UpdateConnection();
+                UpdateConnectionDisplay();
             }
             else if (eventArgs.PropertyName == nameof(FugitiveKittenViewModel.AlternatePose))
             {
@@ -453,7 +453,7 @@ namespace TLMG.Client.Views
             }
         }
 
-        private void UpdateConnection()
+        private void UpdateConnectionDisplay()
         {
             lblConnection.Visibility = _viewModel.IsConnected ? Visibility.Collapsed : Visibility.Visible;
             lblWaiting.Visibility = _viewModel.IsConnected && _viewModel.IsWaiting

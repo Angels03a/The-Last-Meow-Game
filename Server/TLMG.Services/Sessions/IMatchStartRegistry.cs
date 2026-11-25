@@ -8,11 +8,11 @@ namespace TLMG.Services.Sessions
     public interface IMatchStartRegistry
     {
         /// <summary>Reserves one start attempt or returns the current room state.</summary>
-        MatchStartPreparation PrepareMatchStart(LobbyCaller caller, int roomId, long countdownId);
+        MatchStartPreparation PrepareMatchStart(SessionChannelCaller caller, int roomId, long countdownId);
 
         /// <summary>Publishes only a committed and still-valid reservation.</summary>
         LobbyMembershipChange CompleteMatchStart(
-            LobbyCaller caller, MatchStartPreparation preparation, GameRegistrationResult registrationResult);
+            SessionChannelCaller caller, MatchStartPreparation preparation, GameRegistrationResult registrationResult);
 
         /// <summary>Copies cancelled identities for reconciliation outside the session lock.</summary>
         IReadOnlyList<Guid> FindCancelledMatchIds();

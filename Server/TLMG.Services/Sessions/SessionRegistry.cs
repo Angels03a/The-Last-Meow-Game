@@ -3,11 +3,16 @@ using System.Collections.Generic;
 
 using log4net;
 
+using TLMG.Contracts;
 using TLMG.Domain.Authorization;
 using TLMG.Services.Helpers;
 
 namespace TLMG.Services.Sessions
 {
+    /// <summary>
+    /// Protects shared session, room, match and friendship state with one lock.
+    /// Database calls and notifications are performed outside the session lock.
+    /// </summary>
     public partial class SessionRegistry : ISessionRegistry
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(SessionRegistry));
@@ -19,6 +24,7 @@ namespace TLMG.Services.Sessions
             new Dictionary<string, PlayerSession>();
         private readonly Dictionary<int, string> _tokensByUserId = new Dictionary<int, string>();
 
+        /// <summary>Creates the registry with the system UTC clock.</summary>
         public SessionRegistry() : this(ReadSystemUtcNow)
         {
         }
@@ -33,6 +39,7 @@ namespace TLMG.Services.Sessions
             _pickRandomIndex = pickRandomIndex;
         }
 
+        /// <inheritdoc />
         public string StartRegisteredSession(int userId, string nickname, out SessionEnd replacedSession)
         {
             string sessionToken = SessionTokenHelper.GenerateSessionToken();
@@ -46,7 +53,8 @@ namespace TLMG.Services.Sessions
                 if (_tokensByUserId.TryGetValue(userId, out previousToken))
                 {
                     PlayerSession previous = _sessionsByToken[previousToken];
-                    replacedSession = PreserveMatchOnReplacementInLock(previous, out var matchViews)
+                    IReadOnlyList<MatchViewDelivery> matchViews;
+                    replacedSession = PreserveMatchOnReplacementInLock(previous, out matchViews)
                         ?? EndSessionInLock(previous, RoomExitCause.SessionReplaced);
                     replacedSession.MatchViews = matchViews;
                 }
@@ -67,6 +75,7 @@ namespace TLMG.Services.Sessions
             return sessionToken;
         }
 
+        /// <inheritdoc />
         public bool TryFindSessionByToken(string sessionToken, out PlayerSession playerSession)
         {
             bool wasFound = false;
@@ -77,6 +86,7 @@ namespace TLMG.Services.Sessions
                 lock (_sessionsLock)
                 {
                     wasFound = _sessionsByToken.TryGetValue(sessionToken, out playerSession);
+
                     if (wasFound)
                     {
                         playerSession.LastActivityUtc = _readUtcNow();
@@ -87,14 +97,20 @@ namespace TLMG.Services.Sessions
             return wasFound;
         }
 
+        /// <inheritdoc />
         public bool EndSession(string sessionToken, out SessionEnd sessionEnd)
         {
-            return EndSession(sessionToken, false, out sessionEnd, out _);
+            bool wasEnded = EndSession(sessionToken, false, out sessionEnd, out _);
+
+            return wasEnded;
         }
 
+        /// <inheritdoc />
         public bool TryLogOut(string sessionToken, out SessionEnd sessionEnd, out bool hasActiveParticipation)
         {
-            return EndSession(sessionToken, true, out sessionEnd, out hasActiveParticipation);
+            bool wasEnded = EndSession(sessionToken, true, out sessionEnd, out hasActiveParticipation);
+
+            return wasEnded;
         }
 
         private static void LogDepartureOfEndedSession(SessionEnd sessionEnd)
@@ -156,49 +172,52 @@ namespace TLMG.Services.Sessions
         private SessionEnd PreserveMatchOnReplacementInLock(PlayerSession previous,
             out IReadOnlyList<MatchViewDelivery> matchViews)
         {
+            SessionEnd replacedSession = null;
             matchViews = _noMatchViewDeliveries;
             int userId = previous.UserId;
-            if (!_roomIdsByUserId.TryGetValue(userId, out int roomId)
-                || !(_startsByRoomId[roomId].MatchId is Guid matchId)
-                || !_matchesById.TryGetValue(matchId, out MatchRecord match))
-            {
-                return null;
-            }
 
-            DateTime nowUtc = _readUtcNow();
-            bool changed = ExpireMatchDeadlinesInLock(match, nowUtc);
-            if (FindRecoverableMatchInLock(userId) == null)
+            if (_roomIdsByUserId.TryGetValue(userId, out int roomId)
+                && _startsByRoomId[roomId].MatchId is Guid matchId
+                && _matchesById.TryGetValue(matchId, out MatchRecord match))
             {
-                if (changed)
+                DateTime nowUtc = _readUtcNow();
+                bool changed = ExpireMatchDeadlinesInLock(match, nowUtc);
+
+                if (FindRecoverableMatchInLock(userId) != null)
+                {
+                    if (_matchChannelsByUserId.ContainsKey(userId))
+                    {
+                        changed |= OpenMatchGraceInLock(match, userId, nowUtc);
+                    }
+
+                    RemoveMatchChannelOfUserInLock(userId);
+
+                    if (changed)
+                    {
+                        match.Version++;
+                        matchViews = CreateViewDeliveriesInLock(match);
+                    }
+
+                    RemoveChatChannelOfUserInLock(userId);
+                    DetachStartedLobbyChannelInLock(userId);
+                    IReadOnlyList<IFriendsManagerCallback> recipients = FindPresenceRecipientsOfUser(userId);
+                    _friendsChannelsByUserId.TryGetValue(userId, out FriendsChannel friendsChannel);
+                    RemoveFriendsChannelOfUser(userId);
+                    RemoveInvitationsOfUser(userId);
+                    _authorizedRoomIdsByUserId.Remove(userId);
+                    _sessionsByToken.Remove(_tokensByUserId[userId]);
+                    replacedSession = new SessionEnd(userId, previous.Nickname,
+                        LobbyMembershipChange.CreateRejected(LobbyChangeStatus.NotInRoom, userId),
+                        FindCallbackOfChannel(friendsChannel), recipients);
+                }
+                else if (changed)
                 {
                     match.Version++;
                     matchViews = CreateViewDeliveriesInLock(match);
                 }
-                return null;
             }
 
-            if (_matchChannelsByUserId.ContainsKey(userId))
-            {
-                changed |= OpenMatchGraceInLock(match, userId, nowUtc);
-            }
-
-            RemoveMatchChannelOfUserInLock(userId);
-            if (changed)
-            {
-                match.Version++;
-                matchViews = CreateViewDeliveriesInLock(match);
-            }
-            RemoveChatChannelOfUserInLock(userId);
-            DetachStartedLobbyChannelInLock(userId);
-            var recipients = FindPresenceRecipientsOfUser(userId);
-            _friendsChannelsByUserId.TryGetValue(userId, out FriendsChannel friendsChannel);
-            RemoveFriendsChannelOfUser(userId);
-            RemoveInvitationsOfUser(userId);
-            _authorizedRoomIdsByUserId.Remove(userId);
-            _sessionsByToken.Remove(_tokensByUserId[userId]);
-            return new SessionEnd(userId, previous.Nickname,
-                LobbyMembershipChange.CreateRejected(LobbyChangeStatus.NotInRoom, userId),
-                FindCallbackOfChannel(friendsChannel), recipients);
+            return replacedSession;
         }
 
         private SessionEnd EndSessionInLock(PlayerSession endedSession, RoomExitCause exitCause)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows.Input;
 
 using CommunityToolkit.Mvvm.Input;
@@ -9,6 +9,7 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
+    /// <summary>Provides navigation and the localized identity of the current player.</summary>
     public class MainMenuViewModel : ViewModelBase
     {
         private readonly IAccountsConnection _accountsConnection;
@@ -36,6 +37,7 @@ namespace TLMG.Client.ViewModels
             LogOutCommand = new RelayCommand(ExecuteLogOut);
         }
 
+        /// <summary>Opens the lobby.</summary>
         public ICommand NavigateToLobbyCommand { get; }
 
         public ICommand NavigateToFriendsCommand { get; }
@@ -44,6 +46,7 @@ namespace TLMG.Client.ViewModels
 
         public ICommand NavigateToHowToPlayCommand { get; }
 
+        /// <summary>Opens the leaderboard.</summary>
         public ICommand NavigateToLeaderboardCommand { get; }
 
         public ICommand NavigateToOptionsCommand { get; }

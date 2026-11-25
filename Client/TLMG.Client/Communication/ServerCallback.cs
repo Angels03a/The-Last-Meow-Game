@@ -4,11 +4,11 @@ using TLMG.Client.UsersManagerReference;
 namespace TLMG.Client.Communication
 {
     /// <summary>
-    /// Recibe los callbacks del servidor en un hilo de WCF y los pasa al hilo de la interfaz como eventos del
-    /// ServerConnectionManager que lo creó. No decide nada ni toca controles. UseSynchronizationContext = false evita
-    /// el interbloqueo cuando la interfaz llama al servidor mientras espera un callback. Cada canal (amigos, lobby,
-    /// chat, partida y consulta de la tabla de posiciones) crea su propia instancia, y el manager la compara por
-    /// referencia para ignorar lo que llegue de un canal anterior.
+    /// Receives server callbacks on a WCF thread and raises events on the UI thread through its
+    /// ServerConnectionManager. It makes no game decisions and does not touch controls. UseSynchronizationContext =
+    /// false prevents a deadlock when the UI calls the server while waiting for a callback. Each friends, lobby, chat,
+    /// match or leaderboard channel creates its own receiver. The manager compares receiver references to ignore
+    /// callbacks from old channels.
     /// </summary>
     [CallbackBehavior(UseSynchronizationContext = false)]
     public sealed class ServerCallback : IFriendsManagerCallback, ILobbyManagerCallback, IChatManagerCallback,
@@ -32,15 +32,15 @@ namespace TLMG.Client.Communication
             _serverConnection.RunOnInterface(() => _serverConnection.NotifyHeartbeatEcho(this, sequence, errorKey));
         }
 
-        /// <summary>Crea el receptor de callbacks de un manager.</summary>
-        /// <param name="serverConnection">Manager cuyos eventos se disparan con lo que llega del servidor.</param>
+        /// <summary>Creates a callback receiver for a connection manager.</summary>
+        /// <param name="serverConnection">Manager that raises events when server callbacks arrive.</param>
         internal ServerCallback(ServerConnectionManager serverConnection)
         {
             _serverConnection = serverConnection;
         }
 
-        /// <summary>Entrega la tabla de posiciones mediante el dispatcher de la interfaz.</summary>
-        /// <param name="operationGetLeaderboardResult">Resultado con los jugadores o la clave de error.</param>
+        /// <summary>Delivers the leaderboard through the UI dispatcher.</summary>
+        /// <param name="operationGetLeaderboardResult">Players returned by the server, or an error key.</param>
         public void GetLeaderboardResult(OperationGetLeaderboardResult operationGetLeaderboardResult)
         {
             _serverConnection.RunOnInterface(
@@ -71,21 +71,21 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyChatMessageReceived(this, chatResult));
         }
 
-        /// <summary>Entrega el resultado de suscribirse a la partida mediante el dispatcher de la interfaz.</summary>
-        /// <param name="operationSubscribeToMatchResult">Aceptación o clave de error.</param>
+        /// <summary>Delivers the match subscription result through the UI dispatcher.</summary>
+        /// <param name="operationSubscribeToMatchResult">Subscription confirmation or error key.</param>
         public void SubscribeToMatchResult(OperationResult operationSubscribeToMatchResult)
         {
             _serverConnection.RunOnInterface(
                 () => _serverConnection.NotifyMatchSubscriptionResult(this, operationSubscribeToMatchResult));
         }
 
-        /// <summary>Entrega el resultado individual del intento.</summary>
+        /// <summary>Delivers the player's catch attempt result.</summary>
         public void TryCatchFugitiveKittenResult(OperationResult result)
         {
             _serverConnection.RunOnInterface(() => _serverConnection.NotifyFugitiveKittenResult(this, result, true));
         }
 
-        /// <summary>Entrega el resultado individual de la comprobación de vencimiento.</summary>
+        /// <summary>Delivers the player's deadline check result.</summary>
         public void CheckFugitiveKittenDeadlineResult(OperationResult result)
         {
             _serverConnection.RunOnInterface(() => _serverConnection.NotifyFugitiveKittenResult(this, result, false));
@@ -121,8 +121,8 @@ namespace TLMG.Client.Communication
             _serverConnection.RunOnInterface(() => _serverConnection.NotifyMatchActionResult(this, result));
         }
 
-        /// <summary>Entrega la vista privada de la partida mediante el dispatcher de la interfaz.</summary>
-        /// <param name="matchView">Vista del jugador, con su versión.</param>
+        /// <summary>Delivers the private match view through the UI dispatcher.</summary>
+        /// <param name="matchView">Player's view and its version.</param>
         public void OnMatchViewChanged(MatchView matchView)
         {
             _serverConnection.RunOnInterface(
@@ -138,8 +138,8 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyFriendListReceived(operationSubscribeToFriendsResult));
         }
 
-        /// <summary>Entrega el resultado de invitar a un amigo a la sala.</summary>
-        /// <param name="operationInviteFriendToRoomResult">Resultado con éxito o clave de error.</param>
+        /// <summary>Delivers the result of inviting a friend to the room.</summary>
+        /// <param name="operationInviteFriendToRoomResult">Success result or error key.</param>
         public void InviteFriendToRoomResult(OperationResult operationInviteFriendToRoomResult)
         {
             _serverConnection.RunOnInterfaceIfCurrent(
@@ -147,8 +147,8 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyInviteFriendResultReceived(operationInviteFriendToRoomResult));
         }
 
-        /// <summary>Entrega el resultado de aceptar una invitación.</summary>
-        /// <param name="operationAcceptRoomInvitationResult">Resultado con el id de sala o la clave de error.</param>
+        /// <summary>Delivers the result of accepting a room invitation.</summary>
+        /// <param name="operationAcceptRoomInvitationResult">Room ID or error key.</param>
         public void AcceptRoomInvitationResult(OperationAcceptRoomInvitationResult operationAcceptRoomInvitationResult)
         {
             _serverConnection.RunOnInterfaceIfCurrent(
@@ -166,8 +166,8 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyFriendPresenceChanged(friend));
         }
 
-        /// <summary>Avisa que un amigo invitó al jugador a su sala.</summary>
-        /// <param name="roomInvitation">La invitación recibida.</param>
+        /// <summary>Reports that a friend invited the player to a room.</summary>
+        /// <param name="roomInvitation">Room invitation received.</param>
         public void OnRoomInvitationReceived(RoomInvitation roomInvitation)
         {
             _serverConnection.RunOnInterfaceIfCurrent(
@@ -226,8 +226,8 @@ namespace TLMG.Client.Communication
                     operationDeclineFriendRequestResult));
         }
 
-        /// <summary>Entrega el resultado de cambiar las cartas por jugador de la sala.</summary>
-        /// <param name="result">Resultado con la sala actualizada o la clave de error.</param>
+        /// <summary>Delivers the result of changing the number of cards per player.</summary>
+        /// <param name="result">Updated room or error key.</param>
         public void ChangeCardsPerPlayerResult(OperationLobbyRoomResult result)
         {
             _serverConnection.RunOnInterfaceIfCurrent(
@@ -235,8 +235,8 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyChangeCardsPerPlayerResultReceived(result));
         }
 
-        /// <summary>Entrega el resultado de crear una sala.</summary>
-        /// <param name="operationCreateRoomResult">Resultado con la sala o la clave de error.</param>
+        /// <summary>Delivers the room creation result.</summary>
+        /// <param name="operationCreateRoomResult">Room or error key.</param>
         public void CreateRoomResult(OperationLobbyRoomResult operationCreateRoomResult)
         {
             _serverConnection.RunOnInterfaceIfCurrent(
@@ -244,8 +244,8 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyCreateRoomResultReceived(operationCreateRoomResult));
         }
 
-        /// <summary>Entrega el resultado de entrar a una sala.</summary>
-        /// <param name="operationEnterLobbyResult">Resultado con la sala o la clave de error.</param>
+        /// <summary>Delivers the result of joining a room.</summary>
+        /// <param name="operationEnterLobbyResult">Room or error key.</param>
         public void EnterLobbyResult(OperationLobbyRoomResult operationEnterLobbyResult)
         {
             _serverConnection.RunOnInterfaceIfCurrent(
@@ -253,8 +253,8 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyEnterLobbyResultReceived(operationEnterLobbyResult));
         }
 
-        /// <summary>Entrega el resultado de salir de una sala.</summary>
-        /// <param name="operationLeaveLobbyResult">Resultado con éxito o clave de error.</param>
+        /// <summary>Delivers the result of leaving a room.</summary>
+        /// <param name="operationLeaveLobbyResult">Success result or error key.</param>
         public void LeaveLobbyResult(OperationResult operationLeaveLobbyResult)
         {
             _serverConnection.RunOnInterfaceIfCurrent(
@@ -262,8 +262,8 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyLeaveLobbyResultReceived(operationLeaveLobbyResult));
         }
 
-        /// <summary>Avisa que la sala del jugador cambió porque otro jugador entró o salió.</summary>
-        /// <param name="lobbyRoom">La sala con la lista actualizada de jugadores.</param>
+        /// <summary>Reports a room change when another player joins or leaves.</summary>
+        /// <param name="lobbyRoom">Room with its updated player list.</param>
         public void OnLobbyRoomChanged(LobbyRoom lobbyRoom)
         {
             _serverConnection.RunOnInterfaceIfCurrent(
@@ -271,8 +271,8 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyLobbyRoomChanged(lobbyRoom));
         }
 
-        /// <summary>Entrega el resultado de ChangePlayerReadiness por el dispatcher de la interfaz.</summary>
-        /// <param name="changePlayerReadinessResult">Resultado recibido del servidor.</param>
+        /// <summary>Delivers the ChangePlayerReadiness result through the UI dispatcher.</summary>
+        /// <param name="changePlayerReadinessResult">Result received from the server.</param>
         public void ChangePlayerReadinessResult(OperationLobbyRoomResult changePlayerReadinessResult)
         {
             _serverConnection.RunOnInterfaceIfCurrent(
@@ -280,8 +280,8 @@ namespace TLMG.Client.Communication
                 () => _serverConnection.NotifyReadinessResultReceived(changePlayerReadinessResult));
         }
 
-        /// <summary>Entrega el resultado de RequestMatchStart por el dispatcher de la interfaz.</summary>
-        /// <param name="result">Resultado recibido del servidor.</param>
+        /// <summary>Delivers the RequestMatchStart result through the UI dispatcher.</summary>
+        /// <param name="result">Result received from the server.</param>
         public void RequestMatchStartResult(OperationRequestMatchStartResult result)
         {
             _serverConnection.RunOnInterfaceIfCurrent(

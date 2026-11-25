@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using log4net;
@@ -6,6 +6,7 @@ using log4net;
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Authorization;
+using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
 using TLMG.Domain.Validators;
 using TLMG.Services.Sessions;
@@ -14,7 +15,6 @@ namespace TLMG.Services.Chat
 {
     public sealed class ChatService
     {
-        // TODO: Persist the game (R-12), so that messages are saved in the appropriate scope.
         private const ChatMessageScope PersistedChatScope = ChatMessageScope.Lobby;
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(ChatService));
@@ -32,8 +32,9 @@ namespace TLMG.Services.Chat
             _chatMessageRepository = chatMessageRepository;
             _sessionAuthorizer = sessionAuthorizer;
         }
+
         public ResultWithNotification<OperationResult> SubscribeToChat(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             IChatManagerCallback callback)
         {
             SessionAuthorization authorization = _sessionAuthorizer.Authorize(
@@ -46,10 +47,15 @@ namespace TLMG.Services.Chat
                 errorKey = _sessionRegistry.SubscribeToChat(caller, callback);
             }
 
+            if (errorKey != null && string.IsNullOrWhiteSpace(errorKey))
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
+
             OperationResult operationSubscribeToChatResult = new OperationResult
             {
                 IsSuccess = errorKey == null,
-                ErrorKey = errorKey
+                ErrorKey = errorKey == null ? string.Empty : errorKey
             };
             LogChatRejection(errorKey);
 
@@ -60,7 +66,7 @@ namespace TLMG.Services.Chat
         }
 
         public ResultWithNotification<OperationSendChatMessageResult> SendChatMessage(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             OperationSendChatMessageRequest sendChatMessageRequest)
         {
             string text = null;
@@ -96,6 +102,16 @@ namespace TLMG.Services.Chat
             }
 
             ResultWithNotification<OperationSendChatMessageResult> sendChatMessageResult;
+
+            if (errorKey == null && chatDelivery == null)
+            {
+                _log.Warn("La operación de chat aceptada no devolvió una entrega.");
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
+            else if (errorKey != null && string.IsNullOrWhiteSpace(errorKey))
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
 
             if (errorKey != null)
             {

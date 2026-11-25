@@ -10,15 +10,15 @@ namespace TLMG.Domain.Engine
         private const int OnlyCardIndex = 0;
 
         /// <summary>
-        /// Voltea la carta de arriba sin voltear de la pila de un jugador durante la resolución del reto. Primero se
-        /// voltea la pila propia del apostador y después elige el dueño antes de cada volteo. El reto termina al
-        /// alcanzar el número prometido (éxito) o al revelar un Gato sin vida extra (fallo). Si rechaza, nada cambia.
+        /// Reveals the top hidden card from a pile. The bidder reveals their own pile first, then chooses a pile owner
+        /// before every reveal. Reaching the bid succeeds. Revealing a Fatal Cat without an extra life fails. Rejection
+        /// leaves state unchanged.
         /// </summary>
-        /// <param name="playerId">Jugador que pide voltear; debe ser el apostador.</param>
-        /// <param name="pileOwnerId">Dueño de la pila de la que se voltea.</param>
-        /// <param name="nowUtc">Hora UTC del servidor; si el reto falla, de ella sale el plazo del castigo.</param>
-        /// <returns>Revealed, ChallengeSucceeded o ChallengeFailed; en otro caso, el motivo del rechazo.</returns>
-        /// <exception cref="ArgumentException">nowUtc no es una hora UTC.</exception>
+        /// <param name="playerId">Player requesting the reveal. Must be the bidder.</param>
+        /// <param name="pileOwnerId">Owner of the pile to reveal.</param>
+        /// <param name="nowUtc">Server time in UTC, used to set the punishment deadline if the challenge fails.</param>
+        /// <returns>Revealed, ChallengeSucceeded or ChallengeFailed, or the reason for rejection.</returns>
+        /// <exception cref="ArgumentException">nowUtc is not a UTC time.</exception>
         public ChallengeRevealStatus RevealCard(int playerId, int pileOwnerId, DateTime nowUtc)
         {
             ValidateUtc(nowUtc);
@@ -50,7 +50,9 @@ namespace TLMG.Domain.Engine
             return revealStatus;
         }
 
-        /// <summary>Cierra la resolución según su desenlace; mientras el reto continúa no cambia nada.</summary>
+        /// <summary>
+        /// Closes the challenge according to its outcome. A continuing challenge leaves state unchanged.
+        /// </summary>
         private void ApplyChallengeOutcome(ChallengeRevealStatus revealStatus, DateTime nowUtc)
         {
             if (revealStatus == ChallengeRevealStatus.ChallengeSucceeded)
@@ -64,9 +66,8 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Reto exitoso: suma un reto al apostador, le asigna la siguiente secuencia de éxito y todas las cartas
-        /// jugadas vuelven a las manos. Si llegó a los retos de la modalidad, la partida termina con su victoria; si
-        /// no, empieza la siguiente ronda.
+        /// On success, credits the bidder with a challenge and the next success sequence number. Returns played cards
+        /// to all hands. The bidder wins on reaching the mode's target. Otherwise the next round starts.
         /// </summary>
         private void CompleteChallengeSuccess()
         {
@@ -89,9 +90,9 @@ namespace TLMG.Domain.Engine
         }
 
         /// <summary>
-        /// Reto fallido: todas las cartas jugadas vuelven a las manos y empieza el castigo pendiente, con plazo de
-        /// PunishmentChoiceSeconds. Elige el dueño de la pila del Gato, a ciegas si no es el propio apostador. Si el
-        /// apostador tiene una sola vida no hay nada que elegir: la carta se elimina en la misma transición.
+        /// On failure, returns played cards to all hands and starts punishment with a PunishmentChoiceSeconds deadline.
+        /// The Fatal Cat's owner chooses blindly if they are not the bidder. A bidder with one life loses the card
+        /// immediately without a choice.
         /// </summary>
         private void CompleteChallengeFailure(DateTime nowUtc)
         {

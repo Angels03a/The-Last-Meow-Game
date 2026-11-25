@@ -4,8 +4,8 @@ using System.Linq;
 namespace TLMG.Domain.Engine
 {
     /// <summary>
-    /// Estado de un jugador en una partida: mano, pila de cartas colocadas, retos exitosos y vida extra. Solo el
-    /// motor lo modifica; Services lo consulta.
+    /// Player's hand, pile, successful challenges and extra life. Only the engine changes this state. Services reads
+    /// it.
     /// </summary>
     public sealed class MatchPlayer
     {
@@ -15,9 +15,9 @@ namespace TLMG.Domain.Engine
         private readonly List<CardKind> _handCards = new List<CardKind>();
         private readonly List<CardKind> _pileCards = new List<CardKind>();
 
-        /// <summary>Crea al jugador con la mano completa de la modalidad y la pila vacía.</summary>
-        /// <param name="playerId">Identificador del jugador en la partida.</param>
-        /// <param name="modeRules">Reglas de la modalidad, que fijan la composición de la mano.</param>
+        /// <summary>Creates a player with the full hand for this mode and an empty pile.</summary>
+        /// <param name="playerId">Player ID within the match.</param>
+        /// <param name="modeRules">Mode rules that determine the starting hand.</param>
         internal MatchPlayer(int playerId, MatchModeRules modeRules)
         {
             PlayerId = playerId;
@@ -28,63 +28,61 @@ namespace TLMG.Domain.Engine
             _handCards.AddRange(Enumerable.Repeat(CardKind.Safe, modeRules.SafeCardCount));
         }
 
-        /// <summary>Obtiene el identificador del jugador en la partida.</summary>
+        /// <summary>Player ID within the match.</summary>
         public int PlayerId { get; }
 
-        /// <summary>Obtiene las cartas sin colocar; solo su dueño puede verlas.</summary>
+        /// <summary>Unplayed cards, visible only to their owner.</summary>
         public IReadOnlyList<CardKind> HandCards { get; }
 
-        /// <summary>Obtiene las cartas colocadas, boca abajo, de la más antigua a la que queda arriba.</summary>
+        /// <summary>Placed cards, face down, from the oldest to the top card.</summary>
         public IReadOnlyList<CardKind> PileCards { get; }
 
-        /// <summary>Obtiene las vidas del jugador: las cartas de la mano más las de la pila.</summary>
+        /// <summary>Player's lives, equal to cards in hand plus cards in the pile.</summary>
         public int Lives => _handCards.Count + _pileCards.Count;
 
         /// <summary>
-        /// Obtiene si el jugador quedó eliminado: sus vidas llegaron a cero. Tener la mano vacía con cartas en la pila
-        /// no es eliminación.
+        /// Whether the player has zero lives. An empty hand with cards still in the pile does not eliminate the player.
         /// </summary>
         public bool IsEliminated => Lives == NoLives;
 
         /// <summary>
-        /// Obtiene la salida del jugador de la partida (abandono, desconexión no recuperada o votación), o null
-        /// mientras sigue en ella.
+        /// Player's exit after leaving voluntarily, failing to reconnect or being voted out. Null while still in the
+        /// match.
         /// </summary>
         public PlayerExit Exit { get; internal set; }
 
-        /// <summary>Obtiene si el jugador salió de la partida; sigue en Players, pero ya no participa.</summary>
+        /// <summary>Whether the player left. They stay in Players but can no longer take part.</summary>
         public bool HasLeftMatch => Exit != null;
 
-        /// <summary>Obtiene si el jugador sigue en juego: ni eliminado ni salido de la partida.</summary>
+        /// <summary>Whether the player is still active, having neither left nor been eliminated.</summary>
         public bool IsInPlay => !IsEliminated && !HasLeftMatch;
 
-        /// <summary>Obtiene si el jugador se retiró de la apuesta en curso y ya no participa en ella.</summary>
+        /// <summary>Whether the player folded and is out of the current bidding round.</summary>
         public bool HasWithdrawnFromBet { get; internal set; }
 
         /// <summary>
-        /// Obtiene cuántas cartas de la pila, contadas desde arriba, ya se voltearon en la resolución en curso; es 0
-        /// fuera de una resolución.
+        /// Number of pile cards revealed from the top in the current challenge, or 0 outside a challenge.
         /// </summary>
         public int RevealedCardCount { get; private set; }
 
-        /// <summary>Obtiene los retos exitosos del jugador.</summary>
+        /// <summary>Player's successful challenges.</summary>
         public int SuccessfulChallengeCount { get; internal set; }
 
         /// <summary>
-        /// Obtiene la secuencia del último reto exitoso del jugador en la partida, o 0 si no tiene ninguno. Una
-        /// secuencia menor indica que alcanzó antes su número actual de retos (Reglas 5.0.4).
+        /// Sequence number of the player's latest success, or 0 without a success. A lower number means they reached
+        /// their current challenge count earlier (Rule 5.0.4).
         /// </summary>
         public int LastSuccessfulChallengeSequence { get; internal set; }
 
-        /// <summary>Obtiene si el jugador conserva su vida extra; solo existe en la modalidad de 8 cartas.</summary>
+        /// <summary>Whether the player still has the extra life available only in eight-card mode.</summary>
         public bool HasExtraLife { get; internal set; }
 
-        /// <summary>Obtiene las cartas de la pila que todavía están boca abajo.</summary>
+        /// <summary>Face-down cards remaining in the pile.</summary>
         internal int UnrevealedCardCount => _pileCards.Count - RevealedCardCount;
 
-        /// <summary>Quita la carta de la mano y la deja arriba de la pila, si la mano la contiene.</summary>
-        /// <param name="card">Tipo de carta que se coloca.</param>
-        /// <returns>true si la carta se colocó; false si la mano no la tiene.</returns>
+        /// <summary>Moves a card from the hand to the top of the pile if the hand contains it.</summary>
+        /// <param name="card">Card type to place.</param>
+        /// <returns>True if placed, false if the hand has no such card.</returns>
         internal bool TryPlaceCard(CardKind card)
         {
             bool wasPlaced = _handCards.Remove(card);
@@ -97,8 +95,8 @@ namespace TLMG.Domain.Engine
             return wasPlaced;
         }
 
-        /// <summary>Voltea la carta de arriba que sigue boca abajo; la pila no debe estar toda volteada.</summary>
-        /// <returns>El tipo de la carta volteada.</returns>
+        /// <summary>Reveals the top hidden card. The pile must have a hidden card left.</summary>
+        /// <returns>Type of card revealed.</returns>
         internal CardKind RevealTopCard()
         {
             CardKind revealedCard = _pileCards[UnrevealedCardCount - LastIndexOffset];
@@ -107,9 +105,9 @@ namespace TLMG.Domain.Engine
             return revealedCard;
         }
 
-        /// <summary>Quita para siempre una carta de la mano; el índice debe ser válido.</summary>
-        /// <param name="handIndex">Índice de la carta en la mano.</param>
-        /// <returns>El tipo de la carta quitada.</returns>
+        /// <summary>Permanently removes a hand card at a valid index.</summary>
+        /// <param name="handIndex">Card index in the hand.</param>
+        /// <returns>Type of card removed.</returns>
         internal CardKind RemoveHandCardAt(int handIndex)
         {
             CardKind removedCard = _handCards[handIndex];
@@ -118,7 +116,7 @@ namespace TLMG.Domain.Engine
             return removedCard;
         }
 
-        /// <summary>Devuelve a la mano las cartas de la pila y la deja vacía y sin cartas volteadas.</summary>
+        /// <summary>Returns the pile to the hand, leaving an empty pile and no revealed cards.</summary>
         internal void ReturnPileToHand()
         {
             _handCards.AddRange(_pileCards);

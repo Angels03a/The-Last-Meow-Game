@@ -3,28 +3,28 @@
 namespace TLMG.Contracts.DataContracts
 {
     /// <summary>
-    /// Datos de un jugador en la tabla de posiciones.
+    /// Player details shown on the leaderboard.
     /// </summary>
     [DataContract]
     public class LeaderboardPlayer
     {
-        /// <summary>Nickname del jugador.</summary>
+        /// <summary>Player's nickname.</summary>
         [DataMember]
         public string Nickname { get; set; }
 
-        /// <summary>Imagen de perfil del jugador; puede ser null.</summary>
+        /// <summary>Player's profile image, which may be null.</summary>
         [DataMember]
         public string ProfileImage { get; set; }
 
-        /// <summary>Puntos totales acumulados.</summary>
+        /// <summary>Total accumulated points.</summary>
         [DataMember]
         public int TotalPoints { get; set; }
 
-        /// <summary>Partidas ganadas.</summary>
+        /// <summary>Matches won.</summary>
         [DataMember]
         public int TotalWins { get; set; }
 
-        /// <summary>Partidas jugadas.</summary>
+        /// <summary>Matches played.</summary>
         [DataMember]
         public int TotalGamesPlayed { get; set; }
     }

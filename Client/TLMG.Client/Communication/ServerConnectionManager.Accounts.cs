@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.ServiceModel;
+using System.Windows;
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
@@ -23,21 +24,23 @@ namespace TLMG.Client.Communication
                 client => client.LogOut(_sessionToken), "cerrar sesión",
                 "MainMenu_LogOutUnconfirmed", "MainMenu_LogOutUnconfirmed");
 
+            NormalizeAccountResult(result, "MainMenu_LogOutUnconfirmed");
+
             if (!result.IsSuccess && result.ErrorKey == "MainMenu_LogOutUnconfirmed")
             {
                 OperationResult validity = SendUsersManagerRequest(
                     client => client.CheckSession(_sessionToken), "comprobar el cierre de sesión",
                     "MainMenu_LogOutUnconfirmed", "MainMenu_LogOutUnconfirmed");
-                if (validity.ErrorKey == "Common_InvalidSessionError")
+                if (!validity.IsSuccess && validity.ErrorKey == "Common_InvalidSessionError")
                 {
-                    result = new LogOutResult { IsSuccess = true };
+                    result = new LogOutResult { IsSuccess = true, ErrorKey = string.Empty };
                 }
             }
 
             if (result.IsSuccess || result.ErrorKey == "Common_InvalidSessionError")
             {
                 Disconnect();
-                result = new LogOutResult { IsSuccess = true };
+                result = new LogOutResult { IsSuccess = true, ErrorKey = string.Empty };
             }
 
             return result;
@@ -57,6 +60,8 @@ namespace TLMG.Client.Communication
                 LogInConnectionErrorKey,
                 LogInUnexpectedErrorKey);
 
+            NormalizeAccountResult(operationLogInResult, LogInUnexpectedErrorKey);
+
             if (operationLogInResult.IsSuccess)
             {
                 operationLogInResult = StartSessionFromLogIn(operationLogInResult);
@@ -68,6 +73,7 @@ namespace TLMG.Client.Communication
         public OperationLogInResult StartGuestSession()
         {
             OperationLogInResult guestResult = SendGuestSessionRequest();
+            NormalizeAccountResult(guestResult, LogInUnexpectedErrorKey);
 
             if (guestResult.IsSuccess)
             {
@@ -86,6 +92,7 @@ namespace TLMG.Client.Communication
                 RegistrationConnectionErrorKey,
                 RegistrationUnexpectedErrorKey);
 
+            NormalizeAccountResult(operationRegisterPlayerAccountResult, RegistrationUnexpectedErrorKey);
             return operationRegisterPlayerAccountResult;
         }
 
@@ -101,6 +108,7 @@ namespace TLMG.Client.Communication
                 RegistrationConnectionErrorKey,
                 RegistrationUnexpectedErrorKey);
 
+            NormalizeAccountResult(operationResult, RegistrationUnexpectedErrorKey);
             return operationResult;
         }
 
@@ -116,6 +124,7 @@ namespace TLMG.Client.Communication
                 RegistrationConnectionErrorKey,
                 RegistrationUnexpectedErrorKey);
 
+            NormalizeAccountResult(operationResult, RegistrationUnexpectedErrorKey);
             return operationResult;
         }
 
@@ -127,6 +136,7 @@ namespace TLMG.Client.Communication
                 RegistrationConnectionErrorKey,
                 RegistrationUnexpectedErrorKey);
 
+            NormalizeAccountResult(operationResult, RegistrationUnexpectedErrorKey);
             return operationResult;
         }
 
@@ -222,7 +232,7 @@ namespace TLMG.Client.Communication
                 if (recoveryRequest)
                 {
                     OpenConnection(usersClient);
-                    var channel = usersClient.InnerChannel;
+                    IClientChannel channel = usersClient.InnerChannel;
                     ResultType result = null;
                     SendConnectionRequest(channel, () => result = sendRequest(usersClient));
                     sendUsersManagerResult = result;
@@ -278,6 +288,29 @@ namespace TLMG.Client.Communication
             }
 
             return sendUsersManagerResult;
+        }
+
+        private static void NormalizeAccountResult(OperationResult result, string unexpectedErrorKey)
+        {
+            if (result.IsSuccess)
+            {
+                if (string.IsNullOrEmpty(result.ErrorKey))
+                {
+                    result.ErrorKey = string.Empty;
+                }
+                else
+                {
+                    _log.Warn("El servidor devolvió un resultado de cuenta inconsistente.");
+                    result.IsSuccess = false;
+                    result.ErrorKey = unexpectedErrorKey;
+                }
+            }
+            else if (string.IsNullOrWhiteSpace(result.ErrorKey)
+                || (Application.Current != null && !(Application.Current.TryFindResource(result.ErrorKey) is string)))
+            {
+                _log.Warn("El servidor devolvió una clave de error de cuenta inválida.");
+                result.ErrorKey = unexpectedErrorKey;
+            }
         }
     }
 }

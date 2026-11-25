@@ -5,13 +5,13 @@ using TLMG.Contracts.DataContracts;
 namespace TLMG.Contracts
 {
     /// <summary>
-    /// Callback con el que el servidor entrega la tabla de posiciones; lo implementa el cliente.
+    /// Client callback used by the server to deliver the leaderboard.
     /// </summary>
     [ServiceContract]
     public interface ILeaderboardManagerCallback
     {
-        /// <summary>Entrega la tabla de posiciones al cliente.</summary>
-        /// <param name="operationGetLeaderboardResult">Resultado con los jugadores o la clave de error.</param>
+        /// <summary>Delivers the leaderboard to the client.</summary>
+        /// <param name="operationGetLeaderboardResult">Players returned by the server, or an error key.</param>
         [OperationContract(IsOneWay = true)]
         void GetLeaderboardResult(OperationGetLeaderboardResult operationGetLeaderboardResult);
     }

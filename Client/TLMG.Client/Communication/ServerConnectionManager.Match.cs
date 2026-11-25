@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.ServiceModel;
 
@@ -6,6 +6,10 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
 {
+    /// <summary>
+    /// Manages the match channel. Closing it or losing it clears only that channel. The player stays in the room and
+    /// keeps the session.
+    /// </summary>
     internal sealed partial class ServerConnectionManager : IMatchConnection
     {
         private MatchManagerClient _matchClient;
@@ -16,28 +20,38 @@ namespace TLMG.Client.Communication
         private MatchView _pendingMatchView;
         private readonly Stopwatch _matchViewAge = new Stopwatch();
 
+        /// <inheritdoc />
         public event EventHandler<ServerEventArgs<MatchView>> MatchViewChanged;
 
+        /// <inheritdoc />
         public event EventHandler<ServerEventArgs<string>> MatchErrorReceived;
 
+        /// <inheritdoc />
         public event EventHandler<ServerEventArgs<OperationResult>> FugitiveKittenCatchResultReceived;
 
+        /// <inheritdoc />
         public event EventHandler<ServerEventArgs<OperationResult>> FugitiveKittenDeadlineResultReceived;
 
+        /// <inheritdoc />
         public event EventHandler MatchAvailabilityChanged;
 
+        /// <inheritdoc />
         public bool IsMatchSubscribed { get; private set; }
 
+        /// <inheritdoc />
         public bool CanSendGameplayAction => IsMatchSubscribed
             && !IsMatchRecoveryPending
             && !IsMatchRecoveryExhausted
             && CurrentMatchView != null
             && CurrentRoom?.MatchId == CurrentMatchView.MatchId;
 
+        /// <inheritdoc />
         public MatchView CurrentMatchView { get; private set; }
 
+        /// <inheritdoc />
         public TimeSpan CurrentMatchViewAge => _matchViewAge.Elapsed;
 
+        /// <inheritdoc />
         public bool SubscribeToCurrentMatch()
         {
             bool wasSubscriptionSent = false;
@@ -63,6 +77,7 @@ namespace TLMG.Client.Communication
             return wasSubscriptionSent;
         }
 
+        /// <inheritdoc />
         public bool TryCatchFugitiveKitten()
         {
             bool wasSent = false;
@@ -77,6 +92,7 @@ namespace TLMG.Client.Communication
             return wasSent;
         }
 
+        /// <inheritdoc />
         public bool CheckFugitiveKittenDeadline()
         {
             bool wasSent = false;
@@ -91,6 +107,7 @@ namespace TLMG.Client.Communication
             return wasSent;
         }
 
+        /// <inheritdoc />
         public bool PlaceCard(MatchCardKind cardKind)
         {
             bool wasCardSent = false;
@@ -105,6 +122,7 @@ namespace TLMG.Client.Communication
             return wasCardSent;
         }
 
+        /// <inheritdoc />
         public bool PlaceBet(int betValue)
         {
             bool wasSent = false;
@@ -119,6 +137,7 @@ namespace TLMG.Client.Communication
             return wasSent;
         }
 
+        /// <inheritdoc />
         public bool WithdrawFromBet()
         {
             bool wasSent = false;
@@ -133,6 +152,7 @@ namespace TLMG.Client.Communication
             return wasSent;
         }
 
+        /// <inheritdoc />
         public bool RevealCard(int pileOwnerUserId)
         {
             bool wasSent = false;
@@ -147,6 +167,7 @@ namespace TLMG.Client.Communication
             return wasSent;
         }
 
+        /// <inheritdoc />
         public bool ChoosePunishmentCard(int cardIndex)
         {
             bool wasSent = false;
@@ -163,8 +184,9 @@ namespace TLMG.Client.Communication
 
         internal void NotifyMatchSubscriptionResult(ServerCallback callback, OperationResult subscriptionResult)
         {
-            if (IsCurrentMatchCallback(callback) && subscriptionResult != null && IsMatchSubscriptionPending())
+            if (IsCurrentMatchCallback(callback) && IsMatchSubscriptionPending())
             {
+                subscriptionResult = NormalizeOperationResult(subscriptionResult);
                 if (subscriptionResult.IsSuccess)
                 {
                     _matchSubscriptionAccepted = true;
@@ -179,16 +201,21 @@ namespace TLMG.Client.Communication
 
         internal void NotifyMatchActionResult(ServerCallback callback, OperationResult actionResult)
         {
-            if (IsCurrentMatchCallback(callback) && actionResult != null && !actionResult.IsSuccess)
+            if (IsCurrentMatchCallback(callback))
             {
-                MatchErrorReceived?.Invoke(this, new ServerEventArgs<string>(actionResult.ErrorKey));
+                actionResult = NormalizeOperationResult(actionResult);
+                if (!actionResult.IsSuccess)
+                {
+                    MatchErrorReceived?.Invoke(this, new ServerEventArgs<string>(actionResult.ErrorKey));
+                }
             }
         }
 
         internal void NotifyFugitiveKittenResult(ServerCallback callback, OperationResult result, bool isCatch)
         {
-            if (IsCurrentMatchCallback(callback) && result != null)
+            if (IsCurrentMatchCallback(callback))
             {
+                result = NormalizeOperationResult(result);
                 ServerEventArgs<OperationResult> eventArgs = new ServerEventArgs<OperationResult>(result);
                 if (isCatch)
                 {
@@ -376,6 +403,10 @@ namespace TLMG.Client.Communication
             RunOnInterface(() => CloseMatchChannelIfCurrent(sender));
         }
 
+        /// <summary>
+        /// Clears the match channel only if the channel that ended is still current. Unlike the friends and lobby
+        /// channels, this leaves the session open and does not raise ConnectionLost.
+        /// </summary>
         private void CloseMatchChannelIfCurrent(object channel)
         {
             if (_matchChannel != null && ReferenceEquals(channel, _matchChannel))

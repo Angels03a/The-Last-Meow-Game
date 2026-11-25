@@ -8,9 +8,9 @@ using TLMG.Domain.Engine;
 namespace TLMG.Domain.Tests
 {
     /// <summary>
-    /// Pruebas de la salida de jugadores en MatchState (Reglas 4.0.6, 2.0.2 y No. 9b): reinicio de la ronda en curso,
-    /// contador de rondas, victoria del último en juego, rechazos sin cambio de estado y acciones de quien salió. Los
-    /// números de ronda de los escenarios son narrativa: se afirma "ronda anterior + 1".
+    /// Tests exits in MatchState under Rules 4.0.6, 2.0.2 and No. 9b, including round restart and count, last-player
+    /// victory, unchanged state on rejection and actions by players who left. Scenario round numbers illustrate the
+    /// sequence. The expected number is the previous round plus one.
     /// </summary>
     public class MatchStateExitTests
     {
@@ -39,11 +39,11 @@ namespace TLMG.Domain.Tests
         private static readonly DateTime _startUtc = new DateTime(2026, 11, 20, 12, 0, 0, DateTimeKind.Utc);
         private static readonly Func<int, int> _pickFirstCard = cardCount => FirstCardIndex;
 
-        /// <summary>Verifica RemovePlayer_ScenarioE61BetLeaderLeavesBeforeRevealing_RestartsRoundOpenedByA.</summary>
+        /// <summary>Checks RemovePlayer_ScenarioE61BetLeaderLeavesBeforeRevealing_RestartsRoundOpenedByA.</summary>
         [Fact]
         public void RemovePlayer_ScenarioE61BetLeaderLeavesBeforeRevealing_RestartsRoundOpenedByA()
         {
-            // Arrange: E6-1; A abre 2, B sube a 3, C, D y A se retiran: B queda con el reto listo.
+            // Arrange: In E6-1, A opens at 2 and B raises to 3. C, D and A fold, leaving B ready for the challenge.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             PlaceAllInTurnOrder(match);
             match.OpenBet(PlayerAId, TwoCardBet);
@@ -63,11 +63,11 @@ namespace TLMG.Domain.Tests
             AssertFullHandsWithoutChallenges(match, PlayerAId, PlayerCId, PlayerDId);
         }
 
-        /// <summary>Verifica RemovePlayer_ScenarioE61VariantDuringPlacement_RestartsRoundOpenedByA.</summary>
+        /// <summary>Checks RemovePlayer_ScenarioE61VariantDuringPlacement_RestartsRoundOpenedByA.</summary>
         [Fact]
         public void RemovePlayer_ScenarioE61VariantDuringPlacement_RestartsRoundOpenedByA()
         {
-            // Arrange: la variante de E6-1: B se va durante la colocación, sin apuesta abierta.
+            // Arrange: E6-1 variant. B leaves during placement before bidding opens.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             match.PlaceCard(PlayerAId, SafeCard);
             match.PlaceCard(PlayerBId, SafeCard);
@@ -83,11 +83,11 @@ namespace TLMG.Domain.Tests
             AssertFullHandsWithoutChallenges(match, PlayerAId, PlayerCId, PlayerDId);
         }
 
-        /// <summary>Verifica RemovePlayer_ScenarioE63FirstPlayerLeavesInTurn_RestartsRoundOpenedByB.</summary>
+        /// <summary>Checks RemovePlayer_ScenarioE63FirstPlayerLeavesInTurn_RestartsRoundOpenedByB.</summary>
         [Fact]
         public void RemovePlayer_ScenarioE63FirstPlayerLeavesInTurn_RestartsRoundOpenedByB()
         {
-            // Arrange: E6-3; A, B, C y D colocan una segura y A sale en su turno.
+            // Arrange: In E6-3, A, B, C and D place safe cards. A leaves on their turn.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             PlaceAllInTurnOrder(match);
             int previousRoundNumber = match.RoundNumber;
@@ -104,11 +104,11 @@ namespace TLMG.Domain.Tests
                 playerId => Assert.Equal(FourLives, GetPlayer(match, playerId).HandCards.Count));
         }
 
-        /// <summary>Verifica PlaceCard_AfterFirstPlayerLeft_SkipsHimInTurnOrder.</summary>
+        /// <summary>Checks PlaceCard_AfterFirstPlayerLeft_SkipsHimInTurnOrder.</summary>
         [Fact]
         public void PlaceCard_AfterFirstPlayerLeft_SkipsHimInTurnOrder()
         {
-            // Arrange: E6-3 continúa; el orden queda B, C, D.
+            // Arrange: E6-3 continues with B, C, D in turn order.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             PlaceAllInTurnOrder(match);
             LeaveNow(match, PlayerAId);
@@ -122,7 +122,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(PlayerBId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Verifica WithdrawFromBet_AfterFirstPlayerLeft_SkipsHimAmongBettors.</summary>
+        /// <summary>Checks WithdrawFromBet_AfterFirstPlayerLeft_SkipsHimAmongBettors.</summary>
         [Fact]
         public void WithdrawFromBet_AfterFirstPlayerLeft_SkipsHimAmongBettors()
         {
@@ -142,11 +142,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(PlayerBId, match.BetLeader.PlayerId);
         }
 
-        /// <summary>Verifica RemovePlayer_DuringHalfRevealedChallenge_DiscardsRevealedCardsAndRestarts.</summary>
+        /// <summary>Checks RemovePlayer_DuringHalfRevealedChallenge_DiscardsRevealedCardsAndRestarts.</summary>
         [Fact]
         public void RemovePlayer_DuringHalfRevealedChallenge_DiscardsRevealedCardsAndRestarts()
         {
-            // Arrange: A apuesta 2 y voltea su carta; falta una cuando C sale.
+            // Arrange: A bids 2 and reveals their card. One reveal remains when C leaves.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             PlaceAllInTurnOrder(match);
             OpenAndConcede(match, TwoCardBet);
@@ -164,11 +164,11 @@ namespace TLMG.Domain.Tests
             AssertRestartedRound(match, PlayerAId);
         }
 
-        /// <summary>Verifica RemovePlayer_AtRoundStartWithEmptyTable_RestartsAndCountsOneRound.</summary>
+        /// <summary>Checks RemovePlayer_AtRoundStartWithEmptyTable_RestartsAndCountsOneRound.</summary>
         [Fact]
         public void RemovePlayer_AtRoundStartWithEmptyTable_RestartsAndCountsOneRound()
         {
-            // Arrange: H-17; la ronda está activa aunque nadie haya colocado.
+            // Arrange: In H-17 the round is active before anyone places a card.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
 
             // Act
@@ -180,11 +180,11 @@ namespace TLMG.Domain.Tests
             AssertRestartedRound(match, PlayerAId);
         }
 
-        /// <summary>Verifica RemovePlayer_ScenarioE64SecondLeaveLeavesOnePlayer_FinishesWithoutNewRound.</summary>
+        /// <summary>Checks RemovePlayer_ScenarioE64SecondLeaveLeavesOnePlayer_FinishesWithoutNewRound.</summary>
         [Fact]
         public void RemovePlayer_ScenarioE64SecondLeaveLeavesOnePlayer_FinishesWithoutNewRound()
         {
-            // Arrange: E6-4; B sale y la ronda se reinicia; durante esa ronda A coloca y C sale.
+            // Arrange: In E6-4, B leaves and the round restarts. A places a card and C leaves during that round.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             LeaveNow(match, PlayerBId);
             match.PlaceCard(PlayerAId, SafeCard);
@@ -200,11 +200,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(previousRoundNumber, match.RoundNumber);
         }
 
-        /// <summary>Verifica RemovePlayer_LastLeaveWithOpenBet_FinishesWithCleanRoundState.</summary>
+        /// <summary>Checks RemovePlayer_LastLeaveWithOpenBet_FinishesWithCleanRoundState.</summary>
         [Fact]
         public void RemovePlayer_LastLeaveWithOpenBet_FinishesWithCleanRoundState()
         {
-            // Arrange: F-01; C sale, A y B colocan, A abre una apuesta y B sale con la apuesta activa.
+            // Arrange: In F-01, C leaves, A and B place cards, A opens and B leaves during bidding.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             LeaveNow(match, PlayerCId);
             PlaceAllInTurnOrder(match);
@@ -227,11 +227,11 @@ namespace TLMG.Domain.Tests
             Assert.Null(match.Resolution);
         }
 
-        /// <summary>Verifica Actions_AfterMatchFinishedByLeave_AreRejectedWithExistingStatuses.</summary>
+        /// <summary>Checks Actions_AfterMatchFinishedByLeave_AreRejectedWithExistingStatuses.</summary>
         [Fact]
         public void Actions_AfterMatchFinishedByLeave_AreRejectedWithExistingStatuses()
         {
-            // Arrange: la partida terminó por salidas; PlayerInTurn ya no tiene significado.
+            // Arrange: Exits ended the match. PlayerInTurn no longer identifies an active turn.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             LeaveNow(match, PlayerCId);
             Assert.Equal(PlayerExitStatus.MatchFinished, LeaveNow(match, PlayerBId));
@@ -253,11 +253,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeActions, DescribeMatch(match));
         }
 
-        /// <summary>Verifica RemovePlayer_WhenExtraLifeWasConsumedInRound_KeepsItConsumed.</summary>
+        /// <summary>Checks RemovePlayer_WhenExtraLifeWasConsumedInRound_KeepsItConsumed.</summary>
         [Fact]
         public void RemovePlayer_WhenExtraLifeWasConsumedInRound_KeepsItConsumed()
         {
-            // Arrange: H-15; A con vida extra voltea su propio Gato, la vida extra lo absorbe y luego B sale.
+            // Arrange: In H-15, A's extra life absorbs their own revealed Fatal Cat, then B leaves.
             MatchState match = CreateMatch(EightCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             match.GrantExtraLife(PlayerAId);
             match.PlaceCard(PlayerAId, FatalCatCard);
@@ -275,12 +275,12 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Verifica RemovePlayer_ScenarioE55cEliminatedPlayerLeaves_ReturnsEliminatedPlayerLeftWithoutChange.
+        /// Checks RemovePlayer_ScenarioE55cEliminatedPlayerLeaves_ReturnsEliminatedPlayerLeftWithoutChange.
         /// </summary>
         [Fact]
         public void RemovePlayer_ScenarioE55cEliminatedPlayerLeaves_ReturnsEliminatedPlayerLeftWithoutChange()
         {
-            // Arrange: E5-5c; C quedó eliminado y en una ronda posterior, con cartas en la mesa, pulsa Salir.
+            // Arrange: In E5-5c, C is eliminated and chooses to leave in a later round with cards on the table.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             EliminateOnOwnCat(match, PlayerCId);
             match.PlaceCard(PlayerAId, SafeCard);
@@ -297,7 +297,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeExit, DescribeMatch(match));
         }
 
-        /// <summary>Verifica RemovePlayer_WhenPlayerAlreadyLeft_ReturnsPlayerAlreadyLeftWithoutChange.</summary>
+        /// <summary>Checks RemovePlayer_WhenPlayerAlreadyLeft_ReturnsPlayerAlreadyLeftWithoutChange.</summary>
         [Fact]
         public void RemovePlayer_WhenPlayerAlreadyLeft_ReturnsPlayerAlreadyLeftWithoutChange()
         {
@@ -315,7 +315,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeExit, DescribeMatch(match));
         }
 
-        /// <summary>Verifica RemovePlayer_WithUnknownPlayer_ReturnsPlayerNotInMatchWithoutChange.</summary>
+        /// <summary>Checks RemovePlayer_WithUnknownPlayer_ReturnsPlayerNotInMatchWithoutChange.</summary>
         [Fact]
         public void RemovePlayer_WithUnknownPlayer_ReturnsPlayerNotInMatchWithoutChange()
         {
@@ -332,15 +332,15 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeExit, DescribeMatch(match));
         }
 
-        /// <summary>Verifica RemovePlayer_AfterMatchFinished_ReturnsMatchAlreadyFinishedWithoutChange.</summary>
-        /// <param name="playerId">Jugador que intenta salir: uno en juego, el que ya salió o uno ajeno.</param>
+        /// <summary>Checks RemovePlayer_AfterMatchFinished_ReturnsMatchAlreadyFinishedWithoutChange.</summary>
+        /// <param name="playerId">Player trying to leave, whether active, already gone or outside the match.</param>
         [Theory]
         [InlineData(PlayerAId)]
         [InlineData(PlayerCId)]
         [InlineData(UnknownPlayerId)]
         public void RemovePlayer_AfterMatchFinished_ReturnsMatchAlreadyFinishedWithoutChange(int playerId)
         {
-            // Arrange: B y C salieron y A ganó.
+            // Arrange: B and C left and A won.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             LeaveNow(match, PlayerBId);
             LeaveNow(match, PlayerCId);
@@ -354,7 +354,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeExit, DescribeMatch(match));
         }
 
-        /// <summary>Verifica RemovePlayer_WithNullExit_ThrowsArgumentNullExceptionWithoutChange.</summary>
+        /// <summary>Checks RemovePlayer_WithNullExit_ThrowsArgumentNullExceptionWithoutChange.</summary>
         [Fact]
         public void RemovePlayer_WithNullExit_ThrowsArgumentNullExceptionWithoutChange()
         {
@@ -371,7 +371,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeExit, DescribeMatch(match));
         }
 
-        /// <summary>Verifica RemovePlayer_WithNullRandomSelector_ThrowsArgumentNullExceptionWithoutChange.</summary>
+        /// <summary>Checks RemovePlayer_WithNullRandomSelector_ThrowsArgumentNullExceptionWithoutChange.</summary>
         [Fact]
         public void RemovePlayer_WithNullRandomSelector_ThrowsArgumentNullExceptionWithoutChange()
         {
@@ -388,11 +388,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeExit, DescribeMatch(match));
         }
 
-        /// <summary>Verifica ActionsOfPlayerWhoLeft_InPlacementAndBetting_ReturnPlayerNotInMatch.</summary>
+        /// <summary>Checks ActionsOfPlayerWhoLeft_InPlacementAndBetting_ReturnPlayerNotInMatch.</summary>
         [Fact]
         public void ActionsOfPlayerWhoLeft_InPlacementAndBetting_ReturnPlayerNotInMatch()
         {
-            // Arrange: B salió; la ronda reiniciada ya tiene una apuesta abierta por A.
+            // Arrange: B left. A opened bidding in the restarted round.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             LeaveNow(match, PlayerBId);
             CardPlacementStatus placementStatus = match.PlaceCard(PlayerBId, SafeCard);
@@ -413,11 +413,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeActions, DescribeMatch(match));
         }
 
-        /// <summary>Verifica RevealCard_ByOrOnPlayerWhoLeft_ReturnsNotInMatchStatuses.</summary>
+        /// <summary>Checks RevealCard_ByOrOnPlayerWhoLeft_ReturnsNotInMatchStatuses.</summary>
         [Fact]
         public void RevealCard_ByOrOnPlayerWhoLeft_ReturnsNotInMatchStatuses()
         {
-            // Arrange: D salió; A apuesta 2 con el reto listo.
+            // Arrange: D left. A bid 2 and the challenge is ready.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             LeaveNow(match, PlayerDId);
             PlaceAllInTurnOrder(match);
@@ -435,11 +435,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeReveals, DescribeMatch(match));
         }
 
-        /// <summary>Verifica PunishmentActions_ByPlayerWhoLeft_ReturnPlayerNotInMatch.</summary>
+        /// <summary>Checks PunishmentActions_ByPlayerWhoLeft_ReturnPlayerNotInMatch.</summary>
         [Fact]
         public void PunishmentActions_ByPlayerWhoLeft_ReturnPlayerNotInMatch()
         {
-            // Arrange: D salió antes; luego A falla con el Gato de B.
+            // Arrange: D left earlier. A then failed on B's Fatal Cat.
             MatchState match = CreateMatch(FourCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             LeaveNow(match, PlayerDId);
             FailOnCatOfB(match);
@@ -457,11 +457,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(matchBeforeActions, DescribeMatch(match));
         }
 
-        /// <summary>Verifica GrantExtraLife_ToPlayerWhoLeftBeforeAnyCard_ReturnsPlayerNotInMatch.</summary>
+        /// <summary>Checks GrantExtraLife_ToPlayerWhoLeftBeforeAnyCard_ReturnsPlayerNotInMatch.</summary>
         [Fact]
         public void GrantExtraLife_ToPlayerWhoLeftBeforeAnyCard_ReturnsPlayerNotInMatch()
         {
-            // Arrange: modalidad de 8; B sale antes de que alguien coloque.
+            // Arrange: In eight-card mode, B leaves before anyone places a card.
             MatchState match = CreateMatch(EightCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             LeaveNow(match, PlayerBId);
 
@@ -473,7 +473,7 @@ namespace TLMG.Domain.Tests
             Assert.False(GetPlayer(match, PlayerBId).HasExtraLife);
         }
 
-        /// <summary>Verifica RoundNumber_WhenMatchStarts_IsOne.</summary>
+        /// <summary>Checks RoundNumber_WhenMatchStarts_IsOne.</summary>
         [Fact]
         public void RoundNumber_WhenMatchStarts_IsOne()
         {
@@ -487,7 +487,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FirstRoundNumber, match.RoundNumber);
         }
 
-        /// <summary>Verifica RevealCard_WhenChallengeSucceeds_CountsOneRound.</summary>
+        /// <summary>Checks RevealCard_WhenChallengeSucceeds_CountsOneRound.</summary>
         [Fact]
         public void RevealCard_WhenChallengeSucceeds_CountsOneRound()
         {
@@ -501,11 +501,11 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FirstRoundNumber + OneRound, match.RoundNumber);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_AfterFailedChallenge_CountsOneRoundOnly.</summary>
+        /// <summary>Checks ChoosePunishmentCard_AfterFailedChallenge_CountsOneRoundOnly.</summary>
         [Fact]
         public void ChoosePunishmentCard_AfterFailedChallenge_CountsOneRoundOnly()
         {
-            // Arrange: el reto fallido deja el castigo pendiente sin contar todavía la ronda.
+            // Arrange: The failed challenge leaves punishment pending and the round count unchanged for now.
             MatchState match = CreateMatchWithBlindPunishment();
             int roundNumberWithPunishment = match.RoundNumber;
 
@@ -517,7 +517,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FirstRoundNumber + OneRound, match.RoundNumber);
         }
 
-        /// <summary>Verifica RemovePlayer_FirstPlayerLeavesTwice_CountsOneRoundOnly.</summary>
+        /// <summary>Checks RemovePlayer_FirstPlayerLeavesTwice_CountsOneRoundOnly.</summary>
         [Fact]
         public void RemovePlayer_FirstPlayerLeavesTwice_CountsOneRoundOnly()
         {
@@ -532,7 +532,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(FirstRoundNumber + OneRound, match.RoundNumber);
         }
 
-        /// <summary>Cada jugador en juego, empezando por quien tiene el turno, coloca una segura.</summary>
+        /// <summary>Each active player places a safe card, starting with the current player.</summary>
         private static void PlaceAllInTurnOrder(MatchState match)
         {
             int firstPlayerId = match.PlayerInTurn.PlayerId;
@@ -540,7 +540,9 @@ namespace TLMG.Domain.Tests
             PlaceSafeCardsUntilTurnOf(match, firstPlayerId);
         }
 
-        /// <summary>A coloca una segura, B su Gato y los demás una segura; A apuesta 2 y falla con el de B.</summary>
+        /// <summary>
+        /// A places a safe card, B their Fatal Cat and the others safe cards. A bids 2 and fails on B's cat.
+        /// </summary>
         private static void FailOnCatOfB(MatchState match)
         {
             match.PlaceCard(PlayerAId, SafeCard);
@@ -559,7 +561,7 @@ namespace TLMG.Domain.Tests
             return match;
         }
 
-        /// <summary>Comprueba la ronda reiniciada: colocando, sin apuesta, mesa vacía y el turno indicado.</summary>
+        /// <summary>Checks the restarted round for placement, no bid, an empty table and the expected turn.</summary>
         private static void AssertRestartedRound(MatchState match, int openingPlayerId)
         {
             Assert.Equal(RoundPhase.PlacingCards, match.Phase);
@@ -569,7 +571,7 @@ namespace TLMG.Domain.Tests
             Assert.Equal(openingPlayerId, match.PlayerInTurn.PlayerId);
         }
 
-        /// <summary>Comprueba que los jugadores indicados tienen sus 4 vidas y ningún reto.</summary>
+        /// <summary>Checks that the given players have four lives and no successful challenges.</summary>
         private static void AssertFullHandsWithoutChallenges(MatchState match, params int[] playerIds)
         {
             Assert.All(playerIds, playerId => Assert.Equal(FourLives, GetPlayer(match, playerId).Lives));
@@ -577,7 +579,7 @@ namespace TLMG.Domain.Tests
                 playerId => Assert.Equal(NoChallenges, GetPlayer(match, playerId).SuccessfulChallengeCount));
         }
 
-        /// <summary>Resume en texto el estado observable de la partida para comparar antes y después.</summary>
+        /// <summary>Summarizes visible match state as text for a before-and-after comparison.</summary>
         private static string DescribeMatch(MatchState match)
         {
             string players = string.Join(";", match.Players.Select(player =>
@@ -602,7 +604,7 @@ namespace TLMG.Domain.Tests
             return match.Players.First(player => player.PlayerId == playerId);
         }
 
-        /// <summary>Quien tiene el turno abre la apuesta y todos los demás se retiran: el que abre apuesta.</summary>
+        /// <summary>The current player opens and all others fold, leaving the opener as the final bidder.</summary>
         private static void OpenAndConcede(MatchState match, int betValue)
         {
             match.OpenBet(match.PlayerInTurn.PlayerId, betValue);
@@ -622,8 +624,8 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Los jugadores en turno colocan una segura hasta el turno del jugador indicado. Una vuelta completa basta; si
-        /// una colocación se rechaza o se agota la vuelta, falla con el jugador y la ronda que bloquearon el avance.
+        /// Players place a safe card in turn until the target player's turn. One full cycle is enough. A rejected
+        /// placement or exhausted cycle reports the player and round that blocked progress.
         /// </summary>
         private static void PlaceSafeCardsUntilTurnOf(MatchState match, int playerId)
         {
@@ -643,8 +645,8 @@ namespace TLMG.Domain.Tests
         }
 
         /// <summary>
-        /// Los demás colocan una segura hasta el turno del jugador, él coloca la carta indicada, los demás vuelven a
-        /// colocar hasta su turno y apuesta 1 sobre su propia pila: con segura gana el reto y con Gato lo falla.
+        /// Others place safe cards until the player's turn. That player places the given card, waits another cycle and
+        /// bids 1 on their own pile. A safe card wins and a Fatal Cat fails.
         /// </summary>
         private static void BetOneOnOwnTopCard(MatchState match, int playerId, CardKind card)
         {
@@ -672,7 +674,9 @@ namespace TLMG.Domain.Tests
                 $"El jugador {playerId} no llegó a {challengeCount} retos en la ronda {match.RoundNumber}.");
         }
 
-        /// <summary>Falla sobre su propio Gato y pierde una segura; si ya no tiene, la primera carta.</summary>
+        /// <summary>
+        /// Fails on the player's own Fatal Cat and loses a safe card, or the first card if no safe card remains.
+        /// </summary>
         private static void LoseCardOnOwnCat(MatchState match, int playerId)
         {
             BetOneOnOwnTopCard(match, playerId, FatalCatCard);

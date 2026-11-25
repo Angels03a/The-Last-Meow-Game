@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.ServiceModel;
 using System.Windows.Threading;
@@ -160,7 +160,6 @@ namespace TLMG.Client.Communication
             {
                 channel.OperationTimeout = _heartbeatOperationTimeout;
                 send(_sessionToken, callback.PendingHeartbeat, confirmed);
-                RestoreOperationTimeoutIfOpened(channel, originalTimeout);
             }
             catch (CommunicationException)
             {
@@ -169,20 +168,20 @@ namespace TLMG.Client.Communication
             }
             catch (TimeoutException)
             {
-                HandleHeartbeatTimeout(channel, close, originalTimeout);
+                HandleHeartbeatTimeout(channel, close);
+            }
+            finally
+            {
+                RestoreOperationTimeoutIfOpened(channel, originalTimeout);
             }
         }
 
-        private static void HandleHeartbeatTimeout(IClientChannel channel, Action close, TimeSpan originalTimeout)
+        private static void HandleHeartbeatTimeout(IClientChannel channel, Action close)
         {
             if (channel.State != CommunicationState.Opened)
             {
                 channel.Abort();
                 close();
-            }
-            else
-            {
-                channel.OperationTimeout = originalTimeout;
             }
         }
 
@@ -205,7 +204,7 @@ namespace TLMG.Client.Communication
                 {
                     DisconnectAndNotifyConnectionLost();
                 }
-                else if (errorKey == null)
+                else if (string.IsNullOrEmpty(errorKey))
                 {
                     callback.ConfirmedHeartbeat = sequence;
                     callback.LastHeartbeatEchoAt = now;
@@ -215,8 +214,9 @@ namespace TLMG.Client.Communication
 
         private bool IsExpectedHeartbeatEcho(ServerCallback callback, int sequence, long now)
         {
-            bool isMatchingSequence = sequence > 0 && callback.PendingHeartbeat == sequence;
-            bool isWithinDeadline = callback.HeartbeatDue.HasValue && now < callback.HeartbeatDue.Value;
+            bool isMatchingSequence = callback != null && sequence > 0 && callback.PendingHeartbeat == sequence;
+            bool isWithinDeadline = callback != null && callback.HeartbeatDue.HasValue
+                && now < callback.HeartbeatDue.Value;
             bool isExpected = isMatchingSequence && isWithinDeadline && IsKnownHeartbeatCallback(callback);
 
             return isExpected;

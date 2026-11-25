@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using TLMG.Contracts;
@@ -5,13 +6,15 @@ using TLMG.Domain.Constants;
 
 namespace TLMG.Services.Sessions
 {
-    // Parte del registro que guarda los canales de amigos (quien tiene uno vivo está en línea) y las invitaciones
-    // a sala. Todo método que termina en InLock, y los ayudantes que llama, se invoca únicamente con _sessionsLock
-    // tomado y solo toca memoria: la amistad se comprueba en la base de datos antes de llamar a este registro.
+    // Stores friends channels for online presence and room invitations. Methods ending in InLock and their helpers
+    // require _sessionsLock and access memory only. The database checks friendship before the registry is called.
     public partial class SessionRegistry
     {
         private static readonly IReadOnlyList<IFriendsManagerCallback> _noFriendsCallbacks =
             new List<IFriendsManagerCallback>().AsReadOnly();
+
+        // Minimum time between notifications of the same pending invitation, so repeated invitations cannot flood.
+        private static readonly TimeSpan _invitationRenotifyInterval = TimeSpan.FromSeconds(5);
 
         private readonly Dictionary<int, FriendsChannel> _friendsChannelsByUserId =
             new Dictionary<int, FriendsChannel>();
@@ -325,7 +328,8 @@ namespace TLMG.Services.Sessions
             return roomInvitationAcceptance;
         }
 
-        // Una invitación repetida al mismo jugador para la misma sala no crea otra: se devuelve la que ya existe.
+        // Reuses the existing invitation when the same player is invited to the same room again. The invitee is
+        // notified again only after the renotification interval, because declining is not reported to the server.
         private RoomInvitationCreation CreateOrFindInvitation(
             PlayerSession inviterSession,
             int friendUserId,
@@ -334,19 +338,26 @@ namespace TLMG.Services.Sessions
         {
             RoomInvitationRecord invitation = _roomInvitations.Find(pending =>
                 pending.InviteeUserId == friendUserId && pending.RoomId == roomId);
-            bool isNewInvitation = invitation == null;
+            DateTime nowUtc = _readUtcNow();
+            bool shouldNotifyInvitee = invitation == null
+                || nowUtc - invitation.LastNotifiedUtc >= _invitationRenotifyInterval;
 
-            if (isNewInvitation)
+            if (invitation == null)
             {
                 _lastInvitationId++;
-                invitation = new RoomInvitationRecord(_lastInvitationId, inviterSession.UserId, friendUserId, roomId);
+                invitation = new RoomInvitationRecord(
+                    _lastInvitationId, inviterSession.UserId, friendUserId, roomId, nowUtc);
                 _roomInvitations.Add(invitation);
+            }
+            else if (shouldNotifyInvitee)
+            {
+                invitation.LastNotifiedUtc = nowUtc;
             }
 
             RoomInvitationCreation roomInvitationCreation = RoomInvitationCreation.CreateApplied(
                 invitation.InvitationId,
                 inviterSession.Nickname,
-                isNewInvitation,
+                shouldNotifyInvitee,
                 inviteeCallback);
 
             return roomInvitationCreation;

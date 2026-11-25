@@ -1,41 +1,43 @@
 namespace TLMG.Domain.Engine
 {
-    /// <summary>Resultado de la salida de un jugador de la partida.</summary>
+    /// <summary>Result of a player leaving the match.</summary>
     public enum PlayerExitStatus
     {
-        /// <summary>El jugador salió y la ronda en curso se reinició; RoundNumber subió una vez.</summary>
+        /// <summary>The player left and the current round restarted. RoundNumber increased once.</summary>
         RoundRestarted,
 
-        /// <summary>El jugador salió y quedó un solo jugador en juego, que gana; no empieza otra ronda.</summary>
+        /// <summary>The player left and the sole remaining player won. No new round starts.</summary>
         MatchFinished,
 
-        /// <summary>El jugador ya estaba eliminado: conserva posición y puntos y nada cambia (H-12 y H-16).</summary>
+        /// <summary>
+        /// An already eliminated player keeps their rank and points. Nothing changes (H-12 and H-16).
+        /// </summary>
         EliminatedPlayerLeft,
 
-        /// <summary>La partida ya terminó: la salida no cambia nada.</summary>
+        /// <summary>The match has ended. The exit changes nothing.</summary>
         MatchAlreadyFinished,
 
-        /// <summary>El jugador no pertenece a la partida.</summary>
+        /// <summary>The player does not belong to the match.</summary>
         PlayerNotInMatch,
 
-        /// <summary>El jugador ya había salido de la partida.</summary>
+        /// <summary>The player already left the match.</summary>
         PlayerAlreadyLeft,
 
         /// <summary>
-        /// Salió el castigado durante el castigo pendiente: el castigo se cancela sin pérdida de vida y empieza la
-        /// siguiente ronda (Reglas 2.0.3.1 y H-07).
+        /// The punished player left during pending punishment. Cancel it without taking a life and start the next round
+        /// (Rule 2.0.3.1 and H-07).
         /// </summary>
         PunishmentCancelled,
 
         /// <summary>
-        /// Salió quien elige con el castigo activo: el sistema eligió al azar la carta del castigado y el castigo se
-        /// completó (Reglas 2.0.3.1).
+        /// The chooser left during active punishment. The system picked a random card and completed the punishment
+        /// (Rule 2.0.3.1).
         /// </summary>
         PunishmentResolvedAtRandom,
 
         /// <summary>
-        /// Se registró la salida durante el castigo pendiente sin tocarlo: salió un tercero, o quien elige con el
-        /// castigo suspendido; el castigo sigue y la ronda no cambia.
+        /// Records a third player's exit or the chooser's exit during suspension. Punishment continues in the same
+        /// round.
         /// </summary>
         ExitRecorded
     }

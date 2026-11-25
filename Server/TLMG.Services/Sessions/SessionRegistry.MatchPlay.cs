@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,9 +16,21 @@ namespace TLMG.Services.Sessions
         private readonly Dictionary<int, MatchChannel> _matchChannelsByUserId = new Dictionary<int, MatchChannel>();
         private readonly Dictionary<string, int> _matchUserIdsByChannelId = new Dictionary<string, int>();
 
+        /// <summary>
+        /// Authorized match action applied under _sessionsLock after checking deadlines. Returns null on acceptance or
+        /// the rejection ErrorKey.
+        /// </summary>
         private delegate string MatchAction(MatchRecord matchRecord, int userId, DateTime nowUtc);
 
-        public MatchDelivery SubscribeToMatch(LobbyCaller caller, Guid matchId, IMatchManagerCallback callback)
+        /// <summary>
+        /// Authorizes and registers the subscription under _sessionsLock, replacing the player's previous subscription.
+        /// Checks expired deadlines before building the player's view.
+        /// </summary>
+        /// <param name="caller">Current session token and match channel.</param>
+        /// <param name="matchId">Match requested by the client.</param>
+        /// <param name="callback">Match channel callback.</param>
+        /// <returns>Player's view on acceptance, otherwise the error key.</returns>
+        public MatchDelivery SubscribeToMatch(SessionChannelCaller caller, Guid matchId, IMatchManagerCallback callback)
         {
             MatchDelivery matchDelivery;
 
@@ -43,7 +55,14 @@ namespace TLMG.Services.Sessions
             return matchDelivery;
         }
 
-        public MatchDelivery PlaceCard(LobbyCaller caller, MatchCardKind card)
+        /// <summary>
+        /// Authorizes placement in the subscribed match using the session's userId. Acceptance increases the version
+        /// and builds one view per subscriber. Rejection leaves the action unapplied.
+        /// </summary>
+        /// <param name="caller">Current token and subscribed match channel.</param>
+        /// <param name="card">Card type the player wants to place.</param>
+        /// <returns>All subscribers' views on acceptance, otherwise the error key.</returns>
+        public MatchDelivery PlaceCard(SessionChannelCaller caller, MatchCardKind card)
         {
             MatchAction placeCardAction =
                 (matchRecord, userId, nowUtc) => PlaceCardInEngineInLock(matchRecord, userId, card);
@@ -52,7 +71,14 @@ namespace TLMG.Services.Sessions
             return matchDelivery;
         }
 
-        public MatchDelivery PlaceBet(LobbyCaller caller, int betValue)
+        /// <summary>
+        /// Authorizes a bid. Raises an existing bid or tries to open a new one. Opening clears the previous challenge
+        /// outcome.
+        /// </summary>
+        /// <param name="caller">Current token and subscribed match channel.</param>
+        /// <param name="betValue">Number of cards the player claims they can reveal.</param>
+        /// <returns>All subscribers' views on acceptance, otherwise the error key.</returns>
+        public MatchDelivery PlaceBet(SessionChannelCaller caller, int betValue)
         {
             MatchAction placeBetAction =
                 (matchRecord, userId, nowUtc) => PlaceBetInEngineInLock(matchRecord, userId, betValue);
@@ -61,7 +87,13 @@ namespace TLMG.Services.Sessions
             return matchDelivery;
         }
 
-        public MatchDelivery WithdrawFromBet(LobbyCaller caller)
+        /// <summary>
+        /// Authorizes folding. If one bidder remains, the challenge becomes ready and the registry starts recording its
+        /// outcome.
+        /// </summary>
+        /// <param name="caller">Current token and subscribed match channel.</param>
+        /// <returns>All subscribers' views on acceptance, otherwise the error key.</returns>
+        public MatchDelivery WithdrawFromBet(SessionChannelCaller caller)
         {
             MatchAction withdrawAction =
                 (matchRecord, userId, nowUtc) => WithdrawFromBetInEngineInLock(matchRecord, userId);
@@ -70,7 +102,14 @@ namespace TLMG.Services.Sessions
             return matchDelivery;
         }
 
-        public MatchDelivery RevealCard(LobbyCaller caller, int pileOwnerUserId)
+        /// <summary>
+        /// Authorizes revealing the top card of the chosen pile. Records each reveal, then the outcome and punishment,
+        /// since the engine immediately advances or ends the match.
+        /// </summary>
+        /// <param name="caller">Current token and subscribed match channel.</param>
+        /// <param name="pileOwnerUserId">Account of the player whose pile supplies the card.</param>
+        /// <returns>All subscribers' views on acceptance, otherwise the error key.</returns>
+        public MatchDelivery RevealCard(SessionChannelCaller caller, int pileOwnerUserId)
         {
             MatchAction revealAction = (matchRecord, userId, nowUtc) =>
                 RevealCardInEngineInLock(matchRecord, userId, pileOwnerUserId, nowUtc);
@@ -79,7 +118,14 @@ namespace TLMG.Services.Sessions
             return matchDelivery;
         }
 
-        public MatchDelivery ChoosePunishmentCard(LobbyCaller caller, int cardIndex)
+        /// <summary>
+        /// Authorizes the punishment choice and removes the card. For a blind choice, the server translates the slot
+        /// using its own shuffled order. An expired deadline is applied first and the late choice is rejected.
+        /// </summary>
+        /// <param name="caller">Current token and subscribed match channel.</param>
+        /// <param name="cardIndex">Displayed slot for a blind choice or hand position for a visible choice.</param>
+        /// <returns>All subscribers' views on acceptance, otherwise the error key.</returns>
+        public MatchDelivery ChoosePunishmentCard(SessionChannelCaller caller, int cardIndex)
         {
             MatchAction chooseAction = (matchRecord, userId, nowUtc) =>
                 ChoosePunishmentCardInEngineInLock(matchRecord, userId, cardIndex, nowUtc);
@@ -132,7 +178,7 @@ namespace TLMG.Services.Sessions
             return wasRemoved;
         }
 
-        private static bool IsMatchChannelOfCaller(MatchChannel matchChannel, LobbyCaller caller)
+        private static bool IsMatchChannelOfCaller(MatchChannel matchChannel, SessionChannelCaller caller)
         {
             bool isSameSession = matchChannel.SessionToken == caller.SessionToken;
             bool isSameChannel = matchChannel.ChannelId == caller.ChannelId;
@@ -144,9 +190,7 @@ namespace TLMG.Services.Sessions
 
         private static int FindHandCardCount(MatchState matchState, int playerId)
         {
-            MatchPlayer player = (from matchPlayer in matchState.Players
-                                  where matchPlayer.PlayerId == playerId
-                                  select matchPlayer).First();
+            MatchPlayer player = matchState.Players.First(matchPlayer => matchPlayer.PlayerId == playerId);
             int handCardCount = player.HandCards.Count;
 
             return handCardCount;
@@ -179,7 +223,12 @@ namespace TLMG.Services.Sessions
             return errorKey;
         }
 
-        private MatchDelivery RunMatchAction(LobbyCaller caller, MatchAction matchAction)
+        /// <summary>
+        /// Runs game actions under _sessionsLock. Checks authorization and deadlines against server time before calling
+        /// the engine. A change from the action or a deadline increases the version once and builds a view per
+        /// subscriber. Rejecting the action still delivers views from an expired deadline.
+        /// </summary>
+        private MatchDelivery RunMatchAction(SessionChannelCaller caller, MatchAction matchAction)
         {
             MatchDelivery matchDelivery;
 
@@ -207,13 +256,21 @@ namespace TLMG.Services.Sessions
         {
             DateTime nowUtc = _readUtcNow();
             bool hasExpired = ExpireMatchDeadlinesInLock(matchRecord, nowUtc);
-            string errorKey = matchRecord.Disconnections.Count != 0
+            string errorKey;
+            if (matchRecord.Disconnections.Count != 0
                 && matchRecord.MatchState.Phase != RoundPhase.MatchFinished
-                && matchRecord.MatchState.PendingPunishment?.ChooserPlayerId != userId
-                ? "Match_ReconnectionPending"
-                : matchRecord.Kitten != null && !matchRecord.Kitten.IsResolved
-                ? MatchErrorKeys.FugitiveKittenInProgress
-                : matchAction(matchRecord, userId, nowUtc);
+                && matchRecord.MatchState.PendingPunishment?.ChooserPlayerId != userId)
+            {
+                errorKey = MatchErrorKeys.ReconnectionPending;
+            }
+            else if (matchRecord.Kitten != null && !matchRecord.Kitten.IsResolved)
+            {
+                errorKey = MatchErrorKeys.FugitiveKittenInProgress;
+            }
+            else
+            {
+                errorKey = matchAction(matchRecord, userId, nowUtc);
+            }
             IReadOnlyList<MatchViewDelivery> viewDeliveries = _noMatchViewDeliveries;
 
             if (hasExpired || errorKey == null)
@@ -237,7 +294,7 @@ namespace TLMG.Services.Sessions
         }
 
         private MatchDelivery SubscribeInLock(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             int userId,
             MatchRecord matchRecord,
             IMatchManagerCallback callback)
@@ -245,9 +302,7 @@ namespace TLMG.Services.Sessions
             MatchDelivery matchDelivery;
             DateTime nowUtc = _readUtcNow();
             bool hasExpired = ExpireMatchDeadlinesInLock(matchRecord, nowUtc);
-            if ((from player in matchRecord.MatchState.Players
-                 where player.PlayerId == userId && player.HasLeftMatch
-                 select player).Any())
+            if (matchRecord.MatchState.Players.Any(player => player.PlayerId == userId && player.HasLeftMatch))
             {
                 if (hasExpired)
                 {
@@ -309,7 +364,7 @@ namespace TLMG.Services.Sessions
         }
 
         private string ValidateMatchSubscriptionInLock(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             Guid matchId,
             IMatchManagerCallback callback,
             out PlayerSession playerSession,
@@ -337,7 +392,7 @@ namespace TLMG.Services.Sessions
         }
 
         private string ValidateMatchActionInLock(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             out PlayerSession playerSession,
             out MatchRecord matchRecord)
         {
@@ -368,7 +423,10 @@ namespace TLMG.Services.Sessions
             return errorKey;
         }
 
-        private string ValidateMatchIdentityInLock(LobbyCaller caller, out PlayerSession playerSession)
+        /// <summary>
+        /// Checks the current token, player identity and channel ownership using the match channel map, as for chat.
+        /// </summary>
+        private string ValidateMatchIdentityInLock(SessionChannelCaller caller, out PlayerSession playerSession)
         {
             string errorKey = ErrorKeys.Common.InvalidSession;
             playerSession = null;
@@ -389,6 +447,10 @@ namespace TLMG.Services.Sessions
             return errorKey;
         }
 
+        /// <summary>
+        /// Current participation requires an original participant still in the room whose MatchId matches this match
+        /// (AUD-002).
+        /// </summary>
         private string ValidateMatchParticipationInLock(int userId, MatchRecord matchRecord)
         {
             string errorKey = MatchErrorKeys.NotInMatch;
@@ -485,6 +547,7 @@ namespace TLMG.Services.Sessions
             return errorKey;
         }
 
+        /// <summary>Records the revealed card and, if the challenge ended, its result and punishment.</summary>
         private void RecordRevealInLock(MatchRecord matchRecord, ChallengeRevealStatus revealStatus)
         {
             ChallengeResolution resolution = matchRecord.MatchState.Resolution;
@@ -503,6 +566,10 @@ namespace TLMG.Services.Sessions
             }
         }
 
+        /// <summary>
+        /// Records punishment after failure. With one life the engine already removed the card without a choice.
+        /// Otherwise punishment is pending and the server shuffles slots for a blind choice.
+        /// </summary>
         private void RecordFailedChallengeInLock(MatchRecord matchRecord, MatchChallengeRecord challenge)
         {
             MatchState matchState = matchRecord.MatchState;
@@ -533,6 +600,10 @@ namespace TLMG.Services.Sessions
             }
         }
 
+        /// <summary>
+        /// Shuffles blind slots with Fisher-Yates and the supplied random source. The array position is the displayed
+        /// slot and its value is the actual hand index.
+        /// </summary>
         private int[] CreateBlindSlotOrder(int cardCount)
         {
             int[] slotOrder = Enumerable.Range(0, cardCount).ToArray();

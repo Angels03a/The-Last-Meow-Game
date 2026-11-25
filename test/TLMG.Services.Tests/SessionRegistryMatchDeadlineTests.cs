@@ -12,8 +12,8 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Pruebas del plazo del castigo con el reloj inyectado (D-54): el servidor no usa temporizadores, así que el
-    /// plazo vencido se aplica al llegar la siguiente operación. Sin hilos ni esperas.
+    /// Tests punishment deadlines with the supplied clock (D-54). The next operation applies an expired deadline. The
+    /// server uses no timers and the tests need no threads or waits.
     /// </summary>
     public class SessionRegistryMatchDeadlineTests
     {
@@ -27,7 +27,7 @@ namespace TLMG.Services.Tests
         private static readonly TimeSpan _punishmentLimit =
             TimeSpan.FromSeconds(ValidationRules.PunishmentChoiceSeconds);
 
-        /// <summary>Verifica SubscribeToMatch_JustBeforeTheLimit_KeepsThePunishmentPending.</summary>
+        /// <summary>Checks SubscribeToMatch_JustBeforeTheLimit_KeepsThePunishmentPending.</summary>
         [Fact]
         public void SubscribeToMatch_JustBeforeTheLimit_KeepsThePunishmentPending()
         {
@@ -44,11 +44,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(versionBefore, view.Version);
         }
 
-        /// <summary>Verifica SubscribeToMatch_AtTheLimitWithBlindPunishment_ResolvesAtRandomWithTheFatalCat.</summary>
+        /// <summary>Checks SubscribeToMatch_AtTheLimitWithBlindPunishment_ResolvesAtRandomWithTheFatalCat.</summary>
         [Fact]
         public void SubscribeToMatch_AtTheLimitWithBlindPunishment_ResolvesAtRandomWithTheFatalCat()
         {
-            // Arrange: el azar elige el índice 0 de la mano del castigado, que es su Gato.
+            // Arrange: The random choice picks index 0, the Fatal Cat in the punished player's hand.
             MatchPlayScenario scenario = StartBlindPunishment();
             int versionBefore = scenario.ReadVersionAs(scenario.UserIds[2]);
             scenario.RandomSource.Enqueue(FatalCatIndexInBlindHand);
@@ -67,11 +67,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchRoundPhase.PlacingCards, punishedView.Phase);
         }
 
-        /// <summary>Verifica SubscribeToMatch_AtTheLimitWithOwnPunishment_ResolvesAtRandomWithTheFatalCat.</summary>
+        /// <summary>Checks SubscribeToMatch_AtTheLimitWithOwnPunishment_ResolvesAtRandomWithTheFatalCat.</summary>
         [Fact]
         public void SubscribeToMatch_AtTheLimitWithOwnPunishment_ResolvesAtRandomWithTheFatalCat()
         {
-            // Arrange: la mano del apostador es [Safe, Safe, Safe, Gato] y el azar elige el último índice.
+            // Arrange: The bidder holds [Safe, Safe, Safe, FatalCat] and the random choice picks the last index.
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
             scenario.ReachOwnPunishment();
@@ -87,11 +87,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchPunishmentResolution.ChosenAtRandom, bettorView.Challenge.PunishmentResolution);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_AfterTheLimit_IsRejectedAfterApplyingTheRandomChoice.</summary>
+        /// <summary>Checks ChoosePunishmentCard_AfterTheLimit_IsRejectedAfterApplyingTheRandomChoice.</summary>
         [Fact]
         public void ChoosePunishmentCard_AfterTheLimit_IsRejectedAfterApplyingTheRandomChoice()
         {
-            // Arrange: el lugar 0 de quien elige sería una carta segura; el azar elimina el Gato.
+            // Arrange: The chooser's slot 0 would be a safe card. The random choice removes the Fatal Cat.
             MatchPlayScenario scenario = StartBlindPunishment();
             scenario.RandomSource.Enqueue(FatalCatIndexInBlindHand);
             scenario.Clock.Advance(_punishmentLimit + TimeSpan.FromMilliseconds(OneMillisecond));
@@ -107,7 +107,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchPunishmentResolution.ChosenAtRandom, punishedView.Challenge.PunishmentResolution);
         }
 
-        /// <summary>Verifica ChoosePunishmentCard_JustBeforeTheLimit_IsAccepted.</summary>
+        /// <summary>Checks ChoosePunishmentCard_JustBeforeTheLimit_IsAccepted.</summary>
         [Fact]
         public void ChoosePunishmentCard_JustBeforeTheLimit_IsAccepted()
         {
@@ -124,7 +124,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchPunishmentResolution.ChosenByChooser, punishedView.Challenge.PunishmentResolution);
         }
 
-        /// <summary>Verifica PlaceCard_AfterTheLimit_AppliesTheExpiryAndThenTheRequestedAction.</summary>
+        /// <summary>Checks PlaceCard_AfterTheLimit_AppliesTheExpiryAndThenTheRequestedAction.</summary>
         [Fact]
         public void PlaceCard_AfterTheLimit_AppliesTheExpiryAndThenTheRequestedAction()
         {
@@ -136,7 +136,7 @@ namespace TLMG.Services.Tests
             // Act
             MatchDelivery delivery = scenario.Place(scenario.UserIds[0], MatchCardKind.Safe);
 
-            // Assert: el plazo vencido y la carta nueva suben la versión una sola vez.
+            // Assert: The expired deadline and the new card together increase the version once.
             MatchView punishedView = ViewOf(delivery, scenario, scenario.UserIds[0]);
             Assert.Null(delivery.ErrorKey);
             Assert.Equal(versionBefore + 1, punishedView.Version);
@@ -144,7 +144,7 @@ namespace TLMG.Services.Tests
             Assert.Null(punishedView.Challenge);
         }
 
-        /// <summary>Verifica LeaveRoom_AfterTheLimit_AppliesTheExpiryBeforeTheExit.</summary>
+        /// <summary>Checks LeaveRoom_AfterTheLimit_AppliesTheExpiryBeforeTheExit.</summary>
         [Fact]
         public void LeaveRoom_AfterTheLimit_AppliesTheExpiryBeforeTheExit()
         {
@@ -163,7 +163,7 @@ namespace TLMG.Services.Tests
             Assert.True(chooserView.Players.Single(player => player.UserId == scenario.UserIds[2]).HasLeftMatch);
         }
 
-        /// <summary>Verifica SubscribeToMatch_WithoutAPunishmentAfterALongTime_ChangesNothing.</summary>
+        /// <summary>Checks SubscribeToMatch_WithoutAPunishmentAfterALongTime_ChangesNothing.</summary>
         [Fact]
         public void SubscribeToMatch_WithoutAPunishmentAfterALongTime_ChangesNothing()
         {

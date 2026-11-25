@@ -4,10 +4,9 @@ using TLMG.Client.UsersManagerReference;
 namespace TLMG.Client.Communication
 {
     /// <summary>
-    /// Área de partida de la conexión con el servidor: seguir la partida autorizada por la sala y colocar cartas.
-    /// GameplayViewModel depende solo de esta interfaz; la implementa ServerConnectionManager. Los eventos se disparan
-    /// en el hilo de la interfaz y llevan la ErrorKey tal como la manda el servidor, sin textos. Las operaciones solo
-    /// envían: el resultado llega por evento y toda decisión de juego es del servidor.
+    /// Lets GameplayViewModel follow the match authorized by the room and request card placement.
+    /// ServerConnectionManager implements this interface. Events run on the UI thread and carry the server's ErrorKey
+    /// without translated text. Requests return results through events. The server decides all game actions.
     /// </summary>
     public interface IMatchConnection
     {
@@ -16,57 +15,59 @@ namespace TLMG.Client.Communication
         bool IsMatchRecoveryExhausted { get; }
         void RetryMatchRecovery();
 
-        /// <summary>Se dispara con cada vista privada nueva; una vista con versión igual o menor se descarta.</summary>
+        /// <summary>Raised for each new private view. Views with the same or an older version are ignored.</summary>
         event EventHandler<ServerEventArgs<MatchView>> MatchViewChanged;
 
-        /// <summary>Se dispara con la ErrorKey de una suscripción o de una carta que el servidor rechazó.</summary>
+        /// <summary>Raised with the ErrorKey when the server rejects a subscription or card placement.</summary>
         event EventHandler<ServerEventArgs<string>> MatchErrorReceived;
 
-        /// <summary>Resultado individual del intento de atrape.</summary>
+        /// <summary>Player's catch attempt result.</summary>
         event EventHandler<ServerEventArgs<OperationResult>> FugitiveKittenCatchResultReceived;
 
-        /// <summary>Resultado individual de la comprobación del plazo.</summary>
+        /// <summary>Player's deadline check result.</summary>
         event EventHandler<ServerEventArgs<OperationResult>> FugitiveKittenDeadlineResultReceived;
 
-        /// <summary>Se dispara cuando la partida pasa a estar disponible o deja de estarlo.</summary>
+        /// <summary>Raised when match availability changes.</summary>
         event EventHandler MatchAvailabilityChanged;
 
-        /// <summary>Obtiene si el servidor aceptó la suscripción actual a la partida.</summary>
+        /// <summary>Whether the server accepted the current match subscription.</summary>
         bool IsMatchSubscribed { get; }
 
         bool CanSendGameplayAction { get; }
 
-        /// <summary>Obtiene la última vista aceptada, o null si todavía no llega ninguna.</summary>
+        /// <summary>Latest accepted view, or null before the first view arrives.</summary>
         MatchView CurrentMatchView { get; }
 
-        /// <summary>Tiempo transcurrido desde que se recibió la vista vigente.</summary>
+        /// <summary>Time since the current view arrived.</summary>
         TimeSpan CurrentMatchViewAge { get; }
 
-        /// <summary>Pide suscribirse a la partida de la sala; el resultado y la vista llegan por evento.</summary>
-        /// <returns>true si se envió; false si no hay sesión registrada, partida autorizada o falló el envío.</returns>
+        /// <summary>Requests a subscription to the room's match. Events deliver the result and view.</summary>
+        /// <returns>
+        /// True if sent. False without a registered session or an authorized match, or if the send fails.
+        /// </returns>
         bool SubscribeToCurrentMatch();
 
-        /// <summary>Envía un intento de atrapar al gatito.</summary>
+        /// <summary>Sends an attempt to catch the kitten.</summary>
         bool TryCatchFugitiveKitten();
 
-        /// <summary>Solicita comprobar el vencimiento del gatito.</summary>
+        /// <summary>Asks the server to check the kitten deadline.</summary>
         bool CheckFugitiveKittenDeadline();
 
-        /// <summary>Pide colocar una carta de la mano; el servidor decide y responde por evento.</summary>
-        /// <param name="cardKind">Tipo de la carta que se quiere colocar.</param>
-        /// <returns>true si se envió; false si no hay suscripción vigente o falló el envío.</returns>
+        /// <summary>Requests to place a card from the hand. The server decides and responds through an event.</summary>
+        /// <param name="cardKind">Type of card to place.</param>
+        /// <returns>True if sent. False without an active subscription or if the send fails.</returns>
         bool PlaceCard(MatchCardKind cardKind);
 
-        /// <summary>Envía una apuesta para que el servidor la valide.</summary>
+        /// <summary>Sends a bid for the server to check.</summary>
         bool PlaceBet(int betValue);
 
-        /// <summary>Solicita retirarse de la apuesta en curso.</summary>
+        /// <summary>Requests to fold in the current bidding round.</summary>
         bool WithdrawFromBet();
 
-        /// <summary>Solicita revelar la carta superior de una pila.</summary>
+        /// <summary>Requests to reveal the top card of a pile.</summary>
         bool RevealCard(int pileOwnerUserId);
 
-        /// <summary>Envía la posición elegida para el castigo.</summary>
+        /// <summary>Sends the position chosen for the punishment.</summary>
         bool ChoosePunishmentCard(int cardIndex);
     }
 }

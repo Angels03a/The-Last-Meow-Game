@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace TLMG.Services.Utilities
 {
-    public class CodeGeneratorUtility
+    public class VerificationCodeGenerator
     {
         private const int CodeByteCount = 4;
         private const uint CodeRange = 1000000;

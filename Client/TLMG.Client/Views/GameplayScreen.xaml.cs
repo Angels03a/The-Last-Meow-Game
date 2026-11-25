@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
@@ -7,6 +7,7 @@ using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
+    /// <summary>Displays match state from the ViewModel and handles the player context menu.</summary>
     public partial class GameplayScreen : LocalizableScreen
     {
         private const string RoundPhaseFormatKey = "Gameplay_RoundPhaseFormat";
@@ -17,6 +18,7 @@ namespace TLMG.Client.Views
 
         private readonly GameplayViewModel _viewModel;
 
+        /// <summary>Connects the match view to its ViewModel.</summary>
         public GameplayScreen(GameplayViewModel viewModel)
         {
             InitializeComponent();

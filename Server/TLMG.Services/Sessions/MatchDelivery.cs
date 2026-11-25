@@ -3,9 +3,8 @@ using System.Collections.Generic;
 namespace TLMG.Services.Sessions
 {
     /// <summary>
-    /// Resultado de una operación de partida: la clave de error si se rechazó y las vistas por entregar si la
-    /// partida cambió.
-    /// Es inmutable y ya no toca estado compartido.
+    /// Immutable match operation result containing an error key for rejection and views to send if state changed. Uses
+    /// no shared state after creation.
     /// </summary>
     public sealed class MatchDelivery
     {
@@ -18,15 +17,15 @@ namespace TLMG.Services.Sessions
             ViewDeliveries = viewDeliveries;
         }
 
-        /// <summary>Obtiene la clave de error; null si la operación se aceptó.</summary>
+        /// <summary>Error key, or null on acceptance.</summary>
         public string ErrorKey { get; }
 
-        /// <summary>Obtiene las vistas por entregar; nunca es null y está vacía si se rechazó.</summary>
+        /// <summary>Views to deliver, always present and empty for a rejection without a state change.</summary>
         public IReadOnlyList<MatchViewDelivery> ViewDeliveries { get; }
 
-        /// <summary>Crea el resultado de una operación rechazada.</summary>
-        /// <param name="errorKey">Clave de error para quien la pidió.</param>
-        /// <returns>El resultado, sin vistas.</returns>
+        /// <summary>Creates a rejected operation result.</summary>
+        /// <param name="errorKey">Error key for the requester.</param>
+        /// <returns>Result without views.</returns>
         public static MatchDelivery CreateRejected(string errorKey)
         {
             MatchDelivery matchDelivery = new MatchDelivery(errorKey, _noViewDeliveries);
@@ -35,11 +34,11 @@ namespace TLMG.Services.Sessions
         }
 
         /// <summary>
-        /// Crea el resultado de una operación rechazada que aun así cambió la partida, porque antes venció un plazo.
+        /// Creates a rejection that still carries a match change caused by an earlier deadline.
         /// </summary>
-        /// <param name="errorKey">Clave de error para quien la pidió.</param>
-        /// <param name="viewDeliveries">Vistas del cambio previo; la lista no debe modificarse después.</param>
-        /// <returns>El resultado, con la clave de error y las vistas.</returns>
+        /// <param name="errorKey">Error key for the requester.</param>
+        /// <param name="viewDeliveries">Views for the earlier change. Leave the list unchanged afterward.</param>
+        /// <returns>Result with error key and views.</returns>
         public static MatchDelivery CreateRejected(string errorKey, IReadOnlyList<MatchViewDelivery> viewDeliveries)
         {
             MatchDelivery matchDelivery = new MatchDelivery(errorKey, viewDeliveries);
@@ -47,9 +46,9 @@ namespace TLMG.Services.Sessions
             return matchDelivery;
         }
 
-        /// <summary>Crea el resultado de una operación aceptada.</summary>
-        /// <param name="viewDeliveries">Vistas por entregar; la lista no debe modificarse después.</param>
-        /// <returns>El resultado, sin clave de error.</returns>
+        /// <summary>Creates an accepted operation result.</summary>
+        /// <param name="viewDeliveries">Views to deliver. Leave the list unchanged afterward.</param>
+        /// <returns>Result without an error key.</returns>
         public static MatchDelivery CreateAccepted(IReadOnlyList<MatchViewDelivery> viewDeliveries)
         {
             MatchDelivery matchDelivery = new MatchDelivery(null, viewDeliveries);

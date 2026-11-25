@@ -1,9 +1,9 @@
 namespace TLMG.Client.Models
 {
-    /// <summary>Carta de una pila tal como se dibuja en miniatura: solo el símbolo que se muestra.</summary>
+    /// <summary>Miniature pile card with only its visible symbol.</summary>
     public sealed class PileCardEntry
     {
-        /// <summary>Símbolo de la carta; una pila ajena solo muestra cartas boca abajo.</summary>
+        /// <summary>Card symbol. Another player's pile shows only card backs.</summary>
         public string Symbol { get; set; }
     }
 }

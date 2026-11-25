@@ -7,7 +7,7 @@ namespace TLMG.Services.Utilities
 {
     public static class EmailTemplates
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(EmailTemplates));
+        private static readonly ILog _log = LogManager.GetLogger(typeof(EmailTemplates));
         private static readonly EmailLanguageStrategyFactory StrategyFactory = new EmailLanguageStrategyFactory();
 
         private const string CodePlaceholder = "{{CODE}}";
@@ -28,19 +28,19 @@ namespace TLMG.Services.Utilities
             }
             catch (FileNotFoundException exception)
             {
-                Logger.Error($"Template file not found: {templatePath}", exception);
+                _log.Error($"Template file not found: {templatePath}", exception);
             }
             catch (DirectoryNotFoundException exception)
             {
-                Logger.Error($"Templates directory not found: {baseDirectoryPath}", exception);
+                _log.Error($"Templates directory not found: {baseDirectoryPath}", exception);
             }
             catch (UnauthorizedAccessException exception)
             {
-                Logger.Error($"Read permission denied for template: {templatePath}", exception);
+                _log.Error($"Read permission denied for template: {templatePath}", exception);
             }
             catch (IOException exception)
             {
-                Logger.Error($"I/O error reading template file: {templatePath}", exception);
+                _log.Error($"I/O error reading template file: {templatePath}", exception);
             }
 
             return content;

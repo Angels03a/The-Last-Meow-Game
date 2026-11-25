@@ -8,6 +8,11 @@ using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
+    /// <summary>
+    /// Displays the lobby before a match. The view filters chat input, scrolls chat and keeps the removal controls
+    /// hidden (BL-082, BL-161). <see cref="LobbyViewModel"/> manages the room, readiness, cards per player, countdown
+    /// and chat.
+    /// </summary>
     public partial class LobbyScreen : LocalizableScreen
     {
         private const int ToastDurationMilliseconds = 3000;
@@ -16,6 +21,12 @@ namespace TLMG.Client.Views
         private readonly LobbyViewModel _viewModel;
         private readonly DispatcherTimer _toastTimer;
 
+        private bool _hasVotedToKick;
+
+        /// <summary>
+        /// Creates a <see cref="LobbyScreen"/> with its ViewModel.
+        /// </summary>
+        /// <param name="lobbyViewModel">ViewModel created and supplied by the screen factory.</param>
         public LobbyScreen(LobbyViewModel lobbyViewModel)
         {
             InitializeComponent();

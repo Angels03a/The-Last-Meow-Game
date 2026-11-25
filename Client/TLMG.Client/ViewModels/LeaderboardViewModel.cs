@@ -14,9 +14,12 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
+    /// <summary>
+    /// Requests the leaderboard, fills the podium and remaining rows, and returns to the previous screen. Listens to
+    /// server events only between Activate and Deactivate.
+    /// </summary>
     public class LeaderboardViewModel : ViewModelBase
     {
-        private const string DefaultProfileImage = "pack://application:,,,/TLMG.Client;component/img/default.jpg";
         private const string DefaultPlayerName = "---";
         private const string PointsFormatKey = "Leaderboard_PointsFormat";
         private const string ConnectionErrorKey = "Leaderboard_ConnectionErrorMessage";
@@ -53,6 +56,13 @@ namespace TLMG.Client.ViewModels
         private string _currentPointsFormat = PlainPointsFormat;
         private int? _personalRank;
         private int? _personalPoints;
+
+        /// <summary>
+        /// Creates a <see cref="LeaderboardViewModel"/>.
+        /// </summary>
+        /// <param name="leaderboardConnection">Leaderboard connection to the server.</param>
+        /// <param name="navigationManager">Navigation manager.</param>
+        /// <param name="dialogManager">Dialog manager.</param>
         public LeaderboardViewModel(
             ILeaderboardConnection leaderboardConnection,
             INavigationManager navigationManager,
@@ -67,49 +77,75 @@ namespace TLMG.Client.ViewModels
             BackCommand = new RelayCommand(ExecuteBack);
             ShowEmptyLeaderboard();
         }
+
+        /// <summary>Requests the historical leaderboard again.</summary>
         public ICommand FilterAllTimeCommand { get; }
+
+        /// <summary>Returns to the previous screen.</summary>
         public ICommand BackCommand { get; }
+
+        /// <summary>Players ranked fourth and below.</summary>
         public ObservableCollection<PlayerRankEntry> RankedPlayers { get; }
+
+        /// <summary>First-place player.</summary>
         public PlayerRankEntry FirstPlace
         {
             get { return _firstPlace; }
             private set { SetProperty(ref _firstPlace, value); }
         }
+
+        /// <summary>Second-place player.</summary>
         public PlayerRankEntry SecondPlace
         {
             get { return _secondPlace; }
             private set { SetProperty(ref _secondPlace, value); }
         }
+
+        /// <summary>Third-place player.</summary>
         public PlayerRankEntry ThirdPlace
         {
             get { return _thirdPlace; }
             private set { SetProperty(ref _thirdPlace, value); }
         }
+
+        /// <summary>First-place points formatted for the current language.</summary>
         public string FirstPlaceScoreLabel
         {
             get { return _firstPlaceScoreLabel; }
             private set { SetProperty(ref _firstPlaceScoreLabel, value); }
         }
+
+        /// <summary>Second-place points formatted for the current language.</summary>
         public string SecondPlaceScoreLabel
         {
             get { return _secondPlaceScoreLabel; }
             private set { SetProperty(ref _secondPlaceScoreLabel, value); }
         }
+
+        /// <summary>Third-place points formatted for the current language.</summary>
         public string ThirdPlaceScoreLabel
         {
             get { return _thirdPlaceScoreLabel; }
             private set { SetProperty(ref _thirdPlaceScoreLabel, value); }
         }
+
+        /// <summary>Current player's rank, or a placeholder when no personal ranking is available.</summary>
         public string UserStandingRankLabel
         {
             get { return _userStandingRankLabel; }
             private set { SetProperty(ref _userStandingRankLabel, value); }
         }
+
+        /// <summary>Current player's points, or a placeholder when no personal ranking is available.</summary>
         public string UserStandingPointsLabel
         {
             get { return _userStandingPointsLabel; }
             private set { SetProperty(ref _userStandingPointsLabel, value); }
         }
+
+        /// <summary>
+        /// Listens for server and language changes and requests the leaderboard when the view loads.
+        /// </summary>
         public void Activate()
         {
             Deactivate();
@@ -120,12 +156,16 @@ namespace TLMG.Client.ViewModels
             UpdateLocalizedFormats();
             RequestLeaderboardData();
         }
+
+        /// <summary>Stops listening for server and language changes and closes the query channel.</summary>
         public void Deactivate()
         {
             _leaderboardConnection.LeaderboardResultReceived -= OnLeaderboardResultReceived;
             LanguageManager.LanguageChanged -= OnLanguageChanged;
             _leaderboardConnection.CloseLeaderboardChannel();
         }
+
+        /// <summary>Releases subscriptions and closes the query channel.</summary>
         protected override void OnDisposed()
         {
             Deactivate();
@@ -149,15 +189,15 @@ namespace TLMG.Client.ViewModels
         {
             OperationGetLeaderboardResult leaderboardResult = eventArgs.Payload;
 
-            if (leaderboardResult.IsSuccess)
+            if (leaderboardResult != null && leaderboardResult.IsSuccess)
             {
                 _personalRank = leaderboardResult.PersonalRank;
                 _personalPoints = leaderboardResult.PersonalPoints;
-                ProcessLeaderboardData(leaderboardResult.Players);
+                UpdateLeaderboard(leaderboardResult.Players);
             }
             else
             {
-                ShowLeaderboardError(leaderboardResult.ErrorKey ?? ConnectionErrorKey);
+                ShowLeaderboardError(leaderboardResult?.ErrorKey ?? ConnectionErrorKey);
             }
         }
 
@@ -172,7 +212,7 @@ namespace TLMG.Client.ViewModels
             ShowEmptyLeaderboard();
         }
 
-        private void ProcessLeaderboardData(LeaderboardPlayer[] players)
+        private void UpdateLeaderboard(LeaderboardPlayer[] players)
         {
             List<PlayerRankEntry> allEntries = new List<PlayerRankEntry>();
 
@@ -278,7 +318,7 @@ namespace TLMG.Client.ViewModels
             PlayerRankEntry emptyEntry = new PlayerRankEntry
             {
                 Rank = rank,
-                AvatarEmoji = AvatarCatalog.FindEmoji(DefaultProfileImage),
+                AvatarEmoji = AvatarCatalog.FindEmoji(AvatarCatalog.DefaultAvatarKey),
                 PlayerName = DefaultPlayerName,
                 Score = DefaultEmptyScore,
                 Wins = DefaultEmptyWins,

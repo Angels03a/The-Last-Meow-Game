@@ -9,8 +9,7 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Pruebas de RevealCard en el registro: orden de revelación, desenlace del reto que el registro conserva y
-    /// vistas públicas de las cartas volteadas.
+    /// Tests reveal order, the challenge outcome kept by the registry and public views of revealed cards.
     /// </summary>
     public class SessionRegistryMatchChallengeTests
     {
@@ -21,7 +20,7 @@ namespace TLMG.Services.Tests
         private const int UnknownUserId = 99;
         private const int NoUserId = 0;
 
-        /// <summary>Verifica RevealCard_OwnPileWithABetOfOne_SucceedsAndStartsTheNextRound.</summary>
+        /// <summary>Checks RevealCard_OwnPileWithABetOfOne_SucceedsAndStartsTheNextRound.</summary>
         [Fact]
         public void RevealCard_OwnPileWithABetOfOne_SucceedsAndStartsTheNextRound()
         {
@@ -45,7 +44,7 @@ namespace TLMG.Services.Tests
                 .HandCardCount);
         }
 
-        /// <summary>Verifica RevealCard_SecondSuccessfulChallenge_FinishesTheMatchWithTheWinner.</summary>
+        /// <summary>Checks RevealCard_SecondSuccessfulChallenge_FinishesTheMatchWithTheWinner.</summary>
         [Fact]
         public void RevealCard_SecondSuccessfulChallenge_FinishesTheMatchWithTheWinner()
         {
@@ -71,7 +70,7 @@ namespace TLMG.Services.Tests
                 item.MatchView.FinalStandings[0].UserId));
         }
 
-        /// <summary>Verifica RevealCard_PartialReveal_ShowsTheRevealedCardToEveryoneAndKeepsTheChallengeOpen.</summary>
+        /// <summary>Checks RevealCard_PartialReveal_ShowsTheRevealedCardToEveryoneAndKeepsTheChallengeOpen.</summary>
         [Fact]
         public void RevealCard_PartialReveal_ShowsTheRevealedCardToEveryoneAndKeepsTheChallengeOpen()
         {
@@ -96,7 +95,7 @@ namespace TLMG.Services.Tests
             Assert.True(delivery.ViewDeliveries[0].MatchView.CanRevealCard);
         }
 
-        /// <summary>Verifica RevealCard_OtherPileAfterTheOwnOne_CompletesThePromise.</summary>
+        /// <summary>Checks RevealCard_OtherPileAfterTheOwnOne_CompletesThePromise.</summary>
         [Fact]
         public void RevealCard_OtherPileAfterTheOwnOne_CompletesThePromise()
         {
@@ -116,7 +115,7 @@ namespace TLMG.Services.Tests
                 challenge.RevealedCards.Select(card => card.PileOwnerUserId).ToArray());
         }
 
-        /// <summary>Verifica RevealCard_FatalCatOfAnotherPlayer_FailsAndOpensABlindPunishment.</summary>
+        /// <summary>Checks RevealCard_FatalCatOfAnotherPlayer_FailsAndOpensABlindPunishment.</summary>
         [Fact]
         public void RevealCard_FatalCatOfAnotherPlayer_FailsAndOpensABlindPunishment()
         {
@@ -141,7 +140,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(scenario.UserIds[1], view.Challenge.RevealedCards.Last().PileOwnerUserId);
         }
 
-        /// <summary>Verifica RevealCard_OwnFatalCat_FailsAndTheBettorChoosesSeeingHisHand.</summary>
+        /// <summary>Checks RevealCard_OwnFatalCat_FailsAndTheBettorChoosesSeeingHisHand.</summary>
         [Fact]
         public void RevealCard_OwnFatalCat_FailsAndTheBettorChoosesSeeingHisHand()
         {
@@ -157,7 +156,7 @@ namespace TLMG.Services.Tests
             Assert.Contains(MatchCardKind.FatalCat, bettorView.OwnHandCards);
         }
 
-        /// <summary>Verifica RevealCard_ByAPlayerWhoIsNotTheBettor_IsRejectedWithNotTheBettor.</summary>
+        /// <summary>Checks RevealCard_ByAPlayerWhoIsNotTheBettor_IsRejectedWithNotTheBettor.</summary>
         [Fact]
         public void RevealCard_ByAPlayerWhoIsNotTheBettor_IsRejectedWithNotTheBettor()
         {
@@ -175,7 +174,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(versionBefore, scenario.ReadVersionAs(scenario.UserIds[0]));
         }
 
-        /// <summary>Verifica RevealCard_AnotherPileBeforeTheOwnOne_IsRejectedWithOwnPileFirst.</summary>
+        /// <summary>Checks RevealCard_AnotherPileBeforeTheOwnOne_IsRejectedWithOwnPileFirst.</summary>
         [Fact]
         public void RevealCard_AnotherPileBeforeTheOwnOne_IsRejectedWithOwnPileFirst()
         {
@@ -190,11 +189,11 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.OwnPileFirst, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica RevealCard_OnAPileWithNothingLeftToFlip_IsRejectedWithPileEmpty.</summary>
+        /// <summary>Checks RevealCard_OnAPileWithNothingLeftToFlip_IsRejectedWithPileEmpty.</summary>
         [Fact]
         public void RevealCard_OnAPileWithNothingLeftToFlip_IsRejectedWithPileEmpty()
         {
-            // Arrange: el apostador ya volteó toda su pila (una carta) y la promesa sigue en 2.
+            // Arrange: The bidder revealed their entire one-card pile and still needs two reveals in total.
             MatchPlayScenario scenario = NewScenario();
             scenario.ReachChallengeReady(MatchCardKind.Safe, PromisedTwoCards);
             scenario.Reveal(scenario.UserIds[0], scenario.UserIds[0]);
@@ -206,7 +205,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.PileEmpty, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica RevealCard_OnAPlayerWhoIsNotInTheMatch_IsRejectedWithPileOwnerNotInMatch.</summary>
+        /// <summary>Checks RevealCard_OnAPlayerWhoIsNotInTheMatch_IsRejectedWithPileOwnerNotInMatch.</summary>
         [Fact]
         public void RevealCard_OnAPlayerWhoIsNotInTheMatch_IsRejectedWithPileOwnerNotInMatch()
         {
@@ -222,7 +221,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.PileOwnerNotInMatch, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica RevealCard_WithoutAChallenge_IsRejectedWithNoChallenge.</summary>
+        /// <summary>Checks RevealCard_WithoutAChallenge_IsRejectedWithNoChallenge.</summary>
         [Fact]
         public void RevealCard_WithoutAChallenge_IsRejectedWithNoChallenge()
         {
@@ -236,7 +235,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(MatchErrorKeys.NoChallenge, delivery.ErrorKey);
         }
 
-        /// <summary>Verifica PlaceCard_AfterASuccessfulChallenge_ClearsTheChallengeOutcome.</summary>
+        /// <summary>Checks PlaceCard_AfterASuccessfulChallenge_ClearsTheChallengeOutcome.</summary>
         [Fact]
         public void PlaceCard_AfterASuccessfulChallenge_ClearsTheChallengeOutcome()
         {
@@ -251,7 +250,7 @@ namespace TLMG.Services.Tests
             Assert.All(delivery.ViewDeliveries, item => Assert.Null(item.MatchView.Challenge));
         }
 
-        /// <summary>Verifica SubscribeToMatch_AfterASuccessfulChallenge_StillShowsTheOutcomeUntilTheNextCard.</summary>
+        /// <summary>Checks SubscribeToMatch_AfterASuccessfulChallenge_StillShowsTheOutcomeUntilTheNextCard.</summary>
         [Fact]
         public void SubscribeToMatch_AfterASuccessfulChallenge_StillShowsTheOutcomeUntilTheNextCard()
         {

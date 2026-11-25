@@ -10,7 +10,7 @@ namespace TLMG.Services.Lobby
         private const int ZeroCount = 0;
 
         public ResultWithNotification<OperationLobbyRoomResult> ChangePlayerReadiness(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             OperationChangePlayerReadinessRequest lobbyRequest)
         {
             LobbyMembershipChange lobbyMembershipChange;
@@ -50,7 +50,7 @@ namespace TLMG.Services.Lobby
 
         /// <summary>Requests durable authorization without publishing a match that has not been registered.</summary>
         public ResultWithNotification<OperationRequestMatchStartResult> RequestMatchStart(
-            LobbyCaller caller,
+            SessionChannelCaller caller,
             OperationMatchStartRequest matchStartRequest)
         {
             LobbyMembershipChange lobbyMembershipChange;
