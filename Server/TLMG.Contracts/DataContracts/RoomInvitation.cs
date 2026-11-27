@@ -15,5 +15,9 @@ namespace TLMG.Contracts.DataContracts
         /// <summary>Inviting friend's nickname.</summary>
         [DataMember]
         public string InviterNickname { get; set; }
+
+        /// <summary>Inviting friend's user identifier.</summary>
+        [DataMember]
+        public int InviterUserId { get; set; }
     }
 }

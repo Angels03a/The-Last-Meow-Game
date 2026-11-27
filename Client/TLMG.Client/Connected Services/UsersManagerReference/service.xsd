@@ -147,7 +147,9 @@
   </xs:element>
   <xs:element name="GetLeaderboard">
     <xs:complexType>
-      <xs:sequence />
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
   <xs:element name="GetLeaderboardResult">
@@ -266,6 +268,13 @@
       <xs:sequence>
         <xs:element minOccurs="0" name="sequence" type="xs:int" />
         <xs:element minOccurs="0" name="errorKey" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="OnPlayerExpelled">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="roomId" type="xs:int" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -652,6 +661,92 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element xmlns:q57="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="ResetPasswordResult" nillable="true" type="q57:OperationResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="StartGuestSession">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="StartGuestSessionResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q58="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="StartGuestSessionResult" nillable="true" type="q58:OperationLogInResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BlockPlayer">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="targetUserId" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnblockPlayer">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="targetUserId" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetBlockedPlayers">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ReportPlayer">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
+        <xs:element xmlns:q59="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="submission" nillable="true" type="q59:ReportSubmission" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VoteToKick">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sessionToken" nillable="true" type="xs:string" />
+        <xs:element xmlns:q60="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="vote" nillable="true" type="q60:KickVote" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BlockPlayerCompleted">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q61="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operation" nillable="true" type="q61:OperationResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnblockPlayerCompleted">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q62="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operation" nillable="true" type="q62:OperationResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BlockedPlayersReceived">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q63="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="blockedPlayers" nillable="true" type="q63:BlockedPlayerList" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ReportPlayerCompleted">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q64="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operation" nillable="true" type="q64:OperationResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="KickVoteCompleted">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q65="http://schemas.datacontract.org/2004/07/TLMG.Contracts.DataContracts" minOccurs="0" name="operation" nillable="true" type="q65:OperationResult" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

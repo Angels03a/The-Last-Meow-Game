@@ -2,30 +2,22 @@
 
 namespace TLMG.Client.Navigation
 {
-    /// <summary>
-    /// Parámetro de navegación hacia la pantalla de moderación.
-    /// </summary>
-    public class ModerationNavigationParameter
+    public sealed class ModerationNavigationParameter
     {
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="ModerationNavigationParameter"/>.
-        /// </summary>
-        /// <param name="playerName">Jugador sobre el que se actúa.</param>
-        /// <param name="moderationMode">Reporte o bloqueo.</param>
-        public ModerationNavigationParameter(string playerName, ModerationMode moderationMode)
+        public ModerationNavigationParameter(int targetUserId, string playerName,
+            int roomId, ModerationMode mode, ScreenId returnScreen)
         {
+            TargetUserId = targetUserId;
             PlayerName = playerName;
-            TypeOfModerationMode = moderationMode;
+            RoomId = roomId;
+            Mode = mode;
+            ReturnScreen = returnScreen;
         }
 
-        /// <summary>
-        /// Jugador sobre el que se actúa.
-        /// </summary>
+        public int TargetUserId { get; }
         public string PlayerName { get; }
-
-        /// <summary>
-        /// Reporte o bloqueo.
-        /// </summary>
-        public ModerationMode TypeOfModerationMode { get; }
+        public int RoomId { get; }
+        public ModerationMode Mode { get; }
+        public ScreenId ReturnScreen { get; }
     }
 }

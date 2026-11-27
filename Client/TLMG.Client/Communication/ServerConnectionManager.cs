@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ServiceModel;
 using System.Windows.Threading;
@@ -9,11 +9,17 @@ namespace TLMG.Client.Communication
 {
     internal sealed partial class ServerConnectionManager
     {
-        private const int NoUserId = 0;
+        internal const int NoUserId = 0;
+        private const int RoomOperationConfirmationMilliseconds = 10000;
+        private const int NoInvitationId = 0;
+        private const int NoRoomId = 0;
+        private const string RoomOperationErrorKey = "Common_UnexpectedError";
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(ServerConnectionManager));
 
         private readonly Dispatcher _interfaceDispatcher;
+        private readonly ModerationConnection _moderationConnection;
+        private readonly ModerationChannel _moderationChannel;
         private FriendsManagerClient _friendsClient;
         private IClientChannel _friendsChannel;
         private ServerCallback _friendsCallback;
@@ -22,6 +28,8 @@ namespace TLMG.Client.Communication
         private ServerCallback _lobbyCallback;
         private string _sessionToken;
         private int? _enteringRoomId;
+        private long? _invitationAcceptanceUntil;
+        private long? _roomEntryUntil;
         private int _pendingLeaveRequests;
         private int? _finishedLeaveRoomId;
         private Guid? _finishedLeaveMatchId;
@@ -29,6 +37,8 @@ namespace TLMG.Client.Communication
         public ServerConnectionManager(Dispatcher interfaceDispatcher)
         {
             _interfaceDispatcher = interfaceDispatcher;
+            _moderationChannel = new ModerationChannel(interfaceDispatcher, _heartbeatClock);
+            _moderationConnection = new ModerationConnection(this, _moderationChannel);
             Countdown.StartRequested += OnCountdownStartRequested;
         }
 
@@ -70,11 +80,21 @@ namespace TLMG.Client.Communication
 
         public event EventHandler ConnectionLost;
 
-        public bool HasRegisteredSession => !string.IsNullOrEmpty(_sessionToken);
+        internal IModerationConnection Moderation { get { return _moderationConnection; } }
+
+        internal string SessionToken { get { return _sessionToken; } }
+        public bool HasSession { get { return !string.IsNullOrEmpty(_sessionToken); } }
+        public bool IsGuestSession { get; private set; }
+        public bool HasRegisteredSession { get { return HasSession && !IsGuestSession; } }
 
         public LobbyRoom CurrentRoom { get; private set; }
 
         public bool IsRoomCreationPending { get; private set; }
+
+        internal bool CanReceiveRoomInvitation => HasSession && _friendsClient != null
+            && CurrentRoom == null && !IsRoomCreationPending && _pendingLeaveRequests == 0
+            && !_invitationAcceptanceUntil.HasValue && !_enteringRoomId.HasValue
+            && !IsMatchRecoveryPending && !IsMatchRecoveryExhausted;
 
         public IReadOnlyList<Friend> FriendList { get; private set; }
 
@@ -90,20 +110,13 @@ namespace TLMG.Client.Communication
             if (IsRegisteredSessionResult(operationLogInResult))
             {
                 _sessionToken = operationLogInResult.SessionToken;
+                IsGuestSession = operationLogInResult.IsGuest;
                 PlayerUserId = operationLogInResult.UserId;
                 PlayerNickname = operationLogInResult.Nickname;
                 wasRegisterSessionStarted = true;
-                _startingSession = true;
-                try
-                {
-                    RequestRecovery();
-                    DiscoverRecoveryContext();
-                }
-                finally
-                {
-                    _startingSession = false;
-                }
-                if (HasRegisteredSession)
+                RequestRecovery();
+                DiscoverRecoveryContext(notifyMatchContextEnded: false);
+                if (HasSession)
                 {
                     StartHeartbeat();
                 }
@@ -114,7 +127,7 @@ namespace TLMG.Client.Communication
             }
             else
             {
-                _log.Warn("Se ignoró un resultado de inicio de sesión que no trae una sesión registrada.");
+                _log.Warn("Se ignoró un resultado de inicio de sesión que no trae una sesión.");
             }
 
             return wasRegisterSessionStarted;
@@ -122,6 +135,9 @@ namespace TLMG.Client.Communication
 
         public void Disconnect()
         {
+            _invitationAcceptanceUntil = null;
+            _roomEntryUntil = null;
+            _moderationChannel.Close();
             StopHeartbeat();
             ResetRecovery();
             UnwatchChannel(_friendsChannel);
@@ -140,6 +156,7 @@ namespace TLMG.Client.Communication
             _finishedLeaveRoomId = null;
             _finishedLeaveMatchId = null;
             _sessionToken = null;
+            IsGuestSession = false;
             PlayerUserId = NoUserId;
             PlayerNickname = null;
             FriendList = null;
@@ -149,17 +166,22 @@ namespace TLMG.Client.Communication
 
         public bool RequestFriendList()
         {
-            bool wasRequestFriendListSent = false;
-
-            if (_friendsClient == null && HasRegisteredSession)
+            void SendFriendList()
             {
-                _friendsRecoveryAttempts = 0;
-                return true;
+                _friendsClient.SubscribeToFriends(_sessionToken);
             }
 
-            if (_friendsClient != null && HasRegisteredSession)
+            bool wasRequestFriendListSent = false;
+
+            if (_friendsClient == null && HasSession)
             {
-                wasRequestFriendListSent = TrySend(() => _friendsClient.SubscribeToFriends(_sessionToken),
+                _friendsRecoveryAttempts = 0;
+                wasRequestFriendListSent = true;
+            }
+
+            if (_friendsClient != null && HasSession)
+            {
+                wasRequestFriendListSent = TrySend(SendFriendList,
                     "pedir la lista de amigos", CloseFriendsChannel);
             }
 
@@ -168,12 +190,17 @@ namespace TLMG.Client.Communication
 
         public bool InviteFriendToRoom(int friendUserId)
         {
+            void SendInvitation()
+            {
+                _friendsClient.InviteFriendToRoom(_sessionToken, friendUserId);
+            }
+
             bool wasInviteFriendToRoomSent = false;
 
-            if (_friendsClient != null && HasRegisteredSession)
+            if (_friendsClient != null && HasSession)
             {
                 wasInviteFriendToRoomSent = TrySend(
-                    () => _friendsClient.InviteFriendToRoom(_sessionToken, friendUserId),
+                    SendInvitation,
                     "invitar a un amigo a la sala", CloseFriendsChannel);
             }
 
@@ -182,13 +209,24 @@ namespace TLMG.Client.Communication
 
         public bool AcceptRoomInvitation(int invitationId)
         {
+            void AcceptInvitation()
+            {
+                _friendsClient.AcceptRoomInvitation(_sessionToken, invitationId);
+            }
+
             bool wasAcceptRoomInvitationSent = false;
 
-            if (_friendsClient != null && HasRegisteredSession)
+            if (CanReceiveRoomInvitation && invitationId > NoInvitationId)
             {
                 wasAcceptRoomInvitationSent = TrySend(
-                    () => _friendsClient.AcceptRoomInvitation(_sessionToken, invitationId),
+                    AcceptInvitation,
                     "aceptar una invitación a la sala", CloseFriendsChannel);
+
+                if (wasAcceptRoomInvitationSent)
+                {
+                    _invitationAcceptanceUntil = _heartbeatClock.ElapsedMilliseconds
+                        + RoomOperationConfirmationMilliseconds;
+                }
             }
 
             return wasAcceptRoomInvitationSent;
@@ -196,11 +234,18 @@ namespace TLMG.Client.Communication
 
         public bool CreateRoom()
         {
+            void SendRoomCreation()
+            {
+                _lobbyClient.CreateRoom(_sessionToken);
+            }
+
             bool wasCreateRoomSent = false;
 
-            if (OpenLobbyChannel())
+            if (HasRegisteredSession && CurrentRoom == null && !IsRoomCreationPending
+                && !_invitationAcceptanceUntil.HasValue && !_enteringRoomId.HasValue
+                && _pendingLeaveRequests == 0 && OpenLobbyChannel())
             {
-                wasCreateRoomSent = TrySend(() => _lobbyClient.CreateRoom(_sessionToken),
+                wasCreateRoomSent = TrySend(SendRoomCreation,
                     "crear una sala", CloseLobbyChannel);
                 IsRoomCreationPending = wasCreateRoomSent;
             }
@@ -210,16 +255,24 @@ namespace TLMG.Client.Communication
 
         public bool EnterLobby(int roomId)
         {
+            void SendRoomEntry()
+            {
+                _lobbyClient.EnterLobby(_sessionToken, roomId);
+            }
+
             bool wasRequestEnterLobbySent = false;
 
-            if (!_recoveryLobbyUntil.HasValue && !_enteringRoomId.HasValue && OpenLobbyChannel())
+            if (HasSession && roomId > NoRoomId && CurrentRoom == null && !IsRoomCreationPending
+                && _pendingLeaveRequests == 0 && !_invitationAcceptanceUntil.HasValue
+                && !_recoveryLobbyUntil.HasValue && !_enteringRoomId.HasValue && OpenLobbyChannel())
             {
-                wasRequestEnterLobbySent = TrySend(() => _lobbyClient.EnterLobby(_sessionToken, roomId),
+                wasRequestEnterLobbySent = TrySend(SendRoomEntry,
                     "entrar a una sala", CloseLobbyChannel);
 
                 if (wasRequestEnterLobbySent)
                 {
                     _enteringRoomId = roomId;
+                    _roomEntryUntil = _heartbeatClock.ElapsedMilliseconds + RoomOperationConfirmationMilliseconds;
                 }
             }
 
@@ -228,19 +281,22 @@ namespace TLMG.Client.Communication
 
         public bool LeaveLobby()
         {
-            bool wasRequestLeaveLobbySent = false;
-            if (_finishedLeaveRoomId.HasValue)
+            void SendRoomDeparture()
             {
-                return false;
+                _lobbyClient.LeaveLobby(_sessionToken);
             }
 
-            ClearCurrentRoom();
-
-            if (OpenLobbyChannel())
+            bool wasRequestLeaveLobbySent = false;
+            if (!_finishedLeaveRoomId.HasValue)
             {
-                _pendingLeaveRequests++;
-                wasRequestLeaveLobbySent = TrySend(() => _lobbyClient.LeaveLobby(_sessionToken),
-                    "salir de una sala", CloseLobbyChannel);
+                ClearCurrentRoom();
+
+                if (OpenLobbyChannel())
+                {
+                    _pendingLeaveRequests++;
+                    wasRequestLeaveLobbySent = TrySend(SendRoomDeparture,
+                        "salir de una sala", CloseLobbyChannel);
+                }
             }
 
             return wasRequestLeaveLobbySent;
@@ -248,6 +304,11 @@ namespace TLMG.Client.Communication
 
         public bool LeaveFinishedMatch(Guid matchId)
         {
+            void SendMatchDeparture()
+            {
+                _lobbyClient.LeaveLobby(_sessionToken);
+            }
+
             bool wasSent = false;
             if (CurrentRoom != null && CurrentRoom.MatchId == matchId && _pendingLeaveRequests == 0
                 && OpenLobbyChannel())
@@ -255,7 +316,7 @@ namespace TLMG.Client.Communication
                 _finishedLeaveRoomId = CurrentRoom.RoomId;
                 _finishedLeaveMatchId = matchId;
                 _pendingLeaveRequests++;
-                wasSent = TrySend(() => _lobbyClient.LeaveLobby(_sessionToken), "salir de la partida terminada", CloseLobbyChannel);
+                wasSent = TrySend(SendMatchDeparture, "salir de la partida terminada", CloseLobbyChannel);
             }
 
             return wasSent;
@@ -265,16 +326,37 @@ namespace TLMG.Client.Communication
         {
             _interfaceDispatcher.BeginInvoke(action);
         }
-
-        /// <summary>
-        /// Passes a friends or lobby notification to the UI thread. It checks the channel when the notification runs
-        /// because the channel may close after the notification arrives.
-        /// </summary>
-        /// <param name="callback">Receiver that delivered the notification.</param>
-        /// <param name="notification">Notification to apply only if the receiver is still current.</param>
         internal void RunOnInterfaceIfCurrent(ServerCallback callback, Action notification)
         {
-            RunOnInterface(() => RunIfCurrentCallback(callback, notification));
+            void DeliverCurrentNotification()
+            {
+                RunIfCurrentCallback(callback, notification);
+            }
+
+            RunOnInterface(DeliverCurrentNotification);
+        }
+
+        internal void NotifyPlayerExpelled(ServerCallback callback, int roomId)
+        {
+            bool isCurrentRoom = callback != null && ReferenceEquals(callback, _lobbyCallback)
+                && CurrentRoom != null && CurrentRoom.RoomId == roomId && HasSession;
+
+            if (isCurrentRoom)
+            {
+                bool wasInMatch = CurrentRoom.MatchId.HasValue;
+                ClearCurrentRoom();
+                CloseLobbyChannel();
+                bool hasExpulsionSubscribers = _moderationConnection.NotifyPlayerExpelled(roomId);
+
+                if (wasInMatch && !hasExpulsionSubscribers)
+                {
+                    MatchContextEnded?.Invoke(this, EventArgs.Empty);
+                }
+            }
+            else
+            {
+                _log.WarnFormat("Ignored expulsion notification for room {0}: no matching current lobby context.", roomId);
+            }
         }
 
         internal void NotifyFriendListReceived(
@@ -296,7 +378,17 @@ namespace TLMG.Client.Communication
 
         internal void NotifyFriendPresenceChanged(Friend friend)
         {
-            UpdateFriendPresence(friend);
+            bool isGuestGoneOffline = friend != null && friend.UserId < NoUserId && !friend.IsOnline;
+
+            if (isGuestGoneOffline)
+            {
+                RemoveGuestFriend(friend.UserId);
+            }
+            else
+            {
+                UpdateFriendPresence(friend);
+            }
+
             FriendPresenceChanged?.Invoke(this, new ServerEventArgs<Friend>(friend));
         }
 
@@ -409,20 +501,38 @@ namespace TLMG.Client.Communication
         internal void NotifyAcceptInvitationResultReceived(
             OperationAcceptRoomInvitationResult operationAcceptRoomInvitationResult)
         {
-            operationAcceptRoomInvitationResult = NormalizeOperationResult(operationAcceptRoomInvitationResult);
-            AcceptInvitationResultReceived?.Invoke(
-                this,
-                new ServerEventArgs<OperationAcceptRoomInvitationResult>(operationAcceptRoomInvitationResult));
+            if (_invitationAcceptanceUntil.HasValue && HasSession)
+            {
+                if (_heartbeatClock.ElapsedMilliseconds >= _invitationAcceptanceUntil.Value)
+                {
+                    CloseFriendsChannel();
+                }
+                else
+                {
+                    _invitationAcceptanceUntil = null;
+                    operationAcceptRoomInvitationResult = NormalizeOperationResult(operationAcceptRoomInvitationResult);
+                    AcceptInvitationResultReceived?.Invoke(this,
+                        new ServerEventArgs<OperationAcceptRoomInvitationResult>(operationAcceptRoomInvitationResult));
+                }
+            }
+            else
+            {
+                _log.Warn("Ignored an invitation confirmation without a pending acceptance.");
+            }
         }
 
-        private static T NormalizeOperationResult<T>(T result) where T : OperationResult, new()
+        internal static ResultType NormalizeOperationResult<ResultType>(ResultType result)
+            where ResultType : OperationResult, new()
         {
-            if (result == null || (result.IsSuccess && result.ErrorKey != string.Empty)
-                || (!result.IsSuccess && (string.IsNullOrWhiteSpace(result.ErrorKey)
-                    || (System.Windows.Application.Current != null
-                        && !(System.Windows.Application.Current.TryFindResource(result.ErrorKey) is string)))))
+            const string unexpectedErrorKey = "Common_UnexpectedError";
+
+            if (result == null)
             {
-                result = new T { IsSuccess = false, ErrorKey = "Common_UnexpectedError" };
+                result = CreateFailedResult<ResultType>(unexpectedErrorKey);
+            }
+            else
+            {
+                NormalizeAccountResult(result, unexpectedErrorKey);
             }
 
             return result;
@@ -450,24 +560,39 @@ namespace TLMG.Client.Communication
             if (_recoveryLobbyUntil.HasValue)
             {
                 CompleteRecoveryLobby(operationEnterLobbyResult);
-                return;
             }
-
-            LobbyRoom enteredRoom = operationEnterLobbyResult.Room;
-            bool isExpectedEntry = operationEnterLobbyResult.IsSuccess && IsEnteringRoom(enteredRoom);
-            bool isAlreadyShowingRoom = IsSameRoom(CurrentRoom, enteredRoom);
-
-            if (isExpectedEntry || isAlreadyShowingRoom)
+            else if (_enteringRoomId.HasValue && _roomEntryUntil.HasValue)
             {
-                _lobbyBoundRoomId = enteredRoom.RoomId;
-                ApplyRoomSnapshot(enteredRoom);
+                if (_heartbeatClock.ElapsedMilliseconds >= _roomEntryUntil.Value)
+                {
+                    CloseLobbyChannel();
+                }
+                else
+                {
+                    LobbyRoom enteredRoom = operationEnterLobbyResult.Room;
+                    bool isExpectedEntry = operationEnterLobbyResult.IsSuccess && IsEnteringRoom(enteredRoom);
+                    _enteringRoomId = null;
+                    _roomEntryUntil = null;
+
+                    if (isExpectedEntry)
+                    {
+                        _lobbyBoundRoomId = enteredRoom.RoomId;
+                        ApplyRoomSnapshot(enteredRoom);
+                    }
+                    else if (operationEnterLobbyResult.IsSuccess)
+                    {
+                        operationEnterLobbyResult = CreateFailedResult<OperationLobbyRoomResult>(RoomOperationErrorKey);
+                        CloseLobbyChannel();
+                    }
+
+                    EnterLobbyResultReceived?.Invoke(this,
+                        new ServerEventArgs<OperationLobbyRoomResult>(operationEnterLobbyResult));
+                }
             }
-
-            _enteringRoomId = null;
-
-            EnterLobbyResultReceived?.Invoke(
-                this,
-                new ServerEventArgs<OperationLobbyRoomResult>(operationEnterLobbyResult));
+            else
+            {
+                _log.Warn("Ignored a room entry confirmation without a pending entry.");
+            }
         }
 
         internal void NotifyLeaveLobbyResultReceived(OperationResult operationLeaveLobbyResult)
@@ -523,11 +648,6 @@ namespace TLMG.Client.Communication
                 _log.Debug("Se ignoró el aviso de una sala que no es la sala actual del jugador.");
             }
         }
-
-        /// <summary>
-        /// Applies notifications only from the current friends or lobby receiver. Each new channel has its own
-        /// receiver, so old callbacks leave the current state unchanged.
-        /// </summary>
         private void RunIfCurrentCallback(ServerCallback callback, Action notification)
         {
             bool isCurrentCallback = callback != null
@@ -557,6 +677,26 @@ namespace TLMG.Client.Communication
             }
         }
 
+        private void RemoveGuestFriend(int guestUserId)
+        {
+            if (FriendList != null)
+            {
+                List<Friend> remainingFriends = new List<Friend>();
+
+                foreach (Friend listedFriend in FriendList)
+                {
+                    if (listedFriend.UserId != guestUserId)
+                    {
+                        remainingFriends.Add(listedFriend);
+                    }
+                }
+
+                FriendList = remainingFriends;
+            }
+
+            RemovePendingFriendRequestsOfUser(guestUserId);
+        }
+
         private void ClearCurrentRoom()
         {
             bool wasRecoveringLobby = _recoveryLobbyUntil.HasValue;
@@ -574,6 +714,7 @@ namespace TLMG.Client.Communication
             Countdown.ResetTimerForMatchStart();
             IsRoomCreationPending = false;
             _enteringRoomId = null;
+            _roomEntryUntil = null;
         }
 
         private static bool IsSameRoom(LobbyRoom firstRoom, LobbyRoom secondRoom)
@@ -601,6 +742,11 @@ namespace TLMG.Client.Communication
 
         private bool TryOpenFriendsChannel()
         {
+            void SubscribeToFriends()
+            {
+                _friendsClient.SubscribeToFriends(_sessionToken);
+            }
+
             bool wasFriendsChannelOpened = false;
 
             try
@@ -611,16 +757,16 @@ namespace TLMG.Client.Communication
                 WatchChannel(_friendsChannel);
                 OpenConnection(_friendsClient);
                 _friendsSubscriptionUntil = _heartbeatClock.ElapsedMilliseconds + RecoveryReplyMilliseconds;
-                SendConnectionRequest(_friendsChannel, () => _friendsClient.SubscribeToFriends(_sessionToken));
+                SendConnectionRequest(_friendsChannel, SubscribeToFriends);
                 wasFriendsChannelOpened = true;
             }
-            catch (CommunicationException ex)
+            catch (CommunicationException communicationException)
             {
-                _log.Error("Error de comunicación al abrir el canal de amigos.", ex);
+                _log.Error("Error de comunicación al abrir el canal de amigos.", communicationException);
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException timeoutException)
             {
-                _log.Error("Se agotó el tiempo al abrir el canal de amigos.", ex);
+                _log.Error("Se agotó el tiempo al abrir el canal de amigos.", timeoutException);
             }
 
             if (!wasFriendsChannelOpened)
@@ -634,7 +780,7 @@ namespace TLMG.Client.Communication
         {
             bool isLobbyChannelOpen = _lobbyClient != null;
 
-            if (!isLobbyChannelOpen && HasRegisteredSession)
+            if (!isLobbyChannelOpen && HasSession)
             {
                 isLobbyChannelOpen = TryOpenLobbyChannel();
 
@@ -660,13 +806,13 @@ namespace TLMG.Client.Communication
                 OpenConnection(_lobbyClient);
                 wasLobbyChannelOpened = true;
             }
-            catch (CommunicationException ex)
+            catch (CommunicationException communicationException)
             {
-                _log.Error("Error de comunicación al abrir el canal de lobby.", ex);
+                _log.Error("Error de comunicación al abrir el canal de lobby.", communicationException);
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException timeoutException)
             {
-                _log.Error("Se agotó el tiempo al abrir el canal de lobby.", ex);
+                _log.Error("Se agotó el tiempo al abrir el canal de lobby.", timeoutException);
             }
 
             return wasLobbyChannelOpened;
@@ -681,14 +827,14 @@ namespace TLMG.Client.Communication
                 sendOperation();
                 wasSent = true;
             }
-            catch (CommunicationException ex)
+            catch (CommunicationException communicationException)
             {
-                _log.Error(string.Format("Error de comunicación al {0}.", operationDescription), ex);
+                _log.Error(string.Format("Error de comunicación al {0}.", operationDescription), communicationException);
                 onFailure();
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException timeoutException)
             {
-                _log.Error(string.Format("Se agotó el tiempo al {0}.", operationDescription), ex);
+                _log.Error(string.Format("Se agotó el tiempo al {0}.", operationDescription), timeoutException);
                 onFailure();
             }
 
@@ -712,7 +858,12 @@ namespace TLMG.Client.Communication
 
         private void OnServerChannelEnded(object sender, EventArgs eventArguments)
         {
-            RunOnInterface(() => DisconnectIfCurrentChannelEnded(sender));
+            void HandleEndedChannel()
+            {
+                DisconnectIfCurrentChannelEnded(sender);
+            }
+
+            RunOnInterface(HandleEndedChannel);
         }
 
         private void DisconnectIfCurrentChannelEnded(object channel)
@@ -737,7 +888,9 @@ namespace TLMG.Client.Communication
 
         private void CloseLobbyChannel()
         {
-            var client = _lobbyClient;
+            LobbyManagerClient client = _lobbyClient;
+            bool wasEntryPending = _roomEntryUntil.HasValue;
+            _roomEntryUntil = null;
             UnwatchChannel(_lobbyChannel);
             _lobbyClient = null;
             _lobbyCallback = null;
@@ -758,12 +911,19 @@ namespace TLMG.Client.Communication
             {
                 ClearCurrentRoom();
             }
-        }
 
+            if (wasEntryPending && HasSession)
+            {
+                EnterLobbyResultReceived?.Invoke(this, new ServerEventArgs<OperationLobbyRoomResult>(
+                    CreateFailedResult<OperationLobbyRoomResult>(RoomOperationErrorKey)));
+            }
+        }
 
         private void CloseFriendsChannel()
         {
-            var client = _friendsClient;
+            FriendsManagerClient client = _friendsClient;
+            bool wasAcceptancePending = _invitationAcceptanceUntil.HasValue;
+            _invitationAcceptanceUntil = null;
             UnwatchChannel(_friendsChannel);
             _friendsClient = null;
             _friendsChannel = null;
@@ -771,6 +931,12 @@ namespace TLMG.Client.Communication
             _friendsSubscriptionUntil = null;
             FriendList = null;
             client?.Abort();
+
+            if (wasAcceptancePending && HasSession)
+            {
+                AcceptInvitationResultReceived?.Invoke(this, new ServerEventArgs<OperationAcceptRoomInvitationResult>(
+                    CreateFailedResult<OperationAcceptRoomInvitationResult>(RoomOperationErrorKey)));
+            }
         }
 
         private void DisconnectAndNotifyConnectionLost()
@@ -794,14 +960,14 @@ namespace TLMG.Client.Communication
                         client.Close();
                     }
                 }
-                catch (CommunicationException ex)
+                catch (CommunicationException communicationException)
                 {
-                    _log.Warn("No se pudo cerrar limpiamente un canal con el servidor.", ex);
+                    _log.Warn("No se pudo cerrar limpiamente un canal con el servidor.", communicationException);
                     client.Abort();
                 }
-                catch (TimeoutException ex)
+                catch (TimeoutException timeoutException)
                 {
-                    _log.Warn("Se agotó el tiempo al cerrar un canal con el servidor.", ex);
+                    _log.Warn("Se agotó el tiempo al cerrar un canal con el servidor.", timeoutException);
                     client.Abort();
                 }
             }

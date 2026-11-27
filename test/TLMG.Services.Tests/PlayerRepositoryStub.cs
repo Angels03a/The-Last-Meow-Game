@@ -25,6 +25,9 @@ namespace TLMG.Services.Tests
         /// <summary>Player limits received by the leaderboard query, in call order.</summary>
         internal List<int> RequestedLeaderboardLimits { get; } = new List<int>();
 
+        /// <summary>Registered user identifiers received by the leaderboard query, in call order.</summary>
+        internal List<int?> RequestedLeaderboardUserIds { get; } = new List<int?>();
+
         /// <summary>Emails received by the lookups of existence and of credentials, in call order.</summary>
         internal List<string> LookedUpEmails { get; } = new List<string>();
 
@@ -41,10 +44,12 @@ namespace TLMG.Services.Tests
         public PlayerExistenceLookupStatus FindEmailExistenceStatus(string email)
         {
             LookedUpEmails.Add(email);
+
             if (ThrowOnLookup)
             {
                 throw new InvalidOperationException("Fallo sintético del repositorio.");
             }
+
             return EmailStatus;
         }
 
@@ -52,6 +57,7 @@ namespace TLMG.Services.Tests
         public PlayerExistenceLookupStatus FindNicknameExistenceStatus(string nickname)
         {
             LookedUpNicknames.Add(nickname);
+
             return NicknameStatus;
         }
 
@@ -59,6 +65,7 @@ namespace TLMG.Services.Tests
         public bool CreatePlayer(string nickname, string email, string passwordHash)
         {
             CreatedPlayers.Add(new CreatedPlayerRecord(nickname, email, passwordHash));
+
             return SaveSucceeds;
         }
 
@@ -66,10 +73,12 @@ namespace TLMG.Services.Tests
         public PlayerCredentials FindCredentialsByEmail(string email)
         {
             LookedUpEmails.Add(email);
+
             if (ThrowOnLookup)
             {
                 throw new InvalidOperationException("Fallo sintético del repositorio.");
             }
+
             return Credentials;
         }
 
@@ -77,13 +86,17 @@ namespace TLMG.Services.Tests
         public bool UpdateLastLogInTime(int userId, DateTime lastLogInTimeUtc)
         {
             UpdatedLogInUserIds.Add(userId);
+
             return UpdateSucceeds;
         }
 
         /// <inheritdoc />
-        public LeaderboardLookup FindTopRankedPlayers(int maximumPlayerCount)
+        public LeaderboardLookup FindTopRankedPlayers(
+            int maximumPlayerCount,
+            int? registeredUserId = null)
         {
             RequestedLeaderboardLimits.Add(maximumPlayerCount);
+            RequestedLeaderboardUserIds.Add(registeredUserId);
 
             return Leaderboard;
         }

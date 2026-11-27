@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using TLMG.Domain.Engine;
@@ -17,20 +17,21 @@ namespace TLMG.Services.Sessions
         /// <param name="matchState">Engine state, used for reading only.</param>
         /// <param name="nicknamesByUserId">Nicknames recorded at match start.</param>
         /// <param name="lastChallenge">Latest challenge outcome, or null if none is current.</param>
+        /// <param name="guestUserIds">Guest identifiers recorded at match start; guests receive zero points.</param>
         internal MatchViewContext(
             Guid matchId,
             int version,
             MatchState matchState,
             IReadOnlyDictionary<int, string> nicknamesByUserId,
             MatchChallengeRecord lastChallenge,
-            bool allParticipantsRegistered = false)
+            IReadOnlyList<int> guestUserIds = null)
         {
             MatchId = matchId;
             Version = version;
             MatchState = matchState;
             NicknamesByUserId = nicknamesByUserId;
             LastChallenge = lastChallenge;
-            AllParticipantsRegistered = allParticipantsRegistered;
+            GuestUserIds = guestUserIds ?? Array.Empty<int>();
         }
 
         /// <summary>Match for this view.</summary>
@@ -45,8 +46,8 @@ namespace TLMG.Services.Sessions
         /// <summary>Nicknames recorded at match start.</summary>
         internal IReadOnlyDictionary<int, string> NicknamesByUserId { get; }
 
-        /// <summary>Whether all identities were verified as registered accounts.</summary>
-        internal bool AllParticipantsRegistered { get; }
+        /// <summary>Guests of the match, whose standings show zero points.</summary>
+        internal IReadOnlyList<int> GuestUserIds { get; }
 
         /// <summary>Latest challenge outcome, or null if none is current.</summary>
         internal MatchChallengeRecord LastChallenge { get; }

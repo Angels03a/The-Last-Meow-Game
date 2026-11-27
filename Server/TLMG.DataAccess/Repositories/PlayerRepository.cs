@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity;
-using System.Data.Entity.Core;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Validation;
 using System.Data.SqlClient;
 using System.Linq;
 using log4net;
@@ -13,9 +11,6 @@ using TLMG.Domain.Repositories;
 
 namespace TLMG.DataAccess.Repositories
 {
-    /// <summary>
-    /// Implementación del acceso a cuentas con Entity Framework 6.
-    /// </summary>
     public class PlayerRepository : IPlayerRepository
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerRepository));
@@ -28,18 +23,18 @@ namespace TLMG.DataAccess.Repositories
             {
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
                 {
-                    bool playerExists = context.User.Any(user => user.email == email);
+                    bool playerExists = (from user in context.User where user.email == email select user.id_user).Any();
                     playerExistenceLookupStatus = ConvertToExistenceStatus(playerExists);
                 }
             }
             catch (SqlException sqlException)
             {
-                _log.Error("Error de conexión al comprobar el correo de una cuenta.", sqlException);
+                _log.Error("Database connection failed while checking email availability.", sqlException);
                 playerExistenceLookupStatus = PlayerExistenceLookupStatus.DataFailure;
             }
-            catch (EntityException entityException)
+            catch (DataException dataException)
             {
-                _log.Error("La base de datos falló al comprobar el correo de una cuenta.", entityException);
+                _log.Error("Data operation failed while checking email availability.", dataException);
                 playerExistenceLookupStatus = PlayerExistenceLookupStatus.DataFailure;
             }
 
@@ -54,18 +49,18 @@ namespace TLMG.DataAccess.Repositories
             {
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
                 {
-                    bool playerExists = context.User.Any(user => user.nickname == nickname);
+                    bool playerExists = (from user in context.User where user.nickname == nickname select user.id_user).Any();
                     playerExistenceLookupStatus = ConvertToExistenceStatus(playerExists);
                 }
             }
             catch (SqlException sqlException)
             {
-                _log.Error("Error de conexión al comprobar el nickname de una cuenta.", sqlException);
+                _log.Error("Database connection failed while checking nickname availability.", sqlException);
                 playerExistenceLookupStatus = PlayerExistenceLookupStatus.DataFailure;
             }
-            catch (EntityException entityException)
+            catch (DataException dataException)
             {
-                _log.Error("La base de datos falló al comprobar el nickname de una cuenta.", entityException);
+                _log.Error("Data operation failed while checking nickname availability.", dataException);
                 playerExistenceLookupStatus = PlayerExistenceLookupStatus.DataFailure;
             }
 
@@ -81,36 +76,19 @@ namespace TLMG.DataAccess.Repositories
                 InsertPlayerWithInitialStatistics(nickname, email, passwordHash);
                 wasPlayerCreated = true;
             }
-            catch (DbUpdateException dbUpdateException)
-            {
-                _log.Error(
-                    string.Format("Error al guardar la cuenta del jugador {0}.", nickname),
-                    dbUpdateException);
-            }
-            catch (DbEntityValidationException dbEntityValidationException)
-            {
-                _log.Error(
-                    string.Format("Datos inválidos para la base de datos del jugador {0}.", nickname),
-                    dbEntityValidationException);
-            }
-            catch (EntityException entityException)
-            {
-                _log.Error(
-                    string.Format("La base de datos no respondió al registrar a {0}.", nickname),
-                    entityException);
-            }
             catch (SqlException sqlException)
             {
                 _log.Error(
-                    string.Format("Error de conexión al registrar a {0}.", nickname),
+                    string.Format("Database connection failed while registering {0}.", nickname),
                     sqlException);
             }
-            catch (Exception exception)
+            catch (DataException dataException)
             {
                 _log.Error(
-                    string.Format("Error inesperado al registrar a {0}.", nickname),
-                    exception);
+                    string.Format("Data operation failed while registering {0}.", nickname),
+                    dataException);
             }
+
             return wasPlayerCreated;
         }
 
@@ -122,17 +100,16 @@ namespace TLMG.DataAccess.Repositories
             {
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
                 {
-                    playerCredentials = context.User
-                        .AsNoTracking()
-                        .Where(user => user.email == email)
-                        .Select(user => new PlayerCredentials
-                        {
-                            Status = CredentialsLookupStatus.Found,
-                            UserId = user.id_user,
-                            Nickname = user.nickname,
-                            PasswordHash = user.password_hash,
-                            State = user.state
-                        })
+                    playerCredentials = (from user in context.User.AsNoTracking()
+                                         where user.email == email
+                                         select new PlayerCredentials
+                                         {
+                                             Status = CredentialsLookupStatus.Found,
+                                             UserId = user.id_user,
+                                             Nickname = user.nickname,
+                                             PasswordHash = user.password_hash,
+                                             State = user.state
+                                         })
                         .FirstOrDefault();
                 }
 
@@ -143,14 +120,14 @@ namespace TLMG.DataAccess.Repositories
             }
             catch (SqlException sqlException)
             {
-                _log.Error("Error de conexiónal buscar las credenciales de una cuenta.", sqlException);
+                _log.Error("Database connection failed while reading credentials.", sqlException);
                 playerCredentials = new PlayerCredentials { Status = CredentialsLookupStatus.DataFailure };
             }
-            catch (EntityException entityException)
+            catch (DataException dataException)
             {
                 _log.Error(
-                    "La base de datos no respondió al buscar las credenciales de una cuenta.",
-                    entityException);
+                    "Data operation failed while reading credentials.",
+                    dataException);
                 playerCredentials = new PlayerCredentials { Status = CredentialsLookupStatus.DataFailure };
             }
 
@@ -165,7 +142,7 @@ namespace TLMG.DataAccess.Repositories
             {
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
                 {
-                    User existingUser = context.User.FirstOrDefault(user => user.id_user == userId);
+                    User existingUser = (from user in context.User where user.id_user == userId select user).FirstOrDefault();
 
                     if (existingUser != null)
                     {
@@ -178,60 +155,85 @@ namespace TLMG.DataAccess.Repositories
             catch (SqlException sqlException)
             {
                 _log.Error(
-                    string.Format("Error de conexión al guardar el acceso del jugador {0}.", userId),
+                    string.Format("Database connection failed while updating login time for player {0}.", userId),
                     sqlException);
             }
-            catch (EntityException entityException)
+            catch (DataException dataException)
             {
                 _log.Error(
-                    string.Format("La base de datos falló al guardar el acceso del jugador {0}.", userId),
-                    entityException);
+                    string.Format("Data operation failed while updating login time for player {0}.", userId),
+                    dataException);
             }
 
             return wasLastLogInTimeUpdated;
         }
 
-        public LeaderboardLookup FindTopRankedPlayers(int maximumPlayerCount)
+        public LeaderboardLookup FindTopRankedPlayers(int maximumPlayerCount, int? registeredUserId = null)
         {
-            LeaderboardLookup leaderboardLookup;
+            LeaderboardLookup leaderboardLookup = new LeaderboardLookup
+            {
+                Players = new List<RankedPlayer>()
+            };
 
             try
             {
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
+                using (DbContextTransaction transaction = context.Database.BeginTransaction(IsolationLevel.Serializable))
                 {
-                    IQueryable<RankedPlayer> rankedPlayersQuery = from player in context.Player.AsNoTracking()
-                                                                  join user in context.User.AsNoTracking()
-                                                                      on player.id_user equals user.id_user
-                                                                  where user.state == ValidationRules.ActiveUserState
-                                                                  orderby player.total_points descending, user.nickname
-                                                                  select new RankedPlayer
-                                                                  {
-                                                                      Nickname = user.nickname,
-                                                                      ProfileImage = user.profile_image,
-                                                                      TotalPoints = player.total_points,
-                                                                      TotalWins = player.total_wins,
-                                                                      TotalGamesPlayed = player.total_games_played
-                                                                  };
+                    IQueryable<RankedPlayer> rankedPlayersQuery =
+                        from player in context.Player.AsNoTracking()
+                        join user in context.User.AsNoTracking() on player.id_user equals user.id_user
+                        where user.state == ValidationRules.ActiveUserState
+                        orderby player.total_points descending, player.points_reached_at_utc, player.id_player
+                        select new RankedPlayer
+                        {
+                            Nickname = user.nickname,
+                            ProfileImage = user.profile_image,
+                            TotalPoints = player.total_points,
+                            TotalWins = player.total_wins,
+                            TotalGamesPlayed = player.total_games_played
+                        };
 
-                    leaderboardLookup = new LeaderboardLookup
+                    LeaderboardLookup successfulLookup = new LeaderboardLookup
                     {
-                        WasLeaderboardLookupSuccessful = true,
                         Players = rankedPlayersQuery.Take(maximumPlayerCount).ToList()
                     };
+
+                    if (registeredUserId.HasValue)
+                    {
+                        PopulatePersonalStanding(context, successfulLookup, registeredUserId.Value);
+                    }
+
+                    transaction.Commit();
+                    successfulLookup.WasLeaderboardLookupSuccessful = true;
+                    leaderboardLookup = successfulLookup;
                 }
             }
             catch (SqlException sqlException)
             {
-                _log.Error("Error de conexión al consultar la tabla de posiciones.", sqlException);
-                leaderboardLookup = CreateFailedLeaderboardLookup();
+                _log.Error("Leaderboard database operation failed.", sqlException);
             }
-            catch (EntityException entityException)
+            catch (DataException dataException)
             {
-                _log.Error("La base de datos no respondió al consultar la tabla de posiciones.", entityException);
-                leaderboardLookup = CreateFailedLeaderboardLookup();
+                _log.Error("Leaderboard data could not be read.", dataException);
             }
 
             return leaderboardLookup;
+        }
+
+        private static void PopulatePersonalStanding(
+            TLMG_DBEntities context, LeaderboardLookup leaderboardLookup, int registeredUserId)
+        {
+            IQueryable<Player> activePlayers = PlayerRankingQuery.FindActivePlayers(context);
+            Player currentPlayer = (from player in activePlayers
+                                    where player.id_user == registeredUserId
+                                    select player).FirstOrDefault();
+
+            if (currentPlayer != null)
+            {
+                leaderboardLookup.PersonalRank = PlayerRankingQuery.FindRank(activePlayers, currentPlayer);
+                leaderboardLookup.PersonalPoints = currentPlayer.total_points;
+            }
         }
 
         private static PlayerExistenceLookupStatus ConvertToExistenceStatus(bool playerExists)
@@ -244,17 +246,6 @@ namespace TLMG.DataAccess.Repositories
             }
 
             return playerExistenceLookupStatus;
-        }
-
-        private static LeaderboardLookup CreateFailedLeaderboardLookup()
-        {
-            LeaderboardLookup leaderboardLookup = new LeaderboardLookup
-            {
-                WasLeaderboardLookupSuccessful = false,
-                Players = new List<RankedPlayer>()
-            };
-
-            return leaderboardLookup;
         }
 
         private static void InsertPlayerWithInitialStatistics(string nickname, string email, string passwordHash)
@@ -280,7 +271,8 @@ namespace TLMG.DataAccess.Repositories
                     id_user = newUser.id_user,
                     total_points = ValidationRules.InitialStatisticValue,
                     total_wins = ValidationRules.InitialStatisticValue,
-                    total_games_played = ValidationRules.InitialStatisticValue
+                    total_games_played = ValidationRules.InitialStatisticValue,
+                    points_reached_at_utc = DateTime.UtcNow
                 };
 
                 context.Player.Add(newPlayer);

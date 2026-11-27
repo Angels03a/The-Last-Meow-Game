@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using TLMG.Contracts;
@@ -11,32 +11,25 @@ namespace TLMG.Services.Sessions
     /// </summary>
     public interface ISessionRegistry
     {
-
-
         /// <summary>
-        /// Inicia una sesión y reemplaza la anterior de la misma cuenta, si existe; la sesión anterior
-        /// pierde también su sala, su callback y sus autorizaciones de entrada.
+        /// Starts a registered session, replacing any previous session and revoking its room access, callbacks and entry permissions.
         /// </summary>
-        /// <param name="userId">Identificador de la cuenta.</param>
-        /// <param name="nickname">Nickname de la cuenta.</param>
-        /// <param name="replacedSession">
-        /// Lo que hay que avisar por la sesión anterior que se reemplazó; null si la cuenta no tenía otra.
-        /// </param>
-        /// <returns>El token de la sesión nueva; nunca es null.</returns>
+        /// <param name="userId">Account identifier.</param>
+        /// <param name="nickname">Account nickname.</param>
+        /// <param name="replacedSession">Notifications for the replaced session, or null if none existed.</param>
+        /// <returns>The new session token, always present.</returns>
         string StartRegisteredSession(int userId, string nickname, out SessionEnd replacedSession);
 
-        /// <summary>Busca la sesión de un token.</summary>
-        /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
-        /// <param name="playerSession">La sesión encontrada; null si no existe.</param>
-        /// <returns>true si el token pertenece a una sesión vigente; en caso contrario, false.</returns>
+        /// <summary>Finds a current session by its token.</summary>
+        /// <param name="sessionToken">Client session token, which may be null or unknown.</param>
+        /// <param name="playerSession">The session, or null if not found.</param>
+        /// <returns>True if the token belongs to a current session.</returns>
         bool TryFindSessionByToken(string sessionToken, out PlayerSession playerSession);
 
-        /// <summary>
-        /// Cierra la sesión de un token; el jugador pierde también su sala, su callback y sus autorizaciones.
-        /// </summary>
-        /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
-        /// <param name="sessionEnd">Lo que hay que avisar por la sesión cerrada; null si no había sesión.</param>
-        /// <returns>true si había una sesión vigente y se cerró; en caso contrario, false.</returns>
+        /// <summary>Ends a session and revokes its room access, callbacks and entry permissions.</summary>
+        /// <param name="sessionToken">Client session token, which may be null or unknown.</param>
+        /// <param name="sessionEnd">Notifications for the ended session, or null if none existed.</param>
+        /// <returns>True if a current session was ended.</returns>
         bool EndSession(string sessionToken, out SessionEnd sessionEnd);
 
         /// <summary>Revokes the token only if the player has no active participation.</summary>
@@ -49,13 +42,10 @@ namespace TLMG.Services.Sessions
         IReadOnlyList<Action> ProcessHeartbeat(string token, string channelId, HeartbeatChannel channel,
             int sequence, int confirmedSequence, Action<int, string> echo);
 
-        /// <summary>
-        /// Termina la sesión del jugador cuyo canal de amigos se cerró o falló; si el canal ya no es el registrado
-        /// (porque se reemplazó) no hace nada.
-        /// </summary>
-        /// <param name="channelId">Identificador del canal de amigos que terminó.</param>
-        /// <param name="sessionEnd">Lo que hay que avisar por la sesión cerrada; null si no se cerró ninguna.</param>
-        /// <returns>true si el canal era el de amigos de una sesión y esta se cerró; si no, false.</returns>
+        /// <summary>Ends the session only if the closed or failed friends channel is still current.</summary>
+        /// <param name="channelId">Closed or failed friends channel.</param>
+        /// <param name="sessionEnd">Notifications for the ended session, or null if none was ended.</param>
+        /// <returns>True if a session was ended.</returns>
         bool TryEndSessionByFriendsChannel(string channelId, out SessionEnd sessionEnd);
 
         /// <summary>Creates a room and places the session's player in it.</summary>
@@ -95,44 +85,36 @@ namespace TLMG.Services.Sessions
         /// <returns>Applied or NotInRoom. Always present.</returns>
         LobbyMembershipChange LeaveRoomByChannel(string channelId);
 
-        /// <summary>
-        /// Registra el canal de amigos de la sesión, lo que deja al jugador en línea; si la sesión ya tenía uno,
-        /// gana el último. Devuelve también a quién avisar que el jugador pasó a estar en línea.
-        /// </summary>
-        /// <param name="sessionToken">Token recibido del cliente; puede ser null o inexistente.</param>
-        /// <param name="channelId">Identificador del canal de amigos desde el que llama el jugador.</param>
-        /// <param name="friendsCallback">Callback del canal de amigos del jugador.</param>
-        /// <param name="friendUserIds">Ids de los amigos aceptados del jugador, ya consultados en la base.</param>
-        /// <returns>Applied con cuáles de esos amigos están en línea, o InvalidSession; nunca es null.</returns>
-        FriendsSubscription SubscribeFriendsChannel(string sessionToken, string channelId, 
+        /// <summary>Registers the current friends channel and identifies recipients for online presence notifications.</summary>
+        /// <param name="sessionToken">Client session token, which may be null or unknown.</param>
+        /// <param name="channelId">Caller's friends channel identifier.</param>
+        /// <param name="friendsCallback">Caller's friends channel callback.</param>
+        /// <param name="friendUserIds">Accepted friend identifiers, including temporary friendships.</param>
+        /// <returns>Applied with online friends, or InvalidSession. Always present.</returns>
+        FriendsSubscription SubscribeFriendsChannel(string sessionToken, string channelId,
             IFriendsManagerCallback friendsCallback, IReadOnlyList<int> friendUserIds);
 
         /// <summary>
-        /// Invites an online friend who is outside a room to the session player's room. The database must already have
-        /// confirmed the friendship. A duplicate request reuses the existing invitation.
+        /// Invites an online friend who is outside a room. The friendship must already be verified by the caller.
+        /// A duplicate request reuses the existing invitation.
         /// </summary>
         /// <param name="sessionToken">Client's session token, which may be null or unknown.</param>
-        /// <param name="friendUserId">Invited friend's account ID.</param>
+        /// <param name="friendUserId">Invited friend's user ID.</param>
         /// <returns>
         /// Applied with the invitation and recipient callback, InvalidSession, NotInRoom, RoomFull or CannotInvite.
         /// CannotInvite covers offline friends and friends already in a room. Always present.
         /// </returns>
         RoomInvitationCreation CreateRoomInvitation(string sessionToken, int friendUserId);
 
-        /// <summary>
-        /// Busca el callback del canal de amigos de un jugador por su id, para avisarle fuera del candado.
-        /// </summary>
-        /// <param name="userId">Id de la cuenta del jugador.</param>
-        /// <returns>El callback del canal de amigos, o null si el jugador está desconectado.</returns>
+        /// <summary>Finds a friends channel callback for notification outside the lock.</summary>
+        /// <param name="userId">Player identifier.</param>
+        /// <returns>The callback, or null if the player is offline.</returns>
         IFriendsManagerCallback FindFriendsCallbackOfUser(int userId);
 
-        /// <summary>
-        /// Suma la amistad nueva a la lista de amigos guardada en el canal de cada jugador en línea, para que su
-        /// presencia se avise sin volver a suscribirse. Bajo _sessionsLock; no invoca ningún callback.
-        /// </summary>
-        /// <param name="firstUserId">Id de uno de los dos jugadores.</param>
-        /// <param name="secondUserId">Id del otro jugador.</param>
-        /// <returns>La presencia y el callback de cada jugador; el callback es null si está desconectado.</returns>
+        /// <summary>Updates both online friends channels under the session lock without invoking callbacks.</summary>
+        /// <param name="firstUserId">First player identifier.</param>
+        /// <param name="secondUserId">Second player identifier.</param>
+        /// <returns>Presence and callbacks for both players; offline callbacks are null.</returns>
         FriendsAddition AddFriendshipToOnlineChannels(int firstUserId, int secondUserId);
 
         /// <summary>
@@ -144,8 +126,8 @@ namespace TLMG.Services.Sessions
         /// Applied with the room ID, InvalidSession or InvitationNotValid. The invitation may be missing, belong to
         /// another player or refer to a deleted room. Always present.
         /// </returns>
-        
         RoomInvitationAcceptance AcceptRoomInvitation(string sessionToken, int invitationId);
+
         /// <summary>Changes the caller's own ready state. Checks the token and channel before copying state.</summary>
         /// <param name="caller">Session token and lobby channel linked to the player.</param>
         /// <param name="roomId">Room named in the request.</param>
@@ -166,30 +148,20 @@ namespace TLMG.Services.Sessions
         /// </returns>
         LobbyMembershipChange ChangeCardsPerPlayer(SessionChannelCaller caller, int roomId, int cardsPerPlayerCount);
 
-        /// <summary>
-        /// Checks the countdown generation and UTC deadline before starting. Checks token and channel before copying
-        /// state.
-        /// </summary>
-        /// <param name="caller">Session token and lobby channel linked to the player.</param>
-        /// <param name="roomId">Room named in the request.</param>
-        /// <param name="countdownId">Observed countdown generation. An old generation only returns the state.</param>
-        /// <returns>Current state and recipients, or a rejection without room data.</returns>
-        LobbyMembershipChange RequestMatchStart(SessionChannelCaller caller, int roomId, long countdownId);
-
-        /// <summary>Suscribe el canal a la sala actual; la última suscripción válida de la sesión gana.</summary>
-        /// <param name="caller">Token de cuenta registrada y canal de chat.</param>
-        /// <param name="callback">Callback del canal de chat.</param>
-        /// <returns>null si se suscribió; clave de error si se rechazó.</returns>
+        /// <summary>Subscribes a channel to the current room, replacing the previous chat subscription.</summary>
+        /// <param name="caller">Registered account token and chat channel.</param>
+        /// <param name="callback">Chat channel callback.</param>
+        /// <returns>Null on success, otherwise the error key.</returns>
         string SubscribeToChat(SessionChannelCaller caller, IChatManagerCallback callback);
 
-        /// <summary>Valida identidad, canal y sala y reserva atómicamente el intervalo del envío.</summary>
-        /// <param name="caller">Token vigente y canal suscrito del emisor.</param>
-        /// <param name="submission">Sala, correlación y texto ya validado por ChatValidator.</param>
-        /// <param name="chatDelivery">Copia efímera de identidad, mensaje y destinatarios; null si se rechaza.</param>
-        /// <returns>null si se aceptó; clave de error si se rechazó.</returns>
+        /// <summary>Validates the caller, channel and room and reserves the sending interval atomically.</summary>
+        /// <param name="caller">Current token and subscribed chat channel.</param>
+        /// <param name="submission">Room, correlation identifier and validated text.</param>
+        /// <param name="chatDelivery">Delivery snapshot, or null on rejection.</param>
+        /// <returns>Null on acceptance, otherwise the error key.</returns>
         string AcceptChatMessage(SessionChannelCaller caller, ChatSubmission submission, out ChatDelivery chatDelivery);
 
-        /// <summary>Retira solo el canal que aún coincide; no borra el intervalo de envíos del jugador.</summary>
+        /// <summary>Removes only the matching chat channel while preserving the player's sending interval.</summary>
         /// <param name="channelId">Closed or failed channel.</param>
         void RemoveChatChannel(string channelId);
 
@@ -197,7 +169,7 @@ namespace TLMG.Services.Sessions
         /// Authorizes a subscription and returns the player's view under the same lock. The userId comes from the
         /// session and the player must still belong to the match's room.
         /// </summary>
-        /// <param name="caller">Registered account token and match channel.</param>
+        /// <param name="caller">Current session token and match channel.</param>
         /// <param name="matchId">Requested match.</param>
         /// <param name="callback">Match channel callback replacing the player's previous one.</param>
         /// <returns>Player's view on acceptance, otherwise the error key.</returns>

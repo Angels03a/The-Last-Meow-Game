@@ -5,22 +5,27 @@ namespace TLMG.Domain.Validators
 {
     public static class PlayerLogInValidator
     {
-        public static string ValidateLogIn(PlayerLogin playerLogIn)
+        public static bool TryValidateLogIn(PlayerLogin playerLogIn, out string errorKey)
         {
-            string errorKey = string.Empty;
+            bool isValid = false;
+            errorKey = ErrorKeys.Login.IncompleteFields;
 
-            if (playerLogIn == null
-                || string.IsNullOrWhiteSpace(playerLogIn.Email)
-                || string.IsNullOrWhiteSpace(playerLogIn.Password))
+            if (playerLogIn != null
+                && !string.IsNullOrWhiteSpace(playerLogIn.Email)
+                && !string.IsNullOrWhiteSpace(playerLogIn.Password))
             {
-                errorKey = ErrorKeys.Login.IncompleteFields;
-            }
-            else if (!AccountFieldValidator.IsEmailValid(playerLogIn.Email))
-            {
-                errorKey = ErrorKeys.Login.EmailFormat;
+                if (AccountFieldValidator.IsEmailValid(playerLogIn.Email))
+                {
+                    isValid = true;
+                    errorKey = string.Empty;
+                }
+                else
+                {
+                    errorKey = ErrorKeys.Login.EmailFormat;
+                }
             }
 
-            return errorKey;
+            return isValid;
         }
     }
 }

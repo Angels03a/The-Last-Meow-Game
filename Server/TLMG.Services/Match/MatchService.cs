@@ -52,13 +52,19 @@ namespace TLMG.Services.Match
         /// <summary>Checks an attempt to catch the kitten.</summary>
         public ResultWithNotification<OperationResult> TryCatchFugitiveKitten(SessionChannelCaller caller)
         {
-            return CreateResult(_sessionRegistry.TryCatchFugitiveKitten(caller));
+            ResultWithNotification<OperationResult> catchResult =
+                CreateResult(_sessionRegistry.TryCatchFugitiveKitten(caller));
+
+            return catchResult;
         }
 
         /// <summary>Checks whether the minigame deadline has passed.</summary>
         public ResultWithNotification<OperationResult> CheckFugitiveKittenDeadline(SessionChannelCaller caller)
         {
-            return CreateResult(_sessionRegistry.CheckFugitiveKittenDeadline(caller));
+            ResultWithNotification<OperationResult> deadlineResult =
+                CreateResult(_sessionRegistry.CheckFugitiveKittenDeadline(caller));
+
+            return deadlineResult;
         }
 
         /// <summary>Places the player's card and prepares a view for each subscriber.</summary>
@@ -128,21 +134,28 @@ namespace TLMG.Services.Match
         /// <param name="closedCallback">Callback registered for that channel.</param>
         public IReadOnlyList<Action> RemoveMatchChannel(string channelId, IMatchManagerCallback closedCallback)
         {
-            if (_sessionRegistry.RemoveMatchChannel(channelId, closedCallback, out var deliveries))
+            IReadOnlyList<MatchViewDelivery> deliveries;
+
+            if (_sessionRegistry.RemoveMatchChannel(channelId, closedCallback, out deliveries))
             {
                 _log.InfoFormat("Se quitó la suscripción del canal de partida {0}.", channelId);
             }
-            return SessionNotificationHelper.CreateMatchViewNotifications(deliveries);
+
+            IReadOnlyList<Action> notifications = SessionNotificationHelper.CreateMatchViewNotifications(deliveries);
+
+            return notifications;
         }
 
         private static ResultWithNotification<OperationResult> CreateResult(MatchDelivery matchDelivery)
         {
             bool isSuccess = matchDelivery != null && matchDelivery.ErrorKey == null;
             string errorKey = isSuccess ? string.Empty : matchDelivery?.ErrorKey;
+
             if (!isSuccess && string.IsNullOrWhiteSpace(errorKey))
             {
                 errorKey = ErrorKeys.Common.Unexpected;
             }
+
             OperationResult operationResult = new OperationResult
             {
                 IsSuccess = isSuccess,

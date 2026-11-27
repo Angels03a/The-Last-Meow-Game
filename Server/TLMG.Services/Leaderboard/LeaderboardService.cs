@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Authorization;
 using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
+using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Leaderboard
 {
@@ -10,38 +12,89 @@ namespace TLMG.Services.Leaderboard
     {
         private const int MaximumLeaderboardPlayerCount = 100;
 
-        private IPlayerRepository _playerRepository;
+        private readonly IPlayerRepository _playerRepository;
+        private readonly ISessionRegistry _sessionRegistry;
 
-        public LeaderboardService(IPlayerRepository playerRepository)
+        public LeaderboardService(
+            IPlayerRepository playerRepository,
+            ISessionRegistry sessionRegistry)
         {
             _playerRepository = playerRepository;
+            _sessionRegistry = sessionRegistry;
         }
 
-        public OperationGetLeaderboardResult GetLeaderboard()
+        /// <summary>
+        /// Retrieves the global leaderboard and personal standing when available.
+        /// </summary>
+        public OperationGetLeaderboardResult GetLeaderboard(string sessionToken)
         {
-            OperationGetLeaderboardResult operationGetLeaderboardResult = 
-                new OperationGetLeaderboardResult();
-            LeaderboardLookup leaderboardLookup = 
-                _playerRepository.FindTopRankedPlayers(MaximumLeaderboardPlayerCount);
+            OperationGetLeaderboardResult leaderboardResponse =
+                new OperationGetLeaderboardResult
+                {
+                    Players = new List<LeaderboardPlayer>()
+                };
 
-            if (leaderboardLookup != null && leaderboardLookup.WasLeaderboardLookupSuccessful
-                && leaderboardLookup.Players != null)
+            string errorKey = string.Empty;
+            int? registeredUserId = null;
+
+            if (!string.IsNullOrEmpty(sessionToken))
             {
-                operationGetLeaderboardResult.IsSuccess = true;
-                operationGetLeaderboardResult.ErrorKey = string.Empty;
-                operationGetLeaderboardResult.Players = ConvertToLeaderboardPlayers(leaderboardLookup.Players);
-            }
-            else
-            {
-                operationGetLeaderboardResult.ErrorKey = ErrorKeys.Leaderboard.ConnectionError;
+                PlayerSession playerSession;
+
+                if (!_sessionRegistry.TryFindSessionByToken(
+                    sessionToken,
+                    out playerSession)
+                    || playerSession == null)
+                {
+                    errorKey = ErrorKeys.Common.InvalidSession;
+                }
+                else if (!GuestIdentity.IsGuestUserId(playerSession.UserId))
+                {
+                    registeredUserId = playerSession.UserId;
+                }
             }
 
-            return operationGetLeaderboardResult;
+            if (errorKey == string.Empty)
+            {
+                LeaderboardLookup leaderboardLookup =
+                    _playerRepository.FindTopRankedPlayers(
+                        MaximumLeaderboardPlayerCount,
+                        registeredUserId);
+
+                if (leaderboardLookup != null
+                    && leaderboardLookup.WasLeaderboardLookupSuccessful
+                    && leaderboardLookup.Players != null)
+                {
+                    leaderboardResponse.Players =
+                        ConvertToLeaderboardPlayers(leaderboardLookup.Players);
+
+                    if (registeredUserId.HasValue)
+                    {
+                        leaderboardResponse.PersonalRank =
+                            leaderboardLookup.PersonalRank;
+
+                        leaderboardResponse.PersonalPoints =
+                            leaderboardLookup.PersonalPoints;
+                    }
+
+                    leaderboardResponse.IsSuccess = true;
+                }
+                else
+                {
+                    errorKey = ErrorKeys.Leaderboard.ConnectionError;
+                }
+            }
+
+            leaderboardResponse.ErrorKey = errorKey;
+
+            return leaderboardResponse;
         }
 
-        private static List<LeaderboardPlayer> ConvertToLeaderboardPlayers(List<RankedPlayer> rankedPlayers)
+        private static List<LeaderboardPlayer> ConvertToLeaderboardPlayers(
+            List<RankedPlayer> rankedPlayers)
         {
-            List<LeaderboardPlayer> leaderboardPlayers = new List<LeaderboardPlayer>();
+            List<LeaderboardPlayer> leaderboardPlayers =
+                new List<LeaderboardPlayer>();
 
             foreach (RankedPlayer rankedPlayer in rankedPlayers)
             {

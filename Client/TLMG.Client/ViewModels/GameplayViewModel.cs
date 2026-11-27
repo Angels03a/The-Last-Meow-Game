@@ -1,21 +1,32 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Input;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.Input;
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
 using TLMG.Client.Navigation;
+using TLMG.Client.Presentation;
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
     public class GameplayViewModel : ViewModelBase
     {
-        private const string ChatEmptyErrorKey = "Lobby_ChatEmptyError";
         private const string NotInMatchErrorKey = "Match_NotInMatchError";
+        private const string ChallengeSuccessTitleKey = "Gameplay_NoticeSuccessTitle";
+        private const string ChallengeSuccessBodyKey = "Gameplay_NoticeSuccessBody";
+        private const string ChallengeFailureTitleKey = "Gameplay_NoticeFailedTitle";
+        private const string ChallengeFailureBodyKey = "Gameplay_NoticeFailedBody";
+        private const string ChallengeSuccessIcon = "✓";
+        private const string ChallengeFailureIcon = "!";
+        private const int NextRoundOffset = 1;
+        private const int NoRevealedCards = 0;
+        private const int NoBetAmount = 0;
+        private const int NoUserId = 0;
+        private const int NoRoomId = 0;
+        private const int EmptyPileCardCount = 0;
+        private const int RecoveryDisplayIntervalMilliseconds = 250;
 
         private readonly RelayCommand _sendChatCommand;
         private readonly RelayCommand<HandCardEntry> _placeCardCommand;
@@ -25,41 +36,46 @@ namespace TLMG.Client.ViewModels
         private readonly RelayCommand _withdrawBetCommand;
         private readonly RelayCommand _increaseBetCommand;
         private readonly RelayCommand _decreaseBetCommand;
-        private readonly INavigationManager _navigation;
+        private readonly INavigationManager _navigationManager;
         private readonly ILobbyConnection _lobbyConnection;
+        private readonly RoomModerationNavigation _moderationNavigation;
         private readonly IMatchConnection _matchConnection;
-        private readonly IDialogManager _dialogs;
-        private readonly MatchModeSettings _matchMode;
+        private readonly IDialogManager _dialogManager;
+        private readonly MatchModeSettings _matchModeSettings;
         private readonly ObservableCollection<ChatMessageEntry> _chatMessages;
 
         private int _bidAmount;
         private Guid? _finishedMatchId;
-        private MatchView _previousChallengeView;
+        private MatchView _previousMatchView;
         private GameNotification _notification;
         private MatchBoard _board;
         private bool _isMatchUnavailable;
         private readonly DispatcherTimer _recoveryDisplayTimer;
         private string _recoveryMessage = string.Empty;
-        private string _selectedPlayerName;
+        private MatchPlayerEntry _selectedPlayer;
+        private readonly RelayCommand<ModerationMode> _openModerationCommand;
         private string _chatInput;
 
         public GameplayViewModel(
-            INavigationManager navigation,
+            INavigationManager navigationManager,
             ILobbyConnection lobbyConnection,
             IMatchConnection matchConnection,
-            IDialogManager dialogs)
+            IDialogManager dialogManager)
         {
-            _navigation = navigation;
+            _navigationManager = navigationManager;
             _lobbyConnection = lobbyConnection;
             _matchConnection = matchConnection;
-            _dialogs = dialogs;
+            _dialogManager = dialogManager;
+            _moderationNavigation = new RoomModerationNavigation(lobbyConnection,
+                navigationManager, dialogManager, ScreenId.Gameplay);
             RetryRecoveryCommand = new RelayCommand(_matchConnection.RetryMatchRecovery);
-            _recoveryDisplayTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+            _recoveryDisplayTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(RecoveryDisplayIntervalMilliseconds) };
             _recoveryDisplayTimer.Tick += UpdateRecoveryDisplay;
 
-            _matchMode = MatchModeSettings.FromCardsPerPlayer(ReadCardsPerPlayer(lobbyConnection));
-            _board = MatchBoardHelper.CreateEmptyBoard();
-            _selectedPlayerName = string.Empty;
+            int cardsPerPlayer = lobbyConnection.CurrentRoom?.CardsPerPlayerCount
+                ?? MatchModeSettings.FourCardsPerPlayer;
+            _matchModeSettings = MatchModeSettings.FromCardsPerPlayer(cardsPerPlayer);
+            _board = MatchBoardMapper.CreateEmptyBoard();
             _chatInput = string.Empty;
             _chatMessages = new ObservableCollection<ChatMessageEntry>();
 
@@ -74,15 +90,12 @@ namespace TLMG.Client.ViewModels
             _decreaseBetCommand = new RelayCommand(ExecuteDecreaseBet, CanDecreaseBet);
 
             ExitCommand = new RelayCommand(ExecuteExit);
-            ReportPlayerCommand = new RelayCommand(ExecuteReportPlayer);
-            KickPlayerCommand = new RelayCommand(ExecuteKickPlayer);
-            BlockPlayerCommand = new RelayCommand(ExecuteBlockPlayer);
+            _openModerationCommand = new RelayCommand<ModerationMode>(OpenModeration, CanOpenModeration);
             DemoRevealCardsCommand = new RelayCommand(ExecuteDemoRevealCards);
             DemoGameOverCommand = new RelayCommand(ExecuteDemoGameOver);
             DemoInactivityCommand = new RelayCommand(ExecuteDemoInactivity);
         }
 
-        public event EventHandler KickVoteRequested;
         public ICommand PlaceCardCommand => _placeCardCommand;
         public ICommand ChoosePunishmentCommand => _choosePunishmentCommand;
         public ICommand RevealCardCommand => _revealCardCommand;
@@ -95,9 +108,7 @@ namespace TLMG.Client.ViewModels
         public bool IsChatUnavailable => _lobbyConnection.HasRegisteredSession
             && _lobbyConnection.CurrentRoom != null && !_lobbyConnection.IsChatSubscribed;
         public ICommand ExitCommand { get; }
-        public ICommand ReportPlayerCommand { get; }
-        public ICommand KickPlayerCommand { get; }
-        public ICommand BlockPlayerCommand { get; }
+        public ICommand OpenModerationCommand { get { return _openModerationCommand; } }
         public ICommand DemoRevealCardsCommand { get; }
         public ICommand DemoGameOverCommand { get; }
         public ICommand DemoInactivityCommand { get; }
@@ -117,30 +128,24 @@ namespace TLMG.Client.ViewModels
             get => _recoveryMessage;
             private set => SetProperty(ref _recoveryMessage, value);
         }
-
-        /// <summary>Checks if the match is unavailable and the board may be out of date.</summary>
         public bool IsMatchUnavailable
         {
             get { return _isMatchUnavailable; }
             private set { SetProperty(ref _isMatchUnavailable, value); }
         }
-
-        /// <summary>Checks if demo controls are shown; they are hidden in a real match.</summary>
         public bool IsDemoPanelVisible
         {
             get
             {
                 LobbyRoom currentRoom = _lobbyConnection.CurrentRoom;
-                bool isRealMatch = currentRoom != null && currentRoom.MatchId.HasValue;
+                bool isDemoPanelVisible = currentRoom == null || !currentRoom.MatchId.HasValue;
 
-                return !isRealMatch;
+                return isDemoPanelVisible;
             }
         }
-        public bool IsCompactHand => _matchMode.IsCompactHand;
-        public int HandColumnCount => _matchMode.HandColumnCount;
+        public bool IsCompactHand => _matchModeSettings.IsCompactHand;
+        public int HandColumnCount => _matchModeSettings.HandColumnCount;
         public ObservableCollection<ChatMessageEntry> ChatMessages => _chatMessages;
-
-        /// <summary>Gets the board shown from the last accepted server view.</summary>
         public MatchBoard Board
         {
             get { return _board; }
@@ -150,24 +155,19 @@ namespace TLMG.Client.ViewModels
         public int BidAmount
         {
             get { return _bidAmount; }
-            private set
-            {
-                if (SetProperty(ref _bidAmount, value))
-                {
-                    RefreshBetCommands();
-                }
-            }
+            private set { SetProperty(ref _bidAmount, value); }
         }
 
         public int CurrentBidAmount => Board.CurrentBet;
-        public string SelectedPlayerName
+        public MatchPlayerEntry SelectedPlayer
         {
-            get { return _selectedPlayerName; }
+            get { return _selectedPlayer; }
             set
             {
-                if (SetProperty(ref _selectedPlayerName, value))
+                if (SetProperty(ref _selectedPlayer, value))
                 {
                     OnPropertyChanged(nameof(ContextMenuTitle));
+                    _openModerationCommand.NotifyCanExecuteChanged();
                 }
             }
         }
@@ -184,7 +184,10 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        public string ContextMenuTitle => SelectedPlayerName.ToUpperInvariant();
+        public string ContextMenuTitle
+        {
+            get { return (SelectedPlayer?.Nickname ?? string.Empty).ToUpperInvariant(); }
+        }
 
         public void Activate()
         {
@@ -199,18 +202,20 @@ namespace TLMG.Client.ViewModels
             _recoveryDisplayTimer.Start();
             UpdateRecoveryDisplay(this, EventArgs.Empty);
             _sendChatCommand.NotifyCanExecuteChanged();
-            MatchView currentView = _matchConnection.CurrentMatchView;
-            if (IsCurrentMatch(currentView))
+            MatchView currentMatchView = _matchConnection.CurrentMatchView;
+            bool hasNavigatedToGameOver = false;
+
+            if (IsCurrentMatch(currentMatchView))
             {
-                _previousChallengeView = currentView;
-                ShowBoardOf(currentView);
-                if (ShowFinishedMatch(currentView))
-                {
-                    return;
-                }
+                _previousMatchView = currentMatchView;
+                ShowBoardOf(currentMatchView);
+                hasNavigatedToGameOver = ShowFinishedMatch(currentMatchView);
             }
 
-            SubscribeToMatchIfNeeded();
+            if (!hasNavigatedToGameOver)
+            {
+                SubscribeToMatchIfNeeded();
+            }
         }
 
         public void Deactivate()
@@ -223,7 +228,7 @@ namespace TLMG.Client.ViewModels
             _matchConnection.RecoveryStateChanged -= OnRecoveryStateChanged;
             _recoveryDisplayTimer.Stop();
             _chatMessages.Clear();
-            _previousChallengeView = null;
+            _previousMatchView = null;
             Notification = null;
         }
 
@@ -234,39 +239,25 @@ namespace TLMG.Client.ViewModels
             base.OnDisposed();
         }
 
-        private static int ReadCardsPerPlayer(ILobbyConnection lobbyConnection)
-        {
-            int cardsPerPlayer = MatchModeSettings.FourCardsPerPlayer;
-            LobbyRoom currentRoom = lobbyConnection.CurrentRoom;
-
-            if (currentRoom != null)
-            {
-                cardsPerPlayer = currentRoom.CardsPerPlayerCount;
-            }
-
-            return cardsPerPlayer;
-        }
-
         private void SubscribeToMatchIfNeeded()
         {
             bool wasSubscriptionSent = _matchConnection.IsMatchSubscribed || _matchConnection.SubscribeToCurrentMatch();
 
-            if (!wasSubscriptionSent && !IsRealMatchAuthorized())
+            if (!wasSubscriptionSent && IsDemoPanelVisible)
             {
-                _dialogs.ShowError(NotInMatchErrorKey);
+                _dialogManager.ShowError(NotInMatchErrorKey);
             }
         }
 
-        private void OnRecoveryStateChanged(object sender, EventArgs args)
+        private void OnRecoveryStateChanged(object sender, EventArgs eventArguments)
         {
-            UpdateRecoveryDisplay(sender, args);
+            UpdateRecoveryDisplay(sender, eventArguments);
             RefreshGameplayCommands();
-            RefreshBetCommands();
         }
 
-        private void UpdateRecoveryDisplay(object sender, EventArgs args)
+        private void UpdateRecoveryDisplay(object sender, EventArgs eventArguments)
         {
-            RecoveryMessage = IsRealMatchAuthorized() ? MatchRecoveryText.Describe(_matchConnection) : string.Empty;
+            RecoveryMessage = !IsDemoPanelVisible ? MatchRecoveryMessageFormatter.Describe(_matchConnection) : string.Empty;
             OnPropertyChanged(nameof(CanRetryRecovery));
         }
 
@@ -275,76 +266,155 @@ namespace TLMG.Client.ViewModels
             if (matchView != null)
             {
                 int localUserId = _lobbyConnection.PlayerUserId;
-                Board = MatchBoardHelper.CreateBoard(matchView, localUserId, _matchMode.CardsPerPlayer);
-                OnPropertyChanged(nameof(CurrentRoundNumber));
-                OnPropertyChanged(nameof(PhaseLabelKey));
-                OnPropertyChanged(nameof(HasMatchView));
-                OnPropertyChanged(nameof(CurrentBidAmount));
+                Board = MatchBoardMapper.CreateBoard(matchView, localUserId, _matchModeSettings.CardsPerPlayer);
+                NotifyBoardPropertiesChanged();
             }
 
+            UpdateBidAmount();
             RefreshGameplayCommands();
-            ClampBidAmountToBoard();
+        }
 
+        private void NotifyBoardPropertiesChanged()
+        {
+            OnPropertyChanged(nameof(CurrentRoundNumber));
+            OnPropertyChanged(nameof(PhaseLabelKey));
+            OnPropertyChanged(nameof(HasMatchView));
+            OnPropertyChanged(nameof(CurrentBidAmount));
+        }
+
+        private void UpdateBidAmount()
+        {
+            int validBidAmount = NoBetAmount;
+
+            if (Board.CanPlaceBet && Board.MinimumBetValue <= Board.MaximumBetValue)
+            {
+                validBidAmount = Math.Max(Board.MinimumBetValue, Math.Min(BidAmount, Board.MaximumBetValue));
+            }
+
+            BidAmount = validBidAmount;
+        }
+
+        private void RefreshGameplayCommands()
+        {
+            _placeCardCommand.NotifyCanExecuteChanged();
+            _choosePunishmentCommand.NotifyCanExecuteChanged();
+            _revealCardCommand.NotifyCanExecuteChanged();
             RefreshBetCommands();
         }
 
         private void OnMatchViewChanged(object sender, ServerEventArgs<MatchView> eventArgs)
         {
-            MatchView view = eventArgs.Payload;
-            if (!IsCurrentMatch(view))
-            {
-                return;
-            }
+            MatchView currentMatchView = eventArgs.Payload;
 
-            MatchView previous = _previousChallengeView;
-            if (previous != null && previous.MatchId == view.MatchId && view.Version <= previous.Version)
+            if (IsNewMatchView(currentMatchView))
             {
-                return;
+                UpdateChallengeNotification(currentMatchView);
+                _previousMatchView = currentMatchView;
+                ShowBoardOf(currentMatchView);
+                UpdateRecoveryDisplay(this, EventArgs.Empty);
+                ShowFinishedMatch(currentMatchView);
             }
+        }
 
-            if (view?.Challenge != null && previous?.Challenge != null
-                && view.MatchId == previous.MatchId
-                && previous.Challenge.Outcome == MatchChallengeOutcome.InProgress
-                && (view.Challenge.Outcome == MatchChallengeOutcome.Succeeded
-                    || view.Challenge.Outcome == MatchChallengeOutcome.Failed)
-                && view.Challenge.BettorUserId == previous.Challenge.BettorUserId
-                && view.Challenge.PromisedCount == previous.Challenge.PromisedCount
-                && view.RoundNumber >= previous.RoundNumber && view.RoundNumber <= previous.RoundNumber + 1
-                && (view.Challenge.RevealedCards?.Length ?? 0) > (previous.Challenge.RevealedCards?.Length ?? 0))
+        private bool IsNewMatchView(MatchView currentMatchView)
+        {
+            bool isNewMatchView = IsCurrentMatch(currentMatchView)
+                && (_previousMatchView == null
+                    || _previousMatchView.MatchId != currentMatchView.MatchId
+                    || currentMatchView.Version > _previousMatchView.Version);
+
+            return isNewMatchView;
+        }
+
+        private void UpdateChallengeNotification(MatchView currentMatchView)
+        {
+            if (HasChallengeFinished(currentMatchView, _previousMatchView))
             {
-                string bettor = view.Players?.FirstOrDefault(
-                    player => player.UserId == view.Challenge.BettorUserId)?.Nickname ?? string.Empty;
-                bool succeeded = view.Challenge.Outcome == MatchChallengeOutcome.Succeeded;
-                Notification = GameNotificationFactory.CreatePublic(
-                    succeeded ? "Gameplay_NoticeSuccessTitle" : "Gameplay_NoticeFailedTitle",
-                    succeeded ? "Gameplay_NoticeSuccessBody" : "Gameplay_NoticeFailedBody",
-                    bettor, succeeded ? "✓" : "!", succeeded);
+                string bettorNickname = string.Empty;
+
+                if (currentMatchView.Players != null)
+                {
+                    foreach (MatchPlayerView matchPlayer in currentMatchView.Players)
+                    {
+                        if (matchPlayer.UserId == currentMatchView.Challenge.BettorUserId)
+                        {
+                            bettorNickname = DisplayNameHelper.Resolve(matchPlayer.UserId, matchPlayer.Nickname);
+                        }
+                    }
+                }
+
+                bool wasChallengeSuccessful =
+                    currentMatchView.Challenge.Outcome == MatchChallengeOutcome.Succeeded;
+
+                Notification = new GameNotification
+                {
+                    TitleKey = wasChallengeSuccessful ? ChallengeSuccessTitleKey : ChallengeFailureTitleKey,
+                    BodyKey = wasChallengeSuccessful ? ChallengeSuccessBodyKey : ChallengeFailureBodyKey,
+                    Subject = bettorNickname,
+                    Icon = wasChallengeSuccessful ? ChallengeSuccessIcon : ChallengeFailureIcon,
+                    IsSuccess = wasChallengeSuccessful
+                };
             }
-            else if (view?.Challenge?.Outcome == MatchChallengeOutcome.InProgress || view?.MatchId != previous?.MatchId)
+            else if (currentMatchView.Challenge?.Outcome == MatchChallengeOutcome.InProgress
+                || currentMatchView.MatchId != _previousMatchView?.MatchId)
             {
                 Notification = null;
             }
-
-            _previousChallengeView = view;
-            ShowBoardOf(view);
-            UpdateRecoveryDisplay(this, EventArgs.Empty);
-            ShowFinishedMatch(view);
         }
 
-        private bool IsCurrentMatch(MatchView view)
+        private static bool HasChallengeFinished(MatchView currentMatchView, MatchView previousMatchView)
         {
-            LobbyRoom room = _lobbyConnection.CurrentRoom;
-            return view != null && room != null && room.MatchId.HasValue && view.MatchId == room.MatchId.Value;
+            bool hasChallengeFinished = false;
+
+            if (currentMatchView?.Challenge != null && previousMatchView?.Challenge != null)
+            {
+                bool wasChallengeInProgress =
+                    previousMatchView.Challenge.Outcome == MatchChallengeOutcome.InProgress;
+                bool hasFinalChallengeStatus =
+                    currentMatchView.Challenge.Outcome == MatchChallengeOutcome.Succeeded
+                    || currentMatchView.Challenge.Outcome == MatchChallengeOutcome.Failed;
+                int currentRevealedCardCount =
+                    currentMatchView.Challenge.RevealedCards?.Length ?? NoRevealedCards;
+                int previousRevealedCardCount =
+                    previousMatchView.Challenge.RevealedCards?.Length ?? NoRevealedCards;
+
+                hasChallengeFinished = wasChallengeInProgress && hasFinalChallengeStatus
+                    && IsSameChallenge(currentMatchView, previousMatchView)
+                    && currentRevealedCardCount > previousRevealedCardCount;
+            }
+
+            return hasChallengeFinished;
         }
 
-        private bool ShowFinishedMatch(MatchView view)
+        private static bool IsSameChallenge(MatchView currentMatchView, MatchView previousMatchView)
         {
-            bool isFinished = view.Phase == MatchRoundPhase.MatchFinished && _finishedMatchId != view.MatchId;
+            bool isSameChallenge = currentMatchView.MatchId == previousMatchView.MatchId
+                && currentMatchView.Challenge.BettorUserId == previousMatchView.Challenge.BettorUserId
+                && currentMatchView.Challenge.PromisedCount == previousMatchView.Challenge.PromisedCount
+                && currentMatchView.RoundNumber >= previousMatchView.RoundNumber
+                && currentMatchView.RoundNumber <= previousMatchView.RoundNumber + NextRoundOffset;
+
+            return isSameChallenge;
+        }
+
+        private bool IsCurrentMatch(MatchView matchView)
+        {
+            LobbyRoom currentRoom = _lobbyConnection.CurrentRoom;
+            bool isCurrentMatch = matchView != null && currentRoom != null
+                && currentRoom.MatchId.HasValue && matchView.MatchId == currentRoom.MatchId.Value;
+
+            return isCurrentMatch;
+        }
+
+        private bool ShowFinishedMatch(MatchView matchView)
+        {
+            bool isFinished = matchView.Phase == MatchRoundPhase.MatchFinished
+                && _finishedMatchId != matchView.MatchId;
             if (isFinished)
             {
-                _finishedMatchId = view.MatchId;
+                _finishedMatchId = matchView.MatchId;
                 Notification = null;
-                _navigation.NavigateToWithoutHistory(ScreenId.GameOver, view);
+                _navigationManager.NavigateToWithoutHistory(ScreenId.GameOver, matchView);
             }
 
             return isFinished;
@@ -354,61 +424,33 @@ namespace TLMG.Client.ViewModels
         {
             if (!_matchConnection.IsMatchRecoveryPending && !_matchConnection.IsMatchRecoveryExhausted)
             {
-                _dialogs.ShowError(eventArgs.Payload);
+                _dialogManager.ShowError(eventArgs.Payload);
             }
         }
 
-        private bool IsRealMatchAuthorized()
+        private void OnMatchAvailabilityChanged(object sender, EventArgs eventArguments)
         {
-            return !IsDemoPanelVisible;
-        }
+            IsMatchUnavailable = !_matchConnection.IsMatchSubscribed;
+            MatchView currentMatchView = _matchConnection.CurrentMatchView;
 
-        /// <summary>
-        /// Marks the board as unavailable when the match connection is lost. Clears it if the current view no longer
-        /// belongs to the match. A match channel failure does not remove the player from the room or session.
-        /// </summary>
-        private void OnMatchAvailabilityChanged(object sender, EventArgs eventArgs)
-        {
-            if (_matchConnection.IsMatchSubscribed)
+            if (!IsMatchUnavailable)
             {
-                IsMatchUnavailable = false;
-                _previousChallengeView = _matchConnection.CurrentMatchView;
-                ShowBoardOf(_previousChallengeView);
+                _previousMatchView = currentMatchView;
+                ShowBoardOf(currentMatchView);
             }
             else
             {
-                IsMatchUnavailable = true;
-                _previousChallengeView = null;
+                _previousMatchView = null;
                 Notification = null;
-                if (!IsCurrentMatch(_matchConnection.CurrentMatchView))
+
+                if (!IsCurrentMatch(currentMatchView))
                 {
-                    Board = MatchBoardHelper.CreateEmptyBoard();
-                    OnPropertyChanged(nameof(HasMatchView));
+                    Board = MatchBoardMapper.CreateEmptyBoard();
+                    NotifyBoardPropertiesChanged();
                 }
-            }
 
-            RefreshGameplayCommands();
-            ClampBidAmountToBoard();
-
-            RefreshBetCommands();
-        }
-
-        private void RefreshGameplayCommands()
-        {
-            _placeCardCommand.NotifyCanExecuteChanged();
-            _choosePunishmentCommand.NotifyCanExecuteChanged();
-            _revealCardCommand.NotifyCanExecuteChanged();
-        }
-
-        private void ClampBidAmountToBoard()
-        {
-            if (Board.CanPlaceBet && Board.MinimumBetValue <= Board.MaximumBetValue)
-            {
-                BidAmount = Math.Max(Board.MinimumBetValue, Math.Min(BidAmount, Board.MaximumBetValue));
-            }
-            else
-            {
-                BidAmount = 0;
+                UpdateBidAmount();
+                RefreshGameplayCommands();
             }
         }
 
@@ -422,68 +464,104 @@ namespace TLMG.Client.ViewModels
 
         private bool CanExecutePlaceBet()
         {
-            return _matchConnection.CanSendGameplayAction && Board.CanPlaceBet
+            bool canPlaceBet = _matchConnection.CanSendGameplayAction && Board.CanPlaceBet
                 && BidAmount >= Board.MinimumBetValue && BidAmount <= Board.MaximumBetValue;
+
+            return canPlaceBet;
         }
 
         private void ExecutePlaceBet()
         {
-            _matchConnection.PlaceBet(BidAmount);
+            if (CanExecutePlaceBet())
+            {
+                _matchConnection.PlaceBet(BidAmount);
+            }
         }
 
         private bool CanExecuteWithdrawBet()
         {
-            return _matchConnection.CanSendGameplayAction && Board.CanWithdrawFromBet;
+            bool canWithdrawFromBet = _matchConnection.CanSendGameplayAction && Board.CanWithdrawFromBet;
+
+            return canWithdrawFromBet;
         }
 
         private void ExecuteWithdrawBet()
         {
-            _matchConnection.WithdrawFromBet();
+            if (CanExecuteWithdrawBet())
+            {
+                _matchConnection.WithdrawFromBet();
+            }
         }
 
         private bool CanIncreaseBet()
         {
-            return CanExecutePlaceBet() && BidAmount < Board.MaximumBetValue;
+            bool canIncreaseBet = CanExecutePlaceBet() && BidAmount < Board.MaximumBetValue;
+
+            return canIncreaseBet;
         }
 
         private void ExecuteIncreaseBet()
         {
-            BidAmount++;
+            if (CanIncreaseBet())
+            {
+                BidAmount++;
+                RefreshBetCommands();
+            }
         }
 
         private bool CanDecreaseBet()
         {
-            return CanExecutePlaceBet() && BidAmount > Board.MinimumBetValue;
+            bool canDecreaseBet = CanExecutePlaceBet() && BidAmount > Board.MinimumBetValue;
+
+            return canDecreaseBet;
         }
 
         private void ExecuteDecreaseBet()
         {
-            BidAmount--;
+            if (CanDecreaseBet())
+            {
+                BidAmount--;
+                RefreshBetCommands();
+            }
         }
 
-        private bool CanExecuteRevealCard(MatchPlayerEntry player)
+        private bool CanExecuteRevealCard(MatchPlayerEntry pileOwner)
         {
-            return player != null && player.PileCardCount > 0 && _matchConnection.CanSendGameplayAction && Board.CanRevealCard;
+            bool canRevealCard = pileOwner != null && pileOwner.PileCardCount > EmptyPileCardCount
+                && _matchConnection.CanSendGameplayAction && Board.CanRevealCard;
+
+            return canRevealCard;
         }
 
-        private void ExecuteRevealCard(MatchPlayerEntry player)
+        private void ExecuteRevealCard(MatchPlayerEntry pileOwner)
         {
-            _matchConnection.RevealCard(player.UserId);
+            if (CanExecuteRevealCard(pileOwner))
+            {
+                _matchConnection.RevealCard(pileOwner.UserId);
+            }
         }
 
         private bool CanChoosePunishment(HandCardEntry card)
         {
-            return card != null && _matchConnection.CanSendGameplayAction && Board.CanChoosePunishment;
+            bool canChoosePunishment = card != null && _matchConnection.CanSendGameplayAction && Board.CanChoosePunishment;
+
+            return canChoosePunishment;
         }
 
         private void ExecuteChoosePunishment(HandCardEntry card)
         {
-            _matchConnection.ChoosePunishmentCard(card.Index);
+            if (CanChoosePunishment(card))
+            {
+                _matchConnection.ChoosePunishmentCard(card.Index);
+            }
         }
 
         private void ExecutePlaceCard(HandCardEntry handCard)
         {
-            _matchConnection.PlaceCard(MatchBoardHelper.ConvertToServerCard(handCard.Kind));
+            if (CanExecutePlaceCard(handCard))
+            {
+                _matchConnection.PlaceCard(MatchBoardMapper.ConvertToServerCard(handCard.Kind));
+            }
         }
 
         private bool CanExecutePlaceCard(HandCardEntry handCard)
@@ -496,25 +574,26 @@ namespace TLMG.Client.ViewModels
         private void ExecuteSendChat()
         {
             string messageText = ChatInputHelper.TrimMessageText(ChatInput);
-            bool canSendMessage = !ChatInputHelper.IsEmptyMessage(messageText)
-                && ChatInputHelper.CanEnterText(messageText);
 
-            if (canSendMessage)
+            if (CanSendChatMessage(messageText) && _lobbyConnection.SendChatMessage(messageText))
             {
-                bool wasMessageSent = _lobbyConnection.SendChatMessage(messageText);
-
-                if (wasMessageSent)
-                {
-                    ChatInput = string.Empty;
-                }
+                ChatInput = string.Empty;
             }
         }
 
         private bool CanExecuteSendChat()
         {
             string messageText = ChatInputHelper.TrimMessageText(ChatInput);
-            bool isEmptyMessage = ChatInputHelper.IsEmptyMessage(messageText);
-            bool canSendMessage = !isEmptyMessage && _lobbyConnection.IsChatSubscribed;
+            bool canSendMessage = CanSendChatMessage(messageText);
+
+            return canSendMessage;
+        }
+
+        private bool CanSendChatMessage(string messageText)
+        {
+            bool canSendMessage = _lobbyConnection.IsChatSubscribed
+                && !ChatInputHelper.IsEmptyMessage(messageText)
+                && ChatInputHelper.CanEnterText(messageText);
 
             return canSendMessage;
         }
@@ -536,42 +615,39 @@ namespace TLMG.Client.ViewModels
         private void ExecuteExit()
         {
             _lobbyConnection.LeaveLobby();
-            _navigation.ClearHistory();
-            _navigation.NavigateToWithoutHistory(ScreenId.MainMenu);
+            _navigationManager.ClearHistory();
+            _navigationManager.NavigateToWithoutHistory(ScreenId.MainMenu);
         }
 
-        private void ExecuteReportPlayer()
+        private bool CanOpenModeration(ModerationMode mode)
         {
-            _navigation.NavigateToWithoutHistory(
-                ScreenId.Moderation,
-                Tuple.Create(SelectedPlayerName, ModerationMode.Report));
+            int roomId = _lobbyConnection.CurrentRoom?.RoomId ?? NoRoomId;
+            int targetUserId = SelectedPlayer?.UserId ?? NoUserId;
+            bool canOpen = _moderationNavigation.CanOpen(roomId, targetUserId, mode);
+
+            return canOpen;
         }
 
-        private void ExecuteKickPlayer()
+        private void OpenModeration(ModerationMode mode)
         {
-            KickVoteRequested?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void ExecuteBlockPlayer()
-        {
-            _navigation.NavigateToWithoutHistory(
-                ScreenId.Moderation,
-                Tuple.Create(SelectedPlayerName, ModerationMode.Block));
+            int roomId = _lobbyConnection.CurrentRoom?.RoomId ?? NoRoomId;
+            int targetUserId = SelectedPlayer?.UserId ?? NoUserId;
+            _moderationNavigation.Open(roomId, targetUserId, mode);
         }
 
         private void ExecuteDemoRevealCards()
         {
-            _navigation.NavigateToWithoutHistory(ScreenId.RoundResult);
+            _navigationManager.NavigateToWithoutHistory(ScreenId.RoundResult);
         }
 
         private void ExecuteDemoGameOver()
         {
-            _navigation.NavigateToWithoutHistory(ScreenId.GameOver);
+            _navigationManager.NavigateToWithoutHistory(ScreenId.GameOver);
         }
 
         private void ExecuteDemoInactivity()
         {
-            _navigation.NavigateToWithoutHistory(ScreenId.MatchClosed);
+            _navigationManager.NavigateToWithoutHistory(ScreenId.MatchClosed);
         }
     }
 }

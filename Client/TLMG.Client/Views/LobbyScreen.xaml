@@ -4,6 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:TLMG.Client.Views"
+             xmlns:behaviors="clr-namespace:TLMG.Client.Behaviors"
+             xmlns:constants="clr-namespace:TLMG.Client.Constants"
+             xmlns:models="clr-namespace:TLMG.Client.Models"
              mc:Ignorable="d"
              d:DesignHeight="720"
              d:DesignWidth="1280">
@@ -17,62 +20,6 @@
     </local:LocalizableScreen.Resources>
 
     <Grid Background="{StaticResource Brush_BackgroundDark}">
-
-        <Grid x:Name="grdKickModal" Visibility="Collapsed" Background="#D8000000" Panel.ZIndex="100">
-            <Border Style="{StaticResource ModalBorderStyle}">
-                <StackPanel>
-                    <TextBlock Text="🗳️"
-                               FontSize="48"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,16"
-                               FontFamily="Segoe UI Emoji"
-                               Foreground="{StaticResource Brush_TextPrimary}" />
-                    <TextBlock Text="{DynamicResource Lobby_KickModalTitle}"
-                               Style="{StaticResource TitleMediumTextStyle}"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,16" />
-                    <TextBlock Text="{DynamicResource Lobby_KickModalDescription}"
-                               Style="{StaticResource SubtitleTextStyle}"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,32"
-                               TextWrapping="Wrap"
-                               TextAlignment="Center" />
-
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="16" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Button x:Name="btnCancelKick"
-                                Grid.Column="0"
-                                Content="{DynamicResource Lobby_CancelKickButton}"
-                                Style="{StaticResource OutlineButtonStyle}"
-                                Click="BtnCancelKick_Click" />
-                        <Button x:Name="btnConfirmKick"
-                                Grid.Column="2"
-                                Content="{DynamicResource Lobby_ConfirmKickButton}"
-                                Style="{StaticResource ActionDangerButtonStyle}"
-                                Height="42"
-                                Click="BtnConfirmKick_Click" />
-                    </Grid>
-                </StackPanel>
-            </Border>
-        </Grid>
-
-        <Border x:Name="brdToast" Visibility="Collapsed" Style="{StaticResource ToastBorderStyle}" Panel.ZIndex="101">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="📄"
-                           Margin="0,0,12,0"
-                           VerticalAlignment="Center"
-                           FontFamily="Segoe UI Emoji"
-                           Foreground="{StaticResource Brush_TextPrimary}" />
-                <TextBlock Text="{DynamicResource Lobby_KickToastMessage}"
-                           Style="{StaticResource StatusTextOnlineStyle}"
-                           Foreground="{StaticResource Brush_White}"
-                           VerticalAlignment="Center" />
-            </StackPanel>
-        </Border>
 
         <Grid x:Name="grdCountdown"
               Visibility="{Binding IsCountdownVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
@@ -123,19 +70,25 @@
                AllowsTransparency="True">
             <Border Style="{StaticResource ContextMenuBorderStyle}">
                 <StackPanel>
-                    <TextBlock Text="NYANPROWLER"
+                    <TextBlock Text="{Binding Nickname}"
                                Style="{StaticResource ContextMenuHeaderStyle}" />
-                    <Button x:Name="btnMenuKick"
-                            Content="{DynamicResource Lobby_ConfirmKickButton}"
+                    <Button Content="{DynamicResource Lobby_ConfirmKickButton}"
                             Style="{StaticResource ContextMenuItemStyle}"
-                            Click="BtnMenuKick_Click" />
+                            Tag="{x:Static models:ModerationMode.VoteToKick}"
+                            Click="OnModerationOptionClicked" />
                     <Button Content="{DynamicResource Lobby_MenuReport}"
-                            Style="{StaticResource ContextMenuItemStyle}" />
+                            Style="{StaticResource ContextMenuItemStyle}"
+                            Visibility="{Binding CanReportOrBlock, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Tag="{x:Static models:ModerationMode.Report}"
+                            Click="OnModerationOptionClicked" />
                     <Button Content="{DynamicResource Lobby_MenuBlock}"
-                            Style="{StaticResource ContextMenuDangerItemStyle}" />
+                            Style="{StaticResource ContextMenuDangerItemStyle}"
+                            Visibility="{Binding CanReportOrBlock, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Tag="{x:Static models:ModerationMode.Block}"
+                            Click="OnModerationOptionClicked" />
                     <Button Content="{DynamicResource Lobby_CancelKickButton}"
                             Style="{StaticResource ContextMenuItemStyle}"
-                            Click="BtnMenuCancel_Click" />
+                            Click="OnCancelPlayerMenuClicked" />
                 </StackPanel>
             </Border>
         </Popup>
@@ -275,7 +228,8 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border x:Name="brdLobbyPlayerCard" Style="{StaticResource LobbyCardNotReadyStyle}">
+                            <Border x:Name="brdLobbyPlayerCard" Style="{StaticResource LobbyCardNotReadyStyle}"
+                                    MouseRightButtonUp="OnPlayerCardRightButtonUp">
                                 <StackPanel VerticalAlignment="Center">
                                     <Border Style="{StaticResource FriendAvatarBorderStyle}" HorizontalAlignment="Center" Margin="0,0,0,16">
                                         <TextBlock Text="🐱"
@@ -356,8 +310,8 @@
                                  Tag="{DynamicResource Lobby_ChatPlaceholder}"
                                  Text="{Binding ChatInput, UpdateSourceTrigger=PropertyChanged}"
                                  IsEnabled="{Binding IsChatEnabled}"
-                                 PreviewTextInput="OnChatPreviewTextInput"
-                                 DataObject.Pasting="OnChatPasting"
+                                 behaviors:TextInputBehavior.InputType="ChatMessage"
+                                 MaxLength="{x:Static constants:ValidationConstants.ChatMessageMaximumLength}"
                                  AcceptsReturn="False"
                                  AcceptsTab="False">
                             <TextBox.InputBindings>

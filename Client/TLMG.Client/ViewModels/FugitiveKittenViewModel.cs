@@ -1,12 +1,13 @@
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Threading;
-using CommunityToolkit.Mvvm.Input;
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
 using TLMG.Client.Navigation;
+using TLMG.Client.Presentation;
 using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
@@ -223,7 +224,7 @@ namespace TLMG.Client.ViewModels
         }
         private void UpdateRecoveryDisplay(object sender, EventArgs args)
         {
-            RecoveryMessage = MatchRecoveryText.Describe(_match);
+            RecoveryMessage = MatchRecoveryMessageFormatter.Describe(_match);
             OnPropertyChanged(nameof(CanRetryRecovery));
         }
 

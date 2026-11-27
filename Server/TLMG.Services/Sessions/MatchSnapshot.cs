@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using TLMG.Domain.Engine;
@@ -18,6 +18,7 @@ namespace TLMG.Services.Sessions
         /// <param name="roundNumber">Current engine round.</param>
         /// <param name="phase">Current engine phase.</param>
         /// <param name="playerInTurnUserId">Current player.</param>
+        /// <param name="guestUserIds">Guest identifiers fixed at authorization; excluded from Game_Player persistence.</param>
         internal MatchSnapshot(
             Guid matchId,
             int roomId,
@@ -25,11 +26,13 @@ namespace TLMG.Services.Sessions
             int cardsPerPlayerCount,
             int roundNumber,
             RoundPhase phase,
-            int playerInTurnUserId)
+            int playerInTurnUserId,
+            IReadOnlyList<int> guestUserIds = null)
         {
             MatchId = matchId;
             RoomId = roomId;
             ParticipantUserIds = participantUserIds;
+            GuestUserIds = guestUserIds ?? Array.Empty<int>();
             CardsPerPlayerCount = cardsPerPlayerCount;
             RoundNumber = roundNumber;
             Phase = phase;
@@ -44,6 +47,9 @@ namespace TLMG.Services.Sessions
 
         /// <summary>Participants in room entry order.</summary>
         internal IReadOnlyList<int> ParticipantUserIds { get; }
+
+        /// <summary>Guest identifiers fixed at authorization.</summary>
+        internal IReadOnlyList<int> GuestUserIds { get; }
 
         /// <summary>Cards per player for the mode used to create the engine.</summary>
         internal int CardsPerPlayerCount { get; }

@@ -1,6 +1,8 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
+using log4net;
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
 using TLMG.Client.Navigation;
@@ -17,6 +19,8 @@ namespace TLMG.Client.ViewModels
         private const string RequestAcceptedFormatKey = "Friends_RequestAcceptedFormat";
         private const string NewRequestFormatKey = "Friends_NewRequestFormat";
 
+        private static readonly ILog _log = LogManager.GetLogger(typeof(FriendsViewModel));
+
         private readonly IFriendsConnection _friendsConnection;
         private readonly INavigationManager _navigationManager;
         private readonly RelayCommand _addFriendCommand;
@@ -24,17 +28,19 @@ namespace TLMG.Client.ViewModels
         private readonly RelayCommand<FriendRequestEntry> _declineRequestCommand;
 
         private string _newFriendNickname = string.Empty;
-        private string _friendsBadgeCount = "0";
-        private string _pendingBadgeCount = "0";
+        private string _friendsBadgeCount = string.Empty;
+        private string _pendingBadgeCount = string.Empty;
         private bool _isRegisteredPlayer;
         private bool _isEmptyFriendsVisible;
         private bool _isEmptyPendingVisible;
         private bool _isBusy;
 
-        public FriendsViewModel(IFriendsConnection friendsConnection, INavigationManager navigationManager)
+        public FriendsViewModel(IFriendsConnection friendsConnection, INavigationManager navigationManager,
+            BlockedPlayersViewModel blockedPlayers)
         {
             _friendsConnection = friendsConnection;
             _navigationManager = navigationManager;
+            BlockedPlayers = blockedPlayers;
 
             FriendsList = new ObservableCollection<FriendEntry>();
             PendingRequests = new ObservableCollection<FriendRequestEntry>();
@@ -53,9 +59,8 @@ namespace TLMG.Client.ViewModels
 
         public ICommand BackCommand { get; }
 
-        /// <summary>
-        /// Invites an online friend to the room using the supplied <see cref="FriendEntry"/>.
-        /// </summary>
+
+
         public ICommand InviteFriendCommand { get; }
 
         public ICommand AddFriendCommand => _addFriendCommand;
@@ -69,6 +74,8 @@ namespace TLMG.Client.ViewModels
         public ObservableCollection<FriendRequestEntry> PendingRequests { get; }
 
         public StatusMessage FriendsMessage { get; }
+
+        public BlockedPlayersViewModel BlockedPlayers { get; }
 
         public string NewFriendNickname
         {
@@ -151,12 +158,14 @@ namespace TLMG.Client.ViewModels
             _friendsConnection.SendFriendRequestResultReceived += OnSendFriendRequestResultReceived;
             _friendsConnection.AcceptFriendRequestResultReceived += OnAcceptFriendRequestResultReceived;
             _friendsConnection.DeclineFriendRequestResultReceived += OnDeclineFriendRequestResultReceived;
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+            BlockedPlayers.Activate();
 
             RefreshLists();
 
-            if (_friendsConnection.HasRegisteredSession && _friendsConnection.FriendList == null)
+            if (_friendsConnection.HasSession && !_friendsConnection.RequestFriendList())
             {
-                _friendsConnection.RequestFriendList();
+                ShowError(UnexpectedErrorKey);
             }
         }
 
@@ -170,12 +179,15 @@ namespace TLMG.Client.ViewModels
             _friendsConnection.SendFriendRequestResultReceived -= OnSendFriendRequestResultReceived;
             _friendsConnection.AcceptFriendRequestResultReceived -= OnAcceptFriendRequestResultReceived;
             _friendsConnection.DeclineFriendRequestResultReceived -= OnDeclineFriendRequestResultReceived;
+            LanguageManager.LanguageChanged -= OnLanguageChanged;
+            BlockedPlayers.Deactivate();
         }
 
         protected override void OnDisposed()
         {
             Deactivate();
             FriendsMessage.Dispose();
+            BlockedPlayers.Dispose();
 
             base.OnDisposed();
         }
@@ -187,7 +199,8 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteInviteFriend(FriendEntry friendEntry)
         {
-            bool wasSent = _friendsConnection.InviteFriendToRoom(friendEntry.UserId);
+            bool wasSent = CanExecuteInviteFriend(friendEntry)
+                && _friendsConnection.InviteFriendToRoom(friendEntry.UserId);
 
             if (!wasSent)
             {
@@ -204,7 +217,8 @@ namespace TLMG.Client.ViewModels
         private void ExecuteAddFriend()
         {
             FriendsMessage.Hide();
-            bool wasSent = _friendsConnection.SendFriendRequest(NewFriendNickname.Trim());
+            bool wasSent = CanExecuteAddFriend()
+                && _friendsConnection.SendFriendRequest(NewFriendNickname.Trim());
 
             if (wasSent)
             {
@@ -226,7 +240,8 @@ namespace TLMG.Client.ViewModels
         private void ExecuteAcceptRequest(FriendRequestEntry requestEntry)
         {
             FriendsMessage.Hide();
-            bool wasSent = _friendsConnection.AcceptFriendRequest(requestEntry.FriendRequestId);
+            bool wasSent = CanExecuteAnswerRequest(requestEntry)
+                && _friendsConnection.AcceptFriendRequest(requestEntry.FriendRequestId);
 
             if (wasSent)
             {
@@ -241,7 +256,8 @@ namespace TLMG.Client.ViewModels
         private void ExecuteDeclineRequest(FriendRequestEntry requestEntry)
         {
             FriendsMessage.Hide();
-            bool wasSent = _friendsConnection.DeclineFriendRequest(requestEntry.FriendRequestId);
+            bool wasSent = CanExecuteAnswerRequest(requestEntry)
+                && _friendsConnection.DeclineFriendRequest(requestEntry.FriendRequestId);
 
             if (wasSent)
             {
@@ -266,15 +282,22 @@ namespace TLMG.Client.ViewModels
             _declineRequestCommand.NotifyCanExecuteChanged();
         }
 
-        private void OnFriendListReceived(object sender, ServerEventArgs<OperationSubscribeToFriendsResult> eventArgs)
+        private void OnLanguageChanged(object sender, EventArgs eventArgs)
         {
-            if (eventArgs.Payload.IsSuccess)
+            RefreshLists();
+        }
+
+        private void OnFriendListReceived(object sender, ServerEventArgs<OperationSubscribeToFriendsResult> eventArguments)
+        {
+            OperationSubscribeToFriendsResult result = ServerConnectionManager.NormalizeOperationResult(eventArguments?.Payload);
+
+            if (result.IsSuccess)
             {
                 RefreshLists();
             }
             else
             {
-                ShowError(eventArgs.Payload.ErrorKey);
+                ShowError(result.ErrorKey);
             }
         }
 
@@ -285,27 +308,44 @@ namespace TLMG.Client.ViewModels
 
         private void OnFriendRequestReceived(object sender, ServerEventArgs<FriendRequest> eventArgs)
         {
-            RefreshLists();
-            ShowSuccessWithNickname(NewRequestFormatKey, eventArgs.Payload.Nickname);
+            FriendRequest request = eventArgs?.Payload;
+            if (request != null)
+            {
+                RefreshLists();
+                ShowSuccessWithNickname(NewRequestFormatKey, request.UserId, request.Nickname);
+            }
+            else
+            {
+                ShowError(UnexpectedErrorKey);
+            }
         }
 
         private void OnFriendAdded(object sender, ServerEventArgs<Friend> eventArgs)
         {
-            RefreshLists();
-            ShowSuccessWithNickname(RequestAcceptedFormatKey, eventArgs.Payload.Nickname);
+            Friend friend = eventArgs?.Payload;
+            if (friend != null)
+            {
+                RefreshLists();
+                ShowSuccessWithNickname(RequestAcceptedFormatKey, friend.UserId, friend.Nickname);
+            }
+            else
+            {
+                ShowError(UnexpectedErrorKey);
+            }
         }
 
         private void OnInviteFriendResultReceived(
             object sender,
             ServerEventArgs<OperationResult> eventArgs)
         {
-            if (eventArgs.Payload.IsSuccess)
+            OperationResult result = ServerConnectionManager.NormalizeOperationResult(eventArgs?.Payload);
+            if (result.IsSuccess)
             {
                 FriendsMessage.ShowSuccess(LanguageManager.FindText(InvitationSentMessageKey));
             }
             else
             {
-                ShowError(eventArgs.Payload.ErrorKey);
+                ShowError(result.ErrorKey);
             }
         }
 
@@ -313,7 +353,7 @@ namespace TLMG.Client.ViewModels
             object sender,
             ServerEventArgs<OperationSendFriendRequestResult> eventArgs)
         {
-            OperationSendFriendRequestResult sendResult = eventArgs.Payload;
+            OperationSendFriendRequestResult sendResult = ServerConnectionManager.NormalizeOperationResult(eventArgs?.Payload);
             IsBusy = false;
             RefreshLists();
 
@@ -324,12 +364,20 @@ namespace TLMG.Client.ViewModels
             else if (sendResult.NewFriend != null)
             {
                 NewFriendNickname = string.Empty;
-                ShowSuccessWithNickname(RequestAcceptedFormatKey, sendResult.NewFriend.Nickname);
+                ShowSuccessWithNickname(
+                    RequestAcceptedFormatKey,
+                    sendResult.NewFriend.UserId,
+                    sendResult.NewFriend.Nickname);
             }
-            else
+            else if (sendResult.SentFriendRequest != null)
             {
                 NewFriendNickname = string.Empty;
                 FriendsMessage.ShowSuccess(LanguageManager.FindText(RequestSentMessageKey));
+            }
+            else
+            {
+                _log.Warn("A successful friendship response did not include a friend or a pending friendship.");
+                ShowError(UnexpectedErrorKey);
             }
         }
 
@@ -337,7 +385,7 @@ namespace TLMG.Client.ViewModels
             object sender,
             ServerEventArgs<OperationAcceptFriendRequestResult> eventArgs)
         {
-            OperationAcceptFriendRequestResult acceptResult = eventArgs.Payload;
+            OperationAcceptFriendRequestResult acceptResult = ServerConnectionManager.NormalizeOperationResult(eventArgs?.Payload);
             IsBusy = false;
             RefreshLists();
 
@@ -347,7 +395,15 @@ namespace TLMG.Client.ViewModels
             }
             else if (acceptResult.NewFriend != null)
             {
-                ShowSuccessWithNickname(RequestAcceptedFormatKey, acceptResult.NewFriend.Nickname);
+                ShowSuccessWithNickname(
+                    RequestAcceptedFormatKey,
+                    acceptResult.NewFriend.UserId,
+                    acceptResult.NewFriend.Nickname);
+            }
+            else
+            {
+                _log.Warn("A successful friendship acceptance did not include the new friend.");
+                ShowError(UnexpectedErrorKey);
             }
         }
 
@@ -355,7 +411,7 @@ namespace TLMG.Client.ViewModels
             object sender,
             ServerEventArgs<OperationDeclineFriendRequestResult> eventArgs)
         {
-            OperationDeclineFriendRequestResult declineResult = eventArgs.Payload;
+            OperationDeclineFriendRequestResult declineResult = ServerConnectionManager.NormalizeOperationResult(eventArgs?.Payload);
             IsBusy = false;
             RefreshLists();
 
@@ -371,42 +427,26 @@ namespace TLMG.Client.ViewModels
 
         private void RefreshLists()
         {
-            bool hasRoom = _friendsConnection.HasCurrentRoom;
-
-            FriendsList.Clear();
-            if (_friendsConnection.FriendList != null)
-            {
-                foreach (Friend friend in _friendsConnection.FriendList)
-                {
-                    FriendsList.Add(new FriendEntry
-                    {
-                        UserId = friend.UserId,
-                        Nickname = friend.Nickname,
-                        IsOnline = friend.IsOnline,
-                        CanBeInvited = friend.IsOnline && hasRoom
-                    });
-                }
-            }
-
-            PendingRequests.Clear();
-            if (_friendsConnection.PendingFriendRequests != null)
-            {
-                foreach (FriendRequest friendRequest in _friendsConnection.PendingFriendRequests)
-                {
-                    PendingRequests.Add(new FriendRequestEntry
-                    {
-                        FriendRequestId = friendRequest.FriendRequestId,
-                        Nickname = friendRequest.Nickname,
-                        IsIncoming = friendRequest.IsIncoming
-                    });
-                }
-            }
+            bool hasSession = _friendsConnection.HasSession;
+            bool hasFriendsSnapshot = FriendsListProjection.PopulateFriends(_friendsConnection, FriendsList);
+            bool hasPendingSnapshot = FriendsListProjection.PopulatePending(_friendsConnection, PendingRequests);
 
             IsRegisteredPlayer = _friendsConnection.HasRegisteredSession;
-            FriendsBadgeCount = FriendsList.Count.ToString();
-            PendingBadgeCount = PendingRequests.Count.ToString();
-            IsEmptyFriendsVisible = IsRegisteredPlayer && FriendsList.Count == 0;
-            IsEmptyPendingVisible = IsRegisteredPlayer && PendingRequests.Count == 0;
+            FriendsBadgeCount = string.Empty;
+            PendingBadgeCount = string.Empty;
+
+            if (hasFriendsSnapshot)
+            {
+                FriendsBadgeCount = FriendsList.Count.ToString();
+            }
+
+            if (hasPendingSnapshot)
+            {
+                PendingBadgeCount = PendingRequests.Count.ToString();
+            }
+
+            IsEmptyFriendsVisible = hasSession && hasFriendsSnapshot && FriendsList.Count == 0;
+            IsEmptyPendingVisible = hasSession && hasPendingSnapshot && PendingRequests.Count == 0;
             NotifyRequestCommandsCanExecuteChanged();
         }
 
@@ -415,10 +455,11 @@ namespace TLMG.Client.ViewModels
             FriendsMessage.ShowError(LanguageManager.FindText(errorKey));
         }
 
-        private void ShowSuccessWithNickname(string formatKey, string nickname)
+        private void ShowSuccessWithNickname(string formatKey, int userId, string nickname)
         {
             string messageFormat = LanguageManager.FindText(formatKey);
-            FriendsMessage.ShowSuccess(string.Format(messageFormat, nickname));
+            string displayName = DisplayNameHelper.Resolve(userId, nickname);
+            FriendsMessage.ShowSuccess(string.Format(messageFormat, displayName));
         }
     }
 }

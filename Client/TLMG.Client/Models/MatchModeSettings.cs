@@ -2,16 +2,14 @@
 {
     /// <summary>
     /// Match settings used by the UI include cards per player, Fatal Cats, challenges needed to win and hand layout.
-    /// These settings control the display and available controls. The server decides the rules (Reglas de The Last
-    /// Meow, §2.0.4 and §2.0.5).
+    /// These settings control presentation; the server remains authoritative for match rules.
     /// </summary>
     public sealed class MatchModeSettings
     {
         /// <summary>Cards per player in the smallest mode, which is also the default.</summary>
         public const int FourCardsPerPlayer = 4;
-
-        private const int SixCardsPerPlayer = 6;
-        private const int EightCardsPerPlayer = 8;
+        public const int SixCardsPerPlayer = 6;
+        public const int EightCardsPerPlayer = 8;
         private const int SingleFatalCatCount = 1;
         private const int DoubleFatalCatCount = 2;
         private const int ShortMatchChallengesToWin = 2;

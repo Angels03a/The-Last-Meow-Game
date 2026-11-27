@@ -9,7 +9,8 @@ namespace TLMG.Contracts
     public interface ILeaderboardManager
     {
         /// <summary>Requests the leaderboard. GetLeaderboardResult delivers the response.</summary>
+        /// <param name="sessionToken">Session token used to determine personal standing.</param>
         [OperationContract(IsOneWay = true)]
-        void GetLeaderboard();
+        void GetLeaderboard(string sessionToken);
     }
 }

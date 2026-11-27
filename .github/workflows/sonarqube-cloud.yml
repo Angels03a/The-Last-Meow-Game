@@ -41,7 +41,7 @@ jobs:
           nuget install Server/TLMG.Services/packages.config -OutputDirectory Server/packages -NonInteractive
           if ($LASTEXITCODE -ne 0) { throw "NuGet restore failed" }
 
-      
+
       - name: Restore project references
         shell: pwsh
         run: |

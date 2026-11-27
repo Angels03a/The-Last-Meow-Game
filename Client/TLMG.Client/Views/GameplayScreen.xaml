@@ -4,6 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:TLMG.Client.Views"
+             xmlns:behaviors="clr-namespace:TLMG.Client.Behaviors"
+             xmlns:constants="clr-namespace:TLMG.Client.Constants"
+             xmlns:models="clr-namespace:TLMG.Client.Models"
              mc:Ignorable="d"
              d:DesignHeight="720"
              d:DesignWidth="1280">
@@ -124,7 +127,6 @@
 
             <DataTemplate x:Key="OpponentTemplate">
                 <StackPanel x:Name="pnlOpponent"
-                            Tag="{Binding Nickname}"
                             MouseRightButtonUp="PnlOpponent_MouseRightButtonUp">
                     <Grid Style="{StaticResource GameplayAvatarGridStyle}">
                         <Border Style="{StaticResource GameplayAvatarBorderStyle}">
@@ -151,11 +153,11 @@
                             <ItemsControl ItemsSource="{Binding PileCards}"
                                       ItemTemplate="{StaticResource PileCardTemplate}"
                                       Style="{StaticResource GameplayMiniCardsHostStyle}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
                             </ItemsControl>
                         </Viewbox>
                     </Button>
@@ -328,13 +330,16 @@
                                    Style="{StaticResource ContextMenuHeaderStyle}" />
                         <Button Content="{DynamicResource Gameplay_MenuReportButton}"
                                 Style="{StaticResource GameplayContextMenuReportItemStyle}"
-                                Command="{Binding ReportPlayerCommand}" />
+                                Command="{Binding OpenModerationCommand}"
+                                CommandParameter="{x:Static models:ModerationMode.Report}" />
                         <Button Content="{DynamicResource Gameplay_MenuKickButton}"
                                 Style="{StaticResource GameplayContextMenuKickItemStyle}"
-                                Command="{Binding KickPlayerCommand}" />
+                                Command="{Binding OpenModerationCommand}"
+                                CommandParameter="{x:Static models:ModerationMode.VoteToKick}" />
                         <Button Content="{DynamicResource Gameplay_MenuBlockButton}"
                                 Style="{StaticResource ContextMenuDangerItemStyle}"
-                                Command="{Binding BlockPlayerCommand}" />
+                                Command="{Binding OpenModerationCommand}"
+                                CommandParameter="{x:Static models:ModerationMode.Block}" />
                         <Button Content="{DynamicResource Gameplay_MenuCancelButton}"
                                 Style="{StaticResource GameplayContextMenuCancelItemStyle}"
                                 Click="BtnMenuCancel_Click" />
@@ -380,11 +385,11 @@
                                 <ItemsControl ItemsSource="{Binding Board.OwnPileCards}"
                                           ItemTemplate="{StaticResource PileCardTemplate}"
                                           Style="{StaticResource GameplayMiniCardsHostStyle}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Style="{StaticResource GameplayMiniCardsPanelStyle}" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
                                 </ItemsControl>
                             </Viewbox>
                         </Button>
@@ -500,11 +505,14 @@
                             </Style.Triggers>
                         </Style>
                     </TextBlock.Style>
-                </TextBlock>                <ItemsControl ItemsSource="{Binding Board.PunishmentCards}"
+                </TextBlock>
+                <ItemsControl ItemsSource="{Binding Board.PunishmentCards}"
                               Visibility="{Binding Board.CanChoosePunishment,
                                   Converter={StaticResource BooleanToVisibilityConverter}}">
                     <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate><WrapPanel HorizontalAlignment="Center" /></ItemsPanelTemplate>
+                        <ItemsPanelTemplate>
+                            <WrapPanel HorizontalAlignment="Center" />
+                        </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -580,29 +588,29 @@
                         <Button Content="{DynamicResource Recovery_RetryChat}" Command="{Binding RetryChatCommand}"
                                 Style="{StaticResource ActionPrimarySmallButtonStyle}"
                                 Visibility="{Binding IsChatUnavailable, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox x:Name="txtChatInput"
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="txtChatInput"
                                  Grid.Column="0"
-                                 PreviewTextInput="OnChatPreviewTextInput"
-                                 DataObject.Pasting="OnChatPasting"
+                                 behaviors:TextInputBehavior.InputType="ChatMessage"
+                                 MaxLength="{x:Static constants:ValidationConstants.ChatMessageMaximumLength}"
                                  Text="{Binding ChatInput, UpdateSourceTrigger=PropertyChanged}"
                                  Tag="{DynamicResource Gameplay_ChatPlaceholder}"
                                  Style="{StaticResource GameplayChatInputStyle}"
                                  AcceptsReturn="False"
                                  AcceptsTab="False">
-                            <TextBox.InputBindings>
-                                <KeyBinding Key="Enter" Command="{Binding SendChatCommand}" />
-                            </TextBox.InputBindings>
-                        </TextBox>
-                        <Button Grid.Column="1"
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding SendChatCommand}" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <Button Grid.Column="1"
                                 Content="{DynamicResource Gameplay_SendChatButton}"
                                 Style="{StaticResource GameplaySendChatButtonStyle}"
                                 Command="{Binding SendChatCommand}" />
-                    </Grid>
+                        </Grid>
                     </StackPanel>
                 </Border>
 

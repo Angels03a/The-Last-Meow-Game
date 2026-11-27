@@ -25,6 +25,7 @@ namespace TLMG.DataAccess.DatabaseModel
         public int total_points { get; set; }
         public int total_wins { get; set; }
         public int total_games_played { get; set; }
+        public System.DateTime points_reached_at_utc { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Game_Player> Game_Player { get; set; }

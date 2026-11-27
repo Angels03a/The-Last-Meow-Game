@@ -1,101 +1,87 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows.Input;
-using System.Linq;
-using TLMG.Client.UsersManagerReference;
-using TLMG.Client.Communication;
+
 using CommunityToolkit.Mvvm.Input;
-using TLMG.Client.Navigation;
+
+using TLMG.Client.Communication;
 using TLMG.Client.Models;
+using TLMG.Client.Navigation;
+using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>State and navigation for GameOver.</summary>
+    /// <summary>Displays the server-authorized final result and coordinates departure from the match.</summary>
     public class GameOverViewModel : ViewModelBase
     {
-        private readonly INavigationManager _navigation;
+        private const int NoWinnerUserId = 0;
+        private const string UnexpectedErrorKey = "Common_UnexpectedError";
+        private const string VictoryTitleKey = "GameOver_VictoryNoticeTitle";
+        private const string VictoryBodyKey = "GameOver_VictoryNoticeBody";
+        private const string VictoryIcon = "★";
+
+        private readonly INavigationManager _navigationManager;
         private readonly ILobbyConnection _lobbyConnection;
-        private readonly IDialogManager _dialogs;
+        private readonly IDialogManager _dialogManager;
         private readonly RelayCommand _mainMenuCommand;
-        private readonly Guid? _matchId;
-        private bool _isLeaving;
+        private readonly Guid? _finishedMatchId;
+        private bool _isLeavingMatch;
         private bool _isDisposed;
-        /// <summary>Sets up navigation commands.</summary>
+
+        /// <summary>Prepares final standings and navigation for the completed match.</summary>
         public GameOverViewModel(
-            INavigationManager navigation, ILobbyConnection lobbyConnection, IDialogManager dialogs, MatchView result)
+            INavigationManager navigationManager,
+            ILobbyConnection lobbyConnection,
+            IDialogManager dialogManager,
+            MatchView finishedMatch)
         {
-            _navigation = navigation ?? throw new ArgumentNullException(nameof(navigation));
-            _lobbyConnection = lobbyConnection ?? throw new ArgumentNullException(nameof(lobbyConnection));
-            _dialogs = dialogs ?? throw new ArgumentNullException(nameof(dialogs));
-            _matchId = result?.MatchId;
-            _lobbyConnection.FinishedMatchLeaveResultReceived += OnFinishedMatchLeaveResultReceived;
-            WinnerName = result?.Players?.FirstOrDefault(player => player.UserId == result.WinnerUserId)?.Nickname
-                ?? string.Empty;
-            EndedByCollectiveAbandonment = result != null && result.Phase == MatchRoundPhase.MatchFinished
-                && result.WinnerUserId == 0;
-            Standings = result?.FinalStandings;
-            HasStandings = Standings != null;
+            _navigationManager = navigationManager;
+            _lobbyConnection = lobbyConnection;
+            _dialogManager = dialogManager;
+            _finishedMatchId = finishedMatch?.MatchId;
+
+            WinnerName = FindWinnerName(finishedMatch);
+            EndedByCollectiveAbandonment = finishedMatch != null
+                && finishedMatch.Phase == MatchRoundPhase.MatchFinished
+                && finishedMatch.WinnerUserId == NoWinnerUserId;
+            Standings = finishedMatch?.FinalStandings;
+            StandingEntries = CreateStandingEntries(Standings);
+
             if (!string.IsNullOrWhiteSpace(WinnerName))
             {
-                Notification = GameNotificationFactory.CreatePublic(
-                    "GameOver_VictoryNoticeTitle", "GameOver_VictoryNoticeBody", WinnerName, "★", true);
+                Notification = new GameNotification
+                {
+                    TitleKey = VictoryTitleKey,
+                    BodyKey = VictoryBodyKey,
+                    Subject = WinnerName,
+                    Icon = VictoryIcon,
+                    IsSuccess = true
+                };
             }
+
             _mainMenuCommand = new RelayCommand(ExecuteMainMenu, CanExecuteMainMenu);
+            _lobbyConnection.FinishedMatchLeaveResultReceived += OnFinishedMatchLeaveResultReceived;
         }
+
         /// <summary>Victory notification for the winner named in the server view.</summary>
         public GameNotification Notification { get; }
-        /// <summary>Returns to the main menu.</summary>
+
+        /// <summary>Returns to the main menu after the server confirms departure.</summary>
         public ICommand MainMenuCommand => _mainMenuCommand;
 
-        private bool CanExecuteMainMenu() => !_isLeaving;
+        /// <summary>Localized winner name, or an empty string if unavailable.</summary>
+        public string WinnerName { get; }
 
-        private void ExecuteMainMenu()
-        {
-            if (_isLeaving || _isDisposed)
-            {
-                return;
-            }
+        public bool EndedByCollectiveAbandonment { get; }
 
-            if (!_matchId.HasValue && _lobbyConnection.CurrentRoom == null)
-            {
-                NavigateToMainMenu();
-                return;
-            }
+        /// <summary>Final standings from the server, or null if unavailable.</summary>
+        public MatchStandingView[] Standings { get; }
 
-            _isLeaving = true;
-            _mainMenuCommand.NotifyCanExecuteChanged();
-            bool wasSent = _matchId.HasValue && _lobbyConnection.LeaveFinishedMatch(_matchId.Value);
-            if (!wasSent && !_isDisposed)
-            {
-                _isLeaving = false;
-                _mainMenuCommand.NotifyCanExecuteChanged();
-                _dialogs.ShowError("Common_UnexpectedError");
-            }
-        }
+        /// <summary>Provides the standings with display names suitable for the current language.</summary>
+        public IReadOnlyList<StandingEntry> StandingEntries { get; }
 
-        private void OnFinishedMatchLeaveResultReceived(object sender, ServerEventArgs<OperationResult> eventArgs)
-        {
-            if (!_isLeaving || _isDisposed)
-            {
-                return;
-            }
-
-            _isLeaving = false;
-            _mainMenuCommand.NotifyCanExecuteChanged();
-            if (eventArgs.Payload != null && eventArgs.Payload.IsSuccess)
-            {
-                NavigateToMainMenu();
-            }
-            else
-            {
-                _dialogs.ShowError(eventArgs.Payload?.ErrorKey ?? "Common_UnexpectedError");
-            }
-        }
-
-        private void NavigateToMainMenu()
-        {
-            _navigation.ClearHistory();
-            _navigation.NavigateToWithoutHistory(ScreenId.MainMenu);
-        }
+        /// <summary>Whether the server supplied standings, even if empty.</summary>
+        public bool HasStandings => Standings != null;
 
         protected override void OnDisposed()
         {
@@ -104,15 +90,105 @@ namespace TLMG.Client.ViewModels
             base.OnDisposed();
         }
 
-        /// <summary>Winner's nickname from the match result, or an empty string if unavailable.</summary>
-        public string WinnerName { get; }
+        private static string FindWinnerName(MatchView finishedMatch)
+        {
+            string winnerName = string.Empty;
 
-        public bool EndedByCollectiveAbandonment { get; }
+            if (finishedMatch != null && finishedMatch.Players != null
+                && finishedMatch.WinnerUserId != NoWinnerUserId)
+            {
+                foreach (MatchPlayerView player in finishedMatch.Players)
+                {
+                    if (player.UserId == finishedMatch.WinnerUserId)
+                    {
+                        winnerName = DisplayNameHelper.Resolve(player.UserId, player.Nickname);
+                        break;
+                    }
+                }
+            }
 
-        /// <summary>Final standings from the server, or null if unavailable.</summary>
-        public MatchStandingView[] Standings { get; }
+            return winnerName;
+        }
 
-        /// <summary>Whether the server supplied standings, even if empty.</summary>
-        public bool HasStandings { get; }
+        private static IReadOnlyList<StandingEntry> CreateStandingEntries(MatchStandingView[] standings)
+        {
+            List<StandingEntry> entries = new List<StandingEntry>();
+
+            if (standings != null)
+            {
+                foreach (MatchStandingView standing in standings)
+                {
+                    entries.Add(new StandingEntry
+                    {
+                        Position = standing.Position,
+                        DisplayName = DisplayNameHelper.Resolve(standing.UserId, standing.Nickname),
+                        Points = standing.Points
+                    });
+                }
+            }
+
+            return entries.AsReadOnly();
+        }
+
+        private bool CanExecuteMainMenu()
+        {
+            bool canExecuteMainMenu = !_isLeavingMatch && !_isDisposed;
+
+            return canExecuteMainMenu;
+        }
+
+        private void ExecuteMainMenu()
+        {
+            if (CanExecuteMainMenu())
+            {
+                if (!_finishedMatchId.HasValue && _lobbyConnection.CurrentRoom == null)
+                {
+                    NavigateToMainMenu();
+                }
+                else
+                {
+                    SetLeavingMatchState(true);
+                    bool wasLeaveSent = _finishedMatchId.HasValue
+                        && _lobbyConnection.LeaveFinishedMatch(_finishedMatchId.Value);
+
+                    if (!wasLeaveSent && !_isDisposed && _isLeavingMatch)
+                    {
+                        SetLeavingMatchState(false);
+                        _dialogManager.ShowError(UnexpectedErrorKey);
+                    }
+                }
+            }
+        }
+
+        private void OnFinishedMatchLeaveResultReceived(
+            object sender, ServerEventArgs<OperationResult> eventArgs)
+        {
+            if (_isLeavingMatch && !_isDisposed)
+            {
+                SetLeavingMatchState(false);
+                OperationResult leaveConfirmation = eventArgs.Payload;
+
+                if (leaveConfirmation != null && leaveConfirmation.IsSuccess)
+                {
+                    NavigateToMainMenu();
+                }
+                else
+                {
+                    _dialogManager.ShowError(leaveConfirmation?.ErrorKey ?? UnexpectedErrorKey);
+                }
+            }
+        }
+
+        private void SetLeavingMatchState(bool isLeavingMatch)
+        {
+            _isLeavingMatch = isLeavingMatch;
+            _mainMenuCommand.NotifyCanExecuteChanged();
+        }
+
+        private void NavigateToMainMenu()
+        {
+            _navigationManager.ClearHistory();
+            _navigationManager.NavigateToWithoutHistory(ScreenId.MainMenu);
+        }
     }
 }

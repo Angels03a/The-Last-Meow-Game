@@ -62,28 +62,34 @@
 		<Compile Include="Behaviors\PasswordBindingBehavior.cs" />
 		<Compile Include="Behaviors\TextInputBehavior.cs" />
 		<Compile Include="Behaviors\WaitCursorBehavior.cs" />
-		<Compile Include="Communication\IAccountsConnection.cs" />
-		<Compile Include="Communication\IFriendsConnection.cs" />
-		<Compile Include="Communication\ILeaderboardConnection.cs" />
-		<Compile Include="Communication\ILobbyConnection.cs" />
-		<Compile Include="Communication\IMatchConnection.cs" />
-		<Compile Include="Communication\MatchViewVersionHelper.cs" />
-		<Compile Include="Communication\ServerConnectionManager.Match.cs" />
-		<Compile Include="Communication\IPasswordConnection.cs" />
-		<Compile Include="Communication\IProfileConnection.cs" />
-		<Compile Include="Communication\LobbyCountdown.cs" />
-		<Compile Include="Communication\ServerConnectionManager.Accounts.cs" />
+		<Compile Include="Communication\Accounts\IAccountsConnection.cs" />
+		<Compile Include="Communication\Friends\IFriendsConnection.cs" />
+		<Compile Include="Communication\Leaderboard\ILeaderboardConnection.cs" />
+		<Compile Include="Communication\Lobby\ILobbyConnection.cs" />
+		<Compile Include="Communication\Match\IMatchConnection.cs" />
+		<Compile Include="Communication\HeartbeatLink.cs" />
+		<Compile Include="Communication\Moderation\IModerationConnection.cs" />
+		<Compile Include="Communication\Match\MatchViewVersionHelper.cs" />
+		<Compile Include="Communication\Moderation\ModerationCallback.cs" />
+		<Compile Include="Communication\Moderation\ModerationChannel.cs" />
+		<Compile Include="Communication\Moderation\ModerationConnection.cs" />
+		<Compile Include="Communication\Moderation\ModerationOperation.cs" />
+		<Compile Include="Communication\Match\ServerConnectionManager.Match.cs" />
+		<Compile Include="Communication\Accounts\IPasswordConnection.cs" />
+		<Compile Include="Communication\Accounts\IProfileConnection.cs" />
+		<Compile Include="Communication\Lobby\LobbyCountdown.cs" />
+		<Compile Include="Communication\Accounts\ServerConnectionManager.Accounts.cs" />
 		<Compile Include="Communication\ServerConnectionManager.Heartbeat.cs" />
 		<Compile Include="Communication\ServerConnectionManager.Recovery.cs" />
-		<Compile Include="Communication\ServerConnectionManager.FriendRequests.cs" />
-		<Compile Include="Communication\ServerConnectionManager.Leaderboard.cs" />
-		<Compile Include="Communication\ServerConnectionManager.Lobby.cs" />
-		<Compile Include="Communication\ServerConnectionManager.Password.cs" />
-		<Compile Include="Communication\ServerConnectionManager.Profile.cs" />
-		<Compile Include="Communication\ServerConnectionManager.Readiness.cs" />
-		<Compile Include="Communication\ServerConnectionManager.Chat.cs" />
-		<Compile Include="Communication\ChatEntryHelper.cs" />
-		<Compile Include="Communication\ChatInputHelper.cs" />
+		<Compile Include="Communication\Friends\ServerConnectionManager.FriendRequests.cs" />
+		<Compile Include="Communication\Leaderboard\ServerConnectionManager.Leaderboard.cs" />
+		<Compile Include="Communication\Lobby\ServerConnectionManager.Lobby.cs" />
+		<Compile Include="Communication\Accounts\ServerConnectionManager.Password.cs" />
+		<Compile Include="Communication\Accounts\ServerConnectionManager.Profile.cs" />
+		<Compile Include="Communication\Lobby\ServerConnectionManager.Readiness.cs" />
+		<Compile Include="Communication\Chat\ServerConnectionManager.Chat.cs" />
+		<Compile Include="Communication\Chat\ChatEntryHelper.cs" />
+		<Compile Include="Communication\Chat\ChatInputHelper.cs" />
 		<Compile Include="Communication\ServerCallback.cs" />
 		<Compile Include="Communication\ServerConnectionManager.cs" />
 		<Compile Include="Communication\ServerEventArgs.cs" />
@@ -92,6 +98,7 @@
 			<DesignTime>True</DesignTime>
 			<DependentUpon>Reference.svcmap</DependentUpon>
 		</Compile>
+		<Compile Include="DisplayNameHelper.cs" />
 		<Compile Include="Models\AvatarCatalog.cs" />
 		<Compile Include="Models\ChatMessageEntry.cs" />
 		<Compile Include="Models\FriendEntry.cs" />
@@ -99,6 +106,9 @@
 		<Compile Include="Models\GameNotification.cs" />
 		<Compile Include="Models\KittenSceneState.cs" />
 		<Compile Include="Models\KittenColor.cs" />
+		<Compile Include="Models\StandingEntry.cs" />
+		<Compile Include="Presentation\MatchBoardMapper.cs" />
+		<Compile Include="Presentation\MatchRecoveryMessageFormatter.cs" />
 		<Compile Include="ViewModels\FugitiveKittenViewModel.cs" />
 		<Compile Include="Models\GameDialog.cs" />
 		<Compile Include="Views\GameDialogWindow.xaml.cs">
@@ -122,6 +132,7 @@
 		<Compile Include="Navigation\ModerationNavigationParameter.cs" />
 		<Compile Include="Navigation\NavigationManager.cs" />
 		<Compile Include="Navigation\NewPasswordNavigationParameter.cs" />
+		<Compile Include="Navigation\RoomModerationNavigation.cs" />
 		<Compile Include="Navigation\ScreenEntry.cs" />
 		<Compile Include="Navigation\ScreenFactory.cs" />
 		<Compile Include="Navigation\ScreenId.cs" />
@@ -130,22 +141,22 @@
 		<Compile Include="Constants\ValidationConstants.cs" />
 		<Compile Include="Validation\InputValidator.cs" />
 		<Compile Include="Validation\ValidationInputType.cs" />
+		<Compile Include="ViewModels\BlockedPlayersViewModel.cs" />
 		<Compile Include="ViewModels\ChangePasswordViewModel.cs" />
 		<Compile Include="ViewModels\CreateAccountViewModel.cs" />
 		<Compile Include="ViewModels\ForgotPasswordViewModel.cs" />
+		<Compile Include="ViewModels\FriendsListProjection.cs" />
 		<Compile Include="ViewModels\FriendsViewModel.cs" />
 		<Compile Include="ViewModels\MatchClosedViewModel.cs" />
 		<Compile Include="ViewModels\GameOverViewModel.cs" />
 		<Compile Include="ViewModels\RoundResultViewModel.cs" />
 		<Compile Include="ViewModels\ModerationViewModel.cs" />
 		<Compile Include="ViewModels\GameplayViewModel.cs" />
-		<Compile Include="ViewModels\MatchBoardHelper.cs" />
 		<Compile Include="ViewModels\HowToPlayViewModel.cs" />
 		<Compile Include="ViewModels\LeaderboardViewModel.cs" />
 		<Compile Include="ViewModels\LobbyViewModel.cs" />
 		<Compile Include="ViewModels\LoginViewModel.cs" />
 		<Compile Include="ViewModels\MainMenuViewModel.cs" />
-		<Compile Include="ViewModels\MatchRecoveryText.cs" />
 		<Compile Include="ViewModels\MainWindowViewModel.cs" />
 		<Compile Include="ViewModels\NewPasswordViewModel.cs" />
 		<Compile Include="ViewModels\OptionsViewModel.cs" />
@@ -360,10 +371,10 @@
 		<Content Include="log4net.config">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<None Include="Connected Services\UsersManagerReference\service.wsdl" />
 		<None Include="Connected Services\UsersManagerReference\service.xsd">
 			<SubType>Designer</SubType>
 		</None>
+		<None Include="Connected Services\UsersManagerReference\service1.wsdl" />
 		<None Include="Connected Services\UsersManagerReference\service1.xsd">
 			<SubType>Designer</SubType>
 		</None>
@@ -413,5 +424,6 @@
 	<ItemGroup>
 		<WCFMetadataStorage Include="Connected Services\UsersManagerReference\" />
 	</ItemGroup>
+	<ItemGroup />
 	<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

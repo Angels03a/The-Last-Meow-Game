@@ -1,36 +1,32 @@
+﻿using System;
 using System.Windows.Input;
 
 using CommunityToolkit.Mvvm.Input;
 
 using TLMG.Client.Communication;
 using TLMG.Client.Navigation;
+using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>
-    /// ViewModel del menú principal: muestra el nickname del jugador en sesión y navega a las demás pantallas con
-    /// el administrador de navegación. Cerrar sesión libera la conexión con el servidor y regresa al inicio de
-    /// sesión.
-    /// </summary>
+    /// <summary>Provides navigation and the localized identity of the current player.</summary>
     public class MainMenuViewModel : ViewModelBase
     {
         private readonly IAccountsConnection _accountsConnection;
         private readonly INavigationManager _navigationManager;
         private readonly IDialogManager _dialogs;
 
-        /// <summary>
-        /// Inicializa una nueva instancia de la clase <see cref="MainMenuViewModel"/>.
-        /// </summary>
-        /// <param name="accountsConnection">Área de cuentas de la conexión con el servidor.</param>
-        /// <param name="navigationManager">Administrador de navegación.</param>
-        public MainMenuViewModel(IAccountsConnection accountsConnection, INavigationManager navigationManager, IDialogManager dialogs)
+        public MainMenuViewModel(
+            IAccountsConnection accountsConnection,
+            INavigationManager navigationManager,
+            IDialogManager dialogs)
         {
             _accountsConnection = accountsConnection;
             _navigationManager = navigationManager;
             _dialogs = dialogs;
 
-            // TODO: Mostrar lo que se decida para el invitado, que no tiene nickname; hoy queda vacío. (BL-089).
-            PlayerNickname = _accountsConnection.PlayerNickname ?? string.Empty;
+            IsGuest = _accountsConnection.IsGuestSession;
+            IsRegisteredPlayer = !IsGuest;
 
             NavigateToLobbyCommand = new RelayCommand(ExecuteNavigateToLobby);
             NavigateToFriendsCommand = new RelayCommand(ExecuteNavigateToFriends);
@@ -44,26 +40,49 @@ namespace TLMG.Client.ViewModels
         /// <summary>Opens the lobby.</summary>
         public ICommand NavigateToLobbyCommand { get; }
 
-        /// <summary>Comando para navegar a la lista de amigos.</summary>
         public ICommand NavigateToFriendsCommand { get; }
 
-        /// <summary>Comando para navegar al perfil.</summary>
         public ICommand NavigateToProfileCommand { get; }
 
-        /// <summary>Comando para navegar a las instrucciones.</summary>
         public ICommand NavigateToHowToPlayCommand { get; }
 
         /// <summary>Opens the leaderboard.</summary>
         public ICommand NavigateToLeaderboardCommand { get; }
 
-        /// <summary>Comando para navegar a las opciones.</summary>
         public ICommand NavigateToOptionsCommand { get; }
 
-        /// <summary>Comando para cerrar sesión.</summary>
         public ICommand LogOutCommand { get; }
 
-        /// <summary>Nickname del jugador en sesión; vacío para un invitado.</summary>
-        public string PlayerNickname { get; }
+        public string PlayerNickname => DisplayNameHelper.Resolve(
+            _accountsConnection.PlayerUserId,
+            _accountsConnection.PlayerNickname ?? string.Empty);
+
+        public bool IsGuest { get; }
+
+        public bool IsRegisteredPlayer { get; }
+
+        public void Activate()
+        {
+            Deactivate();
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+            OnPropertyChanged(nameof(PlayerNickname));
+        }
+
+        public void Deactivate()
+        {
+            LanguageManager.LanguageChanged -= OnLanguageChanged;
+        }
+
+        protected override void OnDisposed()
+        {
+            Deactivate();
+            base.OnDisposed();
+        }
+
+        private void OnLanguageChanged(object sender, EventArgs eventArguments)
+        {
+            OnPropertyChanged(nameof(PlayerNickname));
+        }
 
         private void ExecuteNavigateToLobby()
         {
@@ -97,14 +116,17 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteLogOut()
         {
-            var result = _accountsConnection.LogOut();
-            if (!result.IsSuccess)
+            LogOutResult logOutResult = _accountsConnection.LogOut();
+
+            if (logOutResult.IsSuccess)
             {
-                _dialogs.ShowError(result.ErrorKey);
-                return;
+                _navigationManager.NavigateToWithoutHistory(ScreenId.Login);
+                _navigationManager.ClearHistory();
             }
-            _navigationManager.NavigateToWithoutHistory(ScreenId.Login);
-            _navigationManager.ClearHistory();
+            else
+            {
+                _dialogs.ShowError(logOutResult.ErrorKey);
+            }
         }
     }
 }

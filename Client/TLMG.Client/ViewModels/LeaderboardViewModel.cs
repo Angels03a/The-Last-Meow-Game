@@ -20,13 +20,11 @@ namespace TLMG.Client.ViewModels
     /// </summary>
     public class LeaderboardViewModel : ViewModelBase
     {
-        private const string DefaultProfileImage = "pack://application:,,,/TLMG.Client;component/img/default.jpg";
-        private const string PackUriPrefix = "pack://application:,,,";
-        private const string AppRelativePathPrefix = "/";
         private const string DefaultPlayerName = "---";
         private const string PointsFormatKey = "Leaderboard_PointsFormat";
         private const string ConnectionErrorKey = "Leaderboard_ConnectionErrorMessage";
         private const string PlainPointsFormat = "{0}";
+        private const string PersonalRankFormat = "#{0}";
         private const string ScoreNumberFormat = "N0";
         private const int RankIndexOffset = 1;
         private const int ZeroGamesPlayed = 0;
@@ -42,9 +40,6 @@ namespace TLMG.Client.ViewModels
         private const int SecondPlaceRank = 2;
         private const int ThirdPlaceRank = 3;
 
-        // FIXME: Show the current player's rank and points when the client receives them. (BL-091).
-        private const int CurrentUserStandingRank = 38;
-        private const int CurrentUserStandingPoints = 1840;
 
         private readonly ILeaderboardConnection _leaderboardConnection;
         private readonly INavigationManager _navigationManager;
@@ -59,6 +54,8 @@ namespace TLMG.Client.ViewModels
         private string _userStandingRankLabel;
         private string _userStandingPointsLabel;
         private string _currentPointsFormat = PlainPointsFormat;
+        private int? _personalRank;
+        private int? _personalPoints;
 
         /// <summary>
         /// Creates a <see cref="LeaderboardViewModel"/>.
@@ -132,14 +129,14 @@ namespace TLMG.Client.ViewModels
             private set { SetProperty(ref _thirdPlaceScoreLabel, value); }
         }
 
-        /// <summary>Current player's rank. Uses a fixed value until the server supplies it.</summary>
+        /// <summary>Current player's rank, or a placeholder when no personal ranking is available.</summary>
         public string UserStandingRankLabel
         {
             get { return _userStandingRankLabel; }
             private set { SetProperty(ref _userStandingRankLabel, value); }
         }
 
-        /// <summary>Current player's points. Uses a fixed value until the server supplies them.</summary>
+        /// <summary>Current player's points, or a placeholder when no personal ranking is available.</summary>
         public string UserStandingPointsLabel
         {
             get { return _userStandingPointsLabel; }
@@ -192,13 +189,15 @@ namespace TLMG.Client.ViewModels
         {
             OperationGetLeaderboardResult leaderboardResult = eventArgs.Payload;
 
-            if (leaderboardResult.IsSuccess)
+            if (leaderboardResult != null && leaderboardResult.IsSuccess)
             {
+                _personalRank = leaderboardResult.PersonalRank;
+                _personalPoints = leaderboardResult.PersonalPoints;
                 UpdateLeaderboard(leaderboardResult.Players);
             }
             else
             {
-                ShowLeaderboardError(leaderboardResult.ErrorKey ?? ConnectionErrorKey);
+                ShowLeaderboardError(leaderboardResult?.ErrorKey ?? ConnectionErrorKey);
             }
         }
 
@@ -234,6 +233,8 @@ namespace TLMG.Client.ViewModels
 
         private void ShowEmptyLeaderboard()
         {
+            _personalRank = null;
+            _personalPoints = null;
             FirstPlace = CreateEmptyEntry(FirstPlaceRank);
             SecondPlace = CreateEmptyEntry(SecondPlaceRank);
             ThirdPlace = CreateEmptyEntry(ThirdPlaceRank);
@@ -280,8 +281,12 @@ namespace TLMG.Client.ViewModels
 
         private void UpdateUserStanding()
         {
-            UserStandingRankLabel = $"#{CurrentUserStandingRank}";
-            UserStandingPointsLabel = FormatPoints(CurrentUserStandingPoints);
+            UserStandingRankLabel = _personalRank.HasValue
+                ? string.Format(CultureInfo.CurrentCulture, PersonalRankFormat, _personalRank.Value)
+                : DefaultPlayerName;
+            UserStandingPointsLabel = _personalPoints.HasValue
+                ? FormatPoints(_personalPoints.Value)
+                : DefaultPlayerName;
         }
 
         private string FormatPoints(int points)
@@ -313,7 +318,7 @@ namespace TLMG.Client.ViewModels
             PlayerRankEntry emptyEntry = new PlayerRankEntry
             {
                 Rank = rank,
-                AvatarEmoji = AvatarCatalog.FindEmoji(DefaultProfileImage),
+                AvatarEmoji = AvatarCatalog.FindEmoji(AvatarCatalog.DefaultAvatarKey),
                 PlayerName = DefaultPlayerName,
                 Score = DefaultEmptyScore,
                 Wins = DefaultEmptyWins,
@@ -321,32 +326,6 @@ namespace TLMG.Client.ViewModels
             };
 
             return emptyEntry;
-        }
-
-        // HACK: Treat the database profile_image as an application path, even though the file is missing. (BL-045).
-        private string ResolveAvatarImagePath(string profileImage)
-        {
-            string resolvedPath;
-
-            if (string.IsNullOrWhiteSpace(profileImage))
-            {
-                resolvedPath = DefaultProfileImage;
-            }
-            else if (profileImage.StartsWith(AppRelativePathPrefix, StringComparison.Ordinal))
-            {
-                resolvedPath = PackUriPrefix + profileImage;
-            }
-            else
-            {
-                resolvedPath = profileImage;
-            }
-
-            if (!Uri.TryCreate(resolvedPath, UriKind.RelativeOrAbsolute, out _))
-            {
-                resolvedPath = DefaultProfileImage;
-            }
-
-            return resolvedPath;
         }
 
         private int CalculateWinRate(int wins, int gamesPlayed)

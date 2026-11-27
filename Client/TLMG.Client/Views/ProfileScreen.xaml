@@ -14,6 +14,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/TLMG.Client;component/Styles/GlobalStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
     </local:LocalizableScreen.Resources>
 
@@ -48,6 +49,12 @@
                 <TextBlock Text="{DynamicResource Profile_MainTitle}"
                            Style="{StaticResource OptionsMainTitleStyle}" />
 
+                <TextBlock Text="{DynamicResource Profile_GuestNoticeMessage}"
+                           Style="{StaticResource StatusTextStyle}"
+                           Foreground="{StaticResource Brush_Gold}"
+                           Margin="0,0,0,16"
+                           Visibility="{Binding IsGuest, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
                 <Border Style="{StaticResource OptionsCardStyle}" Padding="32">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -64,16 +71,20 @@
                                            VerticalAlignment="Center"
                                            Foreground="{StaticResource Brush_TextPrimary}" />
                             </Border>
-                            <Button Style="{StaticResource EditPencilButtonStyle}"
-                                    Command="{Binding ToggleAvatarEditModeCommand}"
-                                    Panel.ZIndex="1">
-                                <TextBlock Text="✎"
-                                           FontSize="18"
-                                           Foreground="{StaticResource Brush_Gold}"
-                                           Margin="1,-2,0,0"
-                                           VerticalAlignment="Center"
-                                           HorizontalAlignment="Center" />
-                            </Button>
+                            <Border Panel.ZIndex="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Bottom"
+                                    Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Button Style="{StaticResource EditPencilButtonStyle}"
+                                        Command="{Binding ToggleAvatarEditModeCommand}">
+                                    <TextBlock Text="✎"
+                                               FontSize="18"
+                                               Foreground="{StaticResource Brush_Gold}"
+                                               Margin="1,-2,0,0"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center" />
+                                </Button>
+                            </Border>
                         </Grid>
 
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -81,111 +92,113 @@
                                        Style="{StaticResource TitleMediumTextStyle}"
                                        Margin="0,0,0,16" />
 
-                            <Grid Style="{StaticResource ProfileStatsVisibilityStyle}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                            <StackPanel Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid Style="{StaticResource ProfileStatsVisibilityStyle}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0" Margin="0,0,32,0">
-                                    <TextBlock Text="142"
-                                               Style="{StaticResource ProfileStatValueStyle}"
-                                               Foreground="{StaticResource Brush_AccentLight}" />
-                                    <TextBlock Text="{DynamicResource Common_Wins}"
-                                               Style="{StaticResource StatCardLabelStyle}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Margin="0,0,32,0">
-                                    <TextBlock Text="1,840"
-                                               Style="{StaticResource ProfileStatValueStyle}"
-                                               Foreground="{StaticResource Brush_LilacLight}" />
-                                    <TextBlock Text="{DynamicResource Profile_Rating}"
-                                               Style="{StaticResource StatCardLabelStyle}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="2" Margin="0,0,32,0">
-                                    <TextBlock Text="#38"
-                                               Style="{StaticResource ProfileStatValueStyle}"
-                                               Foreground="{StaticResource Brush_Gold}" />
-                                    <TextBlock Text="{DynamicResource Common_Rank}"
-                                               Style="{StaticResource StatCardLabelStyle}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="3">
-                                    <TextBlock Text="87%"
-                                               Style="{StaticResource ProfileStatValueStyle}"
-                                               Foreground="{StaticResource Brush_LilacLight}" />
-                                    <TextBlock Text="{DynamicResource Profile_WinRate}"
-                                               Style="{StaticResource StatCardLabelStyle}" />
-                                </StackPanel>
-                            </Grid>
+                                    <StackPanel Grid.Column="0" Margin="0,0,32,0">
+                                        <TextBlock Text="{Binding TotalWins, StringFormat=N0, TargetNullValue=—}"
+                                                   Style="{StaticResource ProfileStatValueStyle}"
+                                                   Foreground="{StaticResource Brush_AccentLight}" />
+                                        <TextBlock Text="{DynamicResource Common_Wins}"
+                                                   Style="{StaticResource StatCardLabelStyle}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="0,0,32,0">
+                                        <TextBlock Text="{Binding TotalPoints, StringFormat=N0, TargetNullValue=—}"
+                                                   Style="{StaticResource ProfileStatValueStyle}"
+                                                   Foreground="{StaticResource Brush_LilacLight}" />
+                                        <TextBlock Text="{DynamicResource Profile_Rating}"
+                                                   Style="{StaticResource StatCardLabelStyle}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Margin="0,0,32,0">
+                                        <TextBlock Text="{Binding PersonalRank, StringFormat='{}#{0}', TargetNullValue=—}"
+                                                   Style="{StaticResource ProfileStatValueStyle}"
+                                                   Foreground="{StaticResource Brush_Gold}" />
+                                        <TextBlock Text="{DynamicResource Common_Rank}"
+                                                   Style="{StaticResource StatCardLabelStyle}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="3">
+                                        <TextBlock Text="{Binding WinRate, StringFormat=P0, TargetNullValue=—}"
+                                                   Style="{StaticResource ProfileStatValueStyle}"
+                                                   Foreground="{StaticResource Brush_LilacLight}" />
+                                        <TextBlock Text="{DynamicResource Profile_WinRate}"
+                                                   Style="{StaticResource StatCardLabelStyle}" />
+                                    </StackPanel>
+                                </Grid>
 
-                            <StackPanel Style="{StaticResource ProfileAvatarSelectionVisibilityStyle}">
-                                <TextBlock Text="{DynamicResource Profile_ChooseAvatar}"
-                                           Style="{StaticResource StatCardLabelStyle}"
-                                           Margin="0,0,0,12" />
-                                <WrapPanel>
-                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}"
-                                            CommandParameter="{x:Static models:AvatarCatalog.DefaultAvatarKey}">
-                                        <TextBlock Text="🐱" FontSize="32" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource Brush_TextPrimary}" />
-                                    </Button>
-                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}"
-                                            CommandParameter="{x:Static models:AvatarCatalog.ZombieAvatarKey}">
-                                        <TextBlock Text="🧟" FontSize="32" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource Brush_TextPrimary}" />
-                                    </Button>
-                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}"
-                                            CommandParameter="{x:Static models:AvatarCatalog.SkullAvatarKey}">
-                                        <TextBlock Text="💀" FontSize="32" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource Brush_TextPrimary}" />
-                                    </Button>
-                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}"
-                                            CommandParameter="{x:Static models:AvatarCatalog.RocketAvatarKey}">
-                                        <TextBlock Text="🚀" FontSize="32" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource Brush_TextPrimary}" />
-                                    </Button>
-                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}"
-                                            CommandParameter="{x:Static models:AvatarCatalog.TigerAvatarKey}">
-                                        <TextBlock Text="🐯" FontSize="32" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource Brush_TextPrimary}" />
-                                    </Button>
-                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}"
-                                            CommandParameter="{x:Static models:AvatarCatalog.LionAvatarKey}">
-                                        <TextBlock Text="🦁" FontSize="32" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource Brush_TextPrimary}" />
-                                    </Button>
-                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}"
-                                            CommandParameter="{x:Static models:AvatarCatalog.FrogAvatarKey}">
-                                        <TextBlock Text="🐸" FontSize="32" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource Brush_TextPrimary}" />
-                                    </Button>
-                                    <Button Style="{StaticResource AvatarSelectionButtonStyle}"
-                                            Command="{Binding SelectAvatarCommand}"
-                                            CommandParameter="{x:Static models:AvatarCatalog.AlienAvatarKey}">
-                                        <TextBlock Text="👾" FontSize="32" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource Brush_TextPrimary}" />
-                                    </Button>
-                                    <Button Style="{StaticResource AvatarUploadButtonStyle}">
-                                        <StackPanel VerticalAlignment="Center">
-                                            <TextBlock Text="📷"
-                                                       FontSize="20"
-                                                       HorizontalAlignment="Center"
+                                <StackPanel Style="{StaticResource ProfileAvatarSelectionVisibilityStyle}">
+                                    <TextBlock Text="{DynamicResource Profile_ChooseAvatar}"
+                                               Style="{StaticResource StatCardLabelStyle}"
+                                               Margin="0,0,0,12" />
+                                    <WrapPanel>
+                                        <Button Style="{StaticResource AvatarSelectionButtonStyle}"
+                                                Command="{Binding SelectAvatarCommand}"
+                                                CommandParameter="{x:Static models:AvatarCatalog.DefaultAvatarKey}">
+                                            <TextBlock Text="🐱" FontSize="32" VerticalAlignment="Center"
                                                        Foreground="{StaticResource Brush_TextPrimary}" />
-                                            <TextBlock Text="{DynamicResource Profile_UploadAvatar}"
-                                                       FontSize="9"
-                                                       Foreground="{StaticResource Brush_TextFaint}"
-                                                       HorizontalAlignment="Center"
-                                                       Margin="0,4,0,0" />
-                                        </StackPanel>
-                                    </Button>
-                                </WrapPanel>
+                                        </Button>
+                                        <Button Style="{StaticResource AvatarSelectionButtonStyle}"
+                                                Command="{Binding SelectAvatarCommand}"
+                                                CommandParameter="{x:Static models:AvatarCatalog.ZombieAvatarKey}">
+                                            <TextBlock Text="🧟" FontSize="32" VerticalAlignment="Center"
+                                                       Foreground="{StaticResource Brush_TextPrimary}" />
+                                        </Button>
+                                        <Button Style="{StaticResource AvatarSelectionButtonStyle}"
+                                                Command="{Binding SelectAvatarCommand}"
+                                                CommandParameter="{x:Static models:AvatarCatalog.SkullAvatarKey}">
+                                            <TextBlock Text="💀" FontSize="32" VerticalAlignment="Center"
+                                                       Foreground="{StaticResource Brush_TextPrimary}" />
+                                        </Button>
+                                        <Button Style="{StaticResource AvatarSelectionButtonStyle}"
+                                                Command="{Binding SelectAvatarCommand}"
+                                                CommandParameter="{x:Static models:AvatarCatalog.RocketAvatarKey}">
+                                            <TextBlock Text="🚀" FontSize="32" VerticalAlignment="Center"
+                                                       Foreground="{StaticResource Brush_TextPrimary}" />
+                                        </Button>
+                                        <Button Style="{StaticResource AvatarSelectionButtonStyle}"
+                                                Command="{Binding SelectAvatarCommand}"
+                                                CommandParameter="{x:Static models:AvatarCatalog.TigerAvatarKey}">
+                                            <TextBlock Text="🐯" FontSize="32" VerticalAlignment="Center"
+                                                       Foreground="{StaticResource Brush_TextPrimary}" />
+                                        </Button>
+                                        <Button Style="{StaticResource AvatarSelectionButtonStyle}"
+                                                Command="{Binding SelectAvatarCommand}"
+                                                CommandParameter="{x:Static models:AvatarCatalog.LionAvatarKey}">
+                                            <TextBlock Text="🦁" FontSize="32" VerticalAlignment="Center"
+                                                       Foreground="{StaticResource Brush_TextPrimary}" />
+                                        </Button>
+                                        <Button Style="{StaticResource AvatarSelectionButtonStyle}"
+                                                Command="{Binding SelectAvatarCommand}"
+                                                CommandParameter="{x:Static models:AvatarCatalog.FrogAvatarKey}">
+                                            <TextBlock Text="🐸" FontSize="32" VerticalAlignment="Center"
+                                                       Foreground="{StaticResource Brush_TextPrimary}" />
+                                        </Button>
+                                        <Button Style="{StaticResource AvatarSelectionButtonStyle}"
+                                                Command="{Binding SelectAvatarCommand}"
+                                                CommandParameter="{x:Static models:AvatarCatalog.AlienAvatarKey}">
+                                            <TextBlock Text="👾" FontSize="32" VerticalAlignment="Center"
+                                                       Foreground="{StaticResource Brush_TextPrimary}" />
+                                        </Button>
+                                        <Button Style="{StaticResource AvatarUploadButtonStyle}">
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="📷"
+                                                           FontSize="20"
+                                                           HorizontalAlignment="Center"
+                                                           Foreground="{StaticResource Brush_TextPrimary}" />
+                                                <TextBlock Text="{DynamicResource Profile_UploadAvatar}"
+                                                           FontSize="9"
+                                                           Foreground="{StaticResource Brush_TextFaint}"
+                                                           HorizontalAlignment="Center"
+                                                           Margin="0,4,0,0" />
+                                            </StackPanel>
+                                        </Button>
+                                    </WrapPanel>
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -214,10 +227,12 @@
                                            Text="{Binding DisplayNickname}"
                                            Style="{StaticResource ProfileReadNicknameTextStyle}"
                                            VerticalAlignment="Center" />
-                                <Button Grid.Column="1"
-                                        Content="{DynamicResource Profile_EditNicknameButton}"
-                                        Style="{StaticResource ProfileReadNicknameButtonStyle}"
-                                        Command="{Binding BeginNicknameEditCommand}" />
+                                <Border Grid.Column="1"
+                                        Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Button Content="{DynamicResource Profile_EditNicknameButton}"
+                                            Style="{StaticResource ProfileReadNicknameButtonStyle}"
+                                            Command="{Binding BeginNicknameEditCommand}" />
+                                </Border>
 
                                 <TextBox Grid.Column="0"
                                          Style="{StaticResource ProfileEditNicknameTextBoxStyle}"
@@ -242,7 +257,8 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="2" Style="{StaticResource OptionsCardStyle}" Margin="0">
+                    <Border Grid.Column="2" Style="{StaticResource OptionsCardStyle}" Margin="0"
+                            Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Profile_EmailTitle}"
                                        Style="{StaticResource SectionTitleStyle}"
@@ -256,7 +272,8 @@
                     </Border>
                 </Grid>
 
-                <Border Style="{StaticResource OptionsCardStyle}">
+                <Border Style="{StaticResource OptionsCardStyle}"
+                        Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Profile_SecurityTitle}"
                                    Style="{StaticResource SectionTitleStyle}"

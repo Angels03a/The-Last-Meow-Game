@@ -27,6 +27,7 @@ namespace TLMG.DataAccess.DatabaseModel
         public System.DateTime lobby_open_date { get; set; }
         public Nullable<System.DateTime> game_start_date { get; set; }
         public Nullable<System.DateTime> game_ending_date { get; set; }
+        public Nullable<System.Guid> match_id { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Game_Player> Game_Player { get; set; }

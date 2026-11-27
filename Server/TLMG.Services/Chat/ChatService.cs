@@ -1,42 +1,57 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 using log4net;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Authorization;
 using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
 using TLMG.Domain.Validators;
 using TLMG.Services.Sessions;
 
-namespace TLMG.Services.Chat { 
-
+namespace TLMG.Services.Chat
+{
     public sealed class ChatService
     {
-        // TODO: Persist the game (R-12), so that messages are saved in the appropriate scope.
         private const ChatMessageScope PersistedChatScope = ChatMessageScope.Lobby;
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(ChatService));
 
-        private ISessionRegistry _sessionRegistry;
-        private IChatMessageRepository _chatMessageRepository;
+        private readonly ISessionRegistry _sessionRegistry;
+        private readonly IChatMessageRepository _chatMessageRepository;
+        private readonly ISessionAuthorizer _sessionAuthorizer;
 
-        public ChatService(ISessionRegistry sessionRegistry, IChatMessageRepository chatMessageRepository)
+        public ChatService(
+            ISessionRegistry sessionRegistry,
+            IChatMessageRepository chatMessageRepository,
+            ISessionAuthorizer sessionAuthorizer)
         {
             _sessionRegistry = sessionRegistry;
             _chatMessageRepository = chatMessageRepository;
+            _sessionAuthorizer = sessionAuthorizer;
         }
 
         public ResultWithNotification<OperationResult> SubscribeToChat(
             SessionChannelCaller caller,
             IChatManagerCallback callback)
         {
-            string errorKey = _sessionRegistry.SubscribeToChat(caller, callback);
+            SessionAuthorization authorization = _sessionAuthorizer.Authorize(
+                caller.SessionToken,
+                SystemPermission.UseChat);
+            string errorKey = authorization.ErrorKey;
+
+            if (errorKey == null)
+            {
+                errorKey = _sessionRegistry.SubscribeToChat(caller, callback);
+            }
+
             if (errorKey != null && string.IsNullOrWhiteSpace(errorKey))
             {
                 errorKey = ErrorKeys.Common.Unexpected;
             }
+
             OperationResult operationSubscribeToChatResult = new OperationResult
             {
                 IsSuccess = errorKey == null,
@@ -75,8 +90,17 @@ namespace TLMG.Services.Chat {
                 ValidationErrorKey = validationErrorKey
             };
 
-            ChatDelivery chatDelivery;
-            string errorKey = _sessionRegistry.AcceptChatMessage(caller, chatSubmission, out chatDelivery);
+            SessionAuthorization authorization = _sessionAuthorizer.Authorize(
+                caller.SessionToken,
+                SystemPermission.UseChat);
+            ChatDelivery chatDelivery = null;
+            string errorKey = authorization.ErrorKey;
+
+            if (errorKey == null)
+            {
+                errorKey = _sessionRegistry.AcceptChatMessage(caller, chatSubmission, out chatDelivery);
+            }
+
             ResultWithNotification<OperationSendChatMessageResult> sendChatMessageResult;
 
             if (errorKey == null && chatDelivery == null)
@@ -102,7 +126,8 @@ namespace TLMG.Services.Chat {
             else
             {
                 sendChatMessageResult = new ResultWithNotification<OperationSendChatMessageResult>(
-                    null, CreateChatActions(chatDelivery));
+                    null,
+                    CreateChatActions(chatDelivery));
             }
 
             return sendChatMessageResult;
@@ -114,18 +139,6 @@ namespace TLMG.Services.Chat {
             {
                 _log.WarnFormat("Se rechazó una operación de chat: {0}.", errorKey);
             }
-        }
-
-        private IReadOnlyList<Action> CreateChatActions(ChatDelivery chatDelivery)
-        {
-            List<Action> chatActions = CreateDeliveryNotifications(chatDelivery);
-            ChatMessageRecord chatMessageRecord = CreateChatMessageRecord(chatDelivery);
-
-            chatActions.Add(() => SaveChatMessage(chatMessageRecord));
-
-            IReadOnlyList<Action> readOnlyChatActions = chatActions.AsReadOnly();
-
-            return readOnlyChatActions;
         }
 
         private static List<Action> CreateDeliveryNotifications(ChatDelivery chatDelivery)
@@ -143,7 +156,8 @@ namespace TLMG.Services.Chat {
                     Text = chatDelivery.Text,
                     SentAtUtc = chatDelivery.SentAtUtc
                 };
-                notifications.Add(() => recipient.OnChatMessageReceived(chatMessage));
+                ChatMessageNotification notification = new ChatMessageNotification(recipient, chatMessage);
+                notifications.Add(notification.Send);
             }
 
             return notifications;
@@ -163,6 +177,18 @@ namespace TLMG.Services.Chat {
             return chatMessageRecord;
         }
 
+        private IReadOnlyList<Action> CreateChatActions(ChatDelivery chatDelivery)
+        {
+            List<Action> chatActions = CreateDeliveryNotifications(chatDelivery);
+            ChatMessageSave chatMessageSave = new ChatMessageSave(this, CreateChatMessageRecord(chatDelivery));
+
+            chatActions.Add(chatMessageSave.Save);
+
+            IReadOnlyList<Action> readOnlyChatActions = chatActions.AsReadOnly();
+
+            return readOnlyChatActions;
+        }
+
         private void SaveChatMessage(ChatMessageRecord chatMessageRecord)
         {
             ChatMessageSaveStatus chatMessageSaveStatus = _chatMessageRepository.SaveChatMessage(chatMessageRecord);
@@ -173,6 +199,40 @@ namespace TLMG.Services.Chat {
                     "No se conservó un mensaje de chat del jugador {0}: {1}.",
                     chatMessageRecord.UserId,
                     chatMessageSaveStatus);
+            }
+        }
+
+        private sealed class ChatMessageNotification
+        {
+            private readonly IChatManagerCallback _recipient;
+            private readonly ChatMessage _chatMessage;
+
+            public ChatMessageNotification(IChatManagerCallback recipient, ChatMessage chatMessage)
+            {
+                _recipient = recipient;
+                _chatMessage = chatMessage;
+            }
+
+            public void Send()
+            {
+                _recipient.OnChatMessageReceived(_chatMessage);
+            }
+        }
+
+        private sealed class ChatMessageSave
+        {
+            private readonly ChatService _chatService;
+            private readonly ChatMessageRecord _chatMessageRecord;
+
+            public ChatMessageSave(ChatService chatService, ChatMessageRecord chatMessageRecord)
+            {
+                _chatService = chatService;
+                _chatMessageRecord = chatMessageRecord;
+            }
+
+            public void Save()
+            {
+                _chatService.SaveChatMessage(_chatMessageRecord);
             }
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Constants;
 using TLMG.Services.Helpers;
 
@@ -42,7 +43,7 @@ namespace TLMG.Services.Sessions
         public IReadOnlyList<Action> ProcessHeartbeat(string token, string channelId, HeartbeatChannel channel,
             int sequence, int confirmedSequence, Action<int, string> echo)
         {
-            var notifications = new List<Action>();
+            List<Action> notifications = new List<Action>();
             lock (_sessionsLock)
             {
                 DateTime nowUtc = _readUtcNow();
@@ -53,10 +54,8 @@ namespace TLMG.Services.Sessions
                 }
                 else if (session.Links.TryGetValue(channel, out LinkHealth link)
                     && link.ChannelId == channelId && IsCurrentLinkInLock(session.UserId, channel, channelId)
-                    && nowUtc < link.EvidenceUtc + _linkSilence
-                    && sequence > link.Sequence && confirmedSequence >= 0
-                    && (confirmedSequence == 0 || confirmedSequence == link.Sequence)
-                    && (!link.LastPulseUtc.HasValue || nowUtc - link.LastPulseUtc.Value >= _minimumPulseInterval))
+                    && HasValidHeartbeatSequence(link, sequence, confirmedSequence)
+                    && HasValidHeartbeatTime(link, nowUtc))
                 {
                     if (confirmedSequence != 0)
                     {
@@ -66,26 +65,52 @@ namespace TLMG.Services.Sessions
                     session.LastActivityUtc = nowUtc;
                     link.LastPulseUtc = nowUtc;
                     link.Sequence = sequence;
-                    notifications.Add(() => echo(sequence, string.Empty));
+                    notifications.Add(() => echo(sequence, null));
                 }
             }
 
-            return notifications.AsReadOnly();
+            PersistPendingMatchFinalizations();
+            PersistPendingKickVotings();
+            IReadOnlyList<Action> readOnlyNotifications = notifications.AsReadOnly();
+
+            return readOnlyNotifications;
         }
 
         public IReadOnlyList<Action> EvaluateConnectionDeadlines(bool force = true)
         {
-            var notifications = new List<Action>();
+            List<Action> notifications = new List<Action>();
             lock (_sessionsLock)
             {
                 EvaluateHeartbeatDeadlinesInLock(_readUtcNow(), notifications, force);
             }
-            return notifications.AsReadOnly();
+
+            PersistPendingMatchFinalizations();
+            PersistPendingKickVotings();
+            IReadOnlyList<Action> readOnlyNotifications = notifications.AsReadOnly();
+
+            return readOnlyNotifications;
+        }
+
+        private static bool HasValidHeartbeatSequence(LinkHealth link, int sequence, int confirmedSequence)
+        {
+            const int noConfirmedSequence = 0;
+            bool hasValidSequence = sequence > link.Sequence && confirmedSequence >= noConfirmedSequence
+                && (confirmedSequence == noConfirmedSequence || confirmedSequence == link.Sequence);
+
+            return hasValidSequence;
+        }
+
+        private static bool HasValidHeartbeatTime(LinkHealth link, DateTime nowUtc)
+        {
+            bool hasValidTime = nowUtc < link.EvidenceUtc + _linkSilence
+                && (!link.LastPulseUtc.HasValue || nowUtc - link.LastPulseUtc.Value >= _minimumPulseInterval);
+
+            return hasValidTime;
         }
 
         private bool IsCurrentLinkInLock(int userId, HeartbeatChannel channel, string channelId)
         {
-            var channelOwners = _matchUserIdsByChannelId;
+            Dictionary<string, int> channelOwners = _matchUserIdsByChannelId;
             switch (channel)
             {
                 case HeartbeatChannel.Friends: channelOwners = _userIdsByFriendsChannelId; break;
@@ -93,39 +118,53 @@ namespace TLMG.Services.Sessions
                 case HeartbeatChannel.Chat: channelOwners = _chatUserIdsByChannelId; break;
             }
 
-            return channelOwners.TryGetValue(channelId, out int owner) && owner == userId;
+            bool isCurrentLink = channelOwners.TryGetValue(channelId, out int owner) && owner == userId;
+
+            return isCurrentLink;
         }
 
         private void EvaluateHeartbeatDeadlinesInLock(DateTime nowUtc, List<Action> notifications, bool force = false)
         {
-            if (!force && nowUtc < _nextHeartbeatSweepUtc)
+            if (force || nowUtc >= _nextHeartbeatSweepUtc)
             {
-                return;
+                _nextHeartbeatSweepUtc = nowUtc + _minimumPulseInterval;
+                HashSet<MatchRecord> changedMatches = new HashSet<MatchRecord>();
+                ExpireSilentLinksInLock(nowUtc, notifications, changedMatches);
+                CollectChangedMatchNotificationsInLock(nowUtc, notifications, changedMatches);
+                ExpireInactiveSessionsInLock(nowUtc, notifications);
             }
+        }
 
-            _nextHeartbeatSweepUtc = nowUtc + _minimumPulseInterval;
-            var losses = (from session in _sessionsByToken.Values
-                          from entry in session.Links
-                          where entry.Value.EvidenceUtc + _linkSilence <= nowUtc
-                          orderby entry.Value.EvidenceUtc, entry.Key
-                          select new { Session = session, Channel = entry.Key, Link = entry.Value }).ToArray();
-            var changedMatches = new HashSet<MatchRecord>();
-            foreach (var loss in losses)
+        private void ExpireSilentLinksInLock(DateTime nowUtc, List<Action> notifications,
+            HashSet<MatchRecord> changedMatches)
+        {
+            var expiredLinks = (from session in _sessionsByToken.Values
+                                from entry in session.Links
+                                where entry.Value.EvidenceUtc + _linkSilence <= nowUtc
+                                orderby entry.Value.EvidenceUtc, entry.Key
+                                select new { Session = session, Channel = entry.Key, Link = entry.Value }).ToArray();
+            foreach (var expiredLink in expiredLinks)
             {
-                loss.Session.Links.Remove(loss.Channel);
-                if (IsCurrentLinkInLock(loss.Session.UserId, loss.Channel, loss.Link.ChannelId))
+                expiredLink.Session.Links.Remove(expiredLink.Channel);
+                if (IsCurrentLinkInLock(expiredLink.Session.UserId, expiredLink.Channel, expiredLink.Link.ChannelId))
                 {
-                    ExpireLinkInLock(loss.Session, loss.Channel, loss.Link.EvidenceUtc + _linkSilence,
+                    ExpireLinkInLock(expiredLink.Session, expiredLink.Channel, expiredLink.Link.EvidenceUtc + _linkSilence,
                         notifications, changedMatches);
                 }
             }
+        }
 
+        private void CollectChangedMatchNotificationsInLock(DateTime nowUtc, List<Action> notifications,
+            HashSet<MatchRecord> changedMatches)
+        {
             foreach (MatchRecord match in _matchesById.Values)
             {
                 if (ExpireMatchDeadlinesInLock(match, nowUtc))
                 {
                     changedMatches.Add(match);
                 }
+
+                QueueMatchFinalizationInLock(match);
             }
 
             foreach (MatchRecord match in changedMatches)
@@ -134,11 +173,15 @@ namespace TLMG.Services.Sessions
                 notifications.AddRange(SessionNotificationHelper.CreateMatchViewNotifications(
                     CreateViewDeliveriesInLock(match)));
             }
+        }
 
+        private void ExpireInactiveSessionsInLock(DateTime nowUtc, List<Action> notifications)
+        {
             foreach (PlayerSession session in _sessionsByToken.Values.ToArray())
             {
-                bool hasLink = session.Links.Any(entry => IsCurrentLinkInLock(session.UserId, entry.Key,
-                    entry.Value.ChannelId));
+                bool hasLink = (from entry in session.Links
+                                where IsCurrentLinkInLock(session.UserId, entry.Key, entry.Value.ChannelId)
+                                select entry).Any();
                 if (!hasLink && nowUtc >= session.LastActivityUtc + _sessionSilence
                     && !HasActiveParticipationInLock(session.UserId))
                 {
@@ -167,8 +210,14 @@ namespace TLMG.Services.Sessions
                     }
                     break;
                 case HeartbeatChannel.Friends:
+                    Friend disconnectedFriend = new Friend
+                    {
+                        UserId = userId,
+                        Nickname = session.Nickname,
+                        IsOnline = false
+                    };
                     notifications.AddRange(SessionNotificationHelper.CreatePresenceNotifications(
-                        FindPresenceRecipientsOfUser(userId), userId, session.Nickname, false));
+                        FindPresenceRecipientsOfUser(userId), disconnectedFriend));
                     RemoveFriendsChannelOfUser(userId);
                     break;
                 case HeartbeatChannel.Chat:

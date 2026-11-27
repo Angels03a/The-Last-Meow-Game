@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace TLMG.Contracts.DataContracts
 {
     /// <summary>
-    /// Carries the editable profile data of the session owner back to the profile screen.
+    /// Carries the session owner's profile and persisted personal statistics.
     /// </summary>
     [DataContract]
     public class OperationPlayerProfileResult : OperationResult
@@ -20,5 +20,17 @@ namespace TLMG.Contracts.DataContracts
 
         [DataMember]
         public DateTime PasswordChangedAtUtc { get; set; }
+
+        [DataMember]
+        public int? TotalPoints { get; set; }
+
+        [DataMember]
+        public int? TotalWins { get; set; }
+
+        [DataMember]
+        public int? TotalGamesPlayed { get; set; }
+
+        [DataMember]
+        public int? PersonalRank { get; set; }
     }
 }

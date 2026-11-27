@@ -10,11 +10,14 @@ namespace TLMG.Domain.Constants
             public const string Unexpected = "Common_UnexpectedError";
             public const string RoomFull = "Common_RoomFullError";
             public const string OutOfMemory = "Common_OutOfMemoryError";
+            public const string PermissionDenied = "Common_PermissionDeniedError";
         }
 
         public static class Lobby
         {
             public const string NotInRoom = "Lobby_NotInRoomError";
+            public const string CannotJoinRoom = "Lobby_CannotJoinRoomError";
+            public const string AlreadyInRoom = "Lobby_AlreadyInRoomError";
             public const string MatchAlreadyStarted = "Lobby_MatchAlreadyStartedError";
             public const string ChatEmpty = "Lobby_ChatEmptyError";
             public const string ChatTooLong = "Lobby_ChatTooLongError";
@@ -56,6 +59,7 @@ namespace TLMG.Domain.Constants
             public const string EmailFormat = "Login_EmailFormatError";
             public const string InvalidCredentials = "Login_InvalidCredentialsError";
             public const string DataModel = "Login_DataModelError";
+            public const string GuestUnavailable = "Login_GuestUnavailableError";
         }
 
         public static class Friends

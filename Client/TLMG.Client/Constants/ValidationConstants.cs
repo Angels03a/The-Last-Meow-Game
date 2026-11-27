@@ -19,11 +19,10 @@ namespace TLMG.Client.Constants
         public const int VerificationDigitMaximumLength = 1;
 
         public const int ChatMessageMinimumLength = 1;
-        public const int MaximumChatMessageLength = 200;
         public const int ChatMessageMaximumLength = 160;
+        public const int MaximumChatMessageLength = ChatMessageMaximumLength;
 
         public const int ReportCommentMaximumLength = 300;
-
         public const int StatusMessageDurationMilliseconds = 4000;
 
         public const string AllowedChatCharacters =
@@ -53,35 +52,27 @@ namespace TLMG.Client.Constants
         };
 
         public static readonly Regex NicknameFormatRegex = new Regex(
-            @"^[a-zA-Z0-9_]+$",
-            RegexOptions.Compiled);
+            @"^[a-zA-Z0-9_]+$", RegexOptions.Compiled);
 
         public static readonly Regex EmailInputCharactersRegex = new Regex(
-            @"^[a-zA-Z0-9@._\-]+$",
-            RegexOptions.Compiled);
+            @"^[a-zA-Z0-9@._\-]+$", RegexOptions.Compiled);
 
         public static readonly Regex EmailStructureRegex = new Regex(
-            @"^[a-zA-Z0-9._\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$",
-            RegexOptions.Compiled);
+            @"^[a-zA-Z0-9._\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$", RegexOptions.Compiled);
 
         public static readonly Regex DigitsOnlyRegex = new Regex(
-            @"^[0-9]+$",
-            RegexOptions.Compiled);
+            @"^[0-9]+$", RegexOptions.Compiled);
 
         public static readonly Regex UppercaseLetterRegex = new Regex(
-            @"[A-Z]",
-            RegexOptions.Compiled);
+            @"[A-Z]", RegexOptions.Compiled);
 
         public static readonly Regex LowercaseLetterRegex = new Regex(
-            @"[a-z]",
-            RegexOptions.Compiled);
+            @"[a-z]", RegexOptions.Compiled);
 
         public static readonly Regex DigitRegex = new Regex(
-            @"[0-9]",
-            RegexOptions.Compiled);
+            @"[0-9]", RegexOptions.Compiled);
 
         public static readonly Regex SpecialCharacterRegex = new Regex(
-            @"[^a-zA-Z0-9\s]",
-            RegexOptions.Compiled);
+            @"[^a-zA-Z0-9\s]", RegexOptions.Compiled);
     }
 }

@@ -157,7 +157,7 @@ namespace TLMG.Services
         }
         void IMatchManager.MatchHeartbeat(string sessionToken, int sequence, int confirmedSequence)
         {
-            var callback = OperationContext.Current.GetCallbackChannel<IMatchManagerCallback>();
+            IMatchManagerCallback callback = OperationContext.Current.GetCallbackChannel<IMatchManagerCallback>();
             SafeNotifyAll(_sessionRegistry.ProcessHeartbeat(sessionToken, _matchChannelId, HeartbeatChannel.Match,
                 sequence, confirmedSequence, callback.MatchHeartbeatEcho));
         }

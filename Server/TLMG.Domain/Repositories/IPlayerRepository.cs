@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 
 namespace TLMG.Domain.Repositories
 {
@@ -35,9 +36,12 @@ namespace TLMG.Domain.Repositories
         /// <returns>true si se guardó; false si la cuenta no existe o la operación falló.</returns>
         bool UpdateLastLogInTime(int userId, DateTime lastLogInTimeUtc);
 
-        /// <summary>Returns the highest-scoring active players in descending points order.</summary>
+        /// <summary>Returns the highest-scoring active players and optional personal standing.</summary>
         /// <param name="maximumPlayerCount">Maximum number of players to return.</param>
+        /// <param name="registeredUserId">Registered user identifier for personal standing, if available.</param>
         /// <returns>Players and query status, always present.</returns>
-        LeaderboardLookup FindTopRankedPlayers(int maximumPlayerCount);
+        LeaderboardLookup FindTopRankedPlayers(
+            int maximumPlayerCount,
+            int? registeredUserId = null);
     }
 }
