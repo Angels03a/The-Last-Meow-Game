@@ -9,6 +9,8 @@
         AcceptRoomInvitation,
         InviteFriendToRoom,
         ManageProfile,
-        ChangePassword
+        ChangePassword,
+        ManageBlocks,
+        ReportPlayer
     }
 }

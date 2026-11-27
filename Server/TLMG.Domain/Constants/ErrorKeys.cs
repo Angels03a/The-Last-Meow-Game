@@ -16,6 +16,8 @@ namespace TLMG.Domain.Constants
         public static class Lobby
         {
             public const string NotInRoom = "Lobby_NotInRoomError";
+            public const string CannotJoinRoom = "Lobby_CannotJoinRoomError";
+            public const string AlreadyInRoom = "Lobby_AlreadyInRoomError";
             public const string MatchAlreadyStarted = "Lobby_MatchAlreadyStartedError";
             public const string ChatEmpty = "Lobby_ChatEmptyError";
             public const string ChatTooLong = "Lobby_ChatTooLongError";

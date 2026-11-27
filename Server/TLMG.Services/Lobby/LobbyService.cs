@@ -20,12 +20,13 @@ namespace TLMG.Services.Lobby
             new Dictionary<LobbyChangeStatus, string>
             {
                 { LobbyChangeStatus.InvalidSession, ErrorKeys.Common.InvalidSession },
-                { LobbyChangeStatus.AlreadyInRoom, ErrorKeys.Lobby.NotInRoom },
-                { LobbyChangeStatus.NotAuthorized, ErrorKeys.Lobby.NotInRoom },
+                { LobbyChangeStatus.AlreadyInRoom, ErrorKeys.Lobby.AlreadyInRoom },
+                { LobbyChangeStatus.NotAuthorized, ErrorKeys.Lobby.CannotJoinRoom },
                 { LobbyChangeStatus.RoomFull, ErrorKeys.Common.RoomFull },
                 { LobbyChangeStatus.NotInRoom, ErrorKeys.Lobby.NotInRoom },
                 { LobbyChangeStatus.MatchAlreadyStarted, ErrorKeys.Lobby.MatchAlreadyStarted },
-                { LobbyChangeStatus.MatchStartPersistenceFailed, ErrorKeys.Common.Unexpected }
+                { LobbyChangeStatus.MatchStartPersistenceFailed, ErrorKeys.Common.Unexpected },
+                { LobbyChangeStatus.DataFailure, ErrorKeys.Common.Unexpected }
             };
 
         private readonly ISessionRegistry _sessionRegistry;
@@ -49,7 +50,12 @@ namespace TLMG.Services.Lobby
                 caller.SessionToken,
                 SystemPermission.CreateRoom);
 
-            if (authorization.ErrorKey != null)
+            if (authorization == null)
+            {
+                operationCreateRoomResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                _log.Warn("La autorización para crear una sala no devolvió un resultado.");
+            }
+            else if (authorization.Status != AuthorizationStatus.Granted)
             {
                 operationCreateRoomResult.ErrorKey = authorization.ErrorKey;
                 _log.WarnFormat(
@@ -80,7 +86,14 @@ namespace TLMG.Services.Lobby
         {
             LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.CreateRoom(caller, lobbyCallback);
 
-            if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
+            if (lobbyMembershipChange == null
+                || (lobbyMembershipChange.Status == LobbyChangeStatus.Applied
+                    && lobbyMembershipChange.Room == null))
+            {
+                operationCreateRoomResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                _log.Error("No se obtuvo una sala válida al crear la sala.");
+            }
+            else if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
                 operationCreateRoomResult.IsSuccess = true;
                 operationCreateRoomResult.ErrorKey = string.Empty;
@@ -104,11 +117,18 @@ namespace TLMG.Services.Lobby
         {
             LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.EnterRoom(caller, roomId, lobbyCallback);
             OperationLobbyRoomResult operationEnterLobbyResult = new OperationLobbyRoomResult();
-            IReadOnlyList<Action> lobbyNotifications =
-                SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange);
+            IReadOnlyList<Action> lobbyNotifications = Array.Empty<Action>();
 
-            if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
+            if (lobbyMembershipChange == null
+                || (lobbyMembershipChange.Status == LobbyChangeStatus.Applied
+                    && lobbyMembershipChange.Room == null))
             {
+                operationEnterLobbyResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                _log.Error("No se obtuvo una sala válida al ingresar a la sala.");
+            }
+            else if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
+            {
+                lobbyNotifications = SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange);
                 operationEnterLobbyResult.IsSuccess = true;
                 operationEnterLobbyResult.ErrorKey = string.Empty;
                 operationEnterLobbyResult.Room = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
@@ -139,13 +159,17 @@ namespace TLMG.Services.Lobby
             LobbyMembershipChange lobbyMembershipChange =
                 _sessionRegistry.LeaveRoom(sessionToken, out matchViewDeliveries);
             OperationResult operationLeaveLobbyResult = new OperationResult();
-            List<Action> lobbyChangeNotifications = new List<Action>(
-                SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange));
-            lobbyChangeNotifications.AddRange(
-                SessionNotificationHelper.CreateMatchViewNotifications(matchViewDeliveries));
+            List<Action> lobbyChangeNotifications = new List<Action>();
 
-            if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
+            if (lobbyMembershipChange == null || matchViewDeliveries == null)
             {
+                operationLeaveLobbyResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                _log.Error("No se obtuvo un cambio de sala válido al salir de la sala.");
+            }
+            else if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
+            {
+                lobbyChangeNotifications.AddRange(SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange));
+                lobbyChangeNotifications.AddRange(SessionNotificationHelper.CreateMatchViewNotifications(matchViewDeliveries));
                 operationLeaveLobbyResult.IsSuccess = true;
                 operationLeaveLobbyResult.ErrorKey = string.Empty;
                 _log.InfoFormat(
@@ -170,7 +194,8 @@ namespace TLMG.Services.Lobby
                     operationLeaveLobbyResult,
                     lobbyChangeNotifications);
 
-            if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied && !lobbyMembershipChange.LeftAuthorizedMatch)
+            if (operationLeaveLobbyResult.IsSuccess && lobbyMembershipChange.Status == LobbyChangeStatus.Applied
+                && !lobbyMembershipChange.LeftAuthorizedMatch)
             {
                 _matchStartCoordinator.ReconcileCancelledStarts();
             }
@@ -192,11 +217,15 @@ namespace TLMG.Services.Lobby
         public IReadOnlyList<Action> LeaveLobbyByChannel(string channelId)
         {
             LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.LeaveRoomByChannel(channelId);
-            IReadOnlyList<Action> lobbyChangeNotifications =
-                SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange);
+            IReadOnlyList<Action> lobbyChangeNotifications = Array.Empty<Action>();
 
-            if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
+            if (lobbyMembershipChange == null)
             {
+                _log.Error("No se obtuvo un cambio de sala al finalizar el canal de lobby.");
+            }
+            else if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
+            {
+                lobbyChangeNotifications = SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange);
                 _log.InfoFormat(
                     "El jugador {0} salió de la sala {1} porque su canal de lobby terminó.",
                     lobbyMembershipChange.UserId,

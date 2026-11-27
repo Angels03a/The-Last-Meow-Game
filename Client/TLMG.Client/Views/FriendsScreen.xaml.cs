@@ -1,98 +1,81 @@
 using System.Windows;
 using System.Windows.Controls;
+
 using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
     public partial class FriendsScreen : LocalizableScreen
     {
-        private const int TabIndexFriends = 0;
-        private const int TabIndexPending = 1;
-
         private const string ActiveTabButtonStyleKey = "TabNavActiveButtonStyle";
         private const string InactiveTabButtonStyleKey = "TabNavInactiveButtonStyle";
         private const string ActiveBadgeStyleKey = "BadgeActiveStyle";
         private const string InactiveBadgeStyleKey = "BadgeInactiveStyle";
 
         private readonly FriendsViewModel _viewModel;
-        private TabViews[] _tabViews;
+        private Button _selectedTab;
 
         public FriendsScreen(FriendsViewModel friendsViewModel)
         {
             InitializeComponent();
-
             _viewModel = friendsViewModel;
             DataContext = friendsViewModel;
-
             Loaded += OnScreenLoaded;
             Unloaded += OnScreenUnloaded;
-
-            InitializeTabViews();
-            SwitchTab(TabIndexFriends);
+            SwitchTab(btnTabFriends);
         }
 
-        private void InitializeTabViews()
-        {
-            _tabViews = new[]
-            {
-                new TabViews(pnlFriendsContent, btnTabFriends, brdBadgeFriends),
-                new TabViews(pnlPendingContent, btnTabPending, brdBadgePending)
-            };
-        }
-
-        private void OnScreenLoaded(object sender, RoutedEventArgs e)
+        private void OnScreenLoaded(object sender, RoutedEventArgs eventArguments)
         {
             _viewModel.Activate();
+            SwitchTab(btnTabFriends);
         }
 
-        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        private void OnScreenUnloaded(object sender, RoutedEventArgs eventArguments)
         {
             _viewModel.Deactivate();
         }
 
-        private void BtnTab_Click(object sender, RoutedEventArgs e)
+        private void BtnTab_Click(object sender, RoutedEventArgs eventArguments)
         {
-            Button clickedButton = (Button)sender;
+            Button clickedButton = sender as Button;
 
-            if (clickedButton == btnTabPending)
+            if (clickedButton == btnTabFriends || clickedButton == btnTabPending
+                || (clickedButton == btnTabBlocked && _viewModel.IsRegisteredPlayer))
             {
-                SwitchTab(TabIndexPending);
-            }
-            else
-            {
-                SwitchTab(TabIndexFriends);
+                SwitchTab(clickedButton);
             }
         }
 
-        private void SwitchTab(int targetTabIndex)
+        private void SwitchTab(Button selectedTab)
         {
-            for (int tabIndex = 0; tabIndex < _tabViews.Length; tabIndex++)
-            {
-                bool isTargetTab = tabIndex == targetTabIndex;
-                TabViews currentTabViews = _tabViews[tabIndex];
+            _selectedTab = selectedTab;
+            ApplyTabState(pnlFriendsContent, btnTabFriends, brdBadgeFriends);
+            ApplyTabState(pnlPendingContent, btnTabPending, brdBadgePending);
+            ApplyTabState(pnlBlockedContent, btnTabBlocked, brdBadgeBlocked);
 
-                currentTabViews.Content.Visibility = isTargetTab ? Visibility.Visible : Visibility.Collapsed;
-                currentTabViews.TabButton.Style =
-                    (Style)FindResource(isTargetTab ? ActiveTabButtonStyleKey : InactiveTabButtonStyleKey);
-                currentTabViews.BadgeBorder.Style =
-                    (Style)FindResource(isTargetTab ? ActiveBadgeStyleKey : InactiveBadgeStyleKey);
+            if (selectedTab == btnTabBlocked)
+            {
+                _viewModel.BlockedPlayers.RefreshCommand.Execute(null);
             }
         }
 
-        private sealed class TabViews
+        private void ApplyTabState(UIElement content, Button tabButton, Border badgeBorder)
         {
-            public TabViews(UIElement content, Button tabButton, Border badgeBorder)
+            Visibility contentVisibility = Visibility.Collapsed;
+            string tabStyleKey = InactiveTabButtonStyleKey;
+            string badgeStyleKey = InactiveBadgeStyleKey;
+
+            if (tabButton == _selectedTab)
             {
-                Content = content;
-                TabButton = tabButton;
-                BadgeBorder = badgeBorder;
+                contentVisibility = Visibility.Visible;
+                tabStyleKey = ActiveTabButtonStyleKey;
+                badgeStyleKey = ActiveBadgeStyleKey;
             }
 
-            public UIElement Content { get; }
-
-            public Button TabButton { get; }
-
-            public Border BadgeBorder { get; }
+            content.Visibility = contentVisibility;
+            tabButton.Style = (Style)FindResource(tabStyleKey);
+            badgeBorder.Style = (Style)FindResource(badgeStyleKey);
         }
     }
 }

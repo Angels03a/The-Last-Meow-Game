@@ -1,205 +1,223 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\EntityFramework.6.5.2\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.2\build\EntityFramework.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F33C04B5-8F2C-456B-BF3C-4C1907763913}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TLMG.Services</RootNamespace>
-    <AssemblyName>TLMG.Services</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.5.2\lib\net45\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.5.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=3.5.0.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.3.5.0\lib\net462\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Accounts\AccountVerificationDispatcher.cs" />
-    <Compile Include="Accounts\GuestSessionService.cs" />
-    <Compile Include="Accounts\PasswordChangeService.cs" />
-    <Compile Include="Accounts\PasswordRecoveryService.cs" />
-    <Compile Include="Accounts\PasswordResetDispatcher.cs" />
-    <Compile Include="Accounts\PlayerProfileService.cs" />
-    <Compile Include="Lobby\IMatchStartCoordinator.cs" />
-    <Compile Include="Lobby\MatchStartCoordinator.cs" />
-    <Compile Include="ServiceDependencies.cs" />
-    <Compile Include="ServiceImplementation.PasswordManager.cs" />
-    <Compile Include="ServiceImplementation.SessionManager.cs" />
-    <Compile Include="Sessions\AuthorizationStatus.cs" />
-    <Compile Include="Sessions\ChatReservation.cs" />
-    <Compile Include="Sessions\ChatSubmission.cs" />
-    <Compile Include="Sessions\GuestFriendship.cs" />
-    <Compile Include="Sessions\GuestFriendshipChange.cs" />
-    <Compile Include="Sessions\GuestFriendshipState.cs" />
-    <Compile Include="Sessions\GuestSessionStart.cs" />
-    <Compile Include="Sessions\IFriendsSessionAccess.cs" />
-    <Compile Include="Sessions\IGuestFriendshipRegistry.cs" />
-    <Compile Include="Sessions\IGuestSessionRegistry.cs" />
-    <Compile Include="Sessions\IMatchStartRegistry.cs" />
-    <Compile Include="Sessions\ISessionAuthorizer.cs" />
-    <Compile Include="Sessions\ISessionIdentityProvider.cs" />
-    <Compile Include="Sessions\MatchStartPreparation.cs" />
-    <Compile Include="Sessions\SessionAuthorization.cs" />
-    <Compile Include="Sessions\SessionRegistry.Authorization.cs" />
-    <Compile Include="Sessions\SessionChannelCaller.cs" />
-    <Compile Include="Sessions\SessionRegistry.Chat.cs" />
-    <Compile Include="Sessions\ChatDelivery.cs" />
-    <Compile Include="Sessions\ChatChannel.cs" />
-    <Compile Include="ServiceImplementation.ChatManager.cs" />
-    <Compile Include="Chat\ChatService.cs" />
-    <Compile Include="Sessions\LobbyStartSnapshot.cs" />
-    <Compile Include="Sessions\SessionRegistry.GuestFriendships.cs" />
-    <Compile Include="Sessions\SessionRegistry.Identity.cs" />
-    <Compile Include="Sessions\SessionRegistry.MatchFinalization.cs" />
-    <Compile Include="Sessions\SessionRegistry.MatchStartPersistence.cs" />
-    <Compile Include="Sessions\SessionRegistry.Readiness.cs" />
-    <Compile Include="Lobby\LobbyService.CardsPerPlayer.cs" />
-    <Compile Include="Lobby\LobbyService.Readiness.cs" />
-    <Compile Include="Leaderboard\LeaderboardService.cs" />
-    <Compile Include="ServiceImplementation.FriendsManager.cs" />
-    <Compile Include="ServiceImplementation.LeaderboardManager.cs" />
-    <Compile Include="ServiceImplementation.LobbyManager.cs" />
-    <Compile Include="ServiceImplementation.UsersManager.cs" />
-    <Compile Include="Friends\FriendsService.cs" />
-    <Compile Include="Helpers\LobbyRoomHelper.cs" />
-    <Compile Include="Helpers\SessionNotificationHelper.cs" />
-    <Compile Include="Helpers\SessionTokenHelper.cs" />
-    <Compile Include="Lobby\LobbyService.cs" />
-    <Compile Include="Accounts\IPasswordHasher.cs" />
-    <Compile Include="Accounts\PasswordHasher.cs" />
-    <Compile Include="Accounts\PlayerAccountRegistrationService.cs" />
-    <Compile Include="Accounts\PlayerLogInService.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceImplementation.cs" />
-    <Compile Include="Sessions\FriendsAddition.cs" />
-    <Compile Include="Sessions\FriendsChangeStatus.cs" />
-    <Compile Include="Sessions\FriendsChannel.cs" />
-    <Compile Include="Sessions\FriendsSubscription.cs" />
-    <Compile Include="Sessions\ISessionRegistry.cs" />
-    <Compile Include="Sessions\LobbyChangeStatus.cs" />
-    <Compile Include="Sessions\LobbyMember.cs" />
-    <Compile Include="Sessions\LobbyMembershipChange.cs" />
-    <Compile Include="Sessions\LobbyRoomSnapshot.cs" />
-    <Compile Include="Sessions\PlayerSession.cs" />
-    <Compile Include="Sessions\RoomInvitationAcceptance.cs" />
-    <Compile Include="Sessions\RoomInvitationCreation.cs" />
-    <Compile Include="Sessions\RoomInvitationRecord.cs" />
-    <Compile Include="Sessions\SessionEnd.cs" />
-    <Compile Include="Sessions\ResultWithNotification.cs" />
-    <Compile Include="Sessions\SessionRegistry.cs" />
-    <Compile Include="Sessions\SessionRegistry.Friends.cs" />
-    <Compile Include="Sessions\SessionRegistry.Lobbies.cs" />
-    <Compile Include="Sessions\SessionRegistry.Heartbeat.cs" />
-    <Compile Include="Sessions\SessionRegistry.Matches.cs" />
-    <Compile Include="Sessions\SessionRegistry.FugitiveKitten.cs" />
-    <Compile Include="Sessions\SessionRegistry.MatchPlay.cs" />
-    <Compile Include="Sessions\MatchChannel.cs" />
-    <Compile Include="Sessions\MatchChallengeRecord.cs" />
-    <Compile Include="Sessions\MatchViewContext.cs" />
-    <Compile Include="Sessions\RoomExitCause.cs" />
-    <Compile Include="Helpers\MatchActionAvailabilityHelper.cs" />
-    <Compile Include="Sessions\MatchDelivery.cs" />
-    <Compile Include="Sessions\MatchViewDelivery.cs" />
-    <Compile Include="Match\MatchErrorKeys.cs" />
-    <Compile Include="Match\MatchService.cs" />
-    <Compile Include="Helpers\MatchViewHelper.cs" />
-    <Compile Include="ServiceImplementation.MatchManager.cs" />
-    <Compile Include="Sessions\MatchSnapshot.cs" />
-    <Compile Include="Utilities\VerificationCodeGenerator.cs" />
-    <Compile Include="Utilities\EmailTemplates.cs" />
-    <Compile Include="Utilities\EmailUtility.cs" />
-    <Compile Include="Utilities\Languages\EmailLanguageStrategyFactory.cs" />
-    <Compile Include="Utilities\Languages\EnglishEmailLanguageStrategy.cs" />
-    <Compile Include="Utilities\Languages\IEmailLanguageStrategy.cs" />
-    <Compile Include="Utilities\Languages\SpanishEmailLanguageStrategy.cs" />
-    <Compile Include="Utilities\VerificationCodeStore.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TLMG.Contracts\TLMG.Contracts.csproj">
-      <Project>{3afc38df-8345-4c35-bcfa-5dcef7aa3236}</Project>
-      <Name>TLMG.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TLMG.DataAccess\TLMG.DataAccess.csproj">
-      <Project>{e2bedb67-55e3-425a-b2d8-022be354c169}</Project>
-      <Name>TLMG.DataAccess</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TLMG.Domain\TLMG.Domain.csproj">
-      <Project>{0c8a1235-0809-453f-aa8f-c19e731e30b4}</Project>
-      <Name>TLMG.Domain</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="EmailConfig.xml" Condition="Exists('EmailConfig.xml')">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\AccountVerificationEnglish.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\AccountVerificationSpanish.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\PasswordResetEnglish.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Templates\PasswordResetSpanish.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>Este proyecto hace referencia a los paquetes NuGet que faltan en este equipo. Use la restauración de paquetes NuGet para descargarlos. Para obtener más información, consulte http://go.microsoft.com/fwlink/?LinkID=322105. El archivo que falta es {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\EntityFramework.6.5.2\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.2\build\EntityFramework.props'))" />
-    <Error Condition="!Exists('..\packages\EntityFramework.6.5.2\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.2\build\EntityFramework.targets'))" />
-  </Target>
-  <Import Project="..\packages\EntityFramework.6.5.2\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.2\build\EntityFramework.targets')" />
+	<Import Project="..\packages\EntityFramework.6.5.2\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.2\build\EntityFramework.props')" />
+	<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+		<ProjectGuid>{F33C04B5-8F2C-456B-BF3C-4C1907763913}</ProjectGuid>
+		<OutputType>Library</OutputType>
+		<AppDesignerFolder>Properties</AppDesignerFolder>
+		<RootNamespace>TLMG.Services</RootNamespace>
+		<AssemblyName>TLMG.Services</AssemblyName>
+		<TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+		<FileAlignment>512</FileAlignment>
+		<Deterministic>true</Deterministic>
+		<NuGetPackageImportStamp>
+		</NuGetPackageImportStamp>
+		<TargetFrameworkProfile />
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>full</DebugType>
+		<Optimize>false</Optimize>
+		<OutputPath>bin\Debug\</OutputPath>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<OutputPath>bin\Release\</OutputPath>
+		<DefineConstants>TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	<ItemGroup>
+		<Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+			<HintPath>..\packages\EntityFramework.6.5.2\lib\net45\EntityFramework.dll</HintPath>
+		</Reference>
+		<Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+			<HintPath>..\packages\EntityFramework.6.5.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+		</Reference>
+		<Reference Include="log4net, Version=3.5.0.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+			<HintPath>..\packages\log4net.3.5.0\lib\net462\log4net.dll</HintPath>
+		</Reference>
+		<Reference Include="System" />
+		<Reference Include="System.ComponentModel.DataAnnotations" />
+		<Reference Include="System.Configuration" />
+		<Reference Include="System.Core" />
+		<Reference Include="System.ServiceModel" />
+		<Reference Include="System.Web" />
+		<Reference Include="System.Xml.Linq" />
+		<Reference Include="System.Data.DataSetExtensions" />
+		<Reference Include="Microsoft.CSharp" />
+		<Reference Include="System.Data" />
+		<Reference Include="System.Net.Http" />
+		<Reference Include="System.Xml" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="Accounts\AccountVerificationDispatcher.cs" />
+		<Compile Include="Accounts\GuestSessionService.cs" />
+		<Compile Include="Accounts\PasswordChangeService.cs" />
+		<Compile Include="Accounts\PasswordRecoveryService.cs" />
+		<Compile Include="Accounts\PasswordResetDispatcher.cs" />
+		<Compile Include="Accounts\PlayerProfileService.cs" />
+		<Compile Include="Lobby\IMatchStartCoordinator.cs" />
+		<Compile Include="Lobby\MatchStartCoordinator.cs" />
+		<Compile Include="Moderation\BlockPolicy.cs" />
+		<Compile Include="Moderation\KickVotingService.cs" />
+		<Compile Include="Moderation\KickVotingHistory.cs" />
+		<Compile Include="Moderation\ModerationService.cs" />
+		<Compile Include="Moderation\ReportService.cs" />
+		<Compile Include="ServiceDependencies.cs" />
+		<Compile Include="ServiceImplementation.ModerationManager.cs" />
+		<Compile Include="ServiceImplementation.PasswordManager.cs" />
+		<Compile Include="ServiceImplementation.SessionManager.cs" />
+		<Compile Include="Sessions\AuthorizationStatus.cs" />
+		<Compile Include="Sessions\ChatReservation.cs" />
+		<Compile Include="Sessions\ChatSubmission.cs" />
+		<Compile Include="Sessions\GuestFriendship.cs" />
+		<Compile Include="Sessions\GuestFriendshipChange.cs" />
+		<Compile Include="Sessions\GuestFriendshipState.cs" />
+		<Compile Include="Sessions\GuestSessionStart.cs" />
+		<Compile Include="Sessions\IFriendsSessionAccess.cs" />
+		<Compile Include="Sessions\IGuestFriendshipRegistry.cs" />
+		<Compile Include="Sessions\IGuestSessionRegistry.cs" />
+		<Compile Include="Sessions\IMatchStartRegistry.cs" />
+		<Compile Include="Sessions\IReportSessionAccess.cs" />
+		<Compile Include="Sessions\IKickSessionAccess.cs" />
+		<Compile Include="Sessions\ISessionAuthorizer.cs" />
+		<Compile Include="Sessions\ISessionIdentityProvider.cs" />
+		<Compile Include="Sessions\LobbyDeparture.cs" />
+		<Compile Include="Sessions\KickVoteChange.cs" />
+		<Compile Include="Sessions\LobbyDepartureDelivery.cs" />
+		<Compile Include="Sessions\LobbyRoomUpdate.cs" />
+		<Compile Include="Sessions\LobbyStartState.cs" />
+		<Compile Include="Sessions\RoomKickVoting.cs" />
+		<Compile Include="Sessions\MatchStartPreparation.cs" />
+		<Compile Include="Sessions\SessionAuthorization.cs" />
+		<Compile Include="Sessions\SessionRegistry.Authorization.cs" />
+		<Compile Include="Sessions\SessionChannelCaller.cs" />
+		<Compile Include="Sessions\SessionRegistry.Chat.cs" />
+		<Compile Include="Sessions\ChatDelivery.cs" />
+		<Compile Include="Sessions\ChatChannel.cs" />
+		<Compile Include="ServiceImplementation.ChatManager.cs" />
+		<Compile Include="Chat\ChatService.cs" />
+		<Compile Include="Sessions\LobbyStartSnapshot.cs" />
+		<Compile Include="Sessions\SessionRegistry.GuestFriendships.cs" />
+		<Compile Include="Sessions\SessionRegistry.Identity.cs" />
+		<Compile Include="Sessions\SessionRegistry.MatchFinalization.cs" />
+		<Compile Include="Sessions\SessionRegistry.MatchStartPersistence.cs" />
+		<Compile Include="Sessions\SessionRegistry.Moderation.cs" />
+		<Compile Include="Sessions\SessionRegistry.KickVoting.cs" />
+		<Compile Include="Sessions\SessionRegistry.KickHistory.cs" />
+		<Compile Include="Sessions\SessionRegistry.Readiness.cs" />
+		<Compile Include="Lobby\LobbyService.CardsPerPlayer.cs" />
+		<Compile Include="Lobby\LobbyService.Readiness.cs" />
+		<Compile Include="Leaderboard\LeaderboardService.cs" />
+		<Compile Include="ServiceImplementation.FriendsManager.cs" />
+		<Compile Include="ServiceImplementation.LeaderboardManager.cs" />
+		<Compile Include="ServiceImplementation.LobbyManager.cs" />
+		<Compile Include="ServiceImplementation.UsersManager.cs" />
+		<Compile Include="Friends\FriendsService.cs" />
+		<Compile Include="Helpers\LobbyRoomHelper.cs" />
+		<Compile Include="Helpers\SessionNotificationHelper.cs" />
+		<Compile Include="Helpers\SessionTokenHelper.cs" />
+		<Compile Include="Lobby\LobbyService.cs" />
+		<Compile Include="Accounts\IPasswordHasher.cs" />
+		<Compile Include="Accounts\PasswordHasher.cs" />
+		<Compile Include="Accounts\PlayerAccountRegistrationService.cs" />
+		<Compile Include="Accounts\PlayerLogInService.cs" />
+		<Compile Include="Properties\AssemblyInfo.cs" />
+		<Compile Include="ServiceImplementation.cs" />
+		<Compile Include="Sessions\FriendsAddition.cs" />
+		<Compile Include="Sessions\FriendsChangeStatus.cs" />
+		<Compile Include="Sessions\FriendsChannel.cs" />
+		<Compile Include="Sessions\FriendsSubscription.cs" />
+		<Compile Include="Sessions\ISessionRegistry.cs" />
+		<Compile Include="Sessions\LobbyChangeStatus.cs" />
+		<Compile Include="Sessions\LobbyMember.cs" />
+		<Compile Include="Sessions\LobbyMembershipChange.cs" />
+		<Compile Include="Sessions\LobbyRoomSnapshot.cs" />
+		<Compile Include="Sessions\PlayerSession.cs" />
+		<Compile Include="Sessions\RoomInvitationAcceptance.cs" />
+		<Compile Include="Sessions\RoomInvitationCreation.cs" />
+		<Compile Include="Sessions\RoomInvitationRecord.cs" />
+		<Compile Include="Sessions\SessionEnd.cs" />
+		<Compile Include="Sessions\ResultWithNotification.cs" />
+		<Compile Include="Sessions\SessionRegistry.cs" />
+		<Compile Include="Sessions\SessionRegistry.Friends.cs" />
+		<Compile Include="Sessions\SessionRegistry.Lobbies.cs" />
+		<Compile Include="Sessions\SessionRegistry.Heartbeat.cs" />
+		<Compile Include="Sessions\SessionRegistry.Matches.cs" />
+		<Compile Include="Sessions\SessionRegistry.FugitiveKitten.cs" />
+		<Compile Include="Sessions\SessionRegistry.MatchPlay.cs" />
+		<Compile Include="Sessions\MatchChannel.cs" />
+		<Compile Include="Sessions\MatchChallengeRecord.cs" />
+		<Compile Include="Sessions\MatchViewContext.cs" />
+		<Compile Include="Sessions\RoomExitCause.cs" />
+		<Compile Include="Helpers\MatchActionAvailabilityHelper.cs" />
+		<Compile Include="Sessions\MatchDelivery.cs" />
+		<Compile Include="Sessions\MatchViewDelivery.cs" />
+		<Compile Include="Match\MatchErrorKeys.cs" />
+		<Compile Include="Match\MatchService.cs" />
+		<Compile Include="Helpers\MatchViewHelper.cs" />
+		<Compile Include="ServiceImplementation.MatchManager.cs" />
+		<Compile Include="Sessions\MatchSnapshot.cs" />
+		<Compile Include="Sessions\SessionRegistry.Reports.cs" />
+		<Compile Include="Utilities\VerificationCodeGenerator.cs" />
+		<Compile Include="Utilities\EmailTemplates.cs" />
+		<Compile Include="Utilities\EmailUtility.cs" />
+		<Compile Include="Utilities\Languages\EmailLanguageStrategyFactory.cs" />
+		<Compile Include="Utilities\Languages\EnglishEmailLanguageStrategy.cs" />
+		<Compile Include="Utilities\Languages\IEmailLanguageStrategy.cs" />
+		<Compile Include="Utilities\Languages\SpanishEmailLanguageStrategy.cs" />
+		<Compile Include="Utilities\VerificationCodeStore.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\TLMG.Contracts\TLMG.Contracts.csproj">
+			<Project>{3afc38df-8345-4c35-bcfa-5dcef7aa3236}</Project>
+			<Name>TLMG.Contracts</Name>
+		</ProjectReference>
+		<ProjectReference Include="..\TLMG.DataAccess\TLMG.DataAccess.csproj">
+			<Project>{e2bedb67-55e3-425a-b2d8-022be354c169}</Project>
+			<Name>TLMG.DataAccess</Name>
+		</ProjectReference>
+		<ProjectReference Include="..\TLMG.Domain\TLMG.Domain.csproj">
+			<Project>{0c8a1235-0809-453f-aa8f-c19e731e30b4}</Project>
+			<Name>TLMG.Domain</Name>
+		</ProjectReference>
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="App.config" />
+		<None Include="packages.config" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="EmailConfig.xml" Condition="Exists('EmailConfig.xml')">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Templates\AccountVerificationEnglish.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Templates\AccountVerificationSpanish.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Templates\PasswordResetEnglish.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Templates\PasswordResetSpanish.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+	<Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+		<PropertyGroup>
+			<ErrorText>Este proyecto hace referencia a los paquetes NuGet que faltan en este equipo. Use la restauración de paquetes NuGet para descargarlos. Para obtener más información, consulte http://go.microsoft.com/fwlink/?LinkID=322105. El archivo que falta es {0}.</ErrorText>
+		</PropertyGroup>
+		<Error Condition="!Exists('..\packages\EntityFramework.6.5.2\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.2\build\EntityFramework.props'))" />
+		<Error Condition="!Exists('..\packages\EntityFramework.6.5.2\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.5.2\build\EntityFramework.targets'))" />
+	</Target>
+	<Import Project="..\packages\EntityFramework.6.5.2\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.2\build\EntityFramework.targets')" />
 </Project>

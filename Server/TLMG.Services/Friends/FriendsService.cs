@@ -10,6 +10,7 @@ using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
 using TLMG.Domain.Validators;
 using TLMG.Services.Helpers;
+using TLMG.Services.Moderation;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Friends
@@ -27,7 +28,11 @@ namespace TLMG.Services.Friends
                 { FriendsChangeStatus.NotInRoom, ErrorKeys.Lobby.NotInRoom },
                 { FriendsChangeStatus.RoomFull, ErrorKeys.Common.RoomFull },
                 { FriendsChangeStatus.CannotInvite, ErrorKeys.Friends.CannotInvite },
-                { FriendsChangeStatus.InvitationNotValid, ErrorKeys.Friends.InvitationNotValid }
+                { FriendsChangeStatus.InvitationNotValid, ErrorKeys.Friends.InvitationNotValid },
+                { FriendsChangeStatus.DataFailure, ErrorKeys.Common.Unexpected },
+                { FriendsChangeStatus.RoomAccessDenied, ErrorKeys.Lobby.CannotJoinRoom },
+                { FriendsChangeStatus.AlreadyInRoom, ErrorKeys.Lobby.AlreadyInRoom },
+                { FriendsChangeStatus.MatchAlreadyStarted, ErrorKeys.Lobby.MatchAlreadyStarted }
             };
 
         private static readonly IReadOnlyList<Action> _noNotifications = new List<Action>().AsReadOnly();
@@ -35,15 +40,18 @@ namespace TLMG.Services.Friends
         private readonly IFriendshipRepository _friendshipRepository;
         private readonly ISessionRegistry _sessionRegistry;
         private readonly IFriendsSessionAccess _sessionAccess;
+        private readonly BlockPolicy _blockPolicy;
 
         public FriendsService(
             IFriendshipRepository friendshipRepository,
             ISessionRegistry sessionRegistry,
-            IFriendsSessionAccess sessionAccess)
+            IFriendsSessionAccess sessionAccess,
+            BlockPolicy blockPolicy)
         {
             _friendshipRepository = friendshipRepository;
             _sessionRegistry = sessionRegistry;
             _sessionAccess = sessionAccess;
+            _blockPolicy = blockPolicy;
         }
 
         public ResultWithNotification<OperationSubscribeToFriendsResult> SubscribeToFriends(
@@ -85,16 +93,20 @@ namespace TLMG.Services.Friends
                 sessionToken,
                 SystemPermission.InviteFriendToRoom);
 
-            if (authorization.ErrorKey != null)
+            if (authorization == null)
+            {
+                operationInviteFriendToRoomResult.ErrorKey = ErrorKeys.Common.Unexpected;
+            }
+            else if (authorization.Status != AuthorizationStatus.Granted)
             {
                 operationInviteFriendToRoomResult.ErrorKey = authorization.ErrorKey;
                 LogRejectedOperation("invitar a un amigo", authorization.UserId, authorization.Status.ToString());
             }
             else
             {
-                string errorKey = FindInvitationErrorKey(authorization.UserId, friendUserId);
+                OperationResult invitationPermission = CheckInvitationPermission(authorization.UserId, friendUserId);
 
-                if (errorKey == null)
+                if (invitationPermission.IsSuccess)
                 {
                     RoomInvitationCreation roomInvitationCreation =
                         _sessionRegistry.CreateRoomInvitation(sessionToken, friendUserId);
@@ -112,7 +124,7 @@ namespace TLMG.Services.Friends
                 }
                 else
                 {
-                    operationInviteFriendToRoomResult.ErrorKey = errorKey;
+                    operationInviteFriendToRoomResult.ErrorKey = invitationPermission.ErrorKey;
                 }
             }
 
@@ -134,7 +146,11 @@ namespace TLMG.Services.Friends
                 sessionToken,
                 SystemPermission.AcceptRoomInvitation);
 
-            if (authorization.ErrorKey != null)
+            if (authorization == null)
+            {
+                operationAcceptRoomInvitationResult.ErrorKey = ErrorKeys.Common.Unexpected;
+            }
+            else if (authorization.Status != AuthorizationStatus.Granted)
             {
                 operationAcceptRoomInvitationResult.ErrorKey = authorization.ErrorKey;
                 LogRejectedOperation(
@@ -162,7 +178,7 @@ namespace TLMG.Services.Friends
             IReadOnlyList<Action> friendRequestNotifications = _noNotifications;
             FriendRequestValidation validationResult = ValidateSendRequest(sessionToken, friendNickname);
 
-            if (validationResult.ErrorKey == null)
+            if (validationResult.IsValid)
             {
                 friendRequestNotifications = ApplySendFriendRequest(
                     validationResult.PlayerSession,
@@ -333,25 +349,24 @@ namespace TLMG.Services.Friends
 
         private static string ResolveGuestErrorKey(GuestFriendshipChange guestFriendshipChange)
         {
-            string errorKey;
+            string errorKey = ErrorKeys.Common.Unexpected;
 
-            switch (guestFriendshipChange.Status)
+            if (guestFriendshipChange != null)
             {
-                case GuestFriendshipChangeStatus.GuestNotFound:
+                if (guestFriendshipChange.Status == GuestFriendshipChangeStatus.GuestNotFound)
+                {
                     errorKey = ErrorKeys.Friends.UserNotFound;
-                    break;
-                case GuestFriendshipChangeStatus.AlreadyExists:
+                }
+                else if (guestFriendshipChange.Status == GuestFriendshipChangeStatus.AlreadyExists
+                    && guestFriendshipChange.Friendship != null)
+                {
                     errorKey = ErrorKeys.Friends.RequestAlreadySent;
 
                     if (guestFriendshipChange.Friendship.State == GuestFriendshipState.Accepted)
                     {
                         errorKey = ErrorKeys.Friends.AlreadyFriends;
                     }
-
-                    break;
-                default:
-                    errorKey = ErrorKeys.Common.Unexpected;
-                    break;
+                }
             }
 
             return errorKey;
@@ -432,8 +447,14 @@ namespace TLMG.Services.Friends
             foreach (GuestFriendship friendship in friendships)
             {
                 bool isSender = friendship.SenderUserId == userId;
-                int otherUserId = isSender ? friendship.ReceiverUserId : friendship.SenderUserId;
-                string otherNickname = isSender ? friendship.ReceiverNickname : friendship.SenderNickname;
+                int otherUserId = friendship.SenderUserId;
+                string otherNickname = friendship.SenderNickname;
+
+                if (isSender)
+                {
+                    otherUserId = friendship.ReceiverUserId;
+                    otherNickname = friendship.ReceiverNickname;
+                }
 
                 if (friendship.State == GuestFriendshipState.Accepted)
                 {
@@ -507,8 +528,15 @@ namespace TLMG.Services.Friends
 
                 if (snapshot.WasSuccessful)
                 {
-                    snapshot.Friends.AddRange(friendListLookup.Friends);
-                    snapshot.Requests.AddRange(pendingLookup.Requests);
+                    BlockListLookup blocks = _blockPolicy.FindBlocks(userId);
+                    snapshot.WasSuccessful = blocks.WasLookupSuccessful;
+
+                    if (snapshot.WasSuccessful)
+                    {
+                        snapshot.Friends.AddRange(BlockPolicy.FilterVisibleFriends(
+                            blocks, userId, friendListLookup.Friends));
+                        snapshot.Requests.AddRange(pendingLookup.Requests);
+                    }
                 }
             }
 
@@ -554,11 +582,14 @@ namespace TLMG.Services.Friends
                         friendsSubscription.OnlineFriendUserIds);
                     operationSubscribeToFriendsResult.PendingFriendRequests =
                         ConvertToFriendRequests(snapshot.Requests);
+                    Friend friend = new Friend
+                    {
+                        UserId = friendsSubscription.UserId,
+                        Nickname = friendsSubscription.Nickname,
+                        IsOnline = true
+                    };
                     subscribeToFriendsNotifications = SessionNotificationHelper.CreatePresenceNotifications(
-                        friendsSubscription.PresenceRecipientCallbacks,
-                        friendsSubscription.UserId,
-                        friendsSubscription.Nickname,
-                        true);
+                        friendsSubscription.PresenceRecipientCallbacks, friend);
                     _log.InfoFormat("El jugador {0} se suscribió a sus amigos.", friendsSubscription.UserId);
                 }
                 else
@@ -579,51 +610,53 @@ namespace TLMG.Services.Friends
             return subscribeToFriendsResult;
         }
 
-        private string FindInvitationErrorKey(int inviterUserId, int friendUserId)
+        private OperationResult CheckInvitationPermission(int inviterUserId, int friendUserId)
         {
-            string errorKey = null;
+            OperationResult permission = new OperationResult { ErrorKey = ErrorKeys.Friends.CannotInvite };
             bool involvesGuest = GuestIdentity.IsGuestUserId(inviterUserId)
                 || GuestIdentity.IsGuestUserId(friendUserId);
 
             if (involvesGuest)
             {
-                if (!_sessionAccess.AreGuestFriends(inviterUserId, friendUserId))
+                permission.IsSuccess = _sessionAccess.AreGuestFriends(inviterUserId, friendUserId);
+
+                if (permission.IsSuccess)
                 {
-                    errorKey = ErrorKeys.Friends.CannotInvite;
-                    LogRejectedOperation("invitar a un amigo", inviterUserId, "no son amigos aceptados");
+                    permission.ErrorKey = string.Empty;
                 }
             }
             else
             {
-                errorKey = FindDatabaseInvitationErrorKey(inviterUserId, friendUserId);
+                permission = CheckDatabaseInvitationPermission(inviterUserId, friendUserId);
             }
 
-            return errorKey;
+            if (!permission.IsSuccess)
+            {
+                LogRejectedOperation("invitar a un amigo", inviterUserId, permission.ErrorKey);
+            }
+
+            return permission;
         }
 
-        private string FindDatabaseInvitationErrorKey(int inviterUserId, int friendUserId)
+        private OperationResult CheckDatabaseInvitationPermission(int inviterUserId, int friendUserId)
         {
-            string errorKey = null;
-            FriendshipLookupStatus friendshipLookupStatus = _friendshipRepository.FindFriendshipStatus(
-                inviterUserId,
-                friendUserId);
+            FriendshipLookupStatus status = _friendshipRepository.FindFriendshipStatus(inviterUserId, friendUserId);
+            OperationResult permission = new OperationResult
+            {
+                IsSuccess = status == FriendshipLookupStatus.Accepted,
+                ErrorKey = ErrorKeys.Common.Unexpected
+            };
 
-            if (friendshipLookupStatus == FriendshipLookupStatus.DataFailure)
+            if (permission.IsSuccess)
             {
-                errorKey = ErrorKeys.Common.Unexpected;
-                LogRejectedOperation("invitar a un amigo", inviterUserId, "fallo de datos");
+                permission.ErrorKey = string.Empty;
             }
-            else if (friendshipLookupStatus == FriendshipLookupStatus.NotAccepted)
+            else if (status == FriendshipLookupStatus.NotAccepted)
             {
-                errorKey = ErrorKeys.Friends.CannotInvite;
-                LogRejectedOperation("invitar a un amigo", inviterUserId, "no son amigos aceptados");
-            }
-            else if (friendshipLookupStatus != FriendshipLookupStatus.Accepted)
-            {
-                errorKey = ErrorKeys.Common.Unexpected;
+                permission.ErrorKey = ErrorKeys.Friends.CannotInvite;
             }
 
-            return errorKey;
+            return permission;
         }
 
         private OperationResult CreateInviteResult(
@@ -658,11 +691,11 @@ namespace TLMG.Services.Friends
         {
             FriendRequestValidation validationResult = new FriendRequestValidation();
             string normalizedNickname;
-            string errorKey = FriendNicknameValidator.ValidateNickname(friendNickname, out normalizedNickname);
+            bool isNicknameValid = FriendNicknameValidator.TryNormalizeNickname(friendNickname, out normalizedNickname);
 
-            if (errorKey != null)
+            if (!isNicknameValid)
             {
-                validationResult.ErrorKey = errorKey;
+                validationResult.ErrorKey = ErrorKeys.Friends.NicknameFormat;
                 LogRejectedOperation("solicitar amistad", ValidationRules.NoUserId, "nickname con formato no válido");
             }
             else
@@ -672,7 +705,11 @@ namespace TLMG.Services.Friends
                     SystemPermission.SendFriendRequest);
                 PlayerSession playerSession;
 
-                if (authorization.ErrorKey != null)
+                if (authorization == null)
+                {
+                    validationResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                }
+                else if (authorization.Status != AuthorizationStatus.Granted)
                 {
                     validationResult.ErrorKey = authorization.ErrorKey;
                     LogRejectedOperation("solicitar amistad", authorization.UserId, authorization.Status.ToString());
@@ -684,6 +721,8 @@ namespace TLMG.Services.Friends
                 }
                 else
                 {
+                    validationResult.IsValid = true;
+                    validationResult.ErrorKey = string.Empty;
                     validationResult.PlayerSession = playerSession;
                     validationResult.NormalizedNickname = normalizedNickname;
                 }
@@ -728,7 +767,18 @@ namespace TLMG.Services.Friends
             GuestFriendshipChange guestFriendshipChange =
                 _sessionAccess.CreateGuestFriendRequest(senderSession.UserId, guestUserId);
 
-            if (guestFriendshipChange.Status == GuestFriendshipChangeStatus.Applied)
+            if (guestFriendshipChange == null)
+            {
+                operationSendFriendRequestResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                _log.Error("No se obtuvo el resultado de la solicitud de amistad temporal.");
+            }
+            else if (guestFriendshipChange.Status == GuestFriendshipChangeStatus.Applied
+                && guestFriendshipChange.Friendship == null)
+            {
+                operationSendFriendRequestResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                _log.Error("La solicitud de amistad temporal aplicada no contiene la amistad.");
+            }
+            else if (guestFriendshipChange.Status == GuestFriendshipChangeStatus.Applied)
             {
                 GuestFriendship friendship = guestFriendshipChange.Friendship;
                 operationSendFriendRequestResult.IsSuccess = true;
@@ -793,15 +843,42 @@ namespace TLMG.Services.Friends
             else
             {
                 friendRequestNotifications = ApplyPairRules(
-                    senderSession,
-                    friendCandidateLookup,
-                    operationSendFriendRequestResult);
+                    senderSession, friendCandidateLookup, operationSendFriendRequestResult);
             }
 
             return friendRequestNotifications;
         }
 
         private IReadOnlyList<Action> ApplyPairRules(
+            PlayerSession senderSession,
+            FriendCandidateLookup friendCandidate,
+            OperationSendFriendRequestResult operationSendFriendRequestResult)
+        {
+            IReadOnlyList<Action> friendRequestNotifications = _noNotifications;
+
+            lock (_blockPolicy.SynchronizationRoot)
+            {
+                BlockListLookup blocks = _blockPolicy.FindBlocks(senderSession.UserId);
+
+                if (!blocks.WasLookupSuccessful)
+                {
+                    operationSendFriendRequestResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                }
+                else if (BlockPolicy.CanInteract(blocks, senderSession.UserId, friendCandidate.UserId))
+                {
+                    friendRequestNotifications = ApplyUnblockedPairRules(
+                        senderSession, friendCandidate, operationSendFriendRequestResult);
+                }
+                else
+                {
+                    operationSendFriendRequestResult.ErrorKey = ErrorKeys.Friends.RequestNotValid;
+                }
+            }
+
+            return friendRequestNotifications;
+        }
+
+        private IReadOnlyList<Action> ApplyUnblockedPairRules(
             PlayerSession senderSession,
             FriendCandidateLookup friendCandidate,
             OperationSendFriendRequestResult operationSendFriendRequestResult)
@@ -979,7 +1056,11 @@ namespace TLMG.Services.Friends
                 SystemPermission.RespondToFriendRequest);
             PlayerSession playerSession;
 
-            if (authorization.ErrorKey != null)
+            if (authorization == null)
+            {
+                friendRequestAnswer.ErrorKey = ErrorKeys.Common.Unexpected;
+            }
+            else if (authorization.Status != AuthorizationStatus.Granted)
             {
                 friendRequestAnswer.ErrorKey = authorization.ErrorKey;
                 LogRejectedOperation(
@@ -1052,7 +1133,18 @@ namespace TLMG.Services.Friends
                 context.ReceiverSession.UserId,
                 isAccepted);
 
-            if (guestFriendshipChange.Status != GuestFriendshipChangeStatus.Applied)
+            if (guestFriendshipChange == null)
+            {
+                context.Answer.ErrorKey = ErrorKeys.Common.Unexpected;
+                _log.Error("No se obtuvo el resultado de responder la solicitud de amistad temporal.");
+            }
+            else if (guestFriendshipChange.Status == GuestFriendshipChangeStatus.Applied
+                && isAccepted && guestFriendshipChange.Friendship == null)
+            {
+                context.Answer.ErrorKey = ErrorKeys.Common.Unexpected;
+                _log.Error("La aceptación de amistad temporal no contiene la amistad.");
+            }
+            else if (guestFriendshipChange.Status != GuestFriendshipChangeStatus.Applied)
             {
                 context.Answer.ErrorKey = ErrorKeys.Friends.RequestNotValid;
                 LogRejectedOperation("responder una solicitud de amistad", context.ReceiverSession.UserId,
@@ -1253,6 +1345,8 @@ namespace TLMG.Services.Friends
 
         private sealed class FriendRequestValidation
         {
+            public bool IsValid { get; set; }
+
             public string ErrorKey { get; set; }
 
             public PlayerSession PlayerSession { get; set; }

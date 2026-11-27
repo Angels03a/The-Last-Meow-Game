@@ -28,82 +28,91 @@ namespace TLMG.Services.Accounts
             _sessionAuthorizer = sessionAuthorizer;
         }
 
-        /// <summary>
-        /// Retrieves profile information for an authorized registered player.
-        /// </summary>
         public OperationPlayerProfileResult GetProfile(string sessionToken)
         {
-            OperationPlayerProfileResult profileResult =
-                new OperationPlayerProfileResult();
-
-            SessionAuthorization authorization = _sessionAuthorizer.Authorize(
-                sessionToken,
-                SystemPermission.ManageProfile);
-
-            string errorKey = authorization.ErrorKey;
-
-            if (errorKey == null)
+            OperationPlayerProfileResult profileResult = new OperationPlayerProfileResult
             {
-                PlayerProfileLookup profileLookup =
-                    _playerProfileRepository.FindProfileByUserId(
-                        authorization.UserId);
+                ErrorKey = ErrorKeys.Common.Unexpected
+            };
+            SessionAuthorization authorization = _sessionAuthorizer.Authorize(sessionToken, SystemPermission.ManageProfile);
+
+            if (authorization == null || authorization.Status != AuthorizationStatus.Granted)
+            {
+                profileResult.ErrorKey = ResolveAuthorizationErrorKey(authorization);
+            }
+            else
+            {
+                PlayerProfileLookup profileLookup = _playerProfileRepository.FindProfileByUserId(authorization.UserId);
 
                 if (profileLookup == null)
                 {
-                    _log.Warn("La consulta de perfil no devolvió resultado.");
-                    errorKey = ErrorKeys.Profile.DataModel;
+                    _log.Warn("The profile lookup did not return a result.");
+                    profileResult.ErrorKey = ErrorKeys.Profile.DataModel;
+                }
+                else if (profileLookup.Status == PlayerProfileLookupStatus.Found)
+                {
+                    ApplyProfileLookup(profileLookup, profileResult);
+                }
+                else if (profileLookup.Status == PlayerProfileLookupStatus.NotFound)
+                {
+                    profileResult.ErrorKey = ErrorKeys.Common.InvalidSession;
                 }
                 else
                 {
-                    errorKey = ResolveLookupErrorKey(profileLookup.Status);
-
-                    if (profileLookup.Status == PlayerProfileLookupStatus.Found)
-                    {
-                        profileResult.IsSuccess = true;
-                        profileResult.Nickname = profileLookup.Nickname;
-                        profileResult.Email = profileLookup.Email;
-                        profileResult.AvatarKey =
-                            AvatarCatalog.NormalizeKey(profileLookup.AvatarKey);
-                        profileResult.PasswordChangedAtUtc =
-                            profileLookup.PasswordChangedAtUtc;
-                    }
+                    profileResult.ErrorKey = ErrorKeys.Profile.DataModel;
                 }
             }
-
-            profileResult.ErrorKey = errorKey;
 
             return profileResult;
         }
 
-        /// <summary>
-        /// Updates the profile of a player with the required permissions.
-        /// </summary>
-        public OperationResult UpdateProfile(
-            OperationUpdatePlayerProfileRequest updateProfileRequest)
+        public OperationResult UpdateProfile(OperationUpdatePlayerProfileRequest updateProfileRequest)
         {
-            OperationResult updateResult = new OperationResult();
+            OperationResult updateResult = new OperationResult { ErrorKey = ErrorKeys.Common.Unexpected };
+            PlayerProfileUpdate profileUpdate = CreateProfileUpdate(updateProfileRequest);
+            string validationErrorKey = PlayerProfileValidator.ValidateProfileUpdate(profileUpdate);
 
-            PlayerProfileUpdate profileUpdate =
-                CreateProfileUpdate(updateProfileRequest);
-
-            string errorKey =
-                PlayerProfileValidator.ValidateProfileUpdate(profileUpdate);
-
-            if (errorKey == string.Empty)
+            if (updateProfileRequest != null && validationErrorKey == string.Empty)
             {
-                errorKey = SaveProfileUpdate(
-                    updateProfileRequest.SessionToken,
-                    profileUpdate);
+                updateResult = SaveProfileUpdate(updateProfileRequest.SessionToken, profileUpdate);
             }
-
-            updateResult.IsSuccess = errorKey == string.Empty;
-            updateResult.ErrorKey = errorKey;
+            else if (!string.IsNullOrWhiteSpace(validationErrorKey))
+            {
+                updateResult.ErrorKey = validationErrorKey;
+            }
 
             return updateResult;
         }
 
-        private static PlayerProfileUpdate CreateProfileUpdate(
-            OperationUpdatePlayerProfileRequest updateProfileRequest)
+        private static void ApplyProfileLookup(PlayerProfileLookup lookup, OperationPlayerProfileResult result)
+        {
+            const int MinimumRank = 1;
+            int initialStatisticValue = ValidationRules.InitialStatisticValue;
+            bool hasValidStatistics = lookup.TotalPoints >= initialStatisticValue
+                && lookup.TotalWins >= initialStatisticValue && lookup.TotalGamesPlayed >= lookup.TotalWins
+                && lookup.PersonalRank >= MinimumRank;
+
+            if (hasValidStatistics)
+            {
+                result.Nickname = lookup.Nickname;
+                result.Email = lookup.Email;
+                result.AvatarKey = AvatarCatalog.NormalizeKey(lookup.AvatarKey);
+                result.PasswordChangedAtUtc = lookup.PasswordChangedAtUtc;
+                result.TotalPoints = lookup.TotalPoints;
+                result.TotalWins = lookup.TotalWins;
+                result.TotalGamesPlayed = lookup.TotalGamesPlayed;
+                result.PersonalRank = lookup.PersonalRank;
+                result.IsSuccess = true;
+                result.ErrorKey = string.Empty;
+            }
+            else
+            {
+                result.ErrorKey = ErrorKeys.Profile.DataModel;
+                _log.Warn("The profile lookup returned invalid statistics.");
+            }
+        }
+
+        private static PlayerProfileUpdate CreateProfileUpdate(OperationUpdatePlayerProfileRequest updateProfileRequest)
         {
             PlayerProfileUpdate profileUpdate = null;
 
@@ -119,146 +128,76 @@ namespace TLMG.Services.Accounts
             return profileUpdate;
         }
 
-        private string SaveProfileUpdate(
-            string sessionToken,
-            PlayerProfileUpdate profileUpdate)
+        private OperationResult SaveProfileUpdate(string sessionToken, PlayerProfileUpdate profileUpdate)
         {
-            SessionAuthorization authorization = _sessionAuthorizer.Authorize(
-                sessionToken,
-                SystemPermission.ManageProfile);
+            OperationResult updateResult = new OperationResult { ErrorKey = ErrorKeys.Common.Unexpected };
+            SessionAuthorization authorization = _sessionAuthorizer.Authorize(sessionToken, SystemPermission.ManageProfile);
 
-            string errorKey = authorization.ErrorKey;
-
-            if (errorKey == null)
+            if (authorization == null || authorization.Status != AuthorizationStatus.Granted)
             {
-                errorKey = FindNicknameTakenErrorKey(
-                    authorization.UserId,
-                    profileUpdate.Nickname);
+                updateResult.ErrorKey = ResolveAuthorizationErrorKey(authorization);
+            }
+            else
+            {
+                PlayerExistenceLookupStatus existenceStatus =
+                    _playerProfileRepository.FindNicknameExistenceStatusForOtherUsers(
+                        authorization.UserId, profileUpdate.Nickname);
 
-                if (errorKey == string.Empty)
+                if (existenceStatus == PlayerExistenceLookupStatus.NotFound)
                 {
-                    errorKey = PersistProfile(
-                        sessionToken,
-                        authorization.UserId,
-                        profileUpdate);
+                    updateResult = PersistProfile(sessionToken, authorization.UserId, profileUpdate);
+                }
+                else if (existenceStatus == PlayerExistenceLookupStatus.Exists)
+                {
+                    updateResult.ErrorKey = ErrorKeys.Profile.NicknameTaken;
+                }
+                else
+                {
+                    updateResult.ErrorKey = ErrorKeys.Profile.DataModel;
                 }
             }
 
-            return errorKey;
+            return updateResult;
         }
 
-        private string FindNicknameTakenErrorKey(
-            int userId,
-            string nickname)
+        private OperationResult PersistProfile(string sessionToken, int userId, PlayerProfileUpdate profileUpdate)
+        {
+            PlayerProfileUpdateStatus updateStatus = _playerProfileRepository.UpdateProfile(userId, profileUpdate);
+            OperationResult updateResult = new OperationResult { ErrorKey = ErrorKeys.Profile.DataModel };
+
+            if (updateStatus == PlayerProfileUpdateStatus.Updated)
+            {
+                _sessionIdentityProvider.TryUpdateNickname(sessionToken, profileUpdate.Nickname);
+                updateResult.IsSuccess = true;
+                updateResult.ErrorKey = string.Empty;
+                _log.InfoFormat("Player {0} updated their profile.", userId);
+            }
+            else if (updateStatus == PlayerProfileUpdateStatus.NicknameTaken)
+            {
+                updateResult.ErrorKey = ErrorKeys.Profile.NicknameTaken;
+            }
+            else if (updateStatus == PlayerProfileUpdateStatus.PlayerNotFound)
+            {
+                updateResult.ErrorKey = ErrorKeys.Common.InvalidSession;
+            }
+
+            return updateResult;
+        }
+
+        private static string ResolveAuthorizationErrorKey(SessionAuthorization authorization)
         {
             string errorKey = ErrorKeys.Common.Unexpected;
 
-            PlayerExistenceLookupStatus existenceStatus =
-                _playerProfileRepository.FindNicknameExistenceStatusForOtherUsers(
-                    userId,
-                    nickname);
-
-            if (existenceStatus == PlayerExistenceLookupStatus.NotFound)
+            if (authorization != null)
             {
-                errorKey = string.Empty;
-            }
-            else if (existenceStatus == PlayerExistenceLookupStatus.Exists)
-            {
-                errorKey = ErrorKeys.Profile.NicknameTaken;
-            }
-            else if (existenceStatus == PlayerExistenceLookupStatus.DataFailure)
-            {
-                errorKey = ErrorKeys.Profile.DataModel;
-            }
-
-            return errorKey;
-        }
-
-        private string PersistProfile(
-            string sessionToken,
-            int userId,
-            PlayerProfileUpdate profileUpdate)
-        {
-            PlayerProfileUpdateStatus updateStatus =
-                _playerProfileRepository.UpdateProfile(userId, profileUpdate);
-
-            string errorKey = ResolveUpdateErrorKey(updateStatus);
-
-            if (errorKey == string.Empty)
-            {
-                _sessionIdentityProvider.TryUpdateNickname(
-                    sessionToken,
-                    profileUpdate.Nickname);
-
-                _log.InfoFormat(
-                    "El jugador {0} actualizó su perfil.",
-                    userId);
-            }
-
-            return errorKey;
-        }
-
-        private static string ResolveLookupErrorKey(
-            PlayerProfileLookupStatus lookupStatus)
-        {
-            string errorKey;
-
-            switch (lookupStatus)
-            {
-                case PlayerProfileLookupStatus.Found:
-                    errorKey = string.Empty;
-                    break;
-
-                case PlayerProfileLookupStatus.NotFound:
+                if (authorization.Status == AuthorizationStatus.InvalidSession)
+                {
                     errorKey = ErrorKeys.Common.InvalidSession;
-                    break;
-
-                case PlayerProfileLookupStatus.DataFailure:
-                    errorKey = ErrorKeys.Profile.DataModel;
-                    break;
-
-                default:
-                    _log.ErrorFormat(
-                        "Estado de consulta de perfil no reconocido: {0}.",
-                        lookupStatus);
-
-                    errorKey = ErrorKeys.Common.Unexpected;
-                    break;
-            }
-
-            return errorKey;
-        }
-
-        private static string ResolveUpdateErrorKey(
-            PlayerProfileUpdateStatus updateStatus)
-        {
-            string errorKey;
-
-            switch (updateStatus)
-            {
-                case PlayerProfileUpdateStatus.Updated:
-                    errorKey = string.Empty;
-                    break;
-
-                case PlayerProfileUpdateStatus.NicknameTaken:
-                    errorKey = ErrorKeys.Profile.NicknameTaken;
-                    break;
-
-                case PlayerProfileUpdateStatus.PlayerNotFound:
-                    errorKey = ErrorKeys.Common.InvalidSession;
-                    break;
-
-                case PlayerProfileUpdateStatus.DataFailure:
-                    errorKey = ErrorKeys.Profile.DataModel;
-                    break;
-
-                default:
-                    _log.ErrorFormat(
-                        "Estado de actualización de perfil no reconocido: {0}.",
-                        updateStatus);
-
-                    errorKey = ErrorKeys.Common.Unexpected;
-                    break;
+                }
+                else if (authorization.Status == AuthorizationStatus.PermissionDenied)
+                {
+                    errorKey = ErrorKeys.Common.PermissionDenied;
+                }
             }
 
             return errorKey;

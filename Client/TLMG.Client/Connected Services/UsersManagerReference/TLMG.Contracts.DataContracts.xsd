@@ -71,6 +71,10 @@
           <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
           <xs:element minOccurs="0" name="PasswordChangedAtUtc" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="PersonalRank" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" name="TotalGamesPlayed" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" name="TotalPoints" nillable="true" type="xs:int" />
+          <xs:element minOccurs="0" name="TotalWins" nillable="true" type="xs:int" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -499,4 +503,42 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="OperationResetPasswordRequest" nillable="true" type="tns:OperationResetPasswordRequest" />
+  <xs:complexType name="ReportSubmission">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Comment" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ReasonCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TargetUserId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ReportSubmission" nillable="true" type="tns:ReportSubmission" />
+  <xs:complexType name="KickVote">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="RoomId" type="xs:int" />
+      <xs:element minOccurs="0" name="TargetUserId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="KickVote" nillable="true" type="tns:KickVote" />
+  <xs:complexType name="BlockedPlayerList">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:OperationResult">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Players" nillable="true" type="tns:ArrayOfBlockedPlayer" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BlockedPlayerList" nillable="true" type="tns:BlockedPlayerList" />
+  <xs:complexType name="ArrayOfBlockedPlayer">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="BlockedPlayer" nillable="true" type="tns:BlockedPlayer" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfBlockedPlayer" nillable="true" type="tns:ArrayOfBlockedPlayer" />
+  <xs:complexType name="BlockedPlayer">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Nickname" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="BlockedPlayer" nillable="true" type="tns:BlockedPlayer" />
 </xs:schema>

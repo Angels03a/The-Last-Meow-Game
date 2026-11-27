@@ -6,6 +6,7 @@ using TLMG.Domain.Entities;
 using TLMG.Domain.Repositories;
 using TLMG.Domain.Validators;
 using TLMG.Services.Helpers;
+using TLMG.Services.Moderation;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Accounts
@@ -14,147 +15,168 @@ namespace TLMG.Services.Accounts
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(PlayerLogInService));
 
-        private IPlayerRepository _playerRepository;
-        private IPasswordHasher _passwordHasher;
-        private ISessionRegistry _sessionRegistry;
+        private readonly IPlayerRepository _playerRepository;
+        private readonly IPasswordHasher _passwordHasher;
+        private readonly ISessionRegistry _sessionRegistry;
+        private readonly ReportService _reportService;
 
         public PlayerLogInService(
             IPlayerRepository playerRepository,
             IPasswordHasher passwordHasher,
-            ISessionRegistry sessionRegistry)
+            ISessionRegistry sessionRegistry, ReportService reportService)
         {
             _playerRepository = playerRepository;
             _passwordHasher = passwordHasher;
             _sessionRegistry = sessionRegistry;
+            _reportService = reportService;
         }
 
         public ResultWithNotification<OperationLogInResult> LogIn(OperationLogInRequest operationLogInRequest)
         {
-            string sessionToken = null;
-            int userId = ValidationRules.NoUserId;
-            string nickname = null;
-            SessionEnd replacedSession = null;
-            bool isSuccess = false;
-
-            string errorKey = ValidateLogInRequest(operationLogInRequest, out PlayerLogin playerLogin);
-
-            if (errorKey == string.Empty)
-            {
-                PlayerCredentials playerCredentials;
-                errorKey = AuthenticatePlayer(playerLogin, out playerCredentials);
-
-                if (errorKey == string.Empty)
-                {
-                    sessionToken = _sessionRegistry.StartRegisteredSession(
-                        playerCredentials.UserId,
-                        playerCredentials.Nickname,
-                        out replacedSession);
-                    userId = playerCredentials.UserId;
-                    nickname = playerCredentials.Nickname;
-                    isSuccess = true;
-                }
-            }
-
             OperationLogInResult operationLogInResult = new OperationLogInResult
             {
-                IsSuccess = isSuccess,
-                ErrorKey = errorKey,
-                SessionToken = sessionToken,
-                UserId = userId,
-                Nickname = nickname
+                ErrorKey = ErrorKeys.Login.IncompleteFields,
+                UserId = ValidationRules.NoUserId,
+                SessionToken = string.Empty,
+                Nickname = string.Empty
             };
+            SessionEnd replacedSession = null;
+            PlayerLogin playerLogin = new PlayerLogin();
 
-            ResultWithNotification<OperationLogInResult> loginResult = 
+            if (operationLogInRequest != null)
+            {
+                playerLogin.Email = AccountFieldValidator.NormalizeEmail(operationLogInRequest.Email);
+                playerLogin.Password = operationLogInRequest.Password;
+            }
+
+            string validationErrorKey;
+            if (PlayerLogInValidator.TryValidateLogIn(playerLogin, out validationErrorKey))
+            {
+                lock (_reportService.AccountStateSynchronizationRoot)
+                {
+                    PlayerCredentials credentials = _playerRepository.FindCredentialsByEmail(playerLogin.Email);
+                    string authenticationErrorKey;
+
+                    if (TryAuthenticatePlayer(credentials, playerLogin.Password, out authenticationErrorKey))
+                    {
+                        string sessionToken = _sessionRegistry.StartRegisteredSession(
+                            credentials.UserId, credentials.Nickname, out replacedSession);
+
+                        if (!string.IsNullOrWhiteSpace(sessionToken))
+                        {
+                            operationLogInResult.IsSuccess = true;
+                            operationLogInResult.ErrorKey = string.Empty;
+                            operationLogInResult.SessionToken = sessionToken;
+                            operationLogInResult.UserId = credentials.UserId;
+                            operationLogInResult.Nickname = credentials.Nickname;
+                            _log.InfoFormat("El jugador {0} inició sesión.", credentials.UserId);
+                        }
+                        else
+                        {
+                            operationLogInResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                            _log.Error("No se obtuvo un token válido al iniciar la sesión.");
+                        }
+                    }
+                    else
+                    {
+                        operationLogInResult.ErrorKey = authenticationErrorKey;
+                    }
+                }
+            }
+            else
+            {
+                operationLogInResult.ErrorKey = validationErrorKey;
+            }
+
+            ResultWithNotification<OperationLogInResult> loginResult =
                 new ResultWithNotification<OperationLogInResult>(operationLogInResult,
-                SessionNotificationHelper.CreateReplacedSessionNotifications(replacedSession));
+                    SessionNotificationHelper.CreateReplacedSessionNotifications(replacedSession));
 
             return loginResult;
         }
 
-        private static string ValidateLogInRequest(OperationLogInRequest operationLogInRequest,
-            out PlayerLogin playerLogin)
+        private bool TryAuthenticatePlayer(PlayerCredentials credentials, string password, out string errorKey)
         {
-            string errorKey = ErrorKeys.Login.IncompleteFields;
-            playerLogin = null;
+            bool isAuthenticated = false;
+            errorKey = ErrorKeys.Login.DataModel;
 
-            if (operationLogInRequest != null)
-            {
-                playerLogin = new PlayerLogin
-                {
-                    Email = AccountFieldValidator.NormalizeEmail(operationLogInRequest.Email),
-                    Password = operationLogInRequest.Password
-                };
-
-                errorKey = PlayerLogInValidator.ValidateLogIn(playerLogin);
-            }
-
-            return errorKey;
-        }
-
-        private string AuthenticatePlayer(PlayerLogin playerLogin, out PlayerCredentials playerCredentials)
-        {
-            string errorKey = ErrorKeys.Login.InvalidCredentials;
-            playerCredentials = _playerRepository.FindCredentialsByEmail(playerLogin.Email);
-
-            if (playerCredentials == null)
+            if (credentials == null)
             {
                 _log.Warn("La consulta de credenciales no devolvió resultado.");
-                errorKey = ErrorKeys.Login.DataModel;
             }
-            else if (playerCredentials.Status == CredentialsLookupStatus.DataFailure)
+            else if (credentials.Status == CredentialsLookupStatus.NotFound)
             {
-                errorKey = ErrorKeys.Login.DataModel;
+                errorKey = ErrorKeys.Login.InvalidCredentials;
             }
-            else if (playerCredentials.Status == CredentialsLookupStatus.Found)
+            else if (credentials.Status == CredentialsLookupStatus.Found)
             {
-                if (playerCredentials.UserId <= ValidationRules.NoUserId
-                    || string.IsNullOrWhiteSpace(playerCredentials.Nickname)
-                    || string.IsNullOrWhiteSpace(playerCredentials.PasswordHash))
+                if (credentials.UserId > ValidationRules.NoUserId
+                    && !string.IsNullOrWhiteSpace(credentials.Nickname)
+                    && !string.IsNullOrWhiteSpace(credentials.PasswordHash))
                 {
-                    _log.Warn("La consulta de credenciales devolvió datos incompletos.");
-                    errorKey = ErrorKeys.Login.DataModel;
+                    isAuthenticated = TryVerifyKnownPlayer(credentials, password, out errorKey);
                 }
                 else
                 {
-                    errorKey = VerifyKnownPlayer(playerCredentials, playerLogin.Password);
+                    _log.Warn("La consulta de credenciales devolvió datos incompletos.");
                 }
             }
-            else if (playerCredentials.Status != CredentialsLookupStatus.NotFound)
+            else if (credentials.Status != CredentialsLookupStatus.DataFailure)
             {
                 _log.Warn("La consulta de credenciales devolvió un estado desconocido.");
-                errorKey = ErrorKeys.Login.DataModel;
             }
 
-            return errorKey;
+            return isAuthenticated;
         }
 
-        private string VerifyKnownPlayer(PlayerCredentials playerCredentials, string password)
+        private bool TryVerifyKnownPlayer(PlayerCredentials credentials, string password, out string errorKey)
         {
-            string errorKey = ErrorKeys.Login.InvalidCredentials;
-            bool isPasswordValid = _passwordHasher.VerifyPassword(password, playerCredentials.PasswordHash);
-            bool isAccountActive = playerCredentials.State == ValidationRules.ActiveUserState;
-
-            if (isPasswordValid && isAccountActive)
+            bool isAuthenticated = false;
+            errorKey = ErrorKeys.Login.InvalidCredentials;
+            bool isPasswordValid = _passwordHasher.VerifyPassword(password, credentials.PasswordHash);
+            if (isPasswordValid)
             {
-                errorKey = RegisterLogInTime(playerCredentials.UserId);
+                SuspensionLiftStatus status = _reportService.CheckAccountState(credentials.UserId);
+
+                if (status == SuspensionLiftStatus.NotSuspended || status == SuspensionLiftStatus.Lifted)
+                {
+                    bool wasLogInTimeUpdated = _playerRepository.UpdateLastLogInTime(credentials.UserId, DateTime.UtcNow);
+                    if (wasLogInTimeUpdated)
+                    {
+                        isAuthenticated = true;
+                        errorKey = string.Empty;
+                    }
+                    else
+                    {
+                        errorKey = ErrorKeys.Login.DataModel;
+                    }
+                }
+                else
+                {
+                    errorKey = FindSanctionErrorKey(status);
+                }
             }
             else
             {
-                _log.WarnFormat("Inicio de sesión rechazado para el jugador {0}.", playerCredentials.UserId);
+                _log.WarnFormat("Inicio de sesión rechazado para el jugador {0}.", credentials.UserId);
             }
 
-            return errorKey;
+            return isAuthenticated;
         }
 
-        private string RegisterLogInTime(int userId)
+        private static string FindSanctionErrorKey(SuspensionLiftStatus status)
         {
+            const string accountSuspendedErrorKey = "Login_AccountSuspendedError";
+            const string accountBannedErrorKey = "Login_AccountBannedError";
             string errorKey = ErrorKeys.Login.DataModel;
-            bool wasLastLogInTimeUpdated = _playerRepository.UpdateLastLogInTime(userId, DateTime.UtcNow);
 
-            if (wasLastLogInTimeUpdated)
+            if (status == SuspensionLiftStatus.StillSuspended)
             {
-                errorKey = string.Empty;
-                _log.InfoFormat("El jugador {0} inició sesión.", userId);
+                errorKey = accountSuspendedErrorKey;
+            }
+            else if (status == SuspensionLiftStatus.Banned)
+            {
+                errorKey = accountBannedErrorKey;
             }
 
             return errorKey;

@@ -1,107 +1,113 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3AFC38DF-8345-4C35-BCFA-5DCEF7AA3236}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TLMG.Contracts</RootNamespace>
-    <AssemblyName>TLMG.Contracts</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="DataContracts\OperationChangePasswordRequest.cs" />
-    <Compile Include="DataContracts\OperationLobbyRoomResult.cs" />
-    <Compile Include="DataContracts\OperationPlayerProfileResult.cs" />
-    <Compile Include="DataContracts\OperationResetPasswordRequest.cs" />
-    <Compile Include="DataContracts\OperationResult.cs" />
-    <Compile Include="DataContracts\OperationUpdatePlayerProfileRequest.cs" />
-    <Compile Include="DataContracts\SystemFault.cs" />
-    <Compile Include="IChatManagerCallback.cs" />
-    <Compile Include="IChatManager.cs" />
-    <Compile Include="IMatchManager.cs" />
-    <Compile Include="IMatchManagerCallback.cs" />
-    <Compile Include="DataContracts\MatchCardKind.cs" />
-    <Compile Include="DataContracts\MatchChallengeOutcome.cs" />
-    <Compile Include="DataContracts\MatchChallengeView.cs" />
-    <Compile Include="DataContracts\MatchPunishmentResolution.cs" />
-    <Compile Include="DataContracts\MatchPunishmentView.cs" />
-    <Compile Include="DataContracts\MatchRevealedCardView.cs" />
-    <Compile Include="DataContracts\MatchPlayerView.cs" />
-    <Compile Include="DataContracts\MatchStandingView.cs" />
-    <Compile Include="DataContracts\MatchRoundPhase.cs" />
-    <Compile Include="DataContracts\MatchView.cs" />
-    <Compile Include="DataContracts\FugitiveKittenView.cs" />
-    <Compile Include="DataContracts\FugitiveKittenResult.cs" />
-    <Compile Include="DataContracts\KittenSegmentView.cs" />
-    <Compile Include="DataContracts\OperationSendChatMessageResult.cs" />
-    <Compile Include="DataContracts\OperationSendChatMessageRequest.cs" />
-    <Compile Include="DataContracts\ChatMessage.cs" />
-    <Compile Include="DataContracts\OperationChangePlayerReadinessRequest.cs" />
-    <Compile Include="DataContracts\OperationMatchStartRequest.cs" />
-    <Compile Include="DataContracts\OperationRequestMatchStartResult.cs" />
-    <Compile Include="DataContracts\Friend.cs" />
-    <Compile Include="DataContracts\FriendRequest.cs" />
-    <Compile Include="DataContracts\LeaderboardPlayer.cs" />
-    <Compile Include="DataContracts\LobbyPlayer.cs" />
-    <Compile Include="DataContracts\LobbyRoom.cs" />
-    <Compile Include="DataContracts\OperationAcceptFriendRequestResult.cs" />
-    <Compile Include="DataContracts\OperationAcceptRoomInvitationResult.cs" />
-    <Compile Include="DataContracts\OperationChangeCardsPerPlayerRequest.cs" />
-    <Compile Include="DataContracts\OperationDeclineFriendRequestResult.cs" />
-    <Compile Include="DataContracts\OperationGetLeaderboardResult.cs" />
-    <Compile Include="DataContracts\OperationLogInRequest.cs" />
-    <Compile Include="DataContracts\LogOutResult.cs" />
-    <Compile Include="DataContracts\OperationRecoveryContextResult.cs" />
-    <Compile Include="DataContracts\OperationLogInResult.cs" />
-    <Compile Include="DataContracts\OperationSendFriendRequestResult.cs" />
-    <Compile Include="DataContracts\OperationSubscribeToFriendsResult.cs" />
-    <Compile Include="DataContracts\PlayerAccountRegistration.cs" />
-    <Compile Include="DataContracts\RoomInvitation.cs" />
-    <Compile Include="IFriendshipManager.cs" />
-    <Compile Include="IFriendshipManagerCallback.cs" />
-    <Compile Include="IForgotPasswordManager.cs" />
-    <Compile Include="IFriendsManager.cs" />
-    <Compile Include="IFriendsManagerCallback.cs" />
-    <Compile Include="ILeaderboardManager.cs" />
-    <Compile Include="ILeaderboardManagerCallback.cs" />
-    <Compile Include="ILobbyManager.cs" />
-    <Compile Include="ILobbyManagerCallback.cs" />
-    <Compile Include="IPasswordManager.cs" />
-    <Compile Include="IRoomInvitationManager.cs" />
-    <Compile Include="IRoomInvitationManagerCallback.cs" />
-    <Compile Include="ISessionManager.cs" />
-    <Compile Include="IUsersManager.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+	<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+		<ProjectGuid>{3AFC38DF-8345-4C35-BCFA-5DCEF7AA3236}</ProjectGuid>
+		<OutputType>Library</OutputType>
+		<AppDesignerFolder>Properties</AppDesignerFolder>
+		<RootNamespace>TLMG.Contracts</RootNamespace>
+		<AssemblyName>TLMG.Contracts</AssemblyName>
+		<TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+		<FileAlignment>512</FileAlignment>
+		<Deterministic>true</Deterministic>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>full</DebugType>
+		<Optimize>false</Optimize>
+		<OutputPath>bin\Debug\</OutputPath>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<OutputPath>bin\Release\</OutputPath>
+		<DefineConstants>TRACE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	<ItemGroup>
+		<Reference Include="System" />
+		<Reference Include="System.Core" />
+		<Reference Include="System.Runtime.Serialization" />
+		<Reference Include="System.ServiceModel" />
+		<Reference Include="System.Xml" />
+		<Reference Include="Microsoft.CSharp" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="DataContracts\BlockedPlayer.cs" />
+		<Compile Include="DataContracts\BlockedPlayerList.cs" />
+		<Compile Include="DataContracts\KickVote.cs" />
+		<Compile Include="DataContracts\OperationChangePasswordRequest.cs" />
+		<Compile Include="DataContracts\OperationLobbyRoomResult.cs" />
+		<Compile Include="DataContracts\OperationPlayerProfileResult.cs" />
+		<Compile Include="DataContracts\OperationResetPasswordRequest.cs" />
+		<Compile Include="DataContracts\OperationResult.cs" />
+		<Compile Include="DataContracts\OperationUpdatePlayerProfileRequest.cs" />
+		<Compile Include="DataContracts\ReportSubmission.cs" />
+		<Compile Include="DataContracts\SystemFault.cs" />
+		<Compile Include="IChatManagerCallback.cs" />
+		<Compile Include="IChatManager.cs" />
+		<Compile Include="IMatchManager.cs" />
+		<Compile Include="IMatchManagerCallback.cs" />
+		<Compile Include="DataContracts\MatchCardKind.cs" />
+		<Compile Include="DataContracts\MatchChallengeOutcome.cs" />
+		<Compile Include="DataContracts\MatchChallengeView.cs" />
+		<Compile Include="DataContracts\MatchPunishmentResolution.cs" />
+		<Compile Include="DataContracts\MatchPunishmentView.cs" />
+		<Compile Include="DataContracts\MatchRevealedCardView.cs" />
+		<Compile Include="DataContracts\MatchPlayerView.cs" />
+		<Compile Include="DataContracts\MatchStandingView.cs" />
+		<Compile Include="DataContracts\MatchRoundPhase.cs" />
+		<Compile Include="DataContracts\MatchView.cs" />
+		<Compile Include="DataContracts\FugitiveKittenView.cs" />
+		<Compile Include="DataContracts\FugitiveKittenResult.cs" />
+		<Compile Include="DataContracts\KittenSegmentView.cs" />
+		<Compile Include="DataContracts\OperationSendChatMessageResult.cs" />
+		<Compile Include="DataContracts\OperationSendChatMessageRequest.cs" />
+		<Compile Include="DataContracts\ChatMessage.cs" />
+		<Compile Include="DataContracts\OperationChangePlayerReadinessRequest.cs" />
+		<Compile Include="DataContracts\OperationMatchStartRequest.cs" />
+		<Compile Include="DataContracts\OperationRequestMatchStartResult.cs" />
+		<Compile Include="DataContracts\Friend.cs" />
+		<Compile Include="DataContracts\FriendRequest.cs" />
+		<Compile Include="DataContracts\LeaderboardPlayer.cs" />
+		<Compile Include="DataContracts\LobbyPlayer.cs" />
+		<Compile Include="DataContracts\LobbyRoom.cs" />
+		<Compile Include="DataContracts\OperationAcceptFriendRequestResult.cs" />
+		<Compile Include="DataContracts\OperationAcceptRoomInvitationResult.cs" />
+		<Compile Include="DataContracts\OperationChangeCardsPerPlayerRequest.cs" />
+		<Compile Include="DataContracts\OperationDeclineFriendRequestResult.cs" />
+		<Compile Include="DataContracts\OperationGetLeaderboardResult.cs" />
+		<Compile Include="DataContracts\OperationLogInRequest.cs" />
+		<Compile Include="DataContracts\LogOutResult.cs" />
+		<Compile Include="DataContracts\OperationRecoveryContextResult.cs" />
+		<Compile Include="DataContracts\OperationLogInResult.cs" />
+		<Compile Include="DataContracts\OperationSendFriendRequestResult.cs" />
+		<Compile Include="DataContracts\OperationSubscribeToFriendsResult.cs" />
+		<Compile Include="DataContracts\PlayerAccountRegistration.cs" />
+		<Compile Include="DataContracts\RoomInvitation.cs" />
+		<Compile Include="IFriendshipManager.cs" />
+		<Compile Include="IFriendshipManagerCallback.cs" />
+		<Compile Include="IForgotPasswordManager.cs" />
+		<Compile Include="IFriendsManager.cs" />
+		<Compile Include="IFriendsManagerCallback.cs" />
+		<Compile Include="ILeaderboardManager.cs" />
+		<Compile Include="ILeaderboardManagerCallback.cs" />
+		<Compile Include="ILobbyManager.cs" />
+		<Compile Include="ILobbyManagerCallback.cs" />
+		<Compile Include="IModerationManager.cs" />
+		<Compile Include="IModerationManagerCallback.cs" />
+		<Compile Include="IPasswordManager.cs" />
+		<Compile Include="IRoomInvitationManager.cs" />
+		<Compile Include="IRoomInvitationManagerCallback.cs" />
+		<Compile Include="ISessionManager.cs" />
+		<Compile Include="IUsersManager.cs" />
+		<Compile Include="Properties\AssemblyInfo.cs" />
+	</ItemGroup>
+	<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

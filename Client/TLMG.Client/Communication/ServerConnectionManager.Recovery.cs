@@ -18,10 +18,9 @@ namespace TLMG.Client.Communication
         internal event EventHandler<ServerEventArgs<MatchView>> MatchRecoveryReady;
         internal event EventHandler MatchContextEnded;
 
-        public bool IsMatchRecoveryPending => _recoveryUntil.HasValue;
+        public bool IsMatchRecoveryPending { get { return _recoveryUntil.HasValue; } }
         public bool IsMatchRecoveryExhausted { get; private set; }
 
-        private bool _startingSession;
         private long _nextRecoveryStepAt;
         private int? _lobbyBoundRoomId;
         private long? _recoveryUntil;
@@ -75,7 +74,7 @@ namespace TLMG.Client.Communication
             _chatSubscriptionUntil = null;
         }
 
-        private void DiscoverRecoveryContext()
+        private void DiscoverRecoveryContext(bool notifyMatchContextEnded = true)
         {
             OperationRecoveryContextResult context = GetRecoveryContext();
             if (!context.IsSuccess && context.ErrorKey == InvalidSessionErrorKey)
@@ -86,7 +85,7 @@ namespace TLMG.Client.Communication
             {
                 if (!context.RoomId.HasValue || !context.MatchId.HasValue)
                 {
-                    EndRecoveryContext();
+                    EndRecoveryContext(notifyMatchContextEnded);
                 }
                 else
                 {
@@ -95,14 +94,14 @@ namespace TLMG.Client.Communication
             }
         }
 
-        private void EndRecoveryContext()
+        private void EndRecoveryContext(bool notifyMatchContextEnded = true)
         {
             if (CurrentRoom?.MatchId.HasValue == true)
             {
                 ClearCurrentRoom();
             }
             CancelMatchRecovery();
-            if (!_startingSession)
+            if (notifyMatchContextEnded)
             {
                 MatchContextEnded?.Invoke(this, EventArgs.Empty);
             }
@@ -130,6 +129,16 @@ namespace TLMG.Client.Communication
         {
             CloseExpiredPrimaryRecoveryChannels(now);
             CloseExpiredSecondaryChannels(now);
+
+            if (_roomEntryUntil.HasValue && now >= _roomEntryUntil.Value)
+            {
+                CloseLobbyChannel();
+            }
+
+            if (_invitationAcceptanceUntil.HasValue && now >= _invitationAcceptanceUntil.Value)
+            {
+                CloseFriendsChannel();
+            }
         }
 
         private void CloseExpiredPrimaryRecoveryChannels(long now)
@@ -308,12 +317,17 @@ namespace TLMG.Client.Communication
             {
                 int roomId = _recoveryContext.RoomId.Value;
                 _recoveryLobbyUntil = _heartbeatClock.ElapsedMilliseconds + RecoveryReplyMilliseconds;
-                TrySend(
-                    () => SendConnectionRequest(
-                        _lobbyChannel,
-                        () => _lobbyClient.EnterLobby(_sessionToken, roomId)),
-                    "revincular la sala",
-                    CloseLobbyChannel);
+                void EnterRoom()
+                {
+                    _lobbyClient.EnterLobby(_sessionToken, roomId);
+                }
+
+                void SendRebind()
+                {
+                    SendConnectionRequest(_lobbyChannel, EnterRoom);
+                }
+
+                TrySend(SendRebind, "revincular la sala", CloseLobbyChannel);
             }
         }
 
@@ -361,35 +375,23 @@ namespace TLMG.Client.Communication
             return isMatchingResult;
         }
 
-        private static void OpenConnection(ICommunicationObject client)
+        internal static void OpenConnection(ICommunicationObject client)
         {
             Stopwatch elapsed = Stopwatch.StartNew();
-            try
-            {
-                client.Open(_recoveryOpenTimeout);
-            }
-            finally
-            {
-                _log.DebugFormat("Apertura de canal WCF: {0:F2} ms.", elapsed.Elapsed.TotalMilliseconds);
-            }
+            client.Open(_recoveryOpenTimeout);
+            _log.DebugFormat("Apertura de canal WCF: {0:F2} ms.", elapsed.Elapsed.TotalMilliseconds);
         }
 
         private static void SendConnectionRequest(IClientChannel channel, Action send)
         {
             TimeSpan originalTimeout = channel.OperationTimeout;
             Stopwatch elapsed = Stopwatch.StartNew();
-            try
-            {
-                channel.OperationTimeout = _recoveryRequestTimeout;
-                send();
-            }
-            finally
-            {
-                RestoreOperationTimeoutIfOpened(channel, originalTimeout);
-                _log.DebugFormat(
-                    "Solicitud WCF de vinculación o contexto: {0:F2} ms.",
-                    elapsed.Elapsed.TotalMilliseconds);
-            }
+            channel.OperationTimeout = _recoveryRequestTimeout;
+            send();
+            RestoreOperationTimeoutIfOpened(channel, originalTimeout);
+            _log.DebugFormat(
+                "Solicitud WCF de vinculación o contexto: {0:F2} ms.",
+                elapsed.Elapsed.TotalMilliseconds);
         }
     }
 }

@@ -14,11 +14,10 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </local:LocalizableScreen.Resources>
-
     <Grid Background="{StaticResource Brush_BackgroundDark}">
         <ScrollViewer x:Name="scrForm" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <Border Style="{StaticResource ModerationCardBorderStyle}">
-                <StackPanel>
+                <StackPanel IsEnabled="{Binding CanEdit}">
                     <Border Style="{StaticResource ModerationTargetBorderStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -26,122 +25,97 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0" Style="{StaticResource ModerationTargetAvatarBorderStyle}">
-                                <TextBlock Text="🐱"
-                                           Style="{StaticResource ModerationTargetAvatarEmojiStyle}" />
+                                <TextBlock Text="🐱" Style="{StaticResource ModerationTargetAvatarEmojiStyle}" />
                             </Border>
                             <StackPanel Grid.Column="1" Style="{StaticResource ModerationTargetInfoPanelStyle}">
-                                <TextBlock x:Name="lblTargetPlayerName"
-                                           Style="{StaticResource ModerationTargetNameTextStyle}" />
+                                <TextBlock Text="{Binding TargetPlayerName}" Style="{StaticResource ModerationTargetNameTextStyle}" />
                                 <TextBlock Text="{DynamicResource Moderation_TargetSubtitleLabel}"
                                            Style="{StaticResource ModerationTargetSubtitleTextStyle}" />
                             </StackPanel>
                         </Grid>
                     </Border>
-
-                    <UniformGrid Style="{StaticResource ModerationTabsGridStyle}">
-                        <Button x:Name="btnReportTab"
-                                Content="{DynamicResource Moderation_ReportTabButton}"
-                                Style="{StaticResource ModerationTabInactiveButtonStyle}"
-                                Command="{Binding ReportTabCommand}" />
-                        <Button x:Name="btnBlockTab"
-                                Content="{DynamicResource Moderation_BlockTabButton}"
-                                Style="{StaticResource ModerationTabInactiveButtonStyle}"
-                                Command="{Binding BlockTabCommand}" />
+                    <UniformGrid x:Name="grdModerationTabs" Style="{StaticResource ModerationTabsGridStyle}">
+                        <Button x:Name="btnReportTab" Content="{DynamicResource Moderation_ReportTabButton}"
+                                Style="{StaticResource ModerationTabInactiveButtonStyle}" Command="{Binding ReportTabCommand}" />
+                        <Button x:Name="btnBlockTab" Content="{DynamicResource Moderation_BlockTabButton}"
+                                Style="{StaticResource ModerationTabInactiveButtonStyle}" Command="{Binding BlockTabCommand}" />
                     </UniformGrid>
-
                     <StackPanel x:Name="pnlReportForm">
-                        <TextBlock Text="{DynamicResource Moderation_ReportTitle}"
-                                   Style="{StaticResource ModerationReportTitleTextStyle}" />
-
-                        <TextBlock Text="{DynamicResource Moderation_ReasonLabel}"
-                                   Style="{StaticResource FieldLabelTextStyle}" />
-                        <ComboBox x:Name="cmbReportReason" Style="{StaticResource DarkComboBoxStyle}">
-                            <ComboBoxItem Content="{DynamicResource Moderation_ReasonAbusiveLanguageLabel}" />
-                            <ComboBoxItem Content="{DynamicResource Moderation_ReasonHarassmentLabel}" />
-                            <ComboBoxItem Content="{DynamicResource Moderation_ReasonCheatingLabel}" />
-                            <ComboBoxItem Content="{DynamicResource Moderation_ReasonSpamLabel}" />
-                            <ComboBoxItem Content="{DynamicResource Moderation_ReasonInappropriateIdentityLabel}" />
-                            <ComboBoxItem Content="{DynamicResource Moderation_ReasonOtherLabel}" />
+                        <TextBlock Text="{DynamicResource Moderation_ReportTitle}" Style="{StaticResource ModerationReportTitleTextStyle}" />
+                        <TextBlock Text="{DynamicResource Moderation_ReasonLabel}" Style="{StaticResource FieldLabelTextStyle}" />
+                        <ComboBox x:Name="cmbReportReason" Style="{StaticResource DarkComboBoxStyle}"
+                                  SelectedValuePath="Tag" SelectedValue="{Binding ReportReasonCode, Mode=TwoWay}">
+                            <ComboBoxItem Tag="OffensiveLanguage" Content="{DynamicResource Moderation_ReasonAbusiveLanguageLabel}" />
+                            <ComboBoxItem Tag="Harassment" Content="{DynamicResource Moderation_ReasonHarassmentLabel}" />
+                            <ComboBoxItem Tag="Cheating" Content="{DynamicResource Moderation_ReasonCheatingLabel}" />
+                            <ComboBoxItem Tag="Spam" Content="{DynamicResource Moderation_ReasonSpamLabel}" />
+                            <ComboBoxItem Tag="InappropriateName" Content="{DynamicResource Moderation_ReasonInappropriateIdentityLabel}" />
+                            <ComboBoxItem Tag="Other" Content="{DynamicResource Moderation_ReasonOtherLabel}" />
                         </ComboBox>
-
                         <StackPanel Style="{StaticResource ModerationDetailsLabelPanelStyle}">
-                            <TextBlock Text="{DynamicResource Moderation_DetailsLabel}"
-                                       Style="{StaticResource ModerationDetailsLabelTextStyle}" />
-                            <TextBlock Text="{DynamicResource Moderation_OptionalLabel}"
-                                       Style="{StaticResource ModerationOptionalLabelTextStyle}" />
+                            <TextBlock Text="{DynamicResource Moderation_DetailsLabel}" Style="{StaticResource ModerationDetailsLabelTextStyle}" />
+                            <TextBlock Text="{DynamicResource Moderation_OptionalLabel}" Style="{StaticResource ModerationOptionalLabelTextStyle}" />
                         </StackPanel>
-                        <TextBox x:Name="txtReportDetails"
-                                 MaxLength="250"
-                                 Tag="{DynamicResource Moderation_DetailsPlaceholder}"
-                                 Style="{StaticResource ModerationDetailsInputStyle}" />
-
-                        <TextBlock Text="{DynamicResource Moderation_ReportDisclaimerMessage}"
-                                   Style="{StaticResource ModerationDisclaimerTextStyle}" />
-
+                        <TextBox x:Name="txtReportDetails" MaxLength="250"
+                                 Text="{Binding ReportComment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Tag="{DynamicResource Moderation_DetailsPlaceholder}" Style="{StaticResource ModerationDetailsInputStyle}" />
+                        <TextBlock Text="{DynamicResource Moderation_ReportDisclaimerMessage}" Style="{StaticResource ModerationDisclaimerTextStyle}" />
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0"
-                                    x:Name="btnSubmitReport"
-                                    Content="{DynamicResource Moderation_SubmitReportButton}"
-                                    Style="{StaticResource ModerationSubmitButtonStyle}"
-                                    Command="{Binding SubmitCommand}" />
-                            <Button Grid.Column="1"
-                                    x:Name="btnCancelReport"
-                                    Content="{DynamicResource Moderation_CancelButton}"
-                                    Style="{StaticResource ModerationCancelButtonStyle}"
-                                    Command="{Binding ReturnCommand}" />
+                            <Button Grid.Column="0" x:Name="btnSubmitReport" Content="{DynamicResource Moderation_SubmitReportButton}"
+                                    Style="{StaticResource ModerationSubmitButtonStyle}" Command="{Binding SubmitCommand}" />
+                            <Button Grid.Column="1" x:Name="btnCancelReport" Content="{DynamicResource Moderation_CancelButton}"
+                                    Style="{StaticResource ModerationCancelButtonStyle}" Command="{Binding ReturnCommand}" />
                         </Grid>
                     </StackPanel>
-
                     <StackPanel x:Name="pnlBlockForm" Visibility="Collapsed">
-                        <TextBlock Text="{DynamicResource Moderation_BlockTitle}"
-                                   Style="{StaticResource ModerationBlockTitleTextStyle}" />
-
+                        <TextBlock Text="{DynamicResource Moderation_BlockTitle}" Style="{StaticResource ModerationBlockTitleTextStyle}" />
                         <Border Style="{StaticResource ModerationBlockMessageBorderStyle}">
                             <StackPanel>
-                                <TextBlock x:Name="lblBlockMessage"
-                                           Style="{StaticResource ModerationBlockMessageTextStyle}" />
-                                <TextBlock Text="{DynamicResource Moderation_BlockUnblockHint}"
-                                           Style="{StaticResource ModerationBlockHintTextStyle}" />
+                                <TextBlock x:Name="lblBlockMessage" Style="{StaticResource ModerationBlockMessageTextStyle}" />
+                                <TextBlock Text="{DynamicResource Moderation_BlockUnblockHint}" Style="{StaticResource ModerationBlockHintTextStyle}" />
                             </StackPanel>
                         </Border>
-
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0"
-                                    x:Name="btnConfirmBlock"
-                                    Content="{DynamicResource Moderation_ConfirmBlockButton}"
-                                    Style="{StaticResource ModerationConfirmBlockButtonStyle}"
-                                    Command="{Binding SubmitCommand}" />
-                            <Button Grid.Column="1"
-                                    x:Name="btnCancelBlock"
-                                    Content="{DynamicResource Moderation_CancelButton}"
-                                    Style="{StaticResource ModerationCancelButtonStyle}"
-                                    Command="{Binding ReturnCommand}" />
+                            <Button Grid.Column="0" x:Name="btnConfirmBlock" Content="{DynamicResource Moderation_ConfirmBlockButton}"
+                                    Style="{StaticResource ModerationConfirmBlockButtonStyle}" Command="{Binding SubmitCommand}" />
+                            <Button Grid.Column="1" x:Name="btnCancelBlock" Content="{DynamicResource Moderation_CancelButton}"
+                                    Style="{StaticResource ModerationCancelButtonStyle}" Command="{Binding ReturnCommand}" />
+                        </Grid>
+                    </StackPanel>
+                    <StackPanel x:Name="pnlVoteForm" Visibility="Collapsed">
+                        <TextBlock Text="{DynamicResource Moderation_VoteTitle}" Style="{StaticResource ModerationBlockTitleTextStyle}" />
+                        <Border Style="{StaticResource ModerationBlockMessageBorderStyle}">
+                            <TextBlock Text="{DynamicResource Moderation_VoteExplanation}" Style="{StaticResource ModerationBlockMessageTextStyle}" />
+                        </Border>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="{DynamicResource Moderation_VoteButton}"
+                                    Style="{StaticResource ModerationConfirmBlockButtonStyle}" Command="{Binding SubmitCommand}" />
+                            <Button Grid.Column="1" Content="{DynamicResource Moderation_CancelButton}"
+                                    Style="{StaticResource ModerationCancelButtonStyle}" Command="{Binding ReturnCommand}" />
                         </Grid>
                     </StackPanel>
                 </StackPanel>
             </Border>
         </ScrollViewer>
-
         <Border x:Name="brdSuccessCard" Style="{StaticResource ModerationSuccessCardBorderStyle}">
             <StackPanel>
-                <TextBlock Text="✅"
-                           Style="{StaticResource ModerationSuccessEmojiStyle}" />
-                <TextBlock x:Name="lblSuccessTitle"
-                           Style="{StaticResource ModerationSuccessTitleTextStyle}" />
-                <TextBlock x:Name="lblSuccessMessage"
-                           Style="{StaticResource ModerationSuccessMessageTextStyle}" />
-                <Button x:Name="btnReturnToGame"
-                        Content="{DynamicResource Moderation_ReturnToGameButton}"
-                        Style="{StaticResource ModerationReturnButtonStyle}"
-                        Command="{Binding ReturnCommand}" />
+                <TextBlock Text="✅" Style="{StaticResource ModerationSuccessEmojiStyle}" />
+                <TextBlock x:Name="lblSuccessTitle" Style="{StaticResource ModerationSuccessTitleTextStyle}" />
+                <TextBlock x:Name="lblSuccessMessage" Style="{StaticResource ModerationSuccessMessageTextStyle}" />
+                <Button x:Name="btnReturnToGame" Content="{DynamicResource Moderation_ReturnButton}"
+                        Style="{StaticResource ModerationReturnButtonStyle}" Command="{Binding ReturnCommand}" />
             </StackPanel>
         </Border>
     </Grid>

@@ -1,9 +1,10 @@
-using log4net;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+
+using log4net;
+
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
 using TLMG.Client.Navigation;
@@ -19,11 +20,16 @@ namespace TLMG.Client
         private const string RoomInvitationTitleKey = "Common_RoomInvitationTitle";
         private const string RoomInvitationMessageFormatKey = "Common_RoomInvitationMessageFormat";
         private const string ErrorTitleKey = "Common_ErrorTitle";
-
+        private const string PlayerExpelledMessageKey = "Moderation_PlayerExpelledMessage";
+        private const string UnexpectedErrorKey = "Common_UnexpectedError";
+        private const string InvitationNameFormat = "{0}";
+        private const int NoRoomId = 0;
+        private const int NoInvitationId = 0;
         private static readonly ILog _log = LogManager.GetLogger(typeof(MainWindow));
 
         private readonly HashSet<Guid> _enteredMatchIds = new HashSet<Guid>();
         private Guid? _displayedMatchId;
+        private bool _isInvitationDialogOpen;
 
         public MainWindow(MainWindowViewModel mainWindowViewModel)
         {
@@ -36,6 +42,7 @@ namespace TLMG.Client
             ServerConnection.LobbyRoomChanged += OnAuthorizedRoomChanged;
             ServerConnection.MatchRecoveryReady += OnMatchRecoveryReady;
             ServerConnection.MatchContextEnded += OnMatchContextEnded;
+            ServerConnection.Moderation.PlayerExpelled += OnPlayerExpelled;
             ServerConnection.ChatErrorReceived += OnChatErrorReceived;
             Closed += OnMainWindowClosed;
             LoadingScreen loadingScreen = new LoadingScreen();
@@ -68,6 +75,7 @@ namespace TLMG.Client
             ServerConnection.LobbyRoomChanged -= OnAuthorizedRoomChanged;
             ServerConnection.MatchRecoveryReady -= OnMatchRecoveryReady;
             ServerConnection.MatchContextEnded -= OnMatchContextEnded;
+            ServerConnection.Moderation.PlayerExpelled -= OnPlayerExpelled;
             ServerConnection.ConnectionLost -= OnServerConnectionLost;
             ServerConnection.RoomInvitationReceived -= OnRoomInvitationReceived;
             ServerConnection.AcceptInvitationResultReceived -= OnAcceptInvitationResultReceived;
@@ -95,19 +103,44 @@ namespace TLMG.Client
 
         private void OnRoomInvitationReceived(object sender, ServerEventArgs<RoomInvitation> serverEventArguments)
         {
-            RoomInvitation roomInvitation = serverEventArguments.Payload;
-            string invitationFormat = TryFindResource(RoomInvitationMessageFormatKey) as string ?? "{0}";
-            string inviterName = DisplayNameHelper.Resolve(roomInvitation.InviterUserId, roomInvitation.InviterNickname);
+            RoomInvitation roomInvitation = serverEventArguments?.Payload;
 
-            MessageBoxResult invitationAnswer = MessageBox.Show(
-                string.Format(invitationFormat, inviterName),
-                TryFindResource(RoomInvitationTitleKey) as string,
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (invitationAnswer == MessageBoxResult.Yes)
+            if (roomInvitation == null || roomInvitation.InvitationId <= NoInvitationId)
             {
-                ServerConnection.AcceptRoomInvitation(roomInvitation.InvitationId);
+                _log.Warn("Invalid room invitation received.");
+            }
+            else if (!_isInvitationDialogOpen && ServerConnection.CanReceiveRoomInvitation)
+            {
+                ShowRoomInvitation(roomInvitation);
+            }
+        }
+
+        private void ShowRoomInvitation(RoomInvitation roomInvitation)
+        {
+            string sessionToken = ServerConnection.SessionToken;
+            _isInvitationDialogOpen = true;
+
+            try
+            {
+                string invitationFormat = TryFindResource(RoomInvitationMessageFormatKey) as string
+                    ?? InvitationNameFormat;
+                MessageBoxResult invitationAnswer = MessageBox.Show(this,
+                    string.Format(invitationFormat, roomInvitation.InviterNickname),
+                    TryFindResource(RoomInvitationTitleKey) as string,
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (invitationAnswer == MessageBoxResult.Yes && ServerConnection.SessionToken == sessionToken)
+                {
+                    if (!ServerConnection.AcceptRoomInvitation(roomInvitation.InvitationId))
+                    {
+                        ShowServerError(UnexpectedErrorKey);
+                    }
+                }
+            }
+            finally
+            {
+                _isInvitationDialogOpen = false;
             }
         }
 
@@ -115,13 +148,27 @@ namespace TLMG.Client
             object sender,
             ServerEventArgs<OperationAcceptRoomInvitationResult> serverEventArguments)
         {
-            if (serverEventArguments.Payload.IsSuccess)
+            OperationAcceptRoomInvitationResult result = ServerConnectionManager.NormalizeOperationResult(
+                serverEventArguments?.Payload);
+
+            if (result.IsSuccess && result.RoomId > NoRoomId && ServerConnection.HasSession)
             {
-                ServerConnection.EnterLobby(serverEventArguments.Payload.RoomId);
+                if (!ServerConnection.EnterLobby(result.RoomId))
+                {
+                    ShowServerError(UnexpectedErrorKey);
+                }
             }
-            else
+            else if (ServerConnection.HasSession)
             {
-                ShowServerError(serverEventArguments.Payload.ErrorKey);
+                if (result.IsSuccess)
+                {
+                    _log.Warn("Successful invitation response did not identify a room.");
+                    ShowServerError(UnexpectedErrorKey);
+                }
+                else
+                {
+                    ShowServerError(result.ErrorKey);
+                }
             }
         }
 
@@ -129,28 +176,40 @@ namespace TLMG.Client
             object sender,
             ServerEventArgs<OperationLobbyRoomResult> serverEventArguments)
         {
-            bool hasEnteredRoom = serverEventArguments.Payload.IsSuccess && ServerConnection.CurrentRoom != null;
+            OperationLobbyRoomResult result = ServerConnectionManager.NormalizeOperationResult(
+                serverEventArguments?.Payload);
+            LobbyRoom currentRoom = ServerConnection.CurrentRoom;
 
-            if (hasEnteredRoom)
+            if (ServerConnection.HasSession)
             {
-                if (!ServerConnection.CurrentRoom.InGame)
+                if (result.IsSuccess && result.Room != null && currentRoom != null
+                    && result.Room.RoomId == currentRoom.RoomId)
                 {
-                    ClearHistory();
-                    Navigation.NavigateToWithoutHistory(ScreenId.Lobby);
+                    if (!currentRoom.InGame)
+                    {
+                        ClearHistory();
+                        Navigation.NavigateToWithoutHistory(ScreenId.Lobby);
+                    }
                 }
-            }
-            else if (!serverEventArguments.Payload.IsSuccess)
-            {
-                ShowServerError(serverEventArguments.Payload.ErrorKey);
+                else if (!result.IsSuccess)
+                {
+                    ShowServerError(result.ErrorKey);
+                }
+                else
+                {
+                    _log.Warn("Room entry confirmation did not match the current room.");
+                    ShowServerError(UnexpectedErrorKey);
+                }
             }
         }
 
         private void OnAuthorizedRoomChanged(object sender, ServerEventArgs<LobbyRoom> eventArguments)
         {
-            LobbyRoom room = eventArguments.Payload;
+            LobbyRoom room = eventArguments?.Payload;
             bool hasMatch = room != null && room.MatchId.HasValue;
             bool isAuthorized = hasMatch && room.InGame;
-            bool isKnownMode = hasMatch && (room.CardsPerPlayerCount == MatchModeSettings.FourCardsPerPlayer
+            bool isKnownMode = hasMatch &&
+                (room.CardsPerPlayerCount == MatchModeSettings.FourCardsPerPlayer
                 || room.CardsPerPlayerCount == MatchModeSettings.SixCardsPerPlayer
                 || room.CardsPerPlayerCount == MatchModeSettings.EightCardsPerPlayer);
 
@@ -168,8 +227,7 @@ namespace TLMG.Client
 
             if (room.CardsPerPlayerCount == MatchModeSettings.EightCardsPerPlayer)
             {
-                Navigation.NavigateToWithoutHistory(
-                    ScreenId.FugitiveKitten, room.MatchId.Value);
+                Navigation.NavigateToWithoutHistory(ScreenId.FugitiveKitten, room.MatchId.Value);
             }
             else if (room.CardsPerPlayerCount == MatchModeSettings.FourCardsPerPlayer
                 || room.CardsPerPlayerCount == MatchModeSettings.SixCardsPerPlayer)
@@ -185,30 +243,53 @@ namespace TLMG.Client
             Navigation.NavigateToWithoutHistory(ScreenId.MainMenu);
         }
 
+        private void OnPlayerExpelled(object sender, ServerEventArgs<int> eventArguments)
+        {
+            if (eventArguments != null && eventArguments.Payload > NoRoomId && ServerConnection.HasSession)
+            {
+                OnMatchContextEnded(sender, eventArguments);
+                MessageBox.Show(TryFindResource(PlayerExpelledMessageKey) as string);
+            }
+        }
+
         private void OnMatchRecoveryReady(object sender, ServerEventArgs<MatchView> args)
         {
-            MatchView view = args.Payload;
-            if (view == null || ServerConnection.CurrentRoom?.MatchId != view.MatchId
-                || !ServerConnection.IsMatchSubscribed)
-            {
-                return;
-            }
+            MatchView view = args?.Payload;
+            bool canRestoreMatch = view != null && ServerConnection.CurrentRoom?.MatchId == view.MatchId
+                && ServerConnection.IsMatchSubscribed;
 
-            bool sameMatch = _displayedMatchId == view.MatchId;
-            _enteredMatchIds.Add(view.MatchId);
-            _displayedMatchId = view.MatchId;
-            Navigation.ClearHistory();
-            if (view.Phase == MatchRoundPhase.MatchFinished)
+            if (canRestoreMatch)
             {
-                if (!sameMatch || !(Navigation.CurrentView is GameOverScreen))
+                bool sameMatch = _displayedMatchId == view.MatchId;
+                _enteredMatchIds.Add(view.MatchId);
+                _displayedMatchId = view.MatchId;
+                Navigation.ClearHistory();
+
+                if (view.Phase == MatchRoundPhase.MatchFinished)
                 {
-                    Navigation.NavigateToWithoutHistory(ScreenId.GameOver, view);
+                    if (!sameMatch || !(Navigation.CurrentView is GameOverScreen))
+                    {
+                        Navigation.NavigateToWithoutHistory(ScreenId.GameOver, view);
+                    }
                 }
-                return;
+                else
+                {
+                    NavigateToRecoveredMatch(view, sameMatch);
+                }
+            }
+        }
+
+        private void NavigateToRecoveredMatch(MatchView view, bool sameMatch)
+        {
+            bool isSpectator = false;
+            foreach (MatchPlayerView player in view.Players ?? Array.Empty<MatchPlayerView>())
+            {
+                if (player != null && player.UserId == ServerConnection.PlayerUserId && player.IsEliminated)
+                {
+                    isSpectator = true;
+                }
             }
 
-            bool isSpectator = (view.Players ?? Array.Empty<MatchPlayerView>()).Any(
-                player => player.UserId == ServerConnection.PlayerUserId && player.IsEliminated);
             if (!isSpectator && view.FugitiveKitten?.Result == FugitiveKittenResult.InProgress)
             {
                 if (!sameMatch || !(Navigation.CurrentView is FugitiveKittenScreen))
@@ -224,11 +305,17 @@ namespace TLMG.Client
 
         private void OnChatErrorReceived(object sender, ServerEventArgs<string> eventArguments)
         {
-            ShowServerError(eventArguments.Payload);
+            ShowServerError(eventArguments?.Payload);
         }
 
         private void ShowServerError(string errorKey)
         {
+            if (string.IsNullOrWhiteSpace(errorKey))
+            {
+                _log.Warn("Missing error key in server notification.");
+                errorKey = UnexpectedErrorKey;
+            }
+
             MessageBox.Show(
                 ErrorMessageHelper.FindErrorMessage(this, errorKey),
                 TryFindResource(ErrorTitleKey) as string,

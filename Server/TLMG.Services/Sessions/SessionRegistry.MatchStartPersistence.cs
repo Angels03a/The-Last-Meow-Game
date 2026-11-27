@@ -129,7 +129,11 @@ namespace TLMG.Services.Sessions
         {
             LobbyMembershipChange lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.NotAuthorized);
 
-            if (matchStartPreparation != null && matchStartPreparation.GameRegistration != null)
+            if (matchStartPreparation != null
+                && matchStartPreparation.GameRegistration != null
+                && matchStartPreparation.LobbyMembershipChange != null
+                && matchStartPreparation.LobbyMembershipChange.Status == LobbyChangeStatus.Applied
+                && matchStartPreparation.LobbyMembershipChange.Room != null)
             {
                 int roomId = matchStartPreparation.LobbyMembershipChange.RoomId;
                 PlayerSession playerSession;
@@ -139,28 +143,38 @@ namespace TLMG.Services.Sessions
                     && ReferenceEquals(pendingMatchStart.GameRegistration, matchStartPreparation.GameRegistration);
                 GameRegistrationStatus registrationStatus = ResolveRegistrationStatus(gameRegistrationResult);
 
-                lobbyMembershipChange = null;
+                bool shouldApplyRegistration = false;
 
                 if (isCurrentReservation)
                 {
                     bool canPublish = lobbyChangeStatus == LobbyChangeStatus.Applied
-                        && CanAuthorizeMatchStartInLock(roomId, matchStartPreparation.LobbyMembershipChange.Room.Start.CountdownId, _readUtcNow());
+                        && CanAuthorizeMatchStartInLock(
+                            roomId,
+                            matchStartPreparation.LobbyMembershipChange.Room.Start.CountdownId,
+                            _readUtcNow());
 
-                    if (canPublish && !pendingMatchStart.HasDefinitiveRejection)
+                    if (canPublish)
                     {
-                        lobbyMembershipChange = ApplyRegistrationResultInLock(playerSession.UserId, roomId, registrationStatus);
+                        shouldApplyRegistration = !pendingMatchStart.HasDefinitiveRejection;
                     }
-                    else if (!canPublish)
+                    else
                     {
                         InvalidatePendingMatchStartInLock(roomId);
                     }
                 }
 
-                if (lobbyMembershipChange == null)
+                if (shouldApplyRegistration)
                 {
-                    lobbyMembershipChange = lobbyChangeStatus == LobbyChangeStatus.Applied
-                        ? CopyCurrentMatchStartInLock(playerSession.UserId, roomId)
-                        : CreateRejectedWithoutUser(lobbyChangeStatus);
+                    lobbyMembershipChange = ApplyRegistrationResultInLock(
+                        playerSession.UserId, roomId, registrationStatus);
+                }
+                else if (lobbyChangeStatus == LobbyChangeStatus.Applied)
+                {
+                    lobbyMembershipChange = CopyCurrentMatchStartInLock(playerSession.UserId, roomId);
+                }
+                else
+                {
+                    lobbyMembershipChange = CreateRejectedWithoutUser(lobbyChangeStatus);
                 }
 
                 if (registrationStatus == GameRegistrationStatus.RegistrationConflict)
@@ -205,7 +219,8 @@ namespace TLMG.Services.Sessions
             MatchRecord matchRecord = CreateMatchRecordInLock(gameRegistration.MatchId, roomId, publicationTimeUtc);
             LobbyStartState authorizedStart = CreateAuthorizedStart(startState, gameRegistration.MatchId, gameRegistration.StartedAtUtc);
             LobbyMembershipChange lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
-                userId, roomId, CreateRoomSnapshot(roomId, members, authorizedStart), CopyCallbacks(members));
+                userId,
+                new LobbyRoomUpdate(roomId, CreateRoomSnapshot(roomId, members, authorizedStart), CopyCallbacks(members)));
 
             _matchesById[gameRegistration.MatchId] = matchRecord;
             _startsByRoomId[roomId] = authorizedStart;
@@ -216,7 +231,8 @@ namespace TLMG.Services.Sessions
         private LobbyMembershipChange CopyCurrentMatchStartInLock(int userId, int roomId)
         {
             LobbyMembershipChange lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
-                userId, roomId, CreateRoomSnapshot(roomId, _membersByRoomId[roomId]));
+                userId,
+                new LobbyRoomUpdate(roomId, CreateRoomSnapshot(roomId, _membersByRoomId[roomId])));
 
             return lobbyMembershipChange;
         }

@@ -3,11 +3,11 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 
+using TLMG.Client.Models;
 using TLMG.Client.ViewModels;
 
 namespace TLMG.Client.Views
 {
-    /// <summary>Displays match state from the ViewModel and handles the player context menu.</summary>
     public partial class GameplayScreen : LocalizableScreen
     {
         private const string RoundPhaseFormatKey = "Gameplay_RoundPhaseFormat";
@@ -17,8 +17,6 @@ namespace TLMG.Client.Views
         private const double ContextMenuHeightPixels = 200;
 
         private readonly GameplayViewModel _viewModel;
-
-        /// <summary>Connects the match view to its ViewModel.</summary>
         public GameplayScreen(GameplayViewModel viewModel)
         {
             InitializeComponent();
@@ -57,11 +55,11 @@ namespace TLMG.Client.Views
         private void PnlOpponent_MouseRightButtonUp(object sender, MouseButtonEventArgs eventArguments)
         {
             FrameworkElement opponentPanel = sender as FrameworkElement;
-            string opponentName = opponentPanel?.Tag?.ToString();
+            MatchPlayerEntry opponent = opponentPanel?.DataContext as MatchPlayerEntry;
 
-            if (!string.IsNullOrWhiteSpace(opponentName))
+            if (opponent != null)
             {
-                _viewModel.SelectedPlayerName = opponentName;
+                _viewModel.SelectedPlayer = opponent;
                 ShowPlayerContextMenu(eventArguments.GetPosition(grdTable));
             }
         }
@@ -78,8 +76,6 @@ namespace TLMG.Client.Views
 
         private void OnScreenLoaded(object sender, RoutedEventArgs eventArguments)
         {
-            _viewModel.KickVoteRequested -= OnKickVoteRequested;
-            _viewModel.KickVoteRequested += OnKickVoteRequested;
             _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;
             UpdateDynamicLabels();
@@ -88,14 +84,8 @@ namespace TLMG.Client.Views
 
         private void OnScreenUnloaded(object sender, RoutedEventArgs eventArguments)
         {
-            _viewModel.KickVoteRequested -= OnKickVoteRequested;
             _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
             _viewModel.Deactivate();
-        }
-
-        private void OnKickVoteRequested(object sender, EventArgs eventArguments)
-        {
-            HidePlayerContextMenu();
         }
 
         private void ShowPlayerContextMenu(Point clickPosition)

@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Data.Entity.Core;
+using System.Data;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using System.Linq;
@@ -7,8 +8,10 @@ using System.Linq;
 using log4net;
 
 using TLMG.DataAccess.DatabaseModel;
-using TLMG.Domain.Entities;
+using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
+
+using PlayerProfileUpdate = TLMG.Domain.Entities.PlayerProfileUpdate;
 
 namespace TLMG.DataAccess.Repositories
 {
@@ -21,44 +24,40 @@ namespace TLMG.DataAccess.Repositories
 
         public PlayerProfileLookup FindProfileByUserId(int userId)
         {
-            PlayerProfileLookup profileLookup;
+            PlayerProfileLookup profileLookup = CreateEmptyLookup(PlayerProfileLookupStatus.DataFailure);
 
             try
             {
                 using (TLMG_DBEntities context = new TLMG_DBEntities())
+                using (DbContextTransaction transaction = context.Database.BeginTransaction(IsolationLevel.Serializable))
                 {
-                    IQueryable<PlayerProfileLookup> profileQuery = from user in context.User.AsNoTracking()
-                                                                   where user.id_user == userId
-                                                                   select new PlayerProfileLookup
-                                                                   {
-                                                                       Status = PlayerProfileLookupStatus.Found,
-                                                                       Nickname = user.nickname,
-                                                                       Email = user.email,
-                                                                       AvatarKey = user.profile_image,
-                                                                       PasswordChangedAtUtc = user.password_changed_at
-                                                                   };
+                    PlayerProfileLookup storedProfile = ReadProfile(context, userId);
 
-                    profileLookup = profileQuery.FirstOrDefault();
-                }
+                    if (storedProfile == null)
+                    {
+                        storedProfile = CreateEmptyLookup(PlayerProfileLookupStatus.NotFound);
+                    }
+                    else if (!TryPopulateStatistics(context, userId, storedProfile))
+                    {
+                        storedProfile = CreateEmptyLookup(PlayerProfileLookupStatus.DataFailure);
+                        _log.WarnFormat("No valid statistics were found for player {0}.", userId);
+                    }
+                    else
+                    {
+                        storedProfile.Status = PlayerProfileLookupStatus.Found;
+                    }
 
-                if (profileLookup == null)
-                {
-                    profileLookup = CreateEmptyLookup(PlayerProfileLookupStatus.NotFound);
+                    transaction.Commit();
+                    profileLookup = storedProfile;
                 }
             }
             catch (SqlException sqlException)
             {
-                _log.Error(
-                    string.Format("Error de conexión al consultar el perfil del jugador {0}.", userId),
-                    sqlException);
-                profileLookup = CreateEmptyLookup(PlayerProfileLookupStatus.DataFailure);
+                _log.Error(string.Format("Could not read the profile of player {0}.", userId), sqlException);
             }
-            catch (EntityException entityException)
+            catch (DataException dataException)
             {
-                _log.Error(
-                    string.Format("La base de datos falló al consultar el perfil del jugador {0}.", userId),
-                    entityException);
-                profileLookup = CreateEmptyLookup(PlayerProfileLookupStatus.DataFailure);
+                _log.Error(string.Format("Profile data could not be read for player {0}.", userId), dataException);
             }
 
             return profileLookup;
@@ -66,40 +65,106 @@ namespace TLMG.DataAccess.Repositories
 
         public PlayerProfileUpdateStatus UpdateProfile(int userId, PlayerProfileUpdate profileUpdate)
         {
-            PlayerProfileUpdateStatus updateStatus;
+            PlayerProfileUpdateStatus updateStatus = PlayerProfileUpdateStatus.DataFailure;
 
             try
             {
                 updateStatus = SaveProfileChanges(userId, profileUpdate);
             }
-            catch (DbUpdateException dbUpdateException) when (IsDuplicateKeyViolation(dbUpdateException))
-            {
-                _log.WarnFormat("El nickname solicitado por el jugador {0} ya está en uso.", userId);
-                updateStatus = PlayerProfileUpdateStatus.NicknameTaken;
-            }
             catch (DbUpdateException dbUpdateException)
             {
-                _log.Error(
-                    string.Format("Error al guardar el perfil del jugador {0}.", userId),
-                    dbUpdateException);
-                updateStatus = PlayerProfileUpdateStatus.DataFailure;
+                if (IsDuplicateKeyViolation(dbUpdateException))
+                {
+                    _log.WarnFormat("The nickname requested by player {0} is already in use.", userId);
+                    updateStatus = PlayerProfileUpdateStatus.NicknameTaken;
+                }
+                else
+                {
+                    _log.Error(string.Format("Could not save the profile of player {0}.", userId), dbUpdateException);
+                }
             }
             catch (SqlException sqlException)
             {
-                _log.Error(
-                    string.Format("Error de conexión al guardar el perfil del jugador {0}.", userId),
-                    sqlException);
-                updateStatus = PlayerProfileUpdateStatus.DataFailure;
+                _log.Error(string.Format("Could not save the profile of player {0}.", userId), sqlException);
             }
-            catch (EntityException entityException)
+            catch (DataException dataException)
             {
-                _log.Error(
-                    string.Format("La base de datos falló al guardar el perfil del jugador {0}.", userId),
-                    entityException);
-                updateStatus = PlayerProfileUpdateStatus.DataFailure;
+                _log.Error(string.Format("Profile data could not be saved for player {0}.", userId), dataException);
             }
 
             return updateStatus;
+        }
+
+        public PlayerExistenceLookupStatus FindNicknameExistenceStatusForOtherUsers(int userId, string nickname)
+        {
+            PlayerExistenceLookupStatus existenceStatus = PlayerExistenceLookupStatus.DataFailure;
+
+            try
+            {
+                using (TLMG_DBEntities context = new TLMG_DBEntities())
+                {
+                    bool nicknameExists = (from user in context.User.AsNoTracking()
+                                           where user.nickname == nickname && user.id_user != userId
+                                           select user).Any();
+
+                    existenceStatus = PlayerExistenceLookupStatus.NotFound;
+
+                    if (nicknameExists)
+                    {
+                        existenceStatus = PlayerExistenceLookupStatus.Exists;
+                    }
+                }
+            }
+            catch (SqlException sqlException)
+            {
+                _log.Error("Could not check profile nickname availability.", sqlException);
+            }
+            catch (DataException dataException)
+            {
+                _log.Error("Profile nickname availability could not be read.", dataException);
+            }
+
+            return existenceStatus;
+        }
+
+        private static PlayerProfileLookup ReadProfile(TLMG_DBEntities context, int userId)
+        {
+            PlayerProfileLookup profileLookup = (
+                from user in context.User.AsNoTracking()
+                where user.id_user == userId
+                select new PlayerProfileLookup
+                {
+                    Nickname = user.nickname,
+                    Email = user.email,
+                    AvatarKey = user.profile_image,
+                    PasswordChangedAtUtc = user.password_changed_at
+                }).FirstOrDefault();
+
+            return profileLookup;
+        }
+
+        private static bool TryPopulateStatistics(TLMG_DBEntities context, int userId, PlayerProfileLookup profile)
+        {
+            const int MinimumRank = 1;
+            IQueryable<Player> activePlayers = PlayerRankingQuery.FindActivePlayers(context);
+            Player currentPlayer = (from player in activePlayers
+                                    where player.id_user == userId
+                                    select player).FirstOrDefault();
+            bool hasStatistics = currentPlayer != null
+                && currentPlayer.total_points >= ValidationRules.InitialStatisticValue
+                && currentPlayer.total_wins >= ValidationRules.InitialStatisticValue
+                && currentPlayer.total_games_played >= currentPlayer.total_wins;
+
+            if (hasStatistics)
+            {
+                profile.TotalPoints = currentPlayer.total_points;
+                profile.TotalWins = currentPlayer.total_wins;
+                profile.TotalGamesPlayed = currentPlayer.total_games_played;
+                profile.PersonalRank = PlayerRankingQuery.FindRank(activePlayers, currentPlayer);
+                hasStatistics = profile.PersonalRank >= MinimumRank;
+            }
+
+            return hasStatistics;
         }
 
         private static PlayerProfileUpdateStatus SaveProfileChanges(int userId, PlayerProfileUpdate profileUpdate)
@@ -152,40 +217,6 @@ namespace TLMG.DataAccess.Repositories
             PlayerProfileLookup emptyLookup = new PlayerProfileLookup { Status = status };
 
             return emptyLookup;
-        }
-
-        public PlayerExistenceLookupStatus FindNicknameExistenceStatusForOtherUsers(int userId, string nickname)
-        {
-            PlayerExistenceLookupStatus existenceStatus;
-
-            try
-            {
-                using (TLMG_DBEntities context = new TLMG_DBEntities())
-                {
-                    bool nicknameExists = (from user in context.User.AsNoTracking()
-                                           where user.nickname == nickname && user.id_user != userId
-                                           select user).Any();
-
-                    existenceStatus = PlayerExistenceLookupStatus.NotFound;
-
-                    if (nicknameExists)
-                    {
-                        existenceStatus = PlayerExistenceLookupStatus.Exists;
-                    }
-                }
-            }
-            catch (SqlException sqlException)
-            {
-                _log.Error("Error de conexión al comprobar el nickname de un perfil.", sqlException);
-                existenceStatus = PlayerExistenceLookupStatus.DataFailure;
-            }
-            catch (EntityException entityException)
-            {
-                _log.Error("La base de datos falló al comprobar el nickname de un perfil.", entityException);
-                existenceStatus = PlayerExistenceLookupStatus.DataFailure;
-            }
-
-            return existenceStatus;
         }
     }
 }

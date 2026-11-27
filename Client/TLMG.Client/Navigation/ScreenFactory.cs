@@ -10,7 +10,6 @@ using TLMG.Client.Views;
 
 namespace TLMG.Client.Navigation
 {
-    /// <summary>Composes screens with their view models and required dependencies.</summary>
     public class ScreenFactory : IScreenFactory
     {
         private const string AccountCreatedMessageKey = "CreateAccount_SuccessMessage";
@@ -47,9 +46,8 @@ namespace TLMG.Client.Navigation
         private readonly ILeaderboardConnection _leaderboardConnection;
         private readonly IProfileConnection _profileConnection;
         private readonly IPasswordConnection _passwordConnection;
+        private readonly IModerationConnection _moderationConnection;
         private VerificationNavigationParameter _activeRecoveryParameter;
-
-        /// <summary>Provides the dependencies shared by the screen composition root.</summary>
         public ScreenFactory(
             INavigationManager navigation,
             IDialogManager dialogs,
@@ -59,7 +57,8 @@ namespace TLMG.Client.Navigation
             IMatchConnection matchConnection,
             ILeaderboardConnection leaderboardConnection,
             IProfileConnection profileConnection,
-            IPasswordConnection passwordConnection)
+            IPasswordConnection passwordConnection,
+            IModerationConnection moderationConnection)
         {
             _navigationManager = navigation;
             _dialogManager = dialogs;
@@ -70,9 +69,8 @@ namespace TLMG.Client.Navigation
             _leaderboardConnection = leaderboardConnection;
             _profileConnection = profileConnection;
             _passwordConnection = passwordConnection;
+            _moderationConnection = moderationConnection;
         }
-
-        /// <inheritdoc />
         public ScreenEntry Create(ScreenId screenId, object parameter)
         {
             ScreenEntry screenEntry;
@@ -97,52 +95,57 @@ namespace TLMG.Client.Navigation
         {
             ScreenEntry screenEntry;
 
-            switch (screenId)
+            if (screenId == ScreenId.CreateAccount)
             {
-                case ScreenId.CreateAccount:
-                    CreateAccountViewModel createAccountViewModel = new CreateAccountViewModel(
-                        _navigationManager, _dialogManager, _accountsConnection);
-                    screenEntry = new ScreenEntry(new CreateAccountScreen(createAccountViewModel), createAccountViewModel);
-                    break;
-                case ScreenId.Login:
-                    LoginViewModel loginViewModel = new LoginViewModel(
-                        _accountsConnection, _navigationManager, _dialogManager);
-                    screenEntry = new ScreenEntry(new LoginScreen(loginViewModel), loginViewModel);
-                    break;
-                case ScreenId.Verification:
-                    screenEntry = CreateVerificationEntry(parameter as VerificationNavigationParameter);
-                    break;
-                case ScreenId.ForgotPassword:
-                    ForgotPasswordViewModel forgotPasswordViewModel = new ForgotPasswordViewModel(
-                        _navigationManager, _passwordConnection);
-                    screenEntry = new ScreenEntry(new ForgotPasswordScreen(forgotPasswordViewModel), forgotPasswordViewModel);
-                    break;
-                case ScreenId.Profile:
-                    ProfileViewModel profileViewModel = new ProfileViewModel(_navigationManager, _profileConnection);
-                    screenEntry = new ScreenEntry(new ProfileScreen(profileViewModel), profileViewModel);
-                    break;
-                case ScreenId.NewPassword:
-                    NewPasswordNavigationParameter newPasswordParameter = parameter as NewPasswordNavigationParameter;
-                    screenEntry = new ScreenEntry(null, null);
-                    if (newPasswordParameter != null)
-                    {
-                        NewPasswordViewModel newPasswordViewModel = new NewPasswordViewModel(
-                            _navigationManager, _passwordConnection, newPasswordParameter);
-                        screenEntry = new ScreenEntry(new NewPasswordScreen(newPasswordViewModel), newPasswordViewModel);
-                    }
-                    else
-                    {
-                        _log.Warn("No se recibió el parámetro de recuperación de contraseña.");
-                    }
-                    break;
-                case ScreenId.ChangePassword:
-                    ChangePasswordViewModel changePasswordViewModel = new ChangePasswordViewModel(
-                        _navigationManager, _passwordConnection, _profileConnection);
-                    screenEntry = new ScreenEntry(new ChangePasswordScreen(changePasswordViewModel), changePasswordViewModel);
-                    break;
-                default:
-                    screenEntry = new ScreenEntry(null, null);
-                    break;
+                CreateAccountViewModel createAccountViewModel = new CreateAccountViewModel(
+                    _navigationManager, _dialogManager, _accountsConnection);
+                screenEntry = new ScreenEntry(new CreateAccountScreen(createAccountViewModel), createAccountViewModel);
+            }
+            else if (screenId == ScreenId.Login)
+            {
+                LoginViewModel loginViewModel = new LoginViewModel(
+                    _accountsConnection, _navigationManager, _dialogManager);
+                screenEntry = new ScreenEntry(new LoginScreen(loginViewModel), loginViewModel);
+            }
+            else if (screenId == ScreenId.Verification)
+            {
+                screenEntry = CreateVerificationEntry(parameter as VerificationNavigationParameter);
+            }
+            else if (screenId == ScreenId.ForgotPassword)
+            {
+                ForgotPasswordViewModel forgotPasswordViewModel = new ForgotPasswordViewModel(
+                    _navigationManager, _passwordConnection);
+                screenEntry = new ScreenEntry(new ForgotPasswordScreen(forgotPasswordViewModel), forgotPasswordViewModel);
+            }
+            else if (screenId == ScreenId.Profile)
+            {
+                ProfileViewModel profileViewModel = new ProfileViewModel(_navigationManager, _profileConnection);
+                screenEntry = new ScreenEntry(new ProfileScreen(profileViewModel), profileViewModel);
+            }
+            else if (screenId == ScreenId.NewPassword)
+            {
+                NewPasswordNavigationParameter newPasswordParameter = parameter as NewPasswordNavigationParameter;
+                screenEntry = new ScreenEntry(null, null);
+                if (newPasswordParameter != null)
+                {
+                    NewPasswordViewModel newPasswordViewModel = new NewPasswordViewModel(
+                        _navigationManager, _passwordConnection, newPasswordParameter);
+                    screenEntry = new ScreenEntry(new NewPasswordScreen(newPasswordViewModel), newPasswordViewModel);
+                }
+                else
+                {
+                    _log.Warn("Missing password recovery navigation parameter.");
+                }
+            }
+            else if (screenId == ScreenId.ChangePassword)
+            {
+                ChangePasswordViewModel changePasswordViewModel = new ChangePasswordViewModel(
+                    _navigationManager, _passwordConnection, _profileConnection);
+                screenEntry = new ScreenEntry(new ChangePasswordScreen(changePasswordViewModel), changePasswordViewModel);
+            }
+            else
+            {
+                screenEntry = new ScreenEntry(null, null);
             }
 
             return screenEntry;
@@ -152,47 +155,51 @@ namespace TLMG.Client.Navigation
         {
             ScreenEntry screenEntry;
 
-            switch (screenId)
+            if (screenId == ScreenId.Lobby)
             {
-                case ScreenId.Lobby:
-                    LobbyViewModel lobbyViewModel = new LobbyViewModel(
-                        _lobbyConnection, _navigationManager, _dialogManager);
-                    screenEntry = new ScreenEntry(new LobbyScreen(lobbyViewModel), lobbyViewModel);
-                    break;
-                case ScreenId.Gameplay:
-                    GameplayViewModel gameplayViewModel = new GameplayViewModel(
-                        _navigationManager, _lobbyConnection, _matchConnection, _dialogManager);
-                    screenEntry = new ScreenEntry(new GameplayScreen(gameplayViewModel), gameplayViewModel);
-                    break;
-                case ScreenId.GameOver:
-                    GameOverViewModel gameOverViewModel = new GameOverViewModel(
-                        _navigationManager, _lobbyConnection, _dialogManager, parameter as MatchView);
-                    screenEntry = new ScreenEntry(new GameOverScreen(gameOverViewModel), gameOverViewModel);
-                    break;
-                case ScreenId.RoundResult:
-                    RoundResultViewModel roundResultViewModel = new RoundResultViewModel(_navigationManager);
-                    screenEntry = new ScreenEntry(new RoundResultScreen(roundResultViewModel), roundResultViewModel);
-                    break;
-                case ScreenId.FugitiveKitten:
-                    screenEntry = new ScreenEntry(null, null);
-                    if (parameter is Guid matchId)
-                    {
-                        FugitiveKittenViewModel fugitiveKittenViewModel = new FugitiveKittenViewModel(
-                            _navigationManager, _matchConnection, _lobbyConnection, matchId);
-                        screenEntry = new ScreenEntry(new FugitiveKittenScreen(fugitiveKittenViewModel), fugitiveKittenViewModel);
-                    }
-                    else
-                    {
-                        _log.Warn("No se recibió el identificador de partida del gatito fugitivo.");
-                    }
-                    break;
-                case ScreenId.MatchClosed:
-                    MatchClosedViewModel matchClosedViewModel = new MatchClosedViewModel(_navigationManager);
-                    screenEntry = new ScreenEntry(new MatchClosedScreen(matchClosedViewModel), matchClosedViewModel);
-                    break;
-                default:
-                    screenEntry = new ScreenEntry(null, null);
-                    break;
+                LobbyViewModel lobbyViewModel = new LobbyViewModel(
+                    _lobbyConnection, _navigationManager, _dialogManager);
+                screenEntry = new ScreenEntry(new LobbyScreen(lobbyViewModel), lobbyViewModel);
+            }
+            else if (screenId == ScreenId.Gameplay)
+            {
+                GameplayViewModel gameplayViewModel = new GameplayViewModel(
+                    _navigationManager, _lobbyConnection, _matchConnection, _dialogManager);
+                screenEntry = new ScreenEntry(new GameplayScreen(gameplayViewModel), gameplayViewModel);
+            }
+            else if (screenId == ScreenId.GameOver)
+            {
+                GameOverViewModel gameOverViewModel = new GameOverViewModel(
+                    _navigationManager, _lobbyConnection, _dialogManager, parameter as MatchView);
+                screenEntry = new ScreenEntry(new GameOverScreen(gameOverViewModel), gameOverViewModel);
+            }
+            else if (screenId == ScreenId.RoundResult)
+            {
+                RoundResultViewModel roundResultViewModel = new RoundResultViewModel(_navigationManager);
+                screenEntry = new ScreenEntry(new RoundResultScreen(roundResultViewModel), roundResultViewModel);
+            }
+            else if (screenId == ScreenId.FugitiveKitten)
+            {
+                screenEntry = new ScreenEntry(null, null);
+                if (parameter is Guid matchId)
+                {
+                    FugitiveKittenViewModel fugitiveKittenViewModel = new FugitiveKittenViewModel(
+                        _navigationManager, _matchConnection, _lobbyConnection, matchId);
+                    screenEntry = new ScreenEntry(new FugitiveKittenScreen(fugitiveKittenViewModel), fugitiveKittenViewModel);
+                }
+                else
+                {
+                    _log.Warn("Missing fugitive kitten match identifier.");
+                }
+            }
+            else if (screenId == ScreenId.MatchClosed)
+            {
+                MatchClosedViewModel matchClosedViewModel = new MatchClosedViewModel(_navigationManager);
+                screenEntry = new ScreenEntry(new MatchClosedScreen(matchClosedViewModel), matchClosedViewModel);
+            }
+            else
+            {
+                screenEntry = new ScreenEntry(null, null);
             }
 
             return screenEntry;
@@ -202,48 +209,55 @@ namespace TLMG.Client.Navigation
         {
             ScreenEntry screenEntry;
 
-            switch (screenId)
+            if (screenId == ScreenId.MainMenu)
             {
-                case ScreenId.MainMenu:
-                    MainMenuViewModel mainMenuViewModel = new MainMenuViewModel(
-                        _accountsConnection, _navigationManager, _dialogManager);
-                    screenEntry = new ScreenEntry(new MainMenuScreen(mainMenuViewModel), mainMenuViewModel);
-                    break;
-                case ScreenId.Friends:
-                    FriendsViewModel friendsViewModel = new FriendsViewModel(_friendsConnection, _navigationManager);
-                    screenEntry = new ScreenEntry(new FriendsScreen(friendsViewModel), friendsViewModel);
-                    break;
-                case ScreenId.Options:
-                    OptionsViewModel optionsViewModel = new OptionsViewModel(_navigationManager);
-                    screenEntry = new ScreenEntry(new OptionsScreen(optionsViewModel), optionsViewModel);
-                    break;
-                case ScreenId.HowToPlay:
-                    HowToPlayViewModel howToPlayViewModel = new HowToPlayViewModel(_navigationManager);
-                    screenEntry = new ScreenEntry(new HowToPlayScreen(howToPlayViewModel), howToPlayViewModel);
-                    break;
-                case ScreenId.Leaderboard:
-                    LeaderboardViewModel leaderboardViewModel = new LeaderboardViewModel(
-                        _leaderboardConnection, _navigationManager, _dialogManager);
-                    screenEntry = new ScreenEntry(new LeaderboardScreen(leaderboardViewModel), leaderboardViewModel);
-                    break;
-                case ScreenId.Moderation:
-                    ModerationNavigationParameter moderationParameter = parameter as ModerationNavigationParameter;
-                    screenEntry = new ScreenEntry(null, null);
-                    if (moderationParameter != null)
-                    {
-                        ModerationViewModel moderationViewModel = new ModerationViewModel(
-                            _navigationManager, moderationParameter.PlayerName, moderationParameter.TypeOfModerationMode);
-                        screenEntry = new ScreenEntry(new ModerationScreen(moderationViewModel), moderationViewModel);
-                    }
-                    else
-                    {
-                        _log.Warn("No se recibieron los parámetros de moderación.");
-                    }
-                    break;
-                default:
-                    _log.WarnFormat("No screen is registered for destination {0}.", screenId);
-                    screenEntry = new ScreenEntry(null, null);
-                    break;
+                MainMenuViewModel mainMenuViewModel = new MainMenuViewModel(
+                    _accountsConnection, _navigationManager, _dialogManager);
+                screenEntry = new ScreenEntry(new MainMenuScreen(mainMenuViewModel), mainMenuViewModel);
+            }
+            else if (screenId == ScreenId.Friends)
+            {
+                BlockedPlayersViewModel blockedPlayersViewModel = new BlockedPlayersViewModel(
+                    _friendsConnection, _moderationConnection, _dialogManager);
+                FriendsViewModel friendsViewModel = new FriendsViewModel(
+                    _friendsConnection, _navigationManager, blockedPlayersViewModel);
+                screenEntry = new ScreenEntry(new FriendsScreen(friendsViewModel), friendsViewModel);
+            }
+            else if (screenId == ScreenId.Options)
+            {
+                OptionsViewModel optionsViewModel = new OptionsViewModel(_navigationManager);
+                screenEntry = new ScreenEntry(new OptionsScreen(optionsViewModel), optionsViewModel);
+            }
+            else if (screenId == ScreenId.HowToPlay)
+            {
+                HowToPlayViewModel howToPlayViewModel = new HowToPlayViewModel(_navigationManager);
+                screenEntry = new ScreenEntry(new HowToPlayScreen(howToPlayViewModel), howToPlayViewModel);
+            }
+            else if (screenId == ScreenId.Leaderboard)
+            {
+                LeaderboardViewModel leaderboardViewModel = new LeaderboardViewModel(
+                    _leaderboardConnection, _navigationManager, _dialogManager);
+                screenEntry = new ScreenEntry(new LeaderboardScreen(leaderboardViewModel), leaderboardViewModel);
+            }
+            else if (screenId == ScreenId.Moderation)
+            {
+                ModerationNavigationParameter moderationParameter = parameter as ModerationNavigationParameter;
+                screenEntry = new ScreenEntry(null, null);
+                if (moderationParameter != null)
+                {
+                    ModerationViewModel moderationViewModel = new ModerationViewModel(
+                        _navigationManager, _moderationConnection, _dialogManager, moderationParameter, _lobbyConnection);
+                    screenEntry = new ScreenEntry(new ModerationScreen(moderationViewModel), moderationViewModel);
+                }
+                else
+                {
+                    _log.Warn("Missing moderation navigation parameter.");
+                }
+            }
+            else
+            {
+                _log.WarnFormat("No screen is registered for destination {0}.", screenId);
+                screenEntry = new ScreenEntry(null, null);
             }
 
             return screenEntry;
@@ -255,7 +269,7 @@ namespace TLMG.Client.Navigation
 
             if (verificationParameter == null)
             {
-                _log.Warn("No se recibieron los parámetros de verificación.");
+                _log.Warn("Missing verification navigation parameter.");
                 screenEntry = new ScreenEntry(null, null);
             }
             else if (verificationParameter.VerificationFlow == VerificationFlow.AccountRegistration)

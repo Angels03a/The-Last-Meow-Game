@@ -11,41 +11,21 @@ using TLMG.Client.ViewModels;
 
 namespace TLMG.Client
 {
-    /// <summary>
-    /// Punto de entrada y lógica de inicialización general de la aplicación.
-    /// </summary>
     public partial class App : Application
     {
         private const string UnexpectedErrorKey = "Common_UnexpectedError";
         private static readonly ILog _log = LogManager.GetLogger(typeof(App));
         private IDialogManager _dialogs;
 
-
-        /// <summary>
-        /// Inicializa una nueva instancia de la aplicación y configura el idioma inicial.
-        /// </summary>
         public App()
         {
             LanguageManager.InitializeLanguage();
             ServerConnection = new ServerConnectionManager(Dispatcher);
         }
 
-        /// <summary>
-        /// Obtiene la conexión con el servidor, única para toda la aplicación. Las pantallas la alcanzan con
-        /// ((App)Application.Current).ServerConnection.
-        /// </summary>
         internal ServerConnectionManager ServerConnection { get; }
-
-        /// <summary>
-        /// Obtiene la navegación entre pantallas, única para toda la aplicación. Las pantallas aún no migradas la
-        /// alcanzan con ((App)Application.Current).Navigation.
-        /// </summary>
         internal NavigationManager Navigation { get; private set; }
 
-        /// <summary>
-        /// Compone la navegación, los diálogos y la fábrica de pantallas, y muestra la ventana principal.
-        /// </summary>
-        /// <param name="startupEventArguments">Datos del inicio de la aplicación.</param>
         protected override void OnStartup(StartupEventArgs startupEventArguments)
         {
             base.OnStartup(startupEventArguments);
@@ -62,7 +42,8 @@ namespace TLMG.Client
                 ServerConnection,
                 ServerConnection,
                 ServerConnection,
-                ServerConnection);
+                ServerConnection,
+                ServerConnection.Moderation);
             Navigation = navigationManager;
             DispatcherUnhandledException += OnDispatcherUnhandledException;
 
@@ -72,19 +53,17 @@ namespace TLMG.Client
 
         private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs eventArguments)
         {
-            _log.Error("Error inesperado en la interfaz de usuario.", eventArguments.Exception);
-            Navigation.NavigateToWithoutHistory(ScreenId.Login);
+            _log.Error("Unexpected user interface failure.", eventArguments.Exception);
+            ServerConnection.Disconnect();
             Navigation.ClearHistory();
+            Navigation.NavigateToWithoutHistory(ScreenId.Login);
             _dialogs.ShowError(UnexpectedErrorKey);
             eventArguments.Handled = true;
         }
 
-        /// <summary>
-        /// Cierra los canales con el servidor al salir de la aplicación, lo que termina la sesión del jugador.
-        /// </summary>
-        /// <param name="exitEventArguments">Datos de la salida de la aplicación.</param>
         protected override void OnExit(ExitEventArgs exitEventArguments)
         {
+            DispatcherUnhandledException -= OnDispatcherUnhandledException;
             ServerConnection.Disconnect();
             base.OnExit(exitEventArguments);
         }

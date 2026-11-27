@@ -30,7 +30,9 @@ namespace TLMG.Domain.Authorization
                 SystemPermission.CreateRoom,
                 SystemPermission.SendFriendRequest,
                 SystemPermission.ManageProfile,
-                SystemPermission.ChangePassword
+                SystemPermission.ChangePassword,
+                SystemPermission.ManageBlocks,
+                SystemPermission.ReportPlayer
             };
             Dictionary<AccountRole, HashSet<SystemPermission>> permissionsByRole =
                 new Dictionary<AccountRole, HashSet<SystemPermission>>
