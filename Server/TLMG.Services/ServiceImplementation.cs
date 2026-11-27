@@ -11,6 +11,7 @@ using TLMG.Services.Friends;
 using TLMG.Services.Leaderboard;
 using TLMG.Services.Lobby;
 using TLMG.Services.Match;
+using TLMG.Services.Moderation;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services
@@ -34,6 +35,9 @@ namespace TLMG.Services
         private static PasswordChangeService _passwordChangeService;
         private static PasswordRecoveryService _passwordRecoveryService;
         private static GuestSessionService _guestSessionService;
+        private static ModerationService _moderationService;
+        private static ReportService _reportService;
+        private static KickVotingService _kickVotingService;
 
         public static void ConfigureDependencies(ServiceDependencies serviceDependencies)
         {
@@ -49,6 +53,9 @@ namespace TLMG.Services
             _passwordChangeService = serviceDependencies.PasswordChangeService;
             _passwordRecoveryService = serviceDependencies.PasswordRecoveryService;
             _guestSessionService = serviceDependencies.GuestSessionService;
+            _moderationService = serviceDependencies.ModerationService;
+            _reportService = serviceDependencies.ReportService;
+            _kickVotingService = serviceDependencies.KickVotingService;
         }
 
         private static TResult CreateFailedOperationResult<TResult>(string errorKey)
@@ -68,9 +75,15 @@ namespace TLMG.Services
             SafeNotifyAll(_sessionRegistry.EvaluateConnectionDeadlines(false));
             PlayerSession session;
             bool hasSession = _sessionRegistry.TryFindSessionByToken(sessionToken, out session);
+            string sessionDiagnostic = "no reconocida";
+
+            if (hasSession && session != null)
+            {
+                sessionDiagnostic = session.DiagnosticId.ToString();
+            }
+
             _log.InfoFormat("WCF operación UTC={0:O} canal={1} correlación={2} operación={3} sesión={4}",
-                DateTime.UtcNow, channelType, _diagnosticChannelId, operation,
-                hasSession ? session.DiagnosticId.ToString() : "no reconocida");
+                DateTime.UtcNow, channelType, _diagnosticChannelId, operation, sessionDiagnostic);
         }
 
         private void LogChannelEnd(string channelType, string eventName, object sender)

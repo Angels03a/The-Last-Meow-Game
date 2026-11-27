@@ -102,28 +102,28 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0" Margin="0,0,32,0">
-                                        <TextBlock Text="142"
+                                        <TextBlock Text="{Binding TotalWins, StringFormat=N0, TargetNullValue=—}"
                                                    Style="{StaticResource ProfileStatValueStyle}"
                                                    Foreground="{StaticResource Brush_AccentLight}" />
                                         <TextBlock Text="{DynamicResource Common_Wins}"
                                                    Style="{StaticResource StatCardLabelStyle}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Margin="0,0,32,0">
-                                        <TextBlock Text="1,840"
+                                        <TextBlock Text="{Binding TotalPoints, StringFormat=N0, TargetNullValue=—}"
                                                    Style="{StaticResource ProfileStatValueStyle}"
                                                    Foreground="{StaticResource Brush_LilacLight}" />
                                         <TextBlock Text="{DynamicResource Profile_Rating}"
                                                    Style="{StaticResource StatCardLabelStyle}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Margin="0,0,32,0">
-                                        <TextBlock Text="#38"
+                                        <TextBlock Text="{Binding PersonalRank, StringFormat='{}#{0}', TargetNullValue=—}"
                                                    Style="{StaticResource ProfileStatValueStyle}"
                                                    Foreground="{StaticResource Brush_Gold}" />
                                         <TextBlock Text="{DynamicResource Common_Rank}"
                                                    Style="{StaticResource StatCardLabelStyle}" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="3">
-                                        <TextBlock Text="87%"
+                                        <TextBlock Text="{Binding WinRate, StringFormat=P0, TargetNullValue=—}"
                                                    Style="{StaticResource ProfileStatValueStyle}"
                                                    Foreground="{StaticResource Brush_LilacLight}" />
                                         <TextBlock Text="{DynamicResource Profile_WinRate}"

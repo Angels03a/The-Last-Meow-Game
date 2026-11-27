@@ -9,6 +9,15 @@ namespace TLMG.Client.Communication
     {
         private const int HeartbeatIntervalMilliseconds = 3000;
         private const int HeartbeatSilenceMilliseconds = 9000;
+        private const int HeartbeatTimerIntervalMilliseconds = 100;
+        private const int HeartbeatSendSpacingDivisor = 6;
+        private const int RecoveryStepSpacingDivisor = 3;
+        private const int FriendsHeartbeatOffsetMilliseconds = 0;
+        private const int LobbyHeartbeatOffsetMilliseconds = 750;
+        private const int ChatHeartbeatOffsetMilliseconds = 1500;
+        private const int MatchHeartbeatOffsetMilliseconds = 2250;
+        private const int NoHeartbeatSequence = 0;
+        private const long NoScheduledHeartbeat = 0;
         private static readonly TimeSpan _heartbeatOperationTimeout = TimeSpan.FromMilliseconds(250);
         private readonly Stopwatch _heartbeatClock = Stopwatch.StartNew();
         private DispatcherTimer _heartbeatTimer;
@@ -20,7 +29,7 @@ namespace TLMG.Client.Communication
             {
                 _heartbeatTimer = new DispatcherTimer(DispatcherPriority.Background, _interfaceDispatcher)
                 {
-                    Interval = TimeSpan.FromMilliseconds(100)
+                    Interval = TimeSpan.FromMilliseconds(HeartbeatTimerIntervalMilliseconds)
                 };
                 _heartbeatTimer.Tick += OnHeartbeatTick;
             }
@@ -30,11 +39,12 @@ namespace TLMG.Client.Communication
         private void StopHeartbeat()
         {
             _heartbeatTimer?.Stop();
-            _nextHeartbeatSendAt = 0;
+            _nextHeartbeatSendAt = NoScheduledHeartbeat;
         }
 
         private void OnHeartbeatTick(object sender, EventArgs args)
         {
+            _moderationChannel.CheckTimeout();
             if (!HasSession)
             {
                 _heartbeatTimer.Stop();
@@ -42,8 +52,8 @@ namespace TLMG.Client.Communication
             else if (AdvanceConnectionRecovery(_heartbeatClock.ElapsedMilliseconds))
             {
                 long now = _heartbeatClock.ElapsedMilliseconds;
-                _nextHeartbeatSendAt = now + HeartbeatIntervalMilliseconds / 6;
-                _nextRecoveryStepAt = now + HeartbeatIntervalMilliseconds / 3;
+                _nextHeartbeatSendAt = now + HeartbeatIntervalMilliseconds / HeartbeatSendSpacingDivisor;
+                _nextRecoveryStepAt = now + HeartbeatIntervalMilliseconds / RecoveryStepSpacingDivisor;
             }
             else
             {
@@ -53,67 +63,63 @@ namespace TLMG.Client.Communication
 
         private void PulseNextActiveLink()
         {
-            bool wasPulsed = PulseLink(
-                _friendsCallback,
-                _friendsChannel,
-                0,
-                (token, sequence, confirmed) => _friendsClient.FriendsHeartbeat(token, sequence, confirmed),
-                CloseFriendsChannel);
+            bool wasPulsed = false;
 
-            if (!wasPulsed)
+            void CloseLobbyLink()
             {
-                wasPulsed = PulseLink(
-                    _lobbyCallback,
-                    _lobbyChannel,
-                    750,
-                    (token, sequence, confirmed) => _lobbyClient.LobbyHeartbeat(token, sequence, confirmed),
-                    () => DisconnectIfCurrentChannelEnded(_lobbyChannel));
+                DisconnectIfCurrentChannelEnded(_lobbyChannel);
             }
 
-            if (!wasPulsed)
+            void CloseMatchLink()
             {
-                wasPulsed = PulseLink(
-                    _chatCallback,
-                    _chatClient?.InnerChannel,
-                    1500,
-                    (token, sequence, confirmed) => _chatClient.ChatHeartbeat(token, sequence, confirmed),
-                    CloseChatChannel);
+                CloseMatchChannelIfCurrent(_matchChannel);
             }
 
-            if (!wasPulsed)
+            if (_friendsClient != null)
             {
-                PulseLink(
-                    _matchCallback,
-                    _matchChannel,
-                    2250,
-                    (token, sequence, confirmed) => _matchClient.MatchHeartbeat(token, sequence, confirmed),
-                    () => CloseMatchChannelIfCurrent(_matchChannel));
+                wasPulsed = PulseLink(new HeartbeatLink(_friendsCallback, _friendsChannel,
+                    FriendsHeartbeatOffsetMilliseconds, _friendsClient.FriendsHeartbeat, CloseFriendsChannel));
+            }
+
+            if (!wasPulsed && _lobbyClient != null)
+            {
+                wasPulsed = PulseLink(new HeartbeatLink(_lobbyCallback, _lobbyChannel,
+                    LobbyHeartbeatOffsetMilliseconds, _lobbyClient.LobbyHeartbeat, CloseLobbyLink));
+            }
+
+            if (!wasPulsed && _chatClient != null)
+            {
+                wasPulsed = PulseLink(new HeartbeatLink(_chatCallback, _chatClient.InnerChannel,
+                    ChatHeartbeatOffsetMilliseconds, _chatClient.ChatHeartbeat, CloseChatChannel));
+            }
+
+            if (!wasPulsed && _matchClient != null)
+            {
+                PulseLink(new HeartbeatLink(_matchCallback, _matchChannel,
+                    MatchHeartbeatOffsetMilliseconds, _matchClient.MatchHeartbeat, CloseMatchLink));
             }
         }
 
-        private bool PulseLink(
-            ServerCallback callback,
-            IClientChannel channel,
-            int offset,
-            Action<string, int, int> send,
-            Action close)
+        private bool PulseLink(HeartbeatLink link)
         {
             bool wasPulsed = false;
 
-            if (IsLinkReadyForHeartbeat(callback, channel, send))
+            if (IsLinkReadyForHeartbeat(link))
             {
                 long now = _heartbeatClock.ElapsedMilliseconds;
-                InitializeHeartbeatScheduleIfNeeded(callback, offset, now);
+                InitializeHeartbeatScheduleIfNeeded(link.Callback, link.OffsetMilliseconds, now);
 
-                if (now - callback.LastHeartbeatEchoAt >= HeartbeatSilenceMilliseconds)
+                if (now - link.Callback.LastHeartbeatEchoAt >= HeartbeatSilenceMilliseconds)
                 {
-                    channel.Abort();
-                    close();
+                    _log.WarnFormat("Heartbeat confirmation deadline exceeded for {0}; closing the channel.",
+                        link.Send.Method.Name);
+                    link.Channel.Abort();
+                    link.Close();
                     wasPulsed = true;
                 }
-                else if (now >= callback.HeartbeatDue.Value && now >= _nextHeartbeatSendAt)
+                else if (now >= link.Callback.HeartbeatDue.Value && now >= _nextHeartbeatSendAt)
                 {
-                    SendHeartbeatPacket(callback, channel, send, close, now);
+                    SendHeartbeatPacket(link, now);
                     wasPulsed = true;
                 }
             }
@@ -121,13 +127,10 @@ namespace TLMG.Client.Communication
             return wasPulsed;
         }
 
-        private static bool IsLinkReadyForHeartbeat(
-            ServerCallback callback,
-            IClientChannel channel,
-            Action<string, int, int> send)
+        private static bool IsLinkReadyForHeartbeat(HeartbeatLink link)
         {
-            bool hasCallbackAndSender = callback != null && send != null;
-            bool isChannelOpened = channel != null && channel.State == CommunicationState.Opened;
+            bool hasCallbackAndSender = link.Callback != null && link.Send != null;
+            bool isChannelOpened = link.Channel != null && link.Channel.State == CommunicationState.Opened;
             bool isReady = hasCallbackAndSender && isChannelOpened;
 
             return isReady;
@@ -142,33 +145,32 @@ namespace TLMG.Client.Communication
             }
         }
 
-        private void SendHeartbeatPacket(
-            ServerCallback callback,
-            IClientChannel channel,
-            Action<string, int, int> send,
-            Action close,
-            long now)
+        private void SendHeartbeatPacket(HeartbeatLink link, long now)
         {
-            _nextHeartbeatSendAt = now + HeartbeatIntervalMilliseconds / 6;
+            ServerCallback callback = link.Callback;
+            IClientChannel channel = link.Channel;
+            _nextHeartbeatSendAt = now + HeartbeatIntervalMilliseconds / HeartbeatSendSpacingDivisor;
             callback.HeartbeatDue = now + HeartbeatIntervalMilliseconds;
             callback.PendingHeartbeat = ++callback.HeartbeatSequence;
             int confirmed = callback.ConfirmedHeartbeat;
-            callback.ConfirmedHeartbeat = 0;
+            callback.ConfirmedHeartbeat = NoHeartbeatSequence;
             TimeSpan originalTimeout = channel.OperationTimeout;
 
             try
             {
                 channel.OperationTimeout = _heartbeatOperationTimeout;
-                send(_sessionToken, callback.PendingHeartbeat, confirmed);
+                link.Send(_sessionToken, callback.PendingHeartbeat, confirmed);
             }
-            catch (CommunicationException)
+            catch (CommunicationException comunnicationException)
             {
+                _log.Warn(string.Format("Heartbeat communication failed for {0}; closing the channel.",
+                    link.Send.Method.Name), comunnicationException);
                 channel.Abort();
-                close();
+                link.Close();
             }
-            catch (TimeoutException)
+            catch (TimeoutException timeoutException)
             {
-                HandleHeartbeatTimeout(channel, close);
+                HandleHeartbeatTimeout(link, timeoutException);
             }
             finally
             {
@@ -176,12 +178,19 @@ namespace TLMG.Client.Communication
             }
         }
 
-        private static void HandleHeartbeatTimeout(IClientChannel channel, Action close)
+        private static void HandleHeartbeatTimeout(HeartbeatLink link, TimeoutException timeoutException)
         {
-            if (channel.State != CommunicationState.Opened)
+            if (link.Channel.State != CommunicationState.Opened)
             {
-                channel.Abort();
-                close();
+                _log.Warn(string.Format("Heartbeat timed out for {0}; closing the channel.",
+                    link.Send.Method.Name), timeoutException);
+                link.Channel.Abort();
+                link.Close();
+            }
+            else
+            {
+                _log.Debug(string.Format("Heartbeat timed out for {0}; the channel remains open.",
+                    link.Send.Method.Name), timeoutException);
             }
         }
 
@@ -199,7 +208,7 @@ namespace TLMG.Client.Communication
 
             if (IsExpectedHeartbeatEcho(callback, sequence, now))
             {
-                callback.PendingHeartbeat = 0;
+                callback.PendingHeartbeat = NoHeartbeatSequence;
                 if (errorKey == InvalidSessionErrorKey)
                 {
                     DisconnectAndNotifyConnectionLost();
@@ -214,7 +223,7 @@ namespace TLMG.Client.Communication
 
         private bool IsExpectedHeartbeatEcho(ServerCallback callback, int sequence, long now)
         {
-            bool isMatchingSequence = callback != null && sequence > 0 && callback.PendingHeartbeat == sequence;
+            bool isMatchingSequence = callback != null && sequence > NoHeartbeatSequence && callback.PendingHeartbeat == sequence;
             bool isWithinDeadline = callback != null && callback.HeartbeatDue.HasValue
                 && now < callback.HeartbeatDue.Value;
             bool isExpected = isMatchingSequence && isWithinDeadline && IsKnownHeartbeatCallback(callback);

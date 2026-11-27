@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 using CommunityToolkit.Mvvm.Input;
+using log4net;
 
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
@@ -16,6 +17,7 @@ namespace TLMG.Client.ViewModels
     {
         private const int MaximumPlayersPerRoom = 6;
         private const int NoRoomId = 0;
+        private const int NoUserId = 0;
         private const int NoSecondsRemaining = 0;
         private const int FourCardsPerPlayer = 4;
         private const int SixCardsPerPlayer = 6;
@@ -27,6 +29,8 @@ namespace TLMG.Client.ViewModels
         private const string LeaveConfirmTitleKey = "Lobby_LeaveConfirmTitle";
         private const string ChatEmptyErrorKey = "Lobby_ChatEmptyError";
         private const string UnexpectedErrorKey = "Common_UnexpectedError";
+
+        private static readonly ILog _log = LogManager.GetLogger(typeof(LobbyViewModel));
 
         private static readonly int[] _cardsPerPlayerOptions =
         {
@@ -64,6 +68,8 @@ namespace TLMG.Client.ViewModels
             _lobbyConnection = lobbyConnection;
             _navigationManager = navigationManager;
             _dialogManager = dialogManager;
+            ModerationNavigation = new RoomModerationNavigation(lobbyConnection,
+                navigationManager, dialogManager, ScreenId.Lobby);
 
             _players = new ObservableCollection<LobbyPlayerEntry>();
             _chatMessages = new ObservableCollection<ChatMessageEntry>();
@@ -76,6 +82,8 @@ namespace TLMG.Client.ViewModels
             _sendChatCommand = new RelayCommand(ExecuteSendChat, CanExecuteSendChat);
             RetryChatCommand = new RelayCommand(_lobbyConnection.RetryChatConnection);
         }
+
+        internal RoomModerationNavigation ModerationNavigation { get; }
 
         public ICommand LeaveLobbyCommand { get; }
 
@@ -354,13 +362,20 @@ namespace TLMG.Client.ViewModels
 
         private void OnCreateRoomResultReceived(object sender, ServerEventArgs<OperationLobbyRoomResult> eventArgs)
         {
-            if (eventArgs.Payload.IsSuccess)
+            OperationLobbyRoomResult result = ServerConnectionManager.NormalizeOperationResult(eventArgs?.Payload);
+
+            if (result.IsSuccess && result.Room != null && _lobbyConnection.CurrentRoom != null)
             {
                 ShowCurrentRoom();
             }
+            else if (!result.IsSuccess)
+            {
+                _dialogManager.ShowError(result.ErrorKey);
+            }
             else
             {
-                _dialogManager.ShowError(eventArgs.Payload.ErrorKey);
+                _log.Warn("Successful room creation returned no current room.");
+                _dialogManager.ShowError(UnexpectedErrorKey);
             }
         }
 
@@ -373,9 +388,11 @@ namespace TLMG.Client.ViewModels
             object sender,
             ServerEventArgs<OperationLobbyRoomResult> eventArgs)
         {
-            if (!eventArgs.Payload.IsSuccess)
+            OperationLobbyRoomResult result = ServerConnectionManager.NormalizeOperationResult(eventArgs?.Payload);
+
+            if (!result.IsSuccess)
             {
-                _dialogManager.ShowError(eventArgs.Payload.ErrorKey);
+                _dialogManager.ShowError(result.ErrorKey);
             }
         }
 
@@ -383,9 +400,11 @@ namespace TLMG.Client.ViewModels
             object sender,
             ServerEventArgs<OperationRequestMatchStartResult> eventArgs)
         {
-            if (!eventArgs.Payload.IsSuccess)
+            OperationRequestMatchStartResult result = ServerConnectionManager.NormalizeOperationResult(eventArgs?.Payload);
+
+            if (!result.IsSuccess)
             {
-                _dialogManager.ShowError(eventArgs.Payload.ErrorKey);
+                _dialogManager.ShowError(result.ErrorKey);
             }
         }
 
@@ -393,19 +412,28 @@ namespace TLMG.Client.ViewModels
             object sender,
             ServerEventArgs<OperationLobbyRoomResult> eventArgs)
         {
-            if (!eventArgs.Payload.IsSuccess)
+            OperationLobbyRoomResult result = ServerConnectionManager.NormalizeOperationResult(eventArgs?.Payload);
+
+            if (!result.IsSuccess)
             {
                 ShowCurrentRoom();
-                _dialogManager.ShowError(eventArgs.Payload.ErrorKey);
+                _dialogManager.ShowError(result.ErrorKey);
             }
         }
 
         private void OnChatMessageReceived(object sender, ServerEventArgs<ChatMessage> eventArgs)
         {
-            ChatMessage chatMessage = eventArgs.Payload;
-            ChatMessageEntry newEntry = ChatEntryHelper.CreateEntry(chatMessage, _lobbyConnection.PlayerUserId);
+            ChatMessage chatMessage = eventArgs?.Payload;
 
-            _chatMessages.Add(newEntry);
+            if (chatMessage != null)
+            {
+                ChatMessageEntry newEntry = ChatEntryHelper.CreateEntry(chatMessage, _lobbyConnection.PlayerUserId);
+                _chatMessages.Add(newEntry);
+            }
+            else
+            {
+                _log.Warn("Null chat notification received in the lobby.");
+            }
         }
 
         private void OnChatAvailabilityChanged(object sender, EventArgs eventArgs)
@@ -502,12 +530,24 @@ namespace TLMG.Client.ViewModels
             {
                 foreach (LobbyPlayer roomPlayer in lobbyRoom.Players)
                 {
-                    playerEntries.Add(new LobbyPlayerEntry
+                    if (roomPlayer != null)
                     {
-                        Nickname = DisplayNameHelper.Resolve(roomPlayer.UserId, roomPlayer.Nickname),
-                        IsLocalPlayer = roomPlayer.UserId == _lobbyConnection.PlayerUserId,
-                        IsReady = roomPlayer.IsReady
-                    });
+                        playerEntries.Add(new LobbyPlayerEntry
+                        {
+                            RoomId = lobbyRoom.RoomId,
+                            UserId = roomPlayer.UserId,
+                            Nickname = DisplayNameHelper.Resolve(roomPlayer.UserId, roomPlayer.Nickname),
+                            IsLocalPlayer = roomPlayer.UserId == _lobbyConnection.PlayerUserId,
+                            IsReady = roomPlayer.IsReady,
+                            CanReportOrBlock = _lobbyConnection.HasRegisteredSession
+                                && roomPlayer.UserId > NoUserId
+                                && roomPlayer.UserId != _lobbyConnection.PlayerUserId
+                        });
+                    }
+                    else
+                    {
+                        _log.Warn("Null player received in the lobby snapshot.");
+                    }
                 }
             }
 

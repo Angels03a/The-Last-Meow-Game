@@ -20,6 +20,8 @@
     <sys:String x:Key="Login_EmailDomainError">El dominio del correo no está permitido (use outlook.com, hotmail.com, live.com, gmail.com o uv.mx)</sys:String>
     <sys:String x:Key="Login_IncompleteFieldsError">Por favor, revise que todos los campos obligatorios estén llenos correctamente</sys:String>
     <sys:String x:Key="Login_InvalidCredentialsError">Correo o contraseña incorrectos</sys:String>
+    <sys:String x:Key="Login_AccountSuspendedError">Tu cuenta está suspendida temporalmente. Inténtalo nuevamente cuando termine la suspensión.</sys:String>
+    <sys:String x:Key="Login_AccountBannedError">Tu cuenta ha sido bloqueada permanentemente.</sys:String>
     <sys:String x:Key="Login_SuccessMessage">Se ha iniciado sesión</sys:String>
     <sys:String x:Key="Verification_Title">Confirmación de Identidad</sys:String>
     <sys:String x:Key="Verification_Instructions">Se le ha enviado un código. Por favor, revise su bandeja de entrada</sys:String>
@@ -239,6 +241,9 @@
     <sys:String x:Key="Friends_EmptyFriends">Aún no tienes amigos añadidos.</sys:String>
     <sys:String x:Key="Friends_EmptyPending">No hay solicitudes pendientes.</sys:String>
     <sys:String x:Key="Friends_EmptyBlocked">No hay jugadores bloqueados.</sys:String>
+    <sys:String x:Key="Friends_RefreshBlockedButton">Actualizar</sys:String>
+    <sys:String x:Key="Friends_BlockedLoading">Consultando o actualizando jugadores bloqueados…</sys:String>
+    <sys:String x:Key="Friends_BlockedLookupFailed">No se pudo confirmar el estado de los bloqueos. Actualiza la lista para continuar.</sys:String>
     <sys:String x:Key="Friends_GuestWithoutFriendsMessage">Los invitados solo pueden aceptar solicitudes de amistad. Inicia sesión con tu cuenta para enviarlas.</sys:String>
     <sys:String x:Key="Friends_InvitationSentMessage">Invitación enviada.</sys:String>
     <sys:String x:Key="Friends_NotInRoomError">Necesitas estar en una sala para invitar. Abre la Sala de juego primero.</sys:String>
@@ -254,6 +259,10 @@
     <sys:String x:Key="Friends_RequestDeclinedMessage">Solicitud rechazada.</sys:String>
     <sys:String x:Key="Friends_RequestAcceptedFormat">Ahora eres amigo de {0}.</sys:String>
     <sys:String x:Key="Friends_NewRequestFormat">{0} quiere ser tu amigo.</sys:String>
+    <sys:String x:Key="Lobby_MainTitle">SALA DE JUEGO</sys:String>
+    <sys:String x:Key="Lobby_RoomInformationFormat">Sala #{0} · {1}/{2} jugadores</sys:String>
+    <sys:String x:Key="Lobby_LocalPlayerLabel">TÚ</sys:String>
+    <sys:String x:Key="Lobby_CardsPerPlayer">CARTAS POR JUGADOR:</sys:String>
     <sys:String x:Key="Lobby_RoomCreator">Creador de la sala</sys:String>
     <sys:String x:Key="Lobby_InviteFriends">Invitar Amigos</sys:String>
     <sys:String x:Key="Lobby_LeaveLobby">Salir de la Sala</sys:String>
@@ -281,10 +290,6 @@
     <sys:String x:Key="Lobby_GameMode4Cards">4 cartas (1 Gato Fatal + 3 seguras)</sys:String>
     <sys:String x:Key="Lobby_GameMode6Cards">6 cartas (1 Gato Fatal + 5 seguras)</sys:String>
     <sys:String x:Key="Lobby_GameMode8Cards">8 cartas (2 Gatos Fatales + 6 seguras)</sys:String>
-    <sys:String x:Key="Lobby_MainTitle">SALA DE JUEGO</sys:String>
-    <sys:String x:Key="Lobby_RoomInformationFormat">Sala #{0} · {1}/{2} jugadores</sys:String>
-    <sys:String x:Key="Lobby_LocalPlayerLabel">TÚ</sys:String>
-    <sys:String x:Key="Lobby_CardsPerPlayer">CARTAS POR JUGADOR:</sys:String>
     <sys:String x:Key="Lobby_ChatSystemPrefix">Sistema:</sys:String>
     <sys:String x:Key="Lobby_SystemJoinedMessage">CatNapper9000 se unió a la sala.</sys:String>
     <sys:String x:Key="Lobby_MockChatPlayer">¡Listo para jugar!</sys:String>
@@ -497,4 +502,20 @@
     <sys:String x:Key="MainMenu_GuestNoSaveMessage">Modo invitado: tu progreso no se guarda.</sys:String>
     <sys:String x:Key="Common_GuestNicknameFormat">Jugador {0}</sys:String>
     <sys:String x:Key="Profile_GuestNoticeMessage">Modo invitado: no tienes perfil, estadísticas ni contraseña porque nada se guarda.</sys:String>
+    <sys:String x:Key="Moderation_VoteTitle">Votar para expulsar</sys:String>
+    <sys:String x:Key="Moderation_VoteExplanation">La expulsión requiere el voto de todos los demás jugadores de la sala. Tu voto no genera un reporte ni una suspensión.</sys:String>
+    <sys:String x:Key="Moderation_VoteButton">Confirmar voto</sys:String>
+    <sys:String x:Key="Moderation_VoteAcceptedTitle">Voto registrado</sys:String>
+    <sys:String x:Key="Moderation_VoteAcceptedMessage">Tu voto fue aceptado. La expulsión solo se realiza cuando se alcanza la unanimidad.</sys:String>
+    <sys:String x:Key="Moderation_ReturnButton">Regresar</sys:String>
+    <sys:String x:Key="Moderation_NotSentError">No fue posible confirmar el envío de la operación de moderación. Inténtalo nuevamente.</sys:String>
+    <sys:String x:Key="Moderation_PlayerExpelledMessage">Fuiste expulsado de la sala por votación unánime. Tu sesión sigue activa.</sys:String>
+    <sys:String x:Key="Moderation_InvalidReportError">Selecciona un motivo de reporte válido.</sys:String>
+    <sys:String x:Key="Moderation_ReportTargetUnavailableError">No es posible reportar a ese jugador en esta sala.</sys:String>
+    <sys:String x:Key="Moderation_AlreadyReportedError">Ya reportaste a ese jugador en esta sala.</sys:String>
+    <sys:String x:Key="Moderation_InvalidTargetError">No puedes realizar esta operación sobre ese jugador.</sys:String>
+    <sys:String x:Key="Moderation_UserNotFoundError">No se encontró al jugador.</sys:String>
+    <sys:String x:Key="Moderation_InvalidVoteError">No puedes emitir ese voto de expulsión.</sys:String>
+    <sys:String x:Key="Moderation_AlreadyVotedError">Ya emitiste un voto contra ese jugador en esta votación.</sys:String>
+    <sys:String x:Key="Moderation_KickTargetUnavailableError">El jugador ya no está disponible para la votación.</sys:String>
 </ResourceDictionary>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 using TLMG.Contracts;
@@ -8,7 +8,6 @@ namespace TLMG.Services.Sessions
 {
     public partial class SessionRegistry
     {
-        private const int DefaultCardsPerPlayerCount = ValidationRules.FourCardsPerPlayerCount;
         private const int LobbyStartCountdownSeconds = 3;
 
         private readonly Dictionary<int, LobbyStartState> _startsByRoomId =
@@ -59,13 +58,6 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        /// <summary>Checks identity and channel before looking up the room. Requires _sessionsLock.</summary>
-        /// <param name="caller">Token and channel received from the client.</param>
-        /// <param name="roomId">Room specified by the client.</param>
-        /// <param name="playerSession">Session found, or null for an unknown token.</param>
-        /// <returns>
-        /// Applied if identity, channel and room match. Otherwise the reason without room state.
-        /// </returns>
         private LobbyChangeStatus ValidateLobbyCallerInLock(
             SessionChannelCaller caller,
             int roomId,
@@ -83,9 +75,12 @@ namespace TLMG.Services.Sessions
 
                 if (hasChannel && channelUserId == playerSession.UserId)
                 {
-                    lobbyChangeStatus = hasRoom && currentRoomId == roomId
-                        ? LobbyChangeStatus.Applied
-                        : LobbyChangeStatus.NotInRoom;
+                    lobbyChangeStatus = LobbyChangeStatus.NotInRoom;
+
+                    if (hasRoom && currentRoomId == roomId)
+                    {
+                        lobbyChangeStatus = LobbyChangeStatus.Applied;
+                    }
                 }
                 else if (!hasChannel && !hasRoom)
                 {
@@ -96,13 +91,6 @@ namespace TLMG.Services.Sessions
             return lobbyChangeStatus;
         }
 
-        /// <summary>
-        /// Applies a readiness change. A repeated value only copies state under _sessionsLock.
-        /// </summary>
-        /// <param name="userId">Player already checked.</param>
-        /// <param name="roomId">Player's current room.</param>
-        /// <param name="isReady">Requested ready state.</param>
-        /// <returns>Change result and recipients, or rejection if the match has started.</returns>
         private LobbyMembershipChange ChangePlayerReadinessInLock(int userId, int roomId, bool isReady)
         {
             LobbyStartState lobbyStartState = _startsByRoomId[roomId];
@@ -111,7 +99,8 @@ namespace TLMG.Services.Sessions
             if (lobbyStartState.ReadyUserIds.Contains(userId) == isReady)
             {
                 lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
-                    userId, roomId, CreateRoomSnapshot(roomId, _membersByRoomId[roomId]));
+                    userId,
+                    new LobbyRoomUpdate(roomId, CreateRoomSnapshot(roomId, _membersByRoomId[roomId])));
             }
             else if (lobbyStartState.MatchId.HasValue)
             {
@@ -136,11 +125,6 @@ namespace TLMG.Services.Sessions
             return lobbyMembershipChange;
         }
 
-        /// <summary>Checks that the current countdown has expired before authorizing under _sessionsLock.</summary>
-        /// <param name="roomId">Existing room.</param>
-        /// <param name="countdownId">Requested generation.</param>
-        /// <param name="nowUtc">Server UTC time read under the lock.</param>
-        /// <returns>True if the current countdown expired and all members meet readiness requirements.</returns>
         private bool CanAuthorizeMatchStartInLock(int roomId, long countdownId, DateTime nowUtc)
         {
             LobbyStartState lobbyStartState = _startsByRoomId[roomId];
@@ -158,10 +142,6 @@ namespace TLMG.Services.Sessions
             return canAuthorize;
         }
 
-        /// <summary>
-        /// Increases the version and recalculates the countdown after an actual change. Requires _sessionsLock.
-        /// </summary>
-        /// <param name="roomId">Room whose membership or readiness changed.</param>
         private void RefreshLobbyCountdownInLock(int roomId)
         {
             InvalidatePendingMatchStartInLock(roomId);
@@ -180,29 +160,22 @@ namespace TLMG.Services.Sessions
             }
         }
 
-        /// <summary>Checks member count and readiness under _sessionsLock.</summary>
-        /// <param name="roomId">Existing room to check.</param>
-        /// <returns>True if the room has an allowed player count and everyone is ready.</returns>
         private bool AreLobbyPlayersReadyInLock(int roomId)
         {
             List<LobbyMember> lobbyMembers = _membersByRoomId[roomId];
             LobbyStartState lobbyStartState = _startsByRoomId[roomId];
             bool hasRequiredPlayerCount = lobbyMembers.Count >= ValidationRules.MinimumPlayersPerMatchCount
                 && lobbyMembers.Count <= ValidationRules.MaximumPlayersPerMatchCount;
-            bool areReady = hasRequiredPlayerCount
-                && lobbyMembers.TrueForAll(member => lobbyStartState.ReadyUserIds.Contains(member.UserId));
+            bool areReady = hasRequiredPlayerCount;
+
+            for (int memberIndex = 0; areReady && memberIndex < lobbyMembers.Count; memberIndex++)
+            {
+                areReady = lobbyStartState.ReadyUserIds.Contains(lobbyMembers[memberIndex].UserId);
+            }
 
             return areReady;
         }
 
-        /// <summary>
-        /// Changes cards per player and resets everyone to not ready. Repeating the value only copies state. Requires
-        /// _sessionsLock. Copies callbacks and notifies only after releasing the lock.
-        /// </summary>
-        /// <param name="userId">Player already checked.</param>
-        /// <param name="roomId">Player's current room.</param>
-        /// <param name="cardsPerPlayerCount">Validated number of cards per player.</param>
-        /// <returns>Change result and recipients, or rejection if the match has started.</returns>
         private LobbyMembershipChange ChangeCardsPerPlayerInLock(int userId, int roomId, int cardsPerPlayerCount)
         {
             LobbyStartState lobbyStartState = _startsByRoomId[roomId];
@@ -212,7 +185,8 @@ namespace TLMG.Services.Sessions
             if (lobbyStartState.CardsPerPlayerCount == cardsPerPlayerCount)
             {
                 lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
-                    userId, roomId, CreateRoomSnapshot(roomId, lobbyMembers));
+                    userId,
+                    new LobbyRoomUpdate(roomId, CreateRoomSnapshot(roomId, lobbyMembers)));
             }
             else if (lobbyStartState.MatchId.HasValue)
             {
@@ -226,18 +200,12 @@ namespace TLMG.Services.Sessions
                 RefreshLobbyCountdownInLock(roomId);
                 lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
                     userId,
-                    roomId,
-                    CreateRoomSnapshot(roomId, lobbyMembers),
-                    CopyCallbacksExceptUser(lobbyMembers, userId));
+                    new LobbyRoomUpdate(roomId, CreateRoomSnapshot(roomId, lobbyMembers), CopyCallbacksExceptUser(lobbyMembers, userId)));
             }
 
             return lobbyMembershipChange;
         }
 
-        /// <summary>Copies the other room members' callbacks under _sessionsLock.</summary>
-        /// <param name="lobbyMembers">Room members.</param>
-        /// <param name="excludedUserId">Player who caused the change and needs no notification.</param>
-        /// <returns>Callbacks for all members except the excluded player.</returns>
         private static IReadOnlyList<ILobbyManagerCallback> CopyCallbacksExceptUser(
             List<LobbyMember> lobbyMembers,
             int excludedUserId)
@@ -257,30 +225,21 @@ namespace TLMG.Services.Sessions
             return readOnlyCallbacks;
         }
 
-        /// <summary>Copies state and callbacks under _sessionsLock for notification after release.</summary>
-        /// <param name="userId">Player who caused the change.</param>
-        /// <param name="roomId">Updated room.</param>
-        /// <returns>Copied state and recipients, including the requester.</returns>
         private LobbyMembershipChange CopyLobbyChangeInLock(int userId, int roomId)
         {
             List<LobbyMember> lobbyMembers = _membersByRoomId[roomId];
             LobbyMembershipChange lobbyMembershipChange = LobbyMembershipChange.CreateApplied(
-                userId, roomId, CreateRoomSnapshot(roomId, lobbyMembers), CopyCallbacks(lobbyMembers));
+                userId,
+                new LobbyRoomUpdate(roomId, CreateRoomSnapshot(roomId, lobbyMembers), CopyCallbacks(lobbyMembers)));
 
             return lobbyMembershipChange;
         }
 
-        /// <summary>
-        /// Copies readiness and start state without sharing mutable collections. Requires _sessionsLock.
-        /// </summary>
-        /// <param name="roomId">Existing room to copy.</param>
-        /// <returns>Read-only snapshot with server time in UTC.</returns>
         private LobbyStartSnapshot CreateStartSnapshotInLock(int roomId)
         {
             return CreateStartSnapshotInLock(_startsByRoomId[roomId]);
         }
 
-        /// <summary>Copies published or pending start state under _sessionsLock.</summary>
         private LobbyStartSnapshot CreateStartSnapshotInLock(LobbyStartState lobbyStartState)
         {
             LobbyStartSnapshot lobbyStartSnapshot = new LobbyStartSnapshot(
@@ -296,10 +255,6 @@ namespace TLMG.Services.Sessions
             return lobbyStartSnapshot;
         }
 
-        /// <summary>
-        /// Prepares the next start state without publishing it. Keeps readiness and mode, closes the countdown, sets
-        /// MatchId and start time, and advances the version.
-        /// </summary>
         private static LobbyStartState CreateAuthorizedStart(
             LobbyStartState currentStart,
             Guid matchId,
@@ -307,6 +262,8 @@ namespace TLMG.Services.Sessions
         {
             LobbyStartState authorizedStart = new LobbyStartState
             {
+                RoomScopeId = currentStart.RoomScopeId,
+                KickVoting = currentStart.KickVoting,
                 LobbyOpenedAtUtc = currentStart.LobbyOpenedAtUtc,
                 Version = currentStart.Version + 1,
                 CountdownId = currentStart.CountdownId,
@@ -318,34 +275,6 @@ namespace TLMG.Services.Sessions
             authorizedStart.ReadyUserIds.UnionWith(currentStart.ReadyUserIds);
 
             return authorizedStart;
-        }
-
-        /// <summary>Private mutable state accessed only under _sessionsLock and never sent in notifications.</summary>
-        private sealed class LobbyStartState
-        {
-            /// <summary>Players currently marked ready.</summary>
-            public HashSet<int> ReadyUserIds { get; } = new HashSet<int>();
-
-            /// <summary>UTC time when the room was opened.</summary>
-            public DateTime LobbyOpenedAtUtc { get; set; }
-
-            /// <summary>Increasing room change version.</summary>
-            public long Version { get; set; }
-
-            /// <summary>Latest countdown generation created for this room.</summary>
-            public long CountdownId { get; set; }
-
-            /// <summary>Active countdown deadline in UTC, or null without a countdown.</summary>
-            public DateTime? CountdownEndsAtUtc { get; set; }
-
-            /// <summary>Authorized match ID, or null before start.</summary>
-            public Guid? MatchId { get; set; }
-
-            /// <summary>Match authorization time in UTC, or null before start.</summary>
-            public DateTime? MatchStartedAtUtc { get; set; }
-
-            /// <summary>Room's cards per player. New rooms start with the default.</summary>
-            public int CardsPerPlayerCount { get; set; } = DefaultCardsPerPlayerCount;
         }
     }
 }

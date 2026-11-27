@@ -3,13 +3,6 @@ using TLMG.Client.UsersManagerReference;
 
 namespace TLMG.Client.Communication
 {
-    /// <summary>
-    /// Receives server callbacks on a WCF thread and raises events on the UI thread through its
-    /// ServerConnectionManager. It makes no game decisions and does not touch controls. UseSynchronizationContext =
-    /// false prevents a deadlock when the UI calls the server while waiting for a callback. Each friends, lobby, chat,
-    /// match or leaderboard channel creates its own receiver. The manager compares receiver references to ignore
-    /// callbacks from old channels.
-    /// </summary>
     [CallbackBehavior(UseSynchronizationContext = false)]
     public sealed class ServerCallback : IFriendsManagerCallback, ILobbyManagerCallback, IChatManagerCallback,
         IMatchManagerCallback, ILeaderboardManagerCallback
@@ -22,73 +15,109 @@ namespace TLMG.Client.Communication
         internal int PendingHeartbeat { get; set; }
         internal int ConfirmedHeartbeat { get; set; }
 
-        public void FriendsHeartbeatEcho(int sequence, string errorKey) => HeartbeatEcho(sequence, errorKey);
-        public void LobbyHeartbeatEcho(int sequence, string errorKey) => HeartbeatEcho(sequence, errorKey);
-        public void ChatHeartbeatEcho(int sequence, string errorKey) => HeartbeatEcho(sequence, errorKey);
-        public void MatchHeartbeatEcho(int sequence, string errorKey) => HeartbeatEcho(sequence, errorKey);
+        public void FriendsHeartbeatEcho(int sequence, string errorKey)
+        {
+            HeartbeatEcho(sequence, errorKey);
+        }
+
+        public void LobbyHeartbeatEcho(int sequence, string errorKey)
+        {
+            HeartbeatEcho(sequence, errorKey);
+        }
+
+        public void ChatHeartbeatEcho(int sequence, string errorKey)
+        {
+            HeartbeatEcho(sequence, errorKey);
+        }
+
+        public void MatchHeartbeatEcho(int sequence, string errorKey)
+        {
+            HeartbeatEcho(sequence, errorKey);
+        }
 
         private void HeartbeatEcho(int sequence, string errorKey)
         {
-            _serverConnection.RunOnInterface(() => _serverConnection.NotifyHeartbeatEcho(this, sequence, errorKey));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyHeartbeatEcho(this, sequence, errorKey);
+            }
+
+            _serverConnection.RunOnInterface(DeliverNotification);
         }
 
-        /// <summary>Creates a callback receiver for a connection manager.</summary>
-        /// <param name="serverConnection">Manager that raises events when server callbacks arrive.</param>
         internal ServerCallback(ServerConnectionManager serverConnection)
         {
             _serverConnection = serverConnection;
         }
 
-        /// <summary>Delivers the leaderboard through the UI dispatcher.</summary>
-        /// <param name="operationGetLeaderboardResult">Players returned by the server, or an error key.</param>
         public void GetLeaderboardResult(OperationGetLeaderboardResult operationGetLeaderboardResult)
         {
-            _serverConnection.RunOnInterface(
-                () => _serverConnection.NotifyLeaderboardResultReceived(this, operationGetLeaderboardResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyLeaderboardResultReceived(this, operationGetLeaderboardResult);
+            }
+
+            _serverConnection.RunOnInterface(DeliverNotification);
         }
 
-        /// <summary>Entrega el aviso de chat mediante el dispatcher de la interfaz.</summary>
-        /// <param name="chatResult">Aviso recibido del servidor.</param>
         public void SubscribeToChatResult(OperationResult chatResult)
         {
-            _serverConnection.RunOnInterface(
-                () => _serverConnection.NotifyChatSubscriptionResult(this, chatResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyChatSubscriptionResult(this, chatResult);
+            }
+
+            _serverConnection.RunOnInterface(DeliverNotification);
         }
 
-        /// <summary>Entrega el aviso de chat mediante el dispatcher de la interfaz.</summary>
-        /// <param name="chatResult">Aviso recibido del servidor.</param>
         public void SendChatMessageResult(OperationSendChatMessageResult chatResult)
         {
-            _serverConnection.RunOnInterface(
-                () => _serverConnection.NotifyChatSendResult(this, chatResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyChatSendResult(this, chatResult);
+            }
+
+            _serverConnection.RunOnInterface(DeliverNotification);
         }
 
-        /// <summary>Entrega el aviso de chat mediante el dispatcher de la interfaz.</summary>
-        /// <param name="chatResult">Aviso recibido del servidor.</param>
         public void OnChatMessageReceived(ChatMessage chatResult)
         {
-            _serverConnection.RunOnInterface(
-                () => _serverConnection.NotifyChatMessageReceived(this, chatResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyChatMessageReceived(this, chatResult);
+            }
+
+            _serverConnection.RunOnInterface(DeliverNotification);
         }
 
-        /// <summary>Delivers the match subscription result through the UI dispatcher.</summary>
-        /// <param name="operationSubscribeToMatchResult">Subscription confirmation or error key.</param>
         public void SubscribeToMatchResult(OperationResult operationSubscribeToMatchResult)
         {
-            _serverConnection.RunOnInterface(
-                () => _serverConnection.NotifyMatchSubscriptionResult(this, operationSubscribeToMatchResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyMatchSubscriptionResult(this, operationSubscribeToMatchResult);
+            }
+
+            _serverConnection.RunOnInterface(DeliverNotification);
         }
 
-        /// <summary>Delivers the player's catch attempt result.</summary>
         public void TryCatchFugitiveKittenResult(OperationResult result)
         {
-            _serverConnection.RunOnInterface(() => _serverConnection.NotifyFugitiveKittenResult(this, result, true));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyFugitiveKittenResult(this, result, true);
+            }
+
+            _serverConnection.RunOnInterface(DeliverNotification);
         }
 
-        /// <summary>Delivers the player's deadline check result.</summary>
         public void CheckFugitiveKittenDeadlineResult(OperationResult result)
         {
-            _serverConnection.RunOnInterface(() => _serverConnection.NotifyFugitiveKittenResult(this, result, false));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyFugitiveKittenResult(this, result, false);
+            }
+
+            _serverConnection.RunOnInterface(DeliverNotification);
         }
 
         public void PlaceCardResult(OperationResult operationPlaceCardResult)
@@ -118,175 +147,205 @@ namespace TLMG.Client.Communication
 
         private void DispatchMatchActionResult(OperationResult result)
         {
-            _serverConnection.RunOnInterface(() => _serverConnection.NotifyMatchActionResult(this, result));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyMatchActionResult(this, result);
+            }
+
+            _serverConnection.RunOnInterface(DeliverNotification);
         }
 
-        /// <summary>Delivers the private match view through the UI dispatcher.</summary>
-        /// <param name="matchView">Player's view and its version.</param>
         public void OnMatchViewChanged(MatchView matchView)
         {
-            _serverConnection.RunOnInterface(
-                () => _serverConnection.NotifyMatchViewReceived(this, matchView));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyMatchViewReceived(this, matchView);
+            }
+
+            _serverConnection.RunOnInterface(DeliverNotification);
         }
 
-        /// <summary>Entrega el resultado de suscribirse a los amigos.</summary>
-        /// <param name="operationSubscribeToFriendsResult">Resultado con los amigos o la clave de error.</param>
         public void SubscribeToFriendsResult(OperationSubscribeToFriendsResult operationSubscribeToFriendsResult)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyFriendListReceived(operationSubscribeToFriendsResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyFriendListReceived(operationSubscribeToFriendsResult);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Delivers the result of inviting a friend to the room.</summary>
-        /// <param name="operationInviteFriendToRoomResult">Success result or error key.</param>
         public void InviteFriendToRoomResult(OperationResult operationInviteFriendToRoomResult)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyInviteFriendResultReceived(operationInviteFriendToRoomResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyInviteFriendResultReceived(operationInviteFriendToRoomResult);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Delivers the result of accepting a room invitation.</summary>
-        /// <param name="operationAcceptRoomInvitationResult">Room ID or error key.</param>
         public void AcceptRoomInvitationResult(OperationAcceptRoomInvitationResult operationAcceptRoomInvitationResult)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyAcceptInvitationResultReceived(
-                    operationAcceptRoomInvitationResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyAcceptInvitationResultReceived(operationAcceptRoomInvitationResult);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Avisa que un amigo pasó a estar en línea o dejó de estarlo.</summary>
-        /// <param name="friend">El amigo con su presencia actual.</param>
         public void OnFriendPresenceChanged(Friend friend)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyFriendPresenceChanged(friend));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyFriendPresenceChanged(friend);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Reports that a friend invited the player to a room.</summary>
-        /// <param name="roomInvitation">Room invitation received.</param>
         public void OnRoomInvitationReceived(RoomInvitation roomInvitation)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyRoomInvitationReceived(roomInvitation));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyRoomInvitationReceived(roomInvitation);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Entrega la solicitud de amistad recibida mediante el dispatcher de la interfaz.</summary>
-        /// <param name="friendRequest">La solicitud recibida del servidor.</param>
         public void OnFriendRequestReceived(FriendRequest friendRequest)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyFriendRequestReceived(friendRequest));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyFriendRequestReceived(friendRequest);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Avisa que un nuevo amigo entró a la lista del jugador.</summary>
-        /// <param name="friend">El nuevo amigo con su presencia actual.</param>
         public void OnFriendAdded(Friend friend)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyFriendAdded(friend));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyFriendAdded(friend);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Entrega el resultado de enviar una solicitud de amistad.</summary>
-        /// <param name="operationSendFriendRequestResult">Resultado con éxito o clave de error.</param>
         public void SendFriendRequestResult(
             OperationSendFriendRequestResult operationSendFriendRequestResult)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifySendFriendRequestResultReceived(
-                    operationSendFriendRequestResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifySendFriendRequestResultReceived(operationSendFriendRequestResult);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Entrega el resultado de aceptar una solicitud de amistad.</summary>
-        /// <param name="operationAcceptFriendRequestResult">Resultado con éxito o clave de error.</param>
         public void AcceptFriendRequestResult(
             OperationAcceptFriendRequestResult operationAcceptFriendRequestResult)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyAcceptFriendRequestResultReceived(
-                    operationAcceptFriendRequestResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyAcceptFriendRequestResultReceived(operationAcceptFriendRequestResult);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Entrega el resultado de rechazar una solicitud de amistad.</summary>
-        /// <param name="operationDeclineFriendRequestResult">Resultado con éxito o clave de error.</param>
         public void DeclineFriendRequestResult(
             OperationDeclineFriendRequestResult operationDeclineFriendRequestResult)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyDeclineFriendRequestResultReceived(
-                    operationDeclineFriendRequestResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyDeclineFriendRequestResultReceived(operationDeclineFriendRequestResult);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Delivers the result of changing the number of cards per player.</summary>
-        /// <param name="result">Updated room or error key.</param>
         public void ChangeCardsPerPlayerResult(OperationLobbyRoomResult result)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyChangeCardsPerPlayerResultReceived(result));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyChangeCardsPerPlayerResultReceived(result);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Delivers the room creation result.</summary>
-        /// <param name="operationCreateRoomResult">Room or error key.</param>
         public void CreateRoomResult(OperationLobbyRoomResult operationCreateRoomResult)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyCreateRoomResultReceived(operationCreateRoomResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyCreateRoomResultReceived(operationCreateRoomResult);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Delivers the result of joining a room.</summary>
-        /// <param name="operationEnterLobbyResult">Room or error key.</param>
         public void EnterLobbyResult(OperationLobbyRoomResult operationEnterLobbyResult)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyEnterLobbyResultReceived(operationEnterLobbyResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyEnterLobbyResultReceived(operationEnterLobbyResult);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Delivers the result of leaving a room.</summary>
-        /// <param name="operationLeaveLobbyResult">Success result or error key.</param>
         public void LeaveLobbyResult(OperationResult operationLeaveLobbyResult)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyLeaveLobbyResultReceived(operationLeaveLobbyResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyLeaveLobbyResultReceived(operationLeaveLobbyResult);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Reports a room change when another player joins or leaves.</summary>
-        /// <param name="lobbyRoom">Room with its updated player list.</param>
+        public void OnPlayerExpelled(int roomId)
+        {
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyPlayerExpelled(this, roomId);
+            }
+
+            _serverConnection.RunOnInterface(DeliverNotification);
+        }
+
         public void OnLobbyRoomChanged(LobbyRoom lobbyRoom)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyLobbyRoomChanged(lobbyRoom));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyLobbyRoomChanged(lobbyRoom);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Delivers the ChangePlayerReadiness result through the UI dispatcher.</summary>
-        /// <param name="changePlayerReadinessResult">Result received from the server.</param>
         public void ChangePlayerReadinessResult(OperationLobbyRoomResult changePlayerReadinessResult)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyReadinessResultReceived(changePlayerReadinessResult));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyReadinessResultReceived(changePlayerReadinessResult);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
 
-        /// <summary>Delivers the RequestMatchStart result through the UI dispatcher.</summary>
-        /// <param name="result">Result received from the server.</param>
         public void RequestMatchStartResult(OperationRequestMatchStartResult result)
         {
-            _serverConnection.RunOnInterfaceIfCurrent(
-                this,
-                () => _serverConnection.NotifyMatchStartResultReceived(result));
+            void DeliverNotification()
+            {
+                _serverConnection.NotifyMatchStartResultReceived(result);
+            }
+
+            _serverConnection.RunOnInterfaceIfCurrent(this, DeliverNotification);
         }
     }
 }

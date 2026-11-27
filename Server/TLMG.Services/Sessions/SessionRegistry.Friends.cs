@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 using TLMG.Contracts;
 using TLMG.Domain.Constants;
+using TLMG.Domain.Repositories;
+using TLMG.Services.Moderation;
 
 namespace TLMG.Services.Sessions
 {
-    // Stores friends channels for online presence and room invitations. Methods ending in InLock and their helpers
-    // require _sessionsLock and access memory only. The database checks friendship before the registry is called.
+
     public partial class SessionRegistry
     {
         private static readonly IReadOnlyList<IFriendsManagerCallback> _noFriendsCallbacks =
             new List<IFriendsManagerCallback>().AsReadOnly();
 
-        // Minimum time between notifications of the same pending invitation, so repeated invitations cannot flood.
         private static readonly TimeSpan _invitationRenotifyInterval = TimeSpan.FromSeconds(5);
 
         private readonly Dictionary<int, FriendsChannel> _friendsChannelsByUserId =
@@ -22,7 +22,6 @@ namespace TLMG.Services.Sessions
         private readonly List<RoomInvitationRecord> _roomInvitations = new List<RoomInvitationRecord>();
         private int _lastInvitationId;
 
-        /// <inheritdoc />
         public FriendsSubscription SubscribeFriendsChannel(
             string sessionToken,
             string channelId,
@@ -44,7 +43,6 @@ namespace TLMG.Services.Sessions
             return friendsSubscription;
         }
 
-        /// <inheritdoc />
         public bool TryEndSessionByFriendsChannel(string channelId, out SessionEnd sessionEnd)
         {
             sessionEnd = null;
@@ -55,7 +53,6 @@ namespace TLMG.Services.Sessions
                 {
                     int userId;
 
-                    // Es seguro: al reemplazar la sesión, el canal viejo ya no está en este mapa.
                     if (_userIdsByFriendsChannelId.TryGetValue(channelId, out userId))
                     {
                         PlayerSession session = _sessionsByToken[_tokensByUserId[userId]];
@@ -80,42 +77,60 @@ namespace TLMG.Services.Sessions
             return wasEnded;
         }
 
-        /// <inheritdoc />
         public RoomInvitationCreation CreateRoomInvitation(string sessionToken, int friendUserId)
         {
             RoomInvitationCreation roomInvitationCreation =
                 RoomInvitationCreation.CreateRejected(FriendsChangeStatus.InvalidSession);
 
-            if (!string.IsNullOrEmpty(sessionToken))
+            if (_blockPolicy == null)
             {
-                lock (_sessionsLock)
+                _log.Error("La política de bloqueos no está configurada al crear una invitación.");
+                roomInvitationCreation = RoomInvitationCreation.CreateRejected(FriendsChangeStatus.DataFailure);
+            }
+            else if (!string.IsNullOrEmpty(sessionToken))
+            {
+                lock (_blockPolicy.SynchronizationRoot)
                 {
-                    roomInvitationCreation = CreateRoomInvitationInLock(sessionToken, friendUserId);
+                    BlockListLookup blocks = FindSessionBlocks(sessionToken);
+
+                    lock (_sessionsLock)
+                    {
+                        roomInvitationCreation = CreateRoomInvitationInLock(sessionToken, friendUserId, blocks);
+                    }
                 }
             }
 
             return roomInvitationCreation;
         }
 
-        /// <inheritdoc />
         public RoomInvitationAcceptance AcceptRoomInvitation(string sessionToken, int invitationId)
         {
             RoomInvitationAcceptance roomInvitationAcceptance = RoomInvitationAcceptance.CreateRejected(
                 FriendsChangeStatus.InvalidSession,
                 LobbyMembershipChange.NoUserId);
 
-            if (!string.IsNullOrEmpty(sessionToken))
+            if (_blockPolicy == null)
             {
-                lock (_sessionsLock)
+                _log.Error("La política de bloqueos no está configurada al aceptar una invitación.");
+                roomInvitationAcceptance = RoomInvitationAcceptance.CreateRejected(
+                    FriendsChangeStatus.DataFailure, LobbyMembershipChange.NoUserId);
+            }
+            else if (!string.IsNullOrEmpty(sessionToken))
+            {
+                lock (_blockPolicy.SynchronizationRoot)
                 {
-                    roomInvitationAcceptance = AcceptRoomInvitationInLock(sessionToken, invitationId);
+                    BlockListLookup blocks = FindSessionBlocks(sessionToken);
+
+                    lock (_sessionsLock)
+                    {
+                        roomInvitationAcceptance = AcceptRoomInvitationInLock(sessionToken, invitationId, blocks);
+                    }
                 }
             }
 
             return roomInvitationAcceptance;
         }
 
-        /// <inheritdoc />
         public IFriendsManagerCallback FindFriendsCallbackOfUser(int userId)
         {
             IFriendsManagerCallback friendsCallback = null;
@@ -133,7 +148,6 @@ namespace TLMG.Services.Sessions
             return friendsCallback;
         }
 
-        /// <inheritdoc />
         public FriendsAddition AddFriendshipToOnlineChannels(int firstUserId, int secondUserId)
         {
             FriendsAddition friendsAddition;
@@ -153,12 +167,6 @@ namespace TLMG.Services.Sessions
             return friendsAddition;
         }
 
-        /// <summary>
-        /// Reemplaza el canal de amigos del jugador por otro con el amigo nuevo en su lista; requiere _sessionsLock.
-        /// </summary>
-        /// <param name="ownerUserId">Jugador dueño del canal.</param>
-        /// <param name="newFriendUserId">Amigo que se suma a la lista guardada.</param>
-        /// <returns>El canal actualizado, o null si el jugador no tiene canal de amigos.</returns>
         private FriendsChannel AddFriendToChannelInLock(int ownerUserId, int newFriendUserId)
         {
             FriendsChannel updatedChannel = null;
@@ -215,7 +223,7 @@ namespace TLMG.Services.Sessions
             }
             else
             {
-                // El último canal gana: si la sesión ya tenía uno, se reemplaza y no cambia su presencia.
+
                 IReadOnlyList<IFriendsManagerCallback> presenceRecipients = _noFriendsCallbacks;
 
                 if (!_friendsChannelsByUserId.ContainsKey(playerSession.UserId))
@@ -241,7 +249,8 @@ namespace TLMG.Services.Sessions
             return friendsSubscription;
         }
 
-        private RoomInvitationCreation CreateRoomInvitationInLock(string sessionToken, int friendUserId)
+        private RoomInvitationCreation CreateRoomInvitationInLock(
+            string sessionToken, int friendUserId, BlockListLookup blocks)
         {
             RoomInvitationCreation roomInvitationCreation;
             PlayerSession inviterSession;
@@ -252,11 +261,20 @@ namespace TLMG.Services.Sessions
             {
                 roomInvitationCreation = RoomInvitationCreation.CreateRejected(FriendsChangeStatus.InvalidSession);
             }
+            else if (!blocks.WasLookupSuccessful)
+            {
+                roomInvitationCreation = RoomInvitationCreation.CreateRejected(FriendsChangeStatus.DataFailure);
+            }
+            else if (!BlockPolicy.CanInteract(blocks, inviterSession.UserId, friendUserId))
+            {
+                roomInvitationCreation = RoomInvitationCreation.CreateRejected(FriendsChangeStatus.CannotInvite);
+            }
             else if (!_roomIdsByUserId.TryGetValue(inviterSession.UserId, out roomId))
             {
                 roomInvitationCreation = RoomInvitationCreation.CreateRejected(FriendsChangeStatus.NotInRoom);
             }
-            else if (_startsByRoomId[roomId].MatchId.HasValue)
+            else if (_startsByRoomId[roomId].MatchId.HasValue
+                || IsExcludedFromRoomInLock(friendUserId, roomId))
             {
                 roomInvitationCreation = RoomInvitationCreation.CreateRejected(FriendsChangeStatus.CannotInvite);
             }
@@ -277,67 +295,130 @@ namespace TLMG.Services.Sessions
             return roomInvitationCreation;
         }
 
-        private RoomInvitationAcceptance AcceptRoomInvitationInLock(string sessionToken, int invitationId)
+        private RoomInvitationAcceptance AcceptRoomInvitationInLock(
+            string sessionToken, int invitationId, BlockListLookup blocks)
         {
             RoomInvitationAcceptance roomInvitationAcceptance;
             PlayerSession playerSession;
-            RoomInvitationRecord invitation = null;
 
-            if (_sessionsByToken.TryGetValue(sessionToken, out playerSession))
-            {
-                invitation = _roomInvitations.Find(pending =>
-                    pending.InvitationId == invitationId && pending.InviteeUserId == playerSession.UserId);
-            }
-
-            if (playerSession == null)
+            if (!_sessionsByToken.TryGetValue(sessionToken, out playerSession))
             {
                 roomInvitationAcceptance = RoomInvitationAcceptance.CreateRejected(
-                    FriendsChangeStatus.InvalidSession,
-                    LobbyMembershipChange.NoUserId);
+                    FriendsChangeStatus.InvalidSession, LobbyMembershipChange.NoUserId);
             }
-            else if (invitation == null)
+            else if (!blocks.WasLookupSuccessful)
             {
                 roomInvitationAcceptance = RoomInvitationAcceptance.CreateRejected(
-                    FriendsChangeStatus.InvitationNotValid,
-                    playerSession.UserId);
+                    FriendsChangeStatus.DataFailure, playerSession.UserId);
             }
             else
             {
-                _roomInvitations.Remove(invitation);
-                roomInvitationAcceptance =
-                    AuthorizeInvitedRoomInLock(playerSession.UserId, invitation.RoomId);
+                RoomInvitationRecord invitation = _roomInvitations.Find(IsMatchingInvitation);
+
+                bool IsMatchingInvitation(RoomInvitationRecord pendingInvitation)
+                {
+                    bool isMatching = pendingInvitation.InvitationId == invitationId
+                        && pendingInvitation.InviteeUserId == playerSession.UserId;
+
+                    return isMatching;
+                }
+
+                if (invitation == null)
+                {
+                    roomInvitationAcceptance = RoomInvitationAcceptance.CreateRejected(
+                        FriendsChangeStatus.InvitationNotValid, playerSession.UserId);
+                }
+                else
+                {
+                    _roomInvitations.Remove(invitation);
+                    roomInvitationAcceptance =
+                        AuthorizeInvitedRoomInLock(playerSession.UserId, invitation, blocks);
+                }
             }
 
             return roomInvitationAcceptance;
         }
 
-        private RoomInvitationAcceptance AuthorizeInvitedRoomInLock(int userId, int roomId)
+        private RoomInvitationAcceptance AuthorizeInvitedRoomInLock(
+            int userId, RoomInvitationRecord invitation, BlockListLookup blocks)
         {
+            FriendsChangeStatus status = ValidateInvitationRoomInLock(userId, invitation, blocks);
             RoomInvitationAcceptance roomInvitationAcceptance;
 
-            if (IssueRoomEntryAuthorizationInLock(userId, roomId))
+            if (status == FriendsChangeStatus.Applied
+                && IssueRoomEntryAuthorizationInLock(userId, invitation.RoomId))
             {
-                roomInvitationAcceptance = RoomInvitationAcceptance.CreateApplied(userId, roomId);
+                roomInvitationAcceptance = RoomInvitationAcceptance.CreateApplied(userId, invitation.RoomId);
             }
             else
             {
-                roomInvitationAcceptance =
-                    RoomInvitationAcceptance.CreateRejected(FriendsChangeStatus.InvitationNotValid, userId);
+                if (status == FriendsChangeStatus.Applied)
+                {
+                    status = FriendsChangeStatus.RoomAccessDenied;
+                }
+
+                roomInvitationAcceptance = RoomInvitationAcceptance.CreateRejected(status, userId);
             }
 
             return roomInvitationAcceptance;
         }
 
-        // Reuses the existing invitation when the same player is invited to the same room again. The invitee is
-        // notified again only after the renotification interval, because declining is not reported to the server.
+        private FriendsChangeStatus ValidateInvitationRoomInLock(
+            int userId, RoomInvitationRecord invitation, BlockListLookup blocks)
+        {
+            FriendsChangeStatus status = FriendsChangeStatus.InvitationNotValid;
+            int roomId = invitation.RoomId;
+            int inviterRoomId;
+            List<LobbyMember> members;
+
+            if (_roomIdsByUserId.ContainsKey(userId))
+            {
+                status = FriendsChangeStatus.AlreadyInRoom;
+            }
+            else if (_roomIdsByUserId.TryGetValue(invitation.InviterUserId, out inviterRoomId)
+                && inviterRoomId == roomId && _membersByRoomId.TryGetValue(roomId, out members))
+            {
+                if (!blocks.WasLookupSuccessful)
+                {
+                    status = FriendsChangeStatus.DataFailure;
+                }
+                else if (!IsRoomCompatibleWithBlocksInLock(roomId, blocks)
+                    || IsExcludedFromRoomInLock(userId, roomId))
+                {
+                    status = FriendsChangeStatus.RoomAccessDenied;
+                }
+                else if (_startsByRoomId[roomId].MatchId.HasValue)
+                {
+                    status = FriendsChangeStatus.MatchAlreadyStarted;
+                }
+                else if (members.Count >= ValidationRules.MaximumPlayersPerMatchCount)
+                {
+                    status = FriendsChangeStatus.RoomFull;
+                }
+                else
+                {
+                    status = FriendsChangeStatus.Applied;
+                }
+            }
+
+            return status;
+        }
+
         private RoomInvitationCreation CreateOrFindInvitation(
             PlayerSession inviterSession,
             int friendUserId,
             int roomId,
             IFriendsManagerCallback inviteeCallback)
         {
-            RoomInvitationRecord invitation = _roomInvitations.Find(pending =>
-                pending.InviteeUserId == friendUserId && pending.RoomId == roomId);
+            RoomInvitationRecord invitation = _roomInvitations.Find(IsMatchingInvitation);
+
+            bool IsMatchingInvitation(RoomInvitationRecord pending)
+            {
+                bool isMatching = pending.InviterUserId == inviterSession.UserId
+                    && pending.InviteeUserId == friendUserId && pending.RoomId == roomId;
+
+                return isMatching;
+            }
             DateTime nowUtc = _readUtcNow();
             bool shouldNotifyInvitee = invitation == null
                 || nowUtc - invitation.LastNotifiedUtc >= _invitationRenotifyInterval;

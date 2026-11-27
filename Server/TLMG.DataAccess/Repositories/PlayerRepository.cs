@@ -224,35 +224,15 @@ namespace TLMG.DataAccess.Repositories
         private static void PopulatePersonalStanding(
             TLMG_DBEntities context, LeaderboardLookup leaderboardLookup, int registeredUserId)
         {
-            const int FirstRank = 1;
-            IQueryable<Player> activePlayers =
-                from player in context.Player.AsNoTracking()
-                join user in context.User.AsNoTracking() on player.id_user equals user.id_user
-                where user.state == ValidationRules.ActiveUserState
-                select player;
-
-            Player currentPlayer = (
-                from player in activePlayers
-                where player.id_user == registeredUserId
-                select player).FirstOrDefault();
+            IQueryable<Player> activePlayers = PlayerRankingQuery.FindActivePlayers(context);
+            Player currentPlayer = (from player in activePlayers
+                                    where player.id_user == registeredUserId
+                                    select player).FirstOrDefault();
 
             if (currentPlayer != null)
             {
-                int currentPoints = currentPlayer.total_points;
-                DateTime pointsReachedAtUtc = currentPlayer.points_reached_at_utc;
-                int currentPlayerId = currentPlayer.id_player;
-
-                int higherRankedPlayerCount = (
-                    from player in activePlayers
-                    where player.total_points > currentPoints
-                        || (player.total_points == currentPoints
-                            && (player.points_reached_at_utc < pointsReachedAtUtc
-                                || (player.points_reached_at_utc == pointsReachedAtUtc
-                                    && player.id_player < currentPlayerId)))
-                    select player.id_player).Count();
-
-                leaderboardLookup.PersonalRank = higherRankedPlayerCount + FirstRank;
-                leaderboardLookup.PersonalPoints = currentPoints;
+                leaderboardLookup.PersonalRank = PlayerRankingQuery.FindRank(activePlayers, currentPlayer);
+                leaderboardLookup.PersonalPoints = currentPlayer.total_points;
             }
         }
 

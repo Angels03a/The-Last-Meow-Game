@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Constants;
 using TLMG.Services.Helpers;
 
@@ -64,11 +65,12 @@ namespace TLMG.Services.Sessions
                     session.LastActivityUtc = nowUtc;
                     link.LastPulseUtc = nowUtc;
                     link.Sequence = sequence;
-                    notifications.Add(() => echo(sequence, string.Empty));
+                    notifications.Add(() => echo(sequence, null));
                 }
             }
 
             PersistPendingMatchFinalizations();
+            PersistPendingKickVotings();
             IReadOnlyList<Action> readOnlyNotifications = notifications.AsReadOnly();
 
             return readOnlyNotifications;
@@ -83,6 +85,7 @@ namespace TLMG.Services.Sessions
             }
 
             PersistPendingMatchFinalizations();
+            PersistPendingKickVotings();
             IReadOnlyList<Action> readOnlyNotifications = notifications.AsReadOnly();
 
             return readOnlyNotifications;
@@ -207,8 +210,14 @@ namespace TLMG.Services.Sessions
                     }
                     break;
                 case HeartbeatChannel.Friends:
+                    Friend disconnectedFriend = new Friend
+                    {
+                        UserId = userId,
+                        Nickname = session.Nickname,
+                        IsOnline = false
+                    };
                     notifications.AddRange(SessionNotificationHelper.CreatePresenceNotifications(
-                        FindPresenceRecipientsOfUser(userId), userId, session.Nickname, false));
+                        FindPresenceRecipientsOfUser(userId), disconnectedFriend));
                     RemoveFriendsChannelOfUser(userId);
                     break;
                 case HeartbeatChannel.Chat:

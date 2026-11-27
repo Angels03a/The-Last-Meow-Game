@@ -29,99 +29,109 @@ namespace TLMG.Services.Sessions
 
             if (!matchRecord.HasQueuedFinalization && (isMatchFinished || isRoomRemoved))
             {
-                bool isAbandoned = !isMatchFinished || matchRecord.MatchState.Winner == null;
-                IReadOnlyList<GameParticipantRecord> participantRecords =
-                    CreateParticipantRecordsInLock(matchRecord, isAbandoned);
-
-                if (participantRecords != null)
+                GameFinalization gameFinalization = new GameFinalization
                 {
-                    GameFinalization gameFinalization = new GameFinalization
-                    {
-                        MatchId = matchRecord.MatchId,
-                        EndedAtUtc = _readUtcNow(),
-                        IsAbandoned = isAbandoned,
-                        Participants = participantRecords
-                    };
+                    MatchId = matchRecord.MatchId,
+                    EndedAtUtc = _readUtcNow(),
+                    IsAbandoned = !isMatchFinished || matchRecord.MatchState.Winner == null,
+                    Participants = Array.Empty<GameParticipantRecord>()
+                };
 
+                if (TryPopulateParticipantRecords(matchRecord, gameFinalization))
+                {
                     _pendingMatchFinalizations.Add(gameFinalization.MatchId, gameFinalization);
                     matchRecord.HasQueuedFinalization = true;
+                }
+                else
+                {
+                    _matchFinalizationLog.ErrorFormat("Invalid final standings for match {0}.", matchRecord.MatchId);
                 }
             }
         }
 
-        private static IReadOnlyList<GameParticipantRecord> CreateParticipantRecordsInLock(
-            MatchRecord matchRecord, bool isAbandoned)
+        private static bool TryPopulateParticipantRecords(MatchRecord matchRecord, GameFinalization gameFinalization)
         {
-            IReadOnlyList<GameParticipantRecord> registeredParticipantRecords = null;
-            FinalStandings finalStandings = null;
+            bool hasValidRecords = false;
 
-            if (!isAbandoned)
+            if (gameFinalization.IsAbandoned)
             {
-                finalStandings = FinalStandings.CalculateFromMatch(matchRecord.MatchState, matchRecord.GuestUserIds);
+                hasValidRecords = TryBuildParticipantRecords(matchRecord, gameFinalization, Array.Empty<PlayerStanding>());
+            }
+            else
+            {
+                FinalStandings finalStandings = FinalStandings.CalculateFromMatch(
+                    matchRecord.MatchState, matchRecord.GuestUserIds);
+
+                if (finalStandings != null && finalStandings.Status == FinalStandingsStatus.Calculated
+                    && finalStandings.Standings != null)
+                {
+                    hasValidRecords = TryBuildParticipantRecords(matchRecord, gameFinalization, finalStandings.Standings);
+                }
             }
 
-            if (isAbandoned || finalStandings.Status == FinalStandingsStatus.Calculated)
-            {
-                registeredParticipantRecords = BuildParticipantRecords(matchRecord, finalStandings);
-            }
-
-            if (registeredParticipantRecords == null)
-            {
-                _matchFinalizationLog.ErrorFormat("Invalid final standings for match {0}.", matchRecord.MatchId);
-            }
-
-            return registeredParticipantRecords;
+            return hasValidRecords;
         }
 
-        private static IReadOnlyList<GameParticipantRecord> BuildParticipantRecords(
-            MatchRecord matchRecord, FinalStandings finalStandings)
+        private static bool TryBuildParticipantRecords(MatchRecord matchRecord,
+            GameFinalization gameFinalization, IEnumerable<PlayerStanding> standings)
         {
             List<GameParticipantRecord> participantRecords = new List<GameParticipantRecord>();
-            bool isAbandoned = finalStandings == null;
-            bool hasValidStandings = true;
-            IEnumerable<MatchPlayer> registeredPlayers = from player in matchRecord.MatchState.Players
-                                                         where !matchRecord.GuestUserIds.Contains(player.PlayerId)
-                                                         select player;
+            List<MatchPlayer> registeredPlayers = (from player in matchRecord.MatchState.Players
+                                                   where !matchRecord.GuestUserIds.Contains(player.PlayerId)
+                                                   select player).ToList();
+            bool hasValidRecords = true;
 
-            foreach (MatchPlayer player in registeredPlayers)
+            for (int playerIndex = 0; hasValidRecords && playerIndex < registeredPlayers.Count; playerIndex++)
             {
+                MatchPlayer player = registeredPlayers[playerIndex];
                 PlayerStanding standing = null;
 
-                if (!isAbandoned)
+                if (!gameFinalization.IsAbandoned)
                 {
-                    standing = (from finalStanding in finalStandings.Standings
+                    standing = (from finalStanding in standings
                                 where finalStanding.PlayerId == player.PlayerId
                                 select finalStanding).FirstOrDefault();
                 }
 
-                if (!isAbandoned && standing == null)
+                GameParticipantFinalStatus finalStatus = ResolveParticipantFinalStatus(
+                    matchRecord.MatchState, player, gameFinalization.IsAbandoned);
+                hasValidRecords = (gameFinalization.IsAbandoned || standing != null)
+                    && (!player.HasLeftMatch || finalStatus != GameParticipantFinalStatus.Unclassified);
+
+                if (hasValidRecords)
                 {
-                    hasValidStandings = false;
-                    break;
+                    participantRecords.Add(CreateParticipantRecord(player, standing, finalStatus));
                 }
-
-                GameParticipantRecord participantRecord = CreateParticipantRecord(matchRecord.MatchState, player, standing);
-
-                participantRecords.Add(participantRecord);
             }
 
-            IReadOnlyList<GameParticipantRecord> registeredParticipantRecords = hasValidStandings
-                ? participantRecords.AsReadOnly() : null;
+            if (hasValidRecords)
+            {
+                gameFinalization.Participants = participantRecords.AsReadOnly();
+            }
 
-            return registeredParticipantRecords;
+            return hasValidRecords;
         }
 
-        private static GameParticipantRecord CreateParticipantRecord(MatchState matchState, MatchPlayer player,
-            PlayerStanding standing)
+        private static GameParticipantRecord CreateParticipantRecord(MatchPlayer player, PlayerStanding standing,
+            GameParticipantFinalStatus finalStatus)
         {
             GameParticipantRecord participantRecord = new GameParticipantRecord
             {
                 UserId = player.PlayerId,
-                Position = standing != null ? (int?)standing.Position : null,
-                Points = standing != null ? standing.Points : ValidationRules.InitialStatisticValue,
-                FinalStatus = ResolveParticipantFinalStatus(matchState, player, standing == null),
-                LeftAtUtc = player.HasLeftMatch ? (DateTime?)player.Exit.EffectiveAtUtc : null
+                Points = ValidationRules.InitialStatisticValue,
+                FinalStatus = finalStatus
             };
+
+            if (standing != null)
+            {
+                participantRecord.Position = standing.Position;
+                participantRecord.Points = standing.Points;
+            }
+
+            if (player.HasLeftMatch)
+            {
+                participantRecord.LeftAtUtc = player.Exit.EffectiveAtUtc;
+            }
 
             return participantRecord;
         }
@@ -133,8 +143,17 @@ namespace TLMG.Services.Sessions
 
             if (player.HasLeftMatch)
             {
-                participantFinalStatus = player.Exit.EffectiveAtUtc > player.Exit.StartedAtUtc
-                    ? GameParticipantFinalStatus.Kicked : GameParticipantFinalStatus.Abandoned;
+                PlayerExitCause cause = player.Exit.Cause;
+
+                if (cause == PlayerExitCause.Voluntary)
+                {
+                    participantFinalStatus = GameParticipantFinalStatus.Abandoned;
+                }
+                else if (cause == PlayerExitCause.Disconnection || cause == PlayerExitCause.VotedOut
+                    || cause == PlayerExitCause.Sanctioned)
+                {
+                    participantFinalStatus = GameParticipantFinalStatus.Kicked;
+                }
             }
             else if (!isAbandoned)
             {
@@ -161,46 +180,70 @@ namespace TLMG.Services.Sessions
 
             lock (_sessionsLock)
             {
-                hasPendingFinalizations = _pendingMatchFinalizations.Count > 0;
+                hasPendingFinalizations = _pendingMatchFinalizations.Count > EmptyCount;
             }
 
-            if (_gameHistoryRepository != null && hasPendingFinalizations)
+            if (hasPendingFinalizations)
             {
-                lock (_matchFinalizationLock)
+                if (_gameHistoryRepository == null)
                 {
-                    List<GameFinalization> pendingFinalizations;
-
-                    lock (_sessionsLock)
+                    _matchFinalizationLog.Error("Match history repository is not configured.");
+                }
+                else
+                {
+                    lock (_matchFinalizationLock)
                     {
-                        pendingFinalizations = (from finalization in _pendingMatchFinalizations.Values
-                                                orderby finalization.EndedAtUtc, finalization.MatchId
-                                                select finalization).ToList();
-                    }
+                        List<GameFinalization> pendingFinalizations;
 
-                    foreach (GameFinalization gameFinalization in pendingFinalizations)
-                    {
-                        GameFinalizationStatus finalizationStatus = _gameHistoryRepository.FinalizeMatch(gameFinalization);
-                        if (finalizationStatus == GameFinalizationStatus.Saved
-                            || finalizationStatus == GameFinalizationStatus.AlreadySaved)
+                        lock (_sessionsLock)
                         {
-                            lock (_sessionsLock)
-                            {
-                                _pendingMatchFinalizations.Remove(gameFinalization.MatchId);
-                            }
+                            pendingFinalizations = (from finalization in _pendingMatchFinalizations.Values
+                                                    orderby finalization.EndedAtUtc, finalization.MatchId
+                                                    select finalization).ToList();
                         }
-                        else if (finalizationStatus == GameFinalizationStatus.InvalidFinalization
-                            || finalizationStatus == GameFinalizationStatus.FinalizationConflict)
+
+                        bool canContinue = true;
+
+                        for (int finalizationIndex = 0;
+                            canContinue && finalizationIndex < pendingFinalizations.Count;
+                            finalizationIndex++)
                         {
-                            _matchFinalizationLog.ErrorFormat("Match finalization rejected for {0}: {1}.",
-                                gameFinalization.MatchId, finalizationStatus);
-                        }
-                        else
-                        {
-                            break;
+                            canContinue = PersistMatchFinalization(pendingFinalizations[finalizationIndex]);
                         }
                     }
                 }
             }
+        }
+
+        private bool PersistMatchFinalization(GameFinalization gameFinalization)
+        {
+            GameFinalizationStatus finalizationStatus = _gameHistoryRepository.FinalizeMatch(gameFinalization);
+            bool canContinue = false;
+
+            if (finalizationStatus == GameFinalizationStatus.Saved
+                || finalizationStatus == GameFinalizationStatus.AlreadySaved)
+            {
+                lock (_sessionsLock)
+                {
+                    _pendingMatchFinalizations.Remove(gameFinalization.MatchId);
+                }
+
+                canContinue = true;
+            }
+            else if (finalizationStatus == GameFinalizationStatus.InvalidFinalization
+                || finalizationStatus == GameFinalizationStatus.FinalizationConflict)
+            {
+                _matchFinalizationLog.ErrorFormat("Match finalization rejected for {0}: {1}.",
+                    gameFinalization.MatchId, finalizationStatus);
+                canContinue = true;
+            }
+            else
+            {
+                _matchFinalizationLog.ErrorFormat("Match finalization could not be saved for {0}: {1}.",
+                    gameFinalization.MatchId, finalizationStatus);
+            }
+
+            return canContinue;
         }
     }
 }

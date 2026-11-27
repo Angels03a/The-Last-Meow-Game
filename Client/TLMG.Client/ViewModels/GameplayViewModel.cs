@@ -23,6 +23,8 @@ namespace TLMG.Client.ViewModels
         private const int NextRoundOffset = 1;
         private const int NoRevealedCards = 0;
         private const int NoBetAmount = 0;
+        private const int NoUserId = 0;
+        private const int NoRoomId = 0;
         private const int EmptyPileCardCount = 0;
         private const int RecoveryDisplayIntervalMilliseconds = 250;
 
@@ -36,6 +38,7 @@ namespace TLMG.Client.ViewModels
         private readonly RelayCommand _decreaseBetCommand;
         private readonly INavigationManager _navigationManager;
         private readonly ILobbyConnection _lobbyConnection;
+        private readonly RoomModerationNavigation _moderationNavigation;
         private readonly IMatchConnection _matchConnection;
         private readonly IDialogManager _dialogManager;
         private readonly MatchModeSettings _matchModeSettings;
@@ -49,7 +52,8 @@ namespace TLMG.Client.ViewModels
         private bool _isMatchUnavailable;
         private readonly DispatcherTimer _recoveryDisplayTimer;
         private string _recoveryMessage = string.Empty;
-        private string _selectedPlayerName;
+        private MatchPlayerEntry _selectedPlayer;
+        private readonly RelayCommand<ModerationMode> _openModerationCommand;
         private string _chatInput;
 
         public GameplayViewModel(
@@ -62,6 +66,8 @@ namespace TLMG.Client.ViewModels
             _lobbyConnection = lobbyConnection;
             _matchConnection = matchConnection;
             _dialogManager = dialogManager;
+            _moderationNavigation = new RoomModerationNavigation(lobbyConnection,
+                navigationManager, dialogManager, ScreenId.Gameplay);
             RetryRecoveryCommand = new RelayCommand(_matchConnection.RetryMatchRecovery);
             _recoveryDisplayTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(RecoveryDisplayIntervalMilliseconds) };
             _recoveryDisplayTimer.Tick += UpdateRecoveryDisplay;
@@ -70,7 +76,6 @@ namespace TLMG.Client.ViewModels
                 ?? MatchModeSettings.FourCardsPerPlayer;
             _matchModeSettings = MatchModeSettings.FromCardsPerPlayer(cardsPerPlayer);
             _board = MatchBoardMapper.CreateEmptyBoard();
-            _selectedPlayerName = string.Empty;
             _chatInput = string.Empty;
             _chatMessages = new ObservableCollection<ChatMessageEntry>();
 
@@ -85,15 +90,12 @@ namespace TLMG.Client.ViewModels
             _decreaseBetCommand = new RelayCommand(ExecuteDecreaseBet, CanDecreaseBet);
 
             ExitCommand = new RelayCommand(ExecuteExit);
-            ReportPlayerCommand = new RelayCommand(ExecuteReportPlayer);
-            KickPlayerCommand = new RelayCommand(ExecuteKickPlayer);
-            BlockPlayerCommand = new RelayCommand(ExecuteBlockPlayer);
+            _openModerationCommand = new RelayCommand<ModerationMode>(OpenModeration, CanOpenModeration);
             DemoRevealCardsCommand = new RelayCommand(ExecuteDemoRevealCards);
             DemoGameOverCommand = new RelayCommand(ExecuteDemoGameOver);
             DemoInactivityCommand = new RelayCommand(ExecuteDemoInactivity);
         }
 
-        public event EventHandler KickVoteRequested;
         public ICommand PlaceCardCommand => _placeCardCommand;
         public ICommand ChoosePunishmentCommand => _choosePunishmentCommand;
         public ICommand RevealCardCommand => _revealCardCommand;
@@ -106,9 +108,7 @@ namespace TLMG.Client.ViewModels
         public bool IsChatUnavailable => _lobbyConnection.HasRegisteredSession
             && _lobbyConnection.CurrentRoom != null && !_lobbyConnection.IsChatSubscribed;
         public ICommand ExitCommand { get; }
-        public ICommand ReportPlayerCommand { get; }
-        public ICommand KickPlayerCommand { get; }
-        public ICommand BlockPlayerCommand { get; }
+        public ICommand OpenModerationCommand { get { return _openModerationCommand; } }
         public ICommand DemoRevealCardsCommand { get; }
         public ICommand DemoGameOverCommand { get; }
         public ICommand DemoInactivityCommand { get; }
@@ -128,15 +128,11 @@ namespace TLMG.Client.ViewModels
             get => _recoveryMessage;
             private set => SetProperty(ref _recoveryMessage, value);
         }
-
-        /// <summary>Indicates that the board may be out of date while the match channel is unavailable.</summary>
         public bool IsMatchUnavailable
         {
             get { return _isMatchUnavailable; }
             private set { SetProperty(ref _isMatchUnavailable, value); }
         }
-
-        /// <summary>Keeps demo controls hidden during an authorized match.</summary>
         public bool IsDemoPanelVisible
         {
             get
@@ -150,8 +146,6 @@ namespace TLMG.Client.ViewModels
         public bool IsCompactHand => _matchModeSettings.IsCompactHand;
         public int HandColumnCount => _matchModeSettings.HandColumnCount;
         public ObservableCollection<ChatMessageEntry> ChatMessages => _chatMessages;
-
-        /// <summary>Exposes the board from the last accepted server view.</summary>
         public MatchBoard Board
         {
             get { return _board; }
@@ -165,14 +159,15 @@ namespace TLMG.Client.ViewModels
         }
 
         public int CurrentBidAmount => Board.CurrentBet;
-        public string SelectedPlayerName
+        public MatchPlayerEntry SelectedPlayer
         {
-            get { return _selectedPlayerName; }
+            get { return _selectedPlayer; }
             set
             {
-                if (SetProperty(ref _selectedPlayerName, value ?? string.Empty))
+                if (SetProperty(ref _selectedPlayer, value))
                 {
                     OnPropertyChanged(nameof(ContextMenuTitle));
+                    _openModerationCommand.NotifyCanExecuteChanged();
                 }
             }
         }
@@ -189,7 +184,10 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        public string ContextMenuTitle => SelectedPlayerName.ToUpperInvariant();
+        public string ContextMenuTitle
+        {
+            get { return (SelectedPlayer?.Nickname ?? string.Empty).ToUpperInvariant(); }
+        }
 
         public void Activate()
         {
@@ -621,23 +619,20 @@ namespace TLMG.Client.ViewModels
             _navigationManager.NavigateToWithoutHistory(ScreenId.MainMenu);
         }
 
-        private void ExecuteReportPlayer()
+        private bool CanOpenModeration(ModerationMode mode)
         {
-            _navigationManager.NavigateToWithoutHistory(
-                ScreenId.Moderation,
-                new ModerationNavigationParameter(SelectedPlayerName, ModerationMode.Report));
+            int roomId = _lobbyConnection.CurrentRoom?.RoomId ?? NoRoomId;
+            int targetUserId = SelectedPlayer?.UserId ?? NoUserId;
+            bool canOpen = _moderationNavigation.CanOpen(roomId, targetUserId, mode);
+
+            return canOpen;
         }
 
-        private void ExecuteKickPlayer()
+        private void OpenModeration(ModerationMode mode)
         {
-            KickVoteRequested?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void ExecuteBlockPlayer()
-        {
-            _navigationManager.NavigateToWithoutHistory(
-                ScreenId.Moderation,
-                new ModerationNavigationParameter(SelectedPlayerName, ModerationMode.Block));
+            int roomId = _lobbyConnection.CurrentRoom?.RoomId ?? NoRoomId;
+            int targetUserId = SelectedPlayer?.UserId ?? NoUserId;
+            _moderationNavigation.Open(roomId, targetUserId, mode);
         }
 
         private void ExecuteDemoRevealCards()

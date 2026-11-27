@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Windows;
 using System.Windows.Input;
+
 using CommunityToolkit.Mvvm.Input;
+
 using TLMG.Client.Communication;
 using TLMG.Client.Models;
 using TLMG.Client.Navigation;
@@ -10,15 +11,18 @@ using TLMG.Client.Validation;
 
 namespace TLMG.Client.ViewModels
 {
-    /// <summary>Displays the current player's identity and permits profile changes only for registered players.</summary>
     public class ProfileViewModel : ViewModelBase
     {
         private const string LastPasswordChangeFormatKey = "Profile_LastPasswordChange";
         private const string UnexpectedErrorKey = "Common_UnexpectedError";
+        private const string ProfileDataModelErrorKey = "Profile_DataModelError";
+        private const int InitialStatisticValue = 0;
+        private const int MinimumRank = 1;
 
         private readonly INavigationManager _navigationManager;
         private readonly IProfileConnection _profileConnection;
 
+        private bool _hasLoadedProfile;
         private bool _isEditingAvatar;
         private bool _isEditingNickname;
         private string _currentAvatarKey = AvatarCatalog.DefaultAvatarKey;
@@ -27,7 +31,11 @@ namespace TLMG.Client.ViewModels
         private string _email;
         private string _editingNickname;
         private string _lastPasswordChangeLabel;
-        private int _daysSincePasswordChange;
+        private int? _daysSincePasswordChange;
+        private int? _totalWins;
+        private int? _totalPoints;
+        private int? _personalRank;
+        private decimal? _winRate;
 
         public ProfileViewModel(INavigationManager navigationManager, IProfileConnection profileConnection)
         {
@@ -44,19 +52,13 @@ namespace TLMG.Client.ViewModels
         }
 
         public ICommand BackCommand { get; }
-
         public ICommand ToggleAvatarEditModeCommand { get; }
-
         public ICommand SelectAvatarCommand { get; }
-
         public ICommand BeginNicknameEditCommand { get; }
-
         public ICommand SaveNicknameCommand { get; }
-
         public ICommand ChangePasswordCommand { get; }
 
         public bool IsGuest => _profileConnection.IsGuestSession;
-
         public bool IsRegisteredPlayer => !IsGuest;
 
         public bool IsEditingAvatar
@@ -103,16 +105,51 @@ namespace TLMG.Client.ViewModels
             private set { SetProperty(ref _lastPasswordChangeLabel, value); }
         }
 
+        public int? TotalWins
+        {
+            get { return _totalWins; }
+            private set { SetProperty(ref _totalWins, value); }
+        }
+
+        public int? TotalPoints
+        {
+            get { return _totalPoints; }
+            private set { SetProperty(ref _totalPoints, value); }
+        }
+
+        public int? PersonalRank
+        {
+            get { return _personalRank; }
+            private set { SetProperty(ref _personalRank, value); }
+        }
+
+        public decimal? WinRate
+        {
+            get { return _winRate; }
+            private set { SetProperty(ref _winRate, value); }
+        }
+
         public void Activate()
         {
             Deactivate();
-
             LanguageManager.LanguageChanged += OnLanguageChanged;
+            NicknameError.Hide();
+            _hasLoadedProfile = false;
+            IsEditingAvatar = false;
+            IsEditingNickname = false;
+            TotalWins = null;
+            TotalPoints = null;
+            PersonalRank = null;
+            WinRate = null;
+            _daysSincePasswordChange = null;
             UpdateLastPasswordChangeLabel();
+            DisplayNickname = string.Empty;
+            Email = string.Empty;
+            EditingNickname = string.Empty;
+            ApplyAvatar(AvatarCatalog.DefaultAvatarKey);
 
             if (IsGuest)
             {
-                NicknameError.Hide();
                 ShowGuestIdentity();
             }
             else
@@ -130,7 +167,6 @@ namespace TLMG.Client.ViewModels
         {
             Deactivate();
             NicknameError.Dispose();
-
             base.OnDisposed();
         }
 
@@ -147,34 +183,62 @@ namespace TLMG.Client.ViewModels
         private void ShowGuestIdentity()
         {
             DisplayNickname = DisplayNameHelper.Resolve(
-                _profileConnection.PlayerUserId,
-                _profileConnection.PlayerNickname);
+                _profileConnection.PlayerUserId, _profileConnection.PlayerNickname);
         }
 
         private void UpdateLastPasswordChangeLabel()
         {
-            string passwordFormat = LanguageManager.FindText(LastPasswordChangeFormatKey);
-            LastPasswordChangeLabel = string.Format(passwordFormat, _daysSincePasswordChange);
+            LastPasswordChangeLabel = string.Empty;
+
+            if (_daysSincePasswordChange.HasValue)
+            {
+                string passwordFormat = LanguageManager.FindText(LastPasswordChangeFormatKey);
+                LastPasswordChangeLabel = string.Format(passwordFormat, _daysSincePasswordChange.Value);
+            }
         }
 
         private void LoadProfile()
         {
             OperationPlayerProfileResult profileResult = _profileConnection.GetPlayerProfile();
-            string errorKey = ResolveProfileErrorKey(profileResult);
 
-            if (errorKey == string.Empty)
+            if (profileResult == null || !profileResult.IsSuccess)
             {
+                ShowProfileError(profileResult?.ErrorKey);
+            }
+            else if (!HasValidStatistics(profileResult))
+            {
+                ShowProfileError(ProfileDataModelErrorKey);
+            }
+            else
+            {
+                _hasLoadedProfile = true;
                 NicknameError.Hide();
                 DisplayNickname = profileResult.Nickname;
                 Email = profileResult.Email;
                 ApplyAvatar(profileResult.AvatarKey);
-                _daysSincePasswordChange = (DateTime.UtcNow - profileResult.PasswordChangedAtUtc).Days;
+                _daysSincePasswordChange = Math.Max(InitialStatisticValue,
+                    (DateTime.UtcNow - profileResult.PasswordChangedAtUtc).Days);
                 UpdateLastPasswordChangeLabel();
+                TotalWins = profileResult.TotalWins;
+                TotalPoints = profileResult.TotalPoints;
+                PersonalRank = profileResult.PersonalRank;
+                WinRate = InitialStatisticValue;
+
+                if (profileResult.TotalGamesPlayed.Value > InitialStatisticValue)
+                {
+                    WinRate = (decimal)profileResult.TotalWins.Value / profileResult.TotalGamesPlayed.Value;
+                }
             }
-            else
-            {
-                ShowProfileError(errorKey);
-            }
+        }
+
+        private static bool HasValidStatistics(OperationPlayerProfileResult result)
+        {
+            bool hasValidStatistics = result.TotalWins.HasValue && result.TotalPoints.HasValue
+                && result.TotalGamesPlayed.HasValue && result.PersonalRank.HasValue
+                && result.TotalWins.Value >= InitialStatisticValue && result.TotalPoints.Value >= InitialStatisticValue
+                && result.TotalGamesPlayed.Value >= result.TotalWins.Value && result.PersonalRank.Value >= MinimumRank;
+
+            return hasValidStatistics;
         }
 
         private void ExecuteBack()
@@ -184,7 +248,7 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteToggleAvatarEditMode()
         {
-            if (IsRegisteredPlayer)
+            if (IsRegisteredPlayer && _hasLoadedProfile)
             {
                 IsEditingAvatar = !IsEditingAvatar;
             }
@@ -192,11 +256,11 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteSelectAvatar(string avatarKey)
         {
-            if (IsRegisteredPlayer && !string.IsNullOrEmpty(avatarKey))
+            if (IsRegisteredPlayer && _hasLoadedProfile && !string.IsNullOrEmpty(avatarKey))
             {
-                string errorKey = SaveProfile(DisplayNickname, avatarKey);
+                OperationResult updateResult = SaveProfile(DisplayNickname, avatarKey);
 
-                if (errorKey == string.Empty)
+                if (updateResult.IsSuccess)
                 {
                     NicknameError.Hide();
                     ApplyAvatar(avatarKey);
@@ -204,14 +268,14 @@ namespace TLMG.Client.ViewModels
                 }
                 else
                 {
-                    ShowProfileError(errorKey);
+                    ShowProfileError(updateResult.ErrorKey);
                 }
             }
         }
 
         private void ExecuteBeginNicknameEdit()
         {
-            if (IsRegisteredPlayer)
+            if (IsRegisteredPlayer && _hasLoadedProfile)
             {
                 EditingNickname = DisplayNickname;
                 NicknameError.Hide();
@@ -221,24 +285,28 @@ namespace TLMG.Client.ViewModels
 
         private void ExecuteSaveNickname()
         {
-            if (IsRegisteredPlayer)
+            if (IsRegisteredPlayer && _hasLoadedProfile)
             {
-                string errorKey = InputValidator.GetNicknameValidationErrorKey(EditingNickname);
+                string validationErrorKey = InputValidator.GetNicknameValidationErrorKey(EditingNickname);
 
-                if (errorKey == null)
+                if (validationErrorKey == null)
                 {
-                    errorKey = SaveProfile(EditingNickname, _currentAvatarKey);
-                }
+                    OperationResult updateResult = SaveProfile(EditingNickname, _currentAvatarKey);
 
-                if (errorKey == string.Empty)
-                {
-                    NicknameError.Hide();
-                    DisplayNickname = EditingNickname;
-                    IsEditingNickname = false;
+                    if (updateResult.IsSuccess)
+                    {
+                        NicknameError.Hide();
+                        DisplayNickname = EditingNickname;
+                        IsEditingNickname = false;
+                    }
+                    else
+                    {
+                        ShowProfileError(updateResult.ErrorKey);
+                    }
                 }
                 else
                 {
-                    ShowProfileError(errorKey);
+                    ShowProfileError(validationErrorKey);
                 }
             }
         }
@@ -251,32 +319,16 @@ namespace TLMG.Client.ViewModels
             }
         }
 
-        private string SaveProfile(string nickname, string avatarKey)
+        private OperationResult SaveProfile(string nickname, string avatarKey)
         {
             OperationResult updateResult = _profileConnection.UpdatePlayerProfile(nickname, avatarKey);
-            string errorKey = ResolveProfileErrorKey(updateResult);
 
-            return errorKey;
-        }
-
-        private static string ResolveProfileErrorKey(OperationResult result)
-        {
-            string errorKey = UnexpectedErrorKey;
-
-            if (result != null)
+            if (updateResult == null)
             {
-                if (result.IsSuccess && string.IsNullOrEmpty(result.ErrorKey))
-                {
-                    errorKey = string.Empty;
-                }
-                else if (!result.IsSuccess && !string.IsNullOrWhiteSpace(result.ErrorKey)
-                    && (Application.Current == null || Application.Current.TryFindResource(result.ErrorKey) is string))
-                {
-                    errorKey = result.ErrorKey;
-                }
+                updateResult = new OperationResult { ErrorKey = UnexpectedErrorKey };
             }
 
-            return errorKey;
+            return updateResult;
         }
 
         private void ApplyAvatar(string avatarKey)
@@ -287,6 +339,11 @@ namespace TLMG.Client.ViewModels
 
         private void ShowProfileError(string errorKey)
         {
+            if (string.IsNullOrWhiteSpace(errorKey))
+            {
+                errorKey = UnexpectedErrorKey;
+            }
+
             NicknameError.ShowError(LanguageManager.FindText(errorKey));
         }
     }

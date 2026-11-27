@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Documents;
+
 using TLMG.Client.Models;
 using TLMG.Client.ViewModels;
 
@@ -14,106 +15,120 @@ namespace TLMG.Client.Views
         private const string ReportSuccessMessageKey = "Moderation_ReportSuccessMessage";
         private const string BlockSuccessTitleKey = "Moderation_BlockSuccessTitle";
         private const string BlockSuccessMessageFormatKey = "Moderation_BlockSuccessMessageFormat";
+        private const string VoteSuccessTitleKey = "Moderation_VoteAcceptedTitle";
+        private const string VoteSuccessMessageKey = "Moderation_VoteAcceptedMessage";
         private const string ReportTabActiveStyleKey = "ModerationTabReportActiveButtonStyle";
         private const string BlockTabActiveStyleKey = "ModerationTabBlockActiveButtonStyle";
         private const string TabInactiveStyleKey = "ModerationTabInactiveButtonStyle";
         private const string BlockPlayerNameRunStyleKey = "ModerationBlockPlayerNameRunStyle";
         private const string DefaultFormat = "{0}";
         private const string WordSeparator = " ";
-        private const int FirstReasonIndex = 0;
-
         private readonly ModerationViewModel _viewModel;
 
         public ModerationScreen(ModerationViewModel viewModel)
         {
-            InitializeComponent();
             _viewModel = viewModel;
+            InitializeComponent();
             DataContext = viewModel;
             Loaded += OnScreenLoaded;
             Unloaded += OnScreenUnloaded;
-            lblTargetPlayerName.Text = viewModel.TargetPlayerName;
-            cmbReportReason.SelectedIndex = FirstReasonIndex;
-            ApplyMode(viewModel.Mode);
+            RefreshVisualState();
         }
 
         protected override void UpdateDynamicLabels()
         {
-            string blockIntroMessage = TryFindResource(BlockIntroKey) as string ?? string.Empty;
+            string blockIntro = TryFindResource(BlockIntroKey) as string ?? string.Empty;
             string blockDetail = TryFindResource(BlockDetailKey) as string ?? string.Empty;
-            Run introRun = new Run(blockIntroMessage + WordSeparator);
+            Run introRun = new Run(blockIntro + WordSeparator);
             Run nameRun = new Run(_viewModel.TargetPlayerName);
             Run detailRun = new Run(WordSeparator + blockDetail);
-
-            nameRun.Style = FindStyle(BlockPlayerNameRunStyleKey);
+            nameRun.Style = (Style)FindResource(BlockPlayerNameRunStyleKey);
             lblBlockMessage.Inlines.Clear();
             lblBlockMessage.Inlines.Add(introRun);
             lblBlockMessage.Inlines.Add(nameRun);
             lblBlockMessage.Inlines.Add(detailRun);
-
             UpdateSuccessTexts();
         }
 
-        private void OnScreenLoaded(object sender, RoutedEventArgs e)
+        private void OnScreenLoaded(object sender, RoutedEventArgs eventArguments)
         {
             _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
             _viewModel.PropertyChanged += OnViewModelPropertyChanged;
             RefreshVisualState();
+            UpdateDynamicLabels();
         }
 
-        private void OnScreenUnloaded(object sender, RoutedEventArgs e)
+        private void OnScreenUnloaded(object sender, RoutedEventArgs eventArguments)
         {
             _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
         }
 
-        private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs eventArguments)
         {
-            RefreshVisualState();
+            if (eventArguments.PropertyName == nameof(ModerationViewModel.Mode)
+                || eventArguments.PropertyName == nameof(ModerationViewModel.IsCompleted))
+            {
+                RefreshVisualState();
+            }
         }
 
         private void RefreshVisualState()
         {
             ApplyMode(_viewModel.Mode);
-            scrForm.Visibility = _viewModel.IsCompleted ? Visibility.Collapsed : Visibility.Visible;
-            brdSuccessCard.Visibility = _viewModel.IsCompleted ? Visibility.Visible : Visibility.Collapsed;
+            scrForm.Visibility = Visibility.Visible;
+            brdSuccessCard.Visibility = Visibility.Collapsed;
+            if (_viewModel.IsCompleted)
+            {
+                scrForm.Visibility = Visibility.Collapsed;
+                brdSuccessCard.Visibility = Visibility.Visible;
+            }
         }
 
         private void ApplyMode(ModerationMode mode)
         {
-            bool isReportMode = mode == ModerationMode.Report;
-            string reportTabStyleKey = isReportMode ? ReportTabActiveStyleKey : TabInactiveStyleKey;
-            string blockTabStyleKey = isReportMode ? TabInactiveStyleKey : BlockTabActiveStyleKey;
+            pnlReportForm.Visibility = Visibility.Collapsed;
+            pnlBlockForm.Visibility = Visibility.Collapsed;
+            pnlVoteForm.Visibility = Visibility.Collapsed;
+            grdModerationTabs.Visibility = Visibility.Visible;
+            btnReportTab.Style = (Style)FindResource(TabInactiveStyleKey);
+            btnBlockTab.Style = (Style)FindResource(TabInactiveStyleKey);
 
-            pnlReportForm.Visibility = isReportMode ? Visibility.Visible : Visibility.Collapsed;
-            pnlBlockForm.Visibility = isReportMode ? Visibility.Collapsed : Visibility.Visible;
-            btnReportTab.Style = FindStyle(reportTabStyleKey);
-            btnBlockTab.Style = FindStyle(blockTabStyleKey);
+            if (mode == ModerationMode.Report)
+            {
+                pnlReportForm.Visibility = Visibility.Visible;
+                btnReportTab.Style = (Style)FindResource(ReportTabActiveStyleKey);
+            }
+            else if (mode == ModerationMode.Block)
+            {
+                pnlBlockForm.Visibility = Visibility.Visible;
+                btnBlockTab.Style = (Style)FindResource(BlockTabActiveStyleKey);
+            }
+            else if (mode == ModerationMode.VoteToKick)
+            {
+                pnlVoteForm.Visibility = Visibility.Visible;
+                grdModerationTabs.Visibility = Visibility.Collapsed;
+            }
             UpdateSuccessTexts();
         }
 
         private void UpdateSuccessTexts()
         {
-            bool isReportMode = _viewModel.Mode == ModerationMode.Report;
-            string titleKey = isReportMode ? ReportSuccessTitleKey : BlockSuccessTitleKey;
-            string successMessage;
+            string titleKey = ReportSuccessTitleKey;
+            string successMessage = TryFindResource(ReportSuccessMessageKey) as string ?? string.Empty;
 
-            if (isReportMode)
+            if (_viewModel.Mode == ModerationMode.Block)
             {
-                successMessage = TryFindResource(ReportSuccessMessageKey) as string ?? string.Empty;
+                titleKey = BlockSuccessTitleKey;
+                string format = TryFindResource(BlockSuccessMessageFormatKey) as string ?? DefaultFormat;
+                successMessage = string.Format(format, _viewModel.TargetPlayerName);
             }
-            else
+            else if (_viewModel.Mode == ModerationMode.VoteToKick)
             {
-                string messageFormat = TryFindResource(BlockSuccessMessageFormatKey) as string ?? DefaultFormat;
-                successMessage = string.Format(messageFormat, _viewModel.TargetPlayerName);
+                titleKey = VoteSuccessTitleKey;
+                successMessage = TryFindResource(VoteSuccessMessageKey) as string ?? string.Empty;
             }
-
             lblSuccessTitle.Text = TryFindResource(titleKey) as string ?? string.Empty;
             lblSuccessMessage.Text = successMessage;
-        }
-
-        private Style FindStyle(string styleKey)
-        {
-            Style foundStyle = (Style)FindResource(styleKey);
-            return foundStyle;
         }
     }
 }

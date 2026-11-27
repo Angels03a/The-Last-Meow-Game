@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:TLMG.Client.Views"
              xmlns:behaviors="clr-namespace:TLMG.Client.Behaviors"
              xmlns:constants="clr-namespace:TLMG.Client.Constants"
+             xmlns:models="clr-namespace:TLMG.Client.Models"
              mc:Ignorable="d"
              d:DesignHeight="720"
              d:DesignWidth="1280">
@@ -126,7 +127,6 @@
 
             <DataTemplate x:Key="OpponentTemplate">
                 <StackPanel x:Name="pnlOpponent"
-                            Tag="{Binding Nickname}"
                             MouseRightButtonUp="PnlOpponent_MouseRightButtonUp">
                     <Grid Style="{StaticResource GameplayAvatarGridStyle}">
                         <Border Style="{StaticResource GameplayAvatarBorderStyle}">
@@ -330,13 +330,16 @@
                                    Style="{StaticResource ContextMenuHeaderStyle}" />
                         <Button Content="{DynamicResource Gameplay_MenuReportButton}"
                                 Style="{StaticResource GameplayContextMenuReportItemStyle}"
-                                Command="{Binding ReportPlayerCommand}" />
+                                Command="{Binding OpenModerationCommand}"
+                                CommandParameter="{x:Static models:ModerationMode.Report}" />
                         <Button Content="{DynamicResource Gameplay_MenuKickButton}"
                                 Style="{StaticResource GameplayContextMenuKickItemStyle}"
-                                Command="{Binding KickPlayerCommand}" />
+                                Command="{Binding OpenModerationCommand}"
+                                CommandParameter="{x:Static models:ModerationMode.VoteToKick}" />
                         <Button Content="{DynamicResource Gameplay_MenuBlockButton}"
                                 Style="{StaticResource ContextMenuDangerItemStyle}"
-                                Command="{Binding BlockPlayerCommand}" />
+                                Command="{Binding OpenModerationCommand}"
+                                CommandParameter="{x:Static models:ModerationMode.Block}" />
                         <Button Content="{DynamicResource Gameplay_MenuCancelButton}"
                                 Style="{StaticResource GameplayContextMenuCancelItemStyle}"
                                 Click="BtnMenuCancel_Click" />

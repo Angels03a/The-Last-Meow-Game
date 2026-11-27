@@ -4,125 +4,64 @@ using TLMG.Contracts;
 
 namespace TLMG.Services.Sessions
 {
-    /// <summary>
-    /// Immutable room change recording what happened, who was affected and who to notify after releasing the lock.
-    /// </summary>
     public sealed class LobbyMembershipChange
     {
-        /// <summary>RoomId when the result refers to no room.</summary>
         public const int NoRoomId = 0;
-
-        /// <summary>UserId when the token belongs to no session.</summary>
         public const int NoUserId = 0;
 
-        private static readonly IReadOnlyList<ILobbyManagerCallback> _noCallbacks =
-            new List<ILobbyManagerCallback>().AsReadOnly();
-
-        private LobbyMembershipChange(
-            LobbyChangeStatus status,
-            int userId,
-            int roomId,
-            LobbyRoomSnapshot room,
-            IReadOnlyList<ILobbyManagerCallback> recipientCallbacks,
-            RoomExitCause exitCause,
-            bool leftAuthorizedMatch)
+        private LobbyMembershipChange(LobbyChangeStatus status, int userId, LobbyRoomUpdate roomUpdate)
         {
             Status = status;
             UserId = userId;
-            RoomId = roomId;
-            Room = room;
-            RecipientCallbacks = recipientCallbacks;
-            ExitCause = exitCause;
-            LeftAuthorizedMatch = leftAuthorizedMatch;
+            RoomId = roomUpdate.RoomId;
+            Room = roomUpdate.Room;
+            RecipientCallbacks = roomUpdate.RecipientCallbacks;
+            ExitCause = RoomExitCause.None;
+            LeftAuthorizedMatch = false;
         }
 
-        /// <summary>Outcome of the requested change.</summary>
+        private LobbyMembershipChange(LobbyDeparture lobbyDeparture, LobbyRoomUpdate roomUpdate)
+            : this(LobbyChangeStatus.Applied, lobbyDeparture.UserId, roomUpdate)
+        {
+            ExitCause = lobbyDeparture.ExitCause;
+            LeftAuthorizedMatch = lobbyDeparture.LeftAuthorizedMatch;
+        }
+
         public LobbyChangeStatus Status { get; }
 
-        /// <summary>Player's account ID, or NoUserId for an invalid token.</summary>
         public int UserId { get; }
 
-        /// <summary>Affected room ID, or NoRoomId if none.</summary>
         public int RoomId { get; }
 
-        /// <summary>Room after the change, or null on rejection or when the empty room was deleted.</summary>
         public LobbyRoomSnapshot Room { get; }
 
-        /// <summary>Callbacks to notify, always present.</summary>
         public IReadOnlyList<ILobbyManagerCallback> RecipientCallbacks { get; }
 
-        /// <summary>Exit cause, or None for a change other than an exit.</summary>
         public RoomExitCause ExitCause { get; }
 
-        /// <summary>Whether the player left a room with an authorized match.</summary>
         public bool LeftAuthorizedMatch { get; }
 
-        /// <summary>Creates a rejected change result.</summary>
-        /// <param name="status">Rejection reason.</param>
-        /// <param name="userId">Account ID, or NoUserId for an invalid token.</param>
-        /// <returns>Result without a room or recipients, always present.</returns>
         public static LobbyMembershipChange CreateRejected(LobbyChangeStatus status, int userId)
         {
-            LobbyMembershipChange lobbyMembershipChange =
-                new LobbyMembershipChange(
-                    status, userId, NoRoomId, null, _noCallbacks, RoomExitCause.None, false);
+            LobbyRoomUpdate roomUpdate = new LobbyRoomUpdate(NoRoomId, null);
+            LobbyMembershipChange membershipChange = new LobbyMembershipChange(status, userId, roomUpdate);
 
-            return lobbyMembershipChange;
+            return membershipChange;
         }
 
-        /// <summary>Creates an applied result with nobody to notify.</summary>
-        /// <param name="userId">Player's account ID.</param>
-        /// <param name="roomId">Affected room ID.</param>
-        /// <param name="room">Room after the change, or null if deleted.</param>
-        /// <returns>Applied result, always present.</returns>
-        public static LobbyMembershipChange CreateApplied(int userId, int roomId, LobbyRoomSnapshot room)
+        public static LobbyMembershipChange CreateApplied(int userId, LobbyRoomUpdate roomUpdate)
         {
-            LobbyMembershipChange lobbyMembershipChange = CreateApplied(userId, roomId, room, _noCallbacks);
+            LobbyMembershipChange membershipChange =
+                new LobbyMembershipChange(LobbyChangeStatus.Applied, userId, roomUpdate);
 
-            return lobbyMembershipChange;
+            return membershipChange;
         }
 
-        /// <summary>Creates the result for an applied change.</summary>
-        /// <param name="userId">Player's account ID.</param>
-        /// <param name="roomId">Affected room ID.</param>
-        /// <param name="room">Room after the change, or null if deleted.</param>
-        /// <param name="recipientCallbacks">
-        /// Callbacks to notify, including the requester when appropriate. Leave the list unchanged afterward.
-        /// </param>
-        /// <returns>Applied result, always present.</returns>
-        public static LobbyMembershipChange CreateApplied(
-            int userId,
-            int roomId,
-            LobbyRoomSnapshot room,
-            IReadOnlyList<ILobbyManagerCallback> recipientCallbacks)
+        public static LobbyMembershipChange CreateDeparture(LobbyDeparture departure, LobbyRoomUpdate roomUpdate)
         {
-            LobbyMembershipChange lobbyMembershipChange =
-                new LobbyMembershipChange(
-                    LobbyChangeStatus.Applied, userId, roomId, room, recipientCallbacks, RoomExitCause.None, false);
+            LobbyMembershipChange membershipChange = new LobbyMembershipChange(departure, roomUpdate);
 
-            return lobbyMembershipChange;
-        }
-
-        /// <summary>Creates a room exit change with its cause.</summary>
-        /// <param name="userId">Player who left.</param>
-        /// <param name="roomId">Room the player left.</param>
-        /// <param name="room">Remaining room, or null if empty.</param>
-        /// <param name="recipientCallbacks">Lobby callbacks for players still in the room.</param>
-        /// <param name="exitCause">Exit cause.</param>
-        /// <param name="leftAuthorizedMatch">Whether the room already had an authorized match.</param>
-        /// <returns>Applied change.</returns>
-        public static LobbyMembershipChange CreateDeparture(
-            int userId,
-            int roomId,
-            LobbyRoomSnapshot room,
-            IReadOnlyList<ILobbyManagerCallback> recipientCallbacks,
-            RoomExitCause exitCause,
-            bool leftAuthorizedMatch)
-        {
-            LobbyMembershipChange lobbyMembershipChange = new LobbyMembershipChange(
-                LobbyChangeStatus.Applied, userId, roomId, room, recipientCallbacks, exitCause, leftAuthorizedMatch);
-
-            return lobbyMembershipChange;
+            return membershipChange;
         }
     }
 }

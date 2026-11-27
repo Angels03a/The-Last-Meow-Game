@@ -2,7 +2,9 @@
 {
     public enum ModerationMode
     {
+        None,
         Report,
-        Block
+        Block,
+        VoteToKick
     }
 }

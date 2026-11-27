@@ -115,6 +115,20 @@
                             </Border>
                         </StackPanel>
                     </Button>
+
+                    <Button x:Name="btnTabBlocked"
+                            Style="{StaticResource TabNavInactiveButtonStyle}"
+                            Visibility="{Binding IsRegisteredPlayer, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Click="BtnTab_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Friends_TabBlocked}" VerticalAlignment="Center" />
+                            <Border x:Name="brdBadgeBlocked" Style="{StaticResource BadgeInactiveStyle}"
+                                    Visibility="{Binding BlockedPlayers.HasLoaded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="{Binding BlockedPlayers.Players.Count}"
+                                           Style="{StaticResource BadgeTextInactiveStyle}" />
+                            </Border>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Border>
 
@@ -227,6 +241,47 @@
                         <TextBlock Text="{DynamicResource Friends_EmptyPending}"
                                    Style="{StaticResource EmptyStateTextStyle}"
                                    Visibility="{Binding IsEmptyPendingVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </StackPanel>
+
+                    <StackPanel x:Name="pnlBlockedContent" Visibility="Collapsed" DataContext="{Binding BlockedPlayers}">
+                        <Button Content="{DynamicResource Friends_RefreshBlockedButton}"
+                                Style="{StaticResource ActionPrimarySmallButtonStyle}"
+                                HorizontalAlignment="Right"
+                                Command="{Binding RefreshCommand}"
+                                IsEnabled="{Binding CanInteract}" />
+                        <TextBlock Text="{DynamicResource Friends_BlockedLoading}"
+                                   Style="{StaticResource EmptyStateTextStyle}"
+                                   Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <TextBlock Text="{DynamicResource Friends_BlockedLookupFailed}"
+                                   Style="{StaticResource EmptyStateTextStyle}"
+                                   Visibility="{Binding HasLookupFailed, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                        <ItemsControl ItemsSource="{Binding Players}" IsEnabled="{Binding CanInteract}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource FriendCardBorderStyle}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Style="{StaticResource FriendAvatarBorderStyle}" Margin="0,0,16,0">
+                                                <TextBlock Text="🐱" Style="{StaticResource FriendAvatarEmojiStyle}" />
+                                            </Border>
+                                            <TextBlock Grid.Column="1" Text="{Binding Nickname}"
+                                                       VerticalAlignment="Center" Style="{StaticResource FriendNameTextStyle}" />
+                                            <Button Grid.Column="2" Content="{DynamicResource Friends_UnblockButton}"
+                                                    Style="{StaticResource ActionPrimarySmallButtonStyle}"
+                                                    Command="{Binding DataContext.BlockedPlayers.UnblockCommand, RelativeSource={RelativeSource AncestorType=local:FriendsScreen}}"
+                                                    CommandParameter="{Binding}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="{DynamicResource Friends_EmptyBlocked}"
+                                   Style="{StaticResource EmptyStateTextStyle}"
+                                   Visibility="{Binding IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
                     </StackPanel>
                 </Grid>
             </ScrollViewer>
