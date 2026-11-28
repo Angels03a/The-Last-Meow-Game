@@ -9,6 +9,8 @@ using TLMG.Domain.Repositories;
 using TLMG.Services.Friends;
 using TLMG.Services.Sessions;
 
+using TLMG.Services.Moderation;
+
 namespace TLMG.Services.Tests
 {
     /// <summary>
@@ -43,7 +45,9 @@ namespace TLMG.Services.Tests
             repository.AddUser(InviteeUserId, "Invitee");
             repository.Seed(InviterUserId, InviteeUserId, FriendshipState.Accepted);
             _registry = new SessionRegistry(_clock.ReadUtcNow, count => 0);
-            _service = new FriendsService(repository, _registry);
+            BlockPolicy blockPolicy = new BlockPolicy(new NoBlocksRepository());
+            _registry.ConfigureBlockPolicy(blockPolicy);
+            _service = new FriendsService(repository, _registry, _registry, blockPolicy);
             _inviterToken = StartSession(InviterUserId, "Inviter", new FriendsCallbackStub());
             _inviteeToken = StartSession(InviteeUserId, "Invitee", _inviteeCallback);
             _registry.CreateRoom(new SessionChannelCaller(_inviterToken, "inviter-lobby"), null);

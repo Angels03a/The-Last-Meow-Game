@@ -25,6 +25,10 @@
     <ProjectReference Include="..\..\Server\TLMG.Services\TLMG.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IdentityAuthorizer.cs" />
+    <Compile Include="NoBlocksRepository.cs" />
+    <Compile Include="LoginReportRepository.cs" />
+    <Compile Include="MatchHistoryStub.cs" />
     <Compile Include="FailingPasswordHasherStub.cs" />
     <Compile Include="PasswordRecoveryServiceTests.cs" />
     <Compile Include="PasswordResetDispatcherTests.cs" />

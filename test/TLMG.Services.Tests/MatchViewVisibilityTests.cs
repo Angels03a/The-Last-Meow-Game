@@ -276,7 +276,7 @@ namespace TLMG.Services.Tests
             MatchState matchState = MatchStateScenarios.CreateStarted();
             matchState.RemovePlayer(
                 Second,
-                PlayerExit.Immediate(MatchStateScenarios.StartUtc),
+                PlayerExit.CreateVoluntary(MatchStateScenarios.StartUtc),
                 count => 0);
 
             // Act
@@ -341,7 +341,7 @@ namespace TLMG.Services.Tests
         public void CreateMatchView_WithRegisteredParticipants_ProjectsFinalStandings()
         {
             MatchState match = MatchStateScenarios.ReachMatchFinished();
-            MatchViewContext context = MatchStateScenarios.CreateContext(match, null, true);
+            MatchViewContext context = MatchStateScenarios.CreateContext(match, null, System.Array.Empty<int>());
             MatchView view = MatchViewHelper.CreateMatchView(context, First);
             FinalStandings expected = FinalStandings.CalculateFromMatch(match, new int[0]);
 
@@ -369,9 +369,10 @@ namespace TLMG.Services.Tests
         public void CreateMatchView_LastActivePlayer_ProjectsWinnerAndDepartures()
         {
             MatchState match = MatchStateScenarios.CreateStarted();
-            match.RemovePlayer(Second, PlayerExit.Immediate(MatchStateScenarios.StartUtc), count => 0);
-            match.RemovePlayer(Third, PlayerExit.Immediate(MatchStateScenarios.StartUtc.AddSeconds(1)), count => 0);
-            MatchViewContext context = MatchStateScenarios.CreateContext(match, null, true);
+            match.RemovePlayer(Second, PlayerExit.CreateVoluntary(MatchStateScenarios.StartUtc), count => 0);
+            match.RemovePlayer(Third,
+                PlayerExit.CreateVoluntary(MatchStateScenarios.StartUtc.AddSeconds(1)), count => 0);
+            MatchViewContext context = MatchStateScenarios.CreateContext(match, null, System.Array.Empty<int>());
             MatchView view = MatchViewHelper.CreateMatchView(context, First);
 
             Assert.Equal(First, view.WinnerUserId);

@@ -1,4 +1,5 @@
 using System;
+using TLMG.Services.Lobby;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Tests
@@ -6,6 +7,10 @@ namespace TLMG.Services.Tests
     internal sealed class LobbyScenario
     {
         internal SessionRegistry Registry { get; }
+
+        internal MatchStartCoordinator MatchStart { get; }
+
+        internal LobbyService Service { get; }
 
         internal string CreatorToken { get; }
 
@@ -19,6 +24,8 @@ namespace TLMG.Services.Tests
         internal LobbyScenario(SessionRegistry registry)
         {
             Registry = registry;
+            MatchStart = MatchHistoryStub.CreateCoordinator(registry);
+            Service = new LobbyService(registry, registry, MatchStart);
             CreatorToken = Registry.StartRegisteredSession(1, "Creator", out SessionEnd replaced);
             SessionChannelCaller creatorCaller = new SessionChannelCaller(CreatorToken, "creator");
             RoomId = Registry.CreateRoom(creatorCaller, null).RoomId;

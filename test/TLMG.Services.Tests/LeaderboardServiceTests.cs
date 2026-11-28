@@ -7,6 +7,8 @@ using TLMG.Domain.Constants;
 using TLMG.Domain.Repositories;
 using TLMG.Services.Leaderboard;
 
+using TLMG.Services.Sessions;
+
 namespace TLMG.Services.Tests
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace TLMG.Services.Tests
                 CreateRankedPlayer("Felix", string.Empty, 45, 3, 11));
 
             // Act
-            OperationGetLeaderboardResult result = service.GetLeaderboard();
+            OperationGetLeaderboardResult result = service.GetLeaderboard(string.Empty);
 
             // Assert
             Assert.True(result.IsSuccess);
@@ -54,7 +56,7 @@ namespace TLMG.Services.Tests
                 CreateRankedPlayer("Middle", "AVATAR_CAT", 40, 2, 4));
 
             // Act
-            OperationGetLeaderboardResult result = service.GetLeaderboard();
+            OperationGetLeaderboardResult result = service.GetLeaderboard(string.Empty);
 
             // Assert
             Assert.Equal(new[] { "Low", "High", "Middle" }, NicknamesOf(result.Players));
@@ -70,7 +72,7 @@ namespace TLMG.Services.Tests
                 CreateRankedPlayer("Amy", "AVATAR_CAT", 40, 2, 4));
 
             // Act
-            OperationGetLeaderboardResult result = service.GetLeaderboard();
+            OperationGetLeaderboardResult result = service.GetLeaderboard(string.Empty);
 
             // Assert
             Assert.Equal(new[] { "Zed", "Amy" }, NicknamesOf(result.Players));
@@ -84,7 +86,7 @@ namespace TLMG.Services.Tests
             _players.Leaderboard = CreateSuccessfulLookup();
 
             // Act
-            OperationGetLeaderboardResult result = service.GetLeaderboard();
+            OperationGetLeaderboardResult result = service.GetLeaderboard(string.Empty);
 
             // Assert
             Assert.True(result.IsSuccess);
@@ -105,7 +107,7 @@ namespace TLMG.Services.Tests
             };
 
             // Act
-            OperationGetLeaderboardResult result = service.GetLeaderboard();
+            OperationGetLeaderboardResult result = service.GetLeaderboard(string.Empty);
 
             // Assert
             Assert.False(result.IsSuccess);
@@ -121,7 +123,7 @@ namespace TLMG.Services.Tests
             _players.Leaderboard = null;
 
             // Act
-            OperationGetLeaderboardResult result = service.GetLeaderboard();
+            OperationGetLeaderboardResult result = service.GetLeaderboard(string.Empty);
 
             // Assert
             Assert.False(result.IsSuccess);
@@ -137,7 +139,7 @@ namespace TLMG.Services.Tests
             _players.Leaderboard = new LeaderboardLookup { WasLeaderboardLookupSuccessful = true, Players = null };
 
             // Act
-            OperationGetLeaderboardResult result = service.GetLeaderboard();
+            OperationGetLeaderboardResult result = service.GetLeaderboard(string.Empty);
 
             // Assert
             Assert.False(result.IsSuccess);
@@ -153,7 +155,7 @@ namespace TLMG.Services.Tests
             _players.Leaderboard = CreateSuccessfulLookup();
 
             // Act
-            service.GetLeaderboard();
+            service.GetLeaderboard(string.Empty);
 
             // Assert
             Assert.Equal(new[] { RequestedPlayerLimit }, _players.RequestedLeaderboardLimits);
@@ -176,7 +178,7 @@ namespace TLMG.Services.Tests
             };
 
             // Act
-            service.GetLeaderboard();
+            service.GetLeaderboard(string.Empty);
 
             // Assert
             Assert.Equal(2, receivedPlayers.Count);
@@ -186,7 +188,7 @@ namespace TLMG.Services.Tests
 
         private LeaderboardService CreateService()
         {
-            return new LeaderboardService(_players);
+            return new LeaderboardService(_players, new SessionRegistry());
         }
 
         private static LeaderboardLookup CreateSuccessfulLookup(params RankedPlayer[] rankedPlayers)

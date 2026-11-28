@@ -8,6 +8,8 @@ using TLMG.Domain.Repositories;
 using TLMG.Services.Accounts;
 using TLMG.Services.Sessions;
 
+using TLMG.Services.Moderation;
+
 namespace TLMG.Services.Tests
 {
     /// <summary>
@@ -278,7 +280,9 @@ namespace TLMG.Services.Tests
                 PasswordHash = _hasher.HashPassword(SyntheticPassword)
             };
 
-            return new PlayerLogInService(_repository, _hasher, _registry);
+            ReportService reports = new ReportService(new LoginReportRepository(_repository), _registry,
+                MatchHistoryStub.CreateCoordinator(_registry));
+            return new PlayerLogInService(_repository, _hasher, _registry, reports);
         }
 
         private static OperationLogInRequest CreateRequest(string password)

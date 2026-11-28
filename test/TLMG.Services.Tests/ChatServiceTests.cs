@@ -405,7 +405,7 @@ namespace TLMG.Services.Tests
 
         private ChatService CreateService()
         {
-            return new ChatService(_lobby.Registry, _repository);
+            return new ChatService(_lobby.Registry, _repository, _lobby.Registry);
         }
 
         private SessionChannelCaller ChatCallerOf(int userId)

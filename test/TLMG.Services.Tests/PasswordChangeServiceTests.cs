@@ -163,7 +163,8 @@ namespace TLMG.Services.Tests
         {
             // Arrange
             _repository.Lookup = new PasswordHashLookup { Status = CredentialsLookupStatus.Found, PasswordHash = hash };
-            PasswordChangeService service = new PasswordChangeService(_repository, new RejectingHasher(), _identity);
+            PasswordChangeService service = new PasswordChangeService(_repository, new RejectingHasher(),
+                new IdentityAuthorizer(_identity));
 
             // Act
             OperationResult result = service.ChangePassword(CreateRequest(ValidToken, CurrentPassword, NewPassword));
@@ -184,7 +185,8 @@ namespace TLMG.Services.Tests
                 Status = (CredentialsLookupStatus)999,
                 PasswordHash = _storedHash
             };
-            PasswordChangeService service = new PasswordChangeService(_repository, new RejectingHasher(), _identity);
+            PasswordChangeService service = new PasswordChangeService(_repository, new RejectingHasher(),
+                new IdentityAuthorizer(_identity));
 
             // Act
             OperationResult result = service.ChangePassword(CreateRequest(ValidToken, CurrentPassword, NewPassword));
@@ -264,7 +266,8 @@ namespace TLMG.Services.Tests
 
         private PasswordChangeService CreateService()
         {
-            return new PasswordChangeService(_repository, _hasher, _identity);
+            return new PasswordChangeService(_repository, _hasher,
+                new IdentityAuthorizer(_identity));
         }
 
         private static OperationChangePasswordRequest CreateRequest(

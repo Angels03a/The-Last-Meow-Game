@@ -10,6 +10,14 @@ namespace TLMG.Services.Tests
 
         internal LobbyRoom LastLobbyRoom { get; private set; }
 
+        internal int LastExpelledRoomId { get; private set; }
+
+        public void OnPlayerExpelled(int roomId)
+        {
+            CallCount++;
+            LastExpelledRoomId = roomId;
+        }
+
         public void CreateRoomResult(OperationLobbyRoomResult operationCreateRoomResult)
         {
             CallCount++;

@@ -556,7 +556,7 @@ namespace TLMG.Services.Tests
             start.Clock.Advance(TimeSpan.FromSeconds(CountdownSeconds));
 
             // Act
-            LobbyMembershipChange change = start.Scenario.Registry.RequestMatchStart(
+            LobbyMembershipChange change = start.Scenario.MatchStart.RequestMatchStart(
                 new SessionChannelCaller(outsiderToken, "outsider"), start.Scenario.RoomId, before.Room.Start.CountdownId);
 
             // Assert
@@ -583,7 +583,7 @@ namespace TLMG.Services.Tests
             start.Clock.Advance(TimeSpan.FromSeconds(CountdownSeconds));
 
             // Act
-            LobbyMembershipChange change = start.Scenario.Registry.RequestMatchStart(
+            LobbyMembershipChange change = start.Scenario.MatchStart.RequestMatchStart(
                 new SessionChannelCaller(token, LobbyReadinessHelper.CreatorChannelId), start.Scenario.RoomId, countdownId);
 
             // Assert
@@ -740,7 +740,7 @@ namespace TLMG.Services.Tests
 
             internal LobbyMembershipChange RequestStartWithCountdownId(int userId, long countdownId)
             {
-                return Scenario.Registry.RequestMatchStart(CallerOf(userId), Scenario.RoomId, countdownId);
+                return Scenario.MatchStart.RequestMatchStart(CallerOf(userId), Scenario.RoomId, countdownId);
             }
 
             internal LobbyMembershipChange RequestStartAfterCountdown()
@@ -754,7 +754,7 @@ namespace TLMG.Services.Tests
             {
                 long armedCountdownId = ArmedRoom.Room.Start.CountdownId;
 
-                return Scenario.Registry.RequestMatchStart(CallerOf(userId), Scenario.RoomId, armedCountdownId);
+                return Scenario.MatchStart.RequestMatchStart(CallerOf(userId), Scenario.RoomId, armedCountdownId);
             }
 
             internal MatchSnapshot FindMatch(LobbyMembershipChange change, int userId)

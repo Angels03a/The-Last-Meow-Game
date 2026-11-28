@@ -383,7 +383,7 @@ namespace TLMG.Services.Tests
 
         private PlayerProfileService CreateService()
         {
-            return new PlayerProfileService(_repository, _identity);
+            return new PlayerProfileService(_repository, _identity, new IdentityAuthorizer(_identity));
         }
 
         private static PlayerProfileLookup CreateFoundLookup(string avatarKey)

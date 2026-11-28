@@ -4,6 +4,7 @@ using System.Linq;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using TLMG.Services.Lobby;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Tests
@@ -46,19 +47,30 @@ namespace TLMG.Services.Tests
             int firstUserId,
             ManualUtcClock clock,
             ScriptedRandom randomSource,
-            SessionRegistry registry,
+            MatchPlayScenario previousScenario,
             int cardsPerPlayer)
         {
             _cardsPerPlayer = cardsPerPlayer;
             Clock = clock;
             RandomSource = randomSource;
-            Registry = registry ?? new SessionRegistry(clock.ReadUtcNow, randomSource.PickIndex);
+            if (previousScenario == null)
+            {
+                Registry = new SessionRegistry(clock.ReadUtcNow, randomSource.PickIndex);
+                MatchStart = MatchHistoryStub.CreateCoordinator(Registry);
+            }
+            else
+            {
+                Registry = previousScenario.Registry;
+                MatchStart = previousScenario.MatchStart;
+            }
             UserIds = Enumerable.Range(firstUserId, playerCount).ToList().AsReadOnly();
             CreateRoomWithAllPlayers();
             StartMatch();
         }
 
         internal SessionRegistry Registry { get; }
+
+        internal MatchStartCoordinator MatchStart { get; }
 
         internal ManualUtcClock Clock { get; }
 
@@ -75,7 +87,7 @@ namespace TLMG.Services.Tests
         /// <summary>Creates another match in the same registry with different player IDs.</summary>
         internal MatchPlayScenario CreateAnotherMatch(int playerCount, int firstUserId)
         {
-            return new MatchPlayScenario(playerCount, firstUserId, Clock, RandomSource, Registry, CardsPerPlayerCount);
+            return new MatchPlayScenario(playerCount, firstUserId, Clock, RandomSource, this, CardsPerPlayerCount);
         }
 
         internal string TokenOf(int userId)
@@ -283,7 +295,7 @@ namespace TLMG.Services.Tests
             long countdownId = Registry.ChangePlayerReadiness(LobbyCallerOf(CreatorUserId), RoomId, true)
                 .Room.Start.CountdownId;
             LobbyMembershipChange change =
-                Registry.RequestMatchStart(LobbyCallerOf(CreatorUserId), RoomId, countdownId);
+                MatchStart.RequestMatchStart(LobbyCallerOf(CreatorUserId), RoomId, countdownId);
             MatchId = change.Room.Start.MatchId.Value;
         }
     }

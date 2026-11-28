@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using TLMG.Services.Friends;
 using TLMG.Services.Sessions;
 
+using TLMG.Services.Moderation;
+
 namespace TLMG.Services.Tests
 {
     /// <summary>
@@ -29,7 +31,9 @@ namespace TLMG.Services.Tests
             Repository.AddUser(AlphaUserId, AlphaNickname);
             Repository.AddUser(BravoUserId, BravoNickname);
             Repository.AddUser(CharlieUserId, CharlieNickname);
-            Service = new FriendsService(Repository, Registry);
+            BlockPolicy blockPolicy = new BlockPolicy(new NoBlocksRepository());
+            Registry.ConfigureBlockPolicy(blockPolicy);
+            Service = new FriendsService(Repository, Registry, Registry, blockPolicy);
             AlphaToken = StartRegisteredSession(AlphaUserId, AlphaNickname, AlphaCallback);
 
             if (isBravoOnline)

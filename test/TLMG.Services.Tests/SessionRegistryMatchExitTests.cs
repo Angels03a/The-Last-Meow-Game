@@ -705,7 +705,7 @@ namespace TLMG.Services.Tests
             // Arrange
             MatchPlayScenario scenario = new MatchPlayScenario(MinimumPlayerCount);
             scenario.SubscribeAll();
-            LobbyService lobbyService = new LobbyService(scenario.Registry);
+            LobbyService lobbyService = new LobbyService(scenario.Registry, scenario.Registry, scenario.MatchStart);
             int leavingUserId = scenario.UserIds[1];
             int remainingUserId = scenario.CreatorUserId;
             int lobbyCallsBefore = scenario.LobbyCallbackOf(remainingUserId).CallCount;
