@@ -140,7 +140,7 @@ namespace TLMG.Services
         }
         void ILobbyManager.LobbyHeartbeat(string sessionToken, int sequence, int confirmedSequence)
         {
-            var callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
+            ILobbyManagerCallback callback = OperationContext.Current.GetCallbackChannel<ILobbyManagerCallback>();
             SafeNotifyAll(_sessionRegistry.ProcessHeartbeat(sessionToken, _lobbyChannelId, HeartbeatChannel.Lobby,
                 sequence, confirmedSequence, callback.LobbyHeartbeatEcho));
         }

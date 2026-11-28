@@ -93,11 +93,7 @@ namespace TLMG.Services.Friends
                 sessionToken,
                 SystemPermission.InviteFriendToRoom);
 
-            if (authorization == null)
-            {
-                operationInviteFriendToRoomResult.ErrorKey = ErrorKeys.Common.Unexpected;
-            }
-            else if (authorization.Status != AuthorizationStatus.Granted)
+            if (authorization.Status != AuthorizationStatus.Granted)
             {
                 operationInviteFriendToRoomResult.ErrorKey = authorization.ErrorKey;
                 LogRejectedOperation("invitar a un amigo", authorization.UserId, authorization.Status.ToString());
@@ -146,11 +142,7 @@ namespace TLMG.Services.Friends
                 sessionToken,
                 SystemPermission.AcceptRoomInvitation);
 
-            if (authorization == null)
-            {
-                operationAcceptRoomInvitationResult.ErrorKey = ErrorKeys.Common.Unexpected;
-            }
-            else if (authorization.Status != AuthorizationStatus.Granted)
+            if (authorization.Status != AuthorizationStatus.Granted)
             {
                 operationAcceptRoomInvitationResult.ErrorKey = authorization.ErrorKey;
                 LogRejectedOperation(
@@ -705,11 +697,7 @@ namespace TLMG.Services.Friends
                     SystemPermission.SendFriendRequest);
                 PlayerSession playerSession;
 
-                if (authorization == null)
-                {
-                    validationResult.ErrorKey = ErrorKeys.Common.Unexpected;
-                }
-                else if (authorization.Status != AuthorizationStatus.Granted)
+                if (authorization.Status != AuthorizationStatus.Granted)
                 {
                     validationResult.ErrorKey = authorization.ErrorKey;
                     LogRejectedOperation("solicitar amistad", authorization.UserId, authorization.Status.ToString());
@@ -1056,11 +1044,7 @@ namespace TLMG.Services.Friends
                 SystemPermission.RespondToFriendRequest);
             PlayerSession playerSession;
 
-            if (authorization == null)
-            {
-                friendRequestAnswer.ErrorKey = ErrorKeys.Common.Unexpected;
-            }
-            else if (authorization.Status != AuthorizationStatus.Granted)
+            if (authorization.Status != AuthorizationStatus.Granted)
             {
                 friendRequestAnswer.ErrorKey = authorization.ErrorKey;
                 LogRejectedOperation(

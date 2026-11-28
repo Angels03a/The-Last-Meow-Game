@@ -25,6 +25,9 @@
     <ProjectReference Include="..\..\Server\TLMG.Services\TLMG.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ReportServiceTests.cs" />
+    <Compile Include="ModerationServiceTests.cs" />
+    <Compile Include="GuestSessionServiceTests.cs" />
     <Compile Include="IdentityAuthorizer.cs" />
     <Compile Include="NoBlocksRepository.cs" />
     <Compile Include="LoginReportRepository.cs" />

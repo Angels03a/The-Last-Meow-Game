@@ -56,22 +56,25 @@ namespace TLMG.Services.Accounts
             string cultureCode)
         {
             OperationResult operationResult = new OperationResult();
-            string errorKey = ValidateRegisterPlayerAccountRequest(playerAccountRegistration,
+            string validationErrorKey = ValidateRegisterPlayerAccountRequest(playerAccountRegistration,
                 out PlayerRegistration playerRegistration);
 
-            if (errorKey == string.Empty)
+            if (validationErrorKey != string.Empty)
+            {
+                operationResult.ErrorKey = validationErrorKey;
+            }
+            else
             {
                 string normalizedEmail = playerRegistration.Email;
-                errorKey = FindDuplicateAccountErrorKey(normalizedEmail, playerRegistration.Nickname);
-
-                if (errorKey == null)
+                string failureKey = FindDuplicateAccountErrorKey(normalizedEmail, playerRegistration.Nickname);
+                if (failureKey == null)
                 {
-                    errorKey = CreatePendingAndSendCode(playerRegistration, normalizedEmail, cultureCode);
+                    failureKey = CreatePendingAndSendCode(playerRegistration, normalizedEmail, cultureCode);
                 }
-            }
 
-            operationResult.IsSuccess = errorKey == null;
-            operationResult.ErrorKey = operationResult.IsSuccess ? string.Empty : errorKey;
+                operationResult.IsSuccess = failureKey == null;
+                operationResult.ErrorKey = failureKey ?? string.Empty;
+            }
 
             return operationResult;
         }
@@ -232,28 +235,29 @@ namespace TLMG.Services.Accounts
             if (validationResult == null)
             {
                 _log.Warn("La validación del código de registro no devolvió resultado.");
-                return errorKey;
             }
-
-            switch (validationResult.Status)
+            else
             {
-                case VerificationCodeStatus.Valid:
-                    errorKey = FinalizePlayer(pendingRecord, out isSuccess);
-                    break;
-                case VerificationCodeStatus.Invalid:
-                    errorKey = ErrorKeys.Verification.IncorrectCode;
-                    break;
-                case VerificationCodeStatus.TooManyAttempts:
-                    errorKey = ErrorKeys.Verification.AttemptsExhausted;
-                    break;
-                case VerificationCodeStatus.Expired:
-                case VerificationCodeStatus.NoActiveCode:
-                    errorKey = ErrorKeys.Verification.ExpiredCode;
-                    break;
-                default:
-                    _log.ErrorFormat("Estado de validación no reconocido: {0}.", validationResult.Status);
-                    errorKey = ErrorKeys.CreateAccount.DataModel;
-                    break;
+                switch (validationResult.Status)
+                {
+                    case VerificationCodeStatus.Valid:
+                        errorKey = FinalizePlayer(pendingRecord, out isSuccess);
+                        break;
+                    case VerificationCodeStatus.Invalid:
+                        errorKey = ErrorKeys.Verification.IncorrectCode;
+                        break;
+                    case VerificationCodeStatus.TooManyAttempts:
+                        errorKey = ErrorKeys.Verification.AttemptsExhausted;
+                        break;
+                    case VerificationCodeStatus.Expired:
+                    case VerificationCodeStatus.NoActiveCode:
+                        errorKey = ErrorKeys.Verification.ExpiredCode;
+                        break;
+                    default:
+                        _log.ErrorFormat("Estado de validación no reconocido: {0}.", validationResult.Status);
+                        errorKey = ErrorKeys.CreateAccount.DataModel;
+                        break;
+                }
             }
 
             return errorKey;

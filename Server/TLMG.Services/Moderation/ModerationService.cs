@@ -49,7 +49,15 @@ namespace TLMG.Services.Moderation
                 SessionAuthorization sessionAuthorization = _sessionAuthorizer.Authorize(
                     sessionToken, SystemPermission.ManageBlocks);
 
-                if (IsAuthorized(sessionAuthorization))
+                if (sessionAuthorization.Status != AuthorizationStatus.Granted)
+                {
+                    blockedPlayers.ErrorKey = sessionAuthorization.ErrorKey;
+                }
+                else if (sessionAuthorization.UserId <= ValidationRules.NoUserId)
+                {
+                    blockedPlayers.ErrorKey = ErrorKeys.Common.InvalidSession;
+                }
+                else
                 {
                     BlockListLookup blocks = _blockPolicy.FindBlocks(sessionAuthorization.UserId);
 
@@ -62,10 +70,6 @@ namespace TLMG.Services.Moderation
                     {
                         blockedPlayers.Players.Clear();
                     }
-                }
-                else
-                {
-                    blockedPlayers.ErrorKey = FindAuthorizationErrorKey(sessionAuthorization);
                 }
             }
 
@@ -81,9 +85,13 @@ namespace TLMG.Services.Moderation
                 SessionAuthorization sessionAuthorization = _sessionAuthorizer.Authorize(
                     sessionToken, SystemPermission.ManageBlocks);
 
-                if (!IsAuthorized(sessionAuthorization))
+                if (sessionAuthorization.Status != AuthorizationStatus.Granted)
                 {
-                    operationChangeBlock.ErrorKey = FindAuthorizationErrorKey(sessionAuthorization);
+                    operationChangeBlock.ErrorKey = sessionAuthorization.ErrorKey;
+                }
+                else if (sessionAuthorization.UserId <= ValidationRules.NoUserId)
+                {
+                    operationChangeBlock.ErrorKey = ErrorKeys.Common.InvalidSession;
                 }
                 else if (targetUserId <= ValidationRules.NoUserId || targetUserId == sessionAuthorization.UserId)
                 {
@@ -106,33 +114,6 @@ namespace TLMG.Services.Moderation
             }
 
             return operationChangeBlock;
-        }
-
-        private static bool IsAuthorized(SessionAuthorization sessionAuthorization)
-        {
-            bool isAuthorized = sessionAuthorization != null && sessionAuthorization.Status == AuthorizationStatus.Granted
-                && sessionAuthorization.UserId > ValidationRules.NoUserId;
-
-            return isAuthorized;
-        }
-
-        private static string FindAuthorizationErrorKey(SessionAuthorization sessionAuthorization)
-        {
-            string errorKey = ErrorKeys.Common.Unexpected;
-
-            if (sessionAuthorization != null)
-            {
-                if (sessionAuthorization.Status == AuthorizationStatus.InvalidSession)
-                {
-                    errorKey = ErrorKeys.Common.InvalidSession;
-                }
-                else if (sessionAuthorization.Status == AuthorizationStatus.PermissionDenied)
-                {
-                    errorKey = ErrorKeys.Common.PermissionDenied;
-                }
-            }
-
-            return errorKey;
         }
 
         private static OperationResult CreateBlockOperation(BlockWriteStatus blockStatus, bool shouldBlock)
@@ -171,7 +152,7 @@ namespace TLMG.Services.Moderation
 
         private static bool TryFillBlockedPlayers(BlockListLookup lookup, int userId, BlockedPlayerList result)
         {
-            bool isValid = lookup != null && lookup.WasLookupSuccessful && lookup.Relationships != null;
+            bool isValid = true;
 
             for (int relationshipIndex = 0;
                 isValid && relationshipIndex < lookup.Relationships.Count;
@@ -179,15 +160,9 @@ namespace TLMG.Services.Moderation
             {
                 BlockRelationship relationship = lookup.Relationships[relationshipIndex];
 
-                if (relationship == null)
+                if (relationship.BlockerUserId == userId)
                 {
-                    isValid = false;
-                }
-                else if (relationship.BlockerUserId == userId)
-                {
-                    isValid = relationship.BlockedUserId > ValidationRules.NoUserId
-                        && relationship.BlockedUserId != userId
-                        && !string.IsNullOrWhiteSpace(relationship.BlockedNickname);
+                    isValid = !string.IsNullOrWhiteSpace(relationship.BlockedNickname);
 
                     if (isValid)
                     {

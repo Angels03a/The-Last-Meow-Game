@@ -132,7 +132,7 @@ namespace TLMG.Services
         }
         void IFriendsManager.FriendsHeartbeat(string sessionToken, int sequence, int confirmedSequence)
         {
-            var callback = OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
+            IFriendsManagerCallback callback = OperationContext.Current.GetCallbackChannel<IFriendsManagerCallback>();
             SafeNotifyAll(_sessionRegistry.ProcessHeartbeat(sessionToken, _friendsChannelId, HeartbeatChannel.Friends,
                 sequence, confirmedSequence, callback.FriendsHeartbeatEcho));
         }

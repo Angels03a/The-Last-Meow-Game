@@ -6,7 +6,7 @@
     public class FriendCandidateLookup
     {
         /// <summary>Si se encontró, no existe o la base de datos falló.</summary>
-        public FriendLookupStatus Status { get; set; }
+        public FriendLookupStatus Status { get; set; } = FriendLookupStatus.DataFailure;
 
         /// <summary>Id de la cuenta encontrada; 0 si no se encontró.</summary>
         public int UserId { get; set; }

@@ -6,7 +6,7 @@
     public class FriendshipRecordLookup
     {
         /// <summary>Si se encontró, no existe o la base de datos falló.</summary>
-        public FriendLookupStatus Status { get; set; }
+        public FriendLookupStatus Status { get; set; } = FriendLookupStatus.DataFailure;
 
         /// <summary>La fila encontrada; null si no se encontró.</summary>
         public FriendshipRecord Record { get; set; }

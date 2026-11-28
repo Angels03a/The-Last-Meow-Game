@@ -123,7 +123,7 @@ namespace TLMG.Services
 
         public OperationRecoveryContextResult GetRecoveryContext(string sessionToken)
         {
-            var result = _sessionRegistry.GetRecoveryContext(sessionToken);
+            ResultWithNotification<OperationRecoveryContextResult> result = _sessionRegistry.GetRecoveryContext(sessionToken);
             SafeNotifyAll(result.Notifications);
             return result.OperationResult;
         }
@@ -132,10 +132,16 @@ namespace TLMG.Services
         {
             SafeNotifyAll(_sessionRegistry.EvaluateConnectionDeadlines());
             bool isValid = _sessionRegistry.TryFindSessionByToken(sessionToken, out _);
+            string errorKey = ErrorKeys.Common.InvalidSession;
+            if (isValid)
+            {
+                errorKey = string.Empty;
+            }
+
             return new OperationResult
             {
                 IsSuccess = isValid,
-                ErrorKey = isValid ? string.Empty : ErrorKeys.Common.InvalidSession
+                ErrorKey = errorKey
             };
         }
 
@@ -149,12 +155,20 @@ namespace TLMG.Services
                 SafeNotifyAll(Helpers.SessionNotificationHelper.CreateSessionEndNotifications(sessionEnd));
             }
 
+            string errorKey = ErrorKeys.Common.InvalidSession;
+            if (wasRevoked)
+            {
+                errorKey = string.Empty;
+            }
+            else if (hasActiveParticipation)
+            {
+                errorKey = ErrorKeys.Common.LogOutActiveMatch;
+            }
+
             return new LogOutResult
             {
                 IsSuccess = wasRevoked,
-                ErrorKey = wasRevoked ? string.Empty : hasActiveParticipation
-                    ? ErrorKeys.Common.LogOutActiveMatch
-                    : ErrorKeys.Common.InvalidSession
+                ErrorKey = errorKey
             };
         }
 

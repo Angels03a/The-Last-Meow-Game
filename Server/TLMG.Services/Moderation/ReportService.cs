@@ -44,13 +44,9 @@ namespace TLMG.Services.Moderation
                 SessionAuthorization authorization = _sessionAccess.Authorize(sessionToken, SystemPermission.ReportPlayer);
                 PlayerReport report = new PlayerReport();
 
-                if (authorization == null)
+                if (authorization.Status != AuthorizationStatus.Granted)
                 {
-                    _log.Error("No se obtuvo una autorización para registrar el reporte.");
-                }
-                else if (authorization.Status != AuthorizationStatus.Granted)
-                {
-                    operation.ErrorKey = FindAuthorizationErrorKey(authorization.Status);
+                    operation.ErrorKey = authorization.ErrorKey;
                 }
                 else if (authorization.UserId <= ValidationRules.NoUserId || !TryReadSubmission(submission, report))
                 {
@@ -153,22 +149,6 @@ namespace TLMG.Services.Moderation
                 errorKey = ReportTargetUnavailableErrorKey;
             }
             else if (status == ReportWriteStatus.ReporterNotActive)
-            {
-                errorKey = ErrorKeys.Common.PermissionDenied;
-            }
-
-            return errorKey;
-        }
-
-        private static string FindAuthorizationErrorKey(AuthorizationStatus status)
-        {
-            string errorKey = ErrorKeys.Common.Unexpected;
-
-            if (status == AuthorizationStatus.InvalidSession)
-            {
-                errorKey = ErrorKeys.Common.InvalidSession;
-            }
-            else if (status == AuthorizationStatus.PermissionDenied)
             {
                 errorKey = ErrorKeys.Common.PermissionDenied;
             }

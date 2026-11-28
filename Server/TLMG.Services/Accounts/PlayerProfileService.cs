@@ -36,9 +36,9 @@ namespace TLMG.Services.Accounts
             };
             SessionAuthorization authorization = _sessionAuthorizer.Authorize(sessionToken, SystemPermission.ManageProfile);
 
-            if (authorization == null || authorization.Status != AuthorizationStatus.Granted)
+            if (authorization.Status != AuthorizationStatus.Granted)
             {
-                profileResult.ErrorKey = ResolveAuthorizationErrorKey(authorization);
+                profileResult.ErrorKey = authorization.ErrorKey;
             }
             else
             {
@@ -133,9 +133,9 @@ namespace TLMG.Services.Accounts
             OperationResult updateResult = new OperationResult { ErrorKey = ErrorKeys.Common.Unexpected };
             SessionAuthorization authorization = _sessionAuthorizer.Authorize(sessionToken, SystemPermission.ManageProfile);
 
-            if (authorization == null || authorization.Status != AuthorizationStatus.Granted)
+            if (authorization.Status != AuthorizationStatus.Granted)
             {
-                updateResult.ErrorKey = ResolveAuthorizationErrorKey(authorization);
+                updateResult.ErrorKey = authorization.ErrorKey;
             }
             else
             {
@@ -167,7 +167,10 @@ namespace TLMG.Services.Accounts
 
             if (updateStatus == PlayerProfileUpdateStatus.Updated)
             {
-                _sessionIdentityProvider.TryUpdateNickname(sessionToken, profileUpdate.Nickname);
+                if (!_sessionIdentityProvider.TryUpdateNickname(sessionToken, profileUpdate.Nickname))
+                {
+                    _log.Info("El perfil se guardó después de finalizar la sesión.");
+                }
                 updateResult.IsSuccess = true;
                 updateResult.ErrorKey = string.Empty;
                 _log.InfoFormat("Player {0} updated their profile.", userId);
@@ -186,25 +189,6 @@ namespace TLMG.Services.Accounts
             }
 
             return updateResult;
-        }
-
-        private static string ResolveAuthorizationErrorKey(SessionAuthorization authorization)
-        {
-            string errorKey = ErrorKeys.Common.Unexpected;
-
-            if (authorization != null)
-            {
-                if (authorization.Status == AuthorizationStatus.InvalidSession)
-                {
-                    errorKey = ErrorKeys.Common.InvalidSession;
-                }
-                else if (authorization.Status == AuthorizationStatus.PermissionDenied)
-                {
-                    errorKey = ErrorKeys.Common.PermissionDenied;
-                }
-            }
-
-            return errorKey;
         }
     }
 }

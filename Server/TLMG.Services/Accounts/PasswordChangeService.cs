@@ -39,12 +39,16 @@ namespace TLMG.Services.Accounts
 
             if (changePasswordRequest != null)
             {
-                errorKey = PasswordChangeValidator.ValidateNewPassword(
+                string validationErrorKey = PasswordChangeValidator.ValidateNewPassword(
                     changePasswordRequest.NewPassword);
 
-                if (errorKey == string.Empty)
+                if (validationErrorKey == string.Empty)
                 {
                     errorKey = ChangeForSession(changePasswordRequest);
+                }
+                else
+                {
+                    errorKey = validationErrorKey;
                 }
             }
 
@@ -64,9 +68,9 @@ namespace TLMG.Services.Accounts
                 changePasswordRequest.SessionToken,
                 SystemPermission.ChangePassword);
 
-            string errorKey = authorization.ErrorKey;
+            string errorKey;
 
-            if (errorKey == null)
+            if (authorization.Status == AuthorizationStatus.Granted)
             {
                 PasswordHashLookup hashLookup =
                     _passwordRepository.FindPasswordHashByUserId(
@@ -95,6 +99,10 @@ namespace TLMG.Services.Accounts
                         _log.Warn("La consulta de credenciales devolvió un resultado inválido.");
                     }
                 }
+            }
+            else
+            {
+                errorKey = authorization.ErrorKey;
             }
 
             return errorKey;

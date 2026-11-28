@@ -24,6 +24,7 @@
     <ProjectReference Include="..\..\Server\TLMG.Domain\TLMG.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RepositoryResultDefaultsTests.cs" />
     <Compile Include="AccountFieldValidatorTests.cs" />
     <Compile Include="AvatarCatalogTests.cs" />
     <Compile Include="CardsPerPlayerValidatorTests.cs" />

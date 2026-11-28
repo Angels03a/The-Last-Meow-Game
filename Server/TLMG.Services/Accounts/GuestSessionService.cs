@@ -25,6 +25,7 @@ namespace TLMG.Services.Accounts
             if (guestSessionStart.IsStarted)
             {
                 operationLogInResult.IsSuccess = true;
+                operationLogInResult.ErrorKey = string.Empty;
                 operationLogInResult.SessionToken = guestSessionStart.SessionToken;
                 operationLogInResult.UserId = guestSessionStart.UserId;
                 operationLogInResult.Nickname = guestSessionStart.Nickname;

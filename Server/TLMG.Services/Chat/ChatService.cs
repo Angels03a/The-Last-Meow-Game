@@ -42,7 +42,7 @@ namespace TLMG.Services.Chat
                 SystemPermission.UseChat);
             string errorKey = authorization.ErrorKey;
 
-            if (errorKey == null)
+            if (authorization.Status == AuthorizationStatus.Granted)
             {
                 errorKey = _sessionRegistry.SubscribeToChat(caller, callback);
             }
@@ -96,7 +96,7 @@ namespace TLMG.Services.Chat
             ChatDelivery chatDelivery = null;
             string errorKey = authorization.ErrorKey;
 
-            if (errorKey == null)
+            if (authorization.Status == AuthorizationStatus.Granted)
             {
                 errorKey = _sessionRegistry.AcceptChatMessage(caller, chatSubmission, out chatDelivery);
             }

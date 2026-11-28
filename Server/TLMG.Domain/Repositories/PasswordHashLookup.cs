@@ -2,7 +2,7 @@
 {
     public class PasswordHashLookup
     {
-        public CredentialsLookupStatus Status { get; set; }
+        public CredentialsLookupStatus Status { get; set; } = CredentialsLookupStatus.DataFailure;
 
         public string PasswordHash { get; set; }
     }
