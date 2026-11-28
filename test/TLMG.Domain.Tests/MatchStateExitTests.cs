@@ -380,7 +380,7 @@ namespace TLMG.Domain.Tests
             string matchBeforeExit = DescribeMatch(match);
 
             // Act
-            Action removePlayer = () => match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_startUtc), null);
+            Action removePlayer = () => match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_startUtc), null);
 
             // Assert
             ArgumentNullException exception = Assert.Throws<ArgumentNullException>(removePlayer);
@@ -699,7 +699,7 @@ namespace TLMG.Domain.Tests
 
         private static PlayerExitStatus LeaveNow(MatchState match, int playerId)
         {
-            return match.RemovePlayer(playerId, PlayerExit.Immediate(_startUtc), _pickFirstCard);
+            return match.RemovePlayer(playerId, PlayerExit.CreateVoluntary(_startUtc), _pickFirstCard);
         }
     }
 }

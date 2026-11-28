@@ -1,6 +1,5 @@
 using Xunit;
 
-using TLMG.Domain.Constants;
 using TLMG.Domain.Validators;
 
 namespace TLMG.Domain.Tests
@@ -24,17 +23,17 @@ namespace TLMG.Domain.Tests
         [InlineData("  abc  ", "abc")]
         [InlineData("\tabc\n", "abc")]
         [InlineData("  abcdefghijkl  ", "abcdefghijkl")]
-        public void ValidateNickname_WithValidNickname_ReturnsNullAndTrimmedNickname(
+        public void TryNormalizeNickname_WithValidNickname_ReturnsTrueAndTrimmedNickname(
             string nickname,
             string expectedNormalizedNickname)
         {
             // Arrange
 
             // Act
-            string errorKey = FriendNicknameValidator.ValidateNickname(nickname, out string normalizedNickname);
+            bool isValid = FriendNicknameValidator.TryNormalizeNickname(nickname, out string normalizedNickname);
 
             // Assert
-            Assert.Null(errorKey);
+            Assert.True(isValid);
             Assert.Equal(expectedNormalizedNickname, normalizedNickname);
         }
 
@@ -43,16 +42,16 @@ namespace TLMG.Domain.Tests
         [Theory]
         [InlineData(MinimumNicknameLength)]
         [InlineData(MaximumNicknameLength)]
-        public void ValidateNickname_AtLengthLimits_ReturnsNullAndSameNickname(int length)
+        public void TryNormalizeNickname_AtLengthLimits_ReturnsTrueAndSameNickname(int length)
         {
             // Arrange
             string nickname = new string('a', length);
 
             // Act
-            string errorKey = FriendNicknameValidator.ValidateNickname(nickname, out string normalizedNickname);
+            bool isValid = FriendNicknameValidator.TryNormalizeNickname(nickname, out string normalizedNickname);
 
             // Assert
-            Assert.Null(errorKey);
+            Assert.True(isValid);
             Assert.Equal(nickname, normalizedNickname);
         }
 
@@ -73,16 +72,16 @@ namespace TLMG.Domain.Tests
         [InlineData("abc@")]
         [InlineData("jugador@uv.mx")]
         [InlineData("  a@b  ")]
-        public void ValidateNickname_WithInvalidNickname_ReturnsNicknameFormatErrorAndNoNickname(string nickname)
+        public void TryNormalizeNickname_WithInvalidNickname_ReturnsFalseAndEmptyNickname(string nickname)
         {
             // Arrange
 
             // Act
-            string errorKey = FriendNicknameValidator.ValidateNickname(nickname, out string normalizedNickname);
+            bool isValid = FriendNicknameValidator.TryNormalizeNickname(nickname, out string normalizedNickname);
 
             // Assert
-            Assert.Equal(ErrorKeys.Friends.NicknameFormat, errorKey);
-            Assert.Null(normalizedNickname);
+            Assert.False(isValid);
+            Assert.Equal(string.Empty, normalizedNickname);
         }
     }
 }

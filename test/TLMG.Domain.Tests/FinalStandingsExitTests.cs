@@ -54,8 +54,8 @@ namespace TLMG.Domain.Tests
             EliminateOnOwnCat(match, PlayerDId);
             var exits = new Dictionary<int, PlayerExit>
             {
-                [PlayerBId] = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc),
-                [PlayerAId] = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc)
+                [PlayerBId] = PlayerExit.CreateDisconnection(_firstDisconnectionUtc, _firstGraceEndUtc),
+                [PlayerAId] = PlayerExit.CreateDisconnection(_firstDisconnectionUtc, _firstGraceEndUtc)
             };
 
             PlayerExitStatus status = match.RemoveSimultaneousPlayers(exits, _pickFirstCard);
@@ -73,7 +73,7 @@ namespace TLMG.Domain.Tests
         {
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             var exits = new[] { PlayerCId, PlayerBId, PlayerAId }.ToDictionary(id => id,
-                id => new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc));
+                id => PlayerExit.CreateDisconnection(_firstDisconnectionUtc, _firstGraceEndUtc));
 
             match.RemoveSimultaneousPlayers(exits, _pickFirstCard);
 
@@ -86,7 +86,7 @@ namespace TLMG.Domain.Tests
         {
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
             var exits = new[] { PlayerCId, PlayerBId }.ToDictionary(id => id,
-                id => new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc));
+                id => PlayerExit.CreateDisconnection(_firstDisconnectionUtc, _firstGraceEndUtc));
 
             PlayerExitStatus status = match.RemoveSimultaneousPlayers(exits, _pickFirstCard);
 
@@ -144,9 +144,9 @@ namespace TLMG.Domain.Tests
             // Arrange: In six-card mode E6-4, B leaves, then C leaves. A wins with the minimum base of 2 and a +2
             // bonus.
             MatchState match = CreateMatch(SixCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId);
-            match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_startUtc), _pickFirstCard);
+            match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_startUtc), _pickFirstCard);
             match.PlaceCard(PlayerAId, SafeCard);
-            match.RemovePlayer(PlayerCId, PlayerExit.Immediate(_firstDisconnectionUtc), _pickFirstCard);
+            match.RemovePlayer(PlayerCId, PlayerExit.CreateVoluntary(_firstDisconnectionUtc), _pickFirstCard);
 
             // Act
             FinalStandings finalStandings = FinalStandings.CalculateFromMatch(match, _noGuests);
@@ -160,8 +160,8 @@ namespace TLMG.Domain.Tests
         public void CalculateFromMatch_ScenarioE55WithTwoExits_RanksLaterExitHigher()
         {
             // Arrange: In E5-5, D leaves voluntarily and E is removed when the grace period expires.
-            PlayerExit exitOfD = PlayerExit.Immediate(_startUtc);
-            PlayerExit exitOfE = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc);
+            PlayerExit exitOfD = PlayerExit.CreateVoluntary(_startUtc);
+            PlayerExit exitOfE = PlayerExit.CreateDisconnection(_firstDisconnectionUtc, _firstGraceEndUtc);
 
             // Act
             FinalStandings finalStandings = FinishAfterExitsOfDAndE(exitOfD, exitOfE);
@@ -176,8 +176,8 @@ namespace TLMG.Domain.Tests
         public void CalculateFromMatch_ScenarioE55bSimultaneousDisconnections_RanksByTurnOrder()
         {
             // Arrange: In E5-5b, D and E disconnect together. Both grace periods expire at 15 seconds.
-            PlayerExit exitOfD = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc);
-            PlayerExit exitOfE = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc);
+            PlayerExit exitOfD = PlayerExit.CreateDisconnection(_firstDisconnectionUtc, _firstGraceEndUtc);
+            PlayerExit exitOfE = PlayerExit.CreateDisconnection(_firstDisconnectionUtc, _firstGraceEndUtc);
 
             // Act
             FinalStandings finalStandings = FinishAfterExitsOfDAndE(exitOfD, exitOfE);
@@ -194,8 +194,8 @@ namespace TLMG.Domain.Tests
         public void CalculateFromMatch_ScenarioE55bDisconnectionsAtDifferentTimes_RanksLaterExitHigher()
         {
             // Arrange: In this E5-5b variant, E disconnects later than D and E's grace period also ends later.
-            PlayerExit exitOfD = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc);
-            PlayerExit exitOfE = new PlayerExit(_secondDisconnectionUtc,
+            PlayerExit exitOfD = PlayerExit.CreateDisconnection(_firstDisconnectionUtc, _firstGraceEndUtc);
+            PlayerExit exitOfE = PlayerExit.CreateDisconnection(_secondDisconnectionUtc,
                 _secondDisconnectionUtc.AddSeconds(GraceSeconds));
 
             // Act
@@ -211,8 +211,8 @@ namespace TLMG.Domain.Tests
         public void CalculateFromMatch_ScenarioE55bVoluntaryExitAtGraceEnd_RanksAboveDisconnection()
         {
             // Arrange: In E5-5b, D's grace period ends at the instant E leaves voluntarily.
-            PlayerExit exitOfD = new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc);
-            PlayerExit exitOfE = PlayerExit.Immediate(_firstGraceEndUtc);
+            PlayerExit exitOfD = PlayerExit.CreateDisconnection(_firstDisconnectionUtc, _firstGraceEndUtc);
+            PlayerExit exitOfE = PlayerExit.CreateVoluntary(_firstGraceEndUtc);
 
             // Act
             FinalStandings finalStandings = FinishAfterExitsOfDAndE(exitOfD, exitOfE);
@@ -246,9 +246,11 @@ namespace TLMG.Domain.Tests
             // Arrange: In eight-card mode E5-6, B leaves, C is removed after the grace period and D leaves. A wins with
             // no challenges.
             MatchState match = CreateMatch(EightCardsPerPlayer, PlayerAId, PlayerBId, PlayerCId, PlayerDId);
-            match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_startUtc), _pickFirstCard);
-            match.RemovePlayer(PlayerCId, new PlayerExit(_firstDisconnectionUtc, _firstGraceEndUtc), _pickFirstCard);
-            match.RemovePlayer(PlayerDId, PlayerExit.Immediate(_startUtc.AddSeconds(LastExitSeconds)), _pickFirstCard);
+            match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_startUtc), _pickFirstCard);
+            match.RemovePlayer(
+                PlayerCId, PlayerExit.CreateDisconnection(_firstDisconnectionUtc, _firstGraceEndUtc), _pickFirstCard);
+            match.RemovePlayer(
+                PlayerDId, PlayerExit.CreateVoluntary(_startUtc.AddSeconds(LastExitSeconds)), _pickFirstCard);
 
             // Act
             FinalStandings finalStandings = FinalStandings.CalculateFromMatch(match, _noGuests);
@@ -445,7 +447,7 @@ namespace TLMG.Domain.Tests
 
         private static PlayerExitStatus LeaveNow(MatchState match, int playerId)
         {
-            return match.RemovePlayer(playerId, PlayerExit.Immediate(_startUtc), _pickFirstCard);
+            return match.RemovePlayer(playerId, PlayerExit.CreateVoluntary(_startUtc), _pickFirstCard);
         }
     }
 }

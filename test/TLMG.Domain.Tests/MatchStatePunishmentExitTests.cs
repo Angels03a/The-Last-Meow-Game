@@ -55,7 +55,7 @@ namespace TLMG.Domain.Tests
             int previousRoundNumber = match.RoundNumber;
 
             // Act
-            PlayerExitStatus status = match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc),
+            PlayerExitStatus status = match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_chooserLeavesUtc),
                 _pickFirstCard);
 
             // Assert
@@ -75,7 +75,7 @@ namespace TLMG.Domain.Tests
         {
             // Arrange: E4-1 continues. A wins with two challenges and B ranks last.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
-            match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc), _pickFirstCard);
+            match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_chooserLeavesUtc), _pickFirstCard);
             WinChallenges(match, PlayerAId, match.ModeRules.SuccessfulChallengesToWin);
 
             // Act
@@ -97,7 +97,8 @@ namespace TLMG.Domain.Tests
             int previousRoundNumber = match.RoundNumber;
             PunishmentStatus suspendStatus = match.SuspendPunishment(PlayerBId, _chooserLeavesUtc);
             PunishmentStatus expireStatus = match.ExpirePunishment(_deadlineUtc, _pickFirstCard);
-            PlayerExit exitOfB = new PlayerExit(_chooserLeavesUtc, _chooserLeavesUtc.AddSeconds(GraceSeconds));
+            PlayerExit exitOfB = PlayerExit.CreateDisconnection(
+                _chooserLeavesUtc, _chooserLeavesUtc.AddSeconds(GraceSeconds));
 
             // Act
             PlayerExitStatus exitStatus = match.RemovePlayer(PlayerBId, exitOfB, _pickFirstCard);
@@ -120,7 +121,7 @@ namespace TLMG.Domain.Tests
             // Arrange: Alternate E4-1b order. B's removal arrives before the deadline check.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
             int previousRoundNumber = match.RoundNumber;
-            match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc), _pickFirstCard);
+            match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_chooserLeavesUtc), _pickFirstCard);
             string matchAfterExit = DescribeMatch(match);
 
             // Act
@@ -142,7 +143,7 @@ namespace TLMG.Domain.Tests
             int previousRoundNumber = match.RoundNumber;
 
             // Act
-            PlayerExitStatus status = match.RemovePlayer(PlayerAId, PlayerExit.Immediate(_chooserLeavesUtc),
+            PlayerExitStatus status = match.RemovePlayer(PlayerAId, PlayerExit.CreateVoluntary(_chooserLeavesUtc),
                 _failIfRandomIsUsed);
 
             // Assert
@@ -164,7 +165,8 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
             int previousRoundNumber = match.RoundNumber;
             match.SuspendPunishment(PlayerAId, _chooserLeavesUtc);
-            PlayerExit exitOfA = new PlayerExit(_chooserLeavesUtc, _chooserLeavesUtc.AddSeconds(GraceSeconds));
+            PlayerExit exitOfA = PlayerExit.CreateDisconnection(
+                _chooserLeavesUtc, _chooserLeavesUtc.AddSeconds(GraceSeconds));
 
             // Act
             PlayerExitStatus status = match.RemovePlayer(PlayerAId, exitOfA, _failIfRandomIsUsed);
@@ -187,7 +189,7 @@ namespace TLMG.Domain.Tests
             match.SuspendPunishment(PlayerAId, _chooserLeavesUtc);
 
             // Act
-            PlayerExitStatus status = match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc),
+            PlayerExitStatus status = match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_chooserLeavesUtc),
                 _failIfRandomIsUsed);
 
             // Assert
@@ -207,7 +209,7 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             int previousRoundNumber = match.RoundNumber;
             match.SuspendPunishment(PlayerAId, _chooserLeavesUtc);
-            match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc), _pickFirstCard);
+            match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_chooserLeavesUtc), _pickFirstCard);
 
             // Act
             PunishmentStatus status = match.ResumePunishment(PlayerAId, _returnUtc, _pickFirstCard);
@@ -230,8 +232,9 @@ namespace TLMG.Domain.Tests
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             int previousRoundNumber = match.RoundNumber;
             match.SuspendPunishment(PlayerAId, _chooserLeavesUtc);
-            match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc), _pickFirstCard);
-            PlayerExit exitOfA = new PlayerExit(_chooserLeavesUtc, _chooserLeavesUtc.AddSeconds(GraceSeconds));
+            match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_chooserLeavesUtc), _pickFirstCard);
+            PlayerExit exitOfA = PlayerExit.CreateDisconnection(
+                _chooserLeavesUtc, _chooserLeavesUtc.AddSeconds(GraceSeconds));
 
             // Act
             PlayerExitStatus status = match.RemovePlayer(PlayerAId, exitOfA, _failIfRandomIsUsed);
@@ -268,7 +271,7 @@ namespace TLMG.Domain.Tests
             // Arrange
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId, PlayerDId);
             match.SuspendPunishment(PlayerAId, _chooserLeavesUtc);
-            match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc), _pickFirstCard);
+            match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_chooserLeavesUtc), _pickFirstCard);
             string matchBeforeResume = DescribeMatch(match);
 
             // Act
@@ -290,7 +293,7 @@ namespace TLMG.Domain.Tests
 
             // Act
             Action removePlayer = () =>
-                match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc), _pickInvalidCard);
+                match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_chooserLeavesUtc), _pickInvalidCard);
 
             // Assert
             Assert.Throws<ArgumentOutOfRangeException>(removePlayer);
@@ -326,7 +329,8 @@ namespace TLMG.Domain.Tests
             string matchBeforeExit = DescribeMatch(match);
 
             // Act
-            Action removePlayer = () => match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc), null);
+            Action removePlayer = () => match.RemovePlayer(
+                PlayerBId, PlayerExit.CreateVoluntary(_chooserLeavesUtc), null);
 
             // Assert
             ArgumentNullException exception = Assert.Throws<ArgumentNullException>(removePlayer);
@@ -360,7 +364,7 @@ namespace TLMG.Domain.Tests
             int previousRoundNumber = match.RoundNumber;
 
             // Act
-            PlayerExitStatus status = match.RemovePlayer(PlayerAId, PlayerExit.Immediate(_chooserLeavesUtc),
+            PlayerExitStatus status = match.RemovePlayer(PlayerAId, PlayerExit.CreateVoluntary(_chooserLeavesUtc),
                 _failIfRandomIsUsed);
 
             // Assert
@@ -379,7 +383,7 @@ namespace TLMG.Domain.Tests
             DateTime? deadlineUtc = match.PendingPunishment.DeadlineUtc;
 
             // Act
-            PlayerExitStatus status = match.RemovePlayer(PlayerCId, PlayerExit.Immediate(_chooserLeavesUtc),
+            PlayerExitStatus status = match.RemovePlayer(PlayerCId, PlayerExit.CreateVoluntary(_chooserLeavesUtc),
                 _failIfRandomIsUsed);
 
             // Assert
@@ -401,7 +405,7 @@ namespace TLMG.Domain.Tests
             match.SuspendPunishment(PlayerAId, _chooserLeavesUtc);
 
             // Act
-            PlayerExitStatus status = match.RemovePlayer(PlayerCId, PlayerExit.Immediate(_chooserLeavesUtc),
+            PlayerExitStatus status = match.RemovePlayer(PlayerCId, PlayerExit.CreateVoluntary(_chooserLeavesUtc),
                 _failIfRandomIsUsed);
 
             // Assert
@@ -426,7 +430,7 @@ namespace TLMG.Domain.Tests
             int previousRoundNumber = match.RoundNumber;
 
             // Act
-            PlayerExitStatus status = match.RemovePlayer(leavingPlayerId, PlayerExit.Immediate(_chooserLeavesUtc),
+            PlayerExitStatus status = match.RemovePlayer(leavingPlayerId, PlayerExit.CreateVoluntary(_chooserLeavesUtc),
                 _failIfRandomIsUsed);
 
             // Assert
@@ -446,11 +450,11 @@ namespace TLMG.Domain.Tests
         {
             // Arrange
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
-            match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc), _pickFirstCard);
+            match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_chooserLeavesUtc), _pickFirstCard);
             string matchAfterExit = DescribeMatch(match);
 
             // Act
-            PlayerExitStatus status = match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_returnUtc),
+            PlayerExitStatus status = match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_returnUtc),
                 _failIfRandomIsUsed);
 
             // Assert
@@ -464,7 +468,7 @@ namespace TLMG.Domain.Tests
         {
             // Arrange: A left and their punishment was canceled.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
-            match.RemovePlayer(PlayerAId, PlayerExit.Immediate(_chooserLeavesUtc), _failIfRandomIsUsed);
+            match.RemovePlayer(PlayerAId, PlayerExit.CreateVoluntary(_chooserLeavesUtc), _failIfRandomIsUsed);
             string matchAfterExit = DescribeMatch(match);
 
             // Act
@@ -473,7 +477,7 @@ namespace TLMG.Domain.Tests
             PunishmentStatus resumeStatus = match.ResumePunishment(PlayerCId, _returnUtc, _failIfRandomIsUsed);
             PunishmentStatus chooseStatus = match.ChoosePunishmentCard(PlayerBId, FirstCardIndex, _returnUtc);
             PunishmentStatus expireStatus = match.ExpirePunishment(_returnUtc, _failIfRandomIsUsed);
-            PlayerExitStatus repeatedExitStatus = match.RemovePlayer(PlayerAId, PlayerExit.Immediate(_returnUtc),
+            PlayerExitStatus repeatedExitStatus = match.RemovePlayer(PlayerAId, PlayerExit.CreateVoluntary(_returnUtc),
                 _failIfRandomIsUsed);
 
             // Assert
@@ -491,14 +495,14 @@ namespace TLMG.Domain.Tests
         {
             // Arrange: B left and A's punishment was resolved at random.
             MatchState match = CreateMatchWithBlindPunishment(PlayerAId, PlayerBId, PlayerCId);
-            match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_chooserLeavesUtc), _pickFirstCard);
+            match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_chooserLeavesUtc), _pickFirstCard);
             string matchAfterExit = DescribeMatch(match);
 
             // Act
             PunishmentStatus resumeStatus = match.ResumePunishment(PlayerAId, _returnUtc, _failIfRandomIsUsed);
             PunishmentStatus chooseStatus = match.ChoosePunishmentCard(PlayerAId, FirstCardIndex, _returnUtc);
             PunishmentStatus expireStatus = match.ExpirePunishment(_returnUtc, _failIfRandomIsUsed);
-            PlayerExitStatus repeatedExitStatus = match.RemovePlayer(PlayerBId, PlayerExit.Immediate(_returnUtc),
+            PlayerExitStatus repeatedExitStatus = match.RemovePlayer(PlayerBId, PlayerExit.CreateVoluntary(_returnUtc),
                 _failIfRandomIsUsed);
 
             // Assert
@@ -651,7 +655,7 @@ namespace TLMG.Domain.Tests
 
         private static PlayerExitStatus LeaveNow(MatchState match, int playerId)
         {
-            return match.RemovePlayer(playerId, PlayerExit.Immediate(_startUtc), _pickFirstCard);
+            return match.RemovePlayer(playerId, PlayerExit.CreateVoluntary(_startUtc), _pickFirstCard);
         }
     }
 }

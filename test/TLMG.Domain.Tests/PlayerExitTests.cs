@@ -22,24 +22,26 @@ namespace TLMG.Domain.Tests
             DateTime startedAtUtc = _startedAtUtc;
 
             // Act
-            PlayerExit exit = new PlayerExit(startedAtUtc, _effectiveAtUtc);
+            PlayerExit exit = PlayerExit.CreateDisconnection(startedAtUtc, _effectiveAtUtc);
 
             // Assert
+            Assert.Equal(PlayerExitCause.Disconnection, exit.Cause);
             Assert.Equal(_startedAtUtc, exit.StartedAtUtc);
             Assert.Equal(_effectiveAtUtc, exit.EffectiveAtUtc);
         }
 
-        /// <summary>Checks Immediate_WithUtcTime_UsesSameStartAndEffectiveTime.</summary>
+        /// <summary>Checks CreateVoluntary_WithUtcTime_UsesSameStartAndEffectiveTime.</summary>
         [Fact]
-        public void Immediate_WithUtcTime_UsesSameStartAndEffectiveTime()
+        public void CreateVoluntary_WithUtcTime_UsesSameStartAndEffectiveTime()
         {
             // Arrange
             DateTime atUtc = _effectiveAtUtc;
 
             // Act
-            PlayerExit exit = PlayerExit.Immediate(atUtc);
+            PlayerExit exit = PlayerExit.CreateVoluntary(atUtc);
 
             // Assert
+            Assert.Equal(PlayerExitCause.Voluntary, exit.Cause);
             Assert.Equal(atUtc, exit.StartedAtUtc);
             Assert.Equal(atUtc, exit.EffectiveAtUtc);
         }
@@ -52,7 +54,7 @@ namespace TLMG.Domain.Tests
             DateTime startedAtUtc = _effectiveAtUtc;
 
             // Act
-            Action createExit = () => new PlayerExit(startedAtUtc, _startedAtUtc);
+            Action createExit = () => PlayerExit.CreateDisconnection(startedAtUtc, _startedAtUtc);
 
             // Assert
             ArgumentException exception = Assert.Throws<ArgumentException>(createExit);
@@ -70,7 +72,7 @@ namespace TLMG.Domain.Tests
             DateTime startedAt = DateTime.SpecifyKind(_startedAtUtc, timeKind);
 
             // Act
-            Action createExit = () => new PlayerExit(startedAt, _effectiveAtUtc);
+            Action createExit = () => PlayerExit.CreateDisconnection(startedAt, _effectiveAtUtc);
 
             // Assert
             ArgumentException exception = Assert.Throws<ArgumentException>(createExit);
@@ -88,25 +90,25 @@ namespace TLMG.Domain.Tests
             DateTime effectiveAt = DateTime.SpecifyKind(_effectiveAtUtc, timeKind);
 
             // Act
-            Action createExit = () => new PlayerExit(_startedAtUtc, effectiveAt);
+            Action createExit = () => PlayerExit.CreateDisconnection(_startedAtUtc, effectiveAt);
 
             // Assert
             ArgumentException exception = Assert.Throws<ArgumentException>(createExit);
             Assert.Equal("effectiveAtUtc", exception.ParamName);
         }
 
-        /// <summary>Checks Immediate_WithTimeThatIsNotUtc_ThrowsArgumentException.</summary>
+        /// <summary>Checks CreateVoluntary_WithTimeThatIsNotUtc_ThrowsArgumentException.</summary>
         /// <param name="timeKind">Time kind other than UTC.</param>
         [Theory]
         [InlineData(DateTimeKind.Local)]
         [InlineData(DateTimeKind.Unspecified)]
-        public void Immediate_WithTimeThatIsNotUtc_ThrowsArgumentException(DateTimeKind timeKind)
+        public void CreateVoluntary_WithTimeThatIsNotUtc_ThrowsArgumentException(DateTimeKind timeKind)
         {
             // Arrange
             DateTime at = DateTime.SpecifyKind(_startedAtUtc, timeKind);
 
             // Act
-            Action createExit = () => PlayerExit.Immediate(at);
+            Action createExit = () => PlayerExit.CreateVoluntary(at);
 
             // Assert
             Assert.Throws<ArgumentException>(createExit);

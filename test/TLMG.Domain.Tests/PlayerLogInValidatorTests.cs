@@ -16,28 +16,30 @@ namespace TLMG.Domain.Tests
         private const string AnyPassword = "x";
 
         [Fact]
-        public void ValidateLogIn_WithValidFields_ReturnsEmpty()
+        public void TryValidateLogIn_WithValidFields_ReturnsEmpty()
         {
             // Arrange
             PlayerLogin playerLogIn = new PlayerLogin { Email = ValidEmail, Password = AnyPassword };
 
             // Act
-            string errorKey = PlayerLogInValidator.ValidateLogIn(playerLogIn);
+            bool isValid = PlayerLogInValidator.TryValidateLogIn(playerLogIn, out string errorKey);
 
             // Assert
+            Assert.True(isValid);
             Assert.Equal(string.Empty, errorKey);
         }
 
         [Fact]
-        public void ValidateLogIn_WithNullRequest_ReturnsIncompleteFieldsError()
+        public void TryValidateLogIn_WithNullRequest_ReturnsIncompleteFieldsError()
         {
             // Arrange
             PlayerLogin playerLogIn = null;
 
             // Act
-            string errorKey = PlayerLogInValidator.ValidateLogIn(playerLogIn);
+            bool isValid = PlayerLogInValidator.TryValidateLogIn(playerLogIn, out string errorKey);
 
             // Assert
+            Assert.False(isValid);
             Assert.Equal(ErrorKeys.Login.IncompleteFields, errorKey);
         }
 
@@ -49,15 +51,16 @@ namespace TLMG.Domain.Tests
         [InlineData(ValidEmail, "")]
         [InlineData(ValidEmail, "   ")]
         [InlineData(null, null)]
-        public void ValidateLogIn_WithMissingOrBlankField_ReturnsIncompleteFieldsError(string email, string password)
+        public void TryValidateLogIn_WithMissingOrBlankField_ReturnsIncompleteFieldsError(string email, string password)
         {
             // Arrange
             PlayerLogin playerLogIn = new PlayerLogin { Email = email, Password = password };
 
             // Act
-            string errorKey = PlayerLogInValidator.ValidateLogIn(playerLogIn);
+            bool isValid = PlayerLogInValidator.TryValidateLogIn(playerLogIn, out string errorKey);
 
             // Assert
+            Assert.False(isValid);
             Assert.Equal(ErrorKeys.Login.IncompleteFields, errorKey);
         }
 
@@ -66,41 +69,44 @@ namespace TLMG.Domain.Tests
         [InlineData("abcde@example.test")]
         [InlineData("abc_def@example.test")]
         [InlineData("abcdef@example")]
-        public void ValidateLogIn_WithInvalidEmailFormat_ReturnsEmailFormatError(string email)
+        public void TryValidateLogIn_WithInvalidEmailFormat_ReturnsEmailFormatError(string email)
         {
             // Arrange
             PlayerLogin playerLogIn = new PlayerLogin { Email = email, Password = AnyPassword };
 
             // Act
-            string errorKey = PlayerLogInValidator.ValidateLogIn(playerLogIn);
+            bool isValid = PlayerLogInValidator.TryValidateLogIn(playerLogIn, out string errorKey);
 
             // Assert
+            Assert.False(isValid);
             Assert.Equal(ErrorKeys.Login.EmailFormat, errorKey);
         }
 
         [Fact]
-        public void ValidateLogIn_WithInvalidEmailAndMissingPassword_ReportsIncompleteFieldsFirst()
+        public void TryValidateLogIn_WithInvalidEmailAndMissingPassword_ReportsIncompleteFieldsFirst()
         {
             // Arrange
             PlayerLogin playerLogIn = new PlayerLogin { Email = "abcdef", Password = string.Empty };
 
             // Act
-            string errorKey = PlayerLogInValidator.ValidateLogIn(playerLogIn);
+            bool isValid = PlayerLogInValidator.TryValidateLogIn(playerLogIn, out string errorKey);
 
             // Assert
+            Assert.False(isValid);
             Assert.Equal(ErrorKeys.Login.IncompleteFields, errorKey);
         }
 
         [Fact]
-        public void ValidateLogIn_WithPasswordThatBreaksThePolicy_DoesNotRejectIt()
+        public void TryValidateLogIn_WithPasswordThatBreaksThePolicy_DoesNotRejectIt()
         {
             // Arrange
             PlayerLogin playerLogIn = new PlayerLogin { Email = ValidEmail, Password = "short" };
 
             // Act
-            string errorKey = PlayerLogInValidator.ValidateLogIn(playerLogIn);
+            bool isValid = PlayerLogInValidator.TryValidateLogIn(playerLogIn, out string errorKey);
 
             // Assert
+            Assert.True(isValid);
             Assert.Equal(string.Empty, errorKey);
         }
     }
