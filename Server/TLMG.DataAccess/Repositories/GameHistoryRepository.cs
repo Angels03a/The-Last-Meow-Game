@@ -47,7 +47,7 @@ namespace TLMG.DataAccess.Repositories
                         GameRegistrationStatus = GameRegistrationStatus.DataFailure,
                         GameId = NoGameId
                     };
-                    _log.Error("Match registration failed.", sqlException);
+                    _log.Error("Falló el registro de la partida.", sqlException);
                 }
                 catch (DataException dataException)
                 {
@@ -56,7 +56,7 @@ namespace TLMG.DataAccess.Repositories
                         GameRegistrationStatus = GameRegistrationStatus.DataFailure,
                         GameId = NoGameId
                     };
-                    _log.Error("Match registration failed.", dataException);
+                    _log.Error("Falló el registro de la partida.", dataException);
                 }
             }
             else
@@ -97,7 +97,7 @@ namespace TLMG.DataAccess.Repositories
                         }
                         else
                         {
-                            _log.WarnFormat("Cannot abandon match {0} in state {1}.",
+                            _log.WarnFormat("No se puede abandonar la partida {0} en el estado {1}.",
                                 matchId, existingGame.state);
                         }
                     }
@@ -105,12 +105,12 @@ namespace TLMG.DataAccess.Repositories
                 catch (SqlException sqlException)
                 {
                     wasMatchCancellationReconciled = false;
-                    _log.Error("Match cancellation failed.", sqlException);
+                    _log.Error("Falló la cancelación de la partida.", sqlException);
                 }
                 catch (DataException dataException)
                 {
                     wasMatchCancellationReconciled = false;
-                    _log.Error("Match cancellation failed.", dataException);
+                    _log.Error("Falló la cancelación de la partida.", dataException);
                 }
             }
 
@@ -148,12 +148,12 @@ namespace TLMG.DataAccess.Repositories
             catch (SqlException sqlException)
             {
                 wasRecoverySuccessful = false;
-                _log.Error("Interrupted match recovery failed.", sqlException);
+                _log.Error("Falló la recuperación de partidas interrumpidas.", sqlException);
             }
             catch (DataException dataException)
             {
                 wasRecoverySuccessful = false;
-                _log.Error("Interrupted match recovery failed.", dataException);
+                _log.Error("Falló la recuperación de partidas interrumpidas.", dataException);
             }
 
             return wasRecoverySuccessful;
@@ -210,12 +210,12 @@ namespace TLMG.DataAccess.Repositories
                 catch (SqlException sqlException)
                 {
                     finalizationStatus = GameFinalizationStatus.DataFailure;
-                    _log.Error("Match finalization failed.", sqlException);
+                    _log.Error("Falló la finalización de la partida.", sqlException);
                 }
                 catch (DataException dataException)
                 {
                     finalizationStatus = GameFinalizationStatus.DataFailure;
-                    _log.Error("Match finalization failed.", dataException);
+                    _log.Error("Falló la finalización de la partida.", dataException);
                 }
             }
 
@@ -547,7 +547,7 @@ namespace TLMG.DataAccess.Repositories
                     }
                     else
                     {
-                        _log.WarnFormat("Registration conflict for match {0}.", matchId);
+                        _log.WarnFormat("Conflicto al registrar la partida {0}.", matchId);
                     }
                 }
 

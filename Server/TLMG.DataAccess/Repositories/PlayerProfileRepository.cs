@@ -40,7 +40,7 @@ namespace TLMG.DataAccess.Repositories
                     else if (!TryPopulateStatistics(context, userId, storedProfile))
                     {
                         storedProfile = CreateEmptyLookup(PlayerProfileLookupStatus.DataFailure);
-                        _log.WarnFormat("No valid statistics were found for player {0}.", userId);
+                        _log.WarnFormat("No se encontraron estadísticas válidas para el jugador {0}.", userId);
                     }
                     else
                     {
@@ -53,11 +53,11 @@ namespace TLMG.DataAccess.Repositories
             }
             catch (SqlException sqlException)
             {
-                _log.Error(string.Format("Could not read the profile of player {0}.", userId), sqlException);
+                _log.Error(string.Format("No se pudo leer el perfil del jugador {0}.", userId), sqlException);
             }
             catch (DataException dataException)
             {
-                _log.Error(string.Format("Profile data could not be read for player {0}.", userId), dataException);
+                _log.Error(string.Format("No se pudieron leer los datos del perfil del jugador {0}.", userId), dataException);
             }
 
             return profileLookup;
@@ -75,21 +75,21 @@ namespace TLMG.DataAccess.Repositories
             {
                 if (IsDuplicateKeyViolation(dbUpdateException))
                 {
-                    _log.WarnFormat("The nickname requested by player {0} is already in use.", userId);
+                    _log.WarnFormat("El apodo solicitado por el jugador {0} ya está en uso.", userId);
                     updateStatus = PlayerProfileUpdateStatus.NicknameTaken;
                 }
                 else
                 {
-                    _log.Error(string.Format("Could not save the profile of player {0}.", userId), dbUpdateException);
+                    _log.Error(string.Format("No se pudo guardar el perfil del jugador {0}.", userId), dbUpdateException);
                 }
             }
             catch (SqlException sqlException)
             {
-                _log.Error(string.Format("Could not save the profile of player {0}.", userId), sqlException);
+                _log.Error(string.Format("No se pudo guardar el perfil del jugador {0}.", userId), sqlException);
             }
             catch (DataException dataException)
             {
-                _log.Error(string.Format("Profile data could not be saved for player {0}.", userId), dataException);
+                _log.Error(string.Format("No se pudieron guardar los datos del perfil del jugador {0}.", userId), dataException);
             }
 
             return updateStatus;
@@ -117,11 +117,11 @@ namespace TLMG.DataAccess.Repositories
             }
             catch (SqlException sqlException)
             {
-                _log.Error("Could not check profile nickname availability.", sqlException);
+                _log.Error("No se pudo consultar la disponibilidad del apodo del perfil.", sqlException);
             }
             catch (DataException dataException)
             {
-                _log.Error("Profile nickname availability could not be read.", dataException);
+                _log.Error("No se pudo leer la disponibilidad del apodo del perfil.", dataException);
             }
 
             return existenceStatus;

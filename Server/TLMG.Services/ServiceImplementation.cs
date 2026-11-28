@@ -5,6 +5,7 @@ using System.ServiceModel;
 using log4net;
 
 using TLMG.Contracts.DataContracts;
+using TLMG.Domain.Constants;
 using TLMG.Services.Accounts;
 using TLMG.Services.Chat;
 using TLMG.Services.Friends;
@@ -58,14 +59,10 @@ namespace TLMG.Services
             _kickVotingService = serviceDependencies.KickVotingService;
         }
 
-        private static TResult CreateFailedOperationResult<TResult>(string errorKey)
-            where TResult : OperationResult, new()
+        private static FaultException<SystemFault> CreateOutOfMemoryFault()
         {
-            TResult failedResult = new TResult();
-            failedResult.IsSuccess = false;
-            failedResult.ErrorKey = errorKey;
-
-            return failedResult;
+            SystemFault fault = new SystemFault { SystemErrorMessage = ErrorKeys.Common.OutOfMemory };
+            return new FaultException<SystemFault>(fault, new FaultReason("Memoria insuficiente en el servidor."));
         }
 
         private readonly Guid _diagnosticChannelId = Guid.NewGuid();

@@ -86,7 +86,7 @@ namespace TLMG.Services.Lobby
             if (lobbyMembershipChange.RecipientCallbacks.Count > ZeroCount)
             {
                 _log.InfoFormat(
-                    "Player {0} authorized match {1} in room {2}: {3} cards, {4} players.",
+                    "El jugador {0} autorizó la partida {1} en la sala {2} con {3} cartas y {4} jugadores.",
                     lobbyMembershipChange.UserId,
                     lobbyMembershipChange.Room.Start.MatchId,
                     lobbyMembershipChange.RoomId,

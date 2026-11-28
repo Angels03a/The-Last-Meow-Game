@@ -49,11 +49,11 @@ namespace TLMG.DataAccess.Repositories
                 }
                 catch (SqlException sqlException)
                 {
-                    _log.Error("SQL Server could not record the completed kick voting.", sqlException);
+                    _log.Error("SQL Server no pudo registrar el resultado de la votación de expulsión.", sqlException);
                 }
                 catch (DataException dataException)
                 {
-                    _log.Error("The completed kick voting could not be persisted.", dataException);
+                    _log.Error("No se pudo guardar el resultado de la votación de expulsión.", dataException);
                 }
             }
 
@@ -66,7 +66,7 @@ namespace TLMG.DataAccess.Repositories
             if (string.IsNullOrWhiteSpace(procedureStatus) || !_statuses.TryGetValue(procedureStatus, out status))
             {
                 status = KickVotingWriteStatus.DataFailure;
-                _log.ErrorFormat("RecordCompletedKickVoting returned an unsupported status: {0}.", procedureStatus);
+                _log.ErrorFormat("RecordCompletedKickVoting devolvió un estado no admitido: {0}.", procedureStatus);
             }
 
             return status;

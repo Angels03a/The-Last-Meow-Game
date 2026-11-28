@@ -55,7 +55,7 @@ namespace TLMG.Services.Sessions
             if (_kickVotingHistory == null)
             {
                 status = KickVoteStatus.DataFailure;
-                _log.Error("Kick voting history is not configured.");
+                _log.Error("El historial de votaciones de expulsión no está configurado.");
             }
             else if (vote != null)
             {

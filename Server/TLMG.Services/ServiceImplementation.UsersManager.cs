@@ -1,5 +1,4 @@
 using System;
-using System.ServiceModel;
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
 using TLMG.Domain.Constants;
@@ -22,15 +21,7 @@ namespace TLMG.Services
             catch (OutOfMemoryException outOfMemoryException)
             {
                 _log.Fatal("Memoria insuficiente durante el registro de cuenta de jugador.", outOfMemoryException);
-
-                SystemFault fault = new SystemFault
-                {
-                    SystemErrorMessage = ErrorKeys.Common.OutOfMemory
-                };
-
-                throw new FaultException<SystemFault>(
-                    fault,
-                    new FaultReason("Memoria insuficiente en el servidor."));
+                throw CreateOutOfMemoryFault();
             }
 
             return operationRegisterPlayerAccountResult;
@@ -52,15 +43,7 @@ namespace TLMG.Services
             catch (OutOfMemoryException outOfMemoryException)
             {
                 _log.Fatal("Memoria insuficiente al solicitar el código de verificación.", outOfMemoryException);
-
-                SystemFault fault = new SystemFault
-                {
-                    SystemErrorMessage = ErrorKeys.Common.OutOfMemory
-                };
-
-                throw new FaultException<SystemFault>(
-                    fault,
-                    new FaultReason("Memoria insuficiente en el servidor."));
+                throw CreateOutOfMemoryFault();
             }
 
             return operationResult;
@@ -81,15 +64,7 @@ namespace TLMG.Services
             catch (OutOfMemoryException outOfMemoryException)
             {
                 _log.Fatal("Memoria insuficiente al completar el registro de la cuenta.", outOfMemoryException);
-
-                SystemFault fault = new SystemFault
-                {
-                    SystemErrorMessage = ErrorKeys.Common.OutOfMemory
-                };
-
-                throw new FaultException<SystemFault>(
-                    fault,
-                    new FaultReason("Memoria insuficiente en el servidor."));
+                throw CreateOutOfMemoryFault();
             }
 
             return operationResult;
@@ -107,15 +82,7 @@ namespace TLMG.Services
             catch (OutOfMemoryException outOfMemoryException)
             {
                 _log.Fatal("Memoria insuficiente al reenviar el código de verificación.", outOfMemoryException);
-
-                SystemFault fault = new SystemFault
-                {
-                    SystemErrorMessage = ErrorKeys.Common.OutOfMemory
-                };
-
-                throw new FaultException<SystemFault>(
-                    fault,
-                    new FaultReason("Memoria insuficiente en el servidor."));
+                throw CreateOutOfMemoryFault();
             }
 
             return operationResult;
@@ -189,15 +156,7 @@ namespace TLMG.Services
             catch (OutOfMemoryException outOfMemoryException)
             {
                 _log.Fatal("Memoria insuficiente durante el inicio de sesión.", outOfMemoryException);
-
-                SystemFault fault = new SystemFault
-                {
-                    SystemErrorMessage = ErrorKeys.Common.OutOfMemory
-                };
-
-                throw new FaultException<SystemFault>(
-                    fault,
-                    new FaultReason("Memoria insuficiente en el servidor."));
+                throw CreateOutOfMemoryFault();
             }
 
             return result;
@@ -214,7 +173,7 @@ namespace TLMG.Services
             catch (OutOfMemoryException outOfMemoryException)
             {
                 _log.Fatal("Memoria insuficiente en el servidor al obtener un perfil.", outOfMemoryException);
-                profileResult = CreateFailedOperationResult<OperationPlayerProfileResult>(ErrorKeys.Common.OutOfMemory);
+                throw CreateOutOfMemoryFault();
             }
 
             return profileResult;
@@ -231,7 +190,7 @@ namespace TLMG.Services
             catch (OutOfMemoryException outOfMemoryException)
             {
                 _log.Fatal("Memoria insuficiente en el servidor al actualizar un perfil.", outOfMemoryException);
-                updateResult = CreateFailedOperationResult<OperationResult>(ErrorKeys.Common.OutOfMemory);
+                throw CreateOutOfMemoryFault();
             }
 
             return updateResult;

@@ -19,7 +19,7 @@ namespace TLMG.Services.Sessions
             }
             else
             {
-                _log.Error("Kick voting history repository is not configured.");
+                _log.Error("El repositorio del historial de votaciones de expulsión no está configurado.");
             }
         }
 

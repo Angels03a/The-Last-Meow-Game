@@ -29,12 +29,12 @@ namespace TLMG.DataAccess.Repositories
             }
             catch (SqlException sqlException)
             {
-                _log.Error("Database connection failed while checking email availability.", sqlException);
+                _log.Error("Falló la conexión al consultar la disponibilidad del correo.", sqlException);
                 playerExistenceLookupStatus = PlayerExistenceLookupStatus.DataFailure;
             }
             catch (DataException dataException)
             {
-                _log.Error("Data operation failed while checking email availability.", dataException);
+                _log.Error("Falló la consulta de disponibilidad del correo.", dataException);
                 playerExistenceLookupStatus = PlayerExistenceLookupStatus.DataFailure;
             }
 
@@ -55,12 +55,12 @@ namespace TLMG.DataAccess.Repositories
             }
             catch (SqlException sqlException)
             {
-                _log.Error("Database connection failed while checking nickname availability.", sqlException);
+                _log.Error("Falló la conexión al consultar la disponibilidad del apodo.", sqlException);
                 playerExistenceLookupStatus = PlayerExistenceLookupStatus.DataFailure;
             }
             catch (DataException dataException)
             {
-                _log.Error("Data operation failed while checking nickname availability.", dataException);
+                _log.Error("Falló la consulta de disponibilidad del apodo.", dataException);
                 playerExistenceLookupStatus = PlayerExistenceLookupStatus.DataFailure;
             }
 
@@ -79,13 +79,13 @@ namespace TLMG.DataAccess.Repositories
             catch (SqlException sqlException)
             {
                 _log.Error(
-                    string.Format("Database connection failed while registering {0}.", nickname),
+                    "Falló la conexión al registrar la cuenta.",
                     sqlException);
             }
             catch (DataException dataException)
             {
                 _log.Error(
-                    string.Format("Data operation failed while registering {0}.", nickname),
+                    "Falló la operación de registro de la cuenta.",
                     dataException);
             }
 
@@ -120,13 +120,13 @@ namespace TLMG.DataAccess.Repositories
             }
             catch (SqlException sqlException)
             {
-                _log.Error("Database connection failed while reading credentials.", sqlException);
+                _log.Error("Falló la conexión al leer las credenciales.", sqlException);
                 playerCredentials = new PlayerCredentials { Status = CredentialsLookupStatus.DataFailure };
             }
             catch (DataException dataException)
             {
                 _log.Error(
-                    "Data operation failed while reading credentials.",
+                    "Falló la lectura de las credenciales.",
                     dataException);
                 playerCredentials = new PlayerCredentials { Status = CredentialsLookupStatus.DataFailure };
             }
@@ -155,13 +155,13 @@ namespace TLMG.DataAccess.Repositories
             catch (SqlException sqlException)
             {
                 _log.Error(
-                    string.Format("Database connection failed while updating login time for player {0}.", userId),
+                    string.Format("Falló la conexión al actualizar la hora de acceso del jugador {0}.", userId),
                     sqlException);
             }
             catch (DataException dataException)
             {
                 _log.Error(
-                    string.Format("Data operation failed while updating login time for player {0}.", userId),
+                    string.Format("Falló la actualización de la hora de acceso del jugador {0}.", userId),
                     dataException);
             }
 
@@ -211,11 +211,11 @@ namespace TLMG.DataAccess.Repositories
             }
             catch (SqlException sqlException)
             {
-                _log.Error("Leaderboard database operation failed.", sqlException);
+                _log.Error("Falló la consulta de clasificación en la base de datos.", sqlException);
             }
             catch (DataException dataException)
             {
-                _log.Error("Leaderboard data could not be read.", dataException);
+                _log.Error("No se pudieron leer los datos de clasificación.", dataException);
             }
 
             return leaderboardLookup;

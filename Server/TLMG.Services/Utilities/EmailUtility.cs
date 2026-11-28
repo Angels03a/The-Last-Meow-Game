@@ -49,25 +49,25 @@ namespace TLMG.Services.Utilities
                     }
                     else
                     {
-                        _log.Error($"Configuration file {configurationFileName} is missing required XML elements.");
+                        _log.Error($"Faltan elementos XML obligatorios en {configurationFileName}.");
                     }
                 }
             }
             catch (FileNotFoundException fileNotFoundException)
             {
-                _log.Error($"Configuration file not found at path: {configurationPath}", fileNotFoundException);
+                _log.Error($"No se encontró el archivo de configuración en {configurationPath}.", fileNotFoundException);
             }
             catch (DirectoryNotFoundException directoryNotFoundException)
             {
-                _log.Error($"Configuration directory not found for path: {configurationPath}", directoryNotFoundException);
+                _log.Error($"No se encontró el directorio de configuración de {configurationPath}.", directoryNotFoundException);
             }
             catch (XmlException xmlException)
             {
-                _log.Error($"Malformed XML content in configuration file: {configurationPath}", xmlException);
+                _log.Error($"El archivo {configurationPath} contiene XML mal formado.", xmlException);
             }
             catch (FormatException formatException)
             {
-                _log.Error($"SmtpPort element value in {configurationFileName} is not a valid integer.", formatException);
+                _log.Error($"El valor de SmtpPort en {configurationFileName} debe ser un entero.", formatException);
             }
         }
 
@@ -98,12 +98,13 @@ namespace TLMG.Services.Utilities
             }
             catch (SmtpFailedRecipientException smtpFailedRecipientException)
             {
-                _log.Error($"SMTP Error: Recipient '{recipientEmail}' was rejected.", smtpFailedRecipientException);
+                _log.ErrorFormat("El servidor SMTP rechazó al destinatario. Código SMTP: {0}.",
+                    (int)smtpFailedRecipientException.StatusCode);
             }
             catch (SmtpException smtpException)
             {
-                _log.Error($"SMTP Error: Connection or authentication failure with the mail server for " +
-                    $"'{recipientEmail}'.", smtpException);
+                _log.ErrorFormat("Falló la comunicación o autenticación con el servidor SMTP. Código SMTP: {0}.",
+                    (int)smtpException.StatusCode);
             }
 
             return isOperationSendEmailSuccessful;

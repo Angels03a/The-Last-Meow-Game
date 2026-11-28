@@ -112,7 +112,7 @@ namespace TLMG.Services.Lobby
                 }
                 else
                 {
-                    _log.WarnFormat("Could not reconcile cancelled match {0}.", matchId);
+                    _log.WarnFormat("No se pudo conciliar el estado de la partida cancelada {0}.", matchId);
                     break;
                 }
             }

@@ -2,7 +2,6 @@
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
-using TLMG.Domain.Constants;
 
 namespace TLMG.Services
 {
@@ -19,7 +18,7 @@ namespace TLMG.Services
             catch (OutOfMemoryException outOfMemoryException)
             {
                 _log.Fatal("Memoria insuficiente al cambiar una contraseña.", outOfMemoryException);
-                changePasswordResult = CreateFailedOperationResult<OperationResult>(ErrorKeys.Common.OutOfMemory);
+                throw CreateOutOfMemoryFault();
             }
 
             return changePasswordResult;
@@ -36,7 +35,7 @@ namespace TLMG.Services
             catch (OutOfMemoryException outOfMemoryException)
             {
                 _log.Fatal("Memoria insuficiente al solicitar el código de recuperación.", outOfMemoryException);
-                passwordResetCodeRequest = CreateFailedOperationResult<OperationResult>(ErrorKeys.Common.OutOfMemory);
+                throw CreateOutOfMemoryFault();
             }
 
             return passwordResetCodeRequest;
@@ -53,7 +52,7 @@ namespace TLMG.Services
             catch (OutOfMemoryException outOfMemoryException)
             {
                 _log.Fatal("Memoria insuficiente al verificar el código de recuperación.", outOfMemoryException);
-                verificationPasswordResetCode = CreateFailedOperationResult<OperationResult>(ErrorKeys.Common.OutOfMemory);
+                throw CreateOutOfMemoryFault();
             }
 
             return verificationPasswordResetCode;
@@ -70,7 +69,7 @@ namespace TLMG.Services
             catch (OutOfMemoryException outOfMemoryException)
             {
                 _log.Fatal("Memoria insuficiente al restablecer una contraseña.", outOfMemoryException);
-                resetPassword = CreateFailedOperationResult<OperationResult>(ErrorKeys.Common.OutOfMemory);
+                throw CreateOutOfMemoryFault();
             }
 
             return resetPassword;

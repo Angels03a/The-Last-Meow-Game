@@ -46,7 +46,7 @@ namespace TLMG.Services.Accounts
 
                 if (profileLookup == null)
                 {
-                    _log.Warn("The profile lookup did not return a result.");
+                    _log.Warn("La consulta del perfil no devolvió un resultado.");
                     profileResult.ErrorKey = ErrorKeys.Profile.DataModel;
                 }
                 else if (profileLookup.Status == PlayerProfileLookupStatus.Found)
@@ -108,7 +108,7 @@ namespace TLMG.Services.Accounts
             else
             {
                 result.ErrorKey = ErrorKeys.Profile.DataModel;
-                _log.Warn("The profile lookup returned invalid statistics.");
+                _log.Warn("La consulta del perfil devolvió estadísticas inválidas.");
             }
         }
 
@@ -173,7 +173,7 @@ namespace TLMG.Services.Accounts
                 }
                 updateResult.IsSuccess = true;
                 updateResult.ErrorKey = string.Empty;
-                _log.InfoFormat("Player {0} updated their profile.", userId);
+                _log.InfoFormat("El jugador {0} actualizó su perfil.", userId);
             }
             else if (updateStatus == PlayerProfileUpdateStatus.NicknameTaken)
             {

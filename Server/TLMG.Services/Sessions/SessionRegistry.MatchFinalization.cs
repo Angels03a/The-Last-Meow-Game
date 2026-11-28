@@ -44,7 +44,7 @@ namespace TLMG.Services.Sessions
                 }
                 else
                 {
-                    _matchFinalizationLog.ErrorFormat("Invalid final standings for match {0}.", matchRecord.MatchId);
+                    _matchFinalizationLog.ErrorFormat("La clasificación final de la partida {0} es inválida.", matchRecord.MatchId);
                 }
             }
         }
@@ -187,7 +187,7 @@ namespace TLMG.Services.Sessions
             {
                 if (_gameHistoryRepository == null)
                 {
-                    _matchFinalizationLog.Error("Match history repository is not configured.");
+                    _matchFinalizationLog.Error("El repositorio del historial de partidas no está configurado.");
                 }
                 else
                 {
@@ -233,13 +233,13 @@ namespace TLMG.Services.Sessions
             else if (finalizationStatus == GameFinalizationStatus.InvalidFinalization
                 || finalizationStatus == GameFinalizationStatus.FinalizationConflict)
             {
-                _matchFinalizationLog.ErrorFormat("Match finalization rejected for {0}: {1}.",
+                _matchFinalizationLog.ErrorFormat("Se rechazó la finalización de la partida {0}: {1}.",
                     gameFinalization.MatchId, finalizationStatus);
                 canContinue = true;
             }
             else
             {
-                _matchFinalizationLog.ErrorFormat("Match finalization could not be saved for {0}: {1}.",
+                _matchFinalizationLog.ErrorFormat("No se pudo guardar la finalización de la partida {0}: {1}.",
                     gameFinalization.MatchId, finalizationStatus);
             }
 

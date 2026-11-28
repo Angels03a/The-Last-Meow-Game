@@ -69,7 +69,7 @@ namespace TLMG.DataAccess.Repositories
                 if (!_reportStatuses.TryGetValue(procedureStatus, out status))
                 {
                     status = ReportWriteStatus.DataFailure;
-                    _log.ErrorFormat("RegisterPlayerReport returned an unsupported status: {0}.", procedureStatus);
+                    _log.ErrorFormat("RegisterPlayerReport devolvió un estado no admitido: {0}.", procedureStatus);
                 }
             }
 
@@ -98,7 +98,7 @@ namespace TLMG.DataAccess.Repositories
                 if (!_suspensionStatuses.TryGetValue(procedureStatus, out status))
                 {
                     status = SuspensionLiftStatus.DataFailure;
-                    _log.ErrorFormat("LiftExpiredSuspension returned an unsupported status: {0}.", procedureStatus);
+                    _log.ErrorFormat("LiftExpiredSuspension devolvió un estado no admitido: {0}.", procedureStatus);
                 }
             }
 
@@ -152,19 +152,19 @@ namespace TLMG.DataAccess.Repositories
                     }
                     else
                     {
-                        _log.Error("The moderation procedure did not return a status.");
+                        _log.Error("El procedimiento de moderación no devolvió un estado.");
                     }
                 }
             }
             catch (SqlException sqlException)
             {
                 status = nameof(ReportWriteStatus.DataFailure);
-                _log.Error("SQL Server could not execute the moderation procedure.", sqlException);
+                _log.Error("SQL Server no pudo ejecutar el procedimiento de moderación.", sqlException);
             }
             catch (DataException dataException)
             {
                 status = nameof(ReportWriteStatus.DataFailure);
-                _log.Error("The moderation procedure could not be read.", dataException);
+                _log.Error("No se pudo leer el resultado del procedimiento de moderación.", dataException);
             }
 
             return status;
