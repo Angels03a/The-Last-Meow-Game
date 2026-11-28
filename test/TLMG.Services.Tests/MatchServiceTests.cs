@@ -16,7 +16,6 @@ namespace TLMG.Services.Tests
     public class MatchServiceTests
     {
         private const int MinimumPlayerCount = 3;
-        private const int NoViews = 0;
         private const int OneView = 1;
         private const int GuestIndex = 1;
 
@@ -37,7 +36,7 @@ namespace TLMG.Services.Tests
             // Assert
             Assert.True(result.OperationResult.IsSuccess);
             Assert.Equal(string.Empty, result.OperationResult.ErrorKey);
-            Assert.Equal(OneView, callback.Views.Count);
+            Assert.Single(callback.Views);
             Assert.Equal(scenario.MatchId, callback.LastView.MatchId);
         }
 
@@ -58,7 +57,7 @@ namespace TLMG.Services.Tests
             // Assert
             Assert.False(result.OperationResult.IsSuccess);
             Assert.Equal(ErrorKeys.Common.InvalidSession, result.OperationResult.ErrorKey);
-            Assert.Equal(NoViews, callback.Views.Count);
+            Assert.Empty(callback.Views);
         }
 
         /// <summary>Checks PlaceCard_InTurn_DeliversDifferentViewToEachSubscribedCallback.</summary>

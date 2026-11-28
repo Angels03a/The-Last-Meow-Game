@@ -74,7 +74,7 @@ namespace TLMG.Domain.Tests
             // Assert
             Assert.Equal(OneChallenge, GetPlayer(match, PlayerAId).SuccessfulChallengeCount);
             Assert.All(match.Players, player => Assert.Equal(FourCardsPerPlayer, player.HandCards.Count));
-            Assert.All(match.Players, player => Assert.Equal(NoCards, player.PileCards.Count));
+            Assert.All(match.Players, player => Assert.Empty(player.PileCards));
             Assert.All(match.Players, player => Assert.Equal(NoCards, player.RevealedCardCount));
             Assert.All(match.Players, player => Assert.Equal(FourCardsPerPlayer, player.Lives));
         }
@@ -201,7 +201,7 @@ namespace TLMG.Domain.Tests
 
             // Assert
             Assert.All(match.Players, player => Assert.Equal(FourCardsPerPlayer, player.HandCards.Count));
-            Assert.All(match.Players, player => Assert.Equal(NoCards, player.PileCards.Count));
+            Assert.All(match.Players, player => Assert.Empty(player.PileCards));
             Assert.All(match.Players, player => Assert.Equal(NoCards, player.RevealedCardCount));
             Assert.Equal(NoChallenges, GetPlayer(match, PlayerAId).SuccessfulChallengeCount);
         }

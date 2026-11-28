@@ -32,7 +32,7 @@ namespace TLMG.Services.Tests
             // Assert
             Assert.True(result.OperationResult.IsSuccess);
             Assert.Equal(MinimumPlayerCount, result.Notifications.Count);
-            Assert.Equal(1, scenario.CallbackOf(scenario.UserIds[2]).LastView.Challenge.RevealedCards.Count);
+            Assert.Single(scenario.CallbackOf(scenario.UserIds[2]).LastView.Challenge.RevealedCards);
         }
 
         /// <summary>Checks RevealCard_ByAnotherPlayer_ReturnsTheErrorKeyAndNotifiesNobody.</summary>

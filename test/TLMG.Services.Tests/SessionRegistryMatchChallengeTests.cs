@@ -90,7 +90,7 @@ namespace TLMG.Services.Tests
             Assert.Equal(new[] { MatchCardKind.Safe }, bettor.RevealedPileCards);
             Assert.Empty(second.RevealedPileCards);
             Assert.Equal(MatchChallengeOutcome.InProgress, otherView.Challenge.Outcome);
-            Assert.Equal(1, otherView.Challenge.RevealedCards.Count);
+            Assert.Single(otherView.Challenge.RevealedCards);
             Assert.Equal(MatchRoundPhase.ChallengeReady, otherView.Phase);
             Assert.True(delivery.ViewDeliveries[0].MatchView.CanRevealCard);
         }

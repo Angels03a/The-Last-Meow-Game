@@ -140,7 +140,7 @@ namespace TLMG.Services.Tests
             MatchView punishedView = ViewOf(delivery, scenario, scenario.UserIds[0]);
             Assert.Null(delivery.ErrorKey);
             Assert.Equal(versionBefore + 1, punishedView.Version);
-            Assert.Equal(1, punishedView.OwnPileCards.Count);
+            Assert.Single(punishedView.OwnPileCards);
             Assert.Null(punishedView.Challenge);
         }
 

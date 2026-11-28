@@ -262,7 +262,7 @@ namespace TLMG.Domain.Tests
             PlaceRound(match, CardKind.Safe);
 
             // Assert
-            Assert.All(match.Players, player => Assert.Equal(1, player.PileCards.Count));
+            Assert.All(match.Players, player => Assert.Single(player.PileCards));
             Assert.Equal(FirstPlayerId, match.PlayerInTurn.PlayerId);
         }
 
@@ -351,7 +351,7 @@ namespace TLMG.Domain.Tests
             EmptyEveryHand(match);
 
             // Assert
-            Assert.Equal(0, match.Players[0].HandCards.Count);
+            Assert.Empty(match.Players[0].HandCards);
             Assert.Equal(FourCardsPerPlayer, match.Players[0].Lives);
         }
 
