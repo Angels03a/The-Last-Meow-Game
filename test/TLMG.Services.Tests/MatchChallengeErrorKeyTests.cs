@@ -18,7 +18,7 @@ namespace TLMG.Services.Tests
         [InlineData(ChallengeRevealStatus.Revealed)]
         [InlineData(ChallengeRevealStatus.ChallengeSucceeded)]
         [InlineData(ChallengeRevealStatus.ChallengeFailed)]
-        public void ConvertToErrorKey_WithAcceptedRevealStatus_ReturnsNull(ChallengeRevealStatus revealStatus)
+        public void FindErrorKey_WithAcceptedRevealStatus_ReturnsNull(ChallengeRevealStatus revealStatus)
         {
             // Arrange: The status comes from the engine.
 
@@ -39,7 +39,7 @@ namespace TLMG.Services.Tests
         [InlineData(ChallengeRevealStatus.PileOwnerNotInMatch, MatchErrorKeys.PileOwnerNotInMatch)]
         [InlineData(ChallengeRevealStatus.OwnPileFirst, MatchErrorKeys.OwnPileFirst)]
         [InlineData(ChallengeRevealStatus.PileFullyRevealed, MatchErrorKeys.PileEmpty)]
-        public void ConvertToErrorKey_WithRejectedRevealStatus_ReturnsItsOwnKey(
+        public void FindErrorKey_WithRejectedRevealStatus_ReturnsItsOwnKey(
             ChallengeRevealStatus revealStatus,
             string expectedErrorKey)
         {
@@ -54,7 +54,7 @@ namespace TLMG.Services.Tests
 
         /// <summary>Checks ConvertToErrorKey_WithCardRemovedStatus_ReturnsNull.</summary>
         [Fact]
-        public void ConvertToErrorKey_WithCardRemovedStatus_ReturnsNull()
+        public void FindErrorKey_WithCardRemovedStatus_ReturnsNull()
         {
             // Arrange & Act
             string errorKey = MatchErrorKeys.FindErrorKey(PunishmentStatus.CardRemoved);
@@ -71,7 +71,7 @@ namespace TLMG.Services.Tests
         [InlineData(PunishmentStatus.NoPunishmentPending, MatchErrorKeys.NoPunishmentPending)]
         [InlineData(PunishmentStatus.NotTheChooser, MatchErrorKeys.NotTheChooser)]
         [InlineData(PunishmentStatus.CardIndexNotValid, MatchErrorKeys.CardIndexNotValid)]
-        public void ConvertToErrorKey_WithRejectedPunishmentStatus_ReturnsItsOwnKey(
+        public void FindErrorKey_WithRejectedPunishmentStatus_ReturnsItsOwnKey(
             PunishmentStatus punishmentStatus,
             string expectedErrorKey)
         {
@@ -94,7 +94,7 @@ namespace TLMG.Services.Tests
         [InlineData(PunishmentStatus.PunishmentSuspended)]
         [InlineData(PunishmentStatus.PunishmentNotSuspended)]
         [InlineData(PunishmentStatus.NotThePunished)]
-        public void ConvertToErrorKey_WithStatusesOfTheReconnectionWindow_ReturnsUnexpectedError(
+        public void FindErrorKey_WithStatusesOfTheReconnectionWindow_ReturnsUnexpectedError(
             PunishmentStatus punishmentStatus)
         {
             // Arrange: These statuses still need an error key even when clients cannot trigger them directly.

@@ -81,6 +81,7 @@
 		<Compile Include="Sessions\ChatSubmission.cs" />
 		<Compile Include="Sessions\GuestFriendship.cs" />
 		<Compile Include="Sessions\GuestFriendshipChange.cs" />
+		<Compile Include="Sessions\GuestFriendshipChangeStatus.cs" />
 		<Compile Include="Sessions\GuestFriendshipState.cs" />
 		<Compile Include="Sessions\GuestSessionStart.cs" />
 		<Compile Include="Sessions\IFriendsSessionAccess.cs" />
@@ -159,8 +160,12 @@
 		<Compile Include="Sessions\SessionRegistry.Friends.cs" />
 		<Compile Include="Sessions\SessionRegistry.Lobbies.cs" />
 		<Compile Include="Sessions\SessionRegistry.Heartbeat.cs" />
+		<Compile Include="Sessions\LinkHealth.cs" />
+		<Compile Include="Sessions\HeartbeatChannel.cs" />
 		<Compile Include="Sessions\SessionRegistry.Matches.cs" />
 		<Compile Include="Sessions\SessionRegistry.FugitiveKitten.cs" />
+		<Compile Include="Sessions\FugitiveKittenSnapshot.cs" />
+		<Compile Include="Sessions\FugitiveKittenOutcome.cs" />
 		<Compile Include="Sessions\SessionRegistry.MatchPlay.cs" />
 		<Compile Include="Sessions\MatchChannel.cs" />
 		<Compile Include="Sessions\MatchChallengeRecord.cs" />

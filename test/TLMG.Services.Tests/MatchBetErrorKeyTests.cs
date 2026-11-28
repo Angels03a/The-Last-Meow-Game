@@ -13,7 +13,7 @@ namespace TLMG.Services.Tests
 
         /// <summary>Checks ConvertToErrorKey_WithAcceptedBetStatus_ReturnsNull.</summary>
         [Fact]
-        public void ConvertToErrorKey_WithAcceptedBetStatus_ReturnsNull()
+        public void FindErrorKey_WithAcceptedBetStatus_ReturnsNull()
         {
             // Arrange & Act
             string errorKey = MatchErrorKeys.FindErrorKey(BetActionStatus.Accepted);
@@ -36,7 +36,7 @@ namespace TLMG.Services.Tests
         [InlineData(BetActionStatus.NoCardPlacedInRound, MatchErrorKeys.NoCardPlaced)]
         [InlineData(BetActionStatus.PunishmentPending, MatchErrorKeys.PunishmentPending)]
         [InlineData(BetActionStatus.MatchFinished, MatchErrorKeys.MatchFinished)]
-        public void ConvertToErrorKey_WithRejectedBetStatus_ReturnsItsOwnKey(
+        public void FindErrorKey_WithRejectedBetStatus_ReturnsItsOwnKey(
             BetActionStatus betStatus,
             string expectedErrorKey)
         {
@@ -51,7 +51,7 @@ namespace TLMG.Services.Tests
 
         /// <summary>Checks ConvertToErrorKey_WithUnknownBetStatus_ReturnsUnexpectedError.</summary>
         [Fact]
-        public void ConvertToErrorKey_WithUnknownBetStatus_ReturnsUnexpectedError()
+        public void FindErrorKey_WithUnknownBetStatus_ReturnsUnexpectedError()
         {
             // Arrange
             BetActionStatus unknownStatus = (BetActionStatus)UndefinedStatusValue;

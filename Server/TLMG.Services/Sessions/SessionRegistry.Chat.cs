@@ -20,7 +20,7 @@ namespace TLMG.Services.Sessions
 
             lock (_sessionsLock)
             {
-                PurgeExpiredChatSendTimesInLock(DateTime.UtcNow);
+                PurgeExpiredChatSendTimesInLock(_readUtcNow());
                 PlayerSession playerSession;
                 errorKey = ValidateChatIdentityInLock(caller, out playerSession);
 
@@ -55,7 +55,7 @@ namespace TLMG.Services.Sessions
 
             lock (_sessionsLock)
             {
-                DateTime sentAtUtc = DateTime.UtcNow;
+                DateTime sentAtUtc = _readUtcNow();
                 PurgeExpiredChatSendTimesInLock(sentAtUtc);
                 PlayerSession playerSession;
                 errorKey = ValidateChatIdentityInLock(caller, out playerSession);
@@ -93,7 +93,7 @@ namespace TLMG.Services.Sessions
         {
             lock (_sessionsLock)
             {
-                PurgeExpiredChatSendTimesInLock(DateTime.UtcNow);
+                PurgeExpiredChatSendTimesInLock(_readUtcNow());
                 int userId;
 
                 if (!string.IsNullOrEmpty(channelId) && _chatUserIdsByChannelId.TryGetValue(channelId, out userId))

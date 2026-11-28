@@ -11,20 +11,4 @@ namespace TLMG.Domain.Repositories
         public int CardsPerPlayerCount { get; set; }
         public IReadOnlyList<int> RegisteredUserIds { get; set; }
     }
-
-    public enum GameRegistrationStatus
-    {
-        Created,
-        AlreadyRegistered,
-        InvalidRegistration,
-        RegisteredPlayerNotFound,
-        DataFailure,
-        RegistrationConflict
-    }
-
-    public sealed class GameRegistrationResult
-    {
-        public GameRegistrationStatus GameRegistrationStatus { get; set; }
-        public int GameId { get; set; }
-    }
 }

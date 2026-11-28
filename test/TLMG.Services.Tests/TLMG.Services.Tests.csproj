@@ -25,6 +25,7 @@
     <ProjectReference Include="..\..\Server\TLMG.Services\TLMG.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="KickVotingServiceTests.cs" />
     <Compile Include="ReportServiceTests.cs" />
     <Compile Include="ModerationServiceTests.cs" />
     <Compile Include="GuestSessionServiceTests.cs" />
@@ -44,7 +45,7 @@
     <Compile Include="FriendsServiceAcceptRequestTests.cs" />
     <Compile Include="FriendsServiceDeclineRequestTests.cs" />
     <Compile Include="FriendsServiceSendRequestTests.cs" />
-    <Compile Include="FriendsServiceRoomInvitationTests.cs" />
+    <Compile Include="RoomInvitationServiceTests.cs" />
     <Compile Include="FriendsServiceSubscribeTests.cs" />
     <Compile Include="LobbyCallbackStub.cs" />
     <Compile Include="LobbyReadinessHelper.cs" />

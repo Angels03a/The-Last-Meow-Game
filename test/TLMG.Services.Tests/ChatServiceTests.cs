@@ -19,7 +19,6 @@ namespace TLMG.Services.Tests
     /// and then check what the callbacks received and what the repository stored. The registry rules for channels and
     /// rooms are tested in SessionRegistryChannelIdentityTests; here only their effect on the service result is
     /// checked.
-    /// The send interval of the registry uses the system clock, so the limit is tested only by sending twice in a row.
     /// </summary>
     public class ChatServiceTests
     {
@@ -31,7 +30,8 @@ namespace TLMG.Services.Tests
         private const string ChatText = "Hello, cats";
         private static readonly Guid ClientMessageId = new Guid("11111111-2222-3333-4444-555555555555");
 
-        private readonly LobbyScenario _lobby = new LobbyScenario();
+        private readonly ManualUtcClock _clock = new ManualUtcClock();
+        private readonly LobbyScenario _lobby;
         private readonly ChatRepositoryDouble _repository = new ChatRepositoryDouble();
         private readonly ChatCallbackDouble _creatorCallback = new ChatCallbackDouble();
         private readonly ChatCallbackDouble _firstGuestCallback = new ChatCallbackDouble();
@@ -40,11 +40,35 @@ namespace TLMG.Services.Tests
 
         public ChatServiceTests()
         {
+            _lobby = new LobbyScenario(new SessionRegistry(_clock.ReadUtcNow));
             _tokensByUserId[CreatorUserId] = _lobby.CreatorToken;
             _tokensByUserId[FirstGuestUserId] =
                 LobbyReadinessHelper.AddPlayer(_lobby, FirstGuestUserId, "lobby2", null);
             _tokensByUserId[SecondGuestUserId] =
                 LobbyReadinessHelper.AddPlayer(_lobby, SecondGuestUserId, "lobby3", null);
+        }
+
+        [Fact]
+        public void SendChatMessage_AfterChannelReplacement_UsesOriginalDeadline()
+        {
+            ChatService service = CreateService();
+            SubscribeRoomToChat(service);
+            SessionChannelCaller caller = ChatCallerOf(CreatorUserId);
+            ExecuteDeferredActions(service.SendChatMessage(caller, CreateRequest(_lobby.RoomId, ChatText)));
+            service.RemoveChatChannel(caller.ChannelId);
+            service.SubscribeToChat(caller, _creatorCallback);
+
+            _clock.Advance(TimeSpan.FromMilliseconds(999));
+            OperationSendChatMessageResult early =
+                service.SendChatMessage(caller, CreateRequest(_lobby.RoomId, ChatText)).OperationResult;
+            _clock.Advance(TimeSpan.FromMilliseconds(1));
+            ResultWithNotification<OperationSendChatMessageResult> onTime =
+                service.SendChatMessage(caller, CreateRequest(_lobby.RoomId, ChatText));
+
+            Assert.Equal(ErrorKeys.Lobby.ChatRateLimit, early.ErrorKey);
+            Assert.Null(onTime.OperationResult);
+            ExecuteDeferredActions(onTime);
+            Assert.Equal(2, _repository.SavedRecords.Count);
         }
 
         [Fact]
@@ -120,7 +144,7 @@ namespace TLMG.Services.Tests
             // Arrange
             ChatService service = CreateService();
             SubscribeRoomToChat(service);
-            DateTime beforeUtc = DateTime.UtcNow;
+            DateTime beforeUtc = _clock.ReadUtcNow();
 
             // Act
             ResultWithNotification<OperationSendChatMessageResult> result = service.SendChatMessage(
@@ -128,7 +152,7 @@ namespace TLMG.Services.Tests
             ExecuteDeferredActions(result);
 
             // Assert
-            DateTime afterUtc = DateTime.UtcNow;
+            DateTime afterUtc = _clock.ReadUtcNow();
             AssertDeliveredMessage(_creatorCallback, beforeUtc, afterUtc);
             AssertDeliveredMessage(_firstGuestCallback, beforeUtc, afterUtc);
             AssertDeliveredMessage(_secondGuestCallback, beforeUtc, afterUtc);

@@ -19,7 +19,7 @@ namespace TLMG.Services.Tests
 
         /// <summary>Checks ConvertToErrorKey_WithPlacedStatus_ReturnsNull.</summary>
         [Fact]
-        public void ConvertToErrorKey_WithPlacedStatus_ReturnsNull()
+        public void FindErrorKey_WithPlacedStatus_ReturnsNull()
         {
             // Arrange
             CardPlacementStatus placementStatus = CardPlacementStatus.Placed;
@@ -42,7 +42,7 @@ namespace TLMG.Services.Tests
         [InlineData(CardPlacementStatus.CardNotInHand, MatchErrorKeys.CardNotInHand)]
         [InlineData(CardPlacementStatus.PunishmentPending, MatchErrorKeys.PunishmentPending)]
         [InlineData(CardPlacementStatus.MatchFinished, MatchErrorKeys.MatchFinished)]
-        public void ConvertToErrorKey_WithRejectedStatus_ReturnsItsOwnKey(
+        public void FindErrorKey_WithRejectedStatus_ReturnsItsOwnKey(
             CardPlacementStatus placementStatus,
             string expectedErrorKey)
         {
@@ -57,7 +57,7 @@ namespace TLMG.Services.Tests
 
         /// <summary>Checks that an unknown status returns the generic error.</summary>
         [Fact]
-        public void ConvertToErrorKey_WithUnknownStatus_ReturnsUnexpectedError()
+        public void FindErrorKey_WithUnknownStatus_ReturnsUnexpectedError()
         {
             // Arrange
             CardPlacementStatus unknownStatus = (CardPlacementStatus)UndefinedCardValue;

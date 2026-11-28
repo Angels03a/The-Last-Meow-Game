@@ -102,6 +102,8 @@
     <Compile Include="Repositories\GameParticipantFinalStatus.cs" />
     <Compile Include="Repositories\GameParticipantRecord.cs" />
     <Compile Include="Repositories\GameRegistration.cs" />
+    <Compile Include="Repositories\GameRegistrationResult.cs" />
+    <Compile Include="Repositories\GameRegistrationStatus.cs" />
     <Compile Include="Repositories\GameStatus.cs" />
     <Compile Include="Repositories\IBlockRepository.cs" />
     <Compile Include="Repositories\IChatMessageRepository.cs" />

@@ -18,7 +18,7 @@ namespace TLMG.Services.Tests
     /// pending invitation is not reported to the server, so the invitee stays able to receive it again after the
     /// renotification interval. Notifications are deferred actions, so the tests run them and check the callbacks.
     /// </summary>
-    public class FriendsServiceRoomInvitationTests
+    public class RoomInvitationServiceTests
     {
         private const int InviterUserId = 1;
 
@@ -38,7 +38,7 @@ namespace TLMG.Services.Tests
 
         private readonly string _inviteeToken;
 
-        public FriendsServiceRoomInvitationTests()
+        public RoomInvitationServiceTests()
         {
             FriendshipRepositoryStub repository = new FriendshipRepositoryStub();
             repository.AddUser(InviterUserId, "Inviter");
@@ -98,6 +98,7 @@ namespace TLMG.Services.Tests
 
             Assert.False(result.OperationResult.IsSuccess);
             Assert.Equal(ErrorKeys.Friends.CannotInvite, result.OperationResult.ErrorKey);
+            Assert.Empty(result.Notifications);
             Assert.Empty(_inviteeCallback.ReceivedInvitations);
         }
 

@@ -1,13 +1,5 @@
 ﻿namespace TLMG.Services.Sessions
 {
-    public enum GuestFriendshipChangeStatus
-    {
-        Applied,
-        GuestNotFound,
-        AlreadyExists,
-        NotValid
-    }
-
     public sealed class GuestFriendshipChange
     {
         private GuestFriendshipChange(GuestFriendshipChangeStatus status, GuestFriendship friendship)

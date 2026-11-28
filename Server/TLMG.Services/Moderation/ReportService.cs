@@ -78,11 +78,11 @@ namespace TLMG.Services.Moderation
         private static bool TryReadSubmission(ReportSubmission submission, PlayerReport report)
         {
             bool isValid = false;
-            ReportReason reason;
-
-            if (submission != null && submission.TargetUserId > ValidationRules.NoUserId
-                && Enum.TryParse(submission.ReasonCode, false, out reason)
-                && Enum.IsDefined(typeof(ReportReason), reason) && reason != ReportReason.Unspecified
+            ReportReason reason = ReportReason.Unspecified;
+            bool hasTarget = submission != null && submission.TargetUserId > ValidationRules.NoUserId;
+            bool hasReason = hasTarget && Enum.TryParse(submission.ReasonCode, false, out reason)
+                && Enum.IsDefined(typeof(ReportReason), reason);
+            if (hasReason && reason != ReportReason.Unspecified
                 && string.Equals(reason.ToString(), submission.ReasonCode, StringComparison.Ordinal))
             {
                 string comment = string.Empty;

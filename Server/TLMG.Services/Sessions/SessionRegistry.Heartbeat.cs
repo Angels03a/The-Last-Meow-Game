@@ -7,22 +7,6 @@ using TLMG.Services.Helpers;
 
 namespace TLMG.Services.Sessions
 {
-    public enum HeartbeatChannel { Friends, Lobby, Chat, Match }
-
-    internal sealed class LinkHealth
-    {
-        internal LinkHealth(string channelId, DateTime nowUtc)
-        {
-            ChannelId = channelId;
-            EvidenceUtc = nowUtc;
-        }
-
-        internal string ChannelId { get; }
-        internal DateTime EvidenceUtc { get; set; }
-        internal DateTime? LastPulseUtc { get; set; }
-        internal int Sequence { get; set; }
-    }
-
     public partial class SessionRegistry
     {
         private static readonly TimeSpan _linkSilence = TimeSpan.FromSeconds(9);
