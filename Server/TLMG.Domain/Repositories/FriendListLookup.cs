@@ -11,6 +11,6 @@ namespace TLMG.Domain.Repositories
         public bool WasFriendListLookupSuccessful { get; set; }
 
         /// <summary>Amigos aceptados ordenados por nickname; vacía si no tiene o si la consulta falló.</summary>
-        public List<AcceptedFriend> Friends { get; set; }
+        public List<AcceptedFriend> Friends { get; set; } = new List<AcceptedFriend>();
     }
 }

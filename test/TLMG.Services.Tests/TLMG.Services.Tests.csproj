@@ -51,6 +51,7 @@
     <Compile Include="LobbyScenario.cs" />
     <Compile Include="PlayerProfileServiceTests.cs" />
     <Compile Include="LobbyServiceCardsPerPlayerTests.cs" />
+    <Compile Include="MatchStartPreparationTests.cs" />
     <Compile Include="ManualUtcClock.cs" />
     <Compile Include="MatchCallbackStub.cs" />
     <Compile Include="MatchPlayScenario.cs" />

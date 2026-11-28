@@ -6,6 +6,7 @@
     public interface IFriendshipRepository
     {
         /// <summary>Retrieves accepted friends without duplicates and reports lookup failure separately.</summary>
+        /// <returns>A non-null lookup and list. Check the success flag even when the list is empty.</returns>
         FriendListLookup FindAcceptedFriends(int userId);
 
         /// <summary>
@@ -24,6 +25,7 @@
         FriendshipRecordLookup FindFriendshipRecordById(int friendshipId);
 
         /// <summary>Retrieves both incoming and outgoing pending requests.</summary>
+        /// <returns>A non-null lookup and list. Check the success flag even when the list is empty.</returns>
         PendingFriendRequestsLookup FindPendingFriendRequests(int userId);
 
         /// <summary>

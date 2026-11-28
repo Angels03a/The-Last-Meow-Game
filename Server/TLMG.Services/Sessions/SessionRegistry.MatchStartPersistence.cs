@@ -124,16 +124,25 @@ namespace TLMG.Services.Sessions
             return gameRegistration;
         }
 
+        private static bool IsCompletablePreparation(MatchStartPreparation preparation)
+        {
+            bool complete = preparation != null && preparation.GameRegistration != null;
+            if (complete)
+            {
+                LobbyMembershipChange membership = preparation.LobbyMembershipChange;
+                complete = membership != null && membership.Status == LobbyChangeStatus.Applied
+                    && membership.Room != null;
+            }
+
+            return complete;
+        }
+
         private LobbyMembershipChange CompleteMatchStartInLock(
             SessionChannelCaller caller, MatchStartPreparation matchStartPreparation, GameRegistrationResult gameRegistrationResult)
         {
             LobbyMembershipChange lobbyMembershipChange = CreateRejectedWithoutUser(LobbyChangeStatus.NotAuthorized);
 
-            if (matchStartPreparation != null
-                && matchStartPreparation.GameRegistration != null
-                && matchStartPreparation.LobbyMembershipChange != null
-                && matchStartPreparation.LobbyMembershipChange.Status == LobbyChangeStatus.Applied
-                && matchStartPreparation.LobbyMembershipChange.Room != null)
+            if (IsCompletablePreparation(matchStartPreparation))
             {
                 int roomId = matchStartPreparation.LobbyMembershipChange.RoomId;
                 PlayerSession playerSession;

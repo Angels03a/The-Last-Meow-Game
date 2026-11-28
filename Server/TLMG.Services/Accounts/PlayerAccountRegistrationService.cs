@@ -18,13 +18,6 @@ namespace TLMG.Services.Accounts
 
         public PlayerAccountRegistrationService(
             IPlayerRepository playerRepository,
-            IPasswordHasher passwordHasher)
-            : this(playerRepository, passwordHasher, null)
-        {
-        }
-
-        public PlayerAccountRegistrationService(
-            IPlayerRepository playerRepository,
             IPasswordHasher passwordHasher,
             AccountVerificationDispatcher verificationDispatcher)
         {
@@ -35,21 +28,8 @@ namespace TLMG.Services.Accounts
 
         public OperationResult RegisterPlayerAccount(PlayerAccountRegistration playerAccountRegistration)
         {
-            OperationResult operationRegisterPlayerAccountResult = new OperationResult();
-            string validationErrorKey = ValidateRegisterPlayerAccountRequest(
-                playerAccountRegistration,
-                out PlayerRegistration playerRegistration);
-
-            if (validationErrorKey != string.Empty)
-            {
-                operationRegisterPlayerAccountResult.ErrorKey = validationErrorKey;
-            }
-            else
-            {
-                operationRegisterPlayerAccountResult = CreateAccount(playerRegistration);
-            }
-
-            return operationRegisterPlayerAccountResult;
+            _log.Warn("Se rechazó el registro directo de una cuenta sin verificación de correo.");
+            return new OperationResult { IsSuccess = false, ErrorKey = ErrorKeys.Common.PermissionDenied };
         }
 
         public OperationResult RequestVerificationCode(PlayerAccountRegistration playerAccountRegistration,
@@ -236,27 +216,16 @@ namespace TLMG.Services.Accounts
             {
                 _log.Warn("La validación del código de registro no devolvió resultado.");
             }
+            else if (validationResult.Status == VerificationCodeStatus.Valid)
+            {
+                errorKey = FinalizePlayer(pendingRecord, out isSuccess);
+            }
             else
             {
-                switch (validationResult.Status)
+                errorKey = VerificationCodeErrors.Resolve(validationResult.Status, ErrorKeys.CreateAccount.DataModel);
+                if (errorKey == ErrorKeys.CreateAccount.DataModel)
                 {
-                    case VerificationCodeStatus.Valid:
-                        errorKey = FinalizePlayer(pendingRecord, out isSuccess);
-                        break;
-                    case VerificationCodeStatus.Invalid:
-                        errorKey = ErrorKeys.Verification.IncorrectCode;
-                        break;
-                    case VerificationCodeStatus.TooManyAttempts:
-                        errorKey = ErrorKeys.Verification.AttemptsExhausted;
-                        break;
-                    case VerificationCodeStatus.Expired:
-                    case VerificationCodeStatus.NoActiveCode:
-                        errorKey = ErrorKeys.Verification.ExpiredCode;
-                        break;
-                    default:
-                        _log.ErrorFormat("Estado de validación no reconocido: {0}.", validationResult.Status);
-                        errorKey = ErrorKeys.CreateAccount.DataModel;
-                        break;
+                    _log.ErrorFormat("Estado de validación no reconocido: {0}.", validationResult.Status);
                 }
             }
 
@@ -310,32 +279,6 @@ namespace TLMG.Services.Accounts
             return errorKey;
         }
 
-        private OperationResult CreateAccount(PlayerRegistration playerRegistration)
-        {
-            OperationResult operationRegisterPlayerAccountResult = new OperationResult();
-
-            string nickname = playerRegistration.Nickname;
-            string email = playerRegistration.Email;
-            string errorKey = FindDuplicateAccountErrorKey(email, nickname);
-
-            if (errorKey == null)
-            {
-                errorKey = SavePlayer(nickname, email, playerRegistration.Password);
-            }
-
-            if (errorKey == null)
-            {
-                operationRegisterPlayerAccountResult.IsSuccess = true;
-                operationRegisterPlayerAccountResult.ErrorKey = string.Empty;
-            }
-            else
-            {
-                operationRegisterPlayerAccountResult.ErrorKey = errorKey;
-            }
-
-            return operationRegisterPlayerAccountResult;
-        }
-
         private string FindDuplicateAccountErrorKey(string email, string nickname)
         {
             string errorKey = ResolveExistenceErrorKey(
@@ -369,34 +312,6 @@ namespace TLMG.Services.Accounts
             else if (playerExistenceLookupStatus != PlayerExistenceLookupStatus.NotFound)
             {
                 _log.Warn("La consulta de existencia de cuenta devolvió un estado desconocido.");
-                errorKey = ErrorKeys.CreateAccount.DataModel;
-            }
-
-            return errorKey;
-        }
-
-        private string SavePlayer(string nickname, string email, string password)
-        {
-            string errorKey = null;
-            string passwordHash = null;
-
-            try
-            {
-                passwordHash = _passwordHasher.HashPassword(password);
-            }
-            catch (CryptographicException cryptographicException)
-            {
-                _log.Error(string.Format("Falló el hash de la contraseña de {0}.", nickname), cryptographicException);
-                errorKey = ErrorKeys.Common.Unexpected;
-            }
-
-            if (errorKey == null && string.IsNullOrEmpty(passwordHash))
-            {
-                errorKey = ErrorKeys.CreateAccount.IncompleteFields;
-            }
-
-            if (errorKey == null && !_playerRepository.CreatePlayer(nickname, email, passwordHash))
-            {
                 errorKey = ErrorKeys.CreateAccount.DataModel;
             }
 

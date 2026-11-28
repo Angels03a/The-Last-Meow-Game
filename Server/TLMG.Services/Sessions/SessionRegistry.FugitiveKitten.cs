@@ -84,65 +84,105 @@ namespace TLMG.Services.Sessions
         /// <summary>Processes an authorized catch attempt using only the server clock.</summary>
         public MatchDelivery TryCatchFugitiveKitten(SessionChannelCaller caller)
         {
-            return RunFugitiveKittenOperation(caller, true);
+            return RunFugitiveKittenOperation(caller, CatchKittenInLock);
         }
 
         /// <summary>Checks the deadline without resolving a finished match a second time.</summary>
         public MatchDelivery CheckFugitiveKittenDeadline(SessionChannelCaller caller)
         {
-            return RunFugitiveKittenOperation(caller, false);
+            return RunFugitiveKittenOperation(caller, CheckKittenDeadlineInLock);
         }
 
-        private MatchDelivery RunFugitiveKittenOperation(SessionChannelCaller caller, bool tryCatch)
+        private MatchDelivery RunFugitiveKittenOperation(SessionChannelCaller caller,
+            Func<MatchRecord, int, DateTime, MatchDelivery> operation)
         {
             MatchDelivery delivery;
             lock (_sessionsLock)
             {
-                PlayerSession session;
-                MatchRecord match;
-                string errorKey = ValidateMatchActionInLock(caller, out session, out match);
-                if (errorKey != null)
+                string errorKey = ValidateMatchActionInLock(caller, out PlayerSession session, out MatchRecord match);
+                if (errorKey == null)
                 {
-                    delivery = MatchDelivery.CreateRejected(errorKey);
+                    delivery = operation(match, session.UserId, _readUtcNow());
                 }
                 else
                 {
-                    DateTime nowUtc = _readUtcNow();
-                    bool changed = ExpireMatchDeadlinesInLock(match, nowUtc);
-                    FugitiveKittenState kitten = match.Kitten;
-                    if (tryCatch && kitten != null && !kitten.IsResolved && !kitten.PausedAtUtc.HasValue
-                        && match.MatchState.Phase != RoundPhase.MatchFinished
-                        && kitten.Route.CanCatchAt(nowUtc - kitten.StartedAtUtc))
-                    {
-                        ExtraLifeStatus status = match.MatchState.GrantExtraLife(session.UserId);
-                        if (status == ExtraLifeStatus.Granted)
-                        {
-                            kitten.MarkCaught(session.UserId);
-                            changed = true;
-                        }
-                        else
-                        {
-                            errorKey = ErrorKeys.Common.Unexpected;
-                        }
-                    }
-                    IReadOnlyList<MatchViewDelivery> views = _noMatchViewDeliveries;
-                    if (changed)
-                    {
-                        match.Version++;
-                        views = CreateViewDeliveriesInLock(match);
-                    }
-                    else if (!tryCatch && kitten != null && kitten.IsResolved)
-                    {
-                        MatchChannel channel = _matchChannelsByUserId[session.UserId];
-                        MatchViewDelivery ownView = CreateViewDeliveryInLock(match, session.UserId, channel.Callback);
-                        views = new List<MatchViewDelivery> { ownView }.AsReadOnly();
-                    }
-                    delivery = errorKey == null
-                        ? MatchDelivery.CreateAccepted(views)
-                        : MatchDelivery.CreateRejected(errorKey, views);
+                    delivery = MatchDelivery.CreateRejected(errorKey);
                 }
             }
+
             return delivery;
+        }
+
+        private MatchDelivery CatchKittenInLock(MatchRecord match, int userId, DateTime nowUtc)
+        {
+            bool changed = ExpireMatchDeadlinesInLock(match, nowUtc);
+            FugitiveKittenState kitten = match.Kitten;
+            bool available = kitten != null && !kitten.IsResolved && !kitten.PausedAtUtc.HasValue;
+            bool rejected = false;
+            if (available && match.MatchState.Phase != RoundPhase.MatchFinished
+                && kitten.Route.CanCatchAt(nowUtc - kitten.StartedAtUtc))
+            {
+                rejected = match.MatchState.GrantExtraLife(userId) != ExtraLifeStatus.Granted;
+                if (!rejected)
+                {
+                    kitten.MarkCaught(userId);
+                    changed = true;
+                }
+            }
+
+            IReadOnlyList<MatchViewDelivery> views = PublishKittenChangesInLock(match, changed);
+            MatchDelivery delivery;
+            if (rejected)
+            {
+                delivery = MatchDelivery.CreateRejected(ErrorKeys.Common.Unexpected, views);
+            }
+            else
+            {
+                delivery = MatchDelivery.CreateAccepted(views);
+            }
+
+            return delivery;
+        }
+
+        private MatchDelivery CheckKittenDeadlineInLock(MatchRecord match, int userId, DateTime nowUtc)
+        {
+            bool changed = ExpireMatchDeadlinesInLock(match, nowUtc);
+            IReadOnlyList<MatchViewDelivery> views = PublishKittenChangesInLock(match, changed);
+            if (!changed && match.Kitten != null && match.Kitten.IsResolved)
+            {
+                MatchChannel channel = _matchChannelsByUserId[userId];
+                MatchViewDelivery ownView = CreateViewDeliveryInLock(match, userId, channel.Callback);
+                views = new List<MatchViewDelivery> { ownView }.AsReadOnly();
+            }
+
+            return MatchDelivery.CreateAccepted(views);
+        }
+
+        private IReadOnlyList<MatchViewDelivery> PublishKittenChangesInLock(MatchRecord match, bool changed)
+        {
+            IReadOnlyList<MatchViewDelivery> views = _noMatchViewDeliveries;
+            if (changed)
+            {
+                match.Version++;
+                views = CreateViewDeliveriesInLock(match);
+            }
+
+            return views;
+        }
+
+        private static FugitiveKittenResult ResolveKittenResult(FugitiveKittenOutcome outcome)
+        {
+            FugitiveKittenResult result = FugitiveKittenResult.Escaped;
+            if (outcome == FugitiveKittenOutcome.InProgress)
+            {
+                result = FugitiveKittenResult.InProgress;
+            }
+            else if (outcome == FugitiveKittenOutcome.Caught)
+            {
+                result = FugitiveKittenResult.Caught;
+            }
+
+            return result;
         }
 
         private static FugitiveKittenView CreateFugitiveKittenViewInLock(MatchRecord match, DateTime nowUtc)
@@ -163,7 +203,7 @@ namespace TLMG.Services.Sessions
                     PausedAtUtc = kitten.PausedAtUtc,
                     ExpiresAtUtc = kitten.ExpiresAtUtc,
                     Color = kitten.Color,
-                    Result = (FugitiveKittenResult)kitten.Outcome,
+                    Result = ResolveKittenResult(kitten.Outcome),
                     WinnerUserId = kitten.WinnerUserId,
                     WinnerNickname = nickname,
                     Segments = kitten.Route.Segments.Select(segment => new KittenSegmentView

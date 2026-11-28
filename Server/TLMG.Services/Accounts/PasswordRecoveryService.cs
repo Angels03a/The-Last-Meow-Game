@@ -68,7 +68,7 @@ namespace TLMG.Services.Accounts
                     verificationCode.Trim());
                 if (validationResult != null)
                 {
-                    errorKey = ResolveVerificationErrorKey(validationResult.Status);
+                    errorKey = VerificationCodeErrors.Resolve(validationResult.Status, ErrorKeys.Password.DataModel);
                     isSuccess = validationResult.Status == VerificationCodeStatus.Valid;
                 }
                 else
@@ -116,33 +116,6 @@ namespace TLMG.Services.Accounts
                     newHash);
                 errorKey = ResolveResetErrorKey(resetStatus);
                 isSuccess = resetStatus == PasswordResetStatus.Reset;
-            }
-
-            return errorKey;
-        }
-
-        private static string ResolveVerificationErrorKey(VerificationCodeStatus status)
-        {
-            string errorKey;
-
-            switch (status)
-            {
-                case VerificationCodeStatus.Valid:
-                    errorKey = string.Empty;
-                    break;
-                case VerificationCodeStatus.Invalid:
-                    errorKey = ErrorKeys.Verification.IncorrectCode;
-                    break;
-                case VerificationCodeStatus.TooManyAttempts:
-                    errorKey = ErrorKeys.Verification.AttemptsExhausted;
-                    break;
-                case VerificationCodeStatus.Expired:
-                case VerificationCodeStatus.NoActiveCode:
-                    errorKey = ErrorKeys.Verification.ExpiredCode;
-                    break;
-                default:
-                    errorKey = ErrorKeys.Password.DataModel;
-                    break;
             }
 
             return errorKey;

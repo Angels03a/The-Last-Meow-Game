@@ -501,43 +501,38 @@ namespace TLMG.Services.Friends
         {
             FriendsSnapshot snapshot = new FriendsSnapshot
             {
-                WasSuccessful = true,
                 Friends = new List<AcceptedFriend>(),
                 Requests = new List<PendingFriendRequest>()
             };
 
-            if (!GuestIdentity.IsGuestUserId(userId))
-            {
-                FriendListLookup friendListLookup = _friendshipRepository.FindAcceptedFriends(userId);
-                PendingFriendRequestsLookup pendingLookup = _friendshipRepository.FindPendingFriendRequests(userId);
-
-                snapshot.WasSuccessful = friendListLookup != null
-                    && pendingLookup != null
-                    && friendListLookup.WasFriendListLookupSuccessful
-                    && pendingLookup.WasLookupSuccessful
-                    && friendListLookup.Friends != null
-                    && pendingLookup.Requests != null;
-
-                if (snapshot.WasSuccessful)
-                {
-                    BlockListLookup blocks = _blockPolicy.FindBlocks(userId);
-                    snapshot.WasSuccessful = blocks.WasLookupSuccessful;
-
-                    if (snapshot.WasSuccessful)
-                    {
-                        snapshot.Friends.AddRange(BlockPolicy.FilterVisibleFriends(
-                            blocks, userId, friendListLookup.Friends));
-                        snapshot.Requests.AddRange(pendingLookup.Requests);
-                    }
-                }
-            }
-
-            if (snapshot.WasSuccessful)
+            bool loaded = GuestIdentity.IsGuestUserId(userId) || TryAddAccountFriendships(snapshot, userId);
+            if (loaded)
             {
                 AddGuestFriendships(snapshot, _sessionAccess.FindGuestFriendships(userId), userId);
             }
 
+            snapshot.WasSuccessful = loaded;
             return snapshot;
+        }
+
+        private bool TryAddAccountFriendships(FriendsSnapshot snapshot, int userId)
+        {
+            FriendListLookup friends = _friendshipRepository.FindAcceptedFriends(userId);
+            PendingFriendRequestsLookup pending = _friendshipRepository.FindPendingFriendRequests(userId);
+            bool loaded = false;
+
+            if (friends.WasFriendListLookupSuccessful && pending.WasLookupSuccessful)
+            {
+                BlockListLookup blocks = _blockPolicy.FindBlocks(userId);
+                if (blocks.WasLookupSuccessful)
+                {
+                    snapshot.Friends.AddRange(BlockPolicy.FilterVisibleFriends(blocks, userId, friends.Friends));
+                    snapshot.Requests.AddRange(pending.Requests);
+                    loaded = true;
+                }
+            }
+
+            return loaded;
         }
 
         private ResultWithNotification<OperationSubscribeToFriendsResult> SubscribeFriendsChannel(

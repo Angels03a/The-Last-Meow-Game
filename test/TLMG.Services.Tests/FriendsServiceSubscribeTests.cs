@@ -155,6 +155,21 @@ namespace TLMG.Services.Tests
         }
 
         [Fact]
+        public void SubscribeToFriends_WhenTheBlockLookupFails_RejectsWithUnexpectedErrorAndRegistersNothing()
+        {
+            FriendsScenario scenario = new FriendsScenario(false);
+            scenario.Blocks.FailLookup = true;
+
+            ResultWithNotification<OperationSubscribeToFriendsResult> actual =
+                scenario.Service.SubscribeToFriends(scenario.BravoToken, FriendsChannelId, new FriendsCallbackStub());
+
+            Assert.False(actual.OperationResult.IsSuccess);
+            Assert.Equal(ErrorKeys.Common.Unexpected, actual.OperationResult.ErrorKey);
+            Assert.Empty(actual.Notifications);
+            Assert.Null(scenario.Registry.FindFriendsCallbackOfUser(FriendsScenario.BravoUserId));
+        }
+
+        [Fact]
         public void SubscribeToFriends_WhenTheFriendListLookupFails_RejectsWithUnexpectedErrorAndRegistersNothing()
         {
             // Arrange

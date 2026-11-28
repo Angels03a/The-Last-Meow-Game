@@ -31,7 +31,7 @@ namespace TLMG.Services.Tests
             Repository.AddUser(AlphaUserId, AlphaNickname);
             Repository.AddUser(BravoUserId, BravoNickname);
             Repository.AddUser(CharlieUserId, CharlieNickname);
-            BlockPolicy blockPolicy = new BlockPolicy(new NoBlocksRepository());
+            BlockPolicy blockPolicy = new BlockPolicy(Blocks);
             Registry.ConfigureBlockPolicy(blockPolicy);
             Service = new FriendsService(Repository, Registry, Registry, blockPolicy);
             AlphaToken = StartRegisteredSession(AlphaUserId, AlphaNickname, AlphaCallback);
@@ -47,6 +47,8 @@ namespace TLMG.Services.Tests
 
             CharlieToken = Registry.StartRegisteredSession(CharlieUserId, CharlieNickname, out SessionEnd replacedCharlie);
         }
+
+        internal NoBlocksRepository Blocks { get; } = new NoBlocksRepository();
 
         internal SessionRegistry Registry { get; } = new SessionRegistry();
 

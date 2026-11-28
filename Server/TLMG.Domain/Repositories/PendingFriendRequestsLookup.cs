@@ -11,6 +11,6 @@ namespace TLMG.Domain.Repositories
         public bool WasLookupSuccessful { get; set; }
 
         /// <summary>Solicitudes pendientes recibidas y enviadas; vacía si la consulta falló.</summary>
-        public List<PendingFriendRequest> Requests { get; set; }
+        public List<PendingFriendRequest> Requests { get; set; } = new List<PendingFriendRequest>();
     }
 }

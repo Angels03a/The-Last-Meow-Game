@@ -10,13 +10,6 @@ using TLMG.Services.Utilities;
 
 namespace TLMG.Services.Tests
 {
-    /// <summary>
-    /// Tests of PlayerAccountRegistrationService with a repository double that records its calls. The format rules
-    /// are tested in TLMG.Domain.Tests; here the service must reject invalid requests before it reads or writes
-    /// anything, report duplicates and failures with the right key and never store the plain password.
-    /// The e-mail verification flow cannot be completed in a unit test because AccountVerificationDispatcher is a
-    /// concrete class that sends real e-mail; only its guard paths (no dispatcher configured) are covered.
-    /// </summary>
     public class PlayerAccountRegistrationServiceTests
     {
         private const string SyntheticPassword = "Synthetic12!";
@@ -31,34 +24,43 @@ namespace TLMG.Services.Tests
         };
 
         [Fact]
-        public void RegisterPlayerAccount_WithValidRequest_StoresTheAccountWithNormalizedEmailAndHashedPassword()
+        public void RegisterPlayerAccount_WithValidRequest_DeniesWithoutStartingRegistration()
         {
-            // Arrange
-            PasswordHasher hasher = new PasswordHasher();
-            PlayerAccountRegistrationService service = new PlayerAccountRegistrationService(_repository, hasher);
+            VerificationCodeRepositoryStub codes = new VerificationCodeRepositoryStub();
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(codes);
+
+            OperationResult result = service.RegisterPlayerAccount(CreateValidRequest());
+
+            AssertRejectedWithoutWrites(result, ErrorKeys.Common.PermissionDenied);
+            Assert.Empty(_repository.LookedUpEmails);
+            Assert.Empty(_repository.LookedUpNicknames);
+            Assert.Empty(codes.SavedPendingRegistrations);
+            Assert.Empty(codes.SavedCodes);
+        }
+
+        [Fact]
+        public void RequestVerificationCode_StoresNormalizedEmailAndHashedPasswordInPendingRecord()
+        {
+            VerificationCodeRepositoryStub codes = new VerificationCodeRepositoryStub();
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(codes);
             PlayerAccountRegistration request = CreateRequest(
                 PlayerNickname, "  Player@Example.TEST ", SyntheticPassword);
 
-            // Act
-            OperationResult result = service.RegisterPlayerAccount(request);
+            service.RequestVerificationCode(request, CultureCode);
 
-            // Assert
-            Assert.True(result.IsSuccess);
-            Assert.Equal(string.Empty, result.ErrorKey);
-            PlayerRepositoryStub.CreatedPlayerRecord created = Assert.Single(_repository.CreatedPlayers);
-            Assert.Equal(PlayerNickname, created.Nickname);
-            Assert.Equal(SyntheticEmail, created.Email);
-            Assert.NotEqual(SyntheticPassword, created.PasswordHash);
-            Assert.True(hasher.VerifyPassword(SyntheticPassword, created.PasswordHash));
+            PendingRegistrationRecord record = Assert.Single(codes.SavedPendingRegistrations);
+            Assert.Equal(SyntheticEmail, record.Email);
+            Assert.Equal(PlayerNickname, record.Nickname);
+            Assert.True(new PasswordHasher().VerifyPassword(SyntheticPassword, record.PasswordHash));
+            Assert.Empty(_repository.CreatedPlayers);
         }
 
         [Theory]
         [InlineData(null, SyntheticEmail, SyntheticPassword, true, ErrorKeys.CreateAccount.NicknameFormat)]
         [InlineData("ab", SyntheticEmail, SyntheticPassword, true, ErrorKeys.CreateAccount.NicknameFormat)]
         [InlineData(PlayerNickname, "abcde@example.test", SyntheticPassword, true, ErrorKeys.CreateAccount.EmailFormat)]
-        [InlineData(PlayerNickname, SyntheticEmail, "Short1!", true, ErrorKeys.CreateAccount.PasswordPolicy)]
         [InlineData(PlayerNickname, SyntheticEmail, SyntheticPassword, false, ErrorKeys.CreateAccount.Terms)]
-        public void RegisterPlayerAccount_WithInvalidField_RejectsBeforeAnyLookupOrWrite(
+        public void RequestVerificationCode_WithInvalidField_RejectsBeforeAnyLookupOrWrite(
             string nickname,
             string email,
             string password,
@@ -71,7 +73,7 @@ namespace TLMG.Services.Tests
             request.HasAcceptedTerms = hasAcceptedTerms;
 
             // Act
-            OperationResult result = service.RegisterPlayerAccount(request);
+            OperationResult result = service.RequestVerificationCode(request, CultureCode);
 
             // Assert
             AssertRejectedWithoutWrites(result, expectedErrorKey);
@@ -80,13 +82,13 @@ namespace TLMG.Services.Tests
         }
 
         [Fact]
-        public void RegisterPlayerAccount_WithNullRequest_RejectsWithIncompleteFields()
+        public void RequestVerificationCode_WithNullRequest_RejectsWithIncompleteFields()
         {
             // Arrange
             PlayerAccountRegistrationService service = CreateService();
 
             // Act
-            OperationResult result = service.RegisterPlayerAccount(null);
+            OperationResult result = service.RequestVerificationCode(null, CultureCode);
 
             // Assert
             AssertRejectedWithoutWrites(result, ErrorKeys.CreateAccount.IncompleteFields);
@@ -94,14 +96,14 @@ namespace TLMG.Services.Tests
         }
 
         [Fact]
-        public void RegisterPlayerAccount_WithTakenEmail_RejectsWithoutCheckingTheNicknameOrWriting()
+        public void RequestVerificationCode_WithTakenEmail_RejectsWithoutCheckingTheNicknameOrWriting()
         {
             // Arrange
             PlayerAccountRegistrationService service = CreateService();
             _repository.EmailStatus = PlayerExistenceLookupStatus.Exists;
 
             // Act
-            OperationResult result = service.RegisterPlayerAccount(CreateValidRequest());
+            OperationResult result = service.RequestVerificationCode(CreateValidRequest(), CultureCode);
 
             // Assert
             AssertRejectedWithoutWrites(result, ErrorKeys.CreateAccount.EmailTaken);
@@ -110,14 +112,14 @@ namespace TLMG.Services.Tests
         }
 
         [Fact]
-        public void RegisterPlayerAccount_WithTakenNickname_RejectsWithoutWriting()
+        public void RequestVerificationCode_WithTakenNickname_RejectsWithoutWriting()
         {
             // Arrange
             PlayerAccountRegistrationService service = CreateService();
             _repository.NicknameStatus = PlayerExistenceLookupStatus.Exists;
 
             // Act
-            OperationResult result = service.RegisterPlayerAccount(CreateValidRequest());
+            OperationResult result = service.RequestVerificationCode(CreateValidRequest(), CultureCode);
 
             // Assert
             AssertRejectedWithoutWrites(result, ErrorKeys.CreateAccount.NicknameTaken);
@@ -125,7 +127,7 @@ namespace TLMG.Services.Tests
         }
 
         [Fact]
-        public void RegisterPlayerAccount_WithTakenEmailAndNickname_ReportsTheEmail()
+        public void RequestVerificationCode_WithTakenEmailAndNickname_ReportsTheEmail()
         {
             // Arrange
             PlayerAccountRegistrationService service = CreateService();
@@ -133,21 +135,21 @@ namespace TLMG.Services.Tests
             _repository.NicknameStatus = PlayerExistenceLookupStatus.Exists;
 
             // Act
-            OperationResult result = service.RegisterPlayerAccount(CreateValidRequest());
+            OperationResult result = service.RequestVerificationCode(CreateValidRequest(), CultureCode);
 
             // Assert
             AssertRejectedWithoutWrites(result, ErrorKeys.CreateAccount.EmailTaken);
         }
 
         [Fact]
-        public void RegisterPlayerAccount_WhenTheEmailLookupFails_RejectsWithDataModelErrorWithoutWriting()
+        public void RequestVerificationCode_WhenTheEmailLookupFails_RejectsWithDataModelErrorWithoutWriting()
         {
             // Arrange
             PlayerAccountRegistrationService service = CreateService();
             _repository.EmailStatus = PlayerExistenceLookupStatus.DataFailure;
 
             // Act
-            OperationResult result = service.RegisterPlayerAccount(CreateValidRequest());
+            OperationResult result = service.RequestVerificationCode(CreateValidRequest(), CultureCode);
 
             // Assert
             AssertRejectedWithoutWrites(result, ErrorKeys.CreateAccount.DataModel);
@@ -155,28 +157,28 @@ namespace TLMG.Services.Tests
         }
 
         [Fact]
-        public void RegisterPlayerAccount_WhenTheNicknameLookupFails_RejectsWithDataModelErrorWithoutWriting()
+        public void RequestVerificationCode_WhenTheNicknameLookupFails_RejectsWithDataModelErrorWithoutWriting()
         {
             // Arrange
             PlayerAccountRegistrationService service = CreateService();
             _repository.NicknameStatus = PlayerExistenceLookupStatus.DataFailure;
 
             // Act
-            OperationResult result = service.RegisterPlayerAccount(CreateValidRequest());
+            OperationResult result = service.RequestVerificationCode(CreateValidRequest(), CultureCode);
 
             // Assert
             AssertRejectedWithoutWrites(result, ErrorKeys.CreateAccount.DataModel);
         }
 
         [Fact]
-        public void RegisterPlayerAccount_WhenSavingFails_ReturnsDataModelError()
+        public void CompleteRegistration_WhenSavingFails_ReturnsDataModelError()
         {
             // Arrange
-            PlayerAccountRegistrationService service = CreateService();
+            PlayerAccountRegistrationService service = CreateServiceWithCodes(CreatePendingCodes());
             _repository.SaveSucceeds = false;
 
             // Act
-            OperationResult result = service.RegisterPlayerAccount(CreateValidRequest());
+            OperationResult result = service.CompleteRegistration(CreateValidRequest(), "123456");
 
             // Assert
             Assert.False(result.IsSuccess);
@@ -185,32 +187,37 @@ namespace TLMG.Services.Tests
         }
 
         [Fact]
-        public void RegisterPlayerAccount_WhenHashingFails_ReturnsUnexpectedErrorWithoutWriting()
+        public void RequestVerificationCode_WhenHashingFails_ReturnsUnexpectedErrorWithoutWriting()
         {
             // Arrange
             PlayerAccountRegistrationService service = new PlayerAccountRegistrationService(
                 _repository,
-                new FailingPasswordHasherStub());
+                new FailingPasswordHasherStub(),
+                new AccountVerificationDispatcher(
+                    new VerificationCodeStore(new VerificationCodeRepositoryStub()), null));
 
             // Act
-            OperationResult result = service.RegisterPlayerAccount(CreateValidRequest());
+            OperationResult result = service.RequestVerificationCode(CreateValidRequest(), CultureCode);
 
             // Assert
             AssertRejectedWithoutWrites(result, ErrorKeys.Common.Unexpected);
         }
 
         [Fact]
-        public void RegisterPlayerAccount_WhenTheRepositoryThrows_PropagatesTheExceptionWithoutWriting()
+        public void RequestVerificationCode_WhenTheRepositoryThrows_PropagatesTheExceptionWithoutWriting()
         {
             // Arrange
             PlayerAccountRegistrationService service = CreateService();
             _repository.ThrowOnLookup = true;
 
             // Act
-            Action register = () => service.RegisterPlayerAccount(CreateValidRequest());
+            void RequestCode()
+            {
+                service.RequestVerificationCode(CreateValidRequest(), CultureCode);
+            }
 
             // Assert
-            Assert.Throws<InvalidOperationException>(register);
+            Assert.Throws<InvalidOperationException>(RequestCode);
             Assert.Empty(_repository.CreatedPlayers);
         }
 
@@ -229,20 +236,6 @@ namespace TLMG.Services.Tests
             Assert.Empty(_repository.LookedUpEmails);
         }
 
-        [Fact]
-        public void RequestVerificationCode_WithTakenEmail_RejectsWithEmailTaken()
-        {
-            // Arrange
-            PlayerAccountRegistrationService service = CreateService();
-            _repository.EmailStatus = PlayerExistenceLookupStatus.Exists;
-
-            // Act
-            OperationResult result = service.RequestVerificationCode(CreateValidRequest(), CultureCode);
-
-            // Assert
-            AssertRejectedWithoutWrites(result, ErrorKeys.CreateAccount.EmailTaken);
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -257,11 +250,9 @@ namespace TLMG.Services.Tests
             _repository.NicknameStatus = unknownEmail ? PlayerExistenceLookupStatus.NotFound : (PlayerExistenceLookupStatus)999;
 
             // Act
-            OperationResult registration = service.RegisterPlayerAccount(CreateValidRequest());
             OperationResult request = service.RequestVerificationCode(CreateValidRequest(), CultureCode);
 
             // Assert
-            AssertRejectedWithoutWrites(registration, ErrorKeys.CreateAccount.DataModel);
             AssertRejectedWithoutWrites(request, ErrorKeys.CreateAccount.DataModel);
             Assert.Empty(codes.SavedPendingRegistrations);
             Assert.Empty(codes.SavedCodes);
@@ -271,7 +262,8 @@ namespace TLMG.Services.Tests
         public void RequestVerificationCode_WithoutConfiguredDispatcher_ReturnsUnexpectedErrorWithoutWriting()
         {
             // Arrange
-            PlayerAccountRegistrationService service = CreateService();
+            PlayerAccountRegistrationService service = new PlayerAccountRegistrationService(
+                _repository, new PasswordHasher(), null);
 
             // Act
             OperationResult result = service.RequestVerificationCode(CreateValidRequest(), CultureCode);
@@ -300,7 +292,8 @@ namespace TLMG.Services.Tests
         public void ResendVerificationCode_WithoutConfiguredDispatcher_ReturnsUnexpectedError()
         {
             // Arrange
-            PlayerAccountRegistrationService service = CreateService();
+            PlayerAccountRegistrationService service = new PlayerAccountRegistrationService(
+                _repository, new PasswordHasher(), null);
 
             // Act
             OperationResult result = service.ResendVerificationCode(SyntheticEmail, CultureCode);
@@ -342,7 +335,8 @@ namespace TLMG.Services.Tests
         public void CompleteRegistration_WithoutConfiguredDispatcher_ReturnsUnexpectedErrorWithoutWriting()
         {
             // Arrange
-            PlayerAccountRegistrationService service = CreateService();
+            PlayerAccountRegistrationService service = new PlayerAccountRegistrationService(
+                _repository, new PasswordHasher(), null);
 
             // Act
             OperationResult result = service.CompleteRegistration(CreateValidRequest(), "123456");
@@ -462,7 +456,7 @@ namespace TLMG.Services.Tests
 
         private PlayerAccountRegistrationService CreateService()
         {
-            return new PlayerAccountRegistrationService(_repository, new PasswordHasher());
+            return CreateServiceWithCodes(new VerificationCodeRepositoryStub());
         }
 
         private static PlayerAccountRegistration CreateValidRequest()

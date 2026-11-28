@@ -6,6 +6,24 @@ namespace TLMG.Domain.Tests
     public sealed class RepositoryResultDefaultsTests
     {
         [Fact]
+        public void PendingFriendRequestsLookup_WhenCreated_ReportsFailureWithEmptyList()
+        {
+            PendingFriendRequestsLookup lookup = new PendingFriendRequestsLookup();
+
+            Assert.False(lookup.WasLookupSuccessful);
+            Assert.Empty(lookup.Requests);
+        }
+
+        [Fact]
+        public void FriendListLookup_WhenCreated_ReportsFailureWithEmptyList()
+        {
+            FriendListLookup lookup = new FriendListLookup();
+
+            Assert.False(lookup.WasFriendListLookupSuccessful);
+            Assert.Empty(lookup.Friends);
+        }
+
+        [Fact]
         public void PasswordHashLookup_WhenCreated_ReportsDataFailure()
         {
             PasswordHashLookup result = new PasswordHashLookup();

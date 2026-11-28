@@ -50,6 +50,23 @@ namespace TLMG.Services.Tests
         }
 
         [Fact]
+        public void TryCatchFugitiveKitten_WhenPaused_PreservesRunningViewAndVersion()
+        {
+            MatchPlayScenario scenario = new MatchPlayScenario(3, 8);
+            int userId = scenario.CreatorUserId;
+            MatchView initial = scenario.Subscribe(userId).ViewDeliveries[0].MatchView;
+            scenario.Clock.Advance(TimeSpan.FromMilliseconds(900));
+
+            MatchDelivery delivery = scenario.Registry.TryCatchFugitiveKitten(scenario.MatchCallerOf(userId));
+
+            Assert.NotNull(initial.FugitiveKitten.PausedAtUtc);
+            Assert.Equal(FugitiveKittenResult.InProgress, initial.FugitiveKitten.Result);
+            Assert.Null(delivery.ErrorKey);
+            Assert.Empty(delivery.ViewDeliveries);
+            Assert.Equal(initial.Version, scenario.Registry.FindFugitiveKitten(scenario.MatchId, userId).Version);
+        }
+
+        [Fact]
         public void Pause_WaitsForInitialLinksAndFreezesElapsedTimeDuringOverlappingLosses()
         {
             var scenario = new MatchPlayScenario(3, 8);

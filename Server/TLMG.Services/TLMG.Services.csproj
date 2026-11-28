@@ -62,6 +62,7 @@
 		<Compile Include="Accounts\GuestSessionService.cs" />
 		<Compile Include="Accounts\PasswordChangeService.cs" />
 		<Compile Include="Accounts\PasswordRecoveryService.cs" />
+		<Compile Include="Accounts\VerificationCodeErrors.cs" />
 		<Compile Include="Accounts\PasswordResetDispatcher.cs" />
 		<Compile Include="Accounts\PlayerProfileService.cs" />
 		<Compile Include="Lobby\IMatchStartCoordinator.cs" />
