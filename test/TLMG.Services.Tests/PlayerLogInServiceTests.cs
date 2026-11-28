@@ -29,6 +29,7 @@ namespace TLMG.Services.Tests
         private readonly PasswordHasher _hasher = new PasswordHasher();
         private readonly PlayerRepositoryStub _repository = new PlayerRepositoryStub();
         private readonly SessionRegistry _registry = new SessionRegistry();
+        private LoginReportRepository _reports;
 
         [Fact]
         public void LogIn_WithValidAccount_CreatesSessionForThatPlayerAndRecordsTheLogIn()
@@ -153,6 +154,44 @@ namespace TLMG.Services.Tests
 
             // Assert
             AssertRejectedWithoutSideEffects(result, ErrorKeys.Login.InvalidCredentials);
+        }
+
+        [Theory]
+        [InlineData(ValidationRules.SuspendedUserState, SuspensionLiftStatus.StillSuspended, "Login_AccountSuspendedError")]
+        [InlineData(ValidationRules.BannedUserState, SuspensionLiftStatus.NotSuspended, "Login_AccountBannedError")]
+        [InlineData(ValidationRules.SuspendedUserState, SuspensionLiftStatus.DataFailure, ErrorKeys.Login.DataModel)]
+        public void LogIn_WithSanctionOrPersistenceFailure_RejectsWithoutSession(
+            string accountState, SuspensionLiftStatus status, string expectedErrorKey)
+        {
+            // Arrange
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+            _repository.Credentials.State = accountState;
+            _reports.StatusOverride = status;
+
+            // Act
+            OperationLogInResult result = service.LogIn(CreateRequest(SyntheticPassword)).OperationResult;
+
+            // Assert
+            AssertRejectedWithoutSideEffects(result, expectedErrorKey);
+        }
+
+        [Fact]
+        public void LogIn_WithExpiredSuspension_GrantsSessionAfterLift()
+        {
+            // Arrange
+            PlayerLogInService service = CreateServiceWithActiveAccount();
+            _repository.Credentials.State = ValidationRules.SuspendedUserState;
+            _reports.StatusOverride = SuspensionLiftStatus.Lifted;
+
+            // Act
+            OperationLogInResult result = service.LogIn(CreateRequest(SyntheticPassword)).OperationResult;
+
+            // Assert
+            Assert.True(result.IsSuccess);
+            Assert.Equal(string.Empty, result.ErrorKey);
+            Assert.True(_registry.TryFindSessionByToken(result.SessionToken, out PlayerSession session));
+            Assert.Equal(PlayerUserId, session.UserId);
+            Assert.Equal(new[] { PlayerUserId }, _repository.UpdatedLogInUserIds);
         }
 
         [Fact]
@@ -280,7 +319,8 @@ namespace TLMG.Services.Tests
                 PasswordHash = _hasher.HashPassword(SyntheticPassword)
             };
 
-            ReportService reports = new ReportService(new LoginReportRepository(_repository), _registry,
+            _reports = new LoginReportRepository(_repository);
+            ReportService reports = new ReportService(_reports, _registry,
                 MatchHistoryStub.CreateCoordinator(_registry));
             return new PlayerLogInService(_repository, _hasher, _registry, reports);
         }
@@ -296,6 +336,8 @@ namespace TLMG.Services.Tests
             Assert.Equal(expectedErrorKey, result.ErrorKey);
             Assert.Null(result.SessionToken);
             Assert.Null(result.Nickname);
+            Assert.Equal(ValidationRules.NoUserId, result.UserId);
+            Assert.False(result.IsGuest);
             Assert.Empty(_repository.UpdatedLogInUserIds);
         }
     }

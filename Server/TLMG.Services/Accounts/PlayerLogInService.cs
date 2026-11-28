@@ -37,8 +37,8 @@ namespace TLMG.Services.Accounts
             {
                 ErrorKey = ErrorKeys.Login.IncompleteFields,
                 UserId = ValidationRules.NoUserId,
-                SessionToken = string.Empty,
-                Nickname = string.Empty
+                SessionToken = null,
+                Nickname = null
             };
             SessionEnd replacedSession = null;
             PlayerLogin playerLogin = new PlayerLogin();
@@ -138,7 +138,12 @@ namespace TLMG.Services.Accounts
             {
                 SuspensionLiftStatus status = _reportService.CheckAccountState(credentials.UserId);
 
-                if (status == SuspensionLiftStatus.NotSuspended || status == SuspensionLiftStatus.Lifted)
+                bool isActive = credentials.State == ValidationRules.ActiveUserState
+                    && status == SuspensionLiftStatus.NotSuspended;
+                bool wasSuspensionLifted = credentials.State == ValidationRules.SuspendedUserState
+                    && status == SuspensionLiftStatus.Lifted;
+
+                if (isActive || wasSuspensionLifted)
                 {
                     bool wasLogInTimeUpdated = _playerRepository.UpdateLastLogInTime(credentials.UserId, DateTime.UtcNow);
                     if (wasLogInTimeUpdated)
@@ -151,7 +156,12 @@ namespace TLMG.Services.Accounts
                         errorKey = ErrorKeys.Login.DataModel;
                     }
                 }
-                else
+                else if (credentials.State == ValidationRules.BannedUserState
+                    && status == SuspensionLiftStatus.NotSuspended)
+                {
+                    errorKey = FindSanctionErrorKey(SuspensionLiftStatus.Banned);
+                }
+                else if (status != SuspensionLiftStatus.NotSuspended)
                 {
                     errorKey = FindSanctionErrorKey(status);
                 }
