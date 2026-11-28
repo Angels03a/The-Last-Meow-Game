@@ -4,6 +4,8 @@ using System.Linq;
 
 using TLMG.Contracts;
 using TLMG.Contracts.DataContracts;
+using Xunit;
+using TLMG.Services.Moderation;
 using TLMG.Services.Lobby;
 using TLMG.Services.Sessions;
 
@@ -56,6 +58,7 @@ namespace TLMG.Services.Tests
             if (previousScenario == null)
             {
                 Registry = new SessionRegistry(clock.ReadUtcNow, randomSource.PickIndex);
+                Registry.ConfigureBlockPolicy(new BlockPolicy(new NoBlocksRepository()));
                 MatchStart = MatchHistoryStub.CreateCoordinator(Registry);
             }
             else
@@ -262,7 +265,10 @@ namespace TLMG.Services.Tests
         private void CreateRoomWithAllPlayers()
         {
             _tokensByUserId[CreatorUserId] = StartSessionOf(CreatorUserId);
-            RoomId = Registry.CreateRoom(LobbyCallerOf(CreatorUserId), LobbyCallbackOf(CreatorUserId)).RoomId;
+            LobbyMembershipChange room = Registry.CreateRoom(
+                LobbyCallerOf(CreatorUserId), LobbyCallbackOf(CreatorUserId));
+            Assert.Equal(LobbyChangeStatus.Applied, room.Status);
+            RoomId = room.RoomId;
 
             foreach (int userId in UserIds.Skip(1))
             {
@@ -270,8 +276,12 @@ namespace TLMG.Services.Tests
                 _tokensByUserId[userId] = token;
                 Registry.SubscribeFriendsChannel(token, FriendsChannelPrefix + userId, null, Array.Empty<int>());
                 RoomInvitationCreation invitation = Registry.CreateRoomInvitation(TokenOf(CreatorUserId), userId);
-                Registry.AcceptRoomInvitation(token, invitation.InvitationId);
-                Registry.EnterRoom(LobbyCallerOf(userId), RoomId, LobbyCallbackOf(userId));
+                Assert.Equal(FriendsChangeStatus.Applied, invitation.Status);
+                RoomInvitationAcceptance acceptance = Registry.AcceptRoomInvitation(token, invitation.InvitationId);
+                Assert.Equal(FriendsChangeStatus.Applied, acceptance.Status);
+                LobbyMembershipChange entry = Registry.EnterRoom(
+                    LobbyCallerOf(userId), RoomId, LobbyCallbackOf(userId));
+                Assert.Equal(LobbyChangeStatus.Applied, entry.Status);
             }
         }
 
@@ -296,6 +306,7 @@ namespace TLMG.Services.Tests
                 .Room.Start.CountdownId;
             LobbyMembershipChange change =
                 MatchStart.RequestMatchStart(LobbyCallerOf(CreatorUserId), RoomId, countdownId);
+            Assert.Equal(LobbyChangeStatus.Applied, change.Status);
             MatchId = change.Room.Start.MatchId.Value;
         }
     }

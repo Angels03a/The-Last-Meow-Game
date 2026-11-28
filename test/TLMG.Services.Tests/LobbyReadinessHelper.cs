@@ -1,3 +1,4 @@
+using Xunit;
 using TLMG.Contracts;
 using TLMG.Services.Sessions;
 
@@ -15,7 +16,8 @@ namespace TLMG.Services.Tests
         {
             string token = scenario.Authorize(userId);
             SessionChannelCaller caller = new SessionChannelCaller(token, channelId);
-            scenario.Registry.EnterRoom(caller, scenario.RoomId, callback);
+            LobbyMembershipChange entry = scenario.Registry.EnterRoom(caller, scenario.RoomId, callback);
+            Assert.Equal(LobbyChangeStatus.Applied, entry.Status);
 
             return token;
         }

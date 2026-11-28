@@ -45,6 +45,7 @@ namespace TLMG.Services.Tests
                 Nickname = Nickname,
                 Email = "whiskers@example.com",
                 AvatarKey = AvatarKey,
+                PersonalRank = 1,
                 PasswordChangedAtUtc = passwordChangedAtUtc
             };
 
@@ -393,7 +394,8 @@ namespace TLMG.Services.Tests
                 Status = PlayerProfileLookupStatus.Found,
                 Nickname = Nickname,
                 Email = "whiskers@example.com",
-                AvatarKey = avatarKey
+                AvatarKey = avatarKey,
+                PersonalRank = 1
             };
         }
 

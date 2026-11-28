@@ -1,5 +1,7 @@
 using System;
+using Xunit;
 using TLMG.Services.Lobby;
+using TLMG.Services.Moderation;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Tests
@@ -24,11 +26,14 @@ namespace TLMG.Services.Tests
         internal LobbyScenario(SessionRegistry registry)
         {
             Registry = registry;
+            registry.ConfigureBlockPolicy(new BlockPolicy(new NoBlocksRepository()));
             MatchStart = MatchHistoryStub.CreateCoordinator(registry);
             Service = new LobbyService(registry, registry, MatchStart);
             CreatorToken = Registry.StartRegisteredSession(1, "Creator", out SessionEnd replaced);
             SessionChannelCaller creatorCaller = new SessionChannelCaller(CreatorToken, "creator");
-            RoomId = Registry.CreateRoom(creatorCaller, null).RoomId;
+            LobbyMembershipChange created = Registry.CreateRoom(creatorCaller, null);
+            Assert.Equal(LobbyChangeStatus.Applied, created.Status);
+            RoomId = created.RoomId;
         }
 
         internal string Authorize(int userId)
@@ -36,7 +41,9 @@ namespace TLMG.Services.Tests
             string token = Registry.StartRegisteredSession(userId, "Guest", out SessionEnd replaced);
             Registry.SubscribeFriendsChannel(token, "friends" + userId, null, Array.Empty<int>());
             RoomInvitationCreation invitation = Registry.CreateRoomInvitation(CreatorToken, userId);
-            Registry.AcceptRoomInvitation(token, invitation.InvitationId);
+            Assert.Equal(FriendsChangeStatus.Applied, invitation.Status);
+            RoomInvitationAcceptance acceptance = Registry.AcceptRoomInvitation(token, invitation.InvitationId);
+            Assert.Equal(FriendsChangeStatus.Applied, acceptance.Status);
 
             return token;
         }
@@ -47,7 +54,8 @@ namespace TLMG.Services.Tests
             {
                 string token = Authorize(userId);
                 SessionChannelCaller caller = new SessionChannelCaller(token, "lobby" + userId);
-                Registry.EnterRoom(caller, RoomId, null);
+                LobbyMembershipChange entry = Registry.EnterRoom(caller, RoomId, null);
+                Assert.Equal(LobbyChangeStatus.Applied, entry.Status);
             }
         }
     }

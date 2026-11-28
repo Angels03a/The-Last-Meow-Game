@@ -1,6 +1,7 @@
 using System;
 using Xunit;
 using TLMG.Services.Sessions;
+using TLMG.Services.Moderation;
 
 namespace TLMG.Services.Tests
 {
@@ -155,6 +156,7 @@ namespace TLMG.Services.Tests
         public void EnterRoom_WithoutAuthorization_RejectsEntry()
         {
             SessionRegistry registry = new SessionRegistry();
+            registry.ConfigureBlockPolicy(new BlockPolicy(new NoBlocksRepository()));
             string token = registry.StartRegisteredSession(1, PlayerNickname, out SessionEnd replacedSession);
             SessionChannelCaller caller = new SessionChannelCaller(token, LobbyChannelId);
 
