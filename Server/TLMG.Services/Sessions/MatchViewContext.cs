@@ -31,7 +31,7 @@ namespace TLMG.Services.Sessions
             MatchState = matchState;
             NicknamesByUserId = nicknamesByUserId;
             LastChallenge = lastChallenge;
-            GuestUserIds = guestUserIds ?? Array.Empty<int>();
+            GuestUserIds = guestUserIds;
         }
 
         /// <summary>Match for this view.</summary>

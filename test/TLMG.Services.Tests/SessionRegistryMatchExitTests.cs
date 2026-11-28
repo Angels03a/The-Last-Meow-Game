@@ -379,7 +379,7 @@ namespace TLMG.Services.Tests
             Assert.Empty(duplicate);
             Assert.Empty(tooFrequent);
             Assert.Equal(new[] { 1 }, echoedSequences);
-            Assert.Equal(new[] { string.Empty }, echoedErrors);
+            Assert.Equal(new string[] { null }, echoedErrors);
             Assert.Equal(version, scenario.ReadVersionAs(scenario.CreatorUserId));
         }
 
@@ -444,7 +444,7 @@ namespace TLMG.Services.Tests
             Assert.Empty(outOfSequence);
             Assert.Single(fromCurrent);
             Assert.Equal(new[] { 1, 1 }, echoedSequences);
-            Assert.Equal(new[] { string.Empty, string.Empty }, echoedErrors);
+            Assert.Equal(new string[] { null, null }, echoedErrors);
         }
 
         /// <summary>Replacing a session with a healthy match link pauses the match for the others only.</summary>
@@ -783,7 +783,7 @@ namespace TLMG.Services.Tests
             void CountEcho(int echoedSequence, string errorKey)
             {
                 Assert.Equal(sentSequence, echoedSequence);
-                Assert.Equal(string.Empty, errorKey);
+                Assert.Null(errorKey);
                 echoes++;
             }
 

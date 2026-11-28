@@ -112,7 +112,7 @@ namespace TLMG.Services.Tests
             // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal(ErrorKeys.Leaderboard.ConnectionError, result.ErrorKey);
-            Assert.Null(result.Players);
+            Assert.Empty(result.Players);
         }
 
         [Fact]
@@ -128,7 +128,7 @@ namespace TLMG.Services.Tests
             // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal(ErrorKeys.Leaderboard.ConnectionError, result.ErrorKey);
-            Assert.Null(result.Players);
+            Assert.Empty(result.Players);
         }
 
         [Fact]
@@ -144,7 +144,7 @@ namespace TLMG.Services.Tests
             // Assert
             Assert.False(result.IsSuccess);
             Assert.Equal(ErrorKeys.Leaderboard.ConnectionError, result.ErrorKey);
-            Assert.Null(result.Players);
+            Assert.Empty(result.Players);
         }
 
         [Fact]

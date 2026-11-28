@@ -247,7 +247,7 @@ namespace TLMG.Services.Helpers
         {
             List<MatchStandingView> standingViews = null;
 
-            if (context.MatchState.Phase == RoundPhase.MatchFinished)
+            if (context.MatchState.Phase == RoundPhase.MatchFinished && context.GuestUserIds != null)
             {
                 FinalStandings finalStandings =
                     FinalStandings.CalculateFromMatch(context.MatchState, context.GuestUserIds);

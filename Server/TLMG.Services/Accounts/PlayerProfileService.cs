@@ -57,7 +57,7 @@ namespace TLMG.Services.Accounts
                 {
                     profileResult.ErrorKey = ErrorKeys.Common.InvalidSession;
                 }
-                else
+                else if (profileLookup.Status == PlayerProfileLookupStatus.DataFailure)
                 {
                     profileResult.ErrorKey = ErrorKeys.Profile.DataModel;
                 }
@@ -151,7 +151,7 @@ namespace TLMG.Services.Accounts
                 {
                     updateResult.ErrorKey = ErrorKeys.Profile.NicknameTaken;
                 }
-                else
+                else if (existenceStatus == PlayerExistenceLookupStatus.DataFailure)
                 {
                     updateResult.ErrorKey = ErrorKeys.Profile.DataModel;
                 }
@@ -163,7 +163,7 @@ namespace TLMG.Services.Accounts
         private OperationResult PersistProfile(string sessionToken, int userId, PlayerProfileUpdate profileUpdate)
         {
             PlayerProfileUpdateStatus updateStatus = _playerProfileRepository.UpdateProfile(userId, profileUpdate);
-            OperationResult updateResult = new OperationResult { ErrorKey = ErrorKeys.Profile.DataModel };
+            OperationResult updateResult = new OperationResult { ErrorKey = ErrorKeys.Common.Unexpected };
 
             if (updateStatus == PlayerProfileUpdateStatus.Updated)
             {
@@ -179,6 +179,10 @@ namespace TLMG.Services.Accounts
             else if (updateStatus == PlayerProfileUpdateStatus.PlayerNotFound)
             {
                 updateResult.ErrorKey = ErrorKeys.Common.InvalidSession;
+            }
+            else if (updateStatus == PlayerProfileUpdateStatus.DataFailure)
+            {
+                updateResult.ErrorKey = ErrorKeys.Profile.DataModel;
             }
 
             return updateResult;
