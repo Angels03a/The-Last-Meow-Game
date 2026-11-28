@@ -242,6 +242,8 @@ Los nombres de los ejemplos son ilustrativos y pertenecen al dominio de TLMG.
 
 3. ## Alcance (tecnologías y plataforma objetivo) {#alcance-(tecnologías-y-plataforma-objetivo)}
 
+**Mantenimiento.** Solo podrán incorporarse dependencias aprobadas para el proyecto. Registrar explícitamente los archivos nuevos o movidos en el csproj clásico con la acción correspondiente a su tipo.
+
 Cubre el cliente WPF, el servidor WCF, el acceso a datos y las pruebas. Por lo tanto aplica a:
 
 * Código de las dos soluciones: cliente (WPF) y servidor (WCF, lógica de negocio y acceso a datos).
@@ -250,9 +252,9 @@ Cubre el cliente WPF, el servidor WCF, el acceso a datos y las pruebas. Por lo t
 
 * Código propio del equipo como DTOs.
 
-* Queda fuera del estándar el código generado automáticamente: archivos \*.g.cs y \*.Designer.cs, el modelo de Entity Framework y el proxy generado por una referencia de servicio WCF ([Reference.cs](http://Reference.cs)).
+* El código generado automáticamente queda excluido de las métricas y no deberá editarse manualmente. Esto comprende Reference.svcmap, las plantillas .tt y los siguientes artefactos: archivos \*.g.cs y \*.Designer.cs, el modelo de Entity Framework y el proxy generado por una referencia de servicio WCF ([Reference.cs](http://Reference.cs)).
 
-* Plataforma: C\# 7.3 sobre .NET Framework 4.8; WPF, WCF (netTcpBinding dúplex), Entity Framework 6, log4net y CommunityToolkit.Mvvm 8.4.2
+* Plataforma: C\# 7.3 sobre .NET Framework 4.8; WPF, WCF (netTcpBinding dúplex), SQL Server con Entity Framework 6 Database First, log4net y CommunityToolkit.Mvvm 8.4.2
 
   4. ## Idioma de desarrollo {#idioma-de-desarrollo}
 
@@ -261,7 +263,6 @@ Se establecen dos criterios distintos en cuanto al contenido entre la parte de d
 * Código. El código se escribirá por completo en inglés, esto se respetará por completo, desde clases métodos hasta variables sin excepción.
 
 ```c#
-// Correcto
 public class RoundResolver
 {
     private int _activePlayerCount;
@@ -271,7 +272,11 @@ public class RoundResolver
     }
 }
 
-// Incorrecto
+```
+
+Ejemplo incorrecto (identificadores en español)
+
+```c#
 public class ResolvedorDeRonda
 {
     private int _jugadoresActivos;
@@ -282,17 +287,8 @@ public class ResolvedorDeRonda
 }
 ```
 
-* **Comentarios.** Todos los comentarios del código se escriben en inglés: comentarios de línea, comentarios XML (`///`) y tokens especiales (`TODO`, `FIXME`, `HACK`, `UNDONE`). Los comentarios explican el porqué y no el cómo.  
+* La documentación XML de los contratos públicos entre componentes deberá redactarse en inglés (§12.2).
 * **Documentación del proyecto y commits.** Este estándar, la documentación en `docs/` y los mensajes de commit se escriben en español, por ser el idioma principal del equipo.  
-  Ejemplo correcto  
-  // FIXME: The player score is not capped at the maximum allowed.   
-  playerScore \+= earnedScore;  
-  Ejemplo incorrecto  
-  // FIXME: No limita el puntaje del jugador al máximo permitido.  
-  playerScore \+= earnedScore;
-
-
-
 
 2. # Objetivos del estándar {#objetivos-del-estándar}
 
@@ -311,6 +307,8 @@ public class ResolvedorDeRonda
    
 
 3. # Reglas de nombrado {#reglas-de-nombrado}
+
+**Nombres nuevos.** Evitar abreviaturas arbitrarias y nombres como Data, Info, Outcome, Request o Reply si ocultan la responsabilidad. Conservar convenciones técnicas como DTO, EventArgs y WCF. En §17.1, Request y Result identifican la función de un contrato concreto. Deberán reutilizarse los componentes adecuados existentes, incluidos contratos, callbacks, estilos, recursos, repositorios y procedimientos. No introducir nuevos tipos Operation…Request, Operation…Result ni envoltorios genéricos. Si se requiere un nuevo DTO específico o una modificación de un contrato público, deberá justificarse su necesidad, evaluarse la compatibilidad WCF y coordinarse la aprobación previa del cambio.
 
    1. ## Variables locales {#variables-locales}
 
@@ -811,9 +809,6 @@ public class Player__Hand
 Ejemplo de clase con responsabilidad única:
 
 ```c#
-/// <summary>
-/// Manages the state and flow of the current game session. 
-/// </summary>
 public class GameSession
 {
     public string SessionId { get; private set; }
@@ -910,6 +905,8 @@ public class PlayerCardStorage : IPlayerHand
 Excepción: una clase puede implementar varias interfaces de rol además de su interfaz principal (por ejemplo, SessionRegistry implementa ISessionRegistry e ISessionIdentityProvider). En ese caso el nombre de la clase corresponde a la interfaz principal. 
 
 11. ## Enumeraciones (enums) {#enumeraciones-(enums)}
+
+**Enumeraciones nuevas.** En enums de resultados, reservar el valor 0 para Unknown o un estado de fallo. En enumeraciones [Flags] se permite None = 0 cuando representa ausencia de banderas. Analizar compatibilidad antes de alterar valores serializados existentes.
 
 Tanto el nombre del tipo enumerado como el de cada uno de sus valores deberán escribirse en PascalCase.
 
@@ -1109,8 +1106,8 @@ Los nombres de las clases deberán reflejar de forma explícita su responsabilid
 | EventArgs | Clases con datos de eventos | ScoreEventArgs |
 | EventHandler | Delegados manejadores de eventos | PlayerDisconnectedEventHandler |
 | ViewModel | Lógica de presentación de una pantalla MVVM | LoginViewModel |
-| Request | DTO con los datos de entrada de una operación del contrato (S17.1; D-56)  | OperationRegisterPlayerAccountRequest  |
-| Result | DTO con el resultado de una operación del contrato (S17.1) | OperationRegisterPlayerAccountResult |
+| Request | DTO con los datos de entrada de una operación del contrato (S17.1; D-56)  | OperationRegisterPlayerAccountRequest (contrato existente)  |
+| Result | DTO con el resultado de una operación del contrato (S17.1) | OperationRegisterPlayerAccountResult (contrato existente) |
 | Registry | Estado compartido en memoria entre las sesiones del servidor; su acceso se protege conforme a S11.1  | SessionRegistry |
 | Validator | Clase estática de TLMG.Domain.Validators que valida formato o reglas en memoria y, en sus métodos que devuelven ErrorKey, utiliza string.Empty cuando el dato es válido. No accede a datos, sesión ni red, y no lanza excepciones por entrada inválida  | PlayerProfileValidator  |
 | Dispatcher  | Coordina generar, guardar y enviar algo (por ejemplo, un código por correo). No decide reglas  | PasswordResetDispatcher  |
@@ -1246,7 +1243,6 @@ public partial class ServiceImplementation : IUsersManager
     {
         using (var context = new TLMGContext())
         {
-            // Registration logic inside ServiceImplementation. 
         }
     }
 }
@@ -1272,7 +1268,6 @@ namespace TLMG.Domain
         public RoundResult Resolve(RoundState state)
         {
             RoundResult result = new RoundResult();
-           // Only rules are applied here, in memory. 
             return result;
         }
     }
@@ -1291,7 +1286,6 @@ namespace TLMG.Domain
     {
         public void Resolve(IMatchManagerCallback callback, PlayerRepository repository)
         {
-           // Rules mixed with notification and persistence. 
         }
     }
 }
@@ -1300,6 +1294,8 @@ namespace TLMG.Domain
 Respaldo: SAD S4.3 (regla prohibida de ADR-02), C-04, Drivers ADR-02. Los nombres del ejemplo son ilustrativos.
 
 3. ## Estructura de carpetas y namespaces {#estructura-de-carpetas-y-namespaces}
+
+**Organización.** Un tipo superior por archivo y correspondencia entre carpeta y namespace. Durante una reorganización física provisional, conservar namespaces y contratos externos hasta que exista una separación real y se evalúe su compatibilidad.
 
 El repositorio se organiza en carpetas de primer nivel por función: Client/ (solución del cliente), Server/ (solución del servidor), database/ (script de la base de datos y, en database/seed/, scripts de datos de demostración) , docs/ (documentación) y gov/ (gobierno del proyecto: bitácoras y backlog).
 
@@ -1471,6 +1467,10 @@ Incorrecto: credencial en un App.config rastreado por Git
 
    1. ## Responsabilidades de los servicios y del dominio {#responsabilidades-de-los-servicios-y-del-dominio}
 
+**Arquitectura hexagonal.** Domain conserva las reglas sin dependencias de EF, WCF o WPF. DataAccess encapsula persistencia. Services coordina casos de uso. El servidor valida y arbitra las acciones y el cliente presenta el resultado. Los ViewModels dependen de interfaces. Resolver dependencias mediante composición y fábricas, limitar el code-behind a interacción visual y vincular suscripciones y desuscripciones al ciclo de vida (§14.2).
+
+**Concurrencia.** Preservar atomicidad, invariantes y orden de adquisición de locks. Mantener SQL y callbacks fuera de _sessionsLock. Al dividir un método, verificar qué estado debe observarse o actualizarse bajo el mismo bloqueo.
+
 El servidor es la autoridad: el cliente se considera no confiable y toda operación se valida otra vez en el servidor (Zero-Trust). Cada capa tiene una responsabilidad única:
 
 | Capa | Hace | No hace |
@@ -1575,7 +1575,6 @@ public class LoginViewModel : ObservableObject
 
     private void ExecuteLogin()
     {
-        // The data is validated and the server is called here. 
     }
 }
 ```
@@ -1631,7 +1630,6 @@ private void BtnLogIn_Click(object sender, RoutedEventArgs e)
 {
     string email = txtEmail.Text;
     string password = pwdPassword.Password;
-   // The data is validated and the server is called here.
 }
 ```
 
@@ -1754,16 +1752,19 @@ namespace TLMG.Client
         public static event EventHandler LanguageChanged;
 
         /// <summary>
-        /// Changes the application language by replacing the matching dictionary in the global resources. 
+        /// Applies the requested language to localized resources when the application is available.
         /// </summary>
         /// <param name="cultureCode">Culture code to apply (for example, "es-MX" or "en-US").</param> 
         public static void ChangeLanguage(string cultureCode)
         {
-            if (Application.Current == null)
+            if (Application.Current != null)
             {
-                return;
+                ApplyLanguage(cultureCode);
             }
+        }
 
+        private static void ApplyLanguage(string cultureCode)
+        {
             ResourceDictionary newDictionary = new ResourceDictionary()
             {
                 Source = new Uri($"pack://application:,,,/Languages/Strings.{cultureCode}.xaml")
@@ -1773,14 +1774,15 @@ namespace TLMG.Client
                 Application.Current.Resources.MergedDictionaries;
             int targetIndex = NotFoundIndex;
 
-            for (int dictionaryIndex = FirstIndex; dictionaryIndex < mergedDictionaries.Count; dictionaryIndex++)
+            for (int dictionaryIndex = FirstIndex;
+                 dictionaryIndex < mergedDictionaries.Count && targetIndex == NotFoundIndex;
+                 dictionaryIndex++)
             {
                 ResourceDictionary currentDictionary = mergedDictionaries[dictionaryIndex];
                 if (currentDictionary.Source != null &&
                     _languageDictionaryRegex.IsMatch(currentDictionary.Source.OriginalString))
                 {
                     targetIndex = dictionaryIndex;
-                    break;
                 }
             }
 
@@ -2333,15 +2335,21 @@ public class GameTag : Attribute
 
 2. ## Manejo de excepciones (jerarquía, bloques catch) {#manejo-de-excepciones-(jerarquía,-bloques-catch)}
 
+Las capturas deberán realizarse en el límite que pueda tratar el fallo. Se evitarán los bloques catch vacíos, artificiales y genéricos indiscriminados.
+
+**Limpieza.** Evitar catch when y try-finally sin catch. Preservar liberación de recursos, por ejemplo con using para IDisposable. Usar try-catch-finally cuando exista una excepción que realmente se trate y una limpieza necesaria. Evitar introducir un catch artificial.
+
+**Comunicación y registro.** En SafeNotify para callbacks y en Comunicación del cliente, tratar CommunicationException, TimeoutException y ObjectDisposedException según proceda. Gestionar cierre, aborto de canales defectuosos y recuperación. Registrar una vez en el límite responsable y pasar el objeto excepción al logger cuando corresponda. Usar DEBUG para timeout recuperable de heartbeat, WARN para pérdida del canal y ERROR para fallos inesperados, preservando los casos FATAL de §10.3.
+
 Errores entre servidor y cliente (D-45). Del servidor al cliente, una validación o una regla de juego que falla no lanza excepción: se responde con un ErrorKey, que el cliente traduce a su idioma con el diccionario activo. FaultException se usa solo para fallos inesperados y lleva un mensaje genérico, sin detalle técnico. El detalle (excepción y traza de pila) va solo al log del servidor. Del cliente al servidor, el servidor valida de nuevo todo lo que recibe y responde de forma controlada. Al jugador nunca se le muestra qué falló por dentro.
 
-Contrato de los resultados (D-66; T07, BL-187). Las respuestas públicas derivadas de OperationResult establecen el resultado mediante IsSuccess y la clave de error mediante ErrorKey: en éxito, IsSuccess \= true y ErrorKey \= string.Empty, nunca null; en fallo, IsSuccess \= false y ErrorKey es una clave no vacía reconocida por los diccionarios es-MX y en-US. El cliente no debe interpretar como éxito una respuesta nula, un éxito con ErrorKey no vacía ni un fallo con clave ausente o desconocida.
+Las respuestas públicas deberán ajustarse al contrato de OperationResult de §17.1 (D-66). Una respuesta nula o una clave de fallo ausente o desconocida deberá tratarse como fallo controlado.
 
-Las convenciones privadas dependen del contrato de cada capa: (1) los validadores de TLMG.Domain.Validators que devuelven ErrorKey usan string.Empty como ausencia de error; (2) los métodos Get…ErrorKey de ValidationHelper e InputValidator usan null cuando el dato es válido, y otros métodos privados pueden conservar null como ausencia de error; (3) la ausencia de datos opcionales, como sala o partida, puede representarse con null sin significar por sí sola un fallo de infraestructura; (4) los protocolos internos de notificación, como el eco del chat y MatchDelivery, conservan sus propias convenciones. Toda conversión de un resultado privado a uno público debe aplicar el contrato anterior.
+Las convenciones privadas dependen del contrato de cada capa: (1) los validadores de TLMG.Domain.Validators que devuelven ErrorKey usan string.Empty como ausencia de error; (2) los métodos Get…ErrorKey de ValidationHelper e InputValidator usan null cuando el dato es válido, y otros métodos privados pueden conservar null como ausencia de error; (3) la ausencia de datos opcionales, como sala o partida, puede representarse con null sin significar por sí sola un fallo de infraestructura; (4) los protocolos internos de notificación, como el eco del chat y MatchDelivery, conservan sus propias convenciones. Toda conversión de un resultado privado a uno público debe aplicar el contrato de §17.1.
 
-Quién captura qué. Los repositorios capturan SqlException y EntityException y devuelven un resultado controlado (un enum …Status o un …Lookup); un fallo de datos nunca se trata como “no existe”. Los servicios no capturan excepciones: las dejan propagar. ServiceImplementation captura únicamente OutOfMemoryException en las operaciones request-reply y la convierte en FaultException\<SystemFault\>. Las excepciones de comunicación, tiempo de espera y canal liberado se capturan solo al notificar por callback (SafeNotify) y en la capa Comunicación del cliente. 
+Los repositorios capturarán SqlException, DataException y los tipos específicos de EF aplicables, incluida EntityException, y devolverán un estado explícito de fallo de acceso. Los servicios dejarán propagar las excepciones inesperadas. En operaciones request-reply, ServiceImplementation capturará únicamente OutOfMemoryException y la convertirá en `FaultException<SystemFault>`. Una operación one-way carece de canal de respuesta para devolver ese fault. Las excepciones de comunicación se tratarán en los límites indicados en esta sección.
 
-Las excepciones deben reservarse exclusivamente para fallos inesperados en tiempo de ejecución o condiciones excepcionales del sistema. Para la validación de formularios de usuario y entradas de datos comunes, no se deben lanzar excepciones; en su lugar, se deben utilizar valores de retorno controlados (como claves de error localizadas, objetos de resultado o null) para comunicar errores de entrada sin afectar el flujo de ejecución. Por su parte, los errores de programación (como violaciones de precondiciones o argumentos inválidos en métodos internos) deben señalarse mediante excepciones de la familia ArgumentException. Para consultar el modelo de centralización de validaciones de entrada, véase la sección 16 (Validación de entrada y seguridad).
+Las excepciones deben reservarse exclusivamente para fallos inesperados en tiempo de ejecución o condiciones excepcionales del sistema. Para la validación de formularios de usuario y entradas de datos comunes, no se deben lanzar excepciones; en su lugar, se deben utilizar valores de retorno controlados (como claves de error localizadas, objetos de resultado) para comunicar errores de entrada sin afectar el flujo de ejecución. Por su parte, los errores de programación (como violaciones de precondiciones o argumentos inválidos en métodos internos) deben señalarse mediante excepciones de la familia ArgumentException. Para consultar el modelo de centralización de validaciones de entrada, véase la sección 16 (Validación de entrada y seguridad).
 
 Ejemplo correcto (validación de nickname sin lanzar excepción)
 
@@ -2780,6 +2788,8 @@ _log.Fatal("El mazo está vacío.");
 
 4. ## Prohibición de números mágicos {#prohibición-de-números-mágicos}
 
+**Alcance de las constantes.** Solo deberá compartirse cuando represente la misma regla. Dos límites numéricamente iguales pueden cambiar por motivos distintos y requieren nombres independientes. Evitar constantes artificiales para literales evidentes sin semántica de negocio, respetando las reglas específicas de consultas (§9.8) y pruebas (§15.3). Reutilizar constantes, políticas, validadores y recursos localizados existentes.
+
 Los literales numéricos que representen un valor de negocio o de configuración del juego no deberán usarse directamente en expresiones; deberán declararse como const o static readonly siguiendo los criterios de elección y convención de nombrado definidos en la sección 3.4.
 
 Ejemplo correcto
@@ -2850,7 +2860,13 @@ if (isRoomOpen && hasFreeSeat && !isMatchStarted && playerRole == PlayerRole.Reg
 
 6. ## Complejidad ciclomática máxima {#complejidad-ciclomática-máxima}
 
-Se adopta un umbral de complejidad ciclomática de 10\. Cuando un método supere ese umbral, deberá refactorizar extrayendo lógica a métodos privados con nombres descriptivos.
+**Complejidad.** Máximo 10 por método. Evaluar también el flujo de un accesor con lógica propia.
+
+**Tamaño.** Máximo tres parámetros por método y nueve métodos declarados por clase o interfaz. Excluir constructores de ambos límites. Sumar las declaraciones propias de todas las partes de una clase parcial como un solo tipo. En ServiceImplementation, solo se excluyen del límite de nueve métodos las implementaciones de operaciones exigidas por los contratos WCF de §3.10. Contar cada sobrecarga declarada. Las propiedades y sus accesores se revisan como propiedades, sin convertir get y set en métodos ordinarios para el recuento. Excluir miembros generados según §1.3. Mantener las excepciones previamente acordadas para out dentro de su alcance original. Un exceso de parámetros no autoriza una excepción nueva.
+
+**Diseño.** Aplicar SRP, ISP, DRY y KISS. Extraer una responsabilidad identificable o reutilizar una existente. Evitar clases artificiales, abstracciones sin consumidor, dependencias innecesarias y traslados arbitrarios a Helpers para ajustar una cifra.
+
+Cuando un método supere el umbral de complejidad, deberá refactorizar extrayendo lógica a métodos privados con nombres descriptivos.
 
 Ejemplo correcto
 
@@ -3153,7 +3169,7 @@ En TLMG no se crean ni se administran hilos propios, ni en el cliente ni en el s
 | async y await (incluidos async void y AsyncRelayCommand) | Igual que Task | RelayCommand síncrono con método con nombre |
 | BackgroundWorker | Ejecuta el trabajo en un hilo de fondo | Callback IsOneWay |
 | System.Threading.Timer y System.Timers.Timer | Disparan en hilos del ThreadPool, no en el de la interfaz | DispatcherTimer |
-| lock, SemaphoreSlim, Interlocked | Solo se justifican con estado compartido entre sesiones en el servidor | Requieren autorización del encargado y justificación documentada |
+| lock, SemaphoreSlim, Interlocked | Solo se justifican con estado compartido entre sesiones en el servidor | Requieren aprobación previa y justificación técnica documentada |
 
 El servidor no usa temporizadores propios: guarda cada plazo como hora límite en UTC y lo revisa con su propio reloj cuando llega un latido (S10.4; D-54). El cliente muestra la cuenta regresiva con DispatcherTimer. El registro de sesiones (SessionRegistry) es estado compartido entre las sesiones y su acceso se protege con un único lock, autorizado por el encargado (D-58). Cualquier otro uso de lock, SemaphoreSlim o Interlocked sigue requiriendo autorización. 
 
@@ -3262,210 +3278,29 @@ private void OnSingleShotTimerTick(object sender, EventArgs e)
 
     1. ## Comentarios de implementación (bloque, línea, finales) {#comentarios-de-implementación-(bloque,-línea,-finales)}
 
-Para explicaciones breves deberá usarse el comentario de una sola línea (//), y deberá evitarse el uso de comentarios de bloque (/\* \*/) para explicaciones más extensas.
-
-El comentario deberá colocarse en una línea separada del código, no al final de una línea de código.
-
-Ejemplo correcto
-
-```c#
-// Restarts the grace window timer. 
-_graceSecondsLeft = PlayerReconnectGraceSeconds;
-```
-
-Ejemplo incorrecto (comentario al final de la línea de código)
-
-```c#
-_graceSecondsLeft = PlayerReconnectGraceSeconds; // Restarts the grace window timer 
-```
-
-Ejemplo correcto
-
-```c#
-// Calculates the final score by applying the round multiplier. 
-int finalScore = baseScore * roundMultiplier;
-```
-
-Ejemplo incorrecto (sin mayúscula inicial, sin punto final y sin espacio tras //)
-
-```c#
-//calculates the final score by applying the round multiplier 
-int finalScore = baseScore * roundMultiplier;
-```
-
-Para describir métodos, clases, campos y todos los miembros públicos deberá usarse el formato de comentarios XML (///), diferenciándolo así del comentario de implementación de una sola línea, que se reserva para notas internas dentro del cuerpo del código.
-
-Ejemplo correcto
-
-```c#
-/// <summary>
-/// Adds points to the player and updates the player's score. 
-/// </summary>
-/// <param name="scoreAmount">Amount of points to add.</param>
-public void AddScore(int scoreAmount)
-{
-}
-```
-
-Ejemplo incorrecto (comentario de una sola línea en lugar de XML para un miembro público)
-
-```c#
-// Suma puntos al jugador y actualiza su puntaje.
-public void AddScore(int scoreAmount)
-{
-}
-```
+El código de autoría propia deberá expresar su intención mediante los nombres y la estructura. No se añadirán comentarios privados o de implementación.
 
 2. ## Comentarios de documentación (XML, doc comments) {#comentarios-de-documentación-(xml,-doc-comments)}
 
-Un comentario de documentación deberá iniciar con tres barras diagonales (///) y colocarse inmediatamente antes del tipo o miembro que describe.
+Los contratos públicos entre componentes se documentarán en inglés mediante XML bien formado, inmediatamente antes del tipo o miembro. La documentación deberá explicar el propósito, las garantías y las restricciones que necesita conocer quien consume el contrato. No se duplicará en implementaciones concretas ni se utilizará `<inheritdoc/>`. Los constructores XAML triviales quedan exentos (D-36).
 
-Ejemplo correcto
+Cada comentario comenzará con `///` e incluirá `<summary>`. Cada parámetro tendrá una etiqueta `<param>` cuyo atributo `name` coincida con el identificador de la firma. Para los métodos que devuelven un valor se incluirá `<returns>`.
 
-```c#
-/// <summary>
-/// Adds points to the player and updates the player's score. 
-/// </summary>
-public int CalculateScore(int baseScore)
-{
-    int finalScore = baseScore;
-    return finalScore;
-}
-```
-
-Ejemplo incorrecto (el comentario no precede inmediatamente al miembro que describe)
+Ejemplo de documentación de un contrato:
 
 ```c#
-/// <summary>
-///Calculates the final score of the round. 
-/// </summary>
-private int _roundNumber;
-
-public int CalculateScore(int baseScore)
+public interface IPlayerLookup
 {
-    int finalScore = baseScore;
-    return finalScore;
-}
-```
-
-El contenido del comentario de documentación deberá ser XML bien formado; si no lo es, el compilador genera una advertencia y el archivo de documentación resultante contendrá una nota indicando que se encontró un error.
-
-Ejemplo correcto
-
-```c#
-/// <summary>Amount of points to add.</summary>
-public void AddScore(int amount)
-{
-}
-```
-
-Ejemplo incorrecto (XML mal formado: falta la etiqueta de cierre)
-
-```c#
-/// <summary>Suma puntos al jugador
-public void AddScore(int amount)
-{
-}
-```
-
-Todo miembro documentado deberá incluir, como mínimo, la etiqueta \<summary\>, que describe de forma general el propósito del tipo o miembro y es la que se muestra en herramientas como IntelliSense.
-
-Ejemplo correcto
-
-```c#
-<summary>Represents the player's hand of cards.</summary> 
-public class PlayerHand
-{
-}
-```
-
-Ejemplo incorrecto (sin etiqueta `<summary>)`
-
-```c#
-public class PlayerHand
-{
-}
-```
-
-Cuando un método documentado tenga parámetros, cada uno deberá describirse mediante una etiqueta \<param\> independiente, cuyo atributo name debe coincidir exactamente con el nombre del parámetro en la firma del método; si un parámetro no se documenta, o el nombre no coincide, el compilador emite una advertencia.
-
-Ejemplo correcto
-
-```c#
-/// <summary>Adds points to a specific player.</summary> 
-/// <param name="target">Player who will receive the points.</param>
-/// <param name="amount">Amount of points to add.</param>
-public void AddScore(Player target, int amount)
-{
-}
-```
-
-Ejemplo incorrecto (el nombre en `<param>` no coincide con la firma del método)
-
-```c#
-/// <summary>Adds points to a specific player.</summary>
-/// <param name="player">Player who will receive the points.</param>
-/// <param name="amount">Amount of points to add.</param>
-public void AddScore(Player target, int amount)
-{
-}
-```
-
-Cuando un método documentado devuelva un valor, deberá describirse mediante la etiqueta \<returns\>.
-
-Ejemplo correcto
-
-```c#
-/// <summary>Indicates whether the room can start the match.</summary> 
-/// <returns><c>true</c> if the room has the minimum number of players; otherwise, <c>false</c>.</returns> 
-public bool CanStartMatch()
-{
-    bool canStart = _playerCount >= MinimumPlayers;
-    return canStart;
-}
-```
-
-Ejemplo incorrecto (falta la etiqueta `<returns>)`
-
-```c#
-/// <summary>Indica si la sala puede iniciar la partida.</summary>
-public bool CanStartMatch()
-{
-    bool canStart = _playerCount >= MinimumPlayers;
-    return canStart;
+    /// <summary>Determines whether a player is present in the current lookup.</summary>
+    /// <param name="playerId">Identifier of the player to locate.</param>
+    /// <returns>True if the lookup contains the specified player.</returns>
+    bool ContainsPlayer(int playerId);
 }
 ```
 
 3. ## Comentarios especiales (TODO, FIXME, HACK, UNDONE) {#comentarios-especiales-(todo,-fixme,-hack,-undone)}
 
-El comentario especial deberá iniciar con uno de los cuatro tokens reconocidos: TODO (para trabajo pendiente), FIXME (para corrección de errores conocidos), HACK (para soluciones temporales) o UNDONE (para funcionalidad incompleta). Dado que FIXME no está registrado por defecto en Visual Studio, deberá agregarse como token personalizado en Herramientas \> Opciones \> Entorno \> Lista de tareas. Todo comentario especial deberá seguir estrictamente el formato // TOKEN: Texto descriptivo., iniciando con el delimitador y el token en mayúsculas, seguido de dos puntos, un espacio, una mayúscula inicial y punto final. La lista de tokens es cerrada: no se admiten otros (por ejemplo NOTE o INFO). Un comentario informativo que no describe trabajo pendiente es un comentario normal (S12.1). Todo comentario especial se registra además en gov/Backlog\_TLMG.md con fecha y hora, y el comentario cita su identificador.
-
-Ejemplo correcto (TODO)
-
-```c#
-// TODO: Add the retry for sending the code. (BL-012). 
-public void SendVerificationCode(int playerId)
-{
-}
-```
-
-Ejemplo correcto (FIXME)
-
-```c#
-// FIXME: The player score is not capped at the maximum allowed. (BL-013). 
-playerScore += earnedScore;
-```
-
-Ejemplo incorrecto (falta el texto descriptivo de la tarea)
-
-```c#
-// TODO
-public void SendVerificationCode(int playerId)
-{
-}
-```
-
-Los números BL de los ejemplos son ilustrativos.
+Los pendientes y defectos se registrarán en el backlog. No se utilizarán comentarios TODO ni FIXME en el código.
 
 13. # Estructuras de control {#estructuras-de-control}
 
@@ -3491,7 +3326,9 @@ if (isGameOver)
 
 2. ## Uso de return {#uso-de-return}
 
-Los métodos no void deberán contener una única sentencia return al final (D-29) del cuerpo del método, asignando el valor a devolver a una variable local declarada al inicio o durante el cálculo, evitando salidas prematuras múltiples que compliquen el flujo de control. Quedan exentos los miembros con cuerpo de expresión (=\>), los accesores de propiedades y las lambdas. En métodos void se permite un return; de guarda al inicio.
+**Elección del flujo.** Preferir métodos nombrados a lambdas, if/else al ternario y una condición de continuación clara al break de un bucle. Aplicar las restricciones formales de §§9.8 y 13.5 para las expresiones admitidas. Conservar las terminaciones necesarias del switch. Preferir sintaxis de consulta LINQ cuando sea adecuada y tipos explícitos donde §9.7 permita elegir. Usar var en consultas y tipos anónimos según §9.7. Justificar en la revisión las expresiones necesarias para traducción EF u otras restricciones técnicas. Verificar que cualquier sustitución preserve evaluación, traducción y efectos observables.
+
+Los métodos no void deberán contener una única sentencia return al final (D-29) del cuerpo del método, asignando el valor a devolver a una variable local declarada al inicio o durante el cálculo, evitando salidas prematuras múltiples que compliquen el flujo de control. Quedan exentos los miembros con cuerpo de expresión (=\>), los accesores de propiedades y las lambdas. Los métodos void de autoría propia no admitirán retornos anticipados.
 
 Ejemplo correcto
 
@@ -3777,6 +3614,10 @@ private void OnScreenLoaded(object sender, RoutedEventArgs e)
 
     1. ## Framework de pruebas {#framework-de-pruebas}
 
+Las pruebas unitarias aislarán SQL y WCF mediante dobles de interfaces. Las pruebas de integración utilizarán entornos y datos controlados.
+
+**Integridad de las pruebas.** Verificar estados y datos del contrato. Conservar los asserts que detectan defectos. No eliminar, omitir ni deshabilitar pruebas para obtener una ejecución sin fallos. Evitar operaciones destructivas sobre bases compartidas.
+
 El curso exige un mínimo de 300 pruebas, y cada caso de uso cubre un flujo normal, tres alternos y uno de excepción.
 
 El proyecto utiliza xUnit.net como único framework de pruebas para todos sus casos de prueba (D-61). Es compatible con .NET CLI y Visual Studio, y sus pruebas parametrizadas (\[Theory\] con \[InlineData\]) son las que esta sección exige para evitar lógica de control dentro de la prueba. 
@@ -3794,13 +3635,10 @@ private const string ExpectedErrorKey = "CreateAccount_NicknameEmptyError";
 [InlineData(null)]
 public void ValidateNickname_WithBlankNickname_ReturnsEmptyError(string blankNickname)
 {
-    // Arrange
     string nickname = blankNickname;
 
-    // Act
     string errorKey = ValidationHelper.ValidateNickname(nickname);
 
-    // Assert
     Assert.Equal(ExpectedErrorKey, errorKey);
 }
 ```
@@ -3827,13 +3665,10 @@ private const int InitialScore = 0;
 [InlineData(100, 100)]
 public void AddScore_VariousAmounts_IncreasesScoreByAmount(int amount, int expectedScore)
 {
-    // Arrange
     Player player = new Player(InitialScore);
 
-    // Act
     player.AddScore(amount);
 
-    // Assert
     Assert.Equal(expectedScore, player.Score);
 }
 ```
@@ -3904,7 +3739,7 @@ Se exige no introducir dependencias de infraestructura al escribir pruebas unita
 
 3. ## Estructura de un test (Arrange-Act-Assert) {#estructura-de-un-test-(arrange-act-assert)}
 
-El cuerpo de cada prueba deberá organizarse en tres secciones claramente diferenciadas, marcadas con comentarios que identifiquen cada etapa, en el orden siguiente: preparación del estado y los objetos necesarios (Arrange), ejecución de la acción que se desea probar (Act) y verificación del resultado esperado (Assert).
+El cuerpo de cada prueba deberá organizarse en tres secciones claramente diferenciadas, en el orden siguiente: preparación del estado y los objetos necesarios (Arrange), ejecución de la acción que se desea probar (Act) y verificación del resultado esperado (Assert).
 
 Ejemplo correcto
 
@@ -3916,18 +3751,15 @@ private const int ExpectedScore = 30;
 [Fact]
 public void AddScore_WithValidAmount_IncreasesPlayerScore()
 {
-    // Arrange
     Player player = new Player(InitialScore);
 
-    // Act
     player.AddScore(ScoreToAdd);
 
-    // Assert
     Assert.Equal(ExpectedScore, player.Score);
 }
 ```
 
-Ejemplo incorrecto (sin las tres secciones diferenciadas ni comentarios que las identifiquen)
+Ejemplo incorrecto (sin las tres secciones diferenciadas)
 
 ```c#
 [Fact]
@@ -3951,13 +3783,10 @@ private const int OneCard = 1;
 [Fact]
 public void AddCard_WhenCalled_IncreasesCardCount()
 {
-    // Arrange
     PlayerHand hand = new PlayerHand();
 
-    // Act
     hand.AddCard(new Card());
 
-    // Assert
     Assert.Equal(OneCard, hand.CardCount);
 }
 ```
@@ -3968,16 +3797,13 @@ Ejemplo incorrecto (valores arbitrarios que no aportan al escenario)
 [Fact]
 public void AddCard_WhenCalled_IncreasesCardCount()
 {
-    // Arrange
     PlayerHand hand = new PlayerHand(
         maxCards: 999,
         dealDelaySeconds: 9.7f,
         difficulty: DifficultyLevel.Hard);
 
-    // Act
     hand.AddCard(new Card());
 
-    // Assert
     Assert.Equal(1, hand.CardCount);
 }
 ```
@@ -3993,13 +3819,10 @@ private const int NegativeScoreAmount = -1;
 [Fact]
 public void AddScore_WithNegativeAmount_ThrowsArgumentOutOfRangeException()
 {
-    // Arrange
     Player player = new Player(InitialScore);
 
-    // Act
     Action act = () => player.AddScore(NegativeScoreAmount);
 
-    // Assert
     Assert.Throws<ArgumentOutOfRangeException>(act);
 }
 ```
@@ -4062,13 +3885,10 @@ private const int ExpectedHalfScore = 50;
 [Fact]
 public void Calculate_WithHalfMultiplier_ReturnsHalfScore()
 {
-    // Arrange
     ScoreCalculator calculator = new ScoreCalculator();
 
-    // Act
     int result = calculator.Calculate(BaseScore, HalfMultiplier);
 
-    // Assert
     Assert.Equal(ExpectedHalfScore, result);
 }
 ```
@@ -4087,13 +3907,10 @@ public class PlayerRepositoryTests
     [Fact]
     public void CreatePlayer_WithValidData_PlayerExistsByNickname()
     {
-        // Arrange
         PlayerRepository repository = new PlayerRepository();
 
-        // Act
         repository.CreatePlayer(Nickname, Email, PasswordHash);
 
-        // Assert
         Assert.True(repository.PlayerExistsByNickname(Nickname));
     }
 }
@@ -4102,7 +3919,6 @@ public class PlayerRepositoryTests
 Ejemplo incorrecto (dependencia de base de datos real, pero tratada como prueba unitaria)
 
 ```c#
-// The class lives in TLMG.Services.Tests, the unit test project. 
 public class PlayerRepositoryTests
 {
     [Fact]
@@ -4127,13 +3943,10 @@ private const int OneCard = 1;
 [Fact]
 public void AddCard_WhenCalled_IncreasesCardCount()
 {
-    // Arrange
     PlayerHand hand = new PlayerHand();
 
-    // Act
     hand.AddCard(new Card());
 
-    // Assert
     Assert.Equal(OneCard, hand.CardCount);
 }
 ```
@@ -4255,14 +4068,11 @@ private const string VerificationCode = "123456";
 [Fact]
 public void SendVerificationCode_WithValidEmail_CallsEmailSender()
 {
-    // Arrange
     MockEmailSender mockEmailSender = new MockEmailSender();
     AccountVerificationService service = new AccountVerificationService(mockEmailSender);
 
-    // Act
     service.SendVerificationCode(PlayerEmail, VerificationCode);
 
-    // Assert
     Assert.True(mockEmailSender.SendWasCalled);
 }
 ```
@@ -4290,11 +4100,17 @@ public class MockSmtpClient : SmtpClient
 
     1. ## Centralización de validaciones {#centralización-de-validaciones}
 
+**Garantía por capa.** Centralizar cada validación según su responsabilidad. El cliente orienta al usuario, el servidor autoriza por token y rol y aplica reglas de negocio, y persistencia asegura integridad y consistencia. Un botón deshabilitado solo controla la interacción visual. Evitar repetir una garantía contractual dentro del mismo límite. Conservar defensas e invariantes internas hasta comprobar quién garantiza sus precondiciones. Comunicar alternativas previsibles mediante resultados explícitos.
+
 La validación del formato de los datos vive en clases Validator del dominio, en TLMG.Domain.Validators: PlayerAccountRegistrationValidator para el registro y PlayerLogInValidator para el inicio de sesión. Las reglas de campo que comparten varios flujos (formato de correo, rango de longitud y normalización del correo) viven en AccountFieldValidator, que devuelve bool o el valor normalizado; cada validador traduce el fallo a la ErrorKey de su propio flujo. Un validador acepta una entrada null y la rechaza con la ErrorKey de campos incompletos, sin depender de que el servicio la haya comprobado antes. Los métodos de TLMG.Domain.Validators que devuelven una ErrorKey utilizan string.Empty cuando el dato es válido o la ErrorKey que describe el fallo (S10.2); los métodos Get…ErrorKey de los validadores locales del cliente (ValidationHelper e InputValidator) devuelven null cuando el dato es válido. Las entradas inválidas habituales se comunican mediante resultados controlados, sin lanzar excepciones. En el cliente, la validación inmediata vive en ValidationHelper e InputValidator. El correo se normaliza (recorte y minúsculas) una sola vez, al convertir el DTO a la entidad del dominio, con AccountFieldRules.NormalizeEmail.
 
 El cliente valida para dar una respuesta inmediata al jugador, y el servidor valida de nuevo todo lo que recibe, porque el cliente no es confiable (ADR-01). Las reglas de formato (longitudes, caracteres permitidos y su ErrorKey) están en el diccionario de reglas de validación del proyecto y no se repiten en este documento. El nickname admite letras, números y guion bajo (D-23).
 
 2. ## Manejo de datos sensibles {#manejo-de-datos-sensibles}
+
+**Seguridad.** Parametrizar SQL, usar UTC donde corresponda y mantener secretos fuera de Git y logs. Proteger contraseñas, tokens y códigos de verificación. Excluir también las direcciones de correo de los logs. Redactar los mensajes de diagnóstico en español. Mostrar errores mediante recursos localizados. Reservar detalles SQL y stack traces para el diagnóstico interno y evitar exponer códigos internos o credenciales al jugador.
+
+La regeneración de referencias WCF deberá coordinarse previamente y preservar la compatibilidad de los contratos (§3 y §17). La protección de archivos generados se rige por §1.3. Las configuraciones reservadas del servidor y del cliente, incluidos sus App.config, deberán mantenerse fuera de las modificaciones de código.
 
 * La contraseña se captura con PasswordBox (S7.1) y viaja al servidor. Solo el servidor calcula su hash, con SHA-256 y una sal aleatoria por contraseña (D-44); la contraseña en texto plano no se guarda ni se registra.
 
@@ -4320,7 +4136,20 @@ El servidor es la autoridad de la partida (ADR-01; Zero-Trust, S6.1). De ello se
 
     1. ## Estructura de los DTO {#estructura-de-los-dto}
 
-Los DTO viven en el proyecto TLMG.Contracts, en el namespace TLMG.Contracts.DataContracts (S4.3). El namespace los distingue; por eso su nombre no lleva sufijo genérico como Data o Info: se nombran por lo que contienen (por ejemplo, un jugador del ranking). El sufijo Request se reserva para el DTO de entrada de una operación y el sufijo Result para el de salida (por ejemplo, OperationRegisterPlayerAccountResult). (D-56).
+**Contrato de resultado (D-66).** Expresar el éxito mediante IsSuccess, un booleano de significado explícito o un estado definido. Para OperationResult y sus derivados se aplican estas combinaciones:
+
+| IsSuccess | ErrorKey | Interpretación |
+|---|---|---|
+| true | string.Empty | Éxito si están presentes los datos que exige la operación. |
+| false | Clave reconocida en es-MX y en-US | Fallo explícito. El cliente localiza la clave. |
+| true | null | Resultado inconsistente. El límite receptor debe convertirlo en fallo controlado con IsSuccess = false y una ErrorKey válida. |
+| Otras combinaciones | | Resultado inconsistente. Tratarlo en el límite responsable y garantizar un contrato válido antes de consumirlo. |
+
+**Consumo.** Es incorrecto deducir éxito de `result.ErrorKey == null`, `string.IsNullOrEmpty(result.ErrorKey)` o `string.IsNullOrWhiteSpace(result.ErrorKey)`. Estas comprobaciones sirven para validar una clave. Leer IsSuccess y validar el contenido necesario, por ejemplo la identidad que requiere una sesión exitosa. Una vez garantizado el contrato, los consumidores pueden confiar en él. Los validadores históricos que devuelven solo ErrorKey conservan la convención de su firma.
+
+**Significado del resultado.** El envío de una solicitud WCF acredita envío. La ejecución efectiva requiere evidencia del servidor. Una consulta exitosa sin filas entrega una colección vacía. Un fallo de infraestructura exige estado explícito. Admitir null para ausencia legítima, datos opcionales o comprobación defensiva justificada. Una dependencia obligatoria sin configurar y un fallo conocido requieren tratamiento explícito.
+
+Los DTO viven en el proyecto TLMG.Contracts, en el namespace TLMG.Contracts.DataContracts (S4.3). El namespace los distingue; por eso su nombre no lleva sufijo genérico como Data o Info: se nombran por lo que contienen (por ejemplo, un jugador del ranking). El sufijo Request se reserva para el DTO de entrada de una operación y el sufijo Result para el de salida (como en el contrato existente OperationRegisterPlayerAccountResult). (D-56).
 
 Un DTO solo transporta datos: no contiene reglas de juego, acceso a datos ni referencias a tipos de Entity Framework. TLMG.Domain no usa los DTO (S4.2); la conversión entre DTO y tipos del dominio la hace TLMG.Services.
 
@@ -4388,7 +4217,7 @@ Este Estándar recoge lo que está decidido (decisiones D-xx de las bitácoras y
 | D-32 | Excepciones de accesibilidad (clases parciales XAML y clases anidadas privadas) | S10.9 |
 | D-34 | Contadores de bucle con nombre descriptivo | S3.1 |
 | D-35 | Límite de 120 columnas, también en comentarios | S9.2 |
-| D-36 | Excepciones de documentación (inheritdoc y constructores XAML triviales) | S12.2 |
+| D-36 | Documentación de contratos y excepción para constructores XAML triviales | S12.2 |
 | D-37 | Criterio de Common\_ para claves compartidas | S7.3 |
 | D-38 | Ejemplo WCF con IChatManager e IChatManagerCallback | S3.10 |
 | D-39 | Cliente con MVVM | S6.2, S7.1 |
@@ -4524,53 +4353,4 @@ Microsoft. (s.f.-). *Working with DbContext*. Microsoft Learn. Recuperado el 2
 
 21. # Declaración de uso de IA {#declaración-de-uso-de-ia}
 
-El presente documento fue elaborado con ayuda de IA, principalmente para la investigación de estándares, nomenclaturas, usos, ejemplos de la estructura de dicho estándar adoptado y descrito. Además, se usó como un revisor técnico para cuestiones de gramática, ayuda y redacción de ejemplos correctos e incorrectos de cada sección.
-
-Se usaron modelos como Claude Sonnet 5, Gemini 3.7 Flash.
-
-Además, que por cada entregable, se realizó su lectura y análisis de cada respuesta, ya que en su gran mayoría se adoptaron, mientras que otros no.
-
-Por otra parte, se usó IA para investigación y ayudarnos a encontrar huecos, incoherencias y plantear preguntas para definir por completo el entregable.
-
-Los promts usados son:
-
-* Actúa como un arquitecto y diseñador de software experto con años de experiencia en metodologías ágiles, DDD (Domain-Driven Design) y definición de requerimientos.
-
-  Tu rol principal será guiarnos en la estructuración de nuestro nuevo sistema. Para ello, seguirás estrictamente estas reglas:
-
-  1\. JAMÁS supongas ni asumas nada sobre el negocio, la lógica o la técnica. Si falta un dato o hay ambigüedad, debes preguntar. Es mejor preguntar que asumir.
-
-  2\. Tu dinámica principal será plantear preguntas críticas, ayudarnos a evaluar pros y contras de decisiones internas y guiar el flujo del diseño.
-
-  3\. Formato de comunicación: Cuando una pregunta o decisión deba ser respondida por nosotros (factores externos, reglas de negocio o decisiones estratégicas), márcala claramente al inicio con la etiqueta \[PENDIENTE CLIENTE\]".
-
-* Solo de la estructura, sin ejemplos, con secciones numeradas, no texto, ni código.  
-  Solo como referencia estructura, no como una fuente de consulta
-
-  Contexto: Tengo que realizar mi estándar para un proyecto que será un videojuego.  
-  Lenguaje de programación es C\#  
-  Genera la estructura y la cadena auditable de cómo es que generó esa estructura y que fuentes utilizó.
-
-  Estándar en español/inglés código en inglés  
-  ejemplo de código en inglés  
-  base de datos en inglés
-
-  Generar esta sección 3\. Reglas de nombrado de clases. Las referencias requieren ser del estándar oficial de c\# o estándares de código validados y de empresas verificables o documentación oficial del lenguaje, la fuente antes enviada no la tomes en cuenta, solo los estándares, reportes y documentación oficial del lenguaje  
-  Incluye una descripción corta de la descripción para que todos los integrantes entiendan el objetivo de la regla. El estándar es para un proyecto escolar.  
-  Incluye un ejemplo que este correcto de acuerdo a las convenciones del estándar y a la sección en cuestión y que incluya uno donde se viole el estándar.  
-  El código sea acotado a la sección, solo lo de la regla.  
-  El texto de la sección deberá estar sustentado en una fuente verificable y incluye la cita en formato Apa 7\. Asimismo en el mismo formato APA 7 para la sección construida.
-
-  Genera la cadena auditable o la cadena de razonamiento para verificar el contenido.
-
-* Actúa como un editor de textos, corrector de estilo y experto en lingüística con dominio avanzado del español.
-
-  Tu objetivo es revisar y mejorar el texto que te proporcionaré a continuación, asegurando una gramática perfecta, ortografía impecable, cohesión y fluidez.
-
-  Sigue estrictamente estas reglas al responder:
-
-  1\. Corrección Directa: Muestra primero el texto completamente corregido y pulido.
-
-  2\. Tabla de Cambios: Crea una tabla simple con tres columnas: \[Texto Original\] \| \[Texto Corregido\] \| \[Motivo del Cambio\] (para entender si fue por regla ortográfica, redundancia o mejora de fluidez).
-
-  3\. Propuestas de Tono: Ofrece 2 variaciones adicionales del texto adaptadas a diferentes contextos (por ejemplo: una versión más Formal/Corporativa y otra más Cercana/Causal). No agregues introducciones largas.
+En la preparación del documento se emplearon herramientas de inteligencia artificial para investigar convenciones y referencias, contrastar nomenclaturas, elaborar ejemplos y revisar la redacción. Las propuestas se sometieron a revisión humana para determinar su incorporación al estándar.
