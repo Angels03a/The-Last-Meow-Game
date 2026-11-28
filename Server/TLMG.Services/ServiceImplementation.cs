@@ -29,6 +29,7 @@ namespace TLMG.Services
         private static PlayerLogInService _playerLogInService;
         private static PlayerProfileService _playerProfileService;
         private static ChatService _chatService;
+        private static RoomInvitationService _roomInvitationService;
         private static FriendsService _friendsService;
         private static LeaderboardService _leaderboardService;
         private static LobbyService _lobbyService;
@@ -47,6 +48,7 @@ namespace TLMG.Services
             _playerLogInService = serviceDependencies.LogInService;
             _playerProfileService = serviceDependencies.ProfileService;
             _chatService = serviceDependencies.ChatService;
+            _roomInvitationService = serviceDependencies.RoomInvitationService;
             _friendsService = serviceDependencies.FriendsService;
             _leaderboardService = serviceDependencies.LeaderboardService;
             _lobbyService = serviceDependencies.LobbyService;

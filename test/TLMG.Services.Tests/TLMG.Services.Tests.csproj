@@ -37,7 +37,7 @@
     <Compile Include="PasswordResetDispatcherTests.cs" />
     <Compile Include="VerificationCodeRepositoryStub.cs" />
     <Compile Include="VerificationCodeStoreTests.cs" />
-    <Compile Include="FailingSessionRegistryStub.cs" />
+    <Compile Include="FailingLobbyRegistryStub.cs" />
     <Compile Include="FriendsCallbackStub.cs" />
     <Compile Include="FriendshipRepositoryStub.cs" />
     <Compile Include="FriendsScenario.cs" />

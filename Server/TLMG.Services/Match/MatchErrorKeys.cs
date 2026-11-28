@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using TLMG.Domain.Constants;
+using TLMG.Domain.Engine;
+
 namespace TLMG.Services.Match
 {
     /// <summary>
@@ -77,5 +81,136 @@ namespace TLMG.Services.Match
 
         /// <summary>The chosen slot or card position does not exist.</summary>
         public const string CardIndexNotValid = "Match_CardIndexNotValidError";
+
+        private static readonly Dictionary<BetActionStatus, string> _errorKeysByBetStatus =
+            new Dictionary<BetActionStatus, string>
+            {
+                { BetActionStatus.PlayerNotInMatch, NotInMatch },
+                { BetActionStatus.NotPlayersTurn, NotYourTurn },
+                { BetActionStatus.BetInProgress, BetInProgress },
+                { BetActionStatus.NoBetInProgress, NoBetInProgress },
+                { BetActionStatus.TableEmpty, TableEmpty },
+                { BetActionStatus.EmptyHandRequiresBetOfOne, EmptyHandBet },
+                { BetActionStatus.BetValueNotValid, BetValueNotValid },
+                { BetActionStatus.NoCardPlacedInRound, NoCardPlaced },
+                { BetActionStatus.PunishmentPending, PunishmentPending },
+                { BetActionStatus.MatchFinished, MatchFinished }
+            };
+
+        private static readonly HashSet<ChallengeRevealStatus> _acceptedRevealStatuses =
+            new HashSet<ChallengeRevealStatus>
+            {
+                ChallengeRevealStatus.Revealed,
+                ChallengeRevealStatus.ChallengeSucceeded,
+                ChallengeRevealStatus.ChallengeFailed
+            };
+
+        private static readonly Dictionary<ChallengeRevealStatus, string> _errorKeysByRevealStatus =
+            new Dictionary<ChallengeRevealStatus, string>
+            {
+                { ChallengeRevealStatus.PlayerNotInMatch, NotInMatch },
+                { ChallengeRevealStatus.NoChallengeInProgress, NoChallenge },
+                { ChallengeRevealStatus.NotTheBettor, NotTheBettor },
+                { ChallengeRevealStatus.PileOwnerNotInMatch, PileOwnerNotInMatch },
+                { ChallengeRevealStatus.OwnPileFirst, OwnPileFirst },
+                { ChallengeRevealStatus.PileFullyRevealed, PileEmpty }
+            };
+
+        private static readonly Dictionary<PunishmentStatus, string> _errorKeysByPunishmentStatus =
+            new Dictionary<PunishmentStatus, string>
+            {
+                { PunishmentStatus.PlayerNotInMatch, NotInMatch },
+                { PunishmentStatus.NoPunishmentPending, NoPunishmentPending },
+                { PunishmentStatus.NotTheChooser, NotTheChooser },
+                { PunishmentStatus.CardIndexNotValid, CardIndexNotValid }
+            };
+
+        private static readonly Dictionary<CardPlacementStatus, string> _errorKeysByPlacementStatus =
+            new Dictionary<CardPlacementStatus, string>
+            {
+                { CardPlacementStatus.PlayerNotInMatch, NotInMatch },
+                { CardPlacementStatus.BetInProgress, BetInProgress },
+                { CardPlacementStatus.NotPlayersTurn, NotYourTurn },
+                { CardPlacementStatus.HandEmpty, HandEmpty },
+                { CardPlacementStatus.CardNotInHand, CardNotInHand },
+                { CardPlacementStatus.PunishmentPending, PunishmentPending },
+                { CardPlacementStatus.MatchFinished, MatchFinished }
+            };
+
+        /// <summary>Maps the engine result for opening a bid, raising or folding.</summary>
+        /// <param name="betStatus">Engine result.</param>
+        /// <returns>Null if applied, otherwise the error key.</returns>
+        internal static string FindErrorKey(BetActionStatus betStatus)
+        {
+            string errorKey;
+
+            if (betStatus == BetActionStatus.Accepted)
+            {
+                errorKey = null;
+            }
+            else if (!_errorKeysByBetStatus.TryGetValue(betStatus, out errorKey))
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
+
+            return errorKey;
+        }
+
+        /// <summary>Maps the engine result for revealing a challenge card.</summary>
+        /// <param name="revealStatus">Engine result.</param>
+        /// <returns>Null if a card was revealed, even if the challenge ended. Otherwise the error key.</returns>
+        internal static string FindErrorKey(ChallengeRevealStatus revealStatus)
+        {
+            string errorKey;
+
+            if (_acceptedRevealStatuses.Contains(revealStatus))
+            {
+                errorKey = null;
+            }
+            else if (!_errorKeysByRevealStatus.TryGetValue(revealStatus, out errorKey))
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
+
+            return errorKey;
+        }
+
+        /// <summary>Maps the engine result for a punishment choice.</summary>
+        /// <param name="punishmentStatus">Engine result.</param>
+        /// <returns>Null if the card was removed, otherwise the error key.</returns>
+        internal static string FindErrorKey(PunishmentStatus punishmentStatus)
+        {
+            string errorKey;
+
+            if (punishmentStatus == PunishmentStatus.CardRemoved)
+            {
+                errorKey = null;
+            }
+            else if (!_errorKeysByPunishmentStatus.TryGetValue(punishmentStatus, out errorKey))
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
+
+            return errorKey;
+        }
+
+        /// <summary>Maps the engine result for placing a card.</summary>
+        /// <param name="placementStatus">Engine result.</param>
+        /// <returns>Null if placed, otherwise the error key.</returns>
+        internal static string FindErrorKey(CardPlacementStatus placementStatus)
+        {
+            string errorKey;
+
+            if (placementStatus == CardPlacementStatus.Placed)
+            {
+                errorKey = null;
+            }
+            else if (!_errorKeysByPlacementStatus.TryGetValue(placementStatus, out errorKey))
+            {
+                errorKey = ErrorKeys.Common.Unexpected;
+            }
+
+            return errorKey;
+        }
     }
 }

@@ -13,7 +13,8 @@ namespace TLMG.Services.Sessions
     /// Protects shared session, room, match and friendship state with one lock.
     /// Database calls and notifications are performed outside the session lock.
     /// </summary>
-    public partial class SessionRegistry : ISessionRegistry
+    public partial class SessionRegistry : ISessionRegistry, IMatchRegistry, ILobbyRegistry, IChatRegistry,
+        IFriendsChannelRegistry, IRoomInvitationRegistry
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(SessionRegistry));
 

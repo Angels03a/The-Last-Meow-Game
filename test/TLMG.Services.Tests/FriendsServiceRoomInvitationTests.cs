@@ -14,7 +14,7 @@ using TLMG.Services.Moderation;
 namespace TLMG.Services.Tests
 {
     /// <summary>
-    /// Tests of FriendsService room invitations with the real session registry and a manual clock. Declining a
+    /// Tests of room invitations with the real session registry and a manual clock. Declining a
     /// pending invitation is not reported to the server, so the invitee stays able to receive it again after the
     /// renotification interval. Notifications are deferred actions, so the tests run them and check the callbacks.
     /// </summary>
@@ -32,7 +32,7 @@ namespace TLMG.Services.Tests
 
         private readonly SessionRegistry _registry;
 
-        private readonly FriendsService _service;
+        private readonly RoomInvitationService _service;
 
         private readonly string _inviterToken;
 
@@ -47,10 +47,89 @@ namespace TLMG.Services.Tests
             _registry = new SessionRegistry(_clock.ReadUtcNow, count => 0);
             BlockPolicy blockPolicy = new BlockPolicy(new NoBlocksRepository());
             _registry.ConfigureBlockPolicy(blockPolicy);
-            _service = new FriendsService(repository, _registry, _registry, blockPolicy);
+            _service = new RoomInvitationService(repository, _registry, _registry);
             _inviterToken = StartSession(InviterUserId, "Inviter", new FriendsCallbackStub());
             _inviteeToken = StartSession(InviteeUserId, "Invitee", _inviteeCallback);
             _registry.CreateRoom(new SessionChannelCaller(_inviterToken, "inviter-lobby"), null);
+        }
+
+        [Fact]
+        public void InviteFriendToRoom_WithGuestSenderWithoutFriendship_ReturnsCannotInvite()
+        {
+            GuestSessionStart guest = _registry.StartGuestSession();
+
+            ResultWithNotification<OperationResult> result =
+                _service.InviteFriendToRoom(guest.SessionToken, InviteeUserId);
+
+            Assert.False(result.OperationResult.IsSuccess);
+            Assert.Equal(ErrorKeys.Friends.CannotInvite, result.OperationResult.ErrorKey);
+            Assert.Empty(result.Notifications);
+        }
+
+        [Fact]
+        public void AcceptRoomInvitation_WithGuestFriend_GrantsRoomEntry()
+        {
+            GuestSessionStart guest = _registry.StartGuestSession();
+            FriendsCallbackStub callback = new FriendsCallbackStub();
+            _registry.SubscribeFriendsChannel(guest.SessionToken, "guest-friends", callback, Array.Empty<int>());
+            GuestFriendshipChange change = _registry.CreateGuestFriendRequest(InviterUserId, guest.UserId);
+            _registry.AnswerGuestFriendRequest(change.Friendship.FriendshipId, guest.UserId, true);
+
+            ResultWithNotification<OperationResult> invitation =
+                _service.InviteFriendToRoom(_inviterToken, guest.UserId);
+            FriendsScenario.Deliver(invitation.Notifications);
+            RoomInvitation received = Assert.Single(callback.ReceivedInvitations);
+            OperationAcceptRoomInvitationResult accepted =
+                _service.AcceptRoomInvitation(guest.SessionToken, received.InvitationId).OperationResult;
+
+            Assert.True(invitation.OperationResult.IsSuccess);
+            Assert.True(accepted.IsSuccess);
+            LobbyMembershipChange entry = _registry.EnterRoom(
+                new SessionChannelCaller(guest.SessionToken, "guest-lobby"), accepted.RoomId, null);
+            Assert.Equal(LobbyChangeStatus.Applied, entry.Status);
+        }
+
+        [Fact]
+        public void InviteFriendToRoom_WhenRecipientBlockedInviter_RejectsWithoutNotification()
+        {
+            _registry.ConfigureBlockPolicy(new BlockPolicy(new BlockedInviterRepository()));
+
+            ResultWithNotification<OperationResult> result = Invite();
+
+            Assert.False(result.OperationResult.IsSuccess);
+            Assert.Equal(ErrorKeys.Friends.CannotInvite, result.OperationResult.ErrorKey);
+            Assert.Empty(_inviteeCallback.ReceivedInvitations);
+        }
+
+        [Fact]
+        public void AcceptRoomInvitation_WhenRoomBecameIncompatible_RejectsAndConsumesInvitation()
+        {
+            Invite();
+            int invitationId = Assert.Single(_inviteeCallback.ReceivedInvitations).InvitationId;
+            _registry.ConfigureBlockPolicy(new BlockPolicy(new BlockedInviterRepository()));
+
+            OperationAcceptRoomInvitationResult first =
+                _service.AcceptRoomInvitation(_inviteeToken, invitationId).OperationResult;
+            OperationAcceptRoomInvitationResult second =
+                _service.AcceptRoomInvitation(_inviteeToken, invitationId).OperationResult;
+
+            Assert.False(first.IsSuccess);
+            Assert.Equal(ErrorKeys.Lobby.CannotJoinRoom, first.ErrorKey);
+            Assert.False(second.IsSuccess);
+            Assert.Equal(ErrorKeys.Friends.InvitationNotValid, second.ErrorKey);
+        }
+
+        private sealed class BlockedInviterRepository : NoBlocksRepository
+        {
+            public override BlockListLookup FindBlocksInvolvingUser(int userId)
+            {
+                BlockRelationship block = new BlockRelationship
+                {
+                    BlockerUserId = InviteeUserId,
+                    BlockedUserId = InviterUserId
+                };
+                return new BlockListLookup { WasLookupSuccessful = true, Relationships = new[] { block } };
+            }
         }
 
         [Fact]

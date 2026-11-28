@@ -123,6 +123,7 @@
 		<Compile Include="ServiceImplementation.LobbyManager.cs" />
 		<Compile Include="ServiceImplementation.UsersManager.cs" />
 		<Compile Include="Friends\FriendsService.cs" />
+		<Compile Include="Friends\RoomInvitationService.cs" />
 		<Compile Include="Helpers\LobbyRoomHelper.cs" />
 		<Compile Include="Helpers\SessionNotificationHelper.cs" />
 		<Compile Include="Helpers\SessionTokenHelper.cs" />
@@ -138,6 +139,12 @@
 		<Compile Include="Sessions\FriendsChannel.cs" />
 		<Compile Include="Sessions\FriendsSubscription.cs" />
 		<Compile Include="Sessions\ISessionRegistry.cs" />
+		<Compile Include="Sessions\IRoomInvitationRegistry.cs" />
+		<Compile Include="Sessions\IFriendsChannelRegistry.cs" />
+		<Compile Include="Sessions\IChatRegistry.cs" />
+		<Compile Include="Sessions\ILobbyRegistry.cs" />
+		<Compile Include="Sessions\IMatchRegistry.cs" />
+		<Compile Include="Sessions\ISessionLookup.cs" />
 		<Compile Include="Sessions\LobbyChangeStatus.cs" />
 		<Compile Include="Sessions\LobbyMember.cs" />
 		<Compile Include="Sessions\LobbyMembershipChange.cs" />

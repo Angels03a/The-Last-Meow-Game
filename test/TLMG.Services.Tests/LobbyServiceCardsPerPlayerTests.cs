@@ -27,6 +27,41 @@ namespace TLMG.Services.Tests
         private const string NotValidKey = "Lobby_CardsPerPlayerNotValidError";
 
         [Fact]
+        public void CreateRoom_WhenAppliedWithoutRoom_ReturnsUnexpected()
+        {
+            SessionRegistry sessions = new SessionRegistry();
+            string token = sessions.StartRegisteredSession(1, "Creator", out _);
+            FailingLobbyRegistryStub rooms = new FailingLobbyRegistryStub
+            {
+                Creation = LobbyMembershipChange.CreateApplied(1, new LobbyRoomUpdate(1, null))
+            };
+            LobbyService service = new LobbyService(rooms, sessions, MatchHistoryStub.CreateCoordinator(sessions));
+
+            OperationLobbyRoomResult result = service.CreateRoom(new SessionChannelCaller(token, "creator"), null)
+                .OperationResult;
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal(UnexpectedKey, result.ErrorKey);
+            Assert.Null(result.Room);
+        }
+
+        [Fact]
+        public void EnterLobby_WhenRejected_ReturnsMappedErrorKey()
+        {
+            SessionRegistry registry = new SessionRegistry();
+            registry.ConfigureBlockPolicy(new TLMG.Services.Moderation.BlockPolicy(new NoBlocksRepository()));
+            LobbyService service = new LobbyService(registry, registry, MatchHistoryStub.CreateCoordinator(registry));
+
+            ResultWithNotification<OperationLobbyRoomResult> result =
+                service.EnterLobby(new SessionChannelCaller("unknown", "lobby"), 1, null);
+
+            Assert.False(result.OperationResult.IsSuccess);
+            Assert.Equal(InvalidSessionKey, result.OperationResult.ErrorKey);
+            Assert.Null(result.OperationResult.Room);
+            Assert.Empty(result.Notifications);
+        }
+
+        [Fact]
         public void LeaveLobby_WhenAlreadyOutsideRoom_ReturnsSuccessWithEmptyKey()
         {
             // Arrange
@@ -279,7 +314,7 @@ namespace TLMG.Services.Tests
             // Arrange
             SessionRegistry sessions = new SessionRegistry();
             string token = sessions.StartRegisteredSession(1, "Creator", out SessionEnd replaced);
-            LobbyService service = new LobbyService(new FailingSessionRegistryStub(), sessions,
+            LobbyService service = new LobbyService(new FailingLobbyRegistryStub(), sessions,
                 MatchHistoryStub.CreateCoordinator(sessions));
             SessionChannelCaller caller = new SessionChannelCaller(token, LobbyReadinessHelper.CreatorChannelId);
 

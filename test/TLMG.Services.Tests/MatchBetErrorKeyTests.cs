@@ -2,7 +2,6 @@ using Xunit;
 
 using TLMG.Domain.Constants;
 using TLMG.Domain.Engine;
-using TLMG.Services.Helpers;
 using TLMG.Services.Match;
 
 namespace TLMG.Services.Tests
@@ -17,7 +16,7 @@ namespace TLMG.Services.Tests
         public void ConvertToErrorKey_WithAcceptedBetStatus_ReturnsNull()
         {
             // Arrange & Act
-            string errorKey = MatchViewHelper.ConvertToErrorKey(BetActionStatus.Accepted);
+            string errorKey = MatchErrorKeys.FindErrorKey(BetActionStatus.Accepted);
 
             // Assert
             Assert.Null(errorKey);
@@ -44,7 +43,7 @@ namespace TLMG.Services.Tests
             // Arrange: The status comes from the engine.
 
             // Act
-            string errorKey = MatchViewHelper.ConvertToErrorKey(betStatus);
+            string errorKey = MatchErrorKeys.FindErrorKey(betStatus);
 
             // Assert
             Assert.Equal(expectedErrorKey, errorKey);
@@ -58,7 +57,7 @@ namespace TLMG.Services.Tests
             BetActionStatus unknownStatus = (BetActionStatus)UndefinedStatusValue;
 
             // Act
-            string errorKey = MatchViewHelper.ConvertToErrorKey(unknownStatus);
+            string errorKey = MatchErrorKeys.FindErrorKey(unknownStatus);
 
             // Assert
             Assert.Equal(ErrorKeys.Common.Unexpected, errorKey);

@@ -13,11 +13,11 @@ namespace TLMG.Services.Leaderboard
         private const int MaximumLeaderboardPlayerCount = 100;
 
         private readonly IPlayerRepository _playerRepository;
-        private readonly ISessionRegistry _sessionRegistry;
+        private readonly ISessionLookup _sessionRegistry;
 
         public LeaderboardService(
             IPlayerRepository playerRepository,
-            ISessionRegistry sessionRegistry)
+            ISessionLookup sessionRegistry)
         {
             _playerRepository = playerRepository;
             _sessionRegistry = sessionRegistry;

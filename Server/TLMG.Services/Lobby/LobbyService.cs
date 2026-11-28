@@ -29,11 +29,11 @@ namespace TLMG.Services.Lobby
                 { LobbyChangeStatus.DataFailure, ErrorKeys.Common.Unexpected }
             };
 
-        private readonly ISessionRegistry _sessionRegistry;
+        private readonly ILobbyRegistry _sessionRegistry;
         private readonly ISessionAuthorizer _sessionAuthorizer;
         private readonly IMatchStartCoordinator _matchStartCoordinator;
 
-        public LobbyService(ISessionRegistry sessionRegistry, ISessionAuthorizer sessionAuthorizer,
+        public LobbyService(ILobbyRegistry sessionRegistry, ISessionAuthorizer sessionAuthorizer,
             IMatchStartCoordinator matchStartCoordinator)
         {
             _sessionRegistry = sessionRegistry;
@@ -81,17 +81,13 @@ namespace TLMG.Services.Lobby
         {
             LobbyMembershipChange lobbyMembershipChange = _sessionRegistry.CreateRoom(caller, lobbyCallback);
 
-            if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied
-                && lobbyMembershipChange.Room == null)
+            ApplyRoomOutcome(operationCreateRoomResult, lobbyMembershipChange);
+            if (!operationCreateRoomResult.IsSuccess && lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
-                operationCreateRoomResult.ErrorKey = ErrorKeys.Common.Unexpected;
                 _log.Error("No se obtuvo una sala válida al crear la sala.");
             }
-            else if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
+            else if (operationCreateRoomResult.IsSuccess)
             {
-                operationCreateRoomResult.IsSuccess = true;
-                operationCreateRoomResult.ErrorKey = string.Empty;
-                operationCreateRoomResult.Room = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
                 _log.InfoFormat(
                     "El jugador {0} creó la sala {1}.",
                     lobbyMembershipChange.UserId,
@@ -99,7 +95,6 @@ namespace TLMG.Services.Lobby
             }
             else
             {
-                operationCreateRoomResult.ErrorKey = ResolveErrorKey(lobbyMembershipChange.Status);
                 LogRejectedOperation("crear una sala", lobbyMembershipChange, lobbyMembershipChange.RoomId);
             }
         }
@@ -113,23 +108,18 @@ namespace TLMG.Services.Lobby
             OperationLobbyRoomResult operationEnterLobbyResult = new OperationLobbyRoomResult();
             IReadOnlyList<Action> lobbyNotifications = Array.Empty<Action>();
 
-            if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied
-                && lobbyMembershipChange.Room == null)
+            ApplyRoomOutcome(operationEnterLobbyResult, lobbyMembershipChange);
+            if (!operationEnterLobbyResult.IsSuccess && lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
             {
-                operationEnterLobbyResult.ErrorKey = ErrorKeys.Common.Unexpected;
                 _log.Error("No se obtuvo una sala válida al ingresar a la sala.");
             }
-            else if (lobbyMembershipChange.Status == LobbyChangeStatus.Applied)
+            else if (operationEnterLobbyResult.IsSuccess)
             {
                 lobbyNotifications = SessionNotificationHelper.CreateRoomNotifications(lobbyMembershipChange);
-                operationEnterLobbyResult.IsSuccess = true;
-                operationEnterLobbyResult.ErrorKey = string.Empty;
-                operationEnterLobbyResult.Room = LobbyRoomHelper.ConvertToLobbyRoom(lobbyMembershipChange.Room);
                 _log.InfoFormat("El jugador {0} entró a la sala {1}.", lobbyMembershipChange.UserId, roomId);
             }
             else
             {
-                operationEnterLobbyResult.ErrorKey = ResolveErrorKey(lobbyMembershipChange.Status);
                 LogRejectedOperation("entrar a una sala", lobbyMembershipChange, roomId);
             }
 
@@ -239,6 +229,20 @@ namespace TLMG.Services.Lobby
                 LobbyMembershipChange.CreateRejected(LobbyChangeStatus.InvalidSession, LobbyMembershipChange.NoUserId);
 
             return lobbyMembershipChange;
+        }
+
+        private static void ApplyRoomOutcome(OperationLobbyRoomResult result, LobbyMembershipChange change)
+        {
+            ApplyOutcome(result, change);
+            if (result.IsSuccess)
+            {
+                result.Room = ConvertRoomOrNull(change);
+                if (result.Room == null)
+                {
+                    result.IsSuccess = false;
+                    result.ErrorKey = ErrorKeys.Common.Unexpected;
+                }
+            }
         }
 
         private static void ApplyOutcome(OperationResult operationResult, LobbyMembershipChange lobbyMembershipChange)

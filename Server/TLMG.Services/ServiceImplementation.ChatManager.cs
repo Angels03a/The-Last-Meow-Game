@@ -82,7 +82,7 @@ namespace TLMG.Services
 
         private void OnChatChannelEnded(object sender, EventArgs eventArguments)
         {
-            _sessionRegistry.RemoveChatChannel(_chatChannelId);
+            _chatService.RemoveChatChannel(_chatChannelId);
         }
         void IChatManager.ChatHeartbeat(string sessionToken, int sequence, int confirmedSequence)
         {

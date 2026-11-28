@@ -12,18 +12,18 @@ using TLMG.Services.Sessions;
 namespace TLMG.Services.Match
 {
     /// <summary>
-    /// Builds the requester's result and each subscriber's view from the registry's decision. ISessionRegistry handles
+    /// Builds the requester's result and each subscriber's view from the registry's decision. IMatchRegistry handles
     /// authorization and access to the engine.
     /// </summary>
     public sealed class MatchService
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(MatchService));
 
-        private readonly ISessionRegistry _sessionRegistry;
+        private readonly IMatchRegistry _sessionRegistry;
 
         /// <summary>Creates the service with the shared registry.</summary>
         /// <param name="sessionRegistry">Registry of sessions, rooms and matches.</param>
-        public MatchService(ISessionRegistry sessionRegistry)
+        public MatchService(IMatchRegistry sessionRegistry)
         {
             _sessionRegistry = sessionRegistry;
         }
@@ -148,34 +148,30 @@ namespace TLMG.Services.Match
 
         private static ResultWithNotification<OperationResult> CreateResult(MatchDelivery matchDelivery)
         {
-            bool isSuccess = matchDelivery != null && matchDelivery.ErrorKey == null;
-            string errorKey = isSuccess ? string.Empty : matchDelivery?.ErrorKey;
-
-            if (!isSuccess && string.IsNullOrWhiteSpace(errorKey))
-            {
-                errorKey = ErrorKeys.Common.Unexpected;
-            }
-
             OperationResult operationResult = new OperationResult
             {
-                IsSuccess = isSuccess,
-                ErrorKey = errorKey
+                IsSuccess = matchDelivery != null && matchDelivery.ErrorKey == null,
+                ErrorKey = string.Empty
             };
-            LogMatchRejection(isSuccess ? null : errorKey);
-
-            ResultWithNotification<OperationResult> matchResult = new ResultWithNotification<OperationResult>(
-                operationResult, SessionNotificationHelper.CreateMatchViewNotifications(
-                    matchDelivery?.ViewDeliveries ?? new List<MatchViewDelivery>()));
-
-            return matchResult;
-        }
-
-        private static void LogMatchRejection(string errorKey)
-        {
-            if (errorKey != null)
+            if (!operationResult.IsSuccess)
             {
-                _log.WarnFormat("Se rechazó una operación de partida: {0}.", errorKey);
+                operationResult.ErrorKey = matchDelivery?.ErrorKey;
+                if (string.IsNullOrWhiteSpace(operationResult.ErrorKey))
+                {
+                    operationResult.ErrorKey = ErrorKeys.Common.Unexpected;
+                }
+                _log.WarnFormat("Se rechazó una operación de partida: {0}.", operationResult.ErrorKey);
             }
+
+            IReadOnlyList<Action> notifications = Array.Empty<Action>();
+            if (matchDelivery?.ViewDeliveries != null)
+            {
+                notifications = SessionNotificationHelper.CreateMatchViewNotifications(matchDelivery.ViewDeliveries);
+            }
+
+            ResultWithNotification<OperationResult> matchResult =
+                new ResultWithNotification<OperationResult>(operationResult, notifications);
+            return matchResult;
         }
     }
 }

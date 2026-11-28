@@ -25,7 +25,7 @@ namespace TLMG.Services.Tests
             CardPlacementStatus placementStatus = CardPlacementStatus.Placed;
 
             // Act
-            string errorKey = MatchViewHelper.ConvertToErrorKey(placementStatus);
+            string errorKey = MatchErrorKeys.FindErrorKey(placementStatus);
 
             // Assert
             Assert.Null(errorKey);
@@ -49,7 +49,7 @@ namespace TLMG.Services.Tests
             // Arrange: The status comes from the engine.
 
             // Act
-            string errorKey = MatchViewHelper.ConvertToErrorKey(placementStatus);
+            string errorKey = MatchErrorKeys.FindErrorKey(placementStatus);
 
             // Assert
             Assert.Equal(expectedErrorKey, errorKey);
@@ -63,7 +63,7 @@ namespace TLMG.Services.Tests
             CardPlacementStatus unknownStatus = (CardPlacementStatus)UndefinedCardValue;
 
             // Act
-            string errorKey = MatchViewHelper.ConvertToErrorKey(unknownStatus);
+            string errorKey = MatchErrorKeys.FindErrorKey(unknownStatus);
 
             // Assert
             Assert.Equal(ErrorKeys.Common.Unexpected, errorKey);

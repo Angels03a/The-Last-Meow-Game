@@ -480,7 +480,7 @@ namespace TLMG.Services.Sessions
             if (MatchViewHelper.TryConvertToEngineCard(card, out engineCard))
             {
                 CardPlacementStatus placementStatus = matchRecord.MatchState.PlaceCard(userId, engineCard);
-                errorKey = MatchViewHelper.ConvertToErrorKey(placementStatus);
+                errorKey = MatchErrorKeys.FindErrorKey(placementStatus);
 
                 if (errorKey == null)
                 {
@@ -506,7 +506,7 @@ namespace TLMG.Services.Sessions
                 betStatus = matchState.RaiseBet(userId, betValue);
             }
 
-            string errorKey = MatchViewHelper.ConvertToErrorKey(betStatus);
+            string errorKey = MatchErrorKeys.FindErrorKey(betStatus);
 
             if (errorKey == null && isOpening)
             {
@@ -519,7 +519,7 @@ namespace TLMG.Services.Sessions
         private string WithdrawFromBetInEngineInLock(MatchRecord matchRecord, int userId)
         {
             MatchState matchState = matchRecord.MatchState;
-            string errorKey = MatchViewHelper.ConvertToErrorKey(matchState.WithdrawFromBet(userId));
+            string errorKey = MatchErrorKeys.FindErrorKey(matchState.WithdrawFromBet(userId));
 
             if (errorKey == null && matchState.Phase == RoundPhase.ChallengeReady)
             {
@@ -537,7 +537,7 @@ namespace TLMG.Services.Sessions
             DateTime nowUtc)
         {
             ChallengeRevealStatus revealStatus = matchRecord.MatchState.RevealCard(userId, pileOwnerUserId, nowUtc);
-            string errorKey = MatchViewHelper.ConvertToErrorKey(revealStatus);
+            string errorKey = MatchErrorKeys.FindErrorKey(revealStatus);
 
             if (errorKey == null && matchRecord.LastChallenge != null)
             {
@@ -637,7 +637,7 @@ namespace TLMG.Services.Sessions
             {
                 PunishmentStatus punishmentStatus =
                     matchRecord.MatchState.ChoosePunishmentCard(userId, engineIndex, nowUtc);
-                errorKey = MatchViewHelper.ConvertToErrorKey(punishmentStatus);
+                errorKey = MatchErrorKeys.FindErrorKey(punishmentStatus);
             }
 
             if (errorKey == null)

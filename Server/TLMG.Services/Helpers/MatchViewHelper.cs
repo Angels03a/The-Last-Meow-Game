@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 
 using TLMG.Contracts.DataContracts;
-using TLMG.Domain.Constants;
 using TLMG.Domain.Engine;
-using TLMG.Services.Match;
 using TLMG.Services.Sessions;
 
 namespace TLMG.Services.Helpers
 {
     /// <summary>
-    /// Builds private player views and maps engine cards, phases and rejections to the contract. Copies values without
+    /// Builds private player views and maps engine cards, and phases to the contract. Copies values without
     /// keeping references to MatchState or its lists.
     /// </summary>
     internal static class MatchViewHelper
@@ -40,61 +38,6 @@ namespace TLMG.Services.Helpers
                 { RoundPhase.ChallengeReady, MatchRoundPhase.ChallengeReady },
                 { RoundPhase.PunishmentPending, MatchRoundPhase.PunishmentPending },
                 { RoundPhase.MatchFinished, MatchRoundPhase.MatchFinished }
-            };
-
-        private static readonly Dictionary<BetActionStatus, string> _errorKeysByBetStatus =
-            new Dictionary<BetActionStatus, string>
-            {
-                { BetActionStatus.PlayerNotInMatch, MatchErrorKeys.NotInMatch },
-                { BetActionStatus.NotPlayersTurn, MatchErrorKeys.NotYourTurn },
-                { BetActionStatus.BetInProgress, MatchErrorKeys.BetInProgress },
-                { BetActionStatus.NoBetInProgress, MatchErrorKeys.NoBetInProgress },
-                { BetActionStatus.TableEmpty, MatchErrorKeys.TableEmpty },
-                { BetActionStatus.EmptyHandRequiresBetOfOne, MatchErrorKeys.EmptyHandBet },
-                { BetActionStatus.BetValueNotValid, MatchErrorKeys.BetValueNotValid },
-                { BetActionStatus.NoCardPlacedInRound, MatchErrorKeys.NoCardPlaced },
-                { BetActionStatus.PunishmentPending, MatchErrorKeys.PunishmentPending },
-                { BetActionStatus.MatchFinished, MatchErrorKeys.MatchFinished }
-            };
-
-        private static readonly HashSet<ChallengeRevealStatus> _acceptedRevealStatuses =
-            new HashSet<ChallengeRevealStatus>
-            {
-                ChallengeRevealStatus.Revealed,
-                ChallengeRevealStatus.ChallengeSucceeded,
-                ChallengeRevealStatus.ChallengeFailed
-            };
-
-        private static readonly Dictionary<ChallengeRevealStatus, string> _errorKeysByRevealStatus =
-            new Dictionary<ChallengeRevealStatus, string>
-            {
-                { ChallengeRevealStatus.PlayerNotInMatch, MatchErrorKeys.NotInMatch },
-                { ChallengeRevealStatus.NoChallengeInProgress, MatchErrorKeys.NoChallenge },
-                { ChallengeRevealStatus.NotTheBettor, MatchErrorKeys.NotTheBettor },
-                { ChallengeRevealStatus.PileOwnerNotInMatch, MatchErrorKeys.PileOwnerNotInMatch },
-                { ChallengeRevealStatus.OwnPileFirst, MatchErrorKeys.OwnPileFirst },
-                { ChallengeRevealStatus.PileFullyRevealed, MatchErrorKeys.PileEmpty }
-            };
-
-        private static readonly Dictionary<PunishmentStatus, string> _errorKeysByPunishmentStatus =
-            new Dictionary<PunishmentStatus, string>
-            {
-                { PunishmentStatus.PlayerNotInMatch, MatchErrorKeys.NotInMatch },
-                { PunishmentStatus.NoPunishmentPending, MatchErrorKeys.NoPunishmentPending },
-                { PunishmentStatus.NotTheChooser, MatchErrorKeys.NotTheChooser },
-                { PunishmentStatus.CardIndexNotValid, MatchErrorKeys.CardIndexNotValid }
-            };
-
-        private static readonly Dictionary<CardPlacementStatus, string> _errorKeysByPlacementStatus =
-            new Dictionary<CardPlacementStatus, string>
-            {
-                { CardPlacementStatus.PlayerNotInMatch, MatchErrorKeys.NotInMatch },
-                { CardPlacementStatus.BetInProgress, MatchErrorKeys.BetInProgress },
-                { CardPlacementStatus.NotPlayersTurn, MatchErrorKeys.NotYourTurn },
-                { CardPlacementStatus.HandEmpty, MatchErrorKeys.HandEmpty },
-                { CardPlacementStatus.CardNotInHand, MatchErrorKeys.CardNotInHand },
-                { CardPlacementStatus.PunishmentPending, MatchErrorKeys.PunishmentPending },
-                { CardPlacementStatus.MatchFinished, MatchErrorKeys.MatchFinished }
             };
 
         /// <summary>
@@ -161,82 +104,6 @@ namespace TLMG.Services.Helpers
             bool isValid = _engineCardsByContractCard.TryGetValue(contractCard, out engineCard);
 
             return isValid;
-        }
-
-        /// <summary>Maps the engine result for opening a bid, raising or folding.</summary>
-        /// <param name="betStatus">Engine result.</param>
-        /// <returns>Null if applied, otherwise the error key.</returns>
-        internal static string ConvertToErrorKey(BetActionStatus betStatus)
-        {
-            string errorKey;
-
-            if (betStatus == BetActionStatus.Accepted)
-            {
-                errorKey = null;
-            }
-            else if (!_errorKeysByBetStatus.TryGetValue(betStatus, out errorKey))
-            {
-                errorKey = ErrorKeys.Common.Unexpected;
-            }
-
-            return errorKey;
-        }
-
-        /// <summary>Maps the engine result for revealing a challenge card.</summary>
-        /// <param name="revealStatus">Engine result.</param>
-        /// <returns>Null if a card was revealed, even if the challenge ended. Otherwise the error key.</returns>
-        internal static string ConvertToErrorKey(ChallengeRevealStatus revealStatus)
-        {
-            string errorKey;
-
-            if (_acceptedRevealStatuses.Contains(revealStatus))
-            {
-                errorKey = null;
-            }
-            else if (!_errorKeysByRevealStatus.TryGetValue(revealStatus, out errorKey))
-            {
-                errorKey = ErrorKeys.Common.Unexpected;
-            }
-
-            return errorKey;
-        }
-
-        /// <summary>Maps the engine result for a punishment choice.</summary>
-        /// <param name="punishmentStatus">Engine result.</param>
-        /// <returns>Null if the card was removed, otherwise the error key.</returns>
-        internal static string ConvertToErrorKey(PunishmentStatus punishmentStatus)
-        {
-            string errorKey;
-
-            if (punishmentStatus == PunishmentStatus.CardRemoved)
-            {
-                errorKey = null;
-            }
-            else if (!_errorKeysByPunishmentStatus.TryGetValue(punishmentStatus, out errorKey))
-            {
-                errorKey = ErrorKeys.Common.Unexpected;
-            }
-
-            return errorKey;
-        }
-
-        /// <summary>Maps the engine result for placing a card.</summary>
-        /// <param name="placementStatus">Engine result.</param>
-        /// <returns>Null if placed, otherwise the error key.</returns>
-        internal static string ConvertToErrorKey(CardPlacementStatus placementStatus)
-        {
-            string errorKey;
-
-            if (placementStatus == CardPlacementStatus.Placed)
-            {
-                errorKey = null;
-            }
-            else if (!_errorKeysByPlacementStatus.TryGetValue(placementStatus, out errorKey))
-            {
-                errorKey = ErrorKeys.Common.Unexpected;
-            }
-
-            return errorKey;
         }
 
         /// <summary>

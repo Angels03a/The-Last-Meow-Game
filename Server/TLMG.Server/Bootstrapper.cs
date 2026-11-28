@@ -88,6 +88,8 @@ namespace TLMG.Server
                 GuestSessionService = guestSessionService,
                 ProfileService = profileService,
                 ChatService = chatService,
+                RoomInvitationService = new RoomInvitationService(
+                    friendshipRepository, sessionRegistry, sessionRegistry),
                 FriendsService = friendsService,
                 LeaderboardService = leaderboardService,
                 LobbyService = lobbyService,

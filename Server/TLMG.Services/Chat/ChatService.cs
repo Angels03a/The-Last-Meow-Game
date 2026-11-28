@@ -19,18 +19,24 @@ namespace TLMG.Services.Chat
 
         private static readonly ILog _log = LogManager.GetLogger(typeof(ChatService));
 
-        private readonly ISessionRegistry _sessionRegistry;
+        private readonly IChatRegistry _sessionRegistry;
         private readonly IChatMessageRepository _chatMessageRepository;
         private readonly ISessionAuthorizer _sessionAuthorizer;
 
         public ChatService(
-            ISessionRegistry sessionRegistry,
+            IChatRegistry sessionRegistry,
             IChatMessageRepository chatMessageRepository,
             ISessionAuthorizer sessionAuthorizer)
         {
             _sessionRegistry = sessionRegistry;
             _chatMessageRepository = chatMessageRepository;
             _sessionAuthorizer = sessionAuthorizer;
+        }
+
+        /// <summary>Detaches the closed chat channel while preserving its sending interval.</summary>
+        public void RemoveChatChannel(string channelId)
+        {
+            _sessionRegistry.RemoveChatChannel(channelId);
         }
 
         public ResultWithNotification<OperationResult> SubscribeToChat(

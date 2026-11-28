@@ -2,7 +2,6 @@ using Xunit;
 
 using TLMG.Domain.Constants;
 using TLMG.Domain.Engine;
-using TLMG.Services.Helpers;
 using TLMG.Services.Match;
 
 namespace TLMG.Services.Tests
@@ -24,7 +23,7 @@ namespace TLMG.Services.Tests
             // Arrange: The status comes from the engine.
 
             // Act
-            string errorKey = MatchViewHelper.ConvertToErrorKey(revealStatus);
+            string errorKey = MatchErrorKeys.FindErrorKey(revealStatus);
 
             // Assert
             Assert.Null(errorKey);
@@ -47,7 +46,7 @@ namespace TLMG.Services.Tests
             // Arrange: The status comes from the engine.
 
             // Act
-            string errorKey = MatchViewHelper.ConvertToErrorKey(revealStatus);
+            string errorKey = MatchErrorKeys.FindErrorKey(revealStatus);
 
             // Assert
             Assert.Equal(expectedErrorKey, errorKey);
@@ -58,7 +57,7 @@ namespace TLMG.Services.Tests
         public void ConvertToErrorKey_WithCardRemovedStatus_ReturnsNull()
         {
             // Arrange & Act
-            string errorKey = MatchViewHelper.ConvertToErrorKey(PunishmentStatus.CardRemoved);
+            string errorKey = MatchErrorKeys.FindErrorKey(PunishmentStatus.CardRemoved);
 
             // Assert
             Assert.Null(errorKey);
@@ -79,7 +78,7 @@ namespace TLMG.Services.Tests
             // Arrange: The status comes from the engine.
 
             // Act
-            string errorKey = MatchViewHelper.ConvertToErrorKey(punishmentStatus);
+            string errorKey = MatchErrorKeys.FindErrorKey(punishmentStatus);
 
             // Assert
             Assert.Equal(expectedErrorKey, errorKey);
@@ -101,7 +100,7 @@ namespace TLMG.Services.Tests
             // Arrange: These statuses still need an error key even when clients cannot trigger them directly.
 
             // Act
-            string errorKey = MatchViewHelper.ConvertToErrorKey(punishmentStatus);
+            string errorKey = MatchErrorKeys.FindErrorKey(punishmentStatus);
 
             // Assert
             Assert.Equal(ErrorKeys.Common.Unexpected, errorKey);

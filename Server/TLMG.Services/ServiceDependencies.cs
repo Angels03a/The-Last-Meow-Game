@@ -23,6 +23,8 @@ namespace TLMG.Services
 
         public ChatService ChatService { get; set; }
 
+        public RoomInvitationService RoomInvitationService { get; set; }
+
         public FriendsService FriendsService { get; set; }
 
         public LeaderboardService LeaderboardService { get; set; }
